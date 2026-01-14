@@ -11,6 +11,7 @@ import { useWishlistStore } from '@/store/wishlist';
 import { toast } from 'sonner';
 import {
   CustomerAddress,
+  AddressType,
   getCustomerAddresses,
   addCustomerAddress,
   updateCustomerAddress,
@@ -54,7 +55,7 @@ export default function AccountPage() {
     country: 'US',
     countryCode: 'US',
     phone: '',
-    type: 'SHIPPING' as 'SHIPPING' | 'BILLING',
+    type: 'SHIPPING' as AddressType,
   });
 
   // Initialize profile from customer data
