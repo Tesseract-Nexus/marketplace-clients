@@ -1,0 +1,520 @@
+/**
+ * Auth Client for BFF Communication
+ *
+ * Handles client-side authentication operations via the BFF.
+ * All actual token management is done server-side in the BFF.
+ *
+ * Supports two authentication modes:
+ * 1. OIDC Flow - Redirect to Keycloak for SSO (legacy)
+ * 2. Direct Flow - Email/password with tenant selection (multi-tenant credential isolation)
+ */
+
+import { authConfig } from './config';
+
+/**
+ * Session user information returned by BFF
+ */
+export interface SessionUser {
+  id: string;
+  email: string;
+  name?: string;
+  firstName?: string;
+  lastName?: string;
+  displayName?: string;
+  avatar?: string;
+  tenantId?: string;
+  tenantSlug?: string;
+  roles: string[];
+}
+
+/**
+ * Session response from BFF
+ */
+export interface SessionResponse {
+  authenticated: boolean;
+  user?: SessionUser;
+  expiresAt?: number;
+  csrfToken?: string;
+  error?: string;
+}
+
+/**
+ * Auth error class
+ */
+export class AuthError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public status?: number
+  ) {
+    super(message);
+    this.name = 'AuthError';
+  }
+}
+
+/**
+ * Get current session from BFF
+ */
+export async function getSession(): Promise<SessionResponse> {
+  try {
+    const response = await fetch(authConfig.sessionUrl, {
+      method: 'GET',
+      credentials: 'include', // Include cookies
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        return { authenticated: false };
+      }
+      // Handle rate limit - don't throw, just return current state (unknown)
+      if (response.status === 429) {
+        console.warn('Rate limited - will retry later');
+        return { authenticated: false, error: 'rate_limited' };
+      }
+      throw new AuthError(
+        'Failed to get session',
+        'session_error',
+        response.status
+      );
+    }
+
+    const data = await response.json();
+    return data as SessionResponse;
+  } catch (error) {
+    if (error instanceof AuthError) {
+      throw error;
+    }
+    // Network error - assume not authenticated
+    console.error('Session check failed:', error);
+    return { authenticated: false, error: 'network_error' };
+  }
+}
+
+/**
+ * Get CSRF token for protected operations
+ */
+export async function getCsrfToken(): Promise<string | null> {
+  try {
+    const response = await fetch(authConfig.csrfUrl, {
+      method: 'GET',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return data.csrfToken || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Refresh session tokens
+ */
+export async function refreshSession(): Promise<boolean> {
+  try {
+    const csrfToken = await getCsrfToken();
+
+    const response = await fetch(authConfig.refreshUrl, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
+      },
+      body: JSON.stringify({}), // Fastify requires body when Content-Type is json
+    });
+
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Initiate login flow
+ * Redirects to BFF which handles the Keycloak redirect
+ */
+export function login(options?: {
+  returnTo?: string;
+  prompt?: 'login' | 'none';
+}): void {
+  const params = new URLSearchParams();
+
+  if (options?.returnTo) {
+    params.set('returnTo', options.returnTo);
+  }
+  if (options?.prompt) {
+    params.set('prompt', options.prompt);
+  }
+
+  const queryString = params.toString();
+  const loginUrl = queryString
+    ? `${authConfig.loginUrl}?${queryString}`
+    : authConfig.loginUrl;
+
+  // Redirect to BFF login endpoint
+  window.location.href = loginUrl;
+}
+
+/**
+ * Initiate logout flow
+ * Redirects to BFF which handles Keycloak logout
+ */
+export function logout(options?: {
+  returnTo?: string;
+}): void {
+  const params = new URLSearchParams();
+
+  if (options?.returnTo) {
+    params.set('returnTo', options.returnTo);
+  }
+
+  const queryString = params.toString();
+  const logoutUrl = queryString
+    ? `${authConfig.logoutUrl}?${queryString}`
+    : authConfig.logoutUrl;
+
+  // Redirect to BFF logout endpoint
+  window.location.href = logoutUrl;
+}
+
+/**
+ * Perform logout via POST (for programmatic logout)
+ */
+export async function logoutAsync(): Promise<void> {
+  const csrfToken = await getCsrfToken();
+
+  const response = await fetch(authConfig.logoutUrl, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Accept': 'application/json',
+      ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
+    },
+  });
+
+  // Logout always succeeds - redirect to home even if API call fails
+  if (response.redirected) {
+    window.location.href = response.url;
+  } else {
+    window.location.href = '/';
+  }
+}
+
+/**
+ * Check if session is about to expire
+ */
+export function isSessionExpiring(expiresAt: number, thresholdSeconds: number = 300): boolean {
+  const now = Math.floor(Date.now() / 1000);
+  return expiresAt - thresholdSeconds <= now;
+}
+
+// =============================================================================
+// Direct Authentication (Multi-Tenant Credential Isolation)
+// =============================================================================
+
+/**
+ * Tenant information for login selection
+ */
+export interface TenantInfo {
+  id: string;
+  slug: string;
+  name: string;
+  logo_url?: string;
+}
+
+/**
+ * Response from tenant lookup
+ */
+export interface LookupTenantsResponse {
+  success: boolean;
+  data?: {
+    tenants: TenantInfo[];
+    count: number;
+    single_tenant?: boolean;
+  };
+  error?: string;
+  message?: string;
+}
+
+/**
+ * Response from direct login
+ */
+export interface DirectLoginResponse {
+  success: boolean;
+  authenticated?: boolean;
+  mfa_required?: boolean;
+  mfa_session?: string;
+  mfa_methods?: string[];
+  user?: {
+    id: string;
+    email: string;
+    first_name?: string;
+    last_name?: string;
+    tenant_id: string;
+    tenant_slug: string;
+    role?: string;
+  };
+  session?: {
+    expires_at: number;
+    csrf_token: string;
+  };
+  error?: string;
+  message?: string;
+  remaining_attempts?: number;
+  locked_until?: string;
+  retry_after?: number;
+}
+
+/**
+ * Response from account status check
+ */
+export interface AccountStatusResponse {
+  success: boolean;
+  account_locked: boolean;
+  locked_until?: string;
+  message?: string;
+}
+
+/**
+ * Look up available tenants for an email address
+ * Used for tenant selection during the login flow
+ */
+export async function lookupTenants(email: string): Promise<LookupTenantsResponse> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/direct/lookup-tenants`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    if (response.status === 429) {
+      const data = await response.json();
+      return {
+        success: false,
+        error: 'RATE_LIMITED',
+        message: data.message || 'Too many requests. Please try again later.',
+      };
+    }
+
+    const data = await response.json();
+    return data as LookupTenantsResponse;
+  } catch (error) {
+    console.error('Tenant lookup failed:', error);
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to connect. Please check your internet connection.',
+    };
+  }
+}
+
+/**
+ * Authenticate directly with email, password, and tenant
+ * This is the multi-tenant credential isolation login flow
+ */
+export async function directLogin(
+  email: string,
+  password: string,
+  tenantSlug: string,
+  options?: {
+    rememberMe?: boolean;
+  }
+): Promise<DirectLoginResponse> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/direct/login`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email,
+        password,
+        tenant_slug: tenantSlug,
+        remember_me: options?.rememberMe ?? false,
+      }),
+    });
+
+    const data = await response.json();
+
+    // Handle rate limiting
+    if (response.status === 429) {
+      return {
+        success: false,
+        error: 'RATE_LIMITED',
+        message: data.message || 'Too many login attempts. Please try again later.',
+        retry_after: data.retry_after,
+      };
+    }
+
+    // Handle account locked
+    if (response.status === 423) {
+      return {
+        success: false,
+        error: 'ACCOUNT_LOCKED',
+        message: data.message,
+        locked_until: data.locked_until,
+      };
+    }
+
+    // Handle invalid credentials
+    if (response.status === 401) {
+      return {
+        success: false,
+        error: data.error || 'INVALID_CREDENTIALS',
+        message: data.message || 'Invalid email or password.',
+        remaining_attempts: data.remaining_attempts,
+      };
+    }
+
+    // Handle service unavailable
+    if (response.status === 503) {
+      return {
+        success: false,
+        error: 'SERVICE_UNAVAILABLE',
+        message: 'Authentication service is temporarily unavailable.',
+      };
+    }
+
+    // Success
+    return data as DirectLoginResponse;
+  } catch (error) {
+    console.error('Direct login failed:', error);
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to connect. Please check your internet connection.',
+    };
+  }
+}
+
+/**
+ * Check account status (locked/unlocked) before password entry
+ */
+export async function checkAccountStatus(
+  email: string,
+  tenantSlug: string
+): Promise<AccountStatusResponse> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/direct/account-status`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, tenant_slug: tenantSlug }),
+    });
+
+    const data = await response.json();
+    return data as AccountStatusResponse;
+  } catch (error) {
+    console.error('Account status check failed:', error);
+    return {
+      success: false,
+      account_locked: false,
+    };
+  }
+}
+
+/**
+ * Verify MFA code during step-up authentication
+ */
+export async function verifyMfa(
+  mfaSession: string,
+  code: string,
+  method: 'totp' | 'email' | 'sms' = 'totp'
+): Promise<DirectLoginResponse> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/direct/mfa/verify`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        mfa_session: mfaSession,
+        code,
+        method,
+      }),
+    });
+
+    const data = await response.json();
+    return data as DirectLoginResponse;
+  } catch (error) {
+    console.error('MFA verification failed:', error);
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to verify. Please try again.',
+    };
+  }
+}
+
+/**
+ * Request MFA code to be sent via email or SMS
+ */
+export async function sendMfaCode(
+  mfaSession: string,
+  method: 'email' | 'sms'
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/direct/mfa/send-code`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        mfa_session: mfaSession,
+        method,
+      }),
+    });
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('MFA code send failed:', error);
+    return {
+      success: false,
+      message: 'Unable to send code. Please try again.',
+    };
+  }
+}
+
+export default {
+  // Session management
+  getSession,
+  getCsrfToken,
+  refreshSession,
+  isSessionExpiring,
+  // OIDC flow (legacy)
+  login,
+  logout,
+  logoutAsync,
+  // Direct authentication (multi-tenant)
+  lookupTenants,
+  directLogin,
+  checkAccountStatus,
+  verifyMfa,
+  sendMfaCode,
+};

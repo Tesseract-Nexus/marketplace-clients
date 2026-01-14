@@ -1,0 +1,423 @@
+import { useState } from 'react';
+import { View, Text, ScrollView, Pressable, Switch, StyleSheet, Alert } from 'react-native';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+
+import { useColors } from '@/providers/ThemeProvider';
+import { useAuthStore } from '@/stores/auth-store';
+import { useThemeStore } from '@/stores/theme-store';
+import { Avatar } from '@/components/ui/Avatar';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
+
+interface SettingItemProps {
+  icon: string;
+  iconColor?: string;
+  title: string;
+  subtitle?: string;
+  onPress?: () => void;
+  rightElement?: React.ReactNode;
+  showChevron?: boolean;
+  destructive?: boolean;
+}
+
+function SettingItem({
+  icon,
+  iconColor,
+  title,
+  subtitle,
+  onPress,
+  rightElement,
+  showChevron = true,
+  destructive = false,
+}: SettingItemProps) {
+  const colors = useColors();
+
+  return (
+    <Pressable
+      style={[styles.settingItem, { borderBottomColor: colors.border }]}
+      onPress={onPress}
+      disabled={!onPress}
+    >
+      <View style={[styles.settingIcon, { backgroundColor: `${iconColor || colors.primary}20` }]}>
+        <Ionicons
+          name={icon as any}
+          size={20}
+          color={destructive ? colors.error : iconColor || colors.primary}
+        />
+      </View>
+      <View style={styles.settingContent}>
+        <Text
+          style={[
+            styles.settingTitle,
+            { color: destructive ? colors.error : colors.text },
+          ]}
+        >
+          {title}
+        </Text>
+        {subtitle && (
+          <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>
+            {subtitle}
+          </Text>
+        )}
+      </View>
+      {rightElement || (showChevron && onPress && (
+        <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
+      ))}
+    </Pressable>
+  );
+}
+
+function SettingSection({
+  title,
+  children,
+  delay = 0,
+}: {
+  title: string;
+  children: React.ReactNode;
+  delay?: number;
+}) {
+  const colors = useColors();
+
+  return (
+    <Animated.View entering={FadeInDown.delay(delay)} style={styles.section}>
+      <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>{title}</Text>
+      <Card style={styles.sectionCard}>{children}</Card>
+    </Animated.View>
+  );
+}
+
+export default function SettingsScreen() {
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const colors = useColors();
+  const { user, currentTenant, logout } = useAuthStore();
+  const { isDark, toggleMode } = useThemeStore();
+
+  const [pushEnabled, setPushEnabled] = useState(true);
+  const [biometricEnabled, setBiometricEnabled] = useState(false);
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Sign Out',
+      'Are you sure you want to sign out?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Sign Out',
+          style: 'destructive',
+          onPress: () => {
+            logout();
+            router.replace('/');
+          },
+        },
+      ]
+    );
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'This action cannot be undone. All your data will be permanently deleted.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            // Handle account deletion
+          },
+        },
+      ]
+    );
+  };
+
+  return (
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <ScrollView
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 100 },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <Animated.View entering={FadeInDown}>
+          <Text style={[styles.title, { color: colors.text }]}>Settings</Text>
+        </Animated.View>
+
+        {/* Profile Card */}
+        <Animated.View entering={FadeInDown.delay(100)}>
+          <Pressable
+            style={[styles.profileCard, { backgroundColor: colors.surface }]}
+            onPress={() => router.push('/(tabs)/(admin)/profile' as any)}
+          >
+            <Avatar
+              name={`${user?.first_name || ''} ${user?.last_name || ''}`}
+              source={user?.avatar || user?.avatar_url}
+              size="lg"
+            />
+            <View style={styles.profileInfo}>
+              <Text style={[styles.profileName, { color: colors.text }]}>
+                {user?.first_name} {user?.last_name}
+              </Text>
+              <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>
+                {user?.email}
+              </Text>
+              <Badge
+                label={user?.role === 'admin' ? 'Admin' : 'Merchant'}
+                variant="primary"
+                size="sm"
+                style={{ marginTop: 8 }}
+              />
+            </View>
+            <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
+          </Pressable>
+        </Animated.View>
+
+        {/* Store Settings */}
+        <SettingSection title="STORE" delay={200}>
+          <SettingItem
+            icon="storefront"
+            title="Store Information"
+            subtitle={currentTenant?.name}
+            onPress={() => router.push('/(tabs)/(admin)/store-settings' as any)}
+          />
+          <SettingItem
+            icon="globe"
+            title="Domain & URL"
+            subtitle={`${currentTenant?.slug}.tesserix.app`}
+            onPress={() => router.push('/(tabs)/(admin)/domain-settings' as any)}
+          />
+          <SettingItem
+            icon="card"
+            title="Payment Methods"
+            onPress={() => router.push('/(tabs)/(admin)/payment-settings' as any)}
+          />
+          <SettingItem
+            icon="cube"
+            title="Shipping Settings"
+            onPress={() => router.push('/(tabs)/(admin)/shipping-settings' as any)}
+          />
+          <SettingItem
+            icon="calculator"
+            title="Tax Settings"
+            onPress={() => router.push('/(tabs)/(admin)/tax-settings' as any)}
+          />
+        </SettingSection>
+
+        {/* Appearance */}
+        <SettingSection title="APPEARANCE" delay={300}>
+          <SettingItem
+            icon="moon"
+            iconColor={colors.info}
+            title="Dark Mode"
+            subtitle={isDark ? 'On' : 'Off'}
+            showChevron={false}
+            rightElement={
+              <Switch
+                value={isDark}
+                onValueChange={toggleMode}
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor="#FFFFFF"
+              />
+            }
+          />
+          <SettingItem
+            icon="color-palette"
+            iconColor={colors.warning}
+            title="Theme & Branding"
+            onPress={() => router.push('/(tabs)/(admin)/theme-settings' as any)}
+          />
+        </SettingSection>
+
+        {/* Notifications */}
+        <SettingSection title="NOTIFICATIONS" delay={400}>
+          <SettingItem
+            icon="notifications"
+            iconColor={colors.error}
+            title="Push Notifications"
+            subtitle={pushEnabled ? 'Enabled' : 'Disabled'}
+            showChevron={false}
+            rightElement={
+              <Switch
+                value={pushEnabled}
+                onValueChange={setPushEnabled}
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor="#FFFFFF"
+              />
+            }
+          />
+          <SettingItem
+            icon="mail"
+            iconColor={colors.info}
+            title="Email Notifications"
+            onPress={() => router.push('/(tabs)/(admin)/email-settings' as any)}
+          />
+        </SettingSection>
+
+        {/* Security */}
+        <SettingSection title="SECURITY" delay={500}>
+          <SettingItem
+            icon="lock-closed"
+            iconColor={colors.success}
+            title="Change Password"
+            onPress={() => router.push('/(tabs)/(admin)/change-password' as any)}
+          />
+          <SettingItem
+            icon="finger-print"
+            iconColor={colors.primary}
+            title="Biometric Login"
+            subtitle={biometricEnabled ? 'Enabled' : 'Disabled'}
+            showChevron={false}
+            rightElement={
+              <Switch
+                value={biometricEnabled}
+                onValueChange={setBiometricEnabled}
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor="#FFFFFF"
+              />
+            }
+          />
+          <SettingItem
+            icon="shield-checkmark"
+            iconColor={colors.info}
+            title="Two-Factor Authentication"
+            onPress={() => router.push('/(tabs)/(admin)/2fa-settings' as any)}
+          />
+        </SettingSection>
+
+        {/* Billing */}
+        <SettingSection title="BILLING" delay={600}>
+          <SettingItem
+            icon="ribbon"
+            iconColor={colors.warning}
+            title="Current Plan"
+            subtitle="Growth - $29/month"
+            onPress={() => router.push('/(tabs)/(admin)/subscription' as any)}
+          />
+          <SettingItem
+            icon="document-text"
+            iconColor={colors.textSecondary}
+            title="Billing History"
+            onPress={() => router.push('/(tabs)/(admin)/billing-history' as any)}
+          />
+        </SettingSection>
+
+        {/* Support */}
+        <SettingSection title="SUPPORT" delay={700}>
+          <SettingItem
+            icon="help-circle"
+            iconColor={colors.info}
+            title="Help Center"
+            onPress={() => {}}
+          />
+          <SettingItem
+            icon="chatbubbles"
+            iconColor={colors.success}
+            title="Contact Support"
+            onPress={() => {}}
+          />
+          <SettingItem
+            icon="information-circle"
+            iconColor={colors.textSecondary}
+            title="About"
+            subtitle="Version 1.0.0"
+            onPress={() => router.push('/(tabs)/(admin)/about' as any)}
+          />
+        </SettingSection>
+
+        {/* Account Actions */}
+        <SettingSection title="ACCOUNT" delay={800}>
+          <SettingItem
+            icon="log-out"
+            title="Sign Out"
+            onPress={handleLogout}
+            destructive
+          />
+          <SettingItem
+            icon="trash"
+            title="Delete Account"
+            onPress={handleDeleteAccount}
+            destructive
+          />
+        </SettingSection>
+      </ScrollView>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 20,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: '700',
+    marginBottom: 20,
+  },
+  profileCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 16,
+    marginBottom: 24,
+    gap: 16,
+  },
+  profileInfo: {
+    flex: 1,
+  },
+  profileName: {
+    fontSize: 18,
+    fontWeight: '600',
+  },
+  profileEmail: {
+    fontSize: 14,
+    marginTop: 2,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+    marginBottom: 8,
+    marginLeft: 4,
+  },
+  sectionCard: {
+    padding: 0,
+    overflow: 'hidden',
+  },
+  settingItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    gap: 12,
+  },
+  settingIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  settingContent: {
+    flex: 1,
+  },
+  settingTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  settingSubtitle: {
+    fontSize: 13,
+    marginTop: 2,
+  },
+});

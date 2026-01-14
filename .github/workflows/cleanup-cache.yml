@@ -1,0 +1,61 @@
+name: Cleanup - Weekly Cache Purge
+
+on:
+  schedule:
+    # Run every Saturday at 00:00 UTC
+    - cron: '0 0 * * 6'
+  workflow_dispatch:
+    description: 'Manually trigger cache cleanup'
+
+permissions:
+  actions: write
+
+jobs:
+  cleanup:
+    name: Delete All Build Caches
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cleanup all caches
+        run: |
+          echo "Fetching list of cache keys..."
+          cacheKeys=$(gh cache list --limit 1000 --json key --jq '.[].key')
+
+          if [ -z "$cacheKeys" ]; then
+            echo "No caches found to delete."
+            exit 0
+          fi
+
+          echo "Found caches to delete:"
+          echo "$cacheKeys"
+          echo ""
+
+          deletedCount=0
+          failedCount=0
+
+          for key in $cacheKeys; do
+            echo "Deleting cache: $key"
+            if gh cache delete "$key" 2>/dev/null; then
+              deletedCount=$((deletedCount + 1))
+            else
+              echo "Failed to delete: $key"
+              failedCount=$((failedCount + 1))
+            fi
+          done
+
+          echo ""
+          echo "=== Cleanup Summary ==="
+          echo "Deleted: $deletedCount caches"
+          echo "Failed: $failedCount caches"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Summary
+        run: |
+          echo "## Weekly Cache Cleanup" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Triggered:** $(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All GitHub Actions caches have been purged to free up storage space." >> $GITHUB_STEP_SUMMARY

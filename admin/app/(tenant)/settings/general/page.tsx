@@ -1,0 +1,1336 @@
+'use client';
+
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  Settings,
+  Save,
+  Globe,
+  Mail,
+  Phone,
+  MapPin,
+  Clock,
+  DollarSign,
+  Loader2,
+  Plus,
+  Store,
+  ExternalLink,
+  CheckCircle2,
+  AlertCircle,
+  X,
+  Locate,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select } from '@/components/Select';
+import { PageHeader } from '@/components/PageHeader';
+import { PhoneInput } from '@/components/ui/phone-input';
+import { useDialog } from '@/contexts/DialogContext';
+import { settingsService } from '@/lib/services/settingsService';
+import { storefrontService } from '@/lib/services/storefrontService';
+import { tenantService, type TenantDetails } from '@/lib/services/tenantService';
+import type { Storefront } from '@/lib/api/types';
+import { AddressAutocomplete, type ParsedAddressData } from '@/components/AddressAutocomplete';
+import { locationApi, type LocationData } from '@/lib/api/location';
+import { StoreSelector } from '@/components/settings/StoreSelector';
+import { LocationConfirmationModal, type DetectedLocationData } from '@/components/settings/LocationConfirmationModal';
+import { useTenant } from '@/contexts/TenantContext';
+import { useUser } from '@/contexts/UserContext';
+import { getStorefrontDomain } from '@/lib/utils/tenant';
+import { PermissionGate, Permission } from '@/components/permission-gate';
+
+interface GeneralSettings {
+  store: {
+    name: string;
+    email: string;
+    phone: string;
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    countryCode: string;
+    zipCode: string;
+  };
+  business: {
+    currency: string;
+    timezone: string;
+    dateFormat: string;
+  };
+}
+
+const defaultSettings: GeneralSettings = {
+  store: {
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    state: '',
+    country: '',
+    countryCode: '',
+    zipCode: '',
+  },
+  business: {
+    currency: 'USD',
+    timezone: 'UTC',
+    dateFormat: 'DD/MM/YYYY',
+  },
+};
+
+// Required fields for completeness calculation
+const REQUIRED_FIELDS = [
+  { key: 'store.name', label: 'Store Name' },
+  { key: 'store.email', label: 'Email' },
+  { key: 'store.phone', label: 'Phone' },
+  { key: 'store.country', label: 'Country' },
+  { key: 'business.currency', label: 'Currency' },
+];
+
+const currencyOptions = [
+  { value: 'AUD', label: 'AUD - Australian Dollar' },
+  { value: 'USD', label: 'USD - US Dollar' },
+  { value: 'EUR', label: 'EUR - Euro' },
+  { value: 'GBP', label: 'GBP - British Pound' },
+  { value: 'INR', label: 'INR - Indian Rupee' },
+  { value: 'NZD', label: 'NZD - New Zealand Dollar' },
+  { value: 'SGD', label: 'SGD - Singapore Dollar' },
+  { value: 'CAD', label: 'CAD - Canadian Dollar' },
+];
+
+const timezoneOptions = [
+  { value: 'Australia/Sydney', label: 'Sydney (AEST/AEDT)' },
+  { value: 'Australia/Melbourne', label: 'Melbourne (AEST/AEDT)' },
+  { value: 'Australia/Brisbane', label: 'Brisbane (AEST)' },
+  { value: 'Australia/Perth', label: 'Perth (AWST)' },
+  { value: 'Pacific/Auckland', label: 'Auckland (NZST/NZDT)' },
+  { value: 'America/Los_Angeles', label: 'Pacific Time (US)' },
+  { value: 'America/New_York', label: 'Eastern Time (US)' },
+  { value: 'Europe/London', label: 'London (GMT/BST)' },
+  { value: 'Asia/Singapore', label: 'Singapore (SGT)' },
+  { value: 'Asia/Kolkata', label: 'India (IST)' },
+];
+
+const dateFormatOptions = [
+  { value: 'DD/MM/YYYY', label: 'DD/MM/YYYY' },
+  { value: 'MM/DD/YYYY', label: 'MM/DD/YYYY' },
+  { value: 'YYYY-MM-DD', label: 'YYYY-MM-DD' },
+  { value: 'YYYY/MM/DD', label: 'YYYY/MM/DD' },
+];
+
+// Country options with flags
+const countryOptions = [
+  { value: 'AU', label: '🇦🇺 Australia', name: 'Australia' },
+  { value: 'US', label: '🇺🇸 United States', name: 'United States' },
+  { value: 'GB', label: '🇬🇧 United Kingdom', name: 'United Kingdom' },
+  { value: 'CA', label: '🇨🇦 Canada', name: 'Canada' },
+  { value: 'IN', label: '🇮🇳 India', name: 'India' },
+  { value: 'NZ', label: '🇳🇿 New Zealand', name: 'New Zealand' },
+  { value: 'SG', label: '🇸🇬 Singapore', name: 'Singapore' },
+  { value: 'DE', label: '🇩🇪 Germany', name: 'Germany' },
+  { value: 'FR', label: '🇫🇷 France', name: 'France' },
+];
+
+// Country to timezone mapping for auto-detection
+const countryTimezoneMap: Record<string, string> = {
+  AU: 'Australia/Sydney',
+  US: 'America/Los_Angeles',
+  GB: 'Europe/London',
+  CA: 'America/New_York',
+  IN: 'Asia/Kolkata',
+  NZ: 'Pacific/Auckland',
+  SG: 'Asia/Singapore',
+  DE: 'Europe/London',
+  FR: 'Europe/London',
+};
+
+// Country to currency mapping for auto-detection
+const countryCurrencyMap: Record<string, string> = {
+  AU: 'AUD',
+  US: 'USD',
+  GB: 'GBP',
+  CA: 'CAD',
+  IN: 'INR',
+  NZ: 'NZD',
+  SG: 'SGD',
+  DE: 'EUR',
+  FR: 'EUR',
+  ES: 'EUR',
+  IT: 'EUR',
+  NL: 'EUR',
+};
+
+// Helper to get nested value from object
+function getNestedValue(obj: any, path: string): any {
+  return path.split('.').reduce((acc, part) => acc?.[part], obj);
+}
+
+// Completeness Indicator Component
+function CompletenessIndicator({
+  settings,
+  onFieldClick,
+}: {
+  settings: GeneralSettings;
+  onFieldClick: (field: string) => void;
+}) {
+  const { completedFields, missingFields, percentage } = useMemo(() => {
+    const completed: string[] = [];
+    const missing: { key: string; label: string }[] = [];
+
+    REQUIRED_FIELDS.forEach((field) => {
+      const value = getNestedValue(settings, field.key);
+      if (value && value.trim && value.trim() !== '') {
+        completed.push(field.key);
+      } else if (value) {
+        completed.push(field.key);
+      } else {
+        missing.push(field);
+      }
+    });
+
+    return {
+      completedFields: completed,
+      missingFields: missing,
+      percentage: Math.round((completed.length / REQUIRED_FIELDS.length) * 100),
+    };
+  }, [settings]);
+
+  const isComplete = percentage === 100;
+
+  return (
+    <div
+      className={`rounded-xl border p-4 ${
+        isComplete
+          ? 'bg-green-50 border-green-200'
+          : 'bg-amber-50 border-amber-200'
+      }`}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          {isComplete ? (
+            <CheckCircle2 className="h-5 w-5 text-green-600" />
+          ) : (
+            <AlertCircle className="h-5 w-5 text-amber-600" />
+          )}
+          <span
+            className={`font-semibold ${
+              isComplete ? 'text-green-800' : 'text-amber-800'
+            }`}
+          >
+            {isComplete ? 'Setup Complete' : 'Setup Progress'}
+          </span>
+        </div>
+        <span
+          className={`text-sm font-bold ${
+            isComplete ? 'text-green-700' : 'text-amber-700'
+          }`}
+        >
+          {percentage}%
+        </span>
+      </div>
+
+      {/* Progress bar */}
+      <div className="h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
+        <div
+          className={`h-full transition-all duration-500 ${
+            isComplete ? 'bg-green-500' : 'bg-amber-500'
+          }`}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+
+      {/* Missing fields */}
+      {missingFields.length > 0 && (
+        <div className="text-sm text-amber-700">
+          <span className="font-medium">Missing: </span>
+          {missingFields.map((field, idx) => (
+            <button
+              key={field.key}
+              onClick={() => onFieldClick(field.key)}
+              className="hover:underline text-amber-800"
+            >
+              {field.label}
+              {idx < missingFields.length - 1 ? ', ' : ''}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Create Storefront Modal Component
+function CreateStorefrontModal({
+  isOpen,
+  onClose,
+  onCreated,
+  vendorId,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  onCreated: (storefront: Storefront) => void;
+  vendorId: string;
+}) {
+  const [name, setName] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
+  const [error, setError] = useState('');
+  const { showSuccess, showError } = useDialog();
+
+  // Generate slug from name
+  const slug = useMemo(() => {
+    return name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+  }, [name]);
+
+  // Use dynamic domain detection for preview URL
+  const storefrontDomain = getStorefrontDomain();
+  const storefrontProtocol = storefrontDomain.includes('localhost') ? 'http' : 'https';
+  const storefrontUrl = slug ? `${storefrontProtocol}://${slug}.${storefrontDomain}` : '';
+
+  const handleCreate = async () => {
+    if (!vendorId) {
+      setError('Unable to create storefront: Tenant information not loaded. Please refresh the page.');
+      return;
+    }
+
+    if (!name.trim()) {
+      setError('Please enter a store name');
+      return;
+    }
+
+    if (slug.length < 3) {
+      setError('Store name must be at least 3 characters');
+      return;
+    }
+
+    setIsCreating(true);
+    setError('');
+
+    try {
+      // Check slug availability
+      const isAvailable = await storefrontService.checkSlugAvailability(slug);
+      if (!isAvailable) {
+        setError('This store URL is already taken. Try a different name.');
+        setIsCreating(false);
+        return;
+      }
+
+      // Create storefront with minimal data
+      const result = await storefrontService.createStorefront({
+        vendorId,
+        name: name.trim(),
+        slug,
+        description: undefined,
+        customDomain: undefined,
+        logoUrl: undefined,
+        faviconUrl: undefined,
+        metaTitle: undefined,
+        metaDescription: undefined,
+      });
+
+      showSuccess('Storefront Created', `${name} is now live at ${storefrontUrl}`);
+      onCreated(result.data);
+      setName('');
+      onClose();
+    } catch (err: any) {
+      console.error('Failed to create storefront:', err);
+      setError(err.message || 'Failed to create storefront');
+      showError('Error', err.message || 'Failed to create storefront');
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+      />
+
+      {/* Modal */}
+      <div className="relative bg-card rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        {/* Header */}
+        <div className="bg-primary px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <Store className="h-5 w-5 text-white" />
+              </div>
+              <h3 className="text-lg font-bold text-white">Create New Storefront</h3>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+            >
+              <X className="h-5 w-5 text-white" />
+            </button>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-6">
+          <p className="text-sm text-muted-foreground mb-4">
+            Create a new storefront with just a name. You can fill in other details later.
+          </p>
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-2">
+                Store Name <span className="text-red-500">*</span>
+              </label>
+              <Input
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setError('');
+                }}
+                placeholder="e.g., My Awesome Store"
+                className="w-full"
+                autoFocus
+              />
+            </div>
+
+            {/* URL Preview */}
+            {slug && (
+              <div className="bg-muted rounded-lg p-3 border border-border">
+                <p className="text-xs font-medium text-muted-foreground mb-1">
+                  Your storefront URL will be:
+                </p>
+                <p className="text-sm font-mono text-purple-600 break-all">
+                  {storefrontUrl}
+                </p>
+              </div>
+            )}
+
+            {/* Error */}
+            {error && (
+              <div className="bg-red-50 text-red-700 text-sm px-3 py-2 rounded-lg border border-red-200">
+                {error}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-6 py-4 bg-muted border-t border-border flex justify-end gap-3">
+          <Button variant="outline" onClick={onClose} disabled={isCreating}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCreate}
+            disabled={isCreating || !name.trim()}
+            className="bg-primary text-white"
+          >
+            {isCreating ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Storefront
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function GeneralSettingsPage() {
+  const { showSuccess, showError } = useDialog();
+  const { currentTenant } = useTenant();
+  const { user } = useUser();
+  const [settings, setSettings] = useState<GeneralSettings>(defaultSettings);
+  const [savedSettings, setSavedSettings] = useState<GeneralSettings>(defaultSettings);
+  const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [settingsId, setSettingsId] = useState<string | null>(null);
+
+  // Storefront state
+  const [storefronts, setStorefronts] = useState<Storefront[]>([]);
+  const [selectedStorefront, setSelectedStorefront] = useState<Storefront | null>(null);
+  const [loadingStorefronts, setLoadingStorefronts] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // Location detection state
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const [detectedCountryCode, setDetectedCountryCode] = useState<string | null>(null);
+  const [hasAutoDetected, setHasAutoDetected] = useState(false);
+
+  // Location confirmation modal state
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [detectedLocationData, setDetectedLocationData] = useState<DetectedLocationData | null>(null);
+  const [locationDetectionError, setLocationDetectionError] = useState<string | undefined>();
+
+  // Tenant onboarding data (for auto-populating empty settings)
+  const [tenantDetails, setTenantDetails] = useState<TenantDetails | null>(null);
+
+  // Get vendor ID from tenant context
+  const vendorId = currentTenant?.id || '';
+
+  useEffect(() => {
+    loadStorefronts();
+  }, []);
+
+  useEffect(() => {
+    if (selectedStorefront) {
+      loadSettings(selectedStorefront.id);
+    }
+  }, [selectedStorefront]);
+
+  // Auto-detect location on page load - shows confirmation modal
+  useEffect(() => {
+    if (selectedStorefront && !loading && !hasAutoDetected) {
+      // Check if key location fields are empty OR if this is a fresh setup (no settingsId)
+      // This ensures auto-detection for new storefronts
+      const needsLocationDetection =
+        !settingsId || !settings.store.city || !settings.store.country;
+
+      if (needsLocationDetection) {
+        setHasAutoDetected(true);
+        // Small delay to let the page render first
+        const timer = setTimeout(() => {
+          handleAutoDetectWithModal();
+        }, 500);
+        return () => clearTimeout(timer);
+      } else {
+        setHasAutoDetected(true);
+      }
+    }
+  }, [selectedStorefront, loading, hasAutoDetected, settingsId, settings.store.city, settings.store.country]);
+
+  const loadStorefronts = async () => {
+    try {
+      setLoadingStorefronts(true);
+      const result = await storefrontService.getStorefronts();
+      const sfList = result.data || [];
+      setStorefronts(sfList);
+
+      // Auto-select first storefront if available
+      if (sfList.length > 0) {
+        setSelectedStorefront(sfList[0]);
+      }
+    } catch (err) {
+      console.error('Failed to load storefronts:', err);
+    } finally {
+      setLoadingStorefronts(false);
+    }
+  };
+
+  /**
+   * Build initial settings from tenant onboarding data
+   * This is used when settings don't exist yet to auto-populate the form
+   */
+  const buildSettingsFromTenantData = (tenant: TenantDetails, storefrontName: string): GeneralSettings => {
+    const rawCountry = tenant.address?.country || '';
+
+    // Handle both country code (e.g., "IN") and country name (e.g., "India")
+    // Check if it's a 2-letter country code first
+    let countryCode = '';
+    let countryName = '';
+
+    const matchByCode = countryOptions.find(c => c.value === rawCountry.toUpperCase());
+    if (matchByCode) {
+      // rawCountry is a country code like "IN"
+      countryCode = matchByCode.value;
+      countryName = matchByCode.name;
+    } else {
+      // rawCountry might be a country name like "India"
+      const matchByName = countryOptions.find(c => c.name === rawCountry);
+      if (matchByName) {
+        countryCode = matchByName.value;
+        countryName = matchByName.name;
+      } else {
+        // Fallback: try to find by partial match or use as-is
+        countryName = rawCountry;
+        countryCode = Object.keys(countryCurrencyMap).find(
+          code => countryOptions.find(c => c.value === code)?.name === rawCountry
+        ) || '';
+      }
+    }
+
+    return {
+      store: {
+        name: tenant.business_info?.business_name || storefrontName || '',
+        email: tenant.contact_info?.email || '',
+        phone: tenant.contact_info?.phone || '',
+        address: tenant.address?.street_address || '',
+        city: tenant.address?.city || '',
+        state: tenant.address?.state_province || '',
+        country: countryName,
+        countryCode: countryCode,
+        zipCode: tenant.address?.postal_code || '',
+      },
+      business: {
+        currency: tenant.store_setup?.currency || countryCurrencyMap[countryCode] || 'USD',
+        timezone: tenant.store_setup?.timezone || countryTimezoneMap[countryCode] || 'UTC',
+        dateFormat: countryCode === 'US' ? 'MM/DD/YYYY' : 'DD/MM/YYYY',
+      },
+    };
+  };
+
+  /**
+   * Fetch tenant details for auto-populating empty settings
+   */
+  const loadTenantDetails = async (): Promise<TenantDetails | null> => {
+    if (!vendorId) return null;
+
+    try {
+      // Pass user ID to help with auth when BFF cookies don't propagate correctly
+      const details = await tenantService.getTenantDetails(vendorId, user?.id);
+      setTenantDetails(details);
+      return details;
+    } catch (err) {
+      console.error('Failed to load tenant details:', err);
+      return null;
+    }
+  };
+
+  const loadSettings = async (storefrontId: string) => {
+    try {
+      setLoading(true);
+
+      // Fetch settings for the selected storefront
+      const data = await settingsService.getSettingsByContext({
+        applicationId: 'admin-portal',
+        scope: 'application',
+        tenantId: storefrontId,
+      });
+
+      if (data) {
+        setSettingsId(data.id);
+
+        // Get country name and find matching country code
+        const countryName = data.ecommerce?.store?.address?.country || '';
+        const countryCode = countryOptions.find(c => c.name === countryName)?.value || '';
+
+        const mappedSettings: GeneralSettings = {
+          store: {
+            name: data.ecommerce?.store?.name || selectedStorefront?.name || '',
+            email: data.ecommerce?.store?.contactEmail || '',
+            phone: data.ecommerce?.store?.supportPhone || '',
+            address: data.ecommerce?.store?.address?.street1 || '',
+            city: data.ecommerce?.store?.address?.city || '',
+            state: data.ecommerce?.store?.address?.state || '',
+            country: countryName,
+            countryCode: countryCode,
+            zipCode: data.ecommerce?.store?.address?.zipCode || '',
+          },
+          business: {
+            currency: data.ecommerce?.pricing?.currencies?.primary || countryCurrencyMap[countryCode] || 'USD',
+            timezone: data.localization?.timezone || countryTimezoneMap[countryCode] || 'UTC',
+            dateFormat: data.localization?.dateFormat || 'DD/MM/YYYY',
+          },
+        };
+        setSettings(mappedSettings);
+        setSavedSettings(mappedSettings);
+
+        // Set detected country code for phone input
+        if (countryCode) {
+          setDetectedCountryCode(countryCode);
+        }
+      } else {
+        // No settings exist - try to auto-populate from tenant onboarding data
+        let tenant = tenantDetails;
+        if (!tenant) {
+          tenant = await loadTenantDetails();
+        }
+
+        if (tenant) {
+          // Auto-populate from tenant onboarding data
+          const newSettings = buildSettingsFromTenantData(tenant, selectedStorefront?.name || '');
+          setSettings(newSettings);
+          setSavedSettings(newSettings);
+          setSettingsId(null);
+        } else {
+          // Fallback to defaults with storefront name - will auto-detect location
+          const newSettings = {
+            ...defaultSettings,
+            store: {
+              ...defaultSettings.store,
+              name: selectedStorefront?.name || '',
+            },
+          };
+          setSettings(newSettings);
+          setSavedSettings(newSettings);
+          setSettingsId(null);
+        }
+      }
+    } catch (err) {
+      console.error('Failed to load settings:', err);
+
+      // Try to use tenant data as fallback
+      let tenant = tenantDetails;
+      if (!tenant) {
+        tenant = await loadTenantDetails();
+      }
+
+      if (tenant) {
+        const newSettings = buildSettingsFromTenantData(tenant, selectedStorefront?.name || '');
+        setSettings(newSettings);
+        setSavedSettings(newSettings);
+      } else {
+        // Use defaults with storefront name
+        const newSettings = {
+          ...defaultSettings,
+          store: {
+            ...defaultSettings.store,
+            name: selectedStorefront?.name || '',
+          },
+        };
+        setSettings(newSettings);
+        setSavedSettings(newSettings);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!selectedStorefront) {
+      showError('Error', 'Please select a storefront first');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      const payload: any = {
+        context: {
+          applicationId: 'admin-portal',
+          scope: 'application',
+          tenantId: selectedStorefront.id,
+        },
+        ecommerce: {
+          store: {
+            name: settings.store.name,
+            contactEmail: settings.store.email,
+            supportPhone: settings.store.phone,
+            address: {
+              businessName: settings.store.name,
+              street1: settings.store.address,
+              city: settings.store.city,
+              state: settings.store.state,
+              zipCode: settings.store.zipCode,
+              country: settings.store.country,
+            },
+          },
+          pricing: {
+            currencies: {
+              primary: settings.business.currency,
+              supported: [settings.business.currency],
+              autoConversion: true,
+            },
+          },
+        },
+        localization: {
+          timezone: settings.business.timezone,
+          dateFormat: settings.business.dateFormat,
+          language: 'en',
+          region: settings.store.country || '',
+          currency: { code: settings.business.currency },
+          timeFormat: '12h',
+          numberFormat: {},
+          rtl: false,
+        },
+      };
+
+      if (settingsId) {
+        await settingsService.updateSettings(settingsId, payload, selectedStorefront.id);
+      } else {
+        const newSettings = await settingsService.createSettings(payload, selectedStorefront.id);
+        setSettingsId(newSettings.id);
+      }
+
+      setSavedSettings(settings);
+      showSuccess('Success', 'Settings saved successfully!');
+    } catch (err) {
+      console.error('Error saving settings:', err);
+      showError('Error', 'Failed to save settings');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleStorefrontCreated = (newStorefront: Storefront) => {
+    setStorefronts((prev) => [...prev, newStorefront]);
+    setSelectedStorefront(newStorefront);
+  };
+
+  // Handle address selection from autocomplete
+  const handleAddressSelect = (address: ParsedAddressData) => {
+    const countryCode = address.countryCode?.toUpperCase() || '';
+    setDetectedCountryCode(countryCode);
+
+    // Find the matching country option
+    const countryOption = countryOptions.find(c => c.value === countryCode);
+
+    // Update address fields and sync currency/timezone
+    setSettings((prev) => ({
+      ...prev,
+      store: {
+        ...prev.store,
+        address: address.streetAddress,
+        city: address.city,
+        state: address.stateCode || address.state,
+        zipCode: address.postalCode,
+        country: countryOption?.name || address.country,
+        countryCode: countryCode,
+      },
+      business: {
+        ...prev.business,
+        timezone: countryTimezoneMap[countryCode] || prev.business.timezone,
+        currency: countryCurrencyMap[countryCode] || prev.business.currency,
+        dateFormat: countryCode === 'US' ? 'MM/DD/YYYY' : 'DD/MM/YYYY',
+      },
+    }));
+  };
+
+  // Handle country change - auto-sync currency and timezone
+  const handleCountryChange = (countryCode: string) => {
+    const countryOption = countryOptions.find(c => c.value === countryCode);
+    setDetectedCountryCode(countryCode);
+
+    setSettings((prev) => ({
+      ...prev,
+      store: {
+        ...prev.store,
+        country: countryOption?.name || '',
+        countryCode: countryCode,
+      },
+      business: {
+        ...prev.business,
+        timezone: countryTimezoneMap[countryCode] || prev.business.timezone,
+        currency: countryCurrencyMap[countryCode] || prev.business.currency,
+        dateFormat: countryCode === 'US' ? 'MM/DD/YYYY' : 'DD/MM/YYYY',
+      },
+    }));
+  };
+
+  // Helper function to retry API calls
+  const retryWithBackoff = async <T,>(
+    fn: () => Promise<T>,
+    retries = 3,
+    delay = 1000
+  ): Promise<T> => {
+    for (let i = 0; i < retries; i++) {
+      try {
+        return await fn();
+      } catch (error) {
+        if (i === retries - 1) throw error;
+        await new Promise((resolve) => setTimeout(resolve, delay * (i + 1)));
+      }
+    }
+    throw new Error('All retries failed');
+  };
+
+  // Detect location with confirmation modal
+  const handleAutoDetectWithModal = async () => {
+    setShowLocationModal(true);
+    setIsDetectingLocation(true);
+    setLocationDetectionError(undefined);
+    setDetectedLocationData(null);
+
+    try {
+      // First try IP-based detection as it's more reliable and doesn't need permission
+      try {
+        const locationData = await retryWithBackoff(() => locationApi.detectLocation(), 3, 1000);
+        const countryCode = locationData.country?.toUpperCase() || '';
+
+        const detected: DetectedLocationData = {
+          city: locationData.city || '',
+          state: locationData.state?.replace(`${locationData.country}-`, '') || '',
+          country: locationData.country_name || '',
+          countryCode: countryCode,
+          zipCode: locationData.postal_code || '',
+          timezone: locationData.timezone || countryTimezoneMap[countryCode] || '',
+          currency: countryCurrencyMap[countryCode] || 'USD',
+        };
+
+        setDetectedLocationData(detected);
+        setDetectedCountryCode(countryCode);
+        setIsDetectingLocation(false);
+        return;
+      } catch {
+        // IP detection failed, trying browser geolocation
+      }
+
+      // Fall back to browser geolocation (will trigger permission prompt)
+      if ('geolocation' in navigator) {
+        try {
+          const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: false,
+              timeout: 15000,
+              maximumAge: 300000,
+            });
+          });
+
+          const { latitude, longitude } = position.coords;
+          const result = await retryWithBackoff(
+            () => locationApi.reverseGeocode(latitude, longitude),
+            2,
+            1500
+          );
+
+          if (result) {
+            const components = result.components || [];
+            const getComponent = (type: string, useShort = false) => {
+              const comp = components.find((c) => c.type === type);
+              return comp ? (useShort ? comp.short_name : comp.long_name) : '';
+            };
+
+            const streetNumber = getComponent('street_number');
+            const route = getComponent('route');
+            const countryCode = getComponent('country', true).toUpperCase();
+
+            const detected: DetectedLocationData = {
+              address: [streetNumber, route].filter(Boolean).join(' '),
+              city: getComponent('locality') || getComponent('administrative_area_level_2'),
+              state: getComponent('administrative_area_level_1', true),
+              country: getComponent('country'),
+              countryCode: countryCode,
+              zipCode: getComponent('postal_code'),
+              timezone: countryTimezoneMap[countryCode] || '',
+              currency: countryCurrencyMap[countryCode] || 'USD',
+            };
+
+            setDetectedLocationData(detected);
+            setDetectedCountryCode(countryCode);
+            setIsDetectingLocation(false);
+            return;
+          }
+        } catch {
+          // Browser geolocation failed
+        }
+      }
+
+      // If we get here, both methods failed
+      throw new Error('Could not detect your location automatically');
+    } catch (error) {
+      console.error('Location detection failed:', error);
+      setLocationDetectionError('Could not detect your location. Please enter details manually.');
+      setIsDetectingLocation(false);
+    }
+  };
+
+  // Handle location confirmation from modal
+  const handleLocationConfirm = (data: DetectedLocationData) => {
+    const countryCode = data.countryCode?.toUpperCase() || detectedCountryCode || '';
+
+    // Find the matching country name from our options
+    const countryOption = countryOptions.find(c => c.value === countryCode);
+
+    setSettings((prev) => ({
+      ...prev,
+      store: {
+        ...prev.store,
+        address: data.address || prev.store.address,
+        city: data.city || prev.store.city,
+        state: data.state || prev.store.state,
+        country: countryOption?.name || data.country || prev.store.country,
+        countryCode: countryCode || prev.store.countryCode,
+        zipCode: data.zipCode || prev.store.zipCode,
+      },
+      business: {
+        ...prev.business,
+        timezone: data.timezone || countryTimezoneMap[countryCode] || prev.business.timezone,
+        currency: data.currency || countryCurrencyMap[countryCode] || prev.business.currency,
+        dateFormat: countryCode === 'US' ? 'MM/DD/YYYY' : 'DD/MM/YYYY',
+      },
+    }));
+
+    setShowLocationModal(false);
+    showSuccess('Location Applied', 'Your location and business settings have been updated');
+  };
+
+  // Handle skip from modal
+  const handleLocationSkip = () => {
+    setShowLocationModal(false);
+  };
+
+  const scrollToField = (fieldKey: string) => {
+    // Simple scroll - in production you might want to focus the input
+    const element = document.querySelector(`[data-field="${fieldKey}"]`);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  };
+
+  const hasChanges = JSON.stringify(settings) !== JSON.stringify(savedSettings);
+
+  if (loadingStorefronts && !storefronts.length) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-muted">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Loading storefronts...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <PermissionGate
+      permission={Permission.SETTINGS_VIEW}
+      fallback="styled"
+      fallbackTitle="General Settings"
+      fallbackDescription="You don't have permission to view general settings."
+    >
+    <div className="min-h-screen bg-background p-8">
+      <div className="space-y-6 animate-in fade-in duration-500">
+        <PageHeader
+          title="General Settings"
+          description="Configure your store's basic information and preferences"
+          breadcrumbs={[
+            { label: 'Home', href: '/' },
+            { label: 'Settings', href: '/settings' },
+            { label: 'General' },
+          ]}
+          actions={
+            selectedStorefront ? (
+              <Button
+                onClick={handleSave}
+                disabled={!hasChanges || isSaving}
+                className="bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+              >
+                {isSaving ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4 mr-2" />
+                )}
+                Save Changes
+              </Button>
+            ) : null
+          }
+        />
+
+        {/* Store Details Selector */}
+        <StoreSelector
+          storefronts={storefronts}
+          selectedStorefront={selectedStorefront}
+          onSelect={setSelectedStorefront}
+          onCreateNew={() => setShowCreateModal(true)}
+          onStorefrontCreated={handleStorefrontCreated}
+          loading={loadingStorefronts}
+          vendorId={vendorId}
+          className="mb-6"
+        />
+
+        {/* Completeness Indicator */}
+        {selectedStorefront && (
+          <CompletenessIndicator settings={settings} onFieldClick={scrollToField} />
+        )}
+
+        {/* Settings Forms */}
+        {selectedStorefront ? (
+          <div className="space-y-6">
+            {/* Store Information */}
+            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center">
+                    <Globe className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground">Store Information</h3>
+                    <p className="text-sm text-muted-foreground">Basic details about your store</p>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAutoDetectWithModal}
+                  disabled={isDetectingLocation || showLocationModal}
+                  className="flex items-center gap-2"
+                >
+                  {isDetectingLocation ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Locate className="h-4 w-4" />
+                  )}
+                  {isDetectingLocation ? 'Detecting...' : 'Detect Location'}
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div data-field="store.name" className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    <Store className="h-4 w-4 inline mr-1" />
+                    Store Name <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    value={settings.store.name}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        store: { ...settings.store, name: e.target.value },
+                      })
+                    }
+                    placeholder="My Store"
+                  />
+                </div>
+
+                <div data-field="store.email">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    <Mail className="h-4 w-4 inline mr-1" />
+                    Email <span className="text-red-500">*</span>
+                  </label>
+                  <Input
+                    type="email"
+                    value={settings.store.email}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        store: { ...settings.store, email: e.target.value },
+                      })
+                    }
+                    placeholder="store@example.com"
+                  />
+                </div>
+
+                <div data-field="store.phone">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    <Phone className="h-4 w-4 inline mr-1" />
+                    Phone <span className="text-red-500">*</span>
+                  </label>
+                  <PhoneInput
+                    value={settings.store.phone}
+                    onChange={(value) =>
+                      setSettings({
+                        ...settings,
+                        store: { ...settings.store, phone: value },
+                      })
+                    }
+                    autoDetectCountry
+                    countryCode={detectedCountryCode || undefined}
+                  />
+                </div>
+
+                {/* Address Autocomplete */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    <MapPin className="h-4 w-4 inline mr-1" />
+                    Search Address
+                  </label>
+                  <AddressAutocomplete
+                    onAddressSelect={handleAddressSelect}
+                    placeholder="Start typing to search for an address..."
+                    defaultValue={settings.store.address ? `${settings.store.address}, ${settings.store.city}` : ''}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Search for an address or click &quot;Detect Location&quot; to auto-fill
+                  </p>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Street Address
+                  </label>
+                  <Input
+                    value={settings.store.address}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        store: { ...settings.store, address: e.target.value },
+                      })
+                    }
+                    placeholder="123 Main Street"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    City
+                  </label>
+                  <Input
+                    value={settings.store.city}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        store: { ...settings.store, city: e.target.value },
+                      })
+                    }
+                    placeholder="Melbourne"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    State/Province
+                  </label>
+                  <Input
+                    value={settings.store.state}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        store: { ...settings.store, state: e.target.value },
+                      })
+                    }
+                    placeholder="VIC"
+                  />
+                </div>
+
+                <div data-field="store.country">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    <Globe className="h-4 w-4 inline mr-1" />
+                    Country <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={settings.store.countryCode}
+                    onChange={handleCountryChange}
+                    options={countryOptions}
+                    placeholder="Select a country"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Currency and timezone will sync automatically
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    ZIP/Postal Code
+                  </label>
+                  <Input
+                    value={settings.store.zipCode}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        store: { ...settings.store, zipCode: e.target.value },
+                      })
+                    }
+                    placeholder="3000"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Business Settings */}
+            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-foreground">Regional Settings</h3>
+                  <p className="text-sm text-muted-foreground">Currency, timezone, and date format</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div data-field="business.currency">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    <DollarSign className="h-4 w-4 inline mr-1" />
+                    Currency <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={settings.business.currency}
+                    onChange={(value) =>
+                      setSettings({
+                        ...settings,
+                        business: { ...settings.business, currency: value },
+                      })
+                    }
+                    options={currencyOptions}
+                  />
+                </div>
+
+                <div data-field="business.timezone">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    <Clock className="h-4 w-4 inline mr-1" />
+                    Timezone
+                  </label>
+                  <Select
+                    value={settings.business.timezone}
+                    onChange={(value) =>
+                      setSettings({
+                        ...settings,
+                        business: { ...settings.business, timezone: value },
+                      })
+                    }
+                    options={timezoneOptions}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Date Format
+                  </label>
+                  <Select
+                    value={settings.business.dateFormat}
+                    onChange={(value) =>
+                      setSettings({
+                        ...settings,
+                        business: { ...settings.business, dateFormat: value },
+                      })
+                    }
+                    options={dateFormatOptions}
+                  />
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground mt-4">
+                These settings are automatically synced when you change your country. You can override them here if needed.
+              </p>
+            </div>
+
+          </div>
+        ) : (
+          /* No Storefront Selected State */
+          <div className="bg-card rounded-xl border border-border p-12 text-center">
+            <Store className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-foreground mb-2">
+              Create Your First Storefront
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Get started by creating a storefront. Each storefront gets its own subdomain
+              and can be customized independently.
+            </p>
+            {!vendorId && (
+              <p className="text-amber-600 text-sm mb-4">
+                Please wait while we load your tenant information...
+              </p>
+            )}
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              disabled={!vendorId}
+              className="bg-primary text-white disabled:opacity-50"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Create Storefront
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Create Storefront Modal */}
+      <CreateStorefrontModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onCreated={handleStorefrontCreated}
+        vendorId={vendorId}
+      />
+
+      {/* Location Confirmation Modal - Auto-appears when address fields are empty */}
+      <LocationConfirmationModal
+        isOpen={showLocationModal}
+        onClose={() => setShowLocationModal(false)}
+        onConfirm={handleLocationConfirm}
+        onSkip={handleLocationSkip}
+        detectedLocation={detectedLocationData}
+        isDetecting={isDetectingLocation}
+        error={locationDetectionError}
+      />
+    </div>
+    </PermissionGate>
+  );
+}

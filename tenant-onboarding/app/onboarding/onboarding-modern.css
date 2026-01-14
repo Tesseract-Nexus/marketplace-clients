@@ -1,0 +1,77 @@
+/* Tesla-inspired Minimal Onboarding Styles */
+
+/* Smooth transitions */
+.form-step {
+  animation-duration: 0.3s;
+  animation-timing-function: ease-out;
+}
+
+.slide-in {
+  animation-name: fadeIn;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Focus states for native selects */
+select:focus {
+  outline: none;
+  border-color: #000;
+  box-shadow: 0 0 0 1px #000;
+}
+
+/* Custom select arrow */
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M2 4l4 4 4-4H2z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+  accent-color: #000;
+}
+
+/* Progress bar animation */
+.progress-bar {
+  transition: width 0.5s ease-out;
+}
+
+/* Button hover effects */
+button {
+  transition: all 0.2s ease;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Input placeholder color */
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af;
+}
+
+/* Remove default input styling on iOS */
+input,
+textarea,
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+/* Address autocomplete dropdown styling */
+[data-radix-select-content],
+[data-radix-popper-content-wrapper] {
+  z-index: 100;
+}

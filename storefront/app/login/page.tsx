@@ -1,0 +1,329 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Eye, EyeOff, Mail, Lock, Loader2, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
+import { useTenant, useNavPath } from '@/context/TenantContext';
+import { useAuthStore } from '@/store/auth';
+import { useCartStore } from '@/store/cart';
+import { initiateLogin, getSession } from '@/lib/api/auth';
+import { SocialLogin } from '@/components/auth/SocialLogin';
+import { TranslatedUIText } from '@/components/translation/TranslatedText';
+
+// Animation variants
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 12,
+    },
+  },
+};
+
+const floatingVariants = {
+  animate: {
+    y: [0, -10, 0],
+    transition: {
+      duration: 4,
+      repeat: Infinity,
+      ease: 'easeInOut',
+    },
+  },
+};
+
+export default function LoginPage() {
+  const router = useRouter();
+  const { tenant } = useTenant();
+  const getNavPath = useNavPath();
+  const { login, setLoading, isLoading, isAuthenticated } = useAuthStore();
+  const { mergeGuestCart } = useCartStore();
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState('');
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
+  // Wait for Zustand store to hydrate from localStorage
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  // Redirect to account if already authenticated (after hydration)
+  useEffect(() => {
+    if (isHydrated && isAuthenticated) {
+      setIsRedirecting(true);
+      router.replace(getNavPath('/account'));
+    }
+  }, [isHydrated, isAuthenticated, router, getNavPath]);
+
+  // Show loading state while checking authentication or redirecting
+  if (!isHydrated || isRedirecting) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-tenant-primary" />
+          <p className="text-muted-foreground">
+            {isRedirecting ? <TranslatedUIText text="Redirecting to your account..." /> : <TranslatedUIText text="Loading..." />}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleSocialLogin = (provider: string) => {
+    // Use auth-bff OIDC flow with Keycloak IDP hint for social login
+    const returnTo = getNavPath('/account');
+    // Pass tenant context for multi-tenant authentication
+    initiateLogin({
+      returnTo,
+      provider,
+      tenantId: tenant?.id,
+      tenantSlug: tenant?.slug,
+    });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    // Use auth-bff OIDC flow for login
+    // This redirects to Keycloak where users can enter their credentials
+    // The email field is passed as a login_hint to pre-fill the email in Keycloak
+    try {
+      const returnTo = getNavPath('/account');
+
+      // Pass email as login_hint and tenant context for multi-tenant authentication
+      initiateLogin({
+        returnTo,
+        loginHint: email || undefined,
+        tenantId: tenant?.id,
+        tenantSlug: tenant?.slug,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 relative overflow-hidden">
+      {/* Background decorations with animation */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[var(--tenant-primary)]/5 via-background to-[var(--tenant-secondary)]/5" />
+      <motion.div
+        variants={floatingVariants}
+        animate="animate"
+        className="absolute top-20 right-20 w-72 h-72 rounded-full blur-3xl opacity-20"
+        style={{ background: 'var(--tenant-primary)' }}
+      />
+      <motion.div
+        variants={floatingVariants}
+        animate="animate"
+        transition={{ delay: 1 }}
+        className="absolute bottom-20 left-20 w-72 h-72 rounded-full blur-3xl opacity-20"
+        style={{ background: 'var(--tenant-secondary)' }}
+      />
+
+      {/* Decorative sparkles */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 0.3, scale: 1 }}
+        transition={{ delay: 0.5, duration: 0.5 }}
+        className="absolute top-1/4 left-1/4"
+      >
+        <Sparkles className="h-6 w-6 text-tenant-primary" />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 0.3, scale: 1 }}
+        transition={{ delay: 0.7, duration: 0.5 }}
+        className="absolute bottom-1/3 right-1/4"
+      >
+        <Sparkles className="h-4 w-4 text-tenant-secondary" />
+      </motion.div>
+
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+        className="w-full max-w-md relative z-10"
+      >
+        <motion.div
+          variants={itemVariants}
+          className="bg-card/80 backdrop-blur-sm rounded-2xl border shadow-xl p-8 hover:shadow-2xl transition-shadow duration-300"
+        >
+          {/* Header with icon animation */}
+          <motion.div variants={itemVariants} className="text-center mb-8">
+            <motion.div
+              className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--tenant-primary)]/10 flex items-center justify-center"
+              whileHover={{ scale: 1.1, rotate: 5 }}
+              transition={{ type: 'spring', stiffness: 300 }}
+            >
+              <Lock className="h-8 w-8 text-tenant-primary" />
+            </motion.div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">
+              <TranslatedUIText text="Welcome Back" />
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              <TranslatedUIText text="Sign in to your account to continue" />
+            </p>
+          </motion.div>
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <AnimatePresence mode="wait">
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, height: 0 }}
+                  animate={{ opacity: 1, y: 0, height: 'auto' }}
+                  exit={{ opacity: 0, y: -10, height: 0 }}
+                  className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm flex items-center gap-2"
+                >
+                  <span className="flex-shrink-0 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  {error}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <motion.div variants={itemVariants} className="space-y-2">
+              <Label htmlFor="email"><TranslatedUIText text="Email Address" /></Label>
+              <div className="relative group">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-tenant-primary" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="you@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10 transition-all duration-200 focus:ring-2 focus:ring-[var(--tenant-primary)]/20"
+                  required
+                  autoComplete="email"
+                />
+              </div>
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password"><TranslatedUIText text="Password" /></Label>
+                <Link
+                  href={getNavPath('/forgot-password')}
+                  className="text-sm text-tenant-primary hover:underline transition-all hover:text-[var(--tenant-primary-dark)]"
+                >
+                  <TranslatedUIText text="Forgot password?" />
+                </Link>
+              </div>
+              <div className="relative group">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-tenant-primary" />
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="pl-10 pr-10 transition-all duration-200 focus:ring-2 focus:ring-[var(--tenant-primary)]/20"
+                  required
+                  autoComplete="current-password"
+                />
+                <motion.button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  whileTap={{ scale: 0.9 }}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </motion.button>
+              </div>
+            </motion.div>
+
+            <motion.div variants={itemVariants} className="flex items-center gap-2">
+              <Checkbox
+                id="remember"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                className="data-[state=checked]:bg-tenant-primary data-[state=checked]:border-tenant-primary"
+              />
+              <Label htmlFor="remember" className="text-sm font-normal cursor-pointer">
+                <TranslatedUIText text="Remember me for 30 days" />
+              </Label>
+            </motion.div>
+
+            <motion.div variants={itemVariants}>
+              <Button
+                type="submit"
+                variant="tenant-gradient"
+                size="lg"
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <TranslatedUIText text="Signing in..." />
+                  </>
+                ) : (
+                  <TranslatedUIText text="Sign In" />
+                )}
+              </Button>
+            </motion.div>
+          </form>
+
+          <motion.div variants={itemVariants} className="mt-6">
+            <SocialLogin onLogin={handleSocialLogin} isLoading={isLoading} mode="login" />
+          </motion.div>
+
+          <motion.p variants={itemVariants} className="text-center mt-6 text-sm text-muted-foreground">
+            <TranslatedUIText text="Don't have an account?" />{' '}
+            <Link
+              href={getNavPath('/register')}
+              className="text-tenant-primary font-medium hover:underline transition-all"
+            >
+              <TranslatedUIText text="Create one" />
+            </Link>
+          </motion.p>
+        </motion.div>
+
+        <motion.p
+          variants={itemVariants}
+          className="text-center mt-6 text-xs text-muted-foreground"
+        >
+          <TranslatedUIText text="By signing in, you agree to our" />{' '}
+          <Link href={getNavPath('/terms')} className="underline hover:text-foreground transition-colors">
+            <TranslatedUIText text="Terms of Service" />
+          </Link>{' '}
+          <TranslatedUIText text="and" />{' '}
+          <Link href={getNavPath('/privacy')} className="underline hover:text-foreground transition-colors">
+            <TranslatedUIText text="Privacy Policy" />
+          </Link>
+        </motion.p>
+      </motion.div>
+    </div>
+  );
+}

@@ -1,0 +1,74 @@
+'use client';
+
+import React from 'react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft, ShieldCheck, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+export default function ForgotPasswordPage() {
+  const router = useRouter();
+
+  const handleBackToLogin = () => {
+    router.push('/auth/login?prompt=login');
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Background */}
+      <div className="fixed inset-0 -z-20">
+        <img
+          src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=2070&auto=format&fit=crop"
+          alt="Background"
+          className="w-full h-full object-cover animate-slow-zoom"
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-blue-900/50 to-violet-900/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+      </div>
+
+      {/* Animated elements */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-float" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-violet-500/20 rounded-full blur-3xl animate-float-delayed" />
+      </div>
+
+      {/* Card */}
+      <div className="w-full max-w-md px-4 py-8 mx-auto">
+        <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/20 border border-white/20 p-6 space-y-5 animate-fade-in-up">
+          {/* Header */}
+          <div className="text-center relative">
+            <button
+              onClick={handleBackToLogin}
+              className="absolute -top-1 -left-1 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <ArrowLeft className="h-5 w-5 text-gray-600" />
+            </button>
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-violet-600 to-purple-600 shadow-lg shadow-primary/30 mb-3">
+              <Sparkles className="w-7 h-7 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent mb-1">
+              Tesseract Hub
+            </h1>
+            <p className="text-xs text-muted-foreground mb-4">Admin Portal</p>
+            <h2 className="text-xl font-semibold text-foreground mb-1">Reset Password</h2>
+            <p className="text-sm text-muted-foreground">
+              Password resets are handled by Keycloak. Continue to the login screen and use the
+              identity provider's reset flow.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-left text-sm text-blue-700">
+            <ShieldCheck className="h-5 w-5 flex-shrink-0" />
+            <span>Use the "Forgot Password" link on the Keycloak login page.</span>
+          </div>
+
+          <Button
+            onClick={handleBackToLogin}
+            className="w-full h-12 text-sm font-semibold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 hover:from-blue-700 hover:via-violet-700 hover:to-purple-700 text-white shadow-lg shadow-primary/30 transition-all duration-300"
+          >
+            Continue to Sign In
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,0 +1,230 @@
+name: Cleanup GHCR Images
+
+on:
+  schedule:
+    # Run every day at 2:00 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (only show what would be deleted)'
+        required: false
+        type: boolean
+        default: true
+      service:
+        description: 'Specific service to clean (leave empty for all)'
+        required: false
+        type: string
+
+permissions:
+  packages: write
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+  ORG: tesseract-nexus
+  REPO: tesseract-hub
+
+jobs:
+  cleanup:
+    name: Clean up GHCR images
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service:
+          # Common domain services
+          - auth-service
+          - document-service
+          - location-service
+          - reviews-service
+          - staff-service
+          - tenant-service
+          - tickets-service
+          - vendor-service
+          - verification-service
+          # Ecommerce domain services
+          - categories-service
+          - coupons-service
+          - orders-service
+          - products-service
+          - settings-service
+          # MFEs and Apps
+          - tenant-onboarding
+      fail-fast: false
+
+    steps:
+      - name: Check if service should be processed
+        id: check
+        run: |
+          if [[ -n "${{ github.event.inputs.service }}" ]]; then
+            if [[ "${{ matrix.service }}" != "${{ github.event.inputs.service }}" ]]; then
+              echo "skip=true" >> $GITHUB_OUTPUT
+              echo "Skipping ${{ matrix.service }} (only processing ${{ github.event.inputs.service }})"
+            else
+              echo "skip=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install GitHub CLI
+        if: steps.check.outputs.skip == 'false'
+        run: |
+          type -p gh >/dev/null || {
+            curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+            sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+            echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+            sudo apt update
+            sudo apt install gh -y
+          }
+
+      - name: Authenticate GitHub CLI
+        if: steps.check.outputs.skip == 'false'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+      - name: Cleanup ${{ matrix.service }} images
+        if: steps.check.outputs.skip == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
+          SERVICE: ${{ matrix.service }}
+        run: |
+          PACKAGE_NAME="${{ env.REPO }}/$SERVICE"
+
+          echo "🧹 Cleaning up package: $PACKAGE_NAME"
+          echo "Dry run mode: $DRY_RUN"
+          echo ""
+
+          # Get all versions for this package
+          VERSIONS=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/orgs/${{ env.ORG }}/packages/container/$PACKAGE_NAME/versions" \
+            --paginate \
+            --jq '.[] | {id: .id, name: .name, tags: .metadata.container.tags, created: .created_at}' 2>/dev/null || echo "")
+
+          if [[ -z "$VERSIONS" ]]; then
+            echo "ℹ️  No versions found for $PACKAGE_NAME (package may not exist yet)"
+            exit 0
+          fi
+
+          echo "📦 Found versions for $PACKAGE_NAME"
+
+          # Separate release versions (semantic versioning) from development versions
+          RELEASE_VERSIONS=$(echo "$VERSIONS" | jq -s 'map(select(.tags[]? | test("^v?[0-9]+\\.[0-9]+\\.[0-9]+$"))) | sort_by(.created) | reverse')
+          DEV_VERSIONS=$(echo "$VERSIONS" | jq -s 'map(select(.tags[]? | test("^(main|develop|feat|feature|bugfix|hotfix)"))) | sort_by(.created) | reverse')
+
+          # Keep last 3 release versions
+          RELEASE_COUNT=$(echo "$RELEASE_VERSIONS" | jq 'length')
+          echo "📊 Release versions found: $RELEASE_COUNT (keeping last 3)"
+
+          if [[ $RELEASE_COUNT -gt 3 ]]; then
+            RELEASES_TO_DELETE=$(echo "$RELEASE_VERSIONS" | jq '.[3:]')
+            echo "$RELEASES_TO_DELETE" | jq -r '.[] | "  🗑️  Deleting release: \(.tags[0] // "untagged") (ID: \(.id), created: \(.created))"'
+
+            if [[ "$DRY_RUN" == "false" ]]; then
+              echo "$RELEASES_TO_DELETE" | jq -r '.[].id' | while read -r VERSION_ID; do
+                echo "Deleting version ID: $VERSION_ID"
+                gh api \
+                  --method DELETE \
+                  -H "Accept: application/vnd.github+json" \
+                  -H "X-GitHub-Api-Version: 2022-11-28" \
+                  "/orgs/${{ env.ORG }}/packages/container/$PACKAGE_NAME/versions/$VERSION_ID" || echo "Failed to delete version $VERSION_ID"
+              done
+            else
+              echo "💡 Dry run: Would delete $(echo "$RELEASES_TO_DELETE" | jq 'length') release versions"
+            fi
+          else
+            echo "✅ Only $RELEASE_COUNT release versions, no cleanup needed"
+          fi
+
+          echo ""
+
+          # Keep last 2 development versions
+          DEV_COUNT=$(echo "$DEV_VERSIONS" | jq 'length')
+          echo "📊 Development versions found: $DEV_COUNT (keeping last 2)"
+
+          if [[ $DEV_COUNT -gt 2 ]]; then
+            DEVS_TO_DELETE=$(echo "$DEV_VERSIONS" | jq '.[2:]')
+            echo "$DEVS_TO_DELETE" | jq -r '.[] | "  🗑️  Deleting dev: \(.tags[0] // "untagged") (ID: \(.id), created: \(.created))"'
+
+            if [[ "$DRY_RUN" == "false" ]]; then
+              echo "$DEVS_TO_DELETE" | jq -r '.[].id' | while read -r VERSION_ID; do
+                echo "Deleting version ID: $VERSION_ID"
+                gh api \
+                  --method DELETE \
+                  -H "Accept: application/vnd.github+json" \
+                  -H "X-GitHub-Api-Version: 2022-11-28" \
+                  "/orgs/${{ env.ORG }}/packages/container/$PACKAGE_NAME/versions/$VERSION_ID" || echo "Failed to delete version $VERSION_ID"
+              done
+            else
+              echo "💡 Dry run: Would delete $(echo "$DEVS_TO_DELETE" | jq 'length') development versions"
+            fi
+          else
+            echo "✅ Only $DEV_COUNT development versions, no cleanup needed"
+          fi
+
+          echo ""
+
+          # Cleanup untagged images
+          UNTAGGED=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "/orgs/${{ env.ORG }}/packages/container/$PACKAGE_NAME/versions" \
+            --paginate \
+            --jq '[.[] | select(.metadata.container.tags | length == 0)] | sort_by(.created_at) | reverse' 2>/dev/null || echo "[]")
+
+          UNTAGGED_COUNT=$(echo "$UNTAGGED" | jq 'length')
+
+          if [[ $UNTAGGED_COUNT -gt 0 ]]; then
+            echo "📊 Found $UNTAGGED_COUNT untagged images"
+
+            if [[ "$DRY_RUN" == "false" ]]; then
+              echo "$UNTAGGED" | jq -r '.[].id' | while read -r VERSION_ID; do
+                echo "Deleting untagged version ID: $VERSION_ID"
+                gh api \
+                  --method DELETE \
+                  -H "Accept: application/vnd.github+json" \
+                  -H "X-GitHub-Api-Version: 2022-11-28" \
+                  "/orgs/${{ env.ORG }}/packages/container/$PACKAGE_NAME/versions/$VERSION_ID" || echo "Failed to delete version $VERSION_ID"
+              done
+            else
+              echo "💡 Dry run: Would delete $UNTAGGED_COUNT untagged images"
+            fi
+          else
+            echo "✅ No untagged images found"
+          fi
+
+  summary:
+    name: Cleanup Summary
+    runs-on: ubuntu-latest
+    needs: cleanup
+    if: always()
+
+    steps:
+      - name: Create Summary
+        run: |
+          echo "## GHCR Cleanup Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Organization:** ${{ env.ORG }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Repository:** ${{ env.REPO }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Mode:** ${{ github.event.inputs.dry_run == 'true' && '🔍 Dry Run' || '🗑️ Delete' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Retention Policy" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release versions** (v1.0.0): Keep last **3**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Development versions** (main, feat/*): Keep last **2**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Untagged images**: Delete all" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Services Processed" >> $GITHUB_STEP_SUMMARY
+          echo "- Common domain: 9 services" >> $GITHUB_STEP_SUMMARY
+          echo "- Ecommerce domain: 5 services" >> $GITHUB_STEP_SUMMARY
+          echo "- MFEs/Apps: 1 service" >> $GITHUB_STEP_SUMMARY
+          echo "- **Total: 15 services**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [[ "${{ github.event.inputs.dry_run }}" == "true" ]]; then
+            echo "⚠️  **This was a dry run.** No images were actually deleted." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "✅ **Cleanup completed successfully.**" >> $GITHUB_STEP_SUMMARY
+          fi

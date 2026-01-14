@@ -1,0 +1,289 @@
+# =============================================================================
+# Storefront - Kubernetes Deployment Configuration
+# Production-ready with multi-tenant support, auto-scaling, and observability
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: storefront
+  namespace: default
+  labels:
+    app: storefront
+    version: v1
+    tier: frontend
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: storefront
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: storefront
+        version: v1
+        tier: frontend
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+        prometheus.io/path: "/api/metrics"
+    spec:
+      serviceAccountName: storefront-sa
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+      - name: storefront
+        image: ghcr.io/tesseract-nexus/tesseract-hub/storefront:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: http
+          protocol: TCP
+        env:
+        # Application Configuration
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "3000"
+        - name: HOSTNAME
+          value: "0.0.0.0"
+        - name: NEXT_TELEMETRY_DISABLED
+          value: "1"
+
+        # API Configuration
+        - name: NEXT_PUBLIC_API_URL
+          valueFrom:
+            configMapKeyRef:
+              name: storefront-config
+              key: api-url
+
+        # Tenant Router Service (for subdomain routing)
+        - name: TENANT_ROUTER_SERVICE_URL
+          value: "http://tenant-router-service.default.svc.cluster.local:8080"
+
+        # Auth Service
+        - name: AUTH_SERVICE_URL
+          value: "http://auth-service.default.svc.cluster.local:8080"
+
+        # Products Service
+        - name: PRODUCTS_SERVICE_URL
+          value: "http://products-service.default.svc.cluster.local:8080"
+
+        # Categories Service
+        - name: CATEGORIES_SERVICE_URL
+          value: "http://categories-service.default.svc.cluster.local:8080"
+
+        # Orders Service
+        - name: ORDERS_SERVICE_URL
+          value: "http://orders-service.default.svc.cluster.local:8080"
+
+        # Customers Service
+        - name: CUSTOMERS_SERVICE_URL
+          value: "http://customers-service.default.svc.cluster.local:8080"
+
+        # Reviews Service
+        - name: REVIEWS_SERVICE_URL
+          value: "http://reviews-service.default.svc.cluster.local:8080"
+
+        # Coupons Service
+        - name: COUPONS_SERVICE_URL
+          value: "http://coupons-service.default.svc.cluster.local:8080"
+
+        # Tickets Service
+        - name: TICKETS_SERVICE_URL
+          value: "http://tickets-service.default.svc.cluster.local:8080"
+
+        # Payment Service
+        - name: PAYMENT_SERVICE_URL
+          value: "http://payment-service.default.svc.cluster.local:8080"
+
+        # Notification Hub (WebSocket)
+        - name: NOTIFICATION_HUB_URL
+          value: "http://notification-hub.default.svc.cluster.local:8089"
+        - name: NEXT_PUBLIC_WS_URL
+          valueFrom:
+            configMapKeyRef:
+              name: storefront-config
+              key: ws-url
+
+        # Settings Service
+        - name: SETTINGS_SERVICE_URL
+          value: "http://settings-service.default.svc.cluster.local:8080"
+
+        # Tenant Service
+        - name: TENANT_SERVICE_URL
+          value: "http://tenant-service.default.svc.cluster.local:8080"
+
+        # Inventory Service
+        - name: INVENTORY_SERVICE_URL
+          value: "http://inventory-service.default.svc.cluster.local:8080"
+
+        # Stripe Configuration
+        - name: STRIPE_PUBLIC_KEY
+          valueFrom:
+            secretKeyRef:
+              name: storefront-secrets
+              key: stripe-public-key
+              optional: true
+
+        # Razorpay Configuration
+        - name: RAZORPAY_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: storefront-secrets
+              key: razorpay-key-id
+              optional: true
+
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+        livenessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 40
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+
+        readinessProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 3
+
+        startupProbe:
+          httpGet:
+            path: /api/health
+            port: 3000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 30
+
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: nextjs-cache
+          mountPath: /app/.next/cache
+
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: nextjs-cache
+        emptyDir: {}
+
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: storefront
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: storefront
+  namespace: default
+  labels:
+    app: storefront
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3000
+    protocol: TCP
+    name: http
+  selector:
+    app: storefront
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: storefront-sa
+  namespace: default
+  annotations:
+    iam.gke.io/gcp-service-account: storefront@PROJECT_ID.iam.gserviceaccount.com
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: storefront-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: storefront
+  minReplicas: 3
+  maxReplicas: 20
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 300
+      policies:
+      - type: Percent
+        value: 50
+        periodSeconds: 60
+    scaleUp:
+      stabilizationWindowSeconds: 0
+      policies:
+      - type: Percent
+        value: 100
+        periodSeconds: 30
+      - type: Pods
+        value: 4
+        periodSeconds: 30
+      selectPolicy: Max
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: storefront-pdb
+  namespace: default
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: storefront
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: storefront-config
+  namespace: default
+data:
+  api-url: "https://api.tesserix.app"
+  ws-url: "wss://ws.tesserix.app"

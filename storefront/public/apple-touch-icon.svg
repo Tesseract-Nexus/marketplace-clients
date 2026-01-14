@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <defs>
+    <!-- Vibrant gradient matching storefront theme -->
+    <linearGradient id="vibrantGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6"/>
+      <stop offset="100%" style="stop-color:#EC4899"/>
+    </linearGradient>
+    <!-- Accent gradient -->
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#F59E0B"/>
+      <stop offset="100%" style="stop-color:#EC4899"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background rounded square -->
+  <rect x="0" y="0" width="180" height="180" rx="36" ry="36" fill="url(#vibrantGrad)"/>
+
+  <!-- Shopping bag body -->
+  <path d="M45 67.5 L45 135 Q45 146.25 56.25 146.25 L123.75 146.25 Q135 146.25 135 135 L135 67.5 Z"
+        fill="white" fill-opacity="0.95"/>
+
+  <!-- Bag handles -->
+  <path d="M67.5 67.5 L67.5 50.625 Q67.5 33.75 90 33.75 Q112.5 33.75 112.5 50.625 L112.5 67.5"
+        fill="none"
+        stroke="white"
+        stroke-width="14"
+        stroke-linecap="round"/>
+
+  <!-- Accent stripe on bag -->
+  <rect x="45" y="78.75" width="90" height="16.875" fill="url(#accentGrad)" fill-opacity="0.9"/>
+
+  <!-- Tesseract "T" mark -->
+  <path d="M73.125 106.875 L106.875 106.875 M90 106.875 L90 129.375"
+        fill="none"
+        stroke="url(#vibrantGrad)"
+        stroke-width="11.25"
+        stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,493 @@
+'use client';
+
+import React, { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+
+// Force dynamic rendering for this page
+export const dynamic = 'force-dynamic';
+import {
+  CheckCircle,
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  Building2,
+  Sparkles,
+  Shield,
+  Key,
+  User,
+  Loader2,
+  ArrowRight,
+  PartyPopper,
+  Gift,
+  Rocket,
+  Store,
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useDialog } from '@/contexts/DialogContext';
+import { SocialLogin } from '@/components/SocialLogin';
+import { Confetti, FloralCelebration } from '@/components/Confetti';
+
+interface OnboardingData {
+  businessName?: string;
+  industry?: string;
+  email?: string;
+  firstName?: string;
+  city?: string;
+  country?: string;
+  description?: string;
+  progress?: number;
+}
+
+function WelcomeContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const sessionId = searchParams?.get('sessionId') || searchParams?.get('session_id');
+  const { showSuccess, showError } = useDialog();
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
+  const [showCelebration, setShowCelebration] = useState(false);
+
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong'>('weak');
+
+  // Simulate fetching onboarding data
+  useEffect(() => {
+    const fetchOnboardingData = async () => {
+      setIsLoading(true);
+
+      // Simulate API call
+      setTimeout(() => {
+        // Mock data - will be replaced with real API call
+        setOnboardingData({
+          businessName: 'Acme Corporation',
+          industry: 'Retail',
+          email: 'john@acme.com',
+          firstName: 'John',
+          city: 'San Francisco',
+          country: 'USA',
+          description: 'Leading provider of innovative solutions',
+          progress: 100,
+        });
+        setIsLoading(false);
+        // Trigger celebration after data loads
+        setShowCelebration(true);
+      }, 1000);
+    };
+
+    fetchOnboardingData();
+  }, [sessionId]);
+
+  // Calculate password strength
+  useEffect(() => {
+    if (!password) {
+      setPasswordStrength('weak');
+      return;
+    }
+
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    if (/[a-z]/.test(password)) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+    if (strength <= 2) setPasswordStrength('weak');
+    else if (strength <= 4) setPasswordStrength('medium');
+    else setPasswordStrength('strong');
+  }, [password]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (password.length < 8) {
+      showError('Weak Password', 'Password must be at least 8 characters long');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      showError('Password Mismatch', 'Passwords do not match');
+      return;
+    }
+
+    if (passwordStrength === 'weak') {
+      showError('Weak Password', 'Please choose a stronger password');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      showSuccess('Account Created!', 'Welcome to Tesseract Hub. Redirecting to your dashboard...');
+      setTimeout(() => {
+        router.push('/');
+      }, 1500);
+    }, 1000);
+  };
+
+  const handleSocialLogin = async (provider: string) => {
+    setIsSubmitting(true);
+
+    // Simulate social login account creation
+    setTimeout(() => {
+      showSuccess(
+        `${provider.charAt(0).toUpperCase() + provider.slice(1)} Account Linked!`,
+        'Your account has been created successfully. Redirecting to dashboard...'
+      );
+      setTimeout(() => {
+        router.push('/');
+      }, 1500);
+    }, 1000);
+  };
+
+  const getStrengthColor = () => {
+    switch (passwordStrength) {
+      case 'weak': return 'bg-red-500';
+      case 'medium': return 'bg-yellow-500';
+      case 'strong': return 'bg-green-500';
+    }
+  };
+
+  const getStrengthWidth = () => {
+    switch (passwordStrength) {
+      case 'weak': return 'w-1/3';
+      case 'medium': return 'w-2/3';
+      case 'strong': return 'w-full';
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="w-16 h-16 animate-spin text-primary" />
+          <p className="text-lg text-muted-foreground">Loading your account information...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background relative overflow-hidden flex items-center py-8">
+      {/* Celebration effects */}
+      {showCelebration && (
+        <>
+          <Confetti active={showCelebration} duration={6000} pieceCount={200} />
+          <FloralCelebration active={showCelebration} />
+        </>
+      )}
+
+      {/* Background effects */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-blob" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-violet-500/5 rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute top-1/3 right-1/3 w-64 h-64 bg-green-500/5 rounded-full blur-3xl animate-pulse" />
+      </div>
+
+      <div className="container mx-auto px-4 max-w-4xl w-full">
+        {/* Welcome Header with Celebration */}
+        <div className="text-center mb-6 relative">
+          {/* Celebration badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-white text-sm font-medium mb-4 animate-bounce shadow-lg">
+            <PartyPopper className="w-4 h-4" />
+            Account Created Successfully!
+          </div>
+
+          {/* Success icon with glow */}
+          <div className="relative inline-block mb-4">
+            <div className="absolute inset-0 w-20 h-20 mx-auto rounded-full bg-green-500 blur-xl opacity-30 animate-pulse" />
+            <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 shadow-lg shadow-green-500/30">
+              <CheckCircle className="w-10 h-10 text-white" />
+            </div>
+          </div>
+
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">
+            Welcome to Tesserix! 🎉
+          </h1>
+          <p className="text-lg text-muted-foreground mb-2">
+            Hi {onboardingData?.firstName || 'there'}, your journey begins now!
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Let's secure your account and get you started
+          </p>
+        </div>
+
+        {/* Business Information Card */}
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-border/50 p-5 mb-5">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-violet-100 flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-primary" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-foreground">Your Store Details</h2>
+              <p className="text-xs text-muted-foreground">Your development store is ready</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
+            <div className="p-3 rounded-xl bg-gradient-to-br from-gray-50 to-blue-50/30 border border-border/50">
+              <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1.5">
+                <Building2 className="w-3 h-3" />
+                Business Name
+              </p>
+              <p className="text-sm font-semibold text-foreground">
+                {onboardingData?.businessName || 'Not provided'}
+              </p>
+            </div>
+            <div className="p-3 rounded-xl bg-gradient-to-br from-gray-50 to-violet-50/30 border border-border/50">
+              <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3" />
+                Industry
+              </p>
+              <p className="text-sm font-semibold text-foreground capitalize">
+                {onboardingData?.industry || 'Not specified'}
+              </p>
+            </div>
+            <div className="p-3 rounded-xl bg-gradient-to-br from-gray-50 to-purple-50/30 border border-border/50">
+              <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1.5">
+                <Mail className="w-3 h-3" />
+                Email
+              </p>
+              <p className="text-sm font-semibold text-foreground break-all">
+                {onboardingData?.email || 'Not provided'}
+              </p>
+            </div>
+            <div className="p-3 rounded-xl bg-gradient-to-br from-gray-50 to-pink-50/30 border border-border/50">
+              <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1.5">
+                <Building2 className="w-3 h-3" />
+                Location
+              </p>
+              <p className="text-sm font-semibold text-foreground">
+                {onboardingData?.city && onboardingData?.country
+                  ? `${onboardingData.city}, ${onboardingData.country}`
+                  : 'Not provided'}
+              </p>
+            </div>
+          </div>
+
+          <div className="bg-muted rounded-xl px-3 py-2 flex items-start gap-2 border border-primary/30/50">
+            <Sparkles className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-semibold text-foreground">Development Mode</p>
+              <p className="text-[10px] text-muted-foreground leading-relaxed">
+                No fees until you go live! Test all features.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Account Setup Card */}
+        <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-border/50 p-5">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
+              <Key className="w-5 h-5 text-green-600" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-foreground">Complete Account Setup</h2>
+              <p className="text-xs text-muted-foreground">Create a secure password</p>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Password field */}
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="block text-xs font-medium text-foreground">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter a strong password"
+                  className="pl-9 pr-10 h-10 text-sm bg-card border-border focus:ring-2 focus:ring-ring focus:border-transparent"
+                  required
+                  disabled={isSubmitting}
+                />
+                <Button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+              </div>
+
+              {/* Password strength indicator */}
+              {password && (
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground">Strength:</span>
+                    <span className={`font-medium ${
+                      passwordStrength === 'weak' ? 'text-red-600' :
+                      passwordStrength === 'medium' ? 'text-yellow-600' :
+                      'text-green-600'
+                    }`}>
+                      {passwordStrength.charAt(0).toUpperCase() + passwordStrength.slice(1)}
+                    </span>
+                  </div>
+                  <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                    <div className={`h-full transition-all duration-300 ${getStrengthColor()} ${getStrengthWidth()}`} />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Confirm password field */}
+            <div className="space-y-1.5">
+              <label htmlFor="confirmPassword" className="block text-xs font-medium text-foreground">
+                Confirm Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Confirm your password"
+                  className="pl-9 pr-10 h-10 text-sm bg-card border-border focus:ring-2 focus:ring-ring focus:border-transparent"
+                  required
+                  disabled={isSubmitting}
+                />
+                <Button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors"
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </Button>
+              </div>
+            </div>
+
+            {/* Password requirements */}
+            <div className="bg-muted rounded-xl px-3 py-2">
+              <p className="text-xs font-medium text-foreground mb-1.5">Requirements:</p>
+              <ul className="text-[10px] text-muted-foreground space-y-0.5">
+                <li className="flex items-center gap-1.5">
+                  <div className={`w-1 h-1 rounded-full ${password.length >= 8 ? 'bg-green-500' : 'bg-gray-400'}`} />
+                  8+ characters
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <div className={`w-1 h-1 rounded-full ${/[A-Z]/.test(password) ? 'bg-green-500' : 'bg-gray-400'}`} />
+                  Uppercase letter
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <div className={`w-1 h-1 rounded-full ${/[a-z]/.test(password) ? 'bg-green-500' : 'bg-gray-400'}`} />
+                  Lowercase letter
+                </li>
+                <li className="flex items-center gap-1.5">
+                  <div className={`w-1 h-1 rounded-full ${/[0-9]/.test(password) ? 'bg-green-500' : 'bg-gray-400'}`} />
+                  Number
+                </li>
+              </ul>
+            </div>
+
+            {/* Submit button */}
+            <Button
+              type="submit"
+              disabled={isSubmitting || !password || !confirmPassword || passwordStrength === 'weak'}
+              className="w-full h-10 text-sm font-semibold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 hover:from-blue-700 hover:via-violet-700 hover:to-purple-700 text-white shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+            >
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Creating Account...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  Complete Setup
+                  <ArrowRight className="w-4 h-4" />
+                </div>
+              )}
+            </Button>
+          </form>
+
+          {/* Divider */}
+          <div className="relative py-2 mt-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border"></div>
+            </div>
+            <div className="relative flex justify-center">
+              <span className="px-3 text-xs bg-white/80 text-muted-foreground">
+                or
+              </span>
+            </div>
+          </div>
+
+          {/* Social Login */}
+          <SocialLogin onLogin={handleSocialLogin} isLoading={isSubmitting} />
+
+          {/* Security notice */}
+          <div className="bg-muted rounded-xl px-3 py-2 border border-border mt-4">
+            <p className="text-[10px] text-muted-foreground text-center">
+              🔒 We never store your social passwords. OAuth handled securely.
+            </p>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <p className="text-center text-[10px] text-muted-foreground mt-4">
+          By creating an account, you agree to our{' '}
+          <Button className="text-primary hover:text-primary font-medium">Terms</Button>
+          {' '}and{' '}
+          <Button className="text-primary hover:text-primary font-medium">Privacy Policy</Button>
+        </p>
+      </div>
+
+      {/* CSS for animations */}
+      <style jsx>{`
+        @keyframes blob {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
+          }
+          25% {
+            transform: translate(20px, -50px) scale(1.1);
+          }
+          50% {
+            transform: translate(-20px, 20px) scale(0.9);
+          }
+          75% {
+            transform: translate(50px, 50px) scale(1.05);
+          }
+        }
+
+        .animate-blob {
+          animation: blob 20s infinite;
+        }
+
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+export default function WelcomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader2 className="w-16 h-16 animate-spin text-primary" />
+          <p className="text-lg text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    }>
+      <WelcomeContent />
+    </Suspense>
+  );
+}

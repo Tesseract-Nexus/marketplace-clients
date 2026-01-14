@@ -1,0 +1,26 @@
+'use client';
+
+import { use } from 'react';
+import { CouponForm } from '@/components/coupons/CouponForm';
+import { PermissionGate, Permission } from '@/components/permission-gate';
+import { Loader2 } from 'lucide-react';
+
+interface EditCouponPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function EditCouponPage({ params }: EditCouponPageProps) {
+  const { id } = use(params);
+
+  return (
+    <PermissionGate
+      permission={Permission.MARKETING_COUPONS_MANAGE}
+      fallback="styled"
+      fallbackTitle="Coupon Edit Access Required"
+      fallbackDescription="You don't have the required permissions to edit coupons. Please contact your administrator to request access."
+      loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
+    >
+      <CouponForm mode="edit" couponId={id} />
+    </PermissionGate>
+  );
+}

@@ -1,0 +1,41 @@
+/* Minimal onboarding form styling */
+
+/* Scrollbar hide utility */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Radix UI dropdown fixes */
+[data-radix-select-content] {
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+[data-radix-popper-content-wrapper] {
+  z-index: 100;
+}
+
+/* Custom scrollbar for dropdowns */
+[data-radix-select-content]::-webkit-scrollbar {
+  width: 6px;
+}
+
+[data-radix-select-content]::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+[data-radix-select-content]::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+[data-radix-select-content]::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}

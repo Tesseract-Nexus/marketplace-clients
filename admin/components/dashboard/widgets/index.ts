@@ -1,0 +1,10 @@
+export { StatsGridWidget } from './StatsGridWidget';
+export { OrderStatusChartWidget } from './OrderStatusChartWidget';
+export { RevenueTrendChartWidget } from './RevenueTrendChartWidget';
+export { CustomerSatisfactionWidget } from './CustomerSatisfactionWidget';
+export { TopProductsWidget } from './TopProductsWidget';
+export { RecentOrdersWidget } from './RecentOrdersWidget';
+export { LowStockAlertWidget } from './LowStockAlertWidget';
+export { InventoryStockLevelsWidget } from './InventoryStockLevelsWidget';
+export { ActivityFeedWidget } from './ActivityFeedWidget';
+export { QuickActionsWidget } from './QuickActionsWidget';

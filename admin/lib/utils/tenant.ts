@@ -1,0 +1,205 @@
+/**
+ * Tenant Utilities
+ *
+ * Utilities for extracting and managing tenant context from subdomains
+ */
+
+// Root domain prefixes (these are NOT tenants)
+const ROOT_PREFIXES = ['dev', 'staging', 'prod'];
+
+/**
+ * Extract tenant slug from hostname
+ *
+ * Supports multiple patterns:
+ * 1. {tenant}-admin.tesserix.app (cloud - all environments)
+ * 2. {tenant}.localhost (local development)
+ *
+ * Root domains (return null):
+ * - dev-admin.tesserix.app
+ * - staging-admin.tesserix.app
+ * - prod-admin.tesserix.app
+ * - localhost
+ */
+export function extractTenantFromHost(host: string): string | null {
+  // Remove port if present
+  const hostname = host.split(':')[0];
+
+  // Pattern 1: {tenant}-admin.tesserix.app
+  // e.g., homechef-admin.tesserix.app -> homechef
+  // But dev-admin.tesserix.app -> null (root domain)
+  const cloudPattern = /^(.+)-admin\.tesserix\.app$/;
+  const cloudMatch = hostname.match(cloudPattern);
+  if (cloudMatch) {
+    const prefix = cloudMatch[1];
+    // Check if this is a root prefix (dev, staging, prod)
+    if (ROOT_PREFIXES.includes(prefix)) {
+      return null; // This is a root domain, not a tenant
+    }
+    return prefix;
+  }
+
+  // Pattern 2: {tenant}.localhost (local development)
+  // e.g., homechef.localhost -> homechef
+  const localPattern = /^(.+)\.localhost$/;
+  const localMatch = hostname.match(localPattern);
+  if (localMatch && !localMatch[1].includes('.')) {
+    return localMatch[1];
+  }
+
+  // Plain localhost or unknown domain
+  return null;
+}
+
+/**
+ * Get tenant slug from cookie
+ */
+export function getTenantFromCookie(): string | null {
+  if (typeof document === 'undefined') return null;
+
+  const cookies = document.cookie.split(';');
+  for (const cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === 'tenant-slug' && value) {
+      return decodeURIComponent(value);
+    }
+  }
+  return null;
+}
+
+/**
+ * Get tenant slug from current window location
+ */
+export function getTenantFromWindow(): string | null {
+  if (typeof window === 'undefined') return null;
+  return extractTenantFromHost(window.location.host);
+}
+
+/**
+ * Get tenant slug from window location
+ *
+ * Note: We ONLY use window.location for tenant detection.
+ * Cookies are not used as fallback because they can be stale
+ * when navigating between root domain and tenant subdomains.
+ */
+export function getCurrentTenantSlug(): string | null {
+  // Only use window location - it's the source of truth
+  return getTenantFromWindow();
+}
+
+/**
+ * Build admin URL for a tenant
+ *
+ * @param tenantSlug - The tenant slug
+ * @param path - Optional path to append (e.g., '/products')
+ * @returns Full URL to the tenant's admin panel
+ *
+ * URL patterns:
+ * - Cloud: {tenant}-admin.tesserix.app
+ * - Local: {tenant}.localhost:3001
+ */
+export function buildAdminUrl(tenantSlug: string, path: string = ''): string {
+  if (typeof window === 'undefined') {
+    // Server-side - default to cloud pattern
+    return `https://${tenantSlug}-admin.tesserix.app${path}`;
+  }
+
+  const hostname = window.location.hostname;
+  const port = window.location.port;
+  const protocol = window.location.protocol;
+
+  // Cloud: {tenant}-admin.tesserix.app
+  if (hostname.endsWith('tesserix.app')) {
+    return `${protocol}//${tenantSlug}-admin.tesserix.app${path}`;
+  }
+
+  // Local: {tenant}.localhost
+  const portPart = port ? `:${port}` : '';
+  return `${protocol}//${tenantSlug}.localhost${portPart}${path}`;
+}
+
+/**
+ * Get the storefront domain dynamically based on current environment
+ * This handles both build-time env vars and runtime detection
+ */
+export function getStorefrontDomain(): string {
+  // First check if we have an explicit env var set (and it's not localhost in production)
+  const envDomain = process.env.NEXT_PUBLIC_STOREFRONT_DOMAIN;
+
+  // In browser, detect from current hostname to ensure correct domain in production
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+
+    // If we're on tesserix.app domain, use tesserix.app for storefronts
+    if (hostname.endsWith('.tesserix.app') || hostname === 'tesserix.app') {
+      return 'tesserix.app';
+    }
+
+    // If we're on localhost, use localhost:3200 for storefronts
+    if (hostname === 'localhost' || hostname.endsWith('.localhost')) {
+      return 'localhost:3200';
+    }
+  }
+
+  // Fallback to env var or default
+  // Only use envDomain if it's not a localhost value in what appears to be production
+  if (envDomain && !envDomain.includes('localhost')) {
+    return envDomain;
+  }
+
+  // Default to production domain
+  return 'tesserix.app';
+}
+
+/**
+ * Build storefront URL for a tenant
+ *
+ * @param tenantSlug - The tenant slug
+ * @param path - Optional path to append
+ * @returns Full URL to the tenant's storefront
+ */
+export function buildStorefrontUrl(tenantSlug: string, path: string = ''): string {
+  const domain = getStorefrontDomain();
+  const protocol = domain.includes('localhost') ? 'http' : 'https';
+  return `${protocol}://${tenantSlug}.${domain}${path}`;
+}
+
+/**
+ * Get storefront URL from a Storefront object
+ * Uses the API-provided storefrontUrl if available, otherwise computes from slug/customDomain
+ *
+ * @param storefront - Storefront object with slug, customDomain, and optional storefrontUrl
+ * @param path - Optional path to append
+ * @returns Full URL to the storefront
+ */
+export function getStorefrontUrl(
+  storefront: { slug: string; customDomain?: string; storefrontUrl?: string },
+  path: string = ''
+): string {
+  // Prefer API-provided URL if available
+  if (storefront.storefrontUrl) {
+    return storefront.storefrontUrl + path;
+  }
+  // Fallback: use custom domain if set
+  if (storefront.customDomain) {
+    return `https://${storefront.customDomain}${path}`;
+  }
+  // Fallback: compute from slug + domain
+  return buildStorefrontUrl(storefront.slug, path);
+}
+
+/**
+ * Check if we're on a root domain (no tenant in subdomain)
+ */
+export function isRootDomain(): boolean {
+  if (typeof window === 'undefined') return true;
+  return getCurrentTenantSlug() === null;
+}
+
+/**
+ * Navigate to a different tenant's admin panel
+ * This performs a full page navigation to change subdomains
+ */
+export function navigateToTenant(tenantSlug: string, path: string = ''): void {
+  const url = buildAdminUrl(tenantSlug, path);
+  window.location.href = url;
+}
