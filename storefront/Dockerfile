@@ -35,14 +35,15 @@ ENV NODE_ENV=production
 # Build argument to determine which .env file to use
 ARG ENV_FILE=.env
 
-# Use the specified environment file for the build
-RUN if [ -f "$ENV_FILE" ]; then cp "$ENV_FILE" .env.production; fi
+# Use the specified environment file for the build, fallback to .env.example
+RUN if [ -f "$ENV_FILE" ]; then cp "$ENV_FILE" .env.production; \
+    elif [ -f ".env.example" ]; then cp ".env.example" .env.production; fi
 
 # Clean up any stale build artifacts
 RUN rm -rf .next
 
-# Build the application with environment variables from .env.production
-RUN set -a && [ -f .env.production ] && . .env.production && set +a && npm run build
+# Build the application (source env vars if available)
+RUN if [ -f .env.production ]; then set -a && . .env.production && set +a; fi && npm run build
 
 # -----------------------------------------------------------------------------
 # Stage 3: Production
