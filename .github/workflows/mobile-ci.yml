@@ -1,19 +1,20 @@
 name: Mobile App CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, develop]
     paths:
-      - 'apps/mobile/**'
+      - 'mobile/**'
       - '.github/workflows/mobile-ci.yml'
   pull_request:
     branches: [main, develop]
     paths:
-      - 'apps/mobile/**'
+      - 'mobile/**'
 
 defaults:
   run:
-    working-directory: apps/mobile
+    working-directory: mobile
 
 jobs:
   lint:
@@ -28,7 +29,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: apps/mobile/package-lock.json
+          cache-dependency-path: mobile/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -56,7 +57,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: apps/mobile/package-lock.json
+          cache-dependency-path: mobile/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -67,7 +68,7 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v4
         with:
-          file: ./apps/mobile/coverage/lcov.info
+          file: ./mobile/coverage/lcov.info
           flags: mobile
           fail_ci_if_error: false
 
@@ -85,7 +86,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: apps/mobile/package-lock.json
+          cache-dependency-path: mobile/package-lock.json
 
       - name: Setup Java
         uses: actions/setup-java@v4
@@ -119,7 +120,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: apps/mobile/package-lock.json
+          cache-dependency-path: mobile/package-lock.json
 
       - name: Setup Expo
         uses: expo/expo-github-action@v8
@@ -148,7 +149,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: apps/mobile/package-lock.json
+          cache-dependency-path: mobile/package-lock.json
 
       - name: Setup Expo
         uses: expo/expo-github-action@v8

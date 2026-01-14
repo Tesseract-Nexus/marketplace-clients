@@ -1,6 +1,7 @@
 name: Admin Portal - CI Build
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -9,19 +10,13 @@ on:
       - 'bugfix/**'
       - 'hotfix/**'
     paths:
-      - 'apps/admin/**'
-      - 'packages/shared/**'
-      - 'packages/ui/**'
-      - 'packages/api-contracts/**'
+      - 'admin/**'
       - '.github/workflows/admin-build.yml'
   pull_request:
     branches:
       - main
     paths:
-      - 'apps/admin/**'
-      - 'packages/shared/**'
-      - 'packages/ui/**'
-      - 'packages/api-contracts/**'
+      - 'admin/**'
 
 permissions:
   contents: read
@@ -69,8 +64,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: apps/admin
-          file: apps/admin/Dockerfile
+          context: admin
+          file: admin/Dockerfile
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}

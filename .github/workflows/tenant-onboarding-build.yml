@@ -1,6 +1,7 @@
 name: Tenant Onboarding - CI Build
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -9,19 +10,13 @@ on:
       - 'bugfix/**'
       - 'hotfix/**'
     paths:
-      - 'apps/tenant-onboarding/**'
-      - 'packages/shared/**'
-      - 'packages/ui/**'
-      - 'packages/api-contracts/**'
+      - 'tenant-onboarding/**'
       - '.github/workflows/tenant-onboarding-build.yml'
   pull_request:
     branches:
       - main
     paths:
-      - 'apps/tenant-onboarding/**'
-      - 'packages/shared/**'
-      - 'packages/ui/**'
-      - 'packages/api-contracts/**'
+      - 'tenant-onboarding/**'
 
 permissions:
   contents: read
@@ -70,7 +65,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: apps/tenant-onboarding/Dockerfile
+          file: tenant-onboarding/Dockerfile
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
