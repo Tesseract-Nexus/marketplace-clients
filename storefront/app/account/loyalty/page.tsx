@@ -239,8 +239,8 @@ export default function LoyaltyPage() {
 
   // Enrolled view
   const nextTier = program.tiers.find(t => t.minimumPoints > lifetimePoints);
-  const currentTierData = program.tiers.find(t => t.name === currentTier) || program.tiers[0];
-  const tierProgress = nextTier
+  const currentTierData = program.tiers.find(t => t.name === currentTier) ?? program.tiers[0];
+  const tierProgress = nextTier && currentTierData
     ? ((lifetimePoints - currentTierData.minimumPoints) / (nextTier.minimumPoints - currentTierData.minimumPoints)) * 100
     : 100;
 
