@@ -8,25 +8,19 @@
 # -----------------------------------------------------------------------------
 FROM node:22-alpine AS deps
 
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@10.13.1 --activate
-
 # Set working directory
 WORKDIR /app
 
 # Copy package files
-COPY package.json pnpm-lock.yaml ./
+COPY package.json package-lock.json ./
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
+RUN npm ci
 
 # -----------------------------------------------------------------------------
 # Stage 2: Builder
 # -----------------------------------------------------------------------------
 FROM node:22-alpine AS builder
-
-# Install pnpm
-RUN corepack enable && corepack prepare pnpm@10.13.1 --activate
 
 WORKDIR /app
 
@@ -48,7 +42,7 @@ RUN if [ -f "$ENV_FILE" ]; then cp "$ENV_FILE" .env.production; fi
 RUN rm -rf .next
 
 # Build the application with environment variables from .env.production
-RUN set -a && [ -f .env.production ] && . .env.production && set +a && pnpm build
+RUN set -a && [ -f .env.production ] && . .env.production && set +a && npm run build
 
 # -----------------------------------------------------------------------------
 # Stage 3: Production
