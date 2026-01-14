@@ -9,6 +9,7 @@ function decodeJwtPayload(token: string): { sub?: string; customer_id?: string }
     const parts = token.replace('Bearer ', '').split('.');
     if (parts.length !== 3) return null;
     const payload = parts[1];
+    if (!payload) return null;
     const decoded = Buffer.from(payload, 'base64url').toString('utf-8');
     return JSON.parse(decoded);
   } catch {
