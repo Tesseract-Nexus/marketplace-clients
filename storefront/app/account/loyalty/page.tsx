@@ -382,7 +382,7 @@ export default function LoyaltyPage() {
                   )}
                 </Button>
                 <Button
-                  variant="tenant"
+                  variant="tenant-primary"
                   size="icon"
                   onClick={shareReferralCode}
                   className="shrink-0"
