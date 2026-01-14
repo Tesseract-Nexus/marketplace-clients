@@ -54,7 +54,7 @@ export default function AccountPage() {
     country: 'US',
     countryCode: 'US',
     phone: '',
-    type: 'SHIPPING' as const,
+    type: 'SHIPPING' as 'SHIPPING' | 'BILLING',
   });
 
   // Initialize profile from customer data
