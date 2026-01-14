@@ -64,8 +64,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: tenant-onboarding/Dockerfile
+          context: ./tenant-onboarding
+          file: ./tenant-onboarding/Dockerfile
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
