@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 4201",
-    "build": "next build --webpack",
+    "build": "next build",
     "start": "next start",
     "lint": "eslint ."
   },
@@ -13,9 +13,6 @@
     "@hookform/resolvers": "^5.2.2",
     "@shadcn/ui": "^0.0.4",
     "@stripe/stripe-js": "^8.2.0",
-    "@workspace/api-contracts": "workspace:*",
-    "@workspace/shared": "workspace:*",
-    "@workspace/ui": "workspace:*",
     "axios": "^1.13.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.548.0",
@@ -36,8 +33,6 @@
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@workspace/eslint-config": "workspace:*",
-    "@workspace/typescript-config": "workspace:*",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "postcss": "^8.5.6",
