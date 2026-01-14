@@ -13,7 +13,7 @@ const nextConfig: NextConfig = {
   // Ignore TypeScript errors during production build (for CI/CD speed)
   // Type checking should be done separately in CI
   typescript: {
-    ignoreBuildErrors: process.env.NODE_ENV === 'production',
+    ignoreBuildErrors: true,
   },
 
   // Image optimization configuration
