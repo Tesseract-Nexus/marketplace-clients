@@ -13,7 +13,15 @@ import { Separator } from '@/components/ui/separator';
 import { useTenant, useNavPath } from '@/context/TenantContext';
 import { useAuthStore } from '@/store/auth';
 import { useCartStore } from '@/store/cart';
-import { initiateLogin, getSession } from '@/lib/api/auth';
+import { initiateLogin, getSession, directLogin, DirectAuthResponse, checkDeactivatedAccount, reactivateAccount } from '@/lib/api/auth';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { SocialLogin } from '@/components/auth/SocialLogin';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 
@@ -68,6 +76,15 @@ export default function LoginPage() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
+  // Reactivation state
+  const [showReactivateDialog, setShowReactivateDialog] = useState(false);
+  const [reactivateData, setReactivateData] = useState<{
+    daysUntilPurge?: number;
+    purgeDate?: string;
+  } | null>(null);
+  const [isReactivating, setIsReactivating] = useState(false);
+  const [reactivateError, setReactivateError] = useState<string | null>(null);
+
   // Wait for Zustand store to hydrate from localStorage
   useEffect(() => {
     setIsHydrated(true);
@@ -112,22 +129,109 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
 
-    // Use auth-bff OIDC flow for login
-    // This redirects to Keycloak where users can enter their credentials
-    // The email field is passed as a login_hint to pre-fill the email in Keycloak
+    // Use direct login (custom UI with Keycloak backend)
+    // This validates credentials via auth-bff without redirecting to Keycloak UI
     try {
-      const returnTo = getNavPath('/account');
+      if (!tenant?.slug) {
+        setError('Unable to determine store. Please try again.');
+        setLoading(false);
+        return;
+      }
 
-      // Pass email as login_hint and tenant context for multi-tenant authentication
-      initiateLogin({
-        returnTo,
-        loginHint: email || undefined,
-        tenantId: tenant?.id,
-        tenantSlug: tenant?.slug,
-      });
+      const result = await directLogin(email, password, tenant.slug, { rememberMe });
+
+      if (result.success && result.authenticated) {
+        // Login successful - update auth store with user info
+        if (result.user) {
+          login({
+            id: result.user.id,
+            email: result.user.email,
+            firstName: result.user.first_name || '',
+            lastName: result.user.last_name || '',
+            phone: '',
+            createdAt: new Date().toISOString(),
+            tenantId: result.user.tenant_id,
+          });
+        }
+
+        // Merge any guest cart items
+        await mergeGuestCart();
+
+        // Redirect to account page
+        router.push(getNavPath('/account'));
+      } else if (result.mfa_required) {
+        // MFA required - redirect to MFA verification page
+        // TODO: Implement MFA verification UI
+        setError('Multi-factor authentication is required. Please contact support.');
+        setLoading(false);
+      } else {
+        // Login failed - check if account is deactivated
+        if (result.error === 'INVALID_CREDENTIALS' || result.error === 'ACCOUNT_DEACTIVATED') {
+          // Check for deactivated account
+          const deactivatedCheck = await checkDeactivatedAccount(email, tenant.slug);
+          if (deactivatedCheck.is_deactivated && deactivatedCheck.can_reactivate) {
+            // Show reactivation dialog
+            setReactivateData({
+              daysUntilPurge: deactivatedCheck.days_until_purge,
+              purgeDate: deactivatedCheck.purge_date,
+            });
+            setShowReactivateDialog(true);
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Show error message
+        setError(result.message || 'Login failed. Please check your credentials.');
+        setLoading(false);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
       setLoading(false);
+    }
+  };
+
+  // Handle account reactivation
+  const handleReactivate = async () => {
+    if (!tenant?.slug) return;
+
+    setIsReactivating(true);
+    setReactivateError(null);
+
+    try {
+      const result = await reactivateAccount(email, password, tenant.slug);
+
+      if (result.success) {
+        // Account reactivated! Now log them in
+        setShowReactivateDialog(false);
+        setReactivateData(null);
+
+        // Attempt login again
+        const loginResult = await directLogin(email, password, tenant.slug, { rememberMe });
+
+        if (loginResult.success && loginResult.authenticated && loginResult.user) {
+          login({
+            id: loginResult.user.id,
+            email: loginResult.user.email,
+            firstName: loginResult.user.first_name || '',
+            lastName: loginResult.user.last_name || '',
+            phone: '',
+            createdAt: new Date().toISOString(),
+            tenantId: loginResult.user.tenant_id,
+          });
+
+          await mergeGuestCart();
+          router.push(getNavPath('/account'));
+        } else {
+          setError('Account reactivated but login failed. Please try logging in again.');
+        }
+      } else {
+        setReactivateError(result.message || 'Failed to reactivate account. Please check your password.');
+      }
+    } catch {
+      setReactivateError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsReactivating(false);
     }
   };
 
@@ -324,6 +428,74 @@ export default function LoginPage() {
           </Link>
         </motion.p>
       </motion.div>
+
+      {/* Reactivation Dialog */}
+      <Dialog open={showReactivateDialog} onOpenChange={setShowReactivateDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              <TranslatedUIText text="Reactivate Your Account" />
+            </DialogTitle>
+            <DialogDescription>
+              <TranslatedUIText text="Your account was deactivated. Would you like to reactivate it?" />
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div className="p-4 bg-muted/50 rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                <TranslatedUIText text="Your account data has been preserved." />
+                {reactivateData?.daysUntilPurge && (
+                  <>
+                    {' '}
+                    <TranslatedUIText text="You have" />{' '}
+                    <span className="font-medium text-foreground">{reactivateData.daysUntilPurge}</span>{' '}
+                    <TranslatedUIText text="days left to reactivate before your data is permanently deleted." />
+                  </>
+                )}
+              </p>
+            </div>
+
+            <p className="text-sm text-muted-foreground">
+              <TranslatedUIText text="Click 'Reactivate' to restore your account and log in with the password you entered." />
+            </p>
+
+            {reactivateError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-600">
+                {reactivateError}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowReactivateDialog(false);
+                setReactivateData(null);
+                setReactivateError(null);
+              }}
+              disabled={isReactivating}
+            >
+              <TranslatedUIText text="Cancel" />
+            </Button>
+            <Button
+              className="btn-tenant-primary"
+              onClick={handleReactivate}
+              disabled={isReactivating}
+            >
+              {isReactivating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <TranslatedUIText text="Reactivating..." />
+                </>
+              ) : (
+                <TranslatedUIText text="Reactivate My Account" />
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

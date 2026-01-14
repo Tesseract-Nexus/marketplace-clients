@@ -12,7 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { useTenant, useNavPath } from '@/context/TenantContext';
 import { useAuthStore } from '@/store/auth';
-import { initiateLogin, initiateRegistration } from '@/lib/api/auth';
+import { initiateLogin, directRegister, DirectAuthResponse } from '@/lib/api/auth';
 import { SocialLogin } from '@/components/auth/SocialLogin';
 import { cn } from '@/lib/utils';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
@@ -140,7 +140,7 @@ export default function RegisterPage() {
       return;
     }
 
-    // Validate passwords match before redirecting
+    // Validate passwords match
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -152,23 +152,45 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!tenant?.slug) {
+      setError('Unable to determine store. Please try again.');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Use auth-bff OIDC flow for registration
-      // This redirects to Keycloak where users can register
-      // Pass form data to pre-fill the registration form in Keycloak
-      const returnTo = getNavPath('/account');
+      // Use direct registration via auth-bff (custom UI without Keycloak redirect)
+      const result = await directRegister(
+        formData.email,
+        formData.password,
+        formData.firstName,
+        formData.lastName,
+        tenant.slug,
+        formData.phone || undefined
+      );
 
-      // Pass tenant context for multi-tenant authentication
-      initiateRegistration({
-        returnTo,
-        email: formData.email || undefined,
-        firstName: formData.firstName || undefined,
-        lastName: formData.lastName || undefined,
-        tenantId: tenant?.id,
-        tenantSlug: tenant?.slug,
-      });
+      if (result.success && (result.registered || result.authenticated)) {
+        // Registration successful - update auth store with user info
+        if (result.user) {
+          login({
+            id: result.user.id,
+            email: result.user.email,
+            firstName: result.user.first_name || '',
+            lastName: result.user.last_name || '',
+            phone: '',
+            createdAt: new Date().toISOString(),
+            tenantId: result.user.tenant_id,
+          });
+        }
+
+        // Redirect to account page
+        router.push(getNavPath('/account'));
+      } else {
+        // Registration failed - show error message
+        setError(result.message || 'Registration failed. Please try again.');
+        setLoading(false);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
       setLoading(false);

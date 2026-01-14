@@ -330,6 +330,582 @@ export async function getCsrfToken(): Promise<string | null> {
 }
 
 // ============================================================================
+// DIRECT AUTHENTICATION (Custom UI with Keycloak backend)
+// These functions allow custom login/register forms without redirecting to Keycloak UI
+// ============================================================================
+
+/**
+ * Response from direct login/register endpoints
+ */
+export interface DirectAuthResponse {
+  success: boolean;
+  authenticated?: boolean;
+  user?: {
+    id: string;
+    email: string;
+    first_name?: string;
+    last_name?: string;
+    tenant_id: string;
+    tenant_slug: string;
+    role?: string;
+  };
+  session?: {
+    expires_at: number;
+    csrf_token?: string;
+  };
+  // MFA response
+  mfa_required?: boolean;
+  mfa_session?: string;
+  mfa_methods?: string[];
+  // Error response
+  error?: string;
+  message?: string;
+  remaining_attempts?: number;
+  locked_until?: string;
+}
+
+/**
+ * Direct login with email/password (custom UI, no Keycloak redirect)
+ * Uses auth-bff's direct auth flow which validates against Keycloak internally.
+ *
+ * @param email - User's email address
+ * @param password - User's password
+ * @param tenantSlug - Tenant slug (e.g., 'demo-store')
+ * @param options - Additional options (rememberMe)
+ */
+export async function directLogin(
+  email: string,
+  password: string,
+  tenantSlug: string,
+  options?: { rememberMe?: boolean }
+): Promise<DirectAuthResponse> {
+  try {
+    const response = await fetch('/auth/direct/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        email,
+        password,
+        tenant_slug: tenantSlug,
+        remember_me: options?.rememberMe ?? false,
+      }),
+    });
+
+    const data = await response.json();
+
+    // Handle rate limiting
+    if (response.status === 429) {
+      return {
+        success: false,
+        error: 'RATE_LIMITED',
+        message: data.message || 'Too many login attempts. Please try again later.',
+      };
+    }
+
+    // Handle account locked
+    if (response.status === 423) {
+      return {
+        success: false,
+        error: 'ACCOUNT_LOCKED',
+        message: data.message || 'Your account has been temporarily locked.',
+        locked_until: data.locked_until,
+      };
+    }
+
+    // Handle invalid credentials
+    if (response.status === 401) {
+      return {
+        success: false,
+        error: 'INVALID_CREDENTIALS',
+        message: data.message || 'Invalid email or password.',
+        remaining_attempts: data.remaining_attempts,
+      };
+    }
+
+    // Handle service unavailable
+    if (response.status === 503) {
+      return {
+        success: false,
+        error: 'SERVICE_UNAVAILABLE',
+        message: 'Authentication service is temporarily unavailable. Please try again later.',
+      };
+    }
+
+    // Handle success or MFA required
+    return data;
+  } catch (error) {
+    console.error('Direct login error:', error);
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to connect to authentication service. Please check your connection.',
+    };
+  }
+}
+
+/**
+ * Direct registration with email/password (custom UI, no Keycloak redirect)
+ * Uses auth-bff's direct registration flow.
+ *
+ * @param email - User's email address
+ * @param password - User's password
+ * @param firstName - User's first name
+ * @param lastName - User's last name
+ * @param tenantSlug - Tenant slug (e.g., 'demo-store')
+ */
+export async function directRegister(
+  email: string,
+  password: string,
+  firstName: string,
+  lastName: string,
+  tenantSlug: string,
+  phone?: string
+): Promise<DirectAuthResponse> {
+  try {
+    const response = await fetch('/auth/direct/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        email,
+        password,
+        first_name: firstName,
+        last_name: lastName,
+        tenant_slug: tenantSlug,
+        phone: phone || undefined,
+      }),
+    });
+
+    const data = await response.json();
+
+    // Handle user already exists
+    if (response.status === 409) {
+      return {
+        success: false,
+        error: 'USER_EXISTS',
+        message: data.message || 'An account with this email already exists.',
+      };
+    }
+
+    // Handle validation errors
+    if (response.status === 400) {
+      return {
+        success: false,
+        error: 'VALIDATION_ERROR',
+        message: data.message || 'Please check your registration details.',
+      };
+    }
+
+    // Handle service unavailable
+    if (response.status === 503) {
+      return {
+        success: false,
+        error: 'SERVICE_UNAVAILABLE',
+        message: 'Registration service is temporarily unavailable. Please try again later.',
+      };
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Direct registration error:', error);
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to connect to registration service. Please check your connection.',
+    };
+  }
+}
+
+/**
+ * Verify MFA code after direct login
+ *
+ * @param mfaSession - MFA session ID from login response
+ * @param code - MFA verification code
+ * @param method - MFA method (totp, email, sms)
+ */
+export async function verifyMfa(
+  mfaSession: string,
+  code: string,
+  method: 'totp' | 'email' | 'sms' = 'totp'
+): Promise<DirectAuthResponse> {
+  try {
+    const response = await fetch('/auth/direct/mfa/verify', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        mfa_session: mfaSession,
+        code,
+        method,
+      }),
+    });
+
+    return response.json();
+  } catch (error) {
+    console.error('MFA verification error:', error);
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to verify MFA code. Please try again.',
+    };
+  }
+}
+
+// ============================================================================
+// ACCOUNT DEACTIVATION
+// ============================================================================
+
+/**
+ * Response from account deactivation check
+ */
+export interface CheckDeactivatedResponse {
+  success: boolean;
+  is_deactivated: boolean;
+  can_reactivate: boolean;
+  days_until_purge?: number;
+  deactivated_at?: string;
+  purge_date?: string;
+  error?: string;
+  message?: string;
+}
+
+/**
+ * Response from account deactivation
+ */
+export interface DeactivateAccountResponse {
+  success: boolean;
+  deactivated_at?: string;
+  scheduled_purge_at?: string;
+  days_until_purge?: number;
+  message?: string;
+  error?: string;
+}
+
+/**
+ * Response from account reactivation
+ */
+export interface ReactivateAccountResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
+/**
+ * Check if an account is deactivated (used during login flow)
+ *
+ * @param email - User's email address
+ * @param tenantSlug - Tenant slug (e.g., 'demo-store')
+ */
+export async function checkDeactivatedAccount(
+  email: string,
+  tenantSlug: string
+): Promise<CheckDeactivatedResponse> {
+  try {
+    const response = await fetch('/auth/direct/check-deactivated', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        email,
+        tenant_slug: tenantSlug,
+      }),
+    });
+
+    return response.json();
+  } catch (error) {
+    console.error('Check deactivated error:', error);
+    return {
+      success: false,
+      is_deactivated: false,
+      can_reactivate: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to check account status. Please try again.',
+    };
+  }
+}
+
+/**
+ * Deactivate the current user's account (self-service)
+ * User must be logged in. After deactivation, session is destroyed.
+ *
+ * @param reason - Optional reason for deactivation
+ */
+export async function deactivateAccount(
+  reason?: string
+): Promise<DeactivateAccountResponse> {
+  try {
+    const response = await fetch('/auth/direct/deactivate-account', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        reason: reason || 'self_service',
+      }),
+    });
+
+    // Check for auth errors first
+    if (response.status === 401) {
+      return {
+        success: false,
+        error: 'UNAUTHORIZED',
+        message: 'You must be logged in to deactivate your account.',
+      };
+    }
+
+    // Try to parse the response
+    let data;
+    try {
+      data = await response.json();
+    } catch {
+      // If we can't parse JSON but the response was successful (2xx), treat as success
+      if (response.ok) {
+        return {
+          success: true,
+          message: 'Your account has been deactivated.',
+        };
+      }
+      throw new Error('Invalid response from server');
+    }
+
+    // Handle non-OK responses with error data
+    if (!response.ok) {
+      return {
+        success: false,
+        error: data.error || 'DEACTIVATION_FAILED',
+        message: data.message || 'Failed to deactivate account. Please try again.',
+      };
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Deactivate account error:', error);
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to deactivate account. Please try again.',
+    };
+  }
+}
+
+/**
+ * Reactivate a deactivated account within the 90-day retention period
+ *
+ * @param email - User's email address
+ * @param password - User's password (for verification)
+ * @param tenantSlug - Tenant slug (e.g., 'demo-store')
+ */
+export async function reactivateAccount(
+  email: string,
+  password: string,
+  tenantSlug: string
+): Promise<ReactivateAccountResponse> {
+  try {
+    const response = await fetch('/auth/direct/reactivate-account', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        email,
+        password,
+        tenant_slug: tenantSlug,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.status === 401) {
+      return {
+        success: false,
+        error: 'INVALID_PASSWORD',
+        message: 'Invalid password. Please try again.',
+      };
+    }
+
+    if (response.status === 410) {
+      return {
+        success: false,
+        error: 'CANNOT_REACTIVATE',
+        message: 'Account cannot be reactivated. The retention period has expired.',
+      };
+    }
+
+    if (response.status === 429) {
+      return {
+        success: false,
+        error: 'RATE_LIMITED',
+        message: 'Too many attempts. Please try again later.',
+      };
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Reactivate account error:', error);
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to reactivate account. Please try again.',
+    };
+  }
+}
+
+// ============================================================================
+// PASSWORD RESET (Direct auth flow)
+// ============================================================================
+
+/**
+ * Response from password reset request
+ */
+export interface RequestPasswordResetResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
+/**
+ * Response from reset token validation
+ */
+export interface ValidateResetTokenResponse {
+  success: boolean;
+  valid: boolean;
+  email?: string;
+  expires_at?: string;
+  message?: string;
+  error?: string;
+}
+
+/**
+ * Response from password reset
+ */
+export interface ResetPasswordResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
+/**
+ * Request a password reset email
+ * Always returns success to not reveal if email exists (security best practice)
+ *
+ * @param email - User's email address
+ * @param tenantSlug - Tenant slug (e.g., 'demo-store')
+ */
+export async function directRequestPasswordReset(
+  email: string,
+  tenantSlug: string
+): Promise<RequestPasswordResetResponse> {
+  try {
+    const response = await fetch('/auth/direct/request-password-reset', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        email,
+        tenant_slug: tenantSlug,
+      }),
+    });
+
+    return response.json();
+  } catch (error) {
+    console.error('Password reset request error:', error);
+    // Return success to not reveal if email exists
+    return {
+      success: true,
+      message: 'If an account exists with this email, you will receive a password reset link shortly.',
+    };
+  }
+}
+
+/**
+ * Validate a password reset token
+ * Returns whether the token is valid and the masked email
+ *
+ * @param token - Reset token from email link
+ */
+export async function directValidateResetToken(
+  token: string
+): Promise<ValidateResetTokenResponse> {
+  try {
+    const response = await fetch('/auth/direct/validate-reset-token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ token }),
+    });
+
+    return response.json();
+  } catch (error) {
+    console.error('Reset token validation error:', error);
+    return {
+      success: false,
+      valid: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to validate reset link. Please try again.',
+    };
+  }
+}
+
+/**
+ * Reset password using a valid token
+ *
+ * @param token - Reset token from email link
+ * @param newPassword - New password to set
+ */
+export async function directResetPassword(
+  token: string,
+  newPassword: string
+): Promise<ResetPasswordResponse> {
+  try {
+    const response = await fetch('/auth/direct/reset-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        token,
+        new_password: newPassword,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.status === 400) {
+      return {
+        success: false,
+        error: 'INVALID_TOKEN',
+        message: data.message || 'Invalid or expired reset link. Please request a new one.',
+      };
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Password reset error:', error);
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to reset password. Please try again.',
+    };
+  }
+}
+
+// ============================================================================
 // DEPRECATED: The following functions are kept for backwards compatibility
 // but will not work as the underlying endpoints have been removed.
 // Use the OIDC-based functions above instead.

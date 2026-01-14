@@ -67,9 +67,11 @@ spec:
         - name: TENANT_ROUTER_SERVICE_URL
           value: "http://tenant-router-service.default.svc.cluster.local:8080"
 
-        # Auth Service
-        - name: AUTH_SERVICE_URL
-          value: "http://auth-service.default.svc.cluster.local:8080"
+        # Auth BFF Service (for customer authentication via Keycloak OIDC)
+        - name: AUTH_BFF_URL
+          value: "http://auth-bff.default.svc.cluster.local:8080"
+        - name: AUTH_BFF_INTERNAL_URL
+          value: "http://auth-bff.default.svc.cluster.local:8080"
 
         # Products Service
         - name: PRODUCTS_SERVICE_URL

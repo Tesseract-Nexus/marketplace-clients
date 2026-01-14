@@ -1,17 +1,28 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Bell, Lock, Shield, Eye, EyeOff, Smartphone, Loader2, CheckCircle, Globe, Languages } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Bell, Lock, Shield, Eye, EyeOff, Smartphone, Loader2, CheckCircle, Globe, Languages, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useTenant } from '@/context/TenantContext';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useAuthStore } from '@/store/auth';
 import { getPreferences, updatePreferences, NotificationPreferences } from '@/lib/api/notifications';
+import { deactivateAccount } from '@/lib/api/auth';
 import {
   getLanguages,
   getUserLanguagePreference,
@@ -24,8 +35,9 @@ import { useTranslation } from '@/context/TranslationContext';
 import { clearTranslationCache } from '@/hooks/useTranslatedText';
 
 export default function SettingsPage() {
+  const router = useRouter();
   const { tenant, settings } = useTenant();
-  const { accessToken, isAuthenticated } = useAuthStore();
+  const { accessToken, isAuthenticated, logout: clearAuth } = useAuthStore();
   const {
     preferredLanguage: contextPreferredLanguage,
     autoDetectSource: contextAutoDetect,
@@ -55,6 +67,12 @@ export default function SettingsPage() {
   const [isLoadingLanguages, setIsLoadingLanguages] = useState(true);
   const [isSavingLanguage, setIsSavingLanguage] = useState(false);
   const [languageSaveSuccess, setLanguageSaveSuccess] = useState(false);
+
+  // Account deactivation state
+  const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
+  const [deactivateReason, setDeactivateReason] = useState('not_using');
+  const [isDeactivating, setIsDeactivating] = useState(false);
+  const [deactivateError, setDeactivateError] = useState<string | null>(null);
 
   // Sync local state with TranslationContext (source of truth)
   useEffect(() => {
@@ -235,6 +253,32 @@ export default function SettingsPage() {
       await enableNotifications();
     } else {
       await disableNotifications();
+    }
+  };
+
+  // Handle account deactivation
+  const handleDeactivateAccount = async () => {
+    setIsDeactivating(true);
+    setDeactivateError(null);
+
+    try {
+      const result = await deactivateAccount(deactivateReason);
+
+      if (result.success) {
+        // Clear local auth state first
+        clearAuth();
+        // Use window.location for a full page navigation to ensure clean state
+        // This is important because the session cookie has been cleared by the server
+        window.location.href = '/goodbye';
+        return; // Don't set isDeactivating to false since we're navigating away
+      } else {
+        setDeactivateError(result.message || 'Failed to deactivate account. Please try again.');
+      }
+    } catch (error) {
+      console.error('Deactivation error:', error);
+      setDeactivateError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsDeactivating(false);
     }
   };
 
@@ -544,14 +588,109 @@ export default function SettingsPage() {
         <h2 className="text-lg font-semibold text-red-600 mb-4"><TranslatedUIText text="Danger Zone" /></h2>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <p className="font-medium"><TranslatedUIText text="Delete Account" /></p>
+            <p className="font-medium"><TranslatedUIText text="Deactivate Account" /></p>
             <p className="text-sm text-muted-foreground">
-              <TranslatedUIText text="Permanently delete your account and all associated data" />
+              <TranslatedUIText text="Deactivate your account. Your data will be retained for 90 days before permanent deletion." />
             </p>
           </div>
-          <Button variant="destructive"><TranslatedUIText text="Delete Account" /></Button>
+          <Button
+            variant="destructive"
+            onClick={() => setShowDeactivateDialog(true)}
+            disabled={!isAuthenticated}
+          >
+            <TranslatedUIText text="Deactivate Account" />
+          </Button>
         </div>
       </div>
+
+      {/* Deactivation Confirmation Dialog */}
+      <Dialog open={showDeactivateDialog} onOpenChange={setShowDeactivateDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="h-5 w-5" />
+              <TranslatedUIText text="Deactivate Account" />
+            </DialogTitle>
+            <DialogDescription>
+              <TranslatedUIText text="Are you sure you want to deactivate your account? This action will:" />
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <ul className="list-disc list-inside space-y-2 text-sm text-muted-foreground">
+              <li><TranslatedUIText text="Log you out immediately" /></li>
+              <li><TranslatedUIText text="Prevent you from logging in until you reactivate" /></li>
+              <li><TranslatedUIText text="Keep your data for 90 days (then permanently deleted)" /></li>
+              <li><TranslatedUIText text="Allow you to reactivate within 90 days by logging in" /></li>
+            </ul>
+
+            <Separator />
+
+            <div className="space-y-3">
+              <Label><TranslatedUIText text="Why are you leaving? (optional)" /></Label>
+              <RadioGroup value={deactivateReason} onValueChange={setDeactivateReason}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="not_using" id="not_using" />
+                  <Label htmlFor="not_using" className="font-normal cursor-pointer">
+                    <TranslatedUIText text="I'm not using this account anymore" />
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="privacy_concerns" id="privacy_concerns" />
+                  <Label htmlFor="privacy_concerns" className="font-normal cursor-pointer">
+                    <TranslatedUIText text="Privacy concerns" />
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="switching_service" id="switching_service" />
+                  <Label htmlFor="switching_service" className="font-normal cursor-pointer">
+                    <TranslatedUIText text="Switching to another service" />
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="other" id="other" />
+                  <Label htmlFor="other" className="font-normal cursor-pointer">
+                    <TranslatedUIText text="Other reason" />
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {deactivateError && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-600">
+                {deactivateError}
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeactivateDialog(false);
+                setDeactivateError(null);
+              }}
+              disabled={isDeactivating}
+            >
+              <TranslatedUIText text="Cancel" />
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeactivateAccount}
+              disabled={isDeactivating}
+            >
+              {isDeactivating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  <TranslatedUIText text="Deactivating..." />
+                </>
+              ) : (
+                <TranslatedUIText text="Yes, Deactivate My Account" />
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

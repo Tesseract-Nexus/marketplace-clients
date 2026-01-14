@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, ArrowLeft, Loader2 } from 'lucide-react';
+import { Mail, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTenant, useNavPath } from '@/context/TenantContext';
-import { initiateForgotPassword } from '@/lib/api/auth';
+import { directRequestPasswordReset } from '@/lib/api/auth';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 
 export default function ForgotPasswordPage() {
@@ -18,6 +18,7 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,24 +29,77 @@ export default function ForgotPasswordPage() {
       return;
     }
 
+    if (!tenant?.slug) {
+      setError('Store configuration error. Please try again later.');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
-      // Redirect to Keycloak's password reset flow
-      // This will take the user to Keycloak where they can reset their password
-      const returnTo = getNavPath('/login');
-      // Pass tenant context for multi-tenant authentication
-      initiateForgotPassword({
-        returnTo,
-        email: email || undefined,
-        tenantId: tenant?.id,
-        tenantSlug: tenant?.slug,
-      });
+      const result = await directRequestPasswordReset(email, tenant.slug);
+
+      // Always show success message (security: don't reveal if email exists)
+      setSuccess(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to initiate password reset');
+      // Still show success for security (don't reveal if email exists)
+      setSuccess(true);
+    } finally {
       setIsLoading(false);
     }
   };
+
+  if (success) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md"
+        >
+          <div className="bg-card rounded-2xl border shadow-lg p-8">
+            <div className="text-center">
+              <div
+                className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
+                style={{ background: `${settings.primaryColor}15` }}
+              >
+                <CheckCircle className="h-8 w-8 text-green-500" />
+              </div>
+              <h1 className="text-2xl font-bold mb-2">
+                <TranslatedUIText text="Check Your Email" />
+              </h1>
+              <p className="text-muted-foreground">
+                <TranslatedUIText text="If an account exists with this email, you will receive a password reset link shortly." />
+              </p>
+              <p className="text-muted-foreground text-sm mt-2">
+                <TranslatedUIText text="The link will expire in 1 hour." />
+              </p>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              <Button
+                variant="tenant-gradient"
+                className="w-full"
+                onClick={() => {
+                  setSuccess(false);
+                  setEmail('');
+                }}
+              >
+                <TranslatedUIText text="Send Another Link" />
+              </Button>
+
+              <Link href={getNavPath('/login')} className="block">
+                <Button variant="outline" className="w-full">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  <TranslatedUIText text="Back to Sign In" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
@@ -66,7 +120,7 @@ export default function ForgotPasswordPage() {
               <TranslatedUIText text="Forgot Password?" />
             </h1>
             <p className="text-muted-foreground mt-2">
-              <TranslatedUIText text="Enter your email and we'll help you reset your password" />
+              <TranslatedUIText text="Enter your email and we'll send you a link to reset your password" />
             </p>
           </div>
 
@@ -111,10 +165,10 @@ export default function ForgotPasswordPage() {
               {isLoading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  <TranslatedUIText text="Redirecting..." />
+                  <TranslatedUIText text="Sending..." />
                 </>
               ) : (
-                <TranslatedUIText text="Reset Password" />
+                <TranslatedUIText text="Send Reset Link" />
               )}
             </Button>
           </form>
