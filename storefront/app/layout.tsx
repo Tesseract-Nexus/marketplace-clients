@@ -158,7 +158,7 @@ function mergeWithDefaults(apiSettings: Partial<StorefrontSettings> | null, defa
     marketingConfig: {
       ...defaults.marketingConfig,
       ...(apiSettings.marketingConfig || {}),
-    },
+    } as StorefrontSettings['marketingConfig'],
   };
 }
 
