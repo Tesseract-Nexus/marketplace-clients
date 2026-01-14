@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Search, MapPin, Loader2, X, Edit3, CheckCircle, Navigation } from 'lucide-react';
-import { Input, Button } from '@workspace/ui';
+import { Input, Button } from '@/components/ui';
 import {
   locationApi,
   type AddressSuggestion,

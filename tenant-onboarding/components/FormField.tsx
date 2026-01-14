@@ -1,6 +1,6 @@
 import React from 'react';
-import { Input } from '@workspace/ui';
-import { Label } from '@workspace/ui';
+import { Input } from '@/components/ui';
+import { Label } from '@/components/ui';
 import { Check, Loader2, AlertCircle, LucideIcon } from 'lucide-react';
 import type { FieldState } from '../lib/hooks/useFieldValidation';
 

@@ -1,9 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Label } from '@workspace/ui';
+import { Label } from '@/components/ui';
 import { SimpleSelect } from './SimpleSelect';
-import { Input } from '@workspace/ui';
+import { Input } from '@/components/ui';
 import { Phone, AlertCircle } from 'lucide-react';
 
 interface Country {

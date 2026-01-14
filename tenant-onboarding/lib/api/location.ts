@@ -8,7 +8,7 @@ import type {
   StatesResponse,
   CurrenciesResponse,
   TimezonesResponse
-} from '@workspace/api-contracts';
+} from '../types/api-contracts';
 
 // Extended LocationData with all fields from geolocation service
 export interface LocationData {

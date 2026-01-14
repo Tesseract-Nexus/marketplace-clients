@@ -2,12 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui';
-import { Button } from '@workspace/ui';
-import { Badge } from '@workspace/ui';
-import { Switch } from '@workspace/ui';
-import { Separator } from '@workspace/ui';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@workspace/ui';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Badge } from '@/components/ui';
+import { Switch } from '@/components/ui';
+import { Separator } from '@/components/ui';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui';
 import Header from '../../components/Header';
 import { 
   Check, 

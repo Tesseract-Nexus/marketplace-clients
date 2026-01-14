@@ -5,7 +5,7 @@ import type {
   BusinessInfoRequest,
   ContactDetailsRequest,
   BusinessAddressRequest,
-} from '@workspace/api-contracts';
+} from '../types/api-contracts';
 import type { AccountSetupResponse, TenantCreationResult } from '../types/tenant';
 
 // Serializable document info (without File object which can't be persisted)

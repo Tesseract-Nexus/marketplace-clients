@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@workspace/ui';
+import { Button } from '@/components/ui';
 import { Sparkles, User } from 'lucide-react';
 
 interface HeaderProps {

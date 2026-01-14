@@ -6,7 +6,7 @@ import type {
   BusinessInfoRequest,
   ContactDetailsRequest,
   BusinessAddressRequest,
-} from '@workspace/api-contracts';
+} from '../types/api-contracts';
 
 export interface UseOnboardingOptions {
   autoSave?: boolean;

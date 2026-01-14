@@ -22,7 +22,7 @@ import type {
   UpdateBusinessInformationRequest,
   CreateContactInformationRequest,
   CreateBusinessAddressRequest,
-} from '@workspace/api-contracts';
+} from '../types/api-contracts';
 import type { AccountSetupResponse } from '../types/tenant';
 
 // Use Next.js API routes (BFF pattern) instead of direct backend calls

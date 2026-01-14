@@ -2,10 +2,10 @@
 
 import { useState, useRef, useEffect, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@workspace/ui';
-import { Button } from '@workspace/ui';
-import { Input } from '@workspace/ui';
-import { Alert, AlertDescription } from '@workspace/ui';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Alert, AlertDescription } from '@/components/ui';
 import Header from '../../../components/Header';
 import { Loader2, Mail, RefreshCw, Shield, CheckCircle, ExternalLink, PartyPopper, Gift, ArrowRight, Sparkles, Home, Store, Rocket, Clock, User } from 'lucide-react';
 import { useOnboardingStore } from '../../../lib/store/onboarding-store';

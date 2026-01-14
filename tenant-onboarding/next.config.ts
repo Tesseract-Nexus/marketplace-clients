@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Transpile workspace packages for monorepo (Next.js 16 with Turbopack)
-  transpilePackages: ['@workspace/ui', '@workspace/shared', '@workspace/api-contracts'],
-
   // Output standalone for Docker deployment
   output: 'standalone',
 
