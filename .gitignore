@@ -52,6 +52,8 @@ nativewind-env.d.ts
 # Lock files (use pnpm)
 package-lock.json
 yarn.lock
+# But allow package-lock.json for storefront (uses npm)
+!storefront/package-lock.json
 
 # Misc
 *.pem
