@@ -108,7 +108,7 @@ async function fetchTenantValidation(slug: string): Promise<boolean> {
   // This caused the middleware to treat reserved slugs as existing tenants.
   // Using GetTenantBySlug directly checks for actual tenant existence.
   const response = await fetch(
-    `${TENANT_SERVICE_URL}/api/v1/internal/tenants/by-slug/${encodeURIComponent(slug)}`,
+    `${TENANT_SERVICE_URL}/internal/tenants/by-slug/${encodeURIComponent(slug)}`,
     {
       method: 'GET',
       headers: {
