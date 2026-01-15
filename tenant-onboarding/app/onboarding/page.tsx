@@ -12,7 +12,7 @@ import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowR
 import { ThemeToggle } from '../../components/theme-toggle';
 import { useOnboardingStore, type DetectedLocation, type PersistedDocument } from '../../lib/store/onboarding-store';
 import { businessInfoSchema, contactDetailsSchema, businessAddressSchema, storeSetupSchema, MARKETPLACE_PLATFORMS, type BusinessInfoForm, type ContactDetailsForm, type BusinessAddressForm, type StoreSetupForm } from '../../lib/validations/onboarding';
-import { onboardingApi } from '../../lib/api/onboarding';
+import { onboardingApi, OnboardingAPIError } from '../../lib/api/onboarding';
 import { locationApi, type Country, type State, type Currency, type Timezone } from '../../lib/api/location';
 import { useRouter } from 'next/navigation';
 import { analytics } from '../../lib/analytics/posthog';
@@ -923,13 +923,22 @@ export default function OnboardingPage() {
 
       setCurrentSection(1);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '';
-      // Check for stale session and trigger cleanup
-      if (errorMessage.toLowerCase().includes('session not found') || errorMessage.toLowerCase().includes('not found')) {
-        handleSessionNotFound();
-        return;
+      // Use OnboardingAPIError for better error handling
+      if (error instanceof OnboardingAPIError) {
+        if (error.isSessionError()) {
+          handleSessionNotFound();
+          return;
+        }
+        // Show specific error message from API
+        setValidationErrors({ businessName: error.message });
+      } else {
+        const errorMessage = error instanceof Error ? error.message : '';
+        if (errorMessage.toLowerCase().includes('session not found') || errorMessage.toLowerCase().includes('not found')) {
+          handleSessionNotFound();
+          return;
+        }
+        setValidationErrors({ businessName: 'Unable to save business information. Please check your connection and try again.' });
       }
-      setValidationErrors({ businessName: 'Failed to save. Please try again.' });
     }
     finally { setIsLoading(false); }
   };
@@ -963,13 +972,21 @@ export default function OnboardingPage() {
       });
       setCurrentSection(2);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '';
-      // Check for stale session and trigger cleanup
-      if (errorMessage.toLowerCase().includes('session not found') || errorMessage.toLowerCase().includes('not found')) {
-        handleSessionNotFound();
-        return;
+      // Use OnboardingAPIError for better error handling
+      if (error instanceof OnboardingAPIError) {
+        if (error.isSessionError()) {
+          handleSessionNotFound();
+          return;
+        }
+        setValidationErrors({ email: error.message });
+      } else {
+        const errorMessage = error instanceof Error ? error.message : '';
+        if (errorMessage.toLowerCase().includes('session not found') || errorMessage.toLowerCase().includes('not found')) {
+          handleSessionNotFound();
+          return;
+        }
+        setValidationErrors({ email: 'Unable to save contact details. Please check your connection and try again.' });
       }
-      setValidationErrors({ email: 'Failed to save. Please try again.' });
     }
     finally { setIsLoading(false); }
   };
@@ -1011,13 +1028,21 @@ export default function OnboardingPage() {
       } as any);
       setCurrentSection(3);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : '';
-      // Check for stale session and trigger cleanup
-      if (errorMessage.toLowerCase().includes('session not found') || errorMessage.toLowerCase().includes('not found')) {
-        handleSessionNotFound();
-        return;
+      // Use OnboardingAPIError for better error handling
+      if (error instanceof OnboardingAPIError) {
+        if (error.isSessionError()) {
+          handleSessionNotFound();
+          return;
+        }
+        setValidationErrors({ verification: error.message });
+      } else {
+        const errorMessage = error instanceof Error ? error.message : '';
+        if (errorMessage.toLowerCase().includes('session not found') || errorMessage.toLowerCase().includes('not found')) {
+          handleSessionNotFound();
+          return;
+        }
+        setValidationErrors({ verification: 'Unable to save address. Please check your connection and try again.' });
       }
-      setValidationErrors({ verification: errorMessage || 'Failed to save address.' });
     } finally { setIsLoading(false); }
   };
 
@@ -1082,7 +1107,16 @@ export default function OnboardingPage() {
       nextStep();
       router.push('/onboarding/verify');
     } catch (error) {
-      setValidationErrors({ storeSetup: error instanceof Error ? error.message : 'Failed to save store setup.' });
+      // Use OnboardingAPIError for better error handling
+      if (error instanceof OnboardingAPIError) {
+        if (error.isSessionError()) {
+          handleSessionNotFound();
+          return;
+        }
+        setValidationErrors({ storeSetup: error.message });
+      } else {
+        setValidationErrors({ storeSetup: error instanceof Error ? error.message : 'Unable to save store setup. Please check your connection and try again.' });
+      }
     } finally { setIsLoading(false); }
   };
 

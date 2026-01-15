@@ -62,47 +62,288 @@ export interface ValidationResult {
 }
 
 
+// Enterprise reliability configuration
+interface RetryConfig {
+  maxRetries: number;
+  baseDelayMs: number;
+  maxDelayMs: number;
+  retryableStatusCodes: number[];
+}
+
+interface CircuitBreakerState {
+  failures: number;
+  lastFailure: number;
+  isOpen: boolean;
+}
+
+// Error types for better error handling
+export class OnboardingAPIError extends Error {
+  constructor(
+    message: string,
+    public readonly code: string,
+    public readonly statusCode?: number,
+    public readonly details?: Record<string, unknown>
+  ) {
+    super(message);
+    this.name = 'OnboardingAPIError';
+  }
+
+  static fromResponse(response: Response, data: Record<string, unknown>): OnboardingAPIError {
+    const message = (data.error as Record<string, unknown>)?.message as string
+      || data.message as string
+      || OnboardingAPIError.getDefaultMessage(response.status);
+    const code = OnboardingAPIError.getErrorCode(response.status, data);
+    return new OnboardingAPIError(message, code, response.status, data);
+  }
+
+  static getDefaultMessage(status: number): string {
+    switch (status) {
+      case 400: return 'Invalid request. Please check your input.';
+      case 401: return 'Session expired. Please refresh and try again.';
+      case 403: return 'Access denied. You may not have permission for this action.';
+      case 404: return 'The requested resource was not found.';
+      case 408: return 'Request timed out. Please try again.';
+      case 409: return 'Conflict detected. Please refresh and try again.';
+      case 429: return 'Too many requests. Please wait a moment and try again.';
+      case 500: return 'Server error. Our team has been notified.';
+      case 502: return 'Service temporarily unavailable. Please try again.';
+      case 503: return 'Service is currently undergoing maintenance.';
+      case 504: return 'Request timed out. Please try again.';
+      default: return 'An unexpected error occurred. Please try again.';
+    }
+  }
+
+  static getErrorCode(status: number, data: Record<string, unknown>): string {
+    if (data.code) return data.code as string;
+    switch (status) {
+      case 400: return 'VALIDATION_ERROR';
+      case 401: return 'SESSION_EXPIRED';
+      case 403: return 'ACCESS_DENIED';
+      case 404: return 'NOT_FOUND';
+      case 408: return 'TIMEOUT';
+      case 409: return 'CONFLICT';
+      case 429: return 'RATE_LIMITED';
+      case 500: return 'SERVER_ERROR';
+      case 502: return 'BAD_GATEWAY';
+      case 503: return 'SERVICE_UNAVAILABLE';
+      case 504: return 'GATEWAY_TIMEOUT';
+      default: return 'UNKNOWN_ERROR';
+    }
+  }
+
+  isRetryable(): boolean {
+    return ['TIMEOUT', 'BAD_GATEWAY', 'SERVICE_UNAVAILABLE', 'GATEWAY_TIMEOUT', 'SERVER_ERROR'].includes(this.code);
+  }
+
+  isSessionError(): boolean {
+    return ['SESSION_EXPIRED', 'NOT_FOUND'].includes(this.code);
+  }
+}
+
 class OnboardingAPI {
   private baseURL: string;
+  private retryConfig: RetryConfig;
+  private circuitBreaker: CircuitBreakerState;
+  private readonly circuitBreakerThreshold = 5;
+  private readonly circuitBreakerResetMs = 30000; // 30 seconds
 
   constructor() {
     this.baseURL = API_BASE_URL;
+    this.retryConfig = {
+      maxRetries: 3,
+      baseDelayMs: 500,
+      maxDelayMs: 5000,
+      retryableStatusCodes: [408, 429, 500, 502, 503, 504],
+    };
+    this.circuitBreaker = {
+      failures: 0,
+      lastFailure: 0,
+      isOpen: false,
+    };
+  }
+
+  private checkCircuitBreaker(): void {
+    if (this.circuitBreaker.isOpen) {
+      const timeSinceLastFailure = Date.now() - this.circuitBreaker.lastFailure;
+      if (timeSinceLastFailure >= this.circuitBreakerResetMs) {
+        // Reset circuit breaker after cooldown
+        this.circuitBreaker.isOpen = false;
+        this.circuitBreaker.failures = 0;
+        console.log('[OnboardingAPI] Circuit breaker reset');
+      } else {
+        throw new OnboardingAPIError(
+          'Service is temporarily unavailable. Please wait a moment and try again.',
+          'CIRCUIT_BREAKER_OPEN',
+          503
+        );
+      }
+    }
+  }
+
+  private recordSuccess(): void {
+    this.circuitBreaker.failures = 0;
+    this.circuitBreaker.isOpen = false;
+  }
+
+  private recordFailure(): void {
+    this.circuitBreaker.failures++;
+    this.circuitBreaker.lastFailure = Date.now();
+    if (this.circuitBreaker.failures >= this.circuitBreakerThreshold) {
+      this.circuitBreaker.isOpen = true;
+      console.warn(`[OnboardingAPI] Circuit breaker opened after ${this.circuitBreaker.failures} failures`);
+    }
+  }
+
+  private async delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  private calculateBackoff(attempt: number): number {
+    const delay = this.retryConfig.baseDelayMs * Math.pow(2, attempt);
+    const jitter = Math.random() * 100; // Add jitter to prevent thundering herd
+    return Math.min(delay + jitter, this.retryConfig.maxDelayMs);
   }
 
   private async makeRequest<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    retryCount = 0
   ): Promise<T> {
+    // Check circuit breaker before making request
+    this.checkCircuitBreaker();
+
     const url = `${this.baseURL}${endpoint}`;
+    const requestId = this.generateRequestId();
 
     const config: RequestInit = {
       headers: {
         'Content-Type': 'application/json',
-        'X-Request-ID': this.generateRequestId(),
+        'X-Request-ID': requestId,
         ...options.headers,
       },
       ...options,
     };
 
     try {
-      const response = await fetch(url, config);
-      const responseData = await response.json();
+      // Add timeout using AbortController
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-      if (!response.ok) {
-        throw new Error(responseData.error?.message || responseData.message || 'API request failed');
+      const response = await fetch(url, {
+        ...config,
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      let responseData: Record<string, unknown>;
+      try {
+        responseData = await response.json();
+      } catch {
+        responseData = {};
       }
 
+      if (!response.ok) {
+        const error = OnboardingAPIError.fromResponse(response, responseData);
+
+        // Check if we should retry
+        if (
+          error.isRetryable() &&
+          retryCount < this.retryConfig.maxRetries
+        ) {
+          const backoffMs = this.calculateBackoff(retryCount);
+          console.log(`[OnboardingAPI] Retrying request (attempt ${retryCount + 1}/${this.retryConfig.maxRetries}) after ${backoffMs}ms`);
+          await this.delay(backoffMs);
+          return this.makeRequest<T>(endpoint, options, retryCount + 1);
+        }
+
+        this.recordFailure();
+        throw error;
+      }
+
+      // Success - record it for circuit breaker
+      this.recordSuccess();
+
       // Unwrap the data field if it exists (backend response format)
-      // Otherwise return the data as-is (for direct responses)
       return (responseData.data !== undefined ? responseData.data : responseData) as T;
     } catch (error) {
-      console.error('API request failed:', error);
-      throw error;
+      // Handle abort/timeout
+      if (error instanceof Error && error.name === 'AbortError') {
+        const timeoutError = new OnboardingAPIError(
+          'Request timed out. Please check your connection and try again.',
+          'TIMEOUT',
+          408
+        );
+
+        // Retry on timeout
+        if (retryCount < this.retryConfig.maxRetries) {
+          const backoffMs = this.calculateBackoff(retryCount);
+          console.log(`[OnboardingAPI] Request timed out, retrying (attempt ${retryCount + 1}/${this.retryConfig.maxRetries}) after ${backoffMs}ms`);
+          await this.delay(backoffMs);
+          return this.makeRequest<T>(endpoint, options, retryCount + 1);
+        }
+
+        this.recordFailure();
+        throw timeoutError;
+      }
+
+      // Handle network errors
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        const networkError = new OnboardingAPIError(
+          'Network error. Please check your internet connection.',
+          'NETWORK_ERROR'
+        );
+
+        // Retry on network error
+        if (retryCount < this.retryConfig.maxRetries) {
+          const backoffMs = this.calculateBackoff(retryCount);
+          console.log(`[OnboardingAPI] Network error, retrying (attempt ${retryCount + 1}/${this.retryConfig.maxRetries}) after ${backoffMs}ms`);
+          await this.delay(backoffMs);
+          return this.makeRequest<T>(endpoint, options, retryCount + 1);
+        }
+
+        this.recordFailure();
+        throw networkError;
+      }
+
+      // Re-throw OnboardingAPIError as-is
+      if (error instanceof OnboardingAPIError) {
+        throw error;
+      }
+
+      // Wrap unknown errors
+      console.error('[OnboardingAPI] Unexpected error:', error);
+      throw new OnboardingAPIError(
+        error instanceof Error ? error.message : 'An unexpected error occurred',
+        'UNKNOWN_ERROR'
+      );
     }
   }
 
   private generateRequestId(): string {
-    return Math.random().toString(36).substring(2) + Date.now().toString(36);
+    return `${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 9)}`;
+  }
+
+  // Health check endpoint for monitoring
+  async healthCheck(): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.baseURL}/health`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      return response.ok;
+    } catch {
+      return false;
+    }
+  }
+
+  // Reset circuit breaker manually (useful for testing or manual recovery)
+  resetCircuitBreaker(): void {
+    this.circuitBreaker = {
+      failures: 0,
+      lastFailure: 0,
+      isOpen: false,
+    };
+    console.log('[OnboardingAPI] Circuit breaker manually reset');
   }
 
   // Onboarding session management
