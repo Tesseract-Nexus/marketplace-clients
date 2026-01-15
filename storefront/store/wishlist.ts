@@ -176,8 +176,8 @@ export const useWishlistStore = create<WishlistState>()(
     {
       name: 'storefront-wishlist',
       // Use session-aware storage: sessionStorage + TTL for anonymous, localStorage for authenticated
-      storage: createSessionAwareStorage('storefront-wishlist'),
-      partialize: (state) => ({ items: state.items, lastSyncedAt: state.lastSyncedAt }),
+      storage: createSessionAwareStorage('storefront-wishlist') as unknown as import('zustand/middleware').PersistStorage<WishlistState>,
+      partialize: (state): Partial<WishlistState> => ({ items: state.items, lastSyncedAt: state.lastSyncedAt }) as WishlistState,
     }
   )
 );

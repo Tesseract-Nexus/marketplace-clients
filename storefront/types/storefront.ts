@@ -30,7 +30,7 @@ export interface ApiListResponse<T> {
 // Product Types
 // ========================================
 
-export type ProductStatus = 'DRAFT' | 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED' | 'REJECTED';
+export type ProductStatus = 'DRAFT' | 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'ARCHIVED' | 'REJECTED' | 'OUT_OF_STOCK';
 export type InventoryStatus = 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK' | 'BACK_ORDER' | 'DISCONTINUED';
 
 export interface ProductImage {
@@ -65,8 +65,8 @@ export interface ProductVariant {
 export interface Product {
   id: string;
   tenantId: string;
-  vendorId: string;
-  categoryId: string;
+  vendorId?: string;
+  categoryId?: string;
   name: string;
   slug?: string;
   sku: string;
@@ -74,6 +74,7 @@ export interface Product {
   description?: string;
   price: string;
   comparePrice?: string;
+  currency?: string;
   status: ProductStatus;
   inventoryStatus?: InventoryStatus;
   quantity?: number;
@@ -83,6 +84,8 @@ export interface Product {
   variants?: ProductVariant[];
   weight?: string;
   dimensions?: ProductDimensions;
+  categories?: string[];
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
 }
@@ -114,6 +117,7 @@ export interface Category {
   position: number;
   isActive: boolean;
   children?: Category[];
+  productCount?: number; // Number of products in this category
 }
 
 // ========================================
@@ -136,6 +140,17 @@ export interface StorefrontMarketingConfig {
   enableReferralProgram: boolean;
   enableLoyaltyProgram: boolean;
   enableAbandonedCartRecovery: boolean;
+}
+
+export interface LocalizationConfig {
+  defaultCurrency: string;
+  defaultLanguage: string;
+  supportedCurrencies?: string[];
+  supportedLanguages?: string[];
+  currencyDisplay?: 'symbol' | 'code' | 'name';
+  numberFormat?: string;
+  dateFormat?: string;
+  currency?: string; // Alias for defaultCurrency for backwards compatibility
 }
 
 export interface StorefrontSettings {
@@ -161,6 +176,7 @@ export interface StorefrontSettings {
   mobileConfig?: MobileConfig;
   advancedConfig?: AdvancedConfig;
   marketingConfig?: StorefrontMarketingConfig;
+  localization?: LocalizationConfig;
   contentPages?: ContentPage[];
   customCss?: string;
   createdAt: string;

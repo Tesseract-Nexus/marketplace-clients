@@ -35,14 +35,35 @@ import { TranslatedProductName, TranslatedText } from '@/components/translation'
 import { PriceDisplay, PriceWithDiscount } from '@/components/currency/PriceDisplay';
 import { ImageLightbox } from '@/components/ui/ImageLightbox';
 
-interface ProductCardProps {
+export interface ProductCardProps {
   product: Product;
   className?: string;
+  // Optional overrides from block config
+  showQuickAdd?: boolean;
+  showWishlist?: boolean;
+  showRating?: boolean;
+  showBadges?: boolean;
 }
 
-export function ProductCard({ product, className }: ProductCardProps) {
+export function ProductCard({
+  product,
+  className,
+  showQuickAdd,
+  showWishlist,
+  showRating,
+  showBadges,
+}: ProductCardProps) {
   const { tenant } = useTenant();
-  const productConfig = useProductConfig();
+  const baseProductConfig = useProductConfig();
+
+  // Merge block overrides with tenant config
+  const productConfig = {
+    ...baseProductConfig,
+    showWishlist: showWishlist ?? baseProductConfig.showWishlist,
+    showRatings: showRating ?? baseProductConfig.showRatings,
+    showSaleBadge: showBadges ?? baseProductConfig.showSaleBadge,
+    showStockStatus: showBadges ?? baseProductConfig.showStockStatus,
+  };
   const getNavPath = useNavPath();
   const addToCart = useCartStore((state) => state.addItem);
   const { lists, fetchLists, addToList, addToDefaultList, removeFromList, createList, isInAnyList, getListsContainingProduct } = useListsStore();

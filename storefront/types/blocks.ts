@@ -40,7 +40,25 @@ export type BlockVariant =
   | 'expanded'
   | 'grid'
   | 'carousel'
-  | 'masonry';
+  | 'masonry'
+  // Hero variants
+  | 'promotional'
+  | 'split'
+  | 'video'
+  | 'parallax'
+  // Product grid variants
+  | 'featured'
+  // Newsletter variants
+  | 'inline'
+  | 'card'
+  | 'banner'
+  | 'popup'
+  // Banner strip variants
+  | 'scrolling'
+  | 'static'
+  | 'rotating'
+  // Countdown banner variants
+  | 'detailed';
 
 export type MediaAspectRatio =
   | '1:1'
