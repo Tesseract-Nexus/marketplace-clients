@@ -76,16 +76,19 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'auth-storage',
-      // SECURITY: Only persist non-sensitive customer info, NOT the access token
-      // Access tokens should be stored in HttpOnly cookies or memory only
-      // Persisting tokens to localStorage makes them vulnerable to XSS attacks
-      partialize: (state) => ({
-        customer: state.customer,
-        // NOTE: accessToken is intentionally NOT persisted for security
-        // The token is kept in memory and will be refreshed on page reload via auth-bff
-        // NOTE: isAuthenticated is intentionally NOT persisted
-        // The AuthSessionProvider validates the session on mount and sets the correct state
-        // This prevents stale auth state from showing when the session has expired
+      // STOREFRONT DESIGN: Anonymous by default
+      // We intentionally do NOT persist any auth state to localStorage.
+      // This ensures:
+      // 1. Storefronts always start anonymous on page load
+      // 2. Users must explicitly log in to be authenticated
+      // 3. Staff sessions from admin don't leak to storefront
+      // 4. Browser refresh = anonymous (until user logs in via auth-bff)
+      //
+      // SECURITY: Access tokens are managed by auth-bff via HttpOnly cookies.
+      // Customer sessions are validated server-side, not via localStorage.
+      partialize: () => ({
+        // Return empty object - don't persist any auth state
+        // Customer login state is managed by auth-bff session cookies
       }),
     }
   )
