@@ -41,7 +41,17 @@ yarn-error.log*
 
 # Testing
 coverage/
+
+# Playwright E2E Tests
 .playwright/
+playwright/.cache/
+playwright/test-results/
+playwright/playwright-report/
+playwright/blob-report/
+playwright/html-report/
+playwright/.auth/
+**/test-results/
+**/playwright-report/
 
 # TypeScript
 *.tsbuildinfo
@@ -52,8 +62,9 @@ nativewind-env.d.ts
 # Lock files (use pnpm)
 package-lock.json
 yarn.lock
-# But allow package-lock.json for storefront (uses npm)
+# But allow package-lock.json for storefront and playwright (uses npm)
 !storefront/package-lock.json
+!playwright/package-lock.json
 
 # Misc
 *.pem

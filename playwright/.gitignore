@@ -1,0 +1,47 @@
+# Playwright Test Artifacts
+# =========================
+
+# Test results directory (screenshots, traces, videos)
+test-results/
+playwright-report/
+blob-report/
+html-report/
+
+# Screenshots captured during tests
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+
+# Video recordings
+*.webm
+*.mp4
+
+# Trace files
+*.zip
+
+# Playwright cache
+.cache/
+playwright/.cache/
+
+# Node modules (handled by root, but explicit here)
+node_modules/
+
+# Lock files - package-lock.json is allowed for playwright
+# (see root .gitignore exception)
+
+# OS files
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Test state and auth
+.auth/
+storageState.json
+
+# Debug logs
+*.log
+debug/

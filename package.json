@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "zod-validation-error": "^4.0.2"
+  }
+}

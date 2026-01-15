@@ -22,7 +22,7 @@ interface TranslationCacheData {
 }
 
 // In-memory cache backed by localStorage
-let memoryCache: Map<string, string> = new Map();
+const memoryCache: Map<string, string> = new Map();
 let cacheInitialized = false;
 
 function initializeCache(): void {

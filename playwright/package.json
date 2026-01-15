@@ -1,0 +1,27 @@
+{
+  "name": "marketplace-e2e-tests",
+  "version": "1.0.0",
+  "description": "End-to-end tests for Marketplace platform (onboarding, admin, storefront)",
+  "scripts": {
+    "test": "playwright test",
+    "test:onboarding": "playwright test onboarding/",
+    "test:admin": "playwright test admin/",
+    "test:storefront": "playwright test storefront/",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "test:ui": "playwright test --ui",
+    "report": "playwright show-report test-results/html-report",
+    "install-browsers": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.40.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0"
+  },
+  "keywords": [
+    "e2e",
+    "testing",
+    "playwright",
+    "marketplace"
+  ]
+}
