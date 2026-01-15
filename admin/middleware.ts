@@ -111,7 +111,10 @@ async function fetchTenantValidation(slug: string): Promise<boolean> {
     `${TENANT_SERVICE_URL}/api/v1/internal/tenants/by-slug/${encodeURIComponent(slug)}`,
     {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Internal-Service': 'admin-middleware', // Required by tenant-service internal API
+      },
       signal: AbortSignal.timeout(VALIDATION_TIMEOUT),
     }
   );
