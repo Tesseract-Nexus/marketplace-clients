@@ -100,9 +100,15 @@ function validateTenantInBackground(slug: string): void {
  * Fetch tenant validation from service
  */
 async function fetchTenantValidation(slug: string): Promise<boolean> {
-  // Use the public validation endpoint (no auth required)
+  // FIX-MEDIUM: Use GetTenantBySlug instead of slug validation
+  // The slug validation endpoint returns "valid: false" for both:
+  // 1. Reserved slugs (during onboarding but not yet committed)
+  // 2. Blocked/reserved words
+  // 3. Actual existing tenants
+  // This caused the middleware to treat reserved slugs as existing tenants.
+  // Using GetTenantBySlug directly checks for actual tenant existence.
   const response = await fetch(
-    `${TENANT_SERVICE_URL}/api/v1/validation/slug?slug=${encodeURIComponent(slug)}`,
+    `${TENANT_SERVICE_URL}/api/v1/internal/tenants/by-slug/${encodeURIComponent(slug)}`,
     {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
@@ -110,15 +116,25 @@ async function fetchTenantValidation(slug: string): Promise<boolean> {
     }
   );
 
+  const now = Date.now();
+
   if (response.ok) {
     const result = await response.json();
-    // If slug is NOT available (taken), tenant EXISTS
-    const exists = result.success && result.data && !result.data.available;
-    const now = Date.now();
-
-    // Cache the result
+    // Tenant exists if we got a successful response with tenant data
+    // Also check that tenant status is 'active' to exclude failed/creating tenants
+    const exists =
+      result.success &&
+      result.data &&
+      result.data.id &&
+      result.data.status === 'active';
     validatedTenants.set(slug, { exists, timestamp: now, validatedAt: now });
     return exists;
+  }
+
+  if (response.status === 404) {
+    // Tenant doesn't exist - this is a valid response, not an error
+    validatedTenants.set(slug, { exists: false, timestamp: now, validatedAt: now });
+    return false;
   }
 
   throw new Error(`Validation failed: ${response.status}`);

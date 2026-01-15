@@ -38,6 +38,10 @@ interface OnboardingData {
   country?: string;
   description?: string;
   progress?: number;
+  // FIX-MEDIUM: Include timezone/currency/business_model so they aren't lost during account setup
+  timezone?: string;
+  currency?: string;
+  businessModel?: string;
 }
 
 function WelcomeContent() {
@@ -57,32 +61,53 @@ function WelcomeContent() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong'>('weak');
 
-  // Simulate fetching onboarding data
+  // Fetch onboarding data from API
   useEffect(() => {
     const fetchOnboardingData = async () => {
+      if (!sessionId) {
+        setIsLoading(false);
+        showError('Session Error', 'No session ID provided. Please restart the onboarding process.');
+        return;
+      }
+
       setIsLoading(true);
 
-      // Simulate API call
-      setTimeout(() => {
-        // Mock data - will be replaced with real API call
+      try {
+        const response = await fetch(`/api/onboarding/${sessionId}`);
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.error?.message || 'Failed to fetch session data');
+        }
+
+        // Map backend response to local format
+        const session = result.data || result;
         setOnboardingData({
-          businessName: 'Acme Corporation',
-          industry: 'Retail',
-          email: 'john@acme.com',
-          firstName: 'John',
-          city: 'San Francisco',
-          country: 'USA',
-          description: 'Leading provider of innovative solutions',
+          businessName: session.business_information?.business_name || session.businessName,
+          industry: session.business_information?.industry || session.industry,
+          email: session.contact_information?.email || session.email,
+          firstName: session.contact_information?.first_name || session.firstName,
+          city: session.business_address?.city || session.city,
+          country: session.business_address?.country || session.country,
+          description: session.business_information?.description || session.description,
           progress: 100,
+          // FIX-MEDIUM: Extract timezone/currency/business_model from session
+          timezone: session.default_timezone || session.timezone || 'UTC',
+          currency: session.default_currency || session.currency || 'USD',
+          businessModel: session.business_model || session.businessModel || 'ONLINE_STORE',
         });
         setIsLoading(false);
         // Trigger celebration after data loads
         setShowCelebration(true);
-      }, 1000);
+      } catch (error) {
+        console.error('Failed to fetch onboarding data:', error);
+        setIsLoading(false);
+        showError('Error', error instanceof Error ? error.message : 'Failed to load session data');
+      }
     };
 
     fetchOnboardingData();
-  }, [sessionId]);
+  }, [sessionId, showError]);
 
   // Calculate password strength
   useEffect(() => {
@@ -107,6 +132,11 @@ function WelcomeContent() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!sessionId) {
+      showError('Session Error', 'No session ID. Please restart the onboarding process.');
+      return;
+    }
+
     if (password.length < 8) {
       showError('Weak Password', 'Password must be at least 8 characters long');
       return;
@@ -124,28 +154,92 @@ function WelcomeContent() {
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      showSuccess('Account Created!', 'Welcome to Tesseract Hub. Redirecting to your dashboard...');
+    try {
+      // FIX-MEDIUM: Include timezone/currency/business_model in account-setup request
+      // Previously these were omitted, causing tenant defaults to overwrite user's selections
+      const response = await fetch(`/api/onboarding/${sessionId}/account-setup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          password,
+          auth_method: 'password',
+          timezone: onboardingData?.timezone || 'UTC',
+          currency: onboardingData?.currency || 'USD',
+          business_model: onboardingData?.businessModel || 'ONLINE_STORE',
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error?.message || 'Account setup failed');
+      }
+
+      // Extract admin URL from response or construct it
+      const tenantSlug = result.data?.tenant?.slug || result.tenant?.slug;
+      const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+      const adminUrl = tenantSlug ? `https://${tenantSlug}-admin.${baseDomain}` : '/';
+
+      showSuccess('Account Created!', 'Welcome to Tesserix. Redirecting to your dashboard...');
       setTimeout(() => {
-        router.push('/');
+        window.location.href = adminUrl;
       }, 1500);
-    }, 1000);
+    } catch (error) {
+      console.error('Account setup error:', error);
+      setIsSubmitting(false);
+      showError('Setup Failed', error instanceof Error ? error.message : 'Failed to complete account setup');
+    }
   };
 
   const handleSocialLogin = async (provider: string) => {
+    if (!sessionId) {
+      showError('Session Error', 'No session ID. Please restart the onboarding process.');
+      return;
+    }
+
     setIsSubmitting(true);
 
-    // Simulate social login account creation
-    setTimeout(() => {
+    try {
+      // FIX-MEDIUM: Include timezone/currency/business_model in social login account-setup
+      const response = await fetch(`/api/onboarding/${sessionId}/account-setup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          password: '', // No password for social login
+          auth_method: 'social',
+          timezone: onboardingData?.timezone || 'UTC',
+          currency: onboardingData?.currency || 'USD',
+          business_model: onboardingData?.businessModel || 'ONLINE_STORE',
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error?.message || 'Account setup failed');
+      }
+
+      // Extract admin URL from response or construct it
+      const tenantSlug = result.data?.tenant?.slug || result.tenant?.slug;
+      const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+      const adminUrl = tenantSlug ? `https://${tenantSlug}-admin.${baseDomain}` : '/';
+
       showSuccess(
         `${provider.charAt(0).toUpperCase() + provider.slice(1)} Account Linked!`,
         'Your account has been created successfully. Redirecting to dashboard...'
       );
       setTimeout(() => {
-        router.push('/');
+        window.location.href = adminUrl;
       }, 1500);
-    }, 1000);
+    } catch (error) {
+      console.error('Social login setup error:', error);
+      setIsSubmitting(false);
+      showError('Setup Failed', error instanceof Error ? error.message : 'Failed to complete account setup');
+    }
   };
 
   const getStrengthColor = () => {
