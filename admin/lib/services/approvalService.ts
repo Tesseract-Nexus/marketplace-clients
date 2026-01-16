@@ -74,7 +74,8 @@ export interface ApprovalResponse {
 }
 
 // API endpoints
-const APPROVAL_API_BASE = '/api/approvals';
+// Note: apiClient already has baseUrl='/api', so we use relative paths
+const APPROVAL_API_BASE = '/approvals';
 
 export const approvalService = {
   /**
@@ -199,7 +200,8 @@ export interface WorkflowResponse {
 }
 
 // Workflow API endpoints
-const WORKFLOW_API_BASE = '/api/approvals/admin/approval-workflows';
+// Note: apiClient already has baseUrl='/api', so we use relative paths
+const WORKFLOW_API_BASE = '/approvals/admin/approval-workflows';
 
 export const workflowService = {
   /**
@@ -283,7 +285,8 @@ export interface DelegationResponse {
 }
 
 // Delegation API endpoints
-const DELEGATION_API_BASE = '/api/approvals/delegations';
+// Note: apiClient already has baseUrl='/api', so we use relative paths
+const DELEGATION_API_BASE = '/approvals/delegations';
 
 export const delegationService = {
   /**
