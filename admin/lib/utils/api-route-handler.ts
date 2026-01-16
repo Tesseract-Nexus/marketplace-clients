@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { ERROR_CODES } from './api-error';
+import { getAccessTokenFromBFF } from '@/app/api/lib/auth-helper';
 
 const AUTH_BFF_INTERNAL_URL =
   process.env.AUTH_BFF_INTERNAL_URL || 'http://auth-bff.marketplace.svc.cluster.local:8080';
@@ -121,24 +122,22 @@ export interface ApiRouteResponse<T = any> {
 }
 
 /**
- * Extract email from JWT token for RBAC staff lookup
- * Note: This decodes but does NOT verify the JWT - that's done by backend services.
- * This is safe because:
- * 1. The JWT came from the client's authenticated session
- * 2. Backend services will verify the JWT signature
- * 3. This is for internal BFF → service communication
+ * Decode JWT payload without verification
+ * Note: We don't verify the signature here because:
+ * 1. External requests are validated by Istio at the ingress
+ * 2. Internal BFF requests come from authenticated sessions
  */
-function extractEmailFromJWT(authHeader: string): string | null {
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
   try {
-    const jwt = authHeader.replace(/^Bearer\s+/i, '');
-    const parts = jwt.split('.');
-    if (parts.length !== 3) return null;
-
-    // Base64 decode the payload (handle URL-safe base64)
+    const parts = token.split('.');
+    if (parts.length !== 3 || !parts[1]) {
+      return null;
+    }
+    // Base64url decode
     const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-    const payload = Buffer.from(base64, 'base64').toString('utf-8');
-    const claims = JSON.parse(payload);
-    return claims.email || null;
+    const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+    const decoded = Buffer.from(padded, 'base64').toString('utf-8');
+    return JSON.parse(decoded);
   } catch {
     return null;
   }
@@ -182,9 +181,12 @@ async function getBffAccessToken(incomingRequest?: Request): Promise<BffTokenRes
 /**
  * Get standard request headers for proxying to backend services
  *
- * IMPORTANT: All authentication headers MUST come from the incoming request.
- * There are no fallback values - if the client doesn't send X-Tenant-ID,
- * the backend will reject the request (proper multi-tenant isolation).
+ * Authentication flow:
+ * 1. Client sends Authorization: Bearer <JWT> header
+ * 2. For external requests: Istio ingress validates JWT and injects x-jwt-claim-* headers
+ * 3. For internal BFF requests: We extract claims and inject x-jwt-claim-* headers
+ *    (mimicking what Istio does, since internal calls bypass ingress)
+ * 4. Backend services read from x-jwt-claim-* headers
  *
  * @param incomingRequest - The incoming request to extract headers from
  * @param additionalHeaders - Any additional headers to include
@@ -224,18 +226,47 @@ export async function getProxyHeaders(incomingRequest?: Request, additionalHeade
     if (authHeader) {
       headers['Authorization'] = authHeader;
 
-      // Extract email from JWT for RBAC staff lookup
-      // SECURITY NOTE: We extract email from the JWT (not client headers) to prevent spoofing.
-      // Backend services need email for email-based staff lookup when auth user ID
-      // (e.g., Keycloak subject UUID) differs from the staff-service staff ID.
-      const email = extractEmailFromJWT(authHeader);
-      if (email) {
-        headers['X-User-Email'] = email;
+      // Extract JWT claims and forward as x-jwt-claim-* headers
+      // This mimics what Istio does at the ingress gateway
+      // Required because internal BFF → service calls bypass Istio
+      const token = authHeader.replace(/^Bearer\s+/i, '');
+      const payload = decodeJwtPayload(token);
+
+      if (payload) {
+        // Map standard claims to x-jwt-claim-* headers
+        // These are the claims that Istio RequestAuthentication extracts
+        if (payload.sub) {
+          headers['x-jwt-claim-sub'] = String(payload.sub);
+        }
+        if (payload.tenant_id) {
+          headers['x-jwt-claim-tenant-id'] = String(payload.tenant_id);
+        }
+        if (payload.staff_id) {
+          headers['x-jwt-claim-staff-id'] = String(payload.staff_id);
+        }
+        if (payload.vendor_id) {
+          headers['x-jwt-claim-vendor-id'] = String(payload.vendor_id);
+        }
+        if (payload.email) {
+          headers['x-jwt-claim-email'] = String(payload.email);
+        }
+        if (payload.preferred_username) {
+          headers['x-jwt-claim-preferred-username'] = String(payload.preferred_username);
+        }
+        if (payload.roles) {
+          headers['x-jwt-claim-roles'] = Array.isArray(payload.roles)
+            ? payload.roles.join(',')
+            : String(payload.roles);
+        }
+        // Keycloak realm_access.roles
+        if (payload.realm_access && typeof payload.realm_access === 'object') {
+          const realmAccess = payload.realm_access as { roles?: string[] };
+          if (realmAccess.roles) {
+            headers['x-jwt-claim-realm-roles'] = realmAccess.roles.join(',');
+          }
+        }
       }
     }
-
-    // SECURITY: Do NOT forward X-User-Role from client requests - can be spoofed
-    // Backend should use x-jwt-claim-platform-owner from Istio
   }
 
   if (!authHeader) {
@@ -259,6 +290,107 @@ export async function getProxyHeaders(incomingRequest?: Request, additionalHeade
       headers['X-User-Email'] = email;
     }
   }
+
+  return {
+    ...headers,
+    ...additionalHeaders,
+  };
+}
+
+/**
+ * Get proxy headers with BFF session token support (async)
+ * This tries to get the access token from the BFF session if no Authorization header is present
+ *
+ * @param incomingRequest - The incoming request (optional)
+ * @param additionalHeaders - Any additional headers to include
+ */
+export async function getProxyHeadersAsync(incomingRequest?: Request, additionalHeaders?: HeadersInit): Promise<HeadersInit> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // First try to get Authorization from the incoming request
+  let authHeader = incomingRequest?.headers.get('Authorization') || incomingRequest?.headers.get('authorization');
+  console.log('[Proxy Headers] Incoming auth header present:', !!authHeader);
+
+  // If no Authorization header, try to get token from BFF session
+  if (!authHeader) {
+    console.log('[Proxy Headers] No auth header, trying BFF session...');
+    const bffToken = await getAccessTokenFromBFF();
+    if (bffToken?.access_token) {
+      authHeader = `Bearer ${bffToken.access_token}`;
+      console.log('[Proxy Headers] Got token from BFF, tenant_id:', bffToken.tenant_id || 'none');
+
+      // Also set tenant context from BFF session
+      if (bffToken.tenant_id) {
+        headers['X-Tenant-ID'] = bffToken.tenant_id;
+      }
+    } else {
+      console.log('[Proxy Headers] No token from BFF session');
+    }
+  }
+
+  if (authHeader) {
+    headers['Authorization'] = authHeader;
+
+    // Extract JWT claims and forward as x-jwt-claim-* headers
+    const token = authHeader.replace(/^Bearer\s+/i, '');
+    const payload = decodeJwtPayload(token);
+
+    if (payload) {
+      if (payload.sub) {
+        headers['x-jwt-claim-sub'] = String(payload.sub);
+      }
+      if (payload.tenant_id) {
+        headers['x-jwt-claim-tenant-id'] = String(payload.tenant_id);
+      }
+      if (payload.staff_id) {
+        headers['x-jwt-claim-staff-id'] = String(payload.staff_id);
+      }
+      if (payload.vendor_id) {
+        headers['x-jwt-claim-vendor-id'] = String(payload.vendor_id);
+      }
+      if (payload.email) {
+        headers['x-jwt-claim-email'] = String(payload.email);
+      }
+      if (payload.preferred_username) {
+        headers['x-jwt-claim-preferred-username'] = String(payload.preferred_username);
+      }
+      if (payload.roles) {
+        headers['x-jwt-claim-roles'] = Array.isArray(payload.roles)
+          ? payload.roles.join(',')
+          : String(payload.roles);
+      }
+      if (payload.realm_access && typeof payload.realm_access === 'object') {
+        const realmAccess = payload.realm_access as { roles?: string[] };
+        if (realmAccess.roles) {
+          headers['x-jwt-claim-realm-roles'] = realmAccess.roles.join(',');
+        }
+      }
+    }
+  }
+
+  // Forward X-Tenant-ID from incoming request if not already set
+  if (!headers['X-Tenant-ID'] && incomingRequest) {
+    const tenantId = incomingRequest.headers.get('X-Tenant-ID') || incomingRequest.headers.get('x-tenant-id');
+    if (tenantId) {
+      headers['X-Tenant-ID'] = tenantId;
+    }
+  }
+
+  // IMPORTANT: Also set x-jwt-claim-tenant-id for backend services using IstioAuth middleware
+  // Backend services expect tenant_id from JWT claims (via Istio) but BFF calls bypass Istio
+  console.log('[Proxy Headers] Before copy - X-Tenant-ID:', headers['X-Tenant-ID'] || 'MISSING',
+    'x-jwt-claim-tenant-id:', headers['x-jwt-claim-tenant-id'] || 'MISSING');
+  if (headers['X-Tenant-ID'] && !headers['x-jwt-claim-tenant-id']) {
+    headers['x-jwt-claim-tenant-id'] = headers['X-Tenant-ID'];
+    console.log('[Proxy Headers] Copied X-Tenant-ID to x-jwt-claim-tenant-id');
+  }
+
+  // Debug: Log final headers being set
+  console.log('[Proxy Headers] Final headers - sub:', headers['x-jwt-claim-sub'] || 'MISSING',
+    'x-jwt-claim-tenant-id:', headers['x-jwt-claim-tenant-id'] || 'MISSING',
+    'X-Tenant-ID:', headers['X-Tenant-ID'] || 'MISSING');
 
   return {
     ...headers,
@@ -349,6 +481,9 @@ export async function proxyToBackend(
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
+    // Use async version to support BFF session token retrieval
+    const proxyHeaders = await getProxyHeadersAsync(incomingRequest, headers);
+
     const response = await fetch(url.toString(), {
       method,
       headers: await getProxyHeaders(incomingRequest, headers),
@@ -388,6 +523,44 @@ export function createApiRouteHandler(
 }
 
 /**
+ * Safely parse JSON response, handling non-JSON error responses
+ */
+async function safeParseJson(response: Response): Promise<{ data: any; isJson: boolean }> {
+  const contentType = response.headers.get('content-type') || '';
+  const text = await response.text();
+
+  if (contentType.includes('application/json') && text) {
+    try {
+      return { data: JSON.parse(text), isJson: true };
+    } catch {
+      // Failed to parse JSON, return as text error
+      return {
+        data: {
+          success: false,
+          error: {
+            code: 'PARSE_ERROR',
+            message: text.substring(0, 200)
+          }
+        },
+        isJson: false
+      };
+    }
+  }
+
+  // Non-JSON response (e.g., "upstream connect error")
+  return {
+    data: {
+      success: false,
+      error: {
+        code: response.ok ? 'INVALID_RESPONSE' : 'UPSTREAM_ERROR',
+        message: text.substring(0, 200) || `Backend returned ${response.status}`
+      }
+    },
+    isJson: false
+  };
+}
+
+/**
  * Proxy GET request to backend
  * Performance: Automatically adds Cache-Control headers based on resource type
  */
@@ -405,10 +578,11 @@ export async function proxyGet(
       incomingRequest: request,
     });
 
-    const data = await response.json();
+    const { data, isJson } = await safeParseJson(response);
 
-    if (!response.ok) {
-      return NextResponse.json(data, { status: response.status });
+    if (!response.ok || !isJson) {
+      const status = response.ok ? 502 : response.status;
+      return NextResponse.json(data, { status });
     }
 
     // Create response with cache headers
@@ -442,8 +616,9 @@ export async function proxyPost(
       incomingRequest: request,
     });
 
-    const data = await response.json();
-    const nextResponse = NextResponse.json(data, { status: response.status });
+    const { data, isJson } = await safeParseJson(response);
+    const status = !response.ok ? response.status : (!isJson ? 502 : response.status);
+    const nextResponse = NextResponse.json(data, { status });
 
     // Mutations should never be cached
     nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
@@ -471,8 +646,9 @@ export async function proxyPut(
       incomingRequest: request,
     });
 
-    const data = await response.json();
-    const nextResponse = NextResponse.json(data, { status: response.status });
+    const { data, isJson } = await safeParseJson(response);
+    const status = !response.ok ? response.status : (!isJson ? 502 : response.status);
+    const nextResponse = NextResponse.json(data, { status });
     nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
 
     return nextResponse;
@@ -498,8 +674,9 @@ export async function proxyPatch(
       incomingRequest: request,
     });
 
-    const data = await response.json();
-    const nextResponse = NextResponse.json(data, { status: response.status });
+    const { data, isJson } = await safeParseJson(response);
+    const status = !response.ok ? response.status : (!isJson ? 502 : response.status);
+    const nextResponse = NextResponse.json(data, { status });
     nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
 
     return nextResponse;
@@ -532,8 +709,9 @@ export async function proxyDelete(
       return nextResponse;
     }
 
-    const data = await response.json();
-    const nextResponse = NextResponse.json(data, { status: response.status });
+    const { data, isJson } = await safeParseJson(response);
+    const status = !response.ok ? response.status : (!isJson ? 502 : response.status);
+    const nextResponse = NextResponse.json(data, { status });
     nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
 
     return nextResponse;

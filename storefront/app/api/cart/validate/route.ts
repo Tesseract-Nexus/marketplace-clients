@@ -37,9 +37,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Forward to customers service validate endpoint
+    // Forward to customers service storefront endpoint
     const response = await fetch(
-      `${CUSTOMERS_SERVICE_URL}/customers/${customerId}/cart/validate`,
+      `${CUSTOMERS_SERVICE_URL}/api/v1/storefront/customers/${customerId}/cart/validate`,
       {
         method: 'POST',
         headers: {
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     if (response.status === 404) {
       // Fallback: just get cart and return it as validated
       const cartResponse = await fetch(
-        `${CUSTOMERS_SERVICE_URL}/customers/${customerId}/cart`,
+        `${CUSTOMERS_SERVICE_URL}/api/v1/storefront/customers/${customerId}/cart`,
         {
           headers: {
             'Authorization': `Bearer ${accessToken}`,

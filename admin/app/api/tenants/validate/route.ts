@@ -53,15 +53,15 @@ export async function GET(request: NextRequest): Promise<NextResponse<ValidateRe
       );
     }
 
-    // Validate against tenant service
-    // Using the existing check-slug endpoint but inverting the logic
-    // If slug is NOT available, it means a tenant with that slug EXISTS
+    // Validate against tenant service using the internal by-slug endpoint
+    // This directly checks if a tenant exists, not just if the slug is reserved
     const response = await fetch(
-      `${TENANT_SERVICE_URL}/api/v1/tenants/check-slug?slug=${encodeURIComponent(normalizedSlug)}`,
+      `${TENANT_SERVICE_URL}/internal/tenants/by-slug/${encodeURIComponent(normalizedSlug)}`,
       {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'X-Internal-Service': 'admin-bff', // Required for internal endpoints
         },
         // Internal request, short timeout
         signal: AbortSignal.timeout(5000),
@@ -70,17 +70,32 @@ export async function GET(request: NextRequest): Promise<NextResponse<ValidateRe
 
     if (response.ok) {
       const result = await response.json();
-      // If slug is available, tenant does NOT exist
-      // If slug is NOT available, tenant EXISTS
-      const exists = result.success && result.data && !result.data.available;
+      // Tenant exists if we got a successful response with tenant data
+      const exists = result.success && result.data?.id;
+      const tenantName = result.data?.name;
 
       // Update cache
       tenantCache.set(normalizedSlug, { exists, timestamp: Date.now() });
 
       return NextResponse.json(
-        { exists, slug: normalizedSlug },
+        { exists, slug: normalizedSlug, name: tenantName },
         {
           status: exists ? 200 : 404,
+          headers: {
+            'Cache-Control': 'public, max-age=60',
+            'X-Cache': 'MISS',
+          }
+        }
+      );
+    }
+
+    // 404 means tenant does not exist
+    if (response.status === 404) {
+      tenantCache.set(normalizedSlug, { exists: false, timestamp: Date.now() });
+      return NextResponse.json(
+        { exists: false, slug: normalizedSlug },
+        {
+          status: 404,
           headers: {
             'Cache-Control': 'public, max-age=60',
             'X-Cache': 'MISS',

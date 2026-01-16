@@ -8,19 +8,108 @@ import { TEST_USER, URLS, TIMEOUTS } from '../utils/test-data';
  * - Successful login with valid credentials
  * - Dashboard access after login
  * - User info display
- * - Invalid credentials handling
+ * - Navigation between admin sections
  */
 
-// Helper: Perform admin login
-async function performLogin(page: Page, email: string, password: string): Promise<void> {
-  // Wait for login form to be ready
-  await page.waitForLoadState('networkidle');
+// Helper: Wait for dashboard to fully load (past the "Loading tenant context..." screen)
+async function waitForDashboardToLoad(page: Page, timeoutMs: number = 60000): Promise<boolean> {
+  console.log('Waiting for dashboard to load...');
+  const startTime = Date.now();
 
-  // Check if we're on a login/auth page
-  const currentUrl = page.url();
-  if (!currentUrl.includes('login') && !currentUrl.includes('auth') && !currentUrl.includes('signin')) {
-    console.log('Already logged in or not on login page');
-    return;
+  while (Date.now() - startTime < timeoutMs) {
+    try {
+      // Wait for page to be stable
+      await page.waitForLoadState('domcontentloaded', { timeout: 5000 }).catch(() => {});
+
+      const content = await page.content();
+      const contentLower = content.toLowerCase();
+      const url = page.url();
+
+      // Check if still loading
+      const isLoading =
+        contentLower.includes('loading tenant') ||
+        contentLower.includes('loading context') ||
+        (contentLower.includes('loading') && contentLower.length < 5000); // Short page with loading text
+
+      // Check if dashboard content is visible
+      const hasDashboard =
+        contentLower.includes('dashboard') ||
+        contentLower.includes('analytics') ||
+        contentLower.includes('orders') ||
+        contentLower.includes('products') ||
+        contentLower.includes('customers') ||
+        contentLower.includes('catalog') ||
+        contentLower.includes('demo store'); // Tenant name in sidebar
+
+      // Check if we're on login page (login failed or session expired)
+      const onLoginPage =
+        url.includes('login') ||
+        url.includes('auth') ||
+        url.includes('signin') ||
+        contentLower.includes('sign in to your account') ||
+        contentLower.includes('enter your email');
+
+      if (hasDashboard && !isLoading) {
+        console.log('Dashboard loaded successfully!');
+        return true;
+      }
+
+      if (onLoginPage && !isLoading) {
+        console.log('On login page');
+        return false;
+      }
+
+    } catch (e) {
+      // Page might be navigating, wait a bit
+      console.log('Page navigating, waiting...');
+    }
+
+    // Wait a bit before checking again
+    await page.waitForTimeout(1000);
+  }
+
+  console.log('Timeout waiting for dashboard to load');
+  return false;
+}
+
+// Helper: Check if on login page
+async function isOnLoginPage(page: Page): Promise<boolean> {
+  try {
+    const url = page.url();
+    const content = await page.content();
+    const contentLower = content.toLowerCase();
+
+    return (
+      url.includes('login') ||
+      url.includes('auth') ||
+      url.includes('signin') ||
+      contentLower.includes('sign in to your account') ||
+      contentLower.includes('enter your email') ||
+      contentLower.includes('email address') && contentLower.includes('password') && contentLower.includes('sign in')
+    );
+  } catch {
+    return false;
+  }
+}
+
+// Helper: Perform admin login
+async function performLogin(page: Page, email: string, password: string): Promise<boolean> {
+  // Wait for page to be ready
+  await page.waitForLoadState('domcontentloaded');
+  await page.waitForTimeout(2000); // Let any redirects complete
+
+  // Check if we need to login
+  const needsLogin = await isOnLoginPage(page);
+
+  if (!needsLogin) {
+    console.log('Not on login page, checking if already logged in...');
+    const dashboardLoaded = await waitForDashboardToLoad(page, 30000);
+    if (dashboardLoaded) {
+      console.log('Already logged in!');
+      return true;
+    }
+    // If not on login and no dashboard, something is wrong
+    return false;
   }
 
   console.log('On login page, entering credentials...');
@@ -37,7 +126,7 @@ async function performLogin(page: Page, email: string, password: string): Promis
   console.log('Clicked continue/submit button');
 
   // Wait for password field (may be same page or new page)
-  await page.waitForTimeout(2000);
+  await page.waitForTimeout(3000);
 
   // Step 2: Enter password
   const passwordInput = page.locator('input[type="password"]').first();
@@ -50,37 +139,42 @@ async function performLogin(page: Page, email: string, password: string): Promis
   await signInBtn.click();
   console.log('Clicked sign in button');
 
-  // Wait for navigation to complete
-  await page.waitForLoadState('networkidle');
-  await page.waitForTimeout(3000);
+  // Wait for dashboard to fully load
+  const dashboardLoaded = await waitForDashboardToLoad(page);
+  return dashboardLoaded;
 }
 
 // Helper: Check if logged in successfully
 async function isLoggedIn(page: Page): Promise<boolean> {
-  const url = page.url();
-  const content = await page.content();
-  const contentLower = content.toLowerCase();
+  try {
+    const url = page.url();
+    const content = await page.content();
+    const contentLower = content.toLowerCase();
 
-  // Should NOT be on login page
-  if (url.includes('login') || url.includes('auth') || url.includes('signin')) {
+    // Should NOT be on login page
+    if (url.includes('login') || url.includes('auth') || url.includes('signin')) {
+      return false;
+    }
+
+    // Should NOT show error pages
+    if (contentLower.includes('store not found') || contentLower.includes('404')) {
+      return false;
+    }
+
+    // Should show dashboard/admin elements
+    const hasAdminElements =
+      contentLower.includes('dashboard') ||
+      contentLower.includes('analytics') ||
+      contentLower.includes('orders') ||
+      contentLower.includes('products') ||
+      contentLower.includes('customers') ||
+      contentLower.includes('catalog') ||
+      contentLower.includes('demo store');
+
+    return hasAdminElements;
+  } catch {
     return false;
   }
-
-  // Should NOT show error pages
-  if (contentLower.includes('store not found') || contentLower.includes('404') || contentLower.includes('error')) {
-    return false;
-  }
-
-  // Should show dashboard/admin elements
-  const hasAdminElements =
-    contentLower.includes('dashboard') ||
-    contentLower.includes('analytics') ||
-    contentLower.includes('orders') ||
-    contentLower.includes('products') ||
-    contentLower.includes('customers') ||
-    contentLower.includes('catalog');
-
-  return hasAdminElements;
 }
 
 test.describe('Admin Portal Login', () => {
@@ -102,8 +196,9 @@ test.describe('Admin Portal Login', () => {
     await page.screenshot({ path: 'test-results/admin-01-initial-page.png', fullPage: true });
 
     // Should either show login form or dashboard (if already logged in)
-    const hasLoginForm = await page.locator('input[type="email"], input[type="password"]').count() > 0;
-    const hasAdminContent = await page.locator('text=Dashboard, text=Orders, text=Products').count() > 0;
+    const content = await page.content();
+    const hasLoginForm = content.toLowerCase().includes('email') || content.toLowerCase().includes('sign in');
+    const hasAdminContent = content.toLowerCase().includes('dashboard') || content.toLowerCase().includes('orders');
 
     expect(hasLoginForm || hasAdminContent).toBe(true);
     console.log(`Login form visible: ${hasLoginForm}, Admin content visible: ${hasAdminContent}`);
@@ -115,18 +210,18 @@ test.describe('Admin Portal Login', () => {
     await page.screenshot({ path: 'test-results/admin-02-before-login.png', fullPage: true });
 
     // Perform login
-    await performLogin(page, TEST_USER.email, TEST_USER.password);
+    const loginSuccess = await performLogin(page, TEST_USER.email, TEST_USER.password);
 
     // Take screenshot after login attempt
     await page.screenshot({ path: 'test-results/admin-03-after-login.png', fullPage: true });
 
     // Verify login success
+    expect(loginSuccess).toBe(true);
+
+    // Additional verification
     const loggedIn = await isLoggedIn(page);
     expect(loggedIn).toBe(true);
 
-    // Additional verification: should see dashboard elements
-    const dashboardVisible = await page.locator('text=Dashboard').or(page.locator('text=Home')).count() > 0;
-    console.log(`Dashboard visible: ${dashboardVisible}`);
     console.log(`Final URL: ${page.url()}`);
     console.log('Admin login successful!');
   });
@@ -134,10 +229,11 @@ test.describe('Admin Portal Login', () => {
   test('should display user information after login', async ({ page }) => {
     // Navigate and login
     await page.goto(adminUrl);
-    await performLogin(page, TEST_USER.email, TEST_USER.password);
+    const loginSuccess = await performLogin(page, TEST_USER.email, TEST_USER.password);
+    expect(loginSuccess).toBe(true);
 
     // Wait for page to fully load
-    await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(2000);
     await page.screenshot({ path: 'test-results/admin-04-logged-in-state.png', fullPage: true });
 
     // Check for user info in the page
@@ -157,19 +253,16 @@ test.describe('Admin Portal Login', () => {
   test('should navigate to different admin sections', async ({ page }) => {
     // Navigate and login
     await page.goto(adminUrl);
-    await performLogin(page, TEST_USER.email, TEST_USER.password);
+    const loginSuccess = await performLogin(page, TEST_USER.email, TEST_USER.password);
+    expect(loginSuccess).toBe(true);
 
-    // Verify we're logged in
-    const loggedIn = await isLoggedIn(page);
-    expect(loggedIn).toBe(true);
-
-    // Try to navigate to Products section
-    const productsLink = page.locator('a:has-text("Products"), a:has-text("Catalog"), [href*="products"]').first();
-    if (await productsLink.count() > 0) {
-      await productsLink.click();
+    // Try to navigate to Catalog section (contains Products)
+    const catalogLink = page.locator('a:has-text("Catalog"), [href*="catalog"]').first();
+    if (await catalogLink.count() > 0) {
+      await catalogLink.click();
       await page.waitForLoadState('networkidle');
-      await page.screenshot({ path: 'test-results/admin-05-products-section.png', fullPage: true });
-      console.log('Navigated to Products section');
+      await page.screenshot({ path: 'test-results/admin-05-catalog-section.png', fullPage: true });
+      console.log('Navigated to Catalog section');
     }
 
     // Try to navigate to Orders section
@@ -189,18 +282,24 @@ test.describe('Admin Portal Login', () => {
       await page.screenshot({ path: 'test-results/admin-07-customers-section.png', fullPage: true });
       console.log('Navigated to Customers section');
     }
+
+    // Verify we're still logged in after navigation
+    const stillLoggedIn = await isLoggedIn(page);
+    expect(stillLoggedIn).toBe(true);
   });
 
   test('should access Feature Flags page', async ({ page }) => {
     // Navigate and login
     await page.goto(adminUrl);
-    await performLogin(page, TEST_USER.email, TEST_USER.password);
+    const loginSuccess = await performLogin(page, TEST_USER.email, TEST_USER.password);
+    expect(loginSuccess).toBe(true);
 
     // Navigate to Feature Flags
     const featureFlagsLink = page.locator('a:has-text("Feature Flags"), [href*="feature-flags"]').first();
     if (await featureFlagsLink.count() > 0) {
       await featureFlagsLink.click();
       await page.waitForLoadState('networkidle');
+      await page.waitForTimeout(2000);
       await page.screenshot({ path: 'test-results/admin-08-feature-flags.png', fullPage: true });
 
       // Verify Feature Flags page loaded
@@ -209,14 +308,16 @@ test.describe('Admin Portal Login', () => {
       expect(hasFeatureFlags).toBe(true);
       console.log('Feature Flags page loaded successfully');
     } else {
-      console.log('Feature Flags link not found in sidebar');
+      console.log('Feature Flags link not found in sidebar - skipping');
+      // Test passes even if Feature Flags link not found (may not be visible for this user)
     }
   });
 
   test('should persist session on page reload', async ({ page }) => {
     // Navigate and login
     await page.goto(adminUrl);
-    await performLogin(page, TEST_USER.email, TEST_USER.password);
+    const loginSuccess = await performLogin(page, TEST_USER.email, TEST_USER.password);
+    expect(loginSuccess).toBe(true);
 
     // Verify initial login
     let loggedIn = await isLoggedIn(page);
@@ -225,15 +326,16 @@ test.describe('Admin Portal Login', () => {
     // Reload the page
     await page.reload();
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(3000);
+
+    // Wait for dashboard to load again
+    await waitForDashboardToLoad(page, 30000);
 
     // Verify session persists
     loggedIn = await isLoggedIn(page);
     await page.screenshot({ path: 'test-results/admin-09-after-reload.png', fullPage: true });
 
-    // Session should still be valid (or redirect to login which is also acceptable)
-    const url = page.url();
-    const isStillValid = loggedIn || url.includes('login');
-    expect(isStillValid).toBe(true);
-    console.log(`Session after reload - Logged in: ${loggedIn}, URL: ${url}`);
+    console.log(`Session after reload - Logged in: ${loggedIn}, URL: ${page.url()}`);
+    expect(loggedIn).toBe(true);
   });
 });

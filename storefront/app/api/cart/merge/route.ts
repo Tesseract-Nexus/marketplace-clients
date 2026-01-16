@@ -38,9 +38,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Forward to customers service
+    // Forward to customers service storefront endpoint
     const response = await fetch(
-      `${CUSTOMERS_SERVICE_URL}/customers/${customerId}/cart/merge`,
+      `${CUSTOMERS_SERVICE_URL}/api/v1/storefront/customers/${customerId}/cart/merge`,
       {
         method: 'POST',
         headers: {

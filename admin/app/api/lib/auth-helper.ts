@@ -4,6 +4,61 @@ import { cookies } from 'next/headers';
 // Auth BFF URL for session validation
 const AUTH_BFF_URL = process.env.AUTH_BFF_INTERNAL_URL || 'http://auth-bff.marketplace.svc.cluster.local:8080';
 
+/**
+ * Response from the internal get-token endpoint
+ */
+interface InternalTokenResponse {
+  access_token: string;
+  user_id: string;
+  tenant_id?: string;
+  tenant_slug?: string;
+  expires_at: number;
+}
+
+/**
+ * Get access token from BFF session for server-side API calls
+ * This allows the Next.js BFF to make authenticated calls to backend services
+ */
+export async function getAccessTokenFromBFF(): Promise<InternalTokenResponse | null> {
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('bff_session');
+
+    // Debug: Log all cookies to understand what's available
+    const allCookies = cookieStore.getAll();
+    console.log('[Auth Helper] Available cookies:', allCookies.map(c => c.name).join(', ') || 'none');
+
+    if (!sessionCookie?.value) {
+      console.log('[Auth Helper] No bff_session cookie found');
+      return null;
+    }
+
+    console.log('[Auth Helper] Found bff_session, calling auth-bff at:', AUTH_BFF_URL);
+
+    // Call the auth-bff internal endpoint to get the token
+    const response = await fetch(`${AUTH_BFF_URL}/internal/get-token`, {
+      method: 'GET',
+      headers: {
+        'Cookie': `bff_session=${sessionCookie.value}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[Auth Helper] Failed to get token from BFF:', response.status, errorText);
+      return null;
+    }
+
+    const tokenData = await response.json();
+    console.log('[Auth Helper] Got token, tenant_id:', tokenData.tenant_id || 'not set');
+    return tokenData;
+  } catch (error) {
+    console.error('[Auth Helper] Error getting token from BFF:', error);
+    return null;
+  }
+}
+
 interface BFFSessionResponse {
   authenticated: boolean;
   user?: {

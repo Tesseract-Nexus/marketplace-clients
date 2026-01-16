@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Loader2, ChevronDown, ChevronUp, Shield, Users } from 'lucide-react';
 import { Select } from '@/components/Select';
 import { useTenant } from '@/contexts/TenantContext';
+import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
 import type { Team, Role } from '@/lib/api/rbacTypes';
 
@@ -28,6 +29,7 @@ interface TeamWithRole extends Team {
 
 export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitting }: QuickAddFormProps) {
   const { currentTenant } = useTenant();
+  const { user } = useUser();
 
   // Form state
   const [firstName, setFirstName] = useState('');
@@ -48,9 +50,14 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
   // Validation state
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const getHeaders = () => ({
-    'X-Tenant-ID': currentTenant?.id || '',
-  });
+  const getHeaders = (): HeadersInit => {
+    const headers: Record<string, string> = {
+      'X-Tenant-ID': currentTenant?.id || '',
+    };
+    if (user?.id) headers['X-User-ID'] = user.id;
+    if (user?.email) headers['X-User-Email'] = user.email;
+    return headers;
+  };
 
   // Load departments on mount
   useEffect(() => {

@@ -69,3 +69,124 @@ yarn.lock
 # Misc
 *.pem
 .vercel
+
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Local env files
+#.env
+#.env.local
+#.env.development.local
+#.env.test.local
+#.env.production.local
+
+.idea
+
+apps/**/node_modules
+apps/**/@mf-types
+micro-frontends/**/node_modules
+domains/**/node_modules
+domains/**/@mf-types
+
+# Testing
+coverage
+
+# Turbo
+.turbo
+
+# Vercel
+.vercel
+
+# Build Outputs
+.next/
+out/
+build
+dist
+
+# TypeScript build artifacts (prevent accidental commits)
+# Apps directory
+apps/**/*.d.ts
+apps/**/*.d.ts.map
+apps/**/page.js
+apps/**/layout.js
+apps/**/route.js
+apps/**/not-found.js
+apps/**/error.js
+apps/**/loading.js
+# Keep necessary config files
+!apps/**/*.config.js
+!apps/**/next-env.d.ts
+!apps/**/nativewind-env.d.ts
+
+# Packages directory - TypeScript compilation outputs
+packages/**/*.d.ts
+packages/**/*.d.ts.map
+packages/**/*.js
+packages/**/*.js.map
+# Keep config files in packages
+!packages/**/*.config.js
+!packages/**/tsup.config.ts
+!packages/**/jest.config.js
+!packages/**/rollup.config.js
+
+# Generated API contracts
+packages/api-contracts/generated/
+
+
+# Debug
+npm-debug.log*
+
+# Misc
+.DS_Store
+*.pem
+
+# Go specific
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Go workspace file
+go.work
+
+# Dependency directories
+vendor/
+
+# NOTE: pnpm-lock.yaml should be committed for reproducible builds in CI/CD
+# **pnpm-lock.yaml
+
+**/secret.json
+**/secret.yaml
+**/secrets.json
+**/secrets.yaml
+
+# Test Results (Playwright)
+test-results/
+playwright-report/
+_archive/test-results/
+
+# Playwright MCP
+.playwright-mcp/.env
+.playwright-mcp/
+
+# IDE / Editor
+*.swp
+*.swo
+.vscode/settings.json
+*.code-workspace
+
+**.png
+tests/**/*.png
+**/*.pngterraform/.terraform/

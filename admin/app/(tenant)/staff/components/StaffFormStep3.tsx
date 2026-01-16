@@ -5,9 +5,11 @@ import { Select } from '@/components/Select';
 import { Loader2 } from 'lucide-react';
 import { StaffFormStepProps, Department, Team, StaffMember } from './types';
 import { useTenant } from '@/contexts/TenantContext';
+import { useUser } from '@/contexts/UserContext';
 
 export function StaffFormStep3({ formData, setFormData }: StaffFormStepProps) {
   const { currentTenant } = useTenant();
+  const { user } = useUser();
   const [departments, setDepartments] = useState<Department[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [managers, setManagers] = useState<StaffMember[]>([]);
@@ -33,9 +35,14 @@ export function StaffFormStep3({ formData, setFormData }: StaffFormStepProps) {
     }
   }, [formData.departmentId]);
 
-  const getHeaders = () => ({
-    'X-Tenant-ID': currentTenant?.id || '',
-  });
+  const getHeaders = (): HeadersInit => {
+    const headers: Record<string, string> = {
+      'X-Tenant-ID': currentTenant?.id || '',
+    };
+    if (user?.id) headers['X-User-ID'] = user.id;
+    if (user?.email) headers['X-User-Email'] = user.email;
+    return headers;
+  };
 
   const loadDepartments = async () => {
     if (!currentTenant?.id) return;

@@ -400,7 +400,7 @@ class OnboardingAPI {
   async completeAccountSetup(
     sessionId: string,
     password: string,
-    authMethod: string = 'new_user',
+    authMethod: string = 'password',
     storeSetup?: { timezone?: string; currency?: string; business_model?: string }
   ): Promise<AccountSetupResponse> {
     const response = await this.makeRequest<AccountSetupResponse>(`/onboarding/${sessionId}/account-setup`, {

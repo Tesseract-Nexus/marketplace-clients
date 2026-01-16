@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // Configuration
 const LOCATION_SERVICE_URL = process.env.LOCATION_SERVICE_URL || 'http://localhost:8080';
+const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8086';
 
 // Request ID generator
 export function generateRequestId(): string {
@@ -136,9 +137,29 @@ export async function proxyRequest(
   }
 }
 
+// Proxy GET request
+export async function proxyGet(
+  serviceUrl: string,
+  endpoint: string,
+  request: NextRequest
+) {
+  return proxyRequest(serviceUrl, endpoint, request, { method: 'GET' });
+}
+
+// Proxy POST request
+export async function proxyPost(
+  serviceUrl: string,
+  endpoint: string,
+  request: NextRequest,
+  body?: any
+) {
+  return proxyRequest(serviceUrl, endpoint, request, { method: 'POST', body });
+}
+
 // Service URLs
 export const SERVICES = {
   LOCATION: LOCATION_SERVICE_URL,
+  TENANT: TENANT_SERVICE_URL,
 };
 
 // Rate limiting

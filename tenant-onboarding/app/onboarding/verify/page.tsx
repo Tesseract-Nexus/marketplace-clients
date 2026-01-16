@@ -598,7 +598,7 @@ function VerifyEmailContent() {
         const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
         const adminUrl = `https://dev-admin.${baseDomain}`;
         setTimeout(() => {
-          window.location.href = `${adminUrl}/welcome/${sessionId}`;
+          window.location.href = `${adminUrl}/welcome?sessionId=${sessionId}`;
         }, 1500);
       } else {
         const errorMsg = result.message || 'Invalid verification code. Please try again.';
