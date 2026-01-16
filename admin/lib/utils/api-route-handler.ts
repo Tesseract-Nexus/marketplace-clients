@@ -280,6 +280,12 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
     }
   }
 
+  // IMPORTANT: Also set x-jwt-claim-tenant-id for backend services using IstioAuth middleware
+  // Backend services expect tenant_id from JWT claims (via Istio) but BFF calls bypass Istio
+  if (headers['X-Tenant-ID'] && !headers['x-jwt-claim-tenant-id']) {
+    headers['x-jwt-claim-tenant-id'] = headers['X-Tenant-ID'];
+  }
+
   return {
     ...headers,
     ...additionalHeaders,
