@@ -18,7 +18,7 @@ export async function PUT(request: NextRequest) {
     const response = await proxyToBackend(CATEGORIES_SERVICE_URL, 'categories/bulk', {
       method: 'PUT',
       body,
-      headers: getProxyHeaders(request),
+      headers: await getProxyHeaders(request),
       incomingRequest: request,
     });
 

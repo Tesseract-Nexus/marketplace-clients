@@ -103,20 +103,14 @@ export default function OnboardingPage() {
     setError(null);
 
     try {
-      // Get access token from localStorage for authentication
-      const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-
       const headers: HeadersInit = {
         'Content-Type': 'application/json',
       };
 
-      if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-      }
-
       const response = await fetch('/api/tenants/create', {
         method: 'POST',
         headers,
+        credentials: 'include',
         body: JSON.stringify({
           name: formData.businessName,
           slug: formData.slug,

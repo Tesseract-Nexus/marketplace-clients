@@ -74,7 +74,7 @@ export async function GET(
   try {
     const response = await proxyToBackend(ORDERS_SERVICE_URL, `/orders/${idValidation.value}`, {
       method: 'GET',
-      headers: getProxyHeaders(request),
+      headers: await getProxyHeaders(request),
       incomingRequest: request,
     });
 
@@ -133,7 +133,7 @@ export async function PUT(
     const response = await proxyToBackend(ORDERS_SERVICE_URL, `/orders/${idValidation.value}`, {
       method: 'PUT',
       body: bodyResult.data,
-      headers: getProxyHeaders(request),
+      headers: await getProxyHeaders(request),
       incomingRequest: request,
     });
 
@@ -164,7 +164,7 @@ export async function DELETE(
   try {
     const response = await proxyToBackend(ORDERS_SERVICE_URL, `/orders/${idValidation.value}`, {
       method: 'DELETE',
-      headers: getProxyHeaders(request),
+      headers: await getProxyHeaders(request),
       incomingRequest: request,
     });
 

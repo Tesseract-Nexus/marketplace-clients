@@ -5,7 +5,7 @@ import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 const ANALYTICS_SERVICE_URL = getServiceUrl('ANALYTICS');
 
 export async function GET(request: NextRequest) {
-  const headers = getProxyHeaders(request);
+  const headers = await getProxyHeaders(request);
   const searchParams = request.nextUrl.searchParams;
   const queryString = searchParams.toString();
   const dateQuery = queryString ? `?${queryString}` : '?preset=last30days';

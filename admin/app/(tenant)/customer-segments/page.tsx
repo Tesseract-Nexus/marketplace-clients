@@ -95,20 +95,17 @@ export default function CustomerSegmentsPage() {
     rules: [{ field: 'total_orders', operator: 'gte', value: 1 }] as SegmentRule[],
   });
 
+  // SECURITY: Use HttpOnly cookies for authentication instead of localStorage
+  // The Authorization header is handled by the backend API routes via cookies
   const getAuthHeaders = (): Record<string, string> => {
-    const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
-    const headers: Record<string, string> = { 'X-Tenant-ID': currentTenant!.id };
-    if (accessToken) {
-      headers['Authorization'] = `Bearer ${accessToken}`;
-    }
-    return headers;
+    return { 'X-Tenant-ID': currentTenant!.id };
   };
 
   const fetchSegments = async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch('/api/segments', { headers: getAuthHeaders() });
+      const res = await fetch('/api/segments', { headers: getAuthHeaders(), credentials: 'include' });
       if (!res.ok) throw new Error('Failed to fetch segments');
       const data = await res.json();
       // Transform backend data to UI format
@@ -139,6 +136,7 @@ export default function CustomerSegmentsPage() {
       setSaving(true);
       const res = await fetch('/api/segments', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           ...getAuthHeaders(),
           'Content-Type': 'application/json',
@@ -171,6 +169,7 @@ export default function CustomerSegmentsPage() {
       setSaving(true);
       const res = await fetch(`/api/segments/${selectedSegment.id}`, {
         method: 'PUT',
+        credentials: 'include',
         headers: {
           ...getAuthHeaders(),
           'Content-Type': 'application/json',
@@ -203,6 +202,7 @@ export default function CustomerSegmentsPage() {
     try {
       const res = await fetch(`/api/segments/${segmentToDelete}`, {
         method: 'DELETE',
+        credentials: 'include',
         headers: getAuthHeaders(),
       });
       if (!res.ok) throw new Error('Failed to delete segment');

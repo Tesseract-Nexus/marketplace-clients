@@ -16,8 +16,16 @@ export interface TestStore {
   description?: string;
 }
 
-// Test user for onboarding
+// Test user for admin login (existing user)
 export const TEST_USER: TestUser = {
+  email: 'samyak.rout@gmail.com',
+  password: 'Admin@123',
+  firstName: 'Samyak',
+  lastName: 'Rout',
+};
+
+// Test user for onboarding (new user registration)
+export const ONBOARDING_USER: TestUser = {
   email: 'samyak.rout1988@gmail.com',
   password: 'Admin@123',
   firstName: 'Samyak',

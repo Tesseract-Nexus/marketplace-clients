@@ -22,7 +22,7 @@ export async function PUT(
     const response = await proxyToBackend(PRODUCTS_SERVICE_URL, `products/${id}/status`, {
       method: 'PUT',
       body,
-      headers: getProxyHeaders(request),
+      headers: await getProxyHeaders(request),
       incomingRequest: request,
     });
 

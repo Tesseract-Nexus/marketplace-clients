@@ -310,17 +310,14 @@ export default function AuditLogsPage() {
   const { showSuccess, showError } = useDialog();
   const { currentTenant } = useTenant();
 
-  // Helper to get auth headers for API calls
+  // SECURITY: Use HttpOnly cookies for authentication instead of localStorage
+  // The Authorization header is handled by the backend API routes via cookies
   const getAuthHeaders = (): Record<string, string> => {
-    const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
     if (currentTenant?.id) {
       headers['X-Tenant-ID'] = currentTenant.id;
-    }
-    if (accessToken) {
-      headers['Authorization'] = `Bearer ${accessToken}`;
     }
     return headers;
   };
@@ -361,7 +358,7 @@ export default function AuditLogsPage() {
   // Fetch retention settings
   const fetchRetentionSettings = useCallback(async () => {
     try {
-      const res = await fetch('/api/audit-logs/retention', { headers: getAuthHeaders() });
+      const res = await fetch('/api/audit-logs/retention', { headers: getAuthHeaders(), credentials: 'include' });
       if (res.ok) {
         const response = await res.json();
         setRetentionSettings(response.settings);
@@ -377,6 +374,7 @@ export default function AuditLogsPage() {
     try {
       const res = await fetch('/api/audit-logs/retention', {
         method: 'PUT',
+        credentials: 'include',
         headers: getAuthHeaders(),
         body: JSON.stringify({ retentionDays }),
       });
@@ -421,7 +419,7 @@ export default function AuditLogsPage() {
       params.set('offset', effectiveOffset.toString());
       params.set('sort_order', 'DESC');
 
-      const res = await fetch(`/api/audit-logs?${params.toString()}`, { headers: getAuthHeaders() });
+      const res = await fetch(`/api/audit-logs?${params.toString()}`, { headers: getAuthHeaders(), credentials: 'include' });
       if (res.ok) {
         const response = await res.json();
         setLogs(response.data || []);
@@ -441,7 +439,7 @@ export default function AuditLogsPage() {
   // Fetch summary
   const fetchSummary = useCallback(async () => {
     try {
-      const res = await fetch('/api/audit-logs/summary', { headers: getAuthHeaders() });
+      const res = await fetch('/api/audit-logs/summary', { headers: getAuthHeaders(), credentials: 'include' });
       if (res.ok) {
         const response = await res.json();
         setSummary(response);
@@ -525,6 +523,7 @@ export default function AuditLogsPage() {
 
       fetch('/api/audit-logs/stream', {
         headers,
+        credentials: 'include',
         signal: abortController.signal,
       }).then(async response => {
         if (!response.ok || !response.body) {
@@ -645,6 +644,7 @@ export default function AuditLogsPage() {
 
       const response = await fetch(`/api/audit-logs/export?${params.toString()}`, {
         headers: getAuthHeaders(),
+        credentials: 'include',
       });
 
       if (response.ok) {

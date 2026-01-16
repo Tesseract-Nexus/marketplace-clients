@@ -1,33 +1,36 @@
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 /**
  * Secure storage abstraction that uses SecureStore on native
- * and AsyncStorage on web (with a warning)
+ * and sessionStorage on web for security (tokens cleared on tab close)
+ *
+ * SECURITY: On web, we use sessionStorage instead of localStorage/AsyncStorage
+ * to ensure sensitive tokens are automatically cleared when the browser tab is closed.
+ * This reduces the risk of token theft from XSS attacks.
  */
 class SecureStorage {
   private isNative: boolean;
+  private isWeb: boolean;
 
   constructor() {
     this.isNative = Platform.OS === 'ios' || Platform.OS === 'android';
+    this.isWeb = Platform.OS === 'web';
   }
 
   /**
    * Store a value securely
+   * SECURITY: Uses sessionStorage on web (cleared on tab close)
    */
   async setItem(key: string, value: string): Promise<void> {
     if (this.isNative) {
       await SecureStore.setItemAsync(key, value, {
         keychainAccessible: SecureStore.WHEN_UNLOCKED,
       });
-    } else {
-      // Web fallback - not as secure
-      if (__DEV__) {
-        console.warn('SecureStorage: Using AsyncStorage on web. Data is not encrypted.');
-      }
-      await AsyncStorage.setItem(key, value);
+    } else if (this.isWeb && typeof window !== 'undefined') {
+      // SECURITY: Use sessionStorage on web - tokens cleared when tab is closed
+      // This prevents token persistence that could be exploited via XSS
+      sessionStorage.setItem(key, value);
     }
   }
 
@@ -37,9 +40,10 @@ class SecureStorage {
   async getItem(key: string): Promise<string | null> {
     if (this.isNative) {
       return SecureStore.getItemAsync(key);
-    } else {
-      return AsyncStorage.getItem(key);
+    } else if (this.isWeb && typeof window !== 'undefined') {
+      return sessionStorage.getItem(key);
     }
+    return null;
   }
 
   /**
@@ -48,8 +52,8 @@ class SecureStorage {
   async removeItem(key: string): Promise<void> {
     if (this.isNative) {
       await SecureStore.deleteItemAsync(key);
-    } else {
-      await AsyncStorage.removeItem(key);
+    } else if (this.isWeb && typeof window !== 'undefined') {
+      sessionStorage.removeItem(key);
     }
   }
 

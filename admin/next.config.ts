@@ -132,6 +132,15 @@ const nextConfig: NextConfig = {
           { key: 'Access-Control-Max-Age', value: '86400' }, // Cache preflight for 24 hours
         ],
       },
+      {
+        // SECURITY: Stricter Referrer-Policy for activation/verification pages
+        // These pages may contain tokens in URLs (before we strip them)
+        // Using 'no-referrer' ensures no referrer is sent when navigating away
+        source: '/activate',
+        headers: [
+          { key: 'Referrer-Policy', value: 'no-referrer' },
+        ],
+      },
     ];
   },
 

@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     const response = await fetch(url.toString(), {
       method: 'POST',
-      headers: getProxyHeaders(request),
+      headers: await getProxyHeaders(request),
       body: JSON.stringify(body),
     });
 

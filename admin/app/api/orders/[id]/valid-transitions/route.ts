@@ -31,7 +31,7 @@ export async function GET(
       `/orders/${idValidation.value}/valid-transitions`,
       {
         method: 'GET',
-        headers: getProxyHeaders(request),
+        headers: await getProxyHeaders(request),
         incomingRequest: request,
       }
     );

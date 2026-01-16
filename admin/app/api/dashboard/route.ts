@@ -29,7 +29,7 @@ interface DashboardData {
 export async function GET(request: NextRequest) {
   try {
     const tenantId = request.headers.get('X-Tenant-ID') || 'default';
-    const headers = getProxyHeaders(request);
+    const headers = await getProxyHeaders(request);
 
     // Check cache first
     const cacheKey = cacheKeys.dashboard(tenantId);

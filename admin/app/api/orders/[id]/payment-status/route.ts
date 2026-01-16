@@ -114,7 +114,7 @@ export async function PATCH(
       {
         method: 'PATCH',
         body: validationResult.data,
-        headers: getProxyHeaders(request),
+        headers: await getProxyHeaders(request),
         incomingRequest: request,
       }
     );

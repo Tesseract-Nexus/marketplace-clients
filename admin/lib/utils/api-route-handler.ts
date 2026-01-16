@@ -11,6 +11,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ERROR_CODES } from './api-error';
 
+const AUTH_BFF_INTERNAL_URL =
+  process.env.AUTH_BFF_INTERNAL_URL || 'http://auth-bff.marketplace.svc.cluster.local:8080';
+
+interface BffTokenResponse {
+  access_token: string;
+  user_id?: string;
+  tenant_id?: string;
+  tenant_slug?: string;
+  expires_at?: number;
+}
+
 /**
  * Cache configuration for different resource types
  * Performance: Reduces server load by 60-80% for cacheable resources
@@ -133,6 +144,41 @@ function extractEmailFromJWT(authHeader: string): string | null {
   }
 }
 
+async function getBffAccessToken(incomingRequest?: Request): Promise<BffTokenResponse | null> {
+  if (!incomingRequest) {
+    return null;
+  }
+
+  const cookieHeader = incomingRequest.headers.get('cookie');
+  if (!cookieHeader) {
+    return null;
+  }
+
+  try {
+    const response = await fetch(`${AUTH_BFF_INTERNAL_URL}/internal/get-token`, {
+      method: 'GET',
+      headers: {
+        'Cookie': cookieHeader,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    if (!data?.access_token) {
+      return null;
+    }
+
+    return data as BffTokenResponse;
+  } catch (error) {
+    console.warn('[BFF] Failed to retrieve access token:', error);
+    return null;
+  }
+}
+
 /**
  * Get standard request headers for proxying to backend services
  *
@@ -143,13 +189,16 @@ function extractEmailFromJWT(authHeader: string): string | null {
  * @param incomingRequest - The incoming request to extract headers from
  * @param additionalHeaders - Any additional headers to include
  */
-export function getProxyHeaders(incomingRequest?: Request, additionalHeaders?: HeadersInit): HeadersInit {
+export async function getProxyHeaders(incomingRequest?: Request, additionalHeaders?: HeadersInit): Promise<HeadersInit> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
 
   // Forward auth headers from incoming request
   // These are set by the client-side API client from TenantContext/JWT
+  let authHeader = '';
+  let bffToken: BffTokenResponse | null = null;
+
   if (incomingRequest) {
     // Forward X-Tenant-ID (required for multi-tenant data isolation)
     const incomingTenantId = incomingRequest.headers.get('X-Tenant-ID') || incomingRequest.headers.get('x-tenant-id');
@@ -171,7 +220,7 @@ export function getProxyHeaders(incomingRequest?: Request, additionalHeaders?: H
     }
 
     // Forward Authorization header if present (for JWT validation)
-    const authHeader = incomingRequest.headers.get('Authorization') || incomingRequest.headers.get('authorization');
+    authHeader = incomingRequest.headers.get('Authorization') || incomingRequest.headers.get('authorization') || '';
     if (authHeader) {
       headers['Authorization'] = authHeader;
 
@@ -187,6 +236,28 @@ export function getProxyHeaders(incomingRequest?: Request, additionalHeaders?: H
 
     // SECURITY: Do NOT forward X-User-Role from client requests - can be spoofed
     // Backend should use x-jwt-claim-platform-owner from Istio
+  }
+
+  if (!authHeader) {
+    bffToken = await getBffAccessToken(incomingRequest);
+    if (bffToken?.access_token) {
+      headers['Authorization'] = `Bearer ${bffToken.access_token}`;
+    }
+  }
+
+  if (!headers['X-User-ID'] && bffToken?.user_id) {
+    headers['X-User-ID'] = bffToken.user_id;
+  }
+
+  if (!headers['X-Tenant-ID'] && bffToken?.tenant_id) {
+    headers['X-Tenant-ID'] = bffToken.tenant_id;
+  }
+
+  if (headers['Authorization']) {
+    const email = extractEmailFromJWT(headers['Authorization']);
+    if (email) {
+      headers['X-User-Email'] = email;
+    }
   }
 
   return {
@@ -280,7 +351,7 @@ export async function proxyToBackend(
   try {
     const response = await fetch(url.toString(), {
       method,
-      headers: getProxyHeaders(incomingRequest, headers),
+      headers: await getProxyHeaders(incomingRequest, headers),
       body: body ? JSON.stringify(body) : undefined,
       signal: controller.signal,
     });

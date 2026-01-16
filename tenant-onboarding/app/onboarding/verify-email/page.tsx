@@ -28,6 +28,14 @@ function VerifyEmailContent() {
       return;
     }
 
+    // SECURITY: Remove token from URL immediately to prevent exposure in browser history,
+    // referrer headers, and server logs. Use replaceState to avoid creating a history entry.
+    if (typeof window !== 'undefined' && token) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('token');
+      window.history.replaceState({}, '', url.pathname + (url.search || ''));
+    }
+
     verifyToken();
   }, [token]);
 

@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
     const response = await proxyToBackend(PRODUCTS_SERVICE_URL, 'products', {
       method: 'GET',
       params: searchParams,
-      headers: getProxyHeaders(request),
+      headers: await getProxyHeaders(request),
       incomingRequest: request,
     });
 
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     const response = await proxyToBackend(PRODUCTS_SERVICE_URL, 'products', {
       method: 'POST',
       body,
-      headers: getProxyHeaders(request),
+      headers: await getProxyHeaders(request),
       incomingRequest: request,
     });
 

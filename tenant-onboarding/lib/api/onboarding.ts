@@ -594,6 +594,8 @@ class OnboardingAPI {
     }
   }
 
+  // SECURITY: Token is sent in request body (POST) instead of URL to prevent
+  // exposure in browser history, referrer headers, and server logs
   async getTokenInfo(token: string): Promise<{
     valid: boolean;
     email: string;
@@ -601,7 +603,10 @@ class OnboardingAPI {
     expires_at: string;
   } | null> {
     try {
-      const response = await this.makeRequest<any>(`/verify/token-info?token=${encodeURIComponent(token)}`);
+      const response = await this.makeRequest<any>('/verify/token-info', {
+        method: 'POST',
+        body: JSON.stringify({ token }),
+      });
       return {
         valid: response.valid,
         email: response.email,

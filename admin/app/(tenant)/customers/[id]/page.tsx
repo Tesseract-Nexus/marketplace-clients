@@ -146,41 +146,37 @@ export default function CustomerDetailPage() {
       setLoading(true);
       setError(null);
 
-      const accessToken = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null;
       const headers: Record<string, string> = { 'X-Tenant-ID': currentTenant!.id };
-      if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-      }
 
       // Fetch customer details
-      const customerRes = await fetch(`/api/customers/${customerId}`, { headers });
+      const customerRes = await fetch(`/api/customers/${customerId}`, { headers, credentials: 'include' });
       if (!customerRes.ok) throw new Error('Failed to fetch customer');
       const customerData = await customerRes.json();
       setCustomer(customerData.data || customerData);
 
       // Fetch customer orders
-      const ordersRes = await fetch(`/api/orders?customerId=${customerId}`, { headers });
+      const ordersRes = await fetch(`/api/orders?customerId=${customerId}`, { headers, credentials: 'include' });
       if (ordersRes.ok) {
         const ordersData = await ordersRes.json();
         setOrders(ordersData.data || ordersData.orders || []);
       }
 
       // Fetch addresses
-      const addressesRes = await fetch(`/api/customers/${customerId}/addresses`, { headers });
+      const addressesRes = await fetch(`/api/customers/${customerId}/addresses`, { headers, credentials: 'include' });
       if (addressesRes.ok) {
         const addressesData = await addressesRes.json();
         setAddresses(addressesData.data || addressesData || []);
       }
 
       // Fetch notes
-      const notesRes = await fetch(`/api/customers/${customerId}/notes`, { headers });
+      const notesRes = await fetch(`/api/customers/${customerId}/notes`, { headers, credentials: 'include' });
       if (notesRes.ok) {
         const notesData = await notesRes.json();
         setNotes(notesData.data || notesData || []);
       }
 
       // Fetch all segments and determine which ones the customer belongs to
-      const segmentsRes = await fetch('/api/segments', { headers });
+      const segmentsRes = await fetch('/api/segments', { headers, credentials: 'include' });
       if (segmentsRes.ok) {
         const segmentsData = await segmentsRes.json();
         const segments = segmentsData.data || segmentsData || [];

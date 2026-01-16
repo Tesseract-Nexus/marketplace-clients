@@ -17,6 +17,14 @@ interface BFFSessionResponse {
   error?: string;
 }
 
+interface BFFTokenResponse {
+  access_token: string;
+  user_id?: string;
+  tenant_id?: string;
+  tenant_slug?: string;
+  expires_at?: number;
+}
+
 /**
  * Decode JWT token and extract user ID
  * JWT format: header.payload.signature (base64 encoded)
@@ -111,6 +119,43 @@ export async function getBFFSession(): Promise<BFFSessionResponse | null> {
   }
 }
 
+/**
+ * Get access token from BFF session (server-side only)
+ * Uses the HttpOnly session cookie to fetch a short-lived access token.
+ */
+export async function getAccessTokenFromBFFSession(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('bff_session');
+
+    if (!sessionCookie?.value) {
+      return null;
+    }
+
+    const response = await fetch(`${AUTH_BFF_URL}/internal/get-token`, {
+      method: 'GET',
+      headers: {
+        'Cookie': `bff_session=${sessionCookie.value}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const tokenData: BFFTokenResponse = await response.json();
+    if (!tokenData.access_token) {
+      return null;
+    }
+
+    return `Bearer ${tokenData.access_token}`;
+  } catch (error) {
+    console.error('Error getting access token from BFF session:', error);
+    return null;
+  }
+}
+
 interface AuthHeaders {
   userId: string;
   authToken: string;
@@ -125,7 +170,7 @@ interface AuthHeaders {
  * 4. DEV_USER_ID env var (development only)
  */
 export async function getAuthHeaders(request: NextRequest): Promise<AuthHeaders> {
-  const authToken = request.headers.get('authorization') || '';
+  let authToken = request.headers.get('authorization') || '';
 
   // Try to extract user ID from JWT token first
   let userId = '';
@@ -146,6 +191,14 @@ export async function getAuthHeaders(request: NextRequest): Promise<AuthHeaders>
     const bffUserId = await getUserIdFromBFFSession();
     if (bffUserId) {
       userId = bffUserId;
+    }
+  }
+
+  // Try to get access token from BFF session if no Authorization header provided
+  if (!authToken) {
+    const bffToken = await getAccessTokenFromBFFSession();
+    if (bffToken) {
+      authToken = bffToken;
     }
   }
 

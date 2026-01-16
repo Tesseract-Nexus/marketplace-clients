@@ -71,12 +71,59 @@ jobs:
           echo "| TypeScript | Completed |" >> $GITHUB_STEP_SUMMARY
 
   # =============================================================================
+  # Unit Tests Job - Runs in parallel with quality checks
+  # =============================================================================
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: storefront
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: storefront/package.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run unit tests
+        run: npm test -- --coverage --passWithNoTests
+        continue-on-error: true
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-storefront
+          path: storefront/coverage
+          retention-days: 7
+        continue-on-error: true
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "## Unit Test Summary - Storefront" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -d coverage ]; then
+            echo "Coverage report generated" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No coverage report" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # =============================================================================
   # Build and Push Docker Image
   # =============================================================================
   build:
     name: Build and Push Storefront
     runs-on: ubuntu-latest
-    needs: quality  # Wait for quality checks
+    needs: [quality, test]  # Wait for quality checks and tests
 
     steps:
       - name: Checkout code

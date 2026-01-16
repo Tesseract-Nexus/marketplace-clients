@@ -84,7 +84,7 @@ function calculateReviewRating(review: Review): number {
  */
 export async function GET(request: NextRequest) {
   try {
-    const headers = getProxyHeaders(request);
+    const headers = await getProxyHeaders(request);
 
     // Fetch all reviews (or a reasonable sample for statistics)
     // Using a higher limit to get accurate statistics

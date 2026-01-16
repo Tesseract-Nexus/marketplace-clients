@@ -69,12 +69,28 @@ function ActivatePageContent() {
       return;
     }
 
+    // SECURITY: Remove token from URL immediately to prevent exposure in browser history,
+    // referrer headers, and server logs. Use replaceState to avoid creating a history entry.
+    if (typeof window !== 'undefined' && token) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('token');
+      window.history.replaceState({}, '', url.pathname + (url.search || ''));
+    }
+
     verifyToken();
   }, [token]);
 
   const verifyToken = async () => {
     try {
-      const response = await fetch(`/api/staff/auth/invitation/verify?token=${encodeURIComponent(token || '')}`);
+      // SECURITY: Use POST to send token in body instead of URL query string
+      // This prevents token exposure in server logs and referrer headers
+      const response = await fetch('/api/staff/auth/invitation/verify', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
       const data = await response.json();
 
       if (!response.ok || !data.valid) {

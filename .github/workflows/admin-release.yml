@@ -24,7 +24,7 @@ env:
 
 jobs:
   # =============================================================================
-  # Quality Checks - Linting
+  # Quality Checks - Linting (runs first)
   # =============================================================================
   quality:
     name: Quality Checks
@@ -69,12 +69,47 @@ jobs:
           echo "| ESLint | ${{ steps.lint.outcome == 'success' && '✅ Passed' || '⚠️ Warnings' }} |" >> $GITHUB_STEP_SUMMARY
 
   # =============================================================================
-  # Release Build
+  # Unit Tests - Must pass before release (runs after quality)
+  # =============================================================================
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: quality
+    defaults:
+      run:
+        working-directory: admin
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: admin/package.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run unit tests
+        run: npm test -- --coverage --passWithNoTests
+
+      - name: Test Summary
+        if: always()
+        run: |
+          echo "## Unit Test Summary - Admin Portal Release" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All tests must pass for release to proceed." >> $GITHUB_STEP_SUMMARY
+
+  # =============================================================================
+  # Release Build (runs after tests pass)
   # =============================================================================
   release:
     name: Release Admin Portal
     runs-on: ubuntu-latest
-    needs: quality
+    needs: [quality, test]
 
     steps:
       - name: Checkout code

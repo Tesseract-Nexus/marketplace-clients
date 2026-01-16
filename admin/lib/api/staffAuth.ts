@@ -71,8 +71,14 @@ class StaffAuthService {
   }
 
 
+  // SECURITY: POST handler sends token in request body instead of URL
+  // This prevents token exposure in browser history, referrer headers, and server logs
   async verifyInvitation(token: string): Promise<InvitationVerifyResponse> {
-    const response = await fetch(`${API_BASE}/invitation/verify?token=${encodeURIComponent(token)}`);
+    const response = await fetch(`${API_BASE}/invitation/verify`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    });
 
     if (!response.ok) {
       const error = await response.json();

@@ -98,11 +98,24 @@ export interface GlobalSearchResults {
 // ========================================
 
 /**
- * Get the search service URL from environment or use API gateway
+ * Check if code is running in browser
+ */
+function isBrowser(): boolean {
+  return typeof window !== 'undefined';
+}
+
+/**
+ * Get the search service URL
+ * SECURITY: Client-side calls use Next.js API routes (internal proxy)
+ * Server-side calls use internal service URLs directly
  */
 function getSearchUrl(): string {
-  // Use API gateway which routes to search-service
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'https://dev-api.tesserix.app';
+  // Client-side: Always use Next.js API routes to keep internal services hidden
+  if (isBrowser()) {
+    return '/api/search/typesense';
+  }
+  // Server-side: Use internal service URL or API gateway
+  const baseUrl = process.env.SEARCH_SERVICE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://dev-api.tesserix.app';
   return `${baseUrl}/api/v1/search`;
 }
 

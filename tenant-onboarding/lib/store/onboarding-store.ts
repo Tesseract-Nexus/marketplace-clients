@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import type {
   SessionResponse,
   BusinessInfoRequest,
@@ -138,6 +138,8 @@ export interface OnboardingState {
 
   // Hydration
   setHasHydrated: (state: boolean) => void;
+  // SECURITY: Re-fetch sensitive PII data from server (not stored in browser)
+  rehydrateSensitiveData: () => Promise<void>;
 
   // Computed values
   getProgress: () => number;
@@ -185,6 +187,35 @@ export const useOnboardingStore = create<OnboardingState>()(
 
       // Hydration setter
       setHasHydrated: (_hasHydrated) => set({ _hasHydrated }),
+
+      // SECURITY: Re-fetch sensitive PII data from server after rehydration
+      // This ensures sensitive data is not stored in browser storage
+      rehydrateSensitiveData: async () => {
+        const state = get();
+        if (!state.sessionId) return;
+
+        try {
+          // Dynamic import to avoid circular dependencies
+          const { onboardingApi } = await import('../api/onboarding');
+          const session = await onboardingApi.getOnboardingSession(state.sessionId);
+
+          // Restore sensitive data from server
+          set({
+            businessInfo: session.business_info || {},
+            contactDetails: session.contact_details || {},
+            businessAddress: session.business_address || {},
+            storeSetup: session.store_setup || {},
+            emailVerified: session.email_verified || false,
+            phoneVerified: session.phone_verified || false,
+          });
+        } catch (error) {
+          console.error('Failed to rehydrate sensitive data from server:', error);
+          // If session is invalid, reset the store
+          if ((error as Error).message?.includes('404') || (error as Error).message?.includes('not found')) {
+            set(initialState);
+          }
+        }
+      },
 
       // Basic state setters
       setSessionId: (sessionId) => set({ sessionId }),
@@ -306,25 +337,31 @@ export const useOnboardingStore = create<OnboardingState>()(
     }),
     {
       name: 'tenant-onboarding-store',
+      // SECURITY: Use sessionStorage instead of localStorage for better security
+      // sessionStorage is cleared when the tab/browser is closed
+      storage: createJSONStorage(() => sessionStorage),
+      // SECURITY: Only persist non-sensitive navigation data
+      // Sensitive PII data (businessInfo, contactDetails, businessAddress) is NOT persisted
+      // and will be re-fetched from the server on page refresh
       partialize: (state) => ({
+        // Non-sensitive navigation state only
         sessionId: state.sessionId,
         currentStep: state.currentStep,
-        businessInfo: state.businessInfo,
-        contactDetails: state.contactDetails,
-        businessAddress: state.businessAddress,
-        storeSetup: state.storeSetup,
-        detectedLocation: state.detectedLocation,
+        completedSteps: state.completedSteps,
+        // Location preferences (not PII - just timezone/currency preferences)
         detectedCountry: state.detectedCountry,
         detectedCurrency: state.detectedCurrency,
+        // Verification status (boolean flags, not PII)
         emailVerified: state.emailVerified,
         phoneVerified: state.phoneVerified,
-        documents: state.documents,
-        completedSteps: state.completedSteps,
-        tenantResult: state.tenantResult,
+        // EXCLUDED: businessInfo, contactDetails, businessAddress, storeSetup
+        // EXCLUDED: detectedLocation (contains IP address), documents, tenantResult
       }),
-      // Called when hydration is complete - sets _hasHydrated to true
+      // Called when hydration is complete - sets _hasHydrated and re-fetches PII
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
+        // Re-fetch sensitive PII data from server after storage rehydration
+        state?.rehydrateSensitiveData();
       },
     }
   )

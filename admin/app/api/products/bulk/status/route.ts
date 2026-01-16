@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const response = await proxyToBackend(PRODUCTS_SERVICE_URL, 'products/bulk/status', {
       method: 'POST',
       body,
-      headers: getProxyHeaders(request),
+      headers: await getProxyHeaders(request),
       incomingRequest: request,
     });
 

@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
 
     const response = await fetch(url.toString(), {
       method: 'GET',
-      headers: getProxyHeaders(request),
+      headers: await getProxyHeaders(request),
     });
 
     if (!response.ok) {
