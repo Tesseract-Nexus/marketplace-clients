@@ -37,9 +37,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Forward to customers service
+    // Forward to customers service storefront endpoint
     const response = await fetch(
-      `${CUSTOMERS_SERVICE_URL}/customers/${customerId}/cart`,
+      `${CUSTOMERS_SERVICE_URL}/api/v1/storefront/customers/${customerId}/cart`,
       {
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -97,9 +97,9 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Forward to customers service
+    // Forward to customers service storefront endpoint
     const response = await fetch(
-      `${CUSTOMERS_SERVICE_URL}/customers/${customerId}/cart`,
+      `${CUSTOMERS_SERVICE_URL}/api/v1/storefront/customers/${customerId}/cart`,
       {
         method: 'PUT',
         headers: {
@@ -158,9 +158,9 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Forward to customers service
+    // Forward to customers service storefront endpoint
     const response = await fetch(
-      `${CUSTOMERS_SERVICE_URL}/customers/${customerId}/cart`,
+      `${CUSTOMERS_SERVICE_URL}/api/v1/storefront/customers/${customerId}/cart`,
       {
         method: 'DELETE',
         headers: {

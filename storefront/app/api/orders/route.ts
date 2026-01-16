@@ -185,6 +185,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Tenant ID required' }, { status: 400 });
     }
 
+    // Get access token from cookie or header (for authenticated checkout)
+    const accessToken = request.cookies.get('accessToken')?.value ||
+      request.headers.get('Authorization')?.replace('Bearer ', '');
+
     let body: StorefrontOrderRequest;
     try {
       const bodyText = await request.text();
@@ -205,13 +209,22 @@ export async function POST(request: NextRequest) {
     console.log('[BFF Orders] Customer:', transformedBody.customer.email);
     console.log('[BFF Orders] Items:', transformedBody.items.length);
 
-    const response = await fetch(`${ORDERS_SERVICE_URL}/api/v1/orders`, {
+    // Build headers - include Authorization if present for authenticated checkout
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Tenant-ID': tenantId,
+    };
+    if (storefrontId) {
+      headers['X-Storefront-ID'] = storefrontId;
+    }
+    if (accessToken) {
+      headers['Authorization'] = `Bearer ${accessToken}`;
+    }
+
+    // Use storefront endpoint which supports both guest and authenticated checkout
+    const response = await fetch(`${ORDERS_SERVICE_URL}/api/v1/storefront/orders`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
-        ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
-      },
+      headers,
       body: JSON.stringify(transformedBody),
     });
 
