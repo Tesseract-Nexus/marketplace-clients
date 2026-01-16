@@ -120,7 +120,8 @@ export function extractUserContext(request: NextRequest): UserContext {
   const istioRoles = request.headers.get('x-jwt-claim-roles');
 
   // Source 2: Session cookie (TRUSTED - validated by auth-bff)
-  const hasValidSession = !!request.cookies.get('session')?.value;
+  // Check both 'session' and 'bff_session' cookie names
+  const hasValidSession = !!(request.cookies.get('session')?.value || request.cookies.get('bff_session')?.value);
 
   // Source 3: Legacy headers (only with valid session cookie)
   const legacyUserId = hasValidSession ? (request.headers.get('X-User-ID') || request.headers.get('x-user-id')) : null;
@@ -179,8 +180,10 @@ export function extractUserContext(request: NextRequest): UserContext {
   // === AUTHENTICATION DECISION: Only from trusted sources ===
   // User is authenticated ONLY if:
   // 1. We have Istio-validated user ID (JWT verified at ingress), OR
-  // 2. We have valid session cookie AND legacy user ID (session verified by auth-bff)
-  const isAuthenticated = !!istioUserId || (hasValidSession && !!legacyUserId);
+  // 2. We have valid session cookie (session verified by auth-bff when proxying)
+  // Note: For BFF routes, browser only sends bff_session cookie, not X-User-ID
+  // The actual token and user context is retrieved by getProxyHeadersAsync when proxying
+  const isAuthenticated = !!istioUserId || hasValidSession;
 
   // For admin portal: user needs to be authenticated
   // Backend handles actual role-based authorization via RBAC
