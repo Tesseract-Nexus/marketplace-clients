@@ -110,35 +110,13 @@ export interface ApiRouteResponse<T = any> {
 }
 
 /**
- * Extract email from JWT token for RBAC staff lookup
- * Note: This decodes but does NOT verify the JWT - that's done by backend services.
- * This is safe because:
- * 1. The JWT came from the client's authenticated session
- * 2. Backend services will verify the JWT signature
- * 3. This is for internal BFF → service communication
- */
-function extractEmailFromJWT(authHeader: string): string | null {
-  try {
-    const jwt = authHeader.replace(/^Bearer\s+/i, '');
-    const parts = jwt.split('.');
-    if (parts.length !== 3) return null;
-
-    // Base64 decode the payload (handle URL-safe base64)
-    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
-    const payload = Buffer.from(base64, 'base64').toString('utf-8');
-    const claims = JSON.parse(payload);
-    return claims.email || null;
-  } catch {
-    return null;
-  }
-}
-
-/**
  * Get standard request headers for proxying to backend services
  *
- * IMPORTANT: All authentication headers MUST come from the incoming request.
- * There are no fallback values - if the client doesn't send X-Tenant-ID,
- * the backend will reject the request (proper multi-tenant isolation).
+ * Authentication flow:
+ * 1. Client sends Authorization: Bearer <JWT> header
+ * 2. Istio ingress gateway validates JWT against Keycloak JWKS
+ * 3. Istio extracts claims and injects x-jwt-claim-* headers
+ * 4. Backend services read from these trusted Istio headers
  *
  * @param incomingRequest - The incoming request to extract headers from
  * @param additionalHeaders - Any additional headers to include
@@ -148,45 +126,14 @@ export function getProxyHeaders(incomingRequest?: Request, additionalHeaders?: H
     'Content-Type': 'application/json',
   };
 
-  // Forward auth headers from incoming request
-  // These are set by the client-side API client from TenantContext/JWT
+  // Forward Authorization header for Istio JWT validation
+  // Istio validates the JWT and extracts claims as x-jwt-claim-* headers
+  // Backend services read from these Istio-injected headers
   if (incomingRequest) {
-    // Forward X-Tenant-ID (required for multi-tenant data isolation)
-    const incomingTenantId = incomingRequest.headers.get('X-Tenant-ID') || incomingRequest.headers.get('x-tenant-id');
-    if (incomingTenantId) {
-      headers['X-Tenant-ID'] = incomingTenantId;
-    }
-
-    // Forward X-Vendor-ID (required for marketplace/storefront isolation)
-    // Backend vendor-service looks for this header first for storefront operations
-    const incomingVendorId = incomingRequest.headers.get('X-Vendor-ID') || incomingRequest.headers.get('x-vendor-id');
-    if (incomingVendorId) {
-      headers['X-Vendor-ID'] = incomingVendorId;
-    }
-
-    // Forward X-User-ID if present
-    const incomingUserId = incomingRequest.headers.get('X-User-ID') || incomingRequest.headers.get('x-user-id');
-    if (incomingUserId) {
-      headers['X-User-ID'] = incomingUserId;
-    }
-
-    // Forward Authorization header if present (for JWT validation)
     const authHeader = incomingRequest.headers.get('Authorization') || incomingRequest.headers.get('authorization');
     if (authHeader) {
       headers['Authorization'] = authHeader;
-
-      // Extract email from JWT for RBAC staff lookup
-      // SECURITY NOTE: We extract email from the JWT (not client headers) to prevent spoofing.
-      // Backend services need email for email-based staff lookup when auth user ID
-      // (e.g., Keycloak subject UUID) differs from the staff-service staff ID.
-      const email = extractEmailFromJWT(authHeader);
-      if (email) {
-        headers['X-User-Email'] = email;
-      }
     }
-
-    // SECURITY: Do NOT forward X-User-Role from client requests - can be spoofed
-    // Backend should use x-jwt-claim-platform-owner from Istio
   }
 
   return {
