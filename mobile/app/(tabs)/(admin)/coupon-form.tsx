@@ -41,9 +41,24 @@ interface CouponFormData {
 }
 
 const couponTypes = [
-  { id: 'percentage' as CouponType, label: 'Percentage', icon: 'git-branch', example: 'e.g., 20% off' },
-  { id: 'fixed_amount' as CouponType, label: 'Fixed Amount', icon: 'cash', example: 'e.g., $10 off' },
-  { id: 'free_shipping' as CouponType, label: 'Free Shipping', icon: 'car', example: 'Free delivery' },
+  {
+    id: 'percentage' as CouponType,
+    label: 'Percentage',
+    icon: 'git-branch',
+    example: 'e.g., 20% off',
+  },
+  {
+    id: 'fixed_amount' as CouponType,
+    label: 'Fixed Amount',
+    icon: 'cash',
+    example: 'e.g., $10 off',
+  },
+  {
+    id: 'free_shipping' as CouponType,
+    label: 'Free Shipping',
+    icon: 'car',
+    example: 'Free delivery',
+  },
 ];
 
 export default function CouponFormScreen() {
@@ -73,7 +88,7 @@ export default function CouponFormScreen() {
   const [isLoading, setIsLoading] = useState(false);
 
   const updateField = <K extends keyof CouponFormData>(key: K, value: CouponFormData[K]) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
+    setFormData((prev) => ({ ...prev, [key]: value }));
   };
 
   const generateCode = () => {
@@ -100,17 +115,17 @@ export default function CouponFormScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader
-        title={isEditing ? 'Edit Coupon' : 'New Coupon'}
         subtitle={isEditing ? `Editing ${params.id}` : 'Create a discount code'}
+        title={isEditing ? 'Edit Coupon' : 'New Coupon'}
       />
 
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={{ flex: 1 }}
       >
         <ScrollView
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
+          showsVerticalScrollIndicator={false}
         >
           {/* Coupon Code */}
           <Animated.View entering={FadeInDown.delay(50).springify()}>
@@ -122,34 +137,38 @@ export default function CouponFormScreen() {
 
               <View style={styles.codeInputRow}>
                 <TextInput
+                  autoCapitalize="characters"
+                  maxLength={15}
+                  placeholder="SUMMER20"
+                  placeholderTextColor={colors.textTertiary}
                   style={[
                     styles.codeInput,
                     { backgroundColor: `${colors.text}08`, color: colors.text },
                   ]}
                   value={formData.code}
                   onChangeText={(v) => updateField('code', v.toUpperCase())}
-                  placeholder="SUMMER20"
-                  placeholderTextColor={colors.textTertiary}
-                  autoCapitalize="characters"
-                  maxLength={15}
                 />
                 <Pressable
                   style={[styles.generateBtn, { backgroundColor: colors.primary }]}
                   onPress={generateCode}
                 >
-                  <Ionicons name="shuffle" size={20} color="#FFFFFF" />
+                  <Ionicons color="#FFFFFF" name="shuffle" size={20} />
                 </Pressable>
               </View>
 
               <TextInput
+                placeholder="Coupon name (internal use)"
+                placeholderTextColor={colors.textTertiary}
                 style={[styles.input, { backgroundColor: `${colors.text}08`, color: colors.text }]}
                 value={formData.name}
                 onChangeText={(v) => updateField('name', v)}
-                placeholder="Coupon name (internal use)"
-                placeholderTextColor={colors.textTertiary}
               />
 
               <TextInput
+                multiline
+                numberOfLines={3}
+                placeholder="Description (optional)"
+                placeholderTextColor={colors.textTertiary}
                 style={[
                   styles.input,
                   styles.textArea,
@@ -157,10 +176,6 @@ export default function CouponFormScreen() {
                 ]}
                 value={formData.description}
                 onChangeText={(v) => updateField('description', v)}
-                placeholder="Description (optional)"
-                placeholderTextColor={colors.textTertiary}
-                multiline
-                numberOfLines={3}
               />
             </View>
           </Animated.View>
@@ -178,13 +193,8 @@ export default function CouponFormScreen() {
                       styles.typeCard,
                       {
                         backgroundColor:
-                          formData.type === type.id
-                            ? `${colors.primary}15`
-                            : `${colors.text}05`,
-                        borderColor:
-                          formData.type === type.id
-                            ? colors.primary
-                            : 'transparent',
+                          formData.type === type.id ? `${colors.primary}15` : `${colors.text}05`,
+                        borderColor: formData.type === type.id ? colors.primary : 'transparent',
                       },
                     ]}
                     onPress={() => {
@@ -197,16 +207,14 @@ export default function CouponFormScreen() {
                         styles.typeIcon,
                         {
                           backgroundColor:
-                            formData.type === type.id
-                              ? colors.primary
-                              : `${colors.text}10`,
+                            formData.type === type.id ? colors.primary : `${colors.text}10`,
                         },
                       ]}
                     >
                       <Ionicons
+                        color={formData.type === type.id ? '#FFFFFF' : colors.textSecondary}
                         name={type.icon as any}
                         size={20}
-                        color={formData.type === type.id ? '#FFFFFF' : colors.textSecondary}
                       />
                     </View>
                     <Text
@@ -219,62 +227,56 @@ export default function CouponFormScreen() {
                     >
                       {type.label}
                     </Text>
-                    <Text
-                      style={[styles.typeExample, { color: colors.textSecondary }]}
-                    >
+                    <Text style={[styles.typeExample, { color: colors.textSecondary }]}>
                       {type.example}
                     </Text>
                   </Pressable>
                 ))}
               </View>
 
-              {formData.type !== 'free_shipping' && (
+              {formData.type !== 'free_shipping' ? (
                 <View style={styles.valueInputRow}>
                   <Text style={[styles.valuePrefix, { color: colors.textSecondary }]}>
                     {formData.type === 'percentage' ? '%' : '$'}
                   </Text>
                   <TextInput
+                    keyboardType="decimal-pad"
+                    placeholder={formData.type === 'percentage' ? '20' : '10.00'}
+                    placeholderTextColor={colors.textTertiary}
                     style={[
                       styles.valueInput,
                       { backgroundColor: `${colors.text}08`, color: colors.text },
                     ]}
                     value={formData.value}
                     onChangeText={(v) => updateField('value', v.replace(/[^0-9.]/g, ''))}
-                    placeholder={formData.type === 'percentage' ? '20' : '10.00'}
-                    placeholderTextColor={colors.textTertiary}
-                    keyboardType="decimal-pad"
                   />
-                  {formData.type === 'percentage' && (
-                    <Text style={[styles.valueSuffix, { color: colors.textSecondary }]}>
-                      off
-                    </Text>
-                  )}
+                  {formData.type === 'percentage' ? (
+                    <Text style={[styles.valueSuffix, { color: colors.textSecondary }]}>off</Text>
+                  ) : null}
                 </View>
-              )}
+              ) : null}
 
-              {formData.type === 'percentage' && (
+              {formData.type === 'percentage' ? (
                 <View style={styles.inputWithLabel}>
                   <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>
                     Maximum discount (optional)
                   </Text>
                   <View style={styles.currencyInput}>
-                    <Text style={[styles.currencySymbol, { color: colors.textSecondary }]}>
-                      $
-                    </Text>
+                    <Text style={[styles.currencySymbol, { color: colors.textSecondary }]}>$</Text>
                     <TextInput
+                      keyboardType="decimal-pad"
+                      placeholder="100.00"
+                      placeholderTextColor={colors.textTertiary}
                       style={[
                         styles.input,
                         { backgroundColor: `${colors.text}08`, color: colors.text, flex: 1 },
                       ]}
                       value={formData.maxDiscount}
                       onChangeText={(v) => updateField('maxDiscount', v.replace(/[^0-9.]/g, ''))}
-                      placeholder="100.00"
-                      placeholderTextColor={colors.textTertiary}
-                      keyboardType="decimal-pad"
                     />
                   </View>
                 </View>
-              )}
+              ) : null}
             </View>
           </Animated.View>
 
@@ -288,19 +290,17 @@ export default function CouponFormScreen() {
                   Minimum order amount
                 </Text>
                 <View style={styles.currencyInput}>
-                  <Text style={[styles.currencySymbol, { color: colors.textSecondary }]}>
-                    $
-                  </Text>
+                  <Text style={[styles.currencySymbol, { color: colors.textSecondary }]}>$</Text>
                   <TextInput
+                    keyboardType="decimal-pad"
+                    placeholder="0.00"
+                    placeholderTextColor={colors.textTertiary}
                     style={[
                       styles.input,
                       { backgroundColor: `${colors.text}08`, color: colors.text, flex: 1 },
                     ]}
                     value={formData.minOrderAmount}
                     onChangeText={(v) => updateField('minOrderAmount', v.replace(/[^0-9.]/g, ''))}
-                    placeholder="0.00"
-                    placeholderTextColor={colors.textTertiary}
-                    keyboardType="decimal-pad"
                   />
                 </View>
               </View>
@@ -315,27 +315,25 @@ export default function CouponFormScreen() {
                   </Text>
                 </View>
                 <Switch
+                  thumbColor={formData.excludeSaleItems ? colors.primary : colors.textSecondary}
+                  trackColor={{ false: colors.border, true: `${colors.primary}50` }}
                   value={formData.excludeSaleItems}
                   onValueChange={(v) => updateField('excludeSaleItems', v)}
-                  trackColor={{ false: colors.border, true: `${colors.primary}50` }}
-                  thumbColor={formData.excludeSaleItems ? colors.primary : colors.textSecondary}
                 />
               </View>
 
               <View style={styles.toggleRow}>
                 <View style={styles.toggleInfo}>
-                  <Text style={[styles.toggleLabel, { color: colors.text }]}>
-                    First order only
-                  </Text>
+                  <Text style={[styles.toggleLabel, { color: colors.text }]}>First order only</Text>
                   <Text style={[styles.toggleDesc, { color: colors.textSecondary }]}>
                     Only valid for customer's first purchase
                   </Text>
                 </View>
                 <Switch
+                  thumbColor={formData.firstOrderOnly ? colors.primary : colors.textSecondary}
+                  trackColor={{ false: colors.border, true: `${colors.primary}50` }}
                   value={formData.firstOrderOnly}
                   onValueChange={(v) => updateField('firstOrderOnly', v)}
-                  trackColor={{ false: colors.border, true: `${colors.primary}50` }}
-                  thumbColor={formData.firstOrderOnly ? colors.primary : colors.textSecondary}
                 />
               </View>
             </View>
@@ -351,12 +349,15 @@ export default function CouponFormScreen() {
                   Total usage limit
                 </Text>
                 <TextInput
-                  style={[styles.input, { backgroundColor: `${colors.text}08`, color: colors.text }]}
-                  value={formData.usageLimit}
-                  onChangeText={(v) => updateField('usageLimit', v.replace(/[^0-9]/g, ''))}
+                  keyboardType="number-pad"
                   placeholder="Unlimited"
                   placeholderTextColor={colors.textTertiary}
-                  keyboardType="number-pad"
+                  style={[
+                    styles.input,
+                    { backgroundColor: `${colors.text}08`, color: colors.text },
+                  ]}
+                  value={formData.usageLimit}
+                  onChangeText={(v) => updateField('usageLimit', v.replace(/[^0-9]/g, ''))}
                 />
               </View>
 
@@ -365,12 +366,15 @@ export default function CouponFormScreen() {
                   Limit per customer
                 </Text>
                 <TextInput
-                  style={[styles.input, { backgroundColor: `${colors.text}08`, color: colors.text }]}
-                  value={formData.perCustomerLimit}
-                  onChangeText={(v) => updateField('perCustomerLimit', v.replace(/[^0-9]/g, ''))}
+                  keyboardType="number-pad"
                   placeholder="1"
                   placeholderTextColor={colors.textTertiary}
-                  keyboardType="number-pad"
+                  style={[
+                    styles.input,
+                    { backgroundColor: `${colors.text}08`, color: colors.text },
+                  ]}
+                  value={formData.perCustomerLimit}
+                  onChangeText={(v) => updateField('perCustomerLimit', v.replace(/[^0-9]/g, ''))}
                 />
               </View>
             </View>
@@ -387,27 +391,27 @@ export default function CouponFormScreen() {
                   onPress={() => {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     // For now, set to current date + options
-                    Alert.alert(
-                      'Start Date',
-                      'When should this coupon become active?',
-                      [
-                        { text: 'Immediately', onPress: () => updateField('startsAt', null) },
-                        { text: 'Tomorrow', onPress: () => updateField('startsAt', new Date(Date.now() + 86400000)) },
-                        { text: 'Next Week', onPress: () => updateField('startsAt', new Date(Date.now() + 7 * 86400000)) },
-                        { text: 'Cancel', style: 'cancel' },
-                      ]
-                    );
+                    Alert.alert('Start Date', 'When should this coupon become active?', [
+                      { text: 'Immediately', onPress: () => updateField('startsAt', null) },
+                      {
+                        text: 'Tomorrow',
+                        onPress: () => updateField('startsAt', new Date(Date.now() + 86400000)),
+                      },
+                      {
+                        text: 'Next Week',
+                        onPress: () => updateField('startsAt', new Date(Date.now() + 7 * 86400000)),
+                      },
+                      { text: 'Cancel', style: 'cancel' },
+                    ]);
                   }}
                 >
-                  <Ionicons name="calendar-outline" size={20} color={colors.textSecondary} />
+                  <Ionicons color={colors.textSecondary} name="calendar-outline" size={20} />
                   <View>
                     <Text style={[styles.dateBtnLabel, { color: colors.textSecondary }]}>
                       Starts
                     </Text>
                     <Text style={[styles.dateBtnValue, { color: colors.text }]}>
-                      {formData.startsAt
-                        ? formData.startsAt.toLocaleDateString()
-                        : 'Immediately'}
+                      {formData.startsAt ? formData.startsAt.toLocaleDateString() : 'Immediately'}
                     </Text>
                   </View>
                 </Pressable>
@@ -416,28 +420,34 @@ export default function CouponFormScreen() {
                   style={[styles.dateBtn, { backgroundColor: `${colors.text}08` }]}
                   onPress={() => {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                    Alert.alert(
-                      'Expiry Date',
-                      'When should this coupon expire?',
-                      [
-                        { text: 'Never', onPress: () => updateField('expiresAt', null) },
-                        { text: '7 Days', onPress: () => updateField('expiresAt', new Date(Date.now() + 7 * 86400000)) },
-                        { text: '30 Days', onPress: () => updateField('expiresAt', new Date(Date.now() + 30 * 86400000)) },
-                        { text: '90 Days', onPress: () => updateField('expiresAt', new Date(Date.now() + 90 * 86400000)) },
-                        { text: 'Cancel', style: 'cancel' },
-                      ]
-                    );
+                    Alert.alert('Expiry Date', 'When should this coupon expire?', [
+                      { text: 'Never', onPress: () => updateField('expiresAt', null) },
+                      {
+                        text: '7 Days',
+                        onPress: () =>
+                          updateField('expiresAt', new Date(Date.now() + 7 * 86400000)),
+                      },
+                      {
+                        text: '30 Days',
+                        onPress: () =>
+                          updateField('expiresAt', new Date(Date.now() + 30 * 86400000)),
+                      },
+                      {
+                        text: '90 Days',
+                        onPress: () =>
+                          updateField('expiresAt', new Date(Date.now() + 90 * 86400000)),
+                      },
+                      { text: 'Cancel', style: 'cancel' },
+                    ]);
                   }}
                 >
-                  <Ionicons name="calendar-outline" size={20} color={colors.textSecondary} />
+                  <Ionicons color={colors.textSecondary} name="calendar-outline" size={20} />
                   <View>
                     <Text style={[styles.dateBtnLabel, { color: colors.textSecondary }]}>
                       Expires
                     </Text>
                     <Text style={[styles.dateBtnValue, { color: colors.text }]}>
-                      {formData.expiresAt
-                        ? formData.expiresAt.toLocaleDateString()
-                        : 'Never'}
+                      {formData.expiresAt ? formData.expiresAt.toLocaleDateString() : 'Never'}
                     </Text>
                   </View>
                 </Pressable>
@@ -452,18 +462,16 @@ export default function CouponFormScreen() {
             <View style={[styles.section, { backgroundColor: colors.surface }]}>
               <View style={styles.toggleRow}>
                 <View style={styles.toggleInfo}>
-                  <Text style={[styles.toggleLabel, { color: colors.text }]}>
-                    Active
-                  </Text>
+                  <Text style={[styles.toggleLabel, { color: colors.text }]}>Active</Text>
                   <Text style={[styles.toggleDesc, { color: colors.textSecondary }]}>
                     Coupon can be used by customers
                   </Text>
                 </View>
                 <Switch
+                  thumbColor={formData.isActive ? colors.success : colors.textSecondary}
+                  trackColor={{ false: colors.border, true: `${colors.success}50` }}
                   value={formData.isActive}
                   onValueChange={(v) => updateField('isActive', v)}
-                  trackColor={{ false: colors.border, true: `${colors.success}50` }}
-                  thumbColor={formData.isActive ? colors.success : colors.textSecondary}
                 />
               </View>
             </View>
@@ -478,17 +486,17 @@ export default function CouponFormScreen() {
           ]}
         >
           <Button
+            style={{ flex: 1 }}
             title="Cancel"
             variant="outline"
             onPress={() => router.back()}
-            style={{ flex: 1 }}
           />
           <Button
+            loading={isLoading}
+            style={{ flex: 2 }}
             title={isEditing ? 'Save Changes' : 'Create Coupon'}
             variant="primary"
-            loading={isLoading}
             onPress={handleSave}
-            style={{ flex: 2 }}
           />
         </View>
       </KeyboardAvoidingView>
