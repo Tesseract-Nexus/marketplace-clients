@@ -110,13 +110,36 @@ export interface ApiRouteResponse<T = any> {
 }
 
 /**
+ * Decode JWT payload without verification
+ * Note: We don't verify the signature here because:
+ * 1. External requests are validated by Istio at the ingress
+ * 2. Internal BFF requests come from authenticated sessions
+ */
+function decodeJwtPayload(token: string): Record<string, unknown> | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3 || !parts[1]) {
+      return null;
+    }
+    // Base64url decode
+    const base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+    const decoded = Buffer.from(padded, 'base64').toString('utf-8');
+    return JSON.parse(decoded);
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Get standard request headers for proxying to backend services
  *
  * Authentication flow:
  * 1. Client sends Authorization: Bearer <JWT> header
- * 2. Istio ingress gateway validates JWT against Keycloak JWKS
- * 3. Istio extracts claims and injects x-jwt-claim-* headers
- * 4. Backend services read from these trusted Istio headers
+ * 2. For external requests: Istio ingress validates JWT and injects x-jwt-claim-* headers
+ * 3. For internal BFF requests: We extract claims and inject x-jwt-claim-* headers
+ *    (mimicking what Istio does, since internal calls bypass ingress)
+ * 4. Backend services read from x-jwt-claim-* headers
  *
  * @param incomingRequest - The incoming request to extract headers from
  * @param additionalHeaders - Any additional headers to include
@@ -126,13 +149,51 @@ export function getProxyHeaders(incomingRequest?: Request, additionalHeaders?: H
     'Content-Type': 'application/json',
   };
 
-  // Forward Authorization header for Istio JWT validation
-  // Istio validates the JWT and extracts claims as x-jwt-claim-* headers
-  // Backend services read from these Istio-injected headers
   if (incomingRequest) {
     const authHeader = incomingRequest.headers.get('Authorization') || incomingRequest.headers.get('authorization');
     if (authHeader) {
       headers['Authorization'] = authHeader;
+
+      // Extract JWT claims and forward as x-jwt-claim-* headers
+      // This mimics what Istio does at the ingress gateway
+      // Required because internal BFF → service calls bypass Istio
+      const token = authHeader.replace(/^Bearer\s+/i, '');
+      const payload = decodeJwtPayload(token);
+
+      if (payload) {
+        // Map standard claims to x-jwt-claim-* headers
+        // These are the claims that Istio RequestAuthentication extracts
+        if (payload.sub) {
+          headers['x-jwt-claim-sub'] = String(payload.sub);
+        }
+        if (payload.tenant_id) {
+          headers['x-jwt-claim-tenant-id'] = String(payload.tenant_id);
+        }
+        if (payload.staff_id) {
+          headers['x-jwt-claim-staff-id'] = String(payload.staff_id);
+        }
+        if (payload.vendor_id) {
+          headers['x-jwt-claim-vendor-id'] = String(payload.vendor_id);
+        }
+        if (payload.email) {
+          headers['x-jwt-claim-email'] = String(payload.email);
+        }
+        if (payload.preferred_username) {
+          headers['x-jwt-claim-preferred-username'] = String(payload.preferred_username);
+        }
+        if (payload.roles) {
+          headers['x-jwt-claim-roles'] = Array.isArray(payload.roles)
+            ? payload.roles.join(',')
+            : String(payload.roles);
+        }
+        // Keycloak realm_access.roles
+        if (payload.realm_access && typeof payload.realm_access === 'object') {
+          const realmAccess = payload.realm_access as { roles?: string[] };
+          if (realmAccess.roles) {
+            headers['x-jwt-claim-realm-roles'] = realmAccess.roles.join(',');
+          }
+        }
+      }
     }
   }
 
