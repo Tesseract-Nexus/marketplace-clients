@@ -399,9 +399,10 @@ async function fetchPermissions(tenantId: string, staffId: string, userEmail?: s
   const permData = data.data || data;
 
   // staff-service returns both roles array and flat permissions array
-  // Format: { roles: [...], permissions: [{name: "..."}], canManageStaff, canCreateRoles, canDeleteRoles, maxPriority }
+  // Format: { roles: [...], permissions: [{name: "..."}], canManageStaff, canCreateRoles, canDeleteRoles, maxPriorityLevel }
   let allPermissions: string[] = [];
-  let maxPriority = permData.maxPriority || 0;
+  // API returns maxPriorityLevel (not maxPriority) - Store Owner has priority 100
+  let maxPriority = permData.maxPriorityLevel || permData.maxPriority || 0;
 
   // First try to get permissions from the flat permissions array (always populated by staff-service)
   if (permData.permissions && Array.isArray(permData.permissions)) {
