@@ -13,7 +13,12 @@ interface AuthContextValue {
   isLoading: boolean;
   isInitialized: boolean;
   login: (email: string, password: string) => Promise<void>;
-  register: (data: { email: string; password: string; first_name: string; last_name: string }) => Promise<void>;
+  register: (data: {
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+  }) => Promise<void>;
   logout: () => Promise<void>;
   setCurrentTenant: (tenantId: string) => Promise<void>;
 }
@@ -88,7 +93,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await authLogin({ email, password });
   };
 
-  const register = async (data: { email: string; password: string; first_name: string; last_name: string }) => {
+  const register = async (data: {
+    email: string;
+    password: string;
+    first_name: string;
+    last_name: string;
+  }) => {
     await authRegister(data);
   };
 
@@ -110,11 +120,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setCurrentTenant,
   };
 
-  return (
-    <AuthContext.Provider value={contextValue}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth(): AuthContextValue {
@@ -126,4 +132,10 @@ export function useAuth(): AuthContextValue {
 }
 
 // Re-export auth hooks
-export { useUser, useIsAuthenticated, useCurrentTenant, useTenants, useAuthLoading } from '@/stores/auth-store';
+export {
+  useUser,
+  useIsAuthenticated,
+  useCurrentTenant,
+  useTenants,
+  useAuthLoading,
+} from '@/stores/auth-store';

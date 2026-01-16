@@ -82,10 +82,10 @@ function StatsCards({ returns }: { returns: ReturnRequest[] }) {
 
   const stats = useMemo(() => {
     const total = returns.length;
-    const pending = returns.filter(r => r.status === 'PENDING').length;
-    const completed = returns.filter(r => r.status === 'COMPLETED').length;
+    const pending = returns.filter((r) => r.status === 'PENDING').length;
+    const completed = returns.filter((r) => r.status === 'COMPLETED').length;
     const totalRefunded = returns
-      .filter(r => r.refundStatus === 'COMPLETED')
+      .filter((r) => r.refundStatus === 'COMPLETED')
       .reduce((sum, r) => sum + r.refundAmount, 0);
     return { total, pending, completed, totalRefunded };
   }, [returns]);
@@ -95,12 +95,12 @@ function StatsCards({ returns }: { returns: ReturnRequest[] }) {
       {/* Total Refunded Card */}
       <LinearGradient
         colors={['#8B5CF6', '#7C3AED']}
-        start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
+        start={{ x: 0, y: 0 }}
         style={styles.revenueCard}
       >
         <View style={styles.revenueIcon}>
-          <Ionicons name="cash" size={16} color="rgba(255,255,255,0.9)" />
+          <Ionicons color="rgba(255,255,255,0.9)" name="cash" size={16} />
         </View>
         <Text style={styles.revenueLabel}>Total Refunded</Text>
         <Text style={styles.revenueValue}>{formatCurrency(stats.totalRefunded)}</Text>
@@ -109,12 +109,9 @@ function StatsCards({ returns }: { returns: ReturnRequest[] }) {
       {/* Stats Row */}
       <View style={styles.statsRow}>
         <View
-          style={[
-            styles.statItem,
-            { backgroundColor: isDark ? colors.surface : colors.infoLight },
-          ]}
+          style={[styles.statItem, { backgroundColor: isDark ? colors.surface : colors.infoLight }]}
         >
-          <Ionicons name="refresh" size={16} color={colors.info} />
+          <Ionicons color={colors.info} name="refresh" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>{stats.total}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Total</Text>
         </View>
@@ -125,7 +122,7 @@ function StatsCards({ returns }: { returns: ReturnRequest[] }) {
             { backgroundColor: isDark ? colors.surface : colors.warningLight },
           ]}
         >
-          <Ionicons name="time" size={16} color={colors.warning} />
+          <Ionicons color={colors.warning} name="time" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>{stats.pending}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Pending</Text>
         </View>
@@ -136,7 +133,7 @@ function StatsCards({ returns }: { returns: ReturnRequest[] }) {
             { backgroundColor: isDark ? colors.surface : colors.successLight },
           ]}
         >
-          <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+          <Ionicons color={colors.success} name="checkmark-circle" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>{stats.completed}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Done</Text>
         </View>
@@ -176,7 +173,15 @@ function ReturnCard({
     transform: [{ scale: scale.value }],
   }));
 
-  const statusConfig: Record<ReturnStatus, { label: string; variant: 'warning' | 'info' | 'success' | 'error' | 'secondary'; icon: keyof typeof Ionicons.glyphMap; color: string }> = {
+  const statusConfig: Record<
+    ReturnStatus,
+    {
+      label: string;
+      variant: 'warning' | 'info' | 'success' | 'error' | 'secondary';
+      icon: keyof typeof Ionicons.glyphMap;
+      color: string;
+    }
+  > = {
     PENDING: {
       label: 'Pending',
       variant: 'warning',
@@ -227,7 +232,9 @@ function ReturnCard({
 
   return (
     <Animated.View
-      entering={FadeInRight.delay(index * 40).springify().damping(15)}
+      entering={FadeInRight.delay(index * 40)
+        .springify()
+        .damping(15)}
       style={animatedStyle}
     >
       <Pressable
@@ -246,7 +253,7 @@ function ReturnCard({
         <View style={styles.returnHeader}>
           <View style={styles.returnHeaderLeft}>
             <View style={[styles.returnIconContainer, { backgroundColor: `${config.color}15` }]}>
-              <Ionicons name={config.icon} size={18} color={config.color} />
+              <Ionicons color={config.color} name={config.icon} size={18} />
             </View>
             <View>
               <Text style={[styles.rmaNumber, { color: colors.text }]}>
@@ -273,15 +280,16 @@ function ReturnCard({
             <Text style={[styles.customerName, { color: colors.text }]}>
               {returnRequest.customerName}
             </Text>
-            <Text style={[styles.reasonText, { color: colors.textSecondary }]} numberOfLines={1}>
-              {REASON_DISPLAY[returnRequest.reason as keyof typeof REASON_DISPLAY] || returnRequest.reason}
+            <Text numberOfLines={1} style={[styles.reasonText, { color: colors.textSecondary }]}>
+              {REASON_DISPLAY[returnRequest.reason as keyof typeof REASON_DISPLAY] ||
+                returnRequest.reason}
             </Text>
           </View>
         </View>
 
         {/* Status Badges */}
         <View style={styles.badgesRow}>
-          <Badge label={config.label} variant={config.variant} size="sm" />
+          <Badge label={config.label} size="sm" variant={config.variant} />
           <View style={[styles.refundBadge, { backgroundColor: `${refundConfig.color}15` }]}>
             <Text style={[styles.refundBadgeText, { color: refundConfig.color }]}>
               {refundConfig.label}
@@ -292,37 +300,37 @@ function ReturnCard({
         {/* Footer */}
         <View style={[styles.returnFooter, { borderTopColor: colors.border }]}>
           <View style={styles.dateInfo}>
-            <Ionicons name="calendar-outline" size={14} color={colors.textSecondary} />
+            <Ionicons color={colors.textSecondary} name="calendar-outline" size={14} />
             <Text style={[styles.dateText, { color: colors.textSecondary }]}>
               {formatRelativeTime(returnRequest.createdAt)}
             </Text>
           </View>
           <View style={styles.actionButtons}>
-            {returnRequest.status === 'PENDING' && (
+            {returnRequest.status === 'PENDING' ? (
               <>
                 <Pressable
+                  hitSlop={8}
                   style={[styles.iconButton, { backgroundColor: `${colors.success}15` }]}
                   onPress={() => onApprove(returnRequest.id)}
-                  hitSlop={8}
                 >
-                  <Ionicons name="checkmark" size={18} color={colors.success} />
+                  <Ionicons color={colors.success} name="checkmark" size={18} />
                 </Pressable>
                 <Pressable
+                  hitSlop={8}
                   style={[styles.iconButton, { backgroundColor: `${colors.error}15` }]}
                   onPress={() => onReject(returnRequest.id)}
-                  hitSlop={8}
                 >
-                  <Ionicons name="close" size={18} color={colors.error} />
+                  <Ionicons color={colors.error} name="close" size={18} />
                 </Pressable>
               </>
-            )}
+            ) : null}
             <Pressable
+              hitSlop={8}
               style={[styles.actionButton, { backgroundColor: `${colors.primary}10` }]}
               onPress={() => onViewDetails(returnRequest)}
-              hitSlop={8}
             >
               <Text style={[styles.actionButtonText, { color: colors.primary }]}>Details</Text>
-              <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+              <Ionicons color={colors.primary} name="chevron-forward" size={14} />
             </Pressable>
           </View>
         </View>
@@ -343,7 +351,11 @@ export default function ReturnsScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch returns
-  const { data: returns = [], isLoading, refetch } = useQuery({
+  const {
+    data: returns = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: currentTenant ? ['returns', currentTenant.id] : ['returns'],
     queryFn: async (): Promise<ReturnRequest[]> => {
       // TODO: Replace with actual API call
@@ -362,9 +374,7 @@ export default function ReturnsScreen() {
           reason: 'DEFECTIVE',
           status: 'PENDING',
           refundStatus: 'PENDING',
-          items: [
-            { id: 'i1', productName: 'Wireless Headphones', quantity: 1, price: 149.99 },
-          ],
+          items: [{ id: 'i1', productName: 'Wireless Headphones', quantity: 1, price: 149.99 }],
           totalAmount: 149.99,
           refundAmount: 149.99,
           createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
@@ -380,9 +390,7 @@ export default function ReturnsScreen() {
           reason: 'WRONG_SIZE',
           status: 'APPROVED',
           refundStatus: 'PROCESSING',
-          items: [
-            { id: 'i2', productName: 'Running Shoes', quantity: 1, price: 89.99 },
-          ],
+          items: [{ id: 'i2', productName: 'Running Shoes', quantity: 1, price: 89.99 }],
           totalAmount: 89.99,
           refundAmount: 89.99,
           createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
@@ -398,11 +406,9 @@ export default function ReturnsScreen() {
           reason: 'DAMAGED',
           status: 'COMPLETED',
           refundStatus: 'COMPLETED',
-          items: [
-            { id: 'i3', productName: 'Glass Vase', quantity: 2, price: 45.00 },
-          ],
-          totalAmount: 90.00,
-          refundAmount: 90.00,
+          items: [{ id: 'i3', productName: 'Glass Vase', quantity: 2, price: 45.0 }],
+          totalAmount: 90.0,
+          refundAmount: 90.0,
           createdAt: new Date(Date.now() - 72 * 60 * 60 * 1000).toISOString(),
           updatedAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
         },
@@ -416,9 +422,7 @@ export default function ReturnsScreen() {
           reason: 'CHANGED_MIND',
           status: 'REJECTED',
           refundStatus: 'FAILED',
-          items: [
-            { id: 'i4', productName: 'Designer Bag', quantity: 1, price: 299.99 },
-          ],
+          items: [{ id: 'i4', productName: 'Designer Bag', quantity: 1, price: 299.99 }],
           totalAmount: 299.99,
           refundAmount: 0,
           createdAt: new Date(Date.now() - 96 * 60 * 60 * 1000).toISOString(),
@@ -433,13 +437,13 @@ export default function ReturnsScreen() {
     let filtered = returns;
 
     if (activeStatus !== 'all') {
-      filtered = filtered.filter(r => r.status === activeStatus);
+      filtered = filtered.filter((r) => r.status === activeStatus);
     }
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        r =>
+        (r) =>
           r.rmaNumber.toLowerCase().includes(query) ||
           r.orderNumber.toLowerCase().includes(query) ||
           r.customerName.toLowerCase().includes(query) ||
@@ -457,42 +461,35 @@ export default function ReturnsScreen() {
   }, [refetch]);
 
   const handleApprove = useCallback((returnId: string) => {
-    Alert.alert(
-      'Approve Return',
-      'Are you sure you want to approve this return request?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Approve',
-          onPress: () => {
-            // TODO: Call API to approve return
-            Alert.alert('Success', 'Return request approved!');
-          },
+    Alert.alert('Approve Return', 'Are you sure you want to approve this return request?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Approve',
+        onPress: () => {
+          // TODO: Call API to approve return
+          Alert.alert('Success', 'Return request approved!');
         },
-      ]
-    );
+      },
+    ]);
   }, []);
 
   const handleReject = useCallback((returnId: string) => {
-    Alert.alert(
-      'Reject Return',
-      'Are you sure you want to reject this return request?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Reject',
-          style: 'destructive',
-          onPress: () => {
-            // TODO: Call API to reject return
-            Alert.alert('Rejected', 'Return request has been rejected.');
-          },
+    Alert.alert('Reject Return', 'Are you sure you want to reject this return request?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Reject',
+        style: 'destructive',
+        onPress: () => {
+          // TODO: Call API to reject return
+          Alert.alert('Rejected', 'Return request has been rejected.');
         },
-      ]
-    );
+      },
+    ]);
   }, []);
 
   const handleViewDetails = useCallback((returnRequest: ReturnRequest) => {
-    const reason = REASON_DISPLAY[returnRequest.reason as keyof typeof REASON_DISPLAY] || returnRequest.reason;
+    const reason =
+      REASON_DISPLAY[returnRequest.reason as keyof typeof REASON_DISPLAY] || returnRequest.reason;
     Alert.alert(
       'Return Details',
       `RMA: ${returnRequest.rmaNumber}\nOrder: ${returnRequest.orderNumber}\nCustomer: ${returnRequest.customerName}\nReason: ${reason}\nAmount: ${formatCurrency(returnRequest.refundAmount)}\nStatus: ${returnRequest.status}`
@@ -502,8 +499,8 @@ export default function ReturnsScreen() {
   const renderReturn = useCallback(
     ({ item, index }: { item: ReturnRequest; index: number }) => (
       <ReturnCard
-        returnRequest={item}
         index={index}
+        returnRequest={item}
         onApprove={handleApprove}
         onReject={handleReject}
         onViewDetails={handleViewDetails}
@@ -518,7 +515,7 @@ export default function ReturnsScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerTop}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
+            <Ionicons color={colors.text} name="arrow-back" size={24} />
           </Pressable>
           <Text style={[styles.title, { color: colors.text }]}>Returns & Refunds</Text>
           <View style={styles.placeholder} />
@@ -538,46 +535,44 @@ export default function ReturnsScreen() {
             },
           ]}
         >
-          <Ionicons name="search" size={18} color={colors.textSecondary} />
+          <Ionicons color={colors.textSecondary} name="search" size={18} />
           <TextInput
-            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search returns..."
             placeholderTextColor={colors.textTertiary}
+            style={[styles.searchInput, { color: colors.text }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          {searchQuery.length > 0 && (
+          {searchQuery.length > 0 ? (
             <Pressable onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="close-circle" size={18} />
             </Pressable>
-          )}
+          ) : null}
         </Animated.View>
 
         {/* Status Filters */}
         <Animated.View entering={FadeInDown.delay(200)}>
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filtersContainer}
+            showsHorizontalScrollIndicator={false}
           >
-            {RETURN_STATUSES.map(status => (
+            {RETURN_STATUSES.map((status) => (
               <Pressable
                 key={status.id}
                 style={[
                   styles.filterChip,
                   {
-                    backgroundColor:
-                      activeStatus === status.id ? colors.primary : colors.surface,
-                    borderColor:
-                      activeStatus === status.id ? colors.primary : colors.border,
+                    backgroundColor: activeStatus === status.id ? colors.primary : colors.surface,
+                    borderColor: activeStatus === status.id ? colors.primary : colors.border,
                   },
                 ]}
                 onPress={() => setActiveStatus(status.id)}
               >
                 <Ionicons
+                  color={activeStatus === status.id ? '#FFFFFF' : colors.textSecondary}
                   name={status.icon}
                   size={14}
-                  color={activeStatus === status.id ? '#FFFFFF' : colors.textSecondary}
                 />
                 <Text
                   style={[
@@ -595,49 +590,43 @@ export default function ReturnsScreen() {
 
       {/* Returns List */}
       {isLoading ? (
-        <ScrollView
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {[1, 2, 3, 4].map(i => (
+        <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
+          {[1, 2, 3, 4].map((i) => (
             <Skeleton
               key={i}
-              width="100%"
-              height={180}
               borderRadius={16}
+              height={180}
               style={{ marginBottom: 12 }}
+              width="100%"
             />
           ))}
         </ScrollView>
       ) : filteredReturns.length === 0 ? (
         <EmptyState
-          icon="refresh-outline"
-          title={searchQuery ? 'No returns found' : 'No return requests'}
+          actionLabel={searchQuery ? 'Clear Search' : undefined}
           description={
             searchQuery
               ? 'Try adjusting your search or filters'
               : 'Return requests will appear here when customers request refunds'
           }
-          actionLabel={searchQuery ? 'Clear Search' : undefined}
+          icon="refresh-outline"
+          title={searchQuery ? 'No returns found' : 'No return requests'}
           onAction={searchQuery ? () => setSearchQuery('') : undefined}
         />
       ) : (
         <FlatList
+          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
           data={filteredReturns}
-          renderItem={renderReturn}
-          keyExtractor={item => item.id}
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
-          showsVerticalScrollIndicator={false}
+          keyExtractor={(item) => item.id}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
               tintColor={colors.primary}
+              onRefresh={onRefresh}
             />
           }
+          renderItem={renderReturn}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </View>

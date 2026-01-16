@@ -16,9 +16,7 @@ export const passwordSchema = z
   .regex(/[a-z]/, 'Password must contain at least one lowercase letter')
   .regex(/[0-9]/, 'Password must contain at least one number');
 
-export const passwordSimpleSchema = z
-  .string()
-  .min(8, 'Password must be at least 8 characters');
+export const passwordSimpleSchema = z.string().min(8, 'Password must be at least 8 characters');
 
 export const phoneSchema = z
   .string()
@@ -106,10 +104,7 @@ export const businessDetailsSchema = z.object({
 // ============================================================================
 
 export const productSchema = z.object({
-  name: z
-    .string()
-    .min(1, 'Product name is required')
-    .max(255, 'Product name is too long'),
+  name: z.string().min(1, 'Product name is required').max(255, 'Product name is too long'),
   description: z.string().max(10000, 'Description is too long').optional(),
   short_description: z.string().max(500, 'Short description is too long').optional(),
   sku: z.string().max(50, 'SKU is too long').optional(),
@@ -245,7 +240,9 @@ export const validateRequired = (value: string | undefined | null): boolean => {
 };
 
 export const validatePositiveNumber = (value: string | number | undefined | null): boolean => {
-  if (value === undefined || value === null || value === '') return false;
+  if (value === undefined || value === null || value === '') {
+    return false;
+  }
   const num = typeof value === 'string' ? parseFloat(value) : value;
   return !isNaN(num) && num > 0;
 };
@@ -266,10 +263,7 @@ export const validateUrl = (url: string): boolean => {
   return urlSchema.safeParse(url).success;
 };
 
-export const validate = <T>(
-  schema: z.ZodSchema<T>,
-  data: unknown
-): ValidationResult<T> => {
+export const validate = <T>(schema: z.ZodSchema<T>, data: unknown): ValidationResult<T> => {
   const result = schema.safeParse(data);
 
   if (result.success) {
@@ -287,10 +281,7 @@ export const validate = <T>(
   return { success: false, errors };
 };
 
-export const validateField = <T>(
-  schema: z.ZodSchema<T>,
-  value: unknown
-): string | null => {
+export const validateField = <T>(schema: z.ZodSchema<T>, value: unknown): string | null => {
   const result = schema.safeParse(value);
   if (result.success) {
     return null;

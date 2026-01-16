@@ -60,10 +60,7 @@ export default function OrderConfirmationScreen() {
   });
 
   useEffect(() => {
-    scale.value = withSequence(
-      withSpring(1.2, { damping: 8 }),
-      withSpring(1, { damping: 10 })
-    );
+    scale.value = withSequence(withSpring(1.2, { damping: 8 }), withSpring(1, { damping: 10 }));
     opacity.value = withDelay(300, withSpring(1));
   }, []);
 
@@ -88,19 +85,19 @@ export default function OrderConfirmationScreen() {
         <View className="items-center px-6 pt-20">
           {/* Success Animation */}
           <Animated.View
-            style={checkmarkStyle}
             className="h-24 w-24 items-center justify-center rounded-full bg-green-100"
+            style={checkmarkStyle}
           >
-            <Ionicons name="checkmark-circle" size={64} color="#22c55e" />
+            <Ionicons color="#22c55e" name="checkmark-circle" size={64} />
           </Animated.View>
 
-          <Animated.View style={contentStyle} className="w-full items-center">
+          <Animated.View className="w-full items-center" style={contentStyle}>
             <Text className="mt-6 text-2xl font-bold text-gray-900">Order Confirmed!</Text>
             <Text className="mt-2 text-center text-gray-500">
               Thank you for your order. We'll send you a confirmation email shortly.
             </Text>
 
-            {order && (
+            {order ? (
               <>
                 {/* Order Number */}
                 <View className="mt-6 rounded-xl bg-gray-50 p-4">
@@ -119,17 +116,14 @@ export default function OrderConfirmationScreen() {
                       key={item.id}
                       className="mb-3 flex-row border-b border-gray-100 pb-3 last:border-0"
                     >
-                      <Image
-                        source={{ uri: item.image_url }}
-                        className="h-14 w-14 rounded-lg"
-                      />
+                      <Image className="h-14 w-14 rounded-lg" source={{ uri: item.image_url }} />
                       <View className="ml-3 flex-1">
                         <Text className="font-medium text-gray-900" numberOfLines={1}>
                           {item.product_name}
                         </Text>
-                        {item.variant_name && (
+                        {item.variant_name ? (
                           <Text className="text-sm text-gray-500">{item.variant_name}</Text>
-                        )}
+                        ) : null}
                         <Text className="text-sm text-gray-500">Qty: {item.quantity}</Text>
                       </View>
                       <Text className="font-medium text-gray-900">
@@ -155,9 +149,7 @@ export default function OrderConfirmationScreen() {
                     </View>
                     <View className="flex-row justify-between pt-1">
                       <Text className="font-bold text-gray-900">Total</Text>
-                      <Text className="font-bold text-gray-900">
-                        {formatCurrency(order.total)}
-                      </Text>
+                      <Text className="font-bold text-gray-900">{formatCurrency(order.total)}</Text>
                     </View>
                   </View>
                 </View>
@@ -173,7 +165,7 @@ export default function OrderConfirmationScreen() {
                   <Text className="text-gray-500">{order.shipping_address.country}</Text>
 
                   <View className="mt-4 flex-row items-center rounded-lg bg-blue-50 p-3">
-                    <Ionicons name="time-outline" size={20} color="#3b82f6" />
+                    <Ionicons color="#3b82f6" name="time-outline" size={20} />
                     <View className="ml-3">
                       <Text className="text-sm text-blue-800">Estimated Delivery</Text>
                       <Text className="font-medium text-blue-900">
@@ -183,33 +175,30 @@ export default function OrderConfirmationScreen() {
                   </View>
                 </View>
               </>
-            )}
+            ) : null}
 
             {/* Action Buttons */}
             <View className="mt-8 w-full gap-3">
               <TouchableOpacity
-                onPress={() => router.push(`/(tabs)/(storefront)/order-tracking?id=${id}`)}
                 className="rounded-xl bg-indigo-600 py-4"
+                onPress={() => router.push(`/(tabs)/(storefront)/order-tracking?id=${id}`)}
               >
                 <Text className="text-center font-semibold text-white">Track Order</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => router.replace('/(tabs)/(storefront)/home')}
                 className="rounded-xl border border-gray-200 py-4"
+                onPress={() => router.replace('/(tabs)/(storefront)/home')}
               >
-                <Text className="text-center font-semibold text-gray-700">
-                  Continue Shopping
-                </Text>
+                <Text className="text-center font-semibold text-gray-700">Continue Shopping</Text>
               </TouchableOpacity>
             </View>
 
             {/* Help Section */}
-            <View className="mt-8 mb-12 flex-row items-center justify-center">
-              <Ionicons name="help-circle-outline" size={18} color="#6b7280" />
+            <View className="mb-12 mt-8 flex-row items-center justify-center">
+              <Ionicons color="#6b7280" name="help-circle-outline" size={18} />
               <Text className="ml-1 text-gray-500">
-                Need help?{' '}
-                <Text className="text-indigo-600">Contact Support</Text>
+                Need help? <Text className="text-indigo-600">Contact Support</Text>
               </Text>
             </View>
           </Animated.View>

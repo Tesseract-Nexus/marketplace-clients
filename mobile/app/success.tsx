@@ -29,17 +29,14 @@ const CONFETTI_PIECES = Array.from({ length: 30 }, (_, i) => ({
   duration: 2000 + Math.random() * 1000,
 }));
 
-function ConfettiPiece({ piece }: { piece: typeof CONFETTI_PIECES[0] }) {
+function ConfettiPiece({ piece }: { piece: (typeof CONFETTI_PIECES)[0] }) {
   const translateY = useSharedValue(-50);
   const translateX = useSharedValue(0);
   const rotate = useSharedValue(0);
   const opacity = useSharedValue(1);
 
   useEffect(() => {
-    translateY.value = withDelay(
-      piece.delay,
-      withTiming(500, { duration: piece.duration })
-    );
+    translateY.value = withDelay(piece.delay, withTiming(500, { duration: piece.duration }));
     translateX.value = withDelay(
       piece.delay,
       withSequence(
@@ -49,14 +46,8 @@ function ConfettiPiece({ piece }: { piece: typeof CONFETTI_PIECES[0] }) {
         withTiming((Math.random() - 0.5) * 100, { duration: piece.duration / 4 })
       )
     );
-    rotate.value = withDelay(
-      piece.delay,
-      withRepeat(withTiming(360, { duration: 1000 }), -1)
-    );
-    opacity.value = withDelay(
-      piece.delay + piece.duration - 500,
-      withTiming(0, { duration: 500 })
-    );
+    rotate.value = withDelay(piece.delay, withRepeat(withTiming(360, { duration: 1000 }), -1));
+    opacity.value = withDelay(piece.delay + piece.duration - 500, withTiming(0, { duration: 500 }));
   }, []);
 
   const style = useAnimatedStyle(() => {
@@ -121,13 +112,15 @@ export default function SuccessScreen() {
         ))}
       </View>
 
-      <View style={[styles.content, { paddingTop: insets.top + 60, paddingBottom: insets.bottom + 20 }]}>
+      <View
+        style={[styles.content, { paddingTop: insets.top + 60, paddingBottom: insets.bottom + 20 }]}
+      >
         {/* Success Icon */}
         <Animated.View style={[styles.iconContainer, circleStyle]}>
           <View style={[styles.outerCircle, { backgroundColor: colors.successLight }]}>
             <View style={[styles.innerCircle, { backgroundColor: colors.success }]}>
               <Animated.View style={checkStyle}>
-                <Ionicons name="checkmark" size={60} color="#FFFFFF" />
+                <Ionicons color="#FFFFFF" name="checkmark" size={60} />
               </Animated.View>
             </View>
           </View>
@@ -135,11 +128,10 @@ export default function SuccessScreen() {
 
         {/* Content */}
         <Animated.View entering={FadeInDown.delay(500)} style={styles.textContainer}>
-          <Text style={[styles.title, { color: colors.text }]}>
-            You're All Set!
-          </Text>
+          <Text style={[styles.title, { color: colors.text }]}>You're All Set!</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            Your store <Text style={{ color: colors.primary, fontWeight: '700' }}>{data.storeName}</Text> is
+            Your store{' '}
+            <Text style={{ color: colors.primary, fontWeight: '700' }}>{data.storeName}</Text> is
             ready to go live.
           </Text>
         </Animated.View>
@@ -147,7 +139,7 @@ export default function SuccessScreen() {
         {/* Quick Stats */}
         <Animated.View entering={FadeInUp.delay(700)} style={styles.statsContainer}>
           <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
-            <Ionicons name="storefront" size={24} color={colors.primary} />
+            <Ionicons color={colors.primary} name="storefront" size={24} />
             <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Your Store URL</Text>
             <Text style={[styles.statValue, { color: colors.text }]}>
               {data.storeUrl}.tesserix.app
@@ -155,10 +147,14 @@ export default function SuccessScreen() {
           </View>
 
           <View style={[styles.statCard, { backgroundColor: colors.surface }]}>
-            <Ionicons name="ribbon" size={24} color={colors.warning} />
+            <Ionicons color={colors.warning} name="ribbon" size={24} />
             <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Your Plan</Text>
             <Text style={[styles.statValue, { color: colors.text }]}>
-              {data.plan === 'free' ? 'Free Starter' : data.plan === 'professional' ? 'Professional' : 'Enterprise'}
+              {data.plan === 'free'
+                ? 'Free Starter'
+                : data.plan === 'professional'
+                  ? 'Professional'
+                  : 'Enterprise'}
             </Text>
           </View>
         </Animated.View>
@@ -175,10 +171,10 @@ export default function SuccessScreen() {
           ].map((step, index) => (
             <View key={index} style={styles.stepRow}>
               <View style={[styles.stepIcon, { backgroundColor: colors.surface }]}>
-                <Ionicons name={step.icon as any} size={18} color={colors.primary} />
+                <Ionicons color={colors.primary} name={step.icon as any} size={18} />
               </View>
               <Text style={[styles.stepLabel, { color: colors.textSecondary }]}>{step.label}</Text>
-              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+              <Ionicons color={colors.textTertiary} name="chevron-forward" size={18} />
             </View>
           ))}
         </Animated.View>
@@ -186,11 +182,11 @@ export default function SuccessScreen() {
         {/* CTA Button */}
         <Animated.View entering={FadeIn.delay(1100)} style={styles.buttonContainer}>
           <Button
-            title="Go to Dashboard"
-            size="lg"
             fullWidth
+            rightIcon={<Ionicons color="#FFFFFF" name="arrow-forward" size={20} />}
+            size="lg"
+            title="Go to Dashboard"
             onPress={handleGoToDashboard}
-            rightIcon={<Ionicons name="arrow-forward" size={20} color="#FFFFFF" />}
           />
         </Animated.View>
       </View>

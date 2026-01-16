@@ -67,10 +67,7 @@ export function useIsOnline(): boolean {
 /**
  * Hook to execute callback when network status changes
  */
-export function useNetworkChange(
-  onOnline?: () => void,
-  onOffline?: () => void
-) {
+export function useNetworkChange(onOnline?: () => void, onOffline?: () => void) {
   const [wasOnline, setWasOnline] = useState<boolean | null>(null);
   const isOnline = useIsOnline();
 
@@ -103,7 +100,9 @@ export function useOfflineQueue<T>() {
 
   const processQueue = useCallback(
     async (processor: (item: T) => Promise<void>) => {
-      if (!isOnline || queue.length === 0) return;
+      if (!isOnline || queue.length === 0) {
+        return;
+      }
 
       const itemsToProcess = [...queue];
       setQueue([]);

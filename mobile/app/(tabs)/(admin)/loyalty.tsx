@@ -172,7 +172,11 @@ export default function LoyaltyScreen() {
   const colors = useColors();
   const [selectedTab, setSelectedTab] = useState<'overview' | 'rewards' | 'members'>('overview');
 
-  const { data: tiers = mockTiers, isLoading, refetch } = useQuery({
+  const {
+    data: tiers = mockTiers,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['loyalty-tiers'],
     queryFn: async () => mockTiers,
   });
@@ -180,12 +184,12 @@ export default function LoyaltyScreen() {
   const stats = {
     totalMembers: tiers.reduce((sum, t) => sum + t.members, 0),
     totalPointsIssued: 2450000,
-    activeRewards: mockRewards.filter(r => r.isActive).length,
+    activeRewards: mockRewards.filter((r) => r.isActive).length,
     redemptionsThisMonth: 892,
   };
 
   const getTierColor = (tierName: string) => {
-    const tier = mockTiers.find(t => t.name === tierName);
+    const tier = mockTiers.find((t) => t.name === tierName);
     return tier?.color || colors.textSecondary;
   };
 
@@ -205,57 +209,44 @@ export default function LoyaltyScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader
-        title="Loyalty Program"
-        subtitle="Reward your best customers"
         rightAction={{
           icon: 'settings-outline',
           onPress: () => {},
         }}
+        subtitle="Reward your best customers"
+        title="Loyalty Program"
       />
 
       <ScrollView
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={refetch} />
-        }
       >
         {/* Hero Stats */}
-        <Animated.View
-          entering={FadeInDown.delay(50).springify()}
-          style={styles.statsContainer}
-        >
+        <Animated.View entering={FadeInDown.delay(50).springify()} style={styles.statsContainer}>
           <LinearGradient
             colors={['#8B5CF6', '#A855F7', '#D946EF']}
-            start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
+            start={{ x: 0, y: 0 }}
             style={styles.heroCard}
           >
             <View style={styles.heroContent}>
               <View>
                 <Text style={styles.heroLabel}>Total Members</Text>
-                <Text style={styles.heroValue}>
-                  {stats.totalMembers.toLocaleString()}
-                </Text>
-                <Text style={styles.heroSubtext}>
-                  +156 this month
-                </Text>
+                <Text style={styles.heroValue}>{stats.totalMembers.toLocaleString()}</Text>
+                <Text style={styles.heroSubtext}>+156 this month</Text>
               </View>
               <View style={styles.heroIcon}>
-                <Ionicons name="people" size={48} color="rgba(255,255,255,0.3)" />
+                <Ionicons color="rgba(255,255,255,0.3)" name="people" size={48} />
               </View>
             </View>
           </LinearGradient>
 
           <View style={styles.statsRow}>
+            <MetricCard icon="diamond-outline" title="Points Issued" value="2.45M" />
             <MetricCard
-              title="Points Issued"
-              value="2.45M"
-              icon="diamond-outline"
-            />
-            <MetricCard
+              icon="gift-outline"
               title="Redemptions"
               value={stats.redemptionsThisMonth.toString()}
-              icon="gift-outline"
             />
           </View>
         </Animated.View>
@@ -265,10 +256,7 @@ export default function LoyaltyScreen() {
           {(['overview', 'rewards', 'members'] as const).map((tab) => (
             <Pressable
               key={tab}
-              style={[
-                styles.tab,
-                selectedTab === tab && { backgroundColor: colors.primary },
-              ]}
+              style={[styles.tab, selectedTab === tab && { backgroundColor: colors.primary }]}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setSelectedTab(tab);
@@ -287,16 +275,16 @@ export default function LoyaltyScreen() {
         </View>
 
         {/* Content based on tab */}
-        {selectedTab === 'overview' && (
+        {selectedTab === 'overview' ? (
           <>
             {/* Tiers */}
             <SectionHeader
-              title="Loyalty Tiers"
+              action={{ label: 'Edit', onPress: () => {} }}
               count={tiers.length}
+              delay={100}
               icon="layers"
               iconColor="#8B5CF6"
-              delay={100}
-              action={{ label: 'Edit', onPress: () => {} }}
+              title="Loyalty Tiers"
             />
 
             {tiers.map((tier, index) => (
@@ -312,19 +300,11 @@ export default function LoyaltyScreen() {
                 >
                   <View style={styles.tierHeader}>
                     <View style={styles.tierInfo}>
-                      <View
-                        style={[styles.tierIcon, { backgroundColor: `${tier.color}20` }]}
-                      >
-                        <Ionicons
-                          name={tier.icon as any}
-                          size={24}
-                          color={tier.color}
-                        />
+                      <View style={[styles.tierIcon, { backgroundColor: `${tier.color}20` }]}>
+                        <Ionicons color={tier.color} name={tier.icon as any} size={24} />
                       </View>
                       <View>
-                        <Text style={[styles.tierName, { color: colors.text }]}>
-                          {tier.name}
-                        </Text>
+                        <Text style={[styles.tierName, { color: colors.text }]}>{tier.name}</Text>
                         <Text style={[styles.tierPoints, { color: colors.textSecondary }]}>
                           {tier.minPoints.toLocaleString()}+ points
                         </Text>
@@ -348,37 +328,33 @@ export default function LoyaltyScreen() {
                     </View>
                     {tier.perks.slice(0, 2).map((perk, i) => (
                       <View key={i} style={styles.perkItem}>
-                        <Ionicons
-                          name="checkmark-circle"
-                          size={14}
-                          color={colors.success}
-                        />
+                        <Ionicons color={colors.success} name="checkmark-circle" size={14} />
                         <Text style={[styles.perkText, { color: colors.textSecondary }]}>
                           {perk}
                         </Text>
                       </View>
                     ))}
-                    {tier.perks.length > 2 && (
+                    {tier.perks.length > 2 ? (
                       <Text style={[styles.morePerks, { color: colors.primary }]}>
                         +{tier.perks.length - 2} more perks
                       </Text>
-                    )}
+                    ) : null}
                   </View>
                 </Pressable>
               </Animated.View>
             ))}
           </>
-        )}
+        ) : null}
 
-        {selectedTab === 'rewards' && (
+        {selectedTab === 'rewards' ? (
           <>
             <SectionHeader
-              title="Available Rewards"
+              action={{ label: 'Add', onPress: () => {} }}
               count={mockRewards.length}
+              delay={100}
               icon="gift"
               iconColor={colors.success}
-              delay={100}
-              action={{ label: 'Add', onPress: () => {} }}
+              title="Available Rewards"
             />
 
             {mockRewards.map((reward, index) => (
@@ -394,16 +370,11 @@ export default function LoyaltyScreen() {
                 >
                   <View style={styles.rewardHeader}>
                     <View style={styles.rewardInfo}>
-                      <View
-                        style={[
-                          styles.rewardIcon,
-                          { backgroundColor: `${colors.primary}15` },
-                        ]}
-                      >
+                      <View style={[styles.rewardIcon, { backgroundColor: `${colors.primary}15` }]}>
                         <Ionicons
+                          color={colors.primary}
                           name={getRewardIcon(reward.type)}
                           size={22}
-                          color={colors.primary}
                         />
                       </View>
                       <View style={styles.rewardDetails}>
@@ -416,16 +387,16 @@ export default function LoyaltyScreen() {
                       </View>
                     </View>
                     <Switch
+                      thumbColor={reward.isActive ? colors.success : colors.textSecondary}
+                      trackColor={{ false: colors.border, true: `${colors.success}50` }}
                       value={reward.isActive}
                       onValueChange={() => {}}
-                      trackColor={{ false: colors.border, true: `${colors.success}50` }}
-                      thumbColor={reward.isActive ? colors.success : colors.textSecondary}
                     />
                   </View>
 
                   <View style={styles.rewardFooter}>
                     <View style={styles.pointsCost}>
-                      <Ionicons name="diamond" size={16} color="#8B5CF6" />
+                      <Ionicons color="#8B5CF6" name="diamond" size={16} />
                       <Text style={[styles.pointsValue, { color: colors.text }]}>
                         {reward.pointsCost.toLocaleString()}
                       </Text>
@@ -441,17 +412,17 @@ export default function LoyaltyScreen() {
               </Animated.View>
             ))}
           </>
-        )}
+        ) : null}
 
-        {selectedTab === 'members' && (
+        {selectedTab === 'members' ? (
           <>
             <SectionHeader
-              title="Top Members"
+              action={{ label: 'View All', onPress: () => {} }}
               count={mockTopMembers.length}
+              delay={100}
               icon="trophy"
               iconColor="#FFD700"
-              delay={100}
-              action={{ label: 'View All', onPress: () => {} }}
+              title="Top Members"
             />
 
             {mockTopMembers.map((member, index) => (
@@ -473,13 +444,14 @@ export default function LoyaltyScreen() {
                       ]}
                     >
                       <Text style={[styles.avatarText, { color: getTierColor(member.tier) }]}>
-                        {member.name.split(' ').map(n => n[0]).join('')}
+                        {member.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')}
                       </Text>
                     </View>
                     <View style={styles.memberDetails}>
-                      <Text style={[styles.memberName, { color: colors.text }]}>
-                        {member.name}
-                      </Text>
+                      <Text style={[styles.memberName, { color: colors.text }]}>{member.name}</Text>
                       <View style={styles.memberTierRow}>
                         <View
                           style={[
@@ -522,15 +494,12 @@ export default function LoyaltyScreen() {
               </Animated.View>
             ))}
           </>
-        )}
+        ) : null}
 
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
-      <FloatingActionButton
-        icon="add"
-        onPress={() => {}}
-      />
+      <FloatingActionButton icon="add" onPress={() => {}} />
     </View>
   );
 }

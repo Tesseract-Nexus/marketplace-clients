@@ -103,11 +103,7 @@ export const Input = forwardRef<InputRef, InputProps>(
     const containerAnimatedStyle = useAnimatedStyle(() => {
       const borderColor = error
         ? colors.error
-        : interpolateColor(
-            focusAnimation.value,
-            [0, 1],
-            [colors.border, colors.primary]
-          );
+        : interpolateColor(focusAnimation.value, [0, 1], [colors.border, colors.primary]);
 
       return {
         borderColor,
@@ -134,16 +130,9 @@ export const Input = forwardRef<InputRef, InputProps>(
     return (
       <View style={containerStyle}>
         {/* Label */}
-        {label && (
-          <Text
-            style={[
-              styles.label,
-              { color: error ? colors.error : colors.text },
-            ]}
-          >
-            {label}
-          </Text>
-        )}
+        {label ? (
+          <Text style={[styles.label, { color: error ? colors.error : colors.text }]}>{label}</Text>
+        ) : null}
 
         {/* Input Container */}
         <AnimatedView
@@ -157,32 +146,26 @@ export const Input = forwardRef<InputRef, InputProps>(
           ]}
         >
           {/* Left Icon/Element */}
-          {(leftIcon || leftElement) && (
+          {leftIcon || leftElement ? (
             <View style={[styles.iconContainer, { marginRight: spacing.sm }]}>
               {leftIcon || leftElement}
             </View>
-          )}
+          ) : null}
 
           {/* Left Text */}
-          {leftText && (
-            <Text style={[styles.sideText, { color: colors.textSecondary }]}>
-              {leftText}
-            </Text>
-          )}
+          {leftText ? (
+            <Text style={[styles.sideText, { color: colors.textSecondary }]}>{leftText}</Text>
+          ) : null}
 
           {/* TextInput */}
           <TextInput
             ref={inputRef}
-            value={value}
-            onChangeText={onChangeText}
-            onFocus={handleFocus}
-            onBlur={handleBlur}
-            editable={!disabled}
-            secureTextEntry={showPassword}
-            keyboardType={getKeyboardType()}
             autoCapitalize={type === 'email' ? 'none' : props.autoCapitalize}
             autoComplete={type === 'email' ? 'email' : props.autoComplete}
+            editable={!disabled}
+            keyboardType={getKeyboardType()}
             placeholderTextColor={colors.textTertiary}
+            secureTextEntry={showPassword}
             style={[
               styles.input,
               {
@@ -190,65 +173,54 @@ export const Input = forwardRef<InputRef, InputProps>(
               },
               inputStyle,
             ]}
+            value={value}
+            onBlur={handleBlur}
+            onChangeText={onChangeText}
+            onFocus={handleFocus}
             {...props}
           />
 
           {/* Clear Button */}
-          {showClearButton && value && value.length > 0 && (
-            <Pressable
-              onPress={() => onChangeText?.('')}
-              style={styles.iconContainer}
-              hitSlop={8}
-            >
-              <Ionicons
-                name="close-circle"
-                size={20}
-                color={colors.textTertiary}
-              />
+          {showClearButton && value && value.length > 0 ? (
+            <Pressable hitSlop={8} style={styles.iconContainer} onPress={() => onChangeText?.('')}>
+              <Ionicons color={colors.textTertiary} name="close-circle" size={20} />
             </Pressable>
-          )}
+          ) : null}
 
           {/* Password Toggle */}
-          {isPassword && (
+          {isPassword ? (
             <Pressable
-              onPress={() => setIsPasswordVisible(!isPasswordVisible)}
-              style={styles.iconContainer}
               hitSlop={8}
+              style={styles.iconContainer}
+              onPress={() => setIsPasswordVisible(!isPasswordVisible)}
             >
               <Ionicons
+                color={colors.textTertiary}
                 name={isPasswordVisible ? 'eye-off' : 'eye'}
                 size={20}
-                color={colors.textTertiary}
               />
             </Pressable>
-          )}
+          ) : null}
 
           {/* Right Text */}
-          {rightText && (
-            <Text style={[styles.sideText, { color: colors.textSecondary }]}>
-              {rightText}
-            </Text>
-          )}
+          {rightText ? (
+            <Text style={[styles.sideText, { color: colors.textSecondary }]}>{rightText}</Text>
+          ) : null}
 
           {/* Right Icon/Element */}
-          {(rightIcon || rightElement) && (
+          {rightIcon || rightElement ? (
             <View style={[styles.iconContainer, { marginLeft: spacing.sm }]}>
               {rightIcon || rightElement}
             </View>
-          )}
+          ) : null}
         </AnimatedView>
 
         {/* Error or Hint */}
-        {(error || hint) && (
-          <Text
-            style={[
-              styles.helperText,
-              { color: error ? colors.error : colors.textSecondary },
-            ]}
-          >
+        {error || hint ? (
+          <Text style={[styles.helperText, { color: error ? colors.error : colors.textSecondary }]}>
             {error || hint}
           </Text>
-        )}
+        ) : null}
       </View>
     );
   }
@@ -261,18 +233,14 @@ interface SearchInputProps extends Omit<InputProps, 'leftIcon' | 'type'> {
   onSearch?: (value: string) => void;
 }
 
-export function SearchInput({
-  placeholder = 'Search...',
-  onSearch,
-  ...props
-}: SearchInputProps) {
+export function SearchInput({ placeholder = 'Search...', onSearch, ...props }: SearchInputProps) {
   const colors = useColors();
 
   return (
     <Input
-      placeholder={placeholder}
-      leftIcon={<Ionicons name="search" size={20} color={colors.textTertiary} />}
       showClearButton
+      leftIcon={<Ionicons color={colors.textTertiary} name="search" size={20} />}
+      placeholder={placeholder}
       returnKeyType="search"
       onSubmitEditing={(e) => onSearch?.(e.nativeEvent.text)}
       {...props}
@@ -289,9 +257,9 @@ export function TextArea({ rows = 4, ...props }: TextAreaProps) {
   return (
     <Input
       multiline
+      inputStyle={{ minHeight: rows * 24, paddingTop: 12 }}
       numberOfLines={rows}
       textAlignVertical="top"
-      inputStyle={{ minHeight: rows * 24, paddingTop: 12 }}
       {...props}
     />
   );

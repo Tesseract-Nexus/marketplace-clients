@@ -38,16 +38,21 @@ export default function ProductDetailScreen() {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   // Fetch product details
-  const { data: product, isLoading, error } = useQuery({
+  const {
+    data: product,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: [QUERY_KEYS.PRODUCTS, id],
     queryFn: async (): Promise<Product> => {
       // Mock data for demo
       return {
-        id: id!,
+        id: id,
         tenant_id: '1',
         name: 'Premium Wireless Headphones',
         slug: 'premium-wireless-headphones',
-        description: 'High-quality wireless headphones with active noise cancellation, 30-hour battery life, and premium sound quality. Perfect for music lovers and professionals alike.',
+        description:
+          'High-quality wireless headphones with active noise cancellation, 30-hour battery life, and premium sound quality. Perfect for music lovers and professionals alike.',
         price: 199.99,
         compare_at_price: 249.99,
         cost_price: 89.99,
@@ -58,9 +63,24 @@ export default function ProductDetailScreen() {
         track_inventory: true,
         status: 'active',
         images: [
-          { id: '1', url: 'https://picsum.photos/seed/prod1/800/800', alt: 'Product image 1', position: 0 },
-          { id: '2', url: 'https://picsum.photos/seed/prod2/800/800', alt: 'Product image 2', position: 1 },
-          { id: '3', url: 'https://picsum.photos/seed/prod3/800/800', alt: 'Product image 3', position: 2 },
+          {
+            id: '1',
+            url: 'https://picsum.photos/seed/prod1/800/800',
+            alt: 'Product image 1',
+            position: 0,
+          },
+          {
+            id: '2',
+            url: 'https://picsum.photos/seed/prod2/800/800',
+            alt: 'Product image 2',
+            position: 1,
+          },
+          {
+            id: '3',
+            url: 'https://picsum.photos/seed/prod3/800/800',
+            alt: 'Product image 3',
+            position: 2,
+          },
         ],
         variants: [
           { id: 'v1', name: 'Black', sku: 'WH-001-BLK', price: 199.99, inventory_quantity: 20 },
@@ -78,7 +98,7 @@ export default function ProductDetailScreen() {
 
   // Delete product mutation
   const deleteMutation = useMutation({
-    mutationFn: () => productsApi.delete(id!),
+    mutationFn: () => productsApi.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PRODUCTS] });
       toast.success('Product deleted');
@@ -107,26 +127,26 @@ export default function ProductDetailScreen() {
   const stockStatus = !product
     ? 'loading'
     : product.inventory_quantity === 0
-    ? 'out-of-stock'
-    : product.inventory_quantity <= (product.low_stock_threshold || 10)
-    ? 'low-stock'
-    : 'in-stock';
+      ? 'out-of-stock'
+      : product.inventory_quantity <= (product.low_stock_threshold || 10)
+        ? 'low-stock'
+        : 'in-stock';
 
   if (isLoading) {
     return (
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={[styles.header, { paddingTop: insets.top }]}>
           <IconButton
-            icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
+            icon={<Ionicons color={colors.text} name="arrow-back" size={24} />}
             onPress={() => router.back()}
           />
         </View>
         <ScrollView contentContainerStyle={styles.loadingContent}>
-          <Skeleton width={SCREEN_WIDTH} height={SCREEN_WIDTH} borderRadius={0} />
+          <Skeleton borderRadius={0} height={SCREEN_WIDTH} width={SCREEN_WIDTH} />
           <View style={styles.content}>
-            <Skeleton width="70%" height={28} borderRadius={8} />
-            <Skeleton width="40%" height={24} borderRadius={8} style={{ marginTop: 8 }} />
-            <Skeleton width="100%" height={100} borderRadius={12} style={{ marginTop: 16 }} />
+            <Skeleton borderRadius={8} height={28} width="70%" />
+            <Skeleton borderRadius={8} height={24} style={{ marginTop: 8 }} width="40%" />
+            <Skeleton borderRadius={12} height={100} style={{ marginTop: 16 }} width="100%" />
           </View>
         </ScrollView>
       </View>
@@ -138,12 +158,12 @@ export default function ProductDetailScreen() {
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={[styles.header, { paddingTop: insets.top }]}>
           <IconButton
-            icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
+            icon={<Ionicons color={colors.text} name="arrow-back" size={24} />}
             onPress={() => router.back()}
           />
         </View>
         <View style={styles.errorContainer}>
-          <Ionicons name="alert-circle" size={48} color={colors.error} />
+          <Ionicons color={colors.error} name="alert-circle" size={48} />
           <Text style={[styles.errorText, { color: colors.text }]}>Product not found</Text>
         </View>
       </View>
@@ -158,56 +178,58 @@ export default function ProductDetailScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top, backgroundColor: colors.background }]}>
         <IconButton
-          icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
+          icon={<Ionicons color={colors.text} name="arrow-back" size={24} />}
           onPress={() => router.back()}
         />
         <View style={styles.headerActions}>
           <IconButton
-            icon={<Ionicons name="create-outline" size={24} color={colors.text} />}
+            icon={<Ionicons color={colors.text} name="create-outline" size={24} />}
             onPress={() => router.push(`/(tabs)/(admin)/edit-product?id=${id}` as any)}
           />
           <IconButton
-            icon={<Ionicons name="trash-outline" size={24} color={colors.error} />}
+            icon={<Ionicons color={colors.error} name="trash-outline" size={24} />}
             onPress={handleDelete}
           />
         </View>
       </View>
 
       <ScrollView
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: insets.bottom + 100 }}
+        showsVerticalScrollIndicator={false}
       >
         {/* Image Gallery */}
         <View style={styles.imageContainer}>
           <Image
-            source={{ uri: product.images?.[activeImageIndex]?.url || 'https://via.placeholder.com/400' }}
+            source={{
+              uri: product.images?.[activeImageIndex]?.url || 'https://via.placeholder.com/400',
+            }}
             style={styles.mainImage}
           />
           <Badge
             label={product.status === 'active' ? 'Active' : 'Draft'}
-            variant={product.status === 'active' ? 'success' : 'secondary'}
             style={styles.statusBadge}
+            variant={product.status === 'active' ? 'success' : 'secondary'}
           />
-          {product.images && product.images.length > 1 && (
+          {product.images && product.images.length > 1 ? (
             <ScrollView
               horizontal
-              showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.thumbnailContainer}
+              showsHorizontalScrollIndicator={false}
             >
               {product.images.map((image, index) => (
                 <Pressable
                   key={image.id}
-                  onPress={() => setActiveImageIndex(index)}
                   style={[
                     styles.thumbnail,
                     { borderColor: index === activeImageIndex ? colors.primary : colors.border },
                   ]}
+                  onPress={() => setActiveImageIndex(index)}
                 >
                   <Image source={{ uri: image.url }} style={styles.thumbnailImage} />
                 </Pressable>
               ))}
             </ScrollView>
-          )}
+          ) : null}
         </View>
 
         {/* Product Info */}
@@ -218,48 +240,51 @@ export default function ProductDetailScreen() {
               <Text style={[styles.price, { color: colors.primary }]}>
                 {formatCurrency(product.price)}
               </Text>
-              {product.compare_at_price && (
+              {product.compare_at_price ? (
                 <Text style={[styles.comparePrice, { color: colors.textTertiary }]}>
                   {formatCurrency(product.compare_at_price)}
                 </Text>
-              )}
+              ) : null}
             </View>
           </Animated.View>
 
           {/* Quick Stats */}
           <Animated.View entering={FadeInDown.delay(200)} style={styles.statsRow}>
             <Card style={styles.statCard}>
-              <Ionicons name="cube-outline" size={20} color={colors.info} />
+              <Ionicons color={colors.info} name="cube-outline" size={20} />
               <Text style={[styles.statValue, { color: colors.text }]}>
                 {formatNumber(product.inventory_quantity)}
               </Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary }]}>In Stock</Text>
             </Card>
             <Card style={styles.statCard}>
-              <Ionicons name="trending-up" size={20} color={colors.success} />
+              <Ionicons color={colors.success} name="trending-up" size={20} />
               <Text style={[styles.statValue, { color: colors.text }]}>{margin}%</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Margin</Text>
             </Card>
             <Card style={styles.statCard}>
-              <Ionicons name="cart-outline" size={20} color={colors.warning} />
+              <Ionicons color={colors.warning} name="cart-outline" size={20} />
               <Text style={[styles.statValue, { color: colors.text }]}>128</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Orders</Text>
             </Card>
           </Animated.View>
 
           {/* Stock Alert */}
-          {stockStatus !== 'in-stock' && (
+          {stockStatus !== 'in-stock' ? (
             <Animated.View entering={FadeInDown.delay(250)}>
               <View
                 style={[
                   styles.alertCard,
-                  { backgroundColor: stockStatus === 'out-of-stock' ? colors.errorLight : colors.warningLight },
+                  {
+                    backgroundColor:
+                      stockStatus === 'out-of-stock' ? colors.errorLight : colors.warningLight,
+                  },
                 ]}
               >
                 <Ionicons
+                  color={stockStatus === 'out-of-stock' ? colors.error : colors.warning}
                   name="alert-circle"
                   size={20}
-                  color={stockStatus === 'out-of-stock' ? colors.error : colors.warning}
                 />
                 <Text
                   style={[
@@ -267,11 +292,13 @@ export default function ProductDetailScreen() {
                     { color: stockStatus === 'out-of-stock' ? colors.error : colors.warning },
                   ]}
                 >
-                  {stockStatus === 'out-of-stock' ? 'This product is out of stock' : 'Low stock - consider restocking'}
+                  {stockStatus === 'out-of-stock'
+                    ? 'This product is out of stock'
+                    : 'Low stock - consider restocking'}
                 </Text>
               </View>
             </Animated.View>
-          )}
+          ) : null}
 
           {/* Description */}
           <Animated.View entering={FadeInDown.delay(300)}>
@@ -296,7 +323,9 @@ export default function ProductDetailScreen() {
                 { label: 'Updated', value: formatDate(product.updated_at) },
               ].map((item, index) => (
                 <View key={index} style={[styles.detailRow, { borderBottomColor: colors.border }]}>
-                  <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>{item.label}</Text>
+                  <Text style={[styles.detailLabel, { color: colors.textSecondary }]}>
+                    {item.label}
+                  </Text>
                   <Text style={[styles.detailValue, { color: colors.text }]}>{item.value}</Text>
                 </View>
               ))}
@@ -304,7 +333,7 @@ export default function ProductDetailScreen() {
           </Animated.View>
 
           {/* Variants */}
-          {product.variants && product.variants.length > 0 && (
+          {product.variants && product.variants.length > 0 ? (
             <Animated.View entering={FadeInDown.delay(400)}>
               <Card style={styles.section}>
                 <Text style={[styles.sectionTitle, { color: colors.text }]}>Variants</Text>
@@ -314,11 +343,13 @@ export default function ProductDetailScreen() {
                     style={[
                       styles.variantRow,
                       { borderBottomColor: colors.border },
-                      index === product.variants!.length - 1 && { borderBottomWidth: 0 },
+                      index === product.variants.length - 1 && { borderBottomWidth: 0 },
                     ]}
                   >
                     <View>
-                      <Text style={[styles.variantName, { color: colors.text }]}>{variant.name}</Text>
+                      <Text style={[styles.variantName, { color: colors.text }]}>
+                        {variant.name}
+                      </Text>
                       <Text style={[styles.variantSku, { color: colors.textTertiary }]}>
                         {variant.sku}
                       </Text>
@@ -335,7 +366,7 @@ export default function ProductDetailScreen() {
                 ))}
               </Card>
             </Animated.View>
-          )}
+          ) : null}
         </View>
       </ScrollView>
 
@@ -343,20 +374,24 @@ export default function ProductDetailScreen() {
       <View
         style={[
           styles.bottomActions,
-          { backgroundColor: colors.surface, paddingBottom: insets.bottom + 16, borderTopColor: colors.border },
+          {
+            backgroundColor: colors.surface,
+            paddingBottom: insets.bottom + 16,
+            borderTopColor: colors.border,
+          },
         ]}
       >
         <Button
+          leftIcon={<Ionicons color={colors.primary} name="create-outline" size={18} />}
+          style={{ flex: 1 }}
           title="Edit Product"
           variant="outline"
-          style={{ flex: 1 }}
-          leftIcon={<Ionicons name="create-outline" size={18} color={colors.primary} />}
           onPress={() => router.push(`/(tabs)/(admin)/edit-product?id=${id}` as any)}
         />
         <Button
-          title="Duplicate"
+          leftIcon={<Ionicons color="#FFFFFF" name="copy-outline" size={18} />}
           style={{ flex: 1 }}
-          leftIcon={<Ionicons name="copy-outline" size={18} color="#FFFFFF" />}
+          title="Duplicate"
           onPress={() => {}}
         />
       </View>

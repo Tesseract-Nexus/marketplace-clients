@@ -54,9 +54,11 @@ function CouponCard({ coupon, index }: { coupon: Coupon; index: number }) {
       <PressableCard style={styles.couponCard}>
         <View style={styles.couponHeader}>
           <View style={[styles.couponBadge, { backgroundColor: `${colors.primary}15` }]}>
-            <Text style={[styles.couponDiscount, { color: colors.primary }]}>{discountLabel()}</Text>
+            <Text style={[styles.couponDiscount, { color: colors.primary }]}>
+              {discountLabel()}
+            </Text>
           </View>
-          <Badge label={statusLabel} variant={statusVariant} size="sm" />
+          <Badge label={statusLabel} size="sm" variant={statusVariant} />
         </View>
 
         <Text style={[styles.couponCode, { color: colors.text }]}>{coupon.code}</Text>
@@ -64,19 +66,20 @@ function CouponCard({ coupon, index }: { coupon: Coupon; index: number }) {
 
         <View style={styles.couponFooter}>
           <View style={styles.couponStat}>
-            <Ionicons name="ticket-outline" size={14} color={colors.textTertiary} />
+            <Ionicons color={colors.textTertiary} name="ticket-outline" size={14} />
             <Text style={[styles.couponStatText, { color: colors.textSecondary }]}>
-              {coupon.usage_count}{coupon.usage_limit ? `/${coupon.usage_limit}` : ''} used
+              {coupon.usage_count}
+              {coupon.usage_limit ? `/${coupon.usage_limit}` : ''} used
             </Text>
           </View>
-          {coupon.min_order_amount && (
+          {coupon.min_order_amount ? (
             <View style={styles.couponStat}>
-              <Ionicons name="cart-outline" size={14} color={colors.textTertiary} />
+              <Ionicons color={colors.textTertiary} name="cart-outline" size={14} />
               <Text style={[styles.couponStatText, { color: colors.textSecondary }]}>
                 Min. {formatCurrency(coupon.min_order_amount)}
               </Text>
             </View>
-          )}
+          ) : null}
         </View>
       </PressableCard>
     </Animated.View>
@@ -90,7 +93,11 @@ export default function CouponsScreen() {
   const { currentTenant } = useAuthStore();
   const [refreshing, setRefreshing] = useState(false);
 
-  const { data: coupons, isLoading, refetch } = useQuery({
+  const {
+    data: coupons,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: currentTenant ? ['coupons', currentTenant.id] : ['coupons'],
     queryFn: async (): Promise<Coupon[]> => {
       // Mock data - replace with actual API call
@@ -151,39 +158,53 @@ export default function CouponsScreen() {
     setRefreshing(false);
   }, [refetch]);
 
-  const activeCoupons = coupons?.filter((c) => c.is_active && (!c.expires_at || new Date(c.expires_at) > new Date())) || [];
-  const inactiveCoupons = coupons?.filter((c) => !c.is_active || (c.expires_at && new Date(c.expires_at) < new Date())) || [];
+  const activeCoupons =
+    coupons?.filter((c) => c.is_active && (!c.expires_at || new Date(c.expires_at) > new Date())) ||
+    [];
+  const inactiveCoupons =
+    coupons?.filter((c) => !c.is_active || (c.expires_at && new Date(c.expires_at) < new Date())) ||
+    [];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
+          <Ionicons color={colors.text} name="arrow-back" size={24} />
         </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Coupons</Text>
         <Pressable style={styles.addButton}>
-          <Ionicons name="add" size={24} color={colors.primary} />
+          <Ionicons color={colors.primary} name="add" size={24} />
         </Pressable>
       </View>
 
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
-        showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+          <RefreshControl
+            refreshing={refreshing}
+            tintColor={colors.primary}
+            onRefresh={onRefresh}
+          />
         }
+        showsVerticalScrollIndicator={false}
       >
         {isLoading ? (
           <View style={styles.loadingContainer}>
             {[1, 2, 3].map((i) => (
-              <Skeleton key={i} width="100%" height={140} borderRadius={12} style={{ marginBottom: 12 }} />
+              <Skeleton
+                key={i}
+                borderRadius={12}
+                height={140}
+                style={{ marginBottom: 12 }}
+                width="100%"
+              />
             ))}
           </View>
         ) : (
           <>
             {/* Active Coupons */}
-            {activeCoupons.length > 0 && (
+            {activeCoupons.length > 0 ? (
               <Animated.View entering={FadeInDown}>
                 <Text style={[styles.sectionTitle, { color: colors.text }]}>Active Coupons</Text>
                 <View style={styles.couponsList}>
@@ -192,10 +213,10 @@ export default function CouponsScreen() {
                   ))}
                 </View>
               </Animated.View>
-            )}
+            ) : null}
 
             {/* Inactive Coupons */}
-            {inactiveCoupons.length > 0 && (
+            {inactiveCoupons.length > 0 ? (
               <Animated.View entering={FadeInDown.delay(200)}>
                 <Text style={[styles.sectionTitle, { color: colors.text, marginTop: 24 }]}>
                   Inactive / Expired
@@ -206,22 +227,22 @@ export default function CouponsScreen() {
                   ))}
                 </View>
               </Animated.View>
-            )}
+            ) : null}
 
             {/* Empty State */}
-            {coupons?.length === 0 && (
+            {coupons?.length === 0 ? (
               <View style={styles.emptyState}>
-                <Ionicons name="pricetag-outline" size={64} color={colors.textTertiary} />
+                <Ionicons color={colors.textTertiary} name="pricetag-outline" size={64} />
                 <Text style={[styles.emptyTitle, { color: colors.text }]}>No Coupons Yet</Text>
                 <Text style={[styles.emptyMessage, { color: colors.textSecondary }]}>
                   Create your first coupon to offer discounts to your customers.
                 </Text>
                 <Pressable style={[styles.createButton, { backgroundColor: colors.primary }]}>
-                  <Ionicons name="add" size={20} color="#FFFFFF" />
+                  <Ionicons color="#FFFFFF" name="add" size={20} />
                   <Text style={styles.createButtonText}>Create Coupon</Text>
                 </Pressable>
               </View>
-            )}
+            ) : null}
           </>
         )}
       </ScrollView>

@@ -54,9 +54,7 @@ export function GlassMorphism({
           overlayColors: isDark
             ? ['rgba(79,70,229,0.2)', 'rgba(139,92,246,0.1)']
             : ['rgba(79,70,229,0.1)', 'rgba(139,92,246,0.05)'],
-          borderColor: isDark
-            ? 'rgba(139,92,246,0.3)'
-            : 'rgba(79,70,229,0.2)',
+          borderColor: isDark ? 'rgba(139,92,246,0.3)' : 'rgba(79,70,229,0.2)',
         };
       case 'frosted':
       default:
@@ -65,9 +63,7 @@ export function GlassMorphism({
           overlayColors: isDark
             ? ['rgba(31,41,55,0.6)', 'rgba(31,41,55,0.4)']
             : ['rgba(255,255,255,0.6)', 'rgba(255,255,255,0.4)'],
-          borderColor: isDark
-            ? 'rgba(255,255,255,0.1)'
-            : 'rgba(0,0,0,0.1)',
+          borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
         };
     }
   };
@@ -79,16 +75,16 @@ export function GlassMorphism({
     <View style={[styles.container, { borderRadius }, style]}>
       <AnimatedBlurView
         intensity={intensity}
-        tint={actualTint}
         style={[StyleSheet.absoluteFill, { borderRadius }]}
+        tint={actualTint}
       />
       <LinearGradient
         colors={variantStyles.overlayColors}
-        start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
+        start={{ x: 0, y: 0 }}
         style={[StyleSheet.absoluteFill, { borderRadius }]}
       />
-      {showBorder && (
+      {showBorder ? (
         <View
           style={[
             styles.border,
@@ -98,7 +94,7 @@ export function GlassMorphism({
             },
           ]}
         />
-      )}
+      ) : null}
       <View style={styles.content}>{children}</View>
     </View>
   );
@@ -109,23 +105,19 @@ interface GlassCardProps extends GlassMorphismProps {
   showShine?: boolean;
 }
 
-export function GlassCard({
-  children,
-  showShine = false,
-  ...props
-}: GlassCardProps) {
+export function GlassCard({ children, showShine = false, ...props }: GlassCardProps) {
   const colors = useColors();
 
   return (
     <GlassMorphism {...props}>
-      {showShine && (
+      {showShine ? (
         <LinearGradient
           colors={['transparent', 'rgba(255,255,255,0.1)', 'transparent']}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={[StyleSheet.absoluteFill, { borderRadius: props.borderRadius }]}
         />
-      )}
+      ) : null}
       {children}
     </GlassMorphism>
   );
@@ -180,9 +172,9 @@ export function GlassButton({
 
   return (
     <GlassMorphism
-      variant={variant === 'ghost' ? 'frosted' : 'premium'}
       borderRadius={size === 'sm' ? 12 : size === 'lg' ? 20 : 16}
       style={{ ...getSizeStyles(), ...style }}
+      variant={variant === 'ghost' ? 'frosted' : 'premium'}
     >
       {children}
     </GlassMorphism>

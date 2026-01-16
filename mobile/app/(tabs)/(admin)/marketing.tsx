@@ -98,13 +98,13 @@ function FeatureCard({ feature, index }: { feature: MarketingFeature; index: num
   return (
     <Animated.View entering={FadeInDown.delay(100 + index * 50)}>
       <PressableCard
+        disabled={isDisabled}
         style={StyleSheet.flatten([styles.featureCard, isDisabled && styles.featureCardDisabled])}
         onPress={() => {
           if (feature.route && !isDisabled) {
             router.push(feature.route as any);
           }
         }}
-        disabled={isDisabled}
       >
         <View
           style={[
@@ -113,9 +113,9 @@ function FeatureCard({ feature, index }: { feature: MarketingFeature; index: num
           ]}
         >
           <Ionicons
+            color={isDisabled ? colors.textTertiary : colors.primary}
             name={feature.icon as any}
             size={24}
-            color={isDisabled ? colors.textTertiary : colors.primary}
           />
         </View>
         <View style={styles.featureContent}>
@@ -128,7 +128,7 @@ function FeatureCard({ feature, index }: { feature: MarketingFeature; index: num
             >
               {feature.title}
             </Text>
-            <Badge label={statusLabel} variant={statusVariant} size="sm" />
+            <Badge label={statusLabel} size="sm" variant={statusVariant} />
           </View>
           <Text
             style={[
@@ -139,9 +139,9 @@ function FeatureCard({ feature, index }: { feature: MarketingFeature; index: num
             {feature.description}
           </Text>
         </View>
-        {!isDisabled && (
-          <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
-        )}
+        {!isDisabled ? (
+          <Ionicons color={colors.textTertiary} name="chevron-forward" size={20} />
+        ) : null}
       </PressableCard>
     </Animated.View>
   );
@@ -157,7 +157,7 @@ export default function MarketingScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={24} color={colors.text} />
+          <Ionicons color={colors.text} name="arrow-back" size={24} />
         </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Marketing</Text>
         <View style={{ width: 40 }} />
@@ -169,13 +169,17 @@ export default function MarketingScreen() {
       >
         {/* Intro Card */}
         <Animated.View entering={FadeInDown}>
-          <Card style={StyleSheet.flatten([styles.introCard, { backgroundColor: `${colors.primary}10` }])}>
-            <Ionicons name="megaphone" size={32} color={colors.primary} />
-            <Text style={[styles.introTitle, { color: colors.text }]}>
-              Grow Your Business
-            </Text>
+          <Card
+            style={StyleSheet.flatten([
+              styles.introCard,
+              { backgroundColor: `${colors.primary}10` },
+            ])}
+          >
+            <Ionicons color={colors.primary} name="megaphone" size={32} />
+            <Text style={[styles.introTitle, { color: colors.text }]}>Grow Your Business</Text>
             <Text style={[styles.introText, { color: colors.textSecondary }]}>
-              Use our marketing tools to reach more customers, increase sales, and build brand loyalty.
+              Use our marketing tools to reach more customers, increase sales, and build brand
+              loyalty.
             </Text>
           </Card>
         </Animated.View>

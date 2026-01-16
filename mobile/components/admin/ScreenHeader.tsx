@@ -19,11 +19,11 @@ interface ScreenHeaderProps {
     onPress: () => void;
     badge?: number;
   };
-  rightActions?: Array<{
+  rightActions?: {
     icon: keyof typeof Ionicons.glyphMap;
     onPress: () => void;
     badge?: number;
-  }>;
+  }[];
   transparent?: boolean;
   large?: boolean;
   children?: ReactNode;
@@ -63,57 +63,53 @@ export function ScreenHeader({
       <View style={styles.topRow}>
         {showBack ? (
           <Pressable
+            hitSlop={8}
             style={[styles.iconButton, { backgroundColor: `${colors.text}08` }]}
             onPress={handleBack}
-            hitSlop={8}
           >
-            <Ionicons name="arrow-back" size={22} color={colors.text} />
+            <Ionicons color={colors.text} name="arrow-back" size={22} />
           </Pressable>
         ) : (
           <View style={styles.iconButton} />
         )}
 
-        {!large && (
+        {!large ? (
           <Animated.Text
             entering={FadeInDown.delay(50)}
             style={[styles.titleSmall, { color: colors.text }]}
           >
             {title}
           </Animated.Text>
-        )}
+        ) : null}
 
         <View style={styles.actionsRow}>
           {actions.map((action, index) => (
             <Pressable
               key={index}
+              hitSlop={8}
               style={[styles.iconButton, { backgroundColor: `${colors.primary}10` }]}
               onPress={action.onPress}
-              hitSlop={8}
             >
-              <Ionicons name={action.icon} size={22} color={colors.primary} />
-              {action.badge !== undefined && action.badge > 0 && (
+              <Ionicons color={colors.primary} name={action.icon} size={22} />
+              {action.badge !== undefined && action.badge > 0 ? (
                 <View style={[styles.badge, { backgroundColor: colors.error }]}>
-                  <Text style={styles.badgeText}>
-                    {action.badge > 99 ? '99+' : action.badge}
-                  </Text>
+                  <Text style={styles.badgeText}>{action.badge > 99 ? '99+' : action.badge}</Text>
                 </View>
-              )}
+              ) : null}
             </Pressable>
           ))}
         </View>
       </View>
 
       {/* Large Title */}
-      {large && (
+      {large ? (
         <Animated.View entering={FadeInDown.delay(100)} style={styles.titleContainer}>
           <Text style={[styles.titleLarge, { color: colors.text }]}>{title}</Text>
-          {subtitle && (
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              {subtitle}
-            </Text>
-          )}
+          {subtitle ? (
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
+          ) : null}
         </Animated.View>
-      )}
+      ) : null}
 
       {/* Additional content (search, filters, etc.) */}
       {children}
@@ -125,9 +121,7 @@ export function ScreenHeader({
   }
 
   return (
-    <View style={[styles.wrapper, { backgroundColor: colors.background }]}>
-      {HeaderContent}
-    </View>
+    <View style={[styles.wrapper, { backgroundColor: colors.background }]}>{HeaderContent}</View>
   );
 }
 

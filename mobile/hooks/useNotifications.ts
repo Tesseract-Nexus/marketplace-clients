@@ -54,9 +54,7 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const appStateRef = useRef<AppStateStatus>(AppState.currentState);
 
-  const queryKey = currentTenant
-    ? QUERY_KEYS.NOTIFICATIONS(currentTenant.id)
-    : ['notifications'];
+  const queryKey = currentTenant ? QUERY_KEYS.NOTIFICATIONS(currentTenant.id) : ['notifications'];
 
   // Fetch notifications
   const {
@@ -87,7 +85,9 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
       const previousData = queryClient.getQueryData(queryKey);
 
       queryClient.setQueryData(queryKey, (old: any) => {
-        if (!old) return old;
+        if (!old) {
+          return old;
+        }
         return {
           ...old,
           notifications: old.notifications.map((n: Notification) =>
@@ -116,7 +116,9 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
       const previousData = queryClient.getQueryData(queryKey);
 
       queryClient.setQueryData(queryKey, (old: any) => {
-        if (!old) return old;
+        if (!old) {
+          return old;
+        }
         return {
           ...old,
           notifications: old.notifications.map((n: Notification) => ({
@@ -145,7 +147,9 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
       const previousData = queryClient.getQueryData(queryKey);
 
       queryClient.setQueryData(queryKey, (old: any) => {
-        if (!old) return old;
+        if (!old) {
+          return old;
+        }
         const notification = old.notifications.find((n: Notification) => n.id === id);
         const wasUnread = notification && !notification.read_at;
 
@@ -226,7 +230,9 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
 
   // Set up polling when app is active
   useEffect(() => {
-    if (!enablePolling || !currentTenant || !user) return;
+    if (!enablePolling || !currentTenant || !user) {
+      return;
+    }
 
     // Start polling
     const startPolling = () => {
@@ -273,21 +279,27 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
 
   // Set up push notification listeners
   useEffect(() => {
-    if (!enablePush) return;
+    if (!enablePush) {
+      return;
+    }
 
     // Handle notification received while app is open
-    const notificationSubscription = Notifications.addNotificationReceivedListener((notification) => {
-      console.log('[Notifications] Received:', notification);
-      // Refresh notifications list
-      refetch();
-    });
+    const notificationSubscription = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        console.log('[Notifications] Received:', notification);
+        // Refresh notifications list
+        refetch();
+      }
+    );
 
     // Handle notification response (user tapped notification)
-    const responseSubscription = Notifications.addNotificationResponseReceivedListener((response) => {
-      console.log('[Notifications] Response:', response);
-      // Navigation will be handled by the screen that displays notifications
-      refetch();
-    });
+    const responseSubscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        console.log('[Notifications] Response:', response);
+        // Navigation will be handled by the screen that displays notifications
+        refetch();
+      }
+    );
 
     // Register for push on mount
     registerPushNotifications();
@@ -314,7 +326,9 @@ export function useNotifications(options: UseNotificationsOptions = {}): UseNoti
     markAllAsRead: markAllAsReadMutation.mutateAsync,
     deleteNotification: deleteNotificationMutation.mutateAsync,
     deleteAllNotifications: deleteAllNotificationsMutation.mutateAsync,
-    refresh: async () => { await refetch(); },
+    refresh: async () => {
+      await refetch();
+    },
     registerPushNotifications,
   };
 }

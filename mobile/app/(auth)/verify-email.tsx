@@ -93,11 +93,16 @@ export default function VerifyEmailScreen() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top + 20 }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.background, paddingTop: insets.top + 20 },
+      ]}
+    >
       {/* Back Button */}
       <Animated.View entering={FadeInDown.delay(100)}>
         <IconButton
-          icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
+          icon={<Ionicons color={colors.text} name="arrow-back" size={24} />}
           onPress={() => void handleBack(router, logout)}
         />
       </Animated.View>
@@ -105,7 +110,7 @@ export default function VerifyEmailScreen() {
       {/* Icon */}
       <Animated.View entering={FadeInDown.delay(200)} style={styles.iconContainer}>
         <View style={[styles.iconCircle, { backgroundColor: colors.primaryLight }]}>
-          <Ionicons name="mail" size={48} color={colors.primary} />
+          <Ionicons color={colors.primary} name="mail" size={48} />
         </View>
       </Animated.View>
 
@@ -126,12 +131,9 @@ export default function VerifyEmailScreen() {
             ref={(ref) => {
               inputRefs.current[index] = ref;
             }}
-            value={digit}
-            onChangeText={(text) => handleCodeChange(text.slice(-1), index)}
-            onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
+            selectTextOnFocus
             keyboardType="number-pad"
             maxLength={1}
-            selectTextOnFocus
             style={[
               styles.codeInput,
               {
@@ -140,6 +142,9 @@ export default function VerifyEmailScreen() {
                 color: colors.text,
               },
             ]}
+            value={digit}
+            onChangeText={(text) => handleCodeChange(text.slice(-1), index)}
+            onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
           />
         ))}
       </Animated.View>
@@ -147,18 +152,18 @@ export default function VerifyEmailScreen() {
       {/* Verify Button */}
       <Animated.View entering={FadeInDown.delay(500)} style={styles.buttonContainer}>
         <Button
-          title="Verify Email"
-          size="lg"
           fullWidth
-          loading={isLoading}
           disabled={code.join('').length !== 6}
+          loading={isLoading}
+          size="lg"
+          title="Verify Email"
           onPress={() => handleVerify(code.join(''))}
         />
       </Animated.View>
 
       {/* Resend */}
       <Animated.View entering={FadeInDown.delay(600)} style={styles.resendContainer}>
-        <Pressable onPress={handleResend} disabled={countdown > 0 || isResending}>
+        <Pressable disabled={countdown > 0 || isResending} onPress={handleResend}>
           <Text
             style={[
               styles.resendText,

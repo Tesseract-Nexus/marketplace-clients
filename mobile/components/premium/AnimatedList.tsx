@@ -48,10 +48,7 @@ export function AnimatedListItem({
   const progress = useSharedValue(0);
 
   useEffect(() => {
-    progress.value = withDelay(
-      index * staggerDelay,
-      withSpring(1, springs.smooth)
-    );
+    progress.value = withDelay(index * staggerDelay, withSpring(1, springs.smooth));
   }, [index, staggerDelay]);
 
   const handlePressIn = () => {
@@ -81,12 +78,7 @@ export function AnimatedListItem({
       case 'scale':
         transforms = [
           {
-            scale: interpolate(
-              progress.value,
-              [0, 1],
-              [0.8, 1],
-              Extrapolation.CLAMP
-            ) * scale.value,
+            scale: interpolate(progress.value, [0, 1], [0.8, 1], Extrapolation.CLAMP) * scale.value,
           },
         ];
         break;
@@ -116,8 +108,8 @@ export function AnimatedListItem({
         animatedStyle,
         style,
       ]}
-      onPress={onPress}
       onLongPress={onLongPress}
+      onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
     >
@@ -155,18 +147,14 @@ export function SwipeableItem({
   return (
     <View style={[styles.swipeableContainer, style]}>
       {/* Left action */}
-      {leftAction && (
-        <View style={[styles.swipeAction, styles.leftAction]}>
-          {leftAction}
-        </View>
-      )}
+      {leftAction ? (
+        <View style={[styles.swipeAction, styles.leftAction]}>{leftAction}</View>
+      ) : null}
 
       {/* Right action */}
-      {rightAction && (
-        <View style={[styles.swipeAction, styles.rightAction]}>
-          {rightAction}
-        </View>
-      )}
+      {rightAction ? (
+        <View style={[styles.swipeAction, styles.rightAction]}>{rightAction}</View>
+      ) : null}
 
       {/* Main content */}
       <Animated.View
@@ -189,11 +177,7 @@ interface ReorderableItemProps {
   style?: ViewStyle;
 }
 
-export function ReorderableItem({
-  children,
-  isActive = false,
-  style,
-}: ReorderableItemProps) {
+export function ReorderableItem({ children, isActive = false, style }: ReorderableItemProps) {
   const colors = useColors();
   const isDark = useIsDark();
   const scale = useSharedValue(1);
@@ -284,7 +268,7 @@ export function ExpandableItem({
       >
         {header}
       </Pressable>
-      {expanded && (
+      {expanded ? (
         <Animated.View
           entering={FadeIn.duration(200)}
           exiting={FadeOut.duration(150)}
@@ -292,7 +276,7 @@ export function ExpandableItem({
         >
           {children}
         </Animated.View>
-      )}
+      ) : null}
     </View>
   );
 }

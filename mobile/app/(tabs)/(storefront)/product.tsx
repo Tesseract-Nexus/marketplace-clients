@@ -41,7 +41,11 @@ export default function ProductScreen() {
 
   const scrollY = useSharedValue(0);
 
-  const { data: product, isLoading, error } = useQuery<Product>({
+  const {
+    data: product,
+    isLoading,
+    error,
+  } = useQuery<Product>({
     queryKey: ['product', id || slug],
     queryFn: async () => {
       const endpoint = id ? `/products/${id}` : `/products/slug/${slug}`;
@@ -75,9 +79,7 @@ export default function ProductScreen() {
       // Find matching variant
       if (product?.variants) {
         const matchingVariant = product.variants.find((variant) =>
-          variant.options.every(
-            (opt) => newOptions[opt.name] === opt.value
-          )
+          variant.options.every((opt) => newOptions[opt.name] === opt.value)
         );
         setSelectedVariant(matchingVariant || null);
       }
@@ -86,11 +88,11 @@ export default function ProductScreen() {
   );
 
   const handleAddToCart = useCallback(() => {
-    if (!product) return;
+    if (!product) {
+      return;
+    }
 
-    const name = selectedVariant
-      ? `${product.name} - ${selectedVariant.name}`
-      : product.name;
+    const name = selectedVariant ? `${product.name} - ${selectedVariant.name}` : product.name;
 
     addItem(product, selectedVariant, quantity);
 
@@ -104,7 +106,9 @@ export default function ProductScreen() {
   }, [product, selectedVariant, quantity, addItem, router]);
 
   const handleShare = useCallback(async () => {
-    if (!product) return;
+    if (!product) {
+      return;
+    }
     try {
       await Share.share({
         message: `Check out ${product.name}!`,
@@ -123,7 +127,7 @@ export default function ProductScreen() {
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-white">
-        <ActivityIndicator size="large" color="#6366f1" />
+        <ActivityIndicator color="#6366f1" size="large" />
       </View>
     );
   }
@@ -131,11 +135,11 @@ export default function ProductScreen() {
   if (error || !product) {
     return (
       <View className="flex-1 items-center justify-center bg-white p-6">
-        <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+        <Ionicons color="#ef4444" name="alert-circle-outline" size={48} />
         <Text className="mt-4 text-lg font-semibold text-gray-900">Product Not Found</Text>
         <TouchableOpacity
-          onPress={() => router.back()}
           className="mt-6 rounded-lg bg-indigo-600 px-6 py-3"
+          onPress={() => router.back()}
         >
           <Text className="font-semibold text-white">Go Back</Text>
         </TouchableOpacity>
@@ -145,9 +149,7 @@ export default function ProductScreen() {
 
   const currentPrice = selectedVariant?.price || product.price;
   const comparePrice = selectedVariant?.compare_at_price || product.compare_at_price;
-  const inStock = selectedVariant
-    ? selectedVariant.inventory_quantity > 0
-    : product.in_stock;
+  const inStock = selectedVariant ? selectedVariant.inventory_quantity > 0 : product.in_stock;
   const discount = comparePrice
     ? Math.round(((comparePrice - currentPrice) / comparePrice) * 100)
     : 0;
@@ -160,22 +162,22 @@ export default function ProductScreen() {
           headerTitle: '',
           headerLeft: () => (
             <TouchableOpacity
-              onPress={() => router.back()}
               className="ml-2 rounded-full bg-white/90 p-2 shadow-sm"
+              onPress={() => router.back()}
             >
-              <Ionicons name="arrow-back" size={24} color="#111827" />
+              <Ionicons color="#111827" name="arrow-back" size={24} />
             </TouchableOpacity>
           ),
           headerRight: () => (
             <View className="mr-2 flex-row gap-2">
               <TouchableOpacity
-                onPress={handleShare}
                 className="rounded-full bg-white/90 p-2 shadow-sm"
+                onPress={handleShare}
               >
-                <Ionicons name="share-outline" size={24} color="#111827" />
+                <Ionicons color="#111827" name="share-outline" size={24} />
               </TouchableOpacity>
               <TouchableOpacity className="rounded-full bg-white/90 p-2 shadow-sm">
-                <Ionicons name="heart-outline" size={24} color="#111827" />
+                <Ionicons color="#111827" name="heart-outline" size={24} />
               </TouchableOpacity>
             </View>
           ),
@@ -184,15 +186,15 @@ export default function ProductScreen() {
 
       {/* Animated Header Background */}
       <Animated.View
-        style={headerAnimatedStyle}
         className="absolute left-0 right-0 top-0 z-10 h-24 bg-white"
+        style={headerAnimatedStyle}
       />
 
       <Animated.ScrollView
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
         className="flex-1 bg-white"
+        scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
+        onScroll={scrollHandler}
       >
         {/* Image Carousel */}
         <View style={{ height: IMAGE_HEIGHT }}>
@@ -208,15 +210,15 @@ export default function ProductScreen() {
             {product.images.map((image, index) => (
               <Image
                 key={image.id}
+                resizeMode="cover"
                 source={{ uri: image.url }}
                 style={{ width: SCREEN_WIDTH, height: IMAGE_HEIGHT }}
-                resizeMode="cover"
               />
             ))}
           </ScrollView>
 
           {/* Image Indicators */}
-          {product.images.length > 1 && (
+          {product.images.length > 1 ? (
             <View className="absolute bottom-4 left-0 right-0 flex-row justify-center gap-2">
               {product.images.map((_, index) => (
                 <View
@@ -227,41 +229,37 @@ export default function ProductScreen() {
                 />
               ))}
             </View>
-          )}
+          ) : null}
 
           {/* Discount Badge */}
-          {discount > 0 && (
+          {discount > 0 ? (
             <View className="absolute right-4 top-4 rounded-lg bg-red-500 px-3 py-1">
               <Text className="font-bold text-white">-{discount}%</Text>
             </View>
-          )}
+          ) : null}
         </View>
 
         <View className="p-4">
           {/* Category */}
           <TouchableOpacity
-            onPress={() =>
-              router.push(`/(tabs)/(storefront)/category?id=${product.category.id}`)
-            }
+            onPress={() => router.push(`/(tabs)/(storefront)/category?id=${product.category.id}`)}
           >
-            <Text className="text-sm font-medium text-indigo-600">
-              {product.category.name}
-            </Text>
+            <Text className="text-sm font-medium text-indigo-600">{product.category.name}</Text>
           </TouchableOpacity>
 
           {/* Product Name */}
           <Text className="mt-2 text-2xl font-bold text-gray-900">{product.name}</Text>
 
           {/* Rating */}
-          {product.review_count > 0 && (
+          {product.review_count > 0 ? (
             <View className="mt-2 flex-row items-center">
               <View className="flex-row">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Ionicons
                     key={star}
+                    color={star <= Math.round(product.rating) ? '#fbbf24' : '#d1d5db'}
                     name={star <= Math.round(product.rating) ? 'star' : 'star-outline'}
                     size={16}
-                    color={star <= Math.round(product.rating) ? '#fbbf24' : '#d1d5db'}
                   />
                 ))}
               </View>
@@ -269,32 +267,28 @@ export default function ProductScreen() {
                 {product.rating.toFixed(1)} ({product.review_count} reviews)
               </Text>
             </View>
-          )}
+          ) : null}
 
           {/* Price */}
           <View className="mt-4 flex-row items-baseline">
-            <Text className="text-3xl font-bold text-gray-900">
-              {formatCurrency(currentPrice)}
-            </Text>
-            {comparePrice && (
+            <Text className="text-3xl font-bold text-gray-900">{formatCurrency(currentPrice)}</Text>
+            {comparePrice ? (
               <Text className="ml-2 text-lg text-gray-400 line-through">
                 {formatCurrency(comparePrice)}
               </Text>
-            )}
+            ) : null}
           </View>
 
           {/* Stock Status */}
           <View className="mt-2 flex-row items-center">
-            <View
-              className={`h-2 w-2 rounded-full ${inStock ? 'bg-green-500' : 'bg-red-500'}`}
-            />
+            <View className={`h-2 w-2 rounded-full ${inStock ? 'bg-green-500' : 'bg-red-500'}`} />
             <Text className={`ml-2 text-sm ${inStock ? 'text-green-600' : 'text-red-600'}`}>
               {inStock ? 'In Stock' : 'Out of Stock'}
             </Text>
           </View>
 
           {/* Variants/Options */}
-          {product.options.length > 0 && (
+          {product.options.length > 0 ? (
             <View className="mt-6 space-y-4">
               {product.options.map((option) => (
                 <View key={option.name}>
@@ -305,17 +299,13 @@ export default function ProductScreen() {
                       return (
                         <TouchableOpacity
                           key={value}
-                          onPress={() => handleSelectOption(option.name, value)}
                           className={`rounded-lg border-2 px-4 py-2 ${
-                            isSelected
-                              ? 'border-indigo-600 bg-indigo-50'
-                              : 'border-gray-200'
+                            isSelected ? 'border-indigo-600 bg-indigo-50' : 'border-gray-200'
                           }`}
+                          onPress={() => handleSelectOption(option.name, value)}
                         >
                           <Text
-                            className={
-                              isSelected ? 'font-medium text-indigo-600' : 'text-gray-700'
-                            }
+                            className={isSelected ? 'font-medium text-indigo-600' : 'text-gray-700'}
                           >
                             {value}
                           </Text>
@@ -326,27 +316,27 @@ export default function ProductScreen() {
                 </View>
               ))}
             </View>
-          )}
+          ) : null}
 
           {/* Quantity Selector */}
           <View className="mt-6">
             <Text className="mb-2 font-medium text-gray-900">Quantity</Text>
             <View className="flex-row items-center">
               <TouchableOpacity
-                onPress={() => setQuantity(Math.max(1, quantity - 1))}
-                disabled={quantity <= 1}
                 className={`rounded-lg border border-gray-200 p-3 ${
                   quantity <= 1 ? 'opacity-50' : ''
                 }`}
+                disabled={quantity <= 1}
+                onPress={() => setQuantity(Math.max(1, quantity - 1))}
               >
-                <Ionicons name="remove" size={20} color="#4b5563" />
+                <Ionicons color="#4b5563" name="remove" size={20} />
               </TouchableOpacity>
               <Text className="mx-6 text-lg font-semibold text-gray-900">{quantity}</Text>
               <TouchableOpacity
-                onPress={() => setQuantity(quantity + 1)}
                 className="rounded-lg border border-gray-200 p-3"
+                onPress={() => setQuantity(quantity + 1)}
               >
-                <Ionicons name="add" size={20} color="#4b5563" />
+                <Ionicons color="#4b5563" name="add" size={20} />
               </TouchableOpacity>
             </View>
           </View>
@@ -358,7 +348,7 @@ export default function ProductScreen() {
           </View>
 
           {/* Tags */}
-          {product.tags.length > 0 && (
+          {product.tags.length > 0 ? (
             <View className="mt-6 flex-row flex-wrap gap-2">
               {product.tags.map((tag) => (
                 <View key={tag} className="rounded-full bg-gray-100 px-3 py-1">
@@ -366,7 +356,7 @@ export default function ProductScreen() {
                 </View>
               ))}
             </View>
-          )}
+          ) : null}
 
           {/* Spacer for bottom buttons */}
           <View className="h-32" />
@@ -377,22 +367,20 @@ export default function ProductScreen() {
       <View className="absolute bottom-0 left-0 right-0 border-t border-gray-200 bg-white px-4 pb-8 pt-4">
         <View className="flex-row gap-3">
           <TouchableOpacity
-            onPress={handleAddToCart}
-            disabled={!inStock}
             className={`flex-1 flex-row items-center justify-center rounded-xl border-2 border-indigo-600 py-4 ${
               !inStock ? 'opacity-50' : ''
             }`}
+            disabled={!inStock}
+            onPress={handleAddToCart}
           >
-            <Ionicons name="cart-outline" size={20} color="#4f46e5" />
+            <Ionicons color="#4f46e5" name="cart-outline" size={20} />
             <Text className="ml-2 font-semibold text-indigo-600">Add to Cart</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={handleBuyNow}
+            className={`flex-1 rounded-xl bg-indigo-600 py-4 ${!inStock ? 'opacity-50' : ''}`}
             disabled={!inStock}
-            className={`flex-1 rounded-xl bg-indigo-600 py-4 ${
-              !inStock ? 'opacity-50' : ''
-            }`}
+            onPress={handleBuyNow}
           >
             <Text className="text-center font-semibold text-white">Buy Now</Text>
           </TouchableOpacity>

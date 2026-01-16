@@ -66,12 +66,12 @@ function StatsCards({ campaigns }: { campaigns: Campaign[] }) {
   const isDark = useIsDark();
 
   const stats = useMemo(() => {
-    const active = campaigns.filter(c => c.status === 'active').length;
+    const active = campaigns.filter((c) => c.status === 'active').length;
     const totalSent = campaigns.reduce((sum, c) => sum + c.sentCount, 0);
     const totalRevenue = campaigns.reduce((sum, c) => sum + (c.revenue || 0), 0);
     const avgOpenRate =
-      campaigns.filter(c => c.openRate).reduce((sum, c) => sum + (c.openRate || 0), 0) /
-        campaigns.filter(c => c.openRate).length || 0;
+      campaigns.filter((c) => c.openRate).reduce((sum, c) => sum + (c.openRate || 0), 0) /
+        campaigns.filter((c) => c.openRate).length || 0;
     return { active, totalSent, totalRevenue, avgOpenRate };
   }, [campaigns]);
 
@@ -80,12 +80,12 @@ function StatsCards({ campaigns }: { campaigns: Campaign[] }) {
       {/* Campaign Revenue Card */}
       <LinearGradient
         colors={['#EC4899', '#F472B6']}
-        start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
+        start={{ x: 0, y: 0 }}
         style={styles.revenueCard}
       >
         <View style={styles.revenueIcon}>
-          <Ionicons name="trending-up" size={16} color="rgba(255,255,255,0.9)" />
+          <Ionicons color="rgba(255,255,255,0.9)" name="trending-up" size={16} />
         </View>
         <Text style={styles.revenueLabel}>Campaign Revenue</Text>
         <Text style={styles.revenueValue}>{formatCurrency(stats.totalRevenue)}</Text>
@@ -99,18 +99,15 @@ function StatsCards({ campaigns }: { campaigns: Campaign[] }) {
             { backgroundColor: isDark ? colors.surface : colors.successLight },
           ]}
         >
-          <Ionicons name="play-circle" size={16} color={colors.success} />
+          <Ionicons color={colors.success} name="play-circle" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>{stats.active}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Active</Text>
         </View>
 
         <View
-          style={[
-            styles.statItem,
-            { backgroundColor: isDark ? colors.surface : colors.infoLight },
-          ]}
+          style={[styles.statItem, { backgroundColor: isDark ? colors.surface : colors.infoLight }]}
         >
-          <Ionicons name="send" size={16} color={colors.info} />
+          <Ionicons color={colors.info} name="send" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>{stats.totalSent}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Sent</Text>
         </View>
@@ -121,7 +118,7 @@ function StatsCards({ campaigns }: { campaigns: Campaign[] }) {
             { backgroundColor: isDark ? colors.surface : colors.warningLight },
           ]}
         >
-          <Ionicons name="mail-open" size={16} color={colors.warning} />
+          <Ionicons color={colors.warning} name="mail-open" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>
             {stats.avgOpenRate.toFixed(0)}%
           </Text>
@@ -161,7 +158,15 @@ function CampaignCard({
     transform: [{ scale: scale.value }],
   }));
 
-  const statusConfig: Record<CampaignStatus, { label: string; variant: 'success' | 'warning' | 'info' | 'error' | 'secondary'; icon: keyof typeof Ionicons.glyphMap; color: string }> = {
+  const statusConfig: Record<
+    CampaignStatus,
+    {
+      label: string;
+      variant: 'success' | 'warning' | 'info' | 'error' | 'secondary';
+      icon: keyof typeof Ionicons.glyphMap;
+      color: string;
+    }
+  > = {
     draft: {
       label: 'Draft',
       variant: 'secondary',
@@ -200,19 +205,22 @@ function CampaignCard({
     },
   };
 
-  const typeConfig: Record<CampaignType, { icon: keyof typeof Ionicons.glyphMap; color: string }> = {
-    email: { icon: 'mail', color: '#3B82F6' },
-    sms: { icon: 'chatbubble', color: '#10B981' },
-    push: { icon: 'notifications', color: '#F59E0B' },
-    discount: { icon: 'pricetag', color: '#EC4899' },
-  };
+  const typeConfig: Record<CampaignType, { icon: keyof typeof Ionicons.glyphMap; color: string }> =
+    {
+      email: { icon: 'mail', color: '#3B82F6' },
+      sms: { icon: 'chatbubble', color: '#10B981' },
+      push: { icon: 'notifications', color: '#F59E0B' },
+      discount: { icon: 'pricetag', color: '#EC4899' },
+    };
 
   const config = statusConfig[campaign.status];
   const typeConf = typeConfig[campaign.type];
 
   return (
     <Animated.View
-      entering={FadeInRight.delay(index * 30).springify().damping(15)}
+      entering={FadeInRight.delay(index * 30)
+        .springify()
+        .damping(15)}
       style={animatedStyle}
     >
       <Pressable
@@ -231,23 +239,23 @@ function CampaignCard({
         <View style={styles.campaignHeader}>
           <View style={styles.campaignHeaderLeft}>
             <View style={[styles.typeIcon, { backgroundColor: `${typeConf.color}20` }]}>
-              <Ionicons name={typeConf.icon} size={18} color={typeConf.color} />
+              <Ionicons color={typeConf.color} name={typeConf.icon} size={18} />
             </View>
             <View style={styles.campaignInfo}>
-              <Text style={[styles.campaignName, { color: colors.text }]} numberOfLines={1}>
+              <Text numberOfLines={1} style={[styles.campaignName, { color: colors.text }]}>
                 {campaign.name}
               </Text>
-              {campaign.description && (
+              {campaign.description ? (
                 <Text
-                  style={[styles.campaignDesc, { color: colors.textSecondary }]}
                   numberOfLines={1}
+                  style={[styles.campaignDesc, { color: colors.textSecondary }]}
                 >
                   {campaign.description}
                 </Text>
-              )}
+              ) : null}
             </View>
           </View>
-          <Badge label={config.label} variant={config.variant} size="sm" />
+          <Badge label={config.label} size="sm" variant={config.variant} />
         </View>
 
         {/* Metrics */}
@@ -264,28 +272,26 @@ function CampaignCard({
             </Text>
             <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Sent</Text>
           </View>
-          {campaign.openRate !== undefined && (
+          {campaign.openRate !== undefined ? (
             <View style={styles.metricItem}>
-              <Text style={[styles.metricValue, { color: colors.text }]}>
-                {campaign.openRate}%
-              </Text>
+              <Text style={[styles.metricValue, { color: colors.text }]}>{campaign.openRate}%</Text>
               <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Opens</Text>
             </View>
-          )}
-          {campaign.revenue !== undefined && campaign.revenue > 0 && (
+          ) : null}
+          {campaign.revenue !== undefined && campaign.revenue > 0 ? (
             <View style={styles.metricItem}>
               <Text style={[styles.metricValue, { color: colors.success }]}>
                 {formatCurrency(campaign.revenue)}
               </Text>
               <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Revenue</Text>
             </View>
-          )}
+          ) : null}
         </View>
 
         {/* Footer */}
         <View style={[styles.campaignFooter, { borderTopColor: colors.border }]}>
           <View style={styles.dateInfo}>
-            <Ionicons name="time-outline" size={14} color={colors.textTertiary} />
+            <Ionicons color={colors.textTertiary} name="time-outline" size={14} />
             <Text style={[styles.dateText, { color: colors.textTertiary }]}>
               {campaign.status === 'scheduled' && campaign.startsAt
                 ? `Starts ${formatRelativeTime(campaign.startsAt)}`
@@ -293,34 +299,32 @@ function CampaignCard({
             </Text>
           </View>
           <View style={styles.actionButtons}>
-            {(campaign.status === 'active' || campaign.status === 'paused') && (
+            {campaign.status === 'active' || campaign.status === 'paused' ? (
               <Pressable
+                hitSlop={8}
                 style={[
                   styles.toggleButton,
                   {
                     backgroundColor:
-                      campaign.status === 'active'
-                        ? `${colors.warning}15`
-                        : `${colors.success}15`,
+                      campaign.status === 'active' ? `${colors.warning}15` : `${colors.success}15`,
                   },
                 ]}
                 onPress={() => onToggleStatus(campaign)}
-                hitSlop={8}
               >
                 <Ionicons
+                  color={campaign.status === 'active' ? colors.warning : colors.success}
                   name={campaign.status === 'active' ? 'pause' : 'play'}
                   size={16}
-                  color={campaign.status === 'active' ? colors.warning : colors.success}
                 />
               </Pressable>
-            )}
+            ) : null}
             <Pressable
+              hitSlop={8}
               style={[styles.actionButton, { backgroundColor: `${colors.primary}10` }]}
               onPress={() => onViewDetails(campaign)}
-              hitSlop={8}
             >
               <Text style={[styles.actionButtonText, { color: colors.primary }]}>View</Text>
-              <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+              <Ionicons color={colors.primary} name="chevron-forward" size={14} />
             </Pressable>
           </View>
         </View>
@@ -341,7 +345,11 @@ export default function CampaignsScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch campaigns
-  const { data: campaigns = [], isLoading, refetch } = useQuery({
+  const {
+    data: campaigns = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: currentTenant ? ['campaigns', currentTenant.id] : ['campaigns'],
     queryFn: async (): Promise<Campaign[]> => {
       // TODO: Replace with actual API call
@@ -425,13 +433,13 @@ export default function CampaignsScreen() {
     let filtered = campaigns;
 
     if (activeFilter !== 'all') {
-      filtered = filtered.filter(c => c.status === activeFilter);
+      filtered = filtered.filter((c) => c.status === activeFilter);
     }
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        c =>
+        (c) =>
           c.name.toLowerCase().includes(query) ||
           c.description?.toLowerCase().includes(query) ||
           c.targetAudience.toLowerCase().includes(query)
@@ -481,8 +489,8 @@ export default function CampaignsScreen() {
       <CampaignCard
         campaign={item}
         index={index}
-        onViewDetails={handleViewDetails}
         onToggleStatus={handleToggleStatus}
+        onViewDetails={handleViewDetails}
       />
     ),
     [handleViewDetails, handleToggleStatus]
@@ -494,11 +502,11 @@ export default function CampaignsScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerTop}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
+            <Ionicons color={colors.text} name="arrow-back" size={24} />
           </Pressable>
           <Text style={[styles.title, { color: colors.text }]}>Campaigns</Text>
           <Pressable style={styles.addButton} onPress={handleCreateCampaign}>
-            <Ionicons name="add" size={24} color={colors.primary} />
+            <Ionicons color={colors.primary} name="add" size={24} />
           </Pressable>
         </View>
 
@@ -516,46 +524,44 @@ export default function CampaignsScreen() {
             },
           ]}
         >
-          <Ionicons name="search" size={18} color={colors.textSecondary} />
+          <Ionicons color={colors.textSecondary} name="search" size={18} />
           <TextInput
-            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search campaigns..."
             placeholderTextColor={colors.textTertiary}
+            style={[styles.searchInput, { color: colors.text }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          {searchQuery.length > 0 && (
+          {searchQuery.length > 0 ? (
             <Pressable onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="close-circle" size={18} />
             </Pressable>
-          )}
+          ) : null}
         </Animated.View>
 
         {/* Status Filters */}
         <Animated.View entering={FadeInDown.delay(200)}>
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filtersContainer}
+            showsHorizontalScrollIndicator={false}
           >
-            {STATUS_FILTERS.map(filter => (
+            {STATUS_FILTERS.map((filter) => (
               <Pressable
                 key={filter.id}
                 style={[
                   styles.filterChip,
                   {
-                    backgroundColor:
-                      activeFilter === filter.id ? colors.primary : colors.surface,
-                    borderColor:
-                      activeFilter === filter.id ? colors.primary : colors.border,
+                    backgroundColor: activeFilter === filter.id ? colors.primary : colors.surface,
+                    borderColor: activeFilter === filter.id ? colors.primary : colors.border,
                   },
                 ]}
                 onPress={() => setActiveFilter(filter.id)}
               >
                 <Ionicons
+                  color={activeFilter === filter.id ? '#FFFFFF' : colors.textSecondary}
                   name={filter.icon}
                   size={14}
-                  color={activeFilter === filter.id ? '#FFFFFF' : colors.textSecondary}
                 />
                 <Text
                   style={[
@@ -573,49 +579,43 @@ export default function CampaignsScreen() {
 
       {/* Campaigns List */}
       {isLoading ? (
-        <ScrollView
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {[1, 2, 3].map(i => (
+        <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
+          {[1, 2, 3].map((i) => (
             <Skeleton
               key={i}
-              width="100%"
-              height={180}
               borderRadius={16}
+              height={180}
               style={{ marginBottom: 12 }}
+              width="100%"
             />
           ))}
         </ScrollView>
       ) : filteredCampaigns.length === 0 ? (
         <EmptyState
-          icon="megaphone-outline"
-          title={searchQuery ? 'No campaigns found' : 'No campaigns yet'}
+          actionLabel={searchQuery ? 'Clear Search' : 'Create Campaign'}
           description={
             searchQuery
               ? 'Try adjusting your search or filters'
               : 'Create your first campaign to engage customers'
           }
-          actionLabel={searchQuery ? 'Clear Search' : 'Create Campaign'}
+          icon="megaphone-outline"
+          title={searchQuery ? 'No campaigns found' : 'No campaigns yet'}
           onAction={searchQuery ? () => setSearchQuery('') : handleCreateCampaign}
         />
       ) : (
         <FlatList
+          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
           data={filteredCampaigns}
-          renderItem={renderCampaign}
-          keyExtractor={item => item.id}
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
-          showsVerticalScrollIndicator={false}
+          keyExtractor={(item) => item.id}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
               tintColor={colors.primary}
+              onRefresh={onRefresh}
             />
           }
+          renderItem={renderCampaign}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </View>

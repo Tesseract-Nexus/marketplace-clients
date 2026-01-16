@@ -60,20 +60,16 @@ export function AnimatedProgressBar({
 
   return (
     <View style={[styles.barContainer, style]}>
-      {(showLabel || label) && (
+      {showLabel || label ? (
         <View style={styles.labelRow}>
-          {label && (
-            <Text style={[styles.label, { color: colors.textSecondary }]}>
-              {label}
-            </Text>
-          )}
-          {showLabel && (
-            <Text style={[styles.percentage, { color: colors.text }]}>
-              {Math.round(progress)}%
-            </Text>
-          )}
+          {label ? (
+            <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
+          ) : null}
+          {showLabel ? (
+            <Text style={[styles.percentage, { color: colors.text }]}>{Math.round(progress)}%</Text>
+          ) : null}
         </View>
-      )}
+      ) : null}
       <View
         style={[
           styles.barBackground,
@@ -87,8 +83,8 @@ export function AnimatedProgressBar({
         <Animated.View style={[styles.barFill, { borderRadius: height / 2 }, progressStyle]}>
           <LinearGradient
             colors={[...gradient]}
-            start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
+            start={{ x: 0, y: 0 }}
             style={[StyleSheet.absoluteFill, { borderRadius: height / 2 }]}
           />
         </Animated.View>
@@ -155,9 +151,9 @@ export function CircularProgress({
 
   return (
     <View style={[styles.circularContainer, { width: size, height: size }]}>
-      <Svg width={size} height={size} style={styles.svg}>
+      <Svg height={size} style={styles.svg} width={size}>
         <Defs>
-          <SvgGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <SvgGradient id="progressGradient" x1="0%" x2="100%" y1="0%" y2="0%">
             <Stop offset="0%" stopColor={gradient[0]} />
             <Stop offset="100%" stopColor={gradient[1]} />
           </SvgGradient>
@@ -166,57 +162,51 @@ export function CircularProgress({
         <Circle
           cx={size / 2}
           cy={size / 2}
+          fill="none"
           r={radius}
           stroke={backgroundColor || `${colors.text}10`}
           strokeWidth={strokeWidth}
-          fill="none"
         />
         {/* Progress circle */}
         <Circle
           cx={size / 2}
           cy={size / 2}
+          fill="none"
           r={radius}
           stroke="url(#progressGradient)"
-          strokeWidth={strokeWidth}
-          strokeLinecap="round"
-          fill="none"
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          strokeWidth={strokeWidth}
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </Svg>
-      {showValue && (
+      {showValue ? (
         <View style={styles.circularContent}>
           <Text style={[styles.circularValue, { color: colors.text }]}>
             {Math.round(displayProgress)}%
           </Text>
-          {label && (
-            <Text style={[styles.circularLabel, { color: colors.textSecondary }]}>
-              {label}
-            </Text>
-          )}
+          {label ? (
+            <Text style={[styles.circularLabel, { color: colors.textSecondary }]}>{label}</Text>
+          ) : null}
         </View>
-      )}
+      ) : null}
     </View>
   );
 }
 
 // Multi-segment progress (for comparing values)
 interface SegmentedProgressProps {
-  segments: Array<{
+  segments: {
     value: number;
     color: string;
     label?: string;
-  }>;
+  }[];
   height?: number;
   style?: ViewStyle;
 }
 
-export function SegmentedProgress({
-  segments,
-  height = 12,
-  style,
-}: SegmentedProgressProps) {
+export function SegmentedProgress({ segments, height = 12, style }: SegmentedProgressProps) {
   const colors = useColors();
   const total = segments.reduce((sum, seg) => sum + seg.value, 0);
 
@@ -255,9 +245,7 @@ export function SegmentedProgress({
       <View style={styles.segmentLabels}>
         {segments.map((segment, index) => (
           <View key={index} style={styles.segmentLabel}>
-            <View
-              style={[styles.segmentDot, { backgroundColor: segment.color }]}
-            />
+            <View style={[styles.segmentDot, { backgroundColor: segment.color }]} />
             <Text style={[styles.segmentText, { color: colors.textSecondary }]}>
               {segment.label || `${Math.round((segment.value / total) * 100)}%`}
             </Text>

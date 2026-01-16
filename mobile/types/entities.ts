@@ -343,7 +343,14 @@ export type OrderStatus =
   | 'refunded'
   | 'failed';
 
-export type PaymentStatus = 'pending' | 'authorized' | 'paid' | 'partially_refunded' | 'refunded' | 'failed' | 'voided';
+export type PaymentStatus =
+  | 'pending'
+  | 'authorized'
+  | 'paid'
+  | 'partially_refunded'
+  | 'refunded'
+  | 'failed'
+  | 'voided';
 
 export type FulfillmentStatus = 'unfulfilled' | 'partially_fulfilled' | 'fulfilled' | 'restocked';
 
@@ -444,7 +451,12 @@ export interface Address {
 // Cart
 // ============================================================================
 
-export type CartItemStatus = 'AVAILABLE' | 'UNAVAILABLE' | 'OUT_OF_STOCK' | 'LOW_STOCK' | 'PRICE_CHANGED';
+export type CartItemStatus =
+  | 'AVAILABLE'
+  | 'UNAVAILABLE'
+  | 'OUT_OF_STOCK'
+  | 'LOW_STOCK'
+  | 'PRICE_CHANGED';
 
 export interface PriceChangeInfo {
   old_price: number;

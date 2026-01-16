@@ -45,7 +45,7 @@ export const tenantsApi = {
       // Using the DEFAULT_API_URL ensures we go through the central gateway
       const response = await axios.get(`${DEFAULT_API_URL}${ENDPOINTS.TENANTS.USER_TENANTS}`, {
         headers: {
-          'Authorization': `Bearer ${accessToken}`,
+          Authorization: `Bearer ${accessToken}`,
           'X-User-ID': userId,
           'Content-Type': 'application/json',
         },
@@ -186,10 +186,7 @@ export const tenantsApi = {
   /**
    * Update tenant theme
    */
-  updateTheme: async (
-    id: string,
-    theme: Partial<TenantSettings['theme']>
-  ): Promise<Tenant> => {
+  updateTheme: async (id: string, theme: Partial<TenantSettings['theme']>): Promise<Tenant> => {
     const tenant = await tenantsApi.get(id);
     const updatedSettings: Partial<TenantSettings> = {
       ...tenant.settings,
@@ -213,17 +210,16 @@ export const tenantsApi = {
    * Update tenant favicon
    */
   updateFavicon: async (id: string, faviconUrl: string): Promise<Tenant> => {
-    const response = await apiPatch<Tenant>(ENDPOINTS.TENANTS.UPDATE(id), { favicon_url: faviconUrl });
+    const response = await apiPatch<Tenant>(ENDPOINTS.TENANTS.UPDATE(id), {
+      favicon_url: faviconUrl,
+    });
     return response.data;
   },
 
   /**
    * Enable a feature
    */
-  enableFeature: async (
-    id: string,
-    feature: keyof TenantSettings['features']
-  ): Promise<Tenant> => {
+  enableFeature: async (id: string, feature: keyof TenantSettings['features']): Promise<Tenant> => {
     const tenant = await tenantsApi.get(id);
     const updatedFeatures = {
       ...tenant.settings.features,
@@ -259,7 +255,9 @@ export const tenantsApi = {
    * Validate tenant slug availability (matches web admin)
    */
   validate: async (slug: string): Promise<{ available: boolean; message?: string }> => {
-    const response = await apiGet<{ available: boolean; message?: string }>(ENDPOINTS.TENANTS.VALIDATE(slug));
+    const response = await apiGet<{ available: boolean; message?: string }>(
+      ENDPOINTS.TENANTS.VALIDATE(slug)
+    );
     return response.data;
   },
 

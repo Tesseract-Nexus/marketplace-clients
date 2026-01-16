@@ -104,10 +104,7 @@ export const groupBy = <T>(array: T[], key: keyof T): Record<string, T[]> => {
 /**
  * Sort array by multiple keys
  */
-export const sortBy = <T>(
-  array: T[],
-  keys: Array<{ key: keyof T; order: 'asc' | 'desc' }>
-): T[] => {
+export const sortBy = <T>(array: T[], keys: { key: keyof T; order: 'asc' | 'desc' }[]): T[] => {
   return [...array].sort((a, b) => {
     for (const { key, order } of keys) {
       const aVal = a[key];
@@ -167,10 +164,7 @@ export const deepClone = <T>(obj: T): T => {
 /**
  * Pick specific keys from object
  */
-export const pick = <T extends object, K extends keyof T>(
-  obj: T,
-  keys: K[]
-): Pick<T, K> => {
+export const pick = <T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> => {
   const result = {} as Pick<T, K>;
   keys.forEach((key) => {
     if (key in obj) {
@@ -183,10 +177,7 @@ export const pick = <T extends object, K extends keyof T>(
 /**
  * Omit specific keys from object
  */
-export const omit = <T extends object, K extends keyof T>(
-  obj: T,
-  keys: K[]
-): Omit<T, K> => {
+export const omit = <T extends object, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => {
   const result = { ...obj };
   keys.forEach((key) => {
     delete result[key];
@@ -206,7 +197,7 @@ export const isEmpty = (obj: object): boolean => {
  */
 export const compact = <T extends object>(obj: T): Partial<T> => {
   const result: Partial<T> = {};
-  (Object.keys(obj) as Array<keyof T>).forEach((key) => {
+  (Object.keys(obj) as (keyof T)[]).forEach((key) => {
     if (obj[key] !== null && obj[key] !== undefined) {
       result[key] = obj[key];
     }

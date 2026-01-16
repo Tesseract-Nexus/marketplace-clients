@@ -42,11 +42,7 @@ export const formatCurrency = (
 /**
  * Format currency without decimal for whole numbers
  */
-export const formatCurrencySmart = (
-  amount: number,
-  currency = 'USD',
-  locale = 'en-US'
-): string => {
+export const formatCurrencySmart = (amount: number, currency = 'USD', locale = 'en-US'): string => {
   const isWholeNumber = amount % 1 === 0;
   return new Intl.NumberFormat(locale, {
     style: 'currency',
@@ -77,7 +73,9 @@ export const formatDate = (
   date: string | Date | undefined | null,
   formatStr = 'MMM d, yyyy'
 ): string => {
-  if (!date) return '';
+  if (!date) {
+    return '';
+  }
   try {
     const d = typeof date === 'string' ? parseISO(date) : date;
     return format(d, formatStr);
@@ -93,7 +91,9 @@ export const formatDateTime = (
   date: string | Date | undefined | null,
   formatStr = 'MMM d, yyyy h:mm a'
 ): string => {
-  if (!date) return '';
+  if (!date) {
+    return '';
+  }
   try {
     const d = typeof date === 'string' ? parseISO(date) : date;
     return format(d, formatStr);
@@ -106,7 +106,9 @@ export const formatDateTime = (
  * Format relative time (e.g., "2 hours ago")
  */
 export const formatRelativeTime = (date: string | Date | undefined | null): string => {
-  if (!date) return '';
+  if (!date) {
+    return '';
+  }
   try {
     const d = typeof date === 'string' ? parseISO(date) : date;
     return formatDistanceToNow(d, { addSuffix: true });
@@ -119,7 +121,9 @@ export const formatRelativeTime = (date: string | Date | undefined | null): stri
  * Format date for display with smart relative time
  */
 export const formatDateSmart = (date: string | Date | undefined | null): string => {
-  if (!date) return '';
+  if (!date) {
+    return '';
+  }
   try {
     const d = typeof date === 'string' ? parseISO(date) : date;
 
@@ -337,7 +341,7 @@ export const convertAndFormatCurrency = (
  * Useful for showing totals from orders with different currencies
  */
 export const formatTotalWithConversion = (
-  items: Array<{ amount: number; currency: string; rate?: number }>,
+  items: { amount: number; currency: string; rate?: number }[],
   targetCurrency: string,
   options?: { compact?: boolean; locale?: string }
 ): string => {

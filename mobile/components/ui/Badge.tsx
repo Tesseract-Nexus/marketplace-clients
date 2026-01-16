@@ -3,7 +3,15 @@ import { View, Text, ViewStyle, TextStyle } from 'react-native';
 
 import { useColors, useBorderRadius } from '@/providers/ThemeProvider';
 
-export type BadgeVariant = 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info' | 'outline';
+export type BadgeVariant =
+  | 'default'
+  | 'primary'
+  | 'secondary'
+  | 'success'
+  | 'warning'
+  | 'error'
+  | 'info'
+  | 'outline';
 type BadgeSize = 'sm' | 'md' | 'lg';
 
 interface BadgeProps {
@@ -108,7 +116,7 @@ export function Badge({
 
   return (
     <View style={containerStyle}>
-      {icon && <View style={{ marginRight: 4 }}>{icon}</View>}
+      {icon ? <View style={{ marginRight: 4 }}>{icon}</View> : null}
       <Text style={textStyle}>{label || children}</Text>
     </View>
   );
@@ -125,7 +133,9 @@ export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
     const statusLower = status.toLowerCase();
 
     // Success statuses
-    if (['active', 'completed', 'delivered', 'paid', 'fulfilled', 'approved'].includes(statusLower)) {
+    if (
+      ['active', 'completed', 'delivered', 'paid', 'fulfilled', 'approved'].includes(statusLower)
+    ) {
       return 'success';
     }
 
@@ -135,7 +145,9 @@ export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
     }
 
     // Error statuses
-    if (['failed', 'cancelled', 'refunded', 'rejected', 'suspended', 'blocked'].includes(statusLower)) {
+    if (
+      ['failed', 'cancelled', 'refunded', 'rejected', 'suspended', 'blocked'].includes(statusLower)
+    ) {
       return 'error';
     }
 
@@ -154,7 +166,7 @@ export function StatusBadge({ status, size = 'md' }: StatusBadgeProps) {
       .join(' ');
   };
 
-  return <Badge variant={getVariant()} size={size} label={formatStatus(status)} />;
+  return <Badge label={formatStatus(status)} size={size} variant={getVariant()} />;
 }
 
 // Notification Badge (count badge)

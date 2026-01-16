@@ -22,7 +22,7 @@ export const authApi = {
   login: async (data: LoginRequest): Promise<LoginResponse> => {
     const response = await apiPost<LoginResponse>(ENDPOINTS.AUTH.LOGIN, data);
     // Auth API returns data directly, not wrapped in {data: ...}
-    return (response as unknown as LoginResponse);
+    return response as unknown as LoginResponse;
   },
 
   /**
@@ -31,7 +31,7 @@ export const authApi = {
   register: async (data: RegisterRequest): Promise<RegisterResponse> => {
     const response = await apiPost<RegisterResponse>(ENDPOINTS.AUTH.REGISTER, data);
     // Auth API returns data directly, not wrapped in {data: ...}
-    return (response as unknown as RegisterResponse);
+    return response as unknown as RegisterResponse;
   },
 
   /**
@@ -49,7 +49,7 @@ export const authApi = {
       refresh_token: refreshToken,
     });
     // Auth API returns data directly, not wrapped in {data: ...}
-    return (response as unknown as RefreshTokenResponse);
+    return response as unknown as RefreshTokenResponse;
   },
 
   /**
@@ -86,6 +86,6 @@ export const authApi = {
   me: async (): Promise<User> => {
     const response = await apiGet<User>(ENDPOINTS.AUTH.ME);
     // Auth API returns data directly, not wrapped in {data: ...}
-    return (response as unknown as User);
+    return response as unknown as User;
   },
 };

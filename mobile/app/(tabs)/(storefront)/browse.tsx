@@ -52,10 +52,7 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
     : 0;
 
   return (
-    <Animated.View
-      entering={FadeInRight.delay(index * 30)}
-      layout={Layout.springify()}
-    >
+    <Animated.View entering={FadeInRight.delay(index * 30)} layout={Layout.springify()}>
       <PressableCard
         style={styles.productCard}
         onPress={() => router.push(`/(tabs)/(storefront)/product?id=${product.id}`)}
@@ -65,46 +62,41 @@ function ProductCard({ product, index }: { product: Product; index: number }) {
             source={{ uri: product.images?.[0]?.url || 'https://via.placeholder.com/200' }}
             style={styles.productImage}
           />
-          {discount > 0 && (
-            <Badge
-              label={`-${discount}%`}
-              variant="error"
-              size="sm"
-              style={styles.discountBadge}
-            />
-          )}
+          {discount > 0 ? (
+            <Badge label={`-${discount}%`} size="sm" style={styles.discountBadge} variant="error" />
+          ) : null}
           <Pressable
             style={[styles.wishlistButton, { backgroundColor: colors.background }]}
             onPress={() => {}}
           >
-            <Ionicons name="heart-outline" size={18} color={colors.text} />
+            <Ionicons color={colors.text} name="heart-outline" size={18} />
           </Pressable>
         </View>
         <View style={styles.productInfo}>
-          <Text style={[styles.productName, { color: colors.text }]} numberOfLines={2}>
+          <Text numberOfLines={2} style={[styles.productName, { color: colors.text }]}>
             {product.name}
           </Text>
           <View style={styles.priceRow}>
             <Text style={[styles.productPrice, { color: colors.primary }]}>
               {formatCurrency(product.price)}
             </Text>
-            {product.compare_at_price && (
+            {product.compare_at_price ? (
               <Text style={[styles.comparePrice, { color: colors.textTertiary }]}>
                 {formatCurrency(product.compare_at_price)}
               </Text>
-            )}
+            ) : null}
           </View>
-          {product.inventory_quantity <= 5 && product.inventory_quantity > 0 && (
+          {product.inventory_quantity <= 5 && product.inventory_quantity > 0 ? (
             <Text style={[styles.lowStock, { color: colors.warning }]}>
               Only {product.inventory_quantity} left!
             </Text>
-          )}
+          ) : null}
         </View>
         <Pressable
           style={[styles.addButton, { backgroundColor: colors.primary }]}
           onPress={() => addItem(product, undefined, 1)}
         >
-          <Ionicons name="add" size={20} color="#FFFFFF" />
+          <Ionicons color="#FFFFFF" name="add" size={20} />
         </Pressable>
       </PressableCard>
     </Animated.View>
@@ -138,55 +130,58 @@ export default function BrowseScreen() {
   });
 
   // Fetch products
-  const {
-    data,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-    refetch,
-  } = useInfiniteQuery({
-    queryKey: [QUERY_KEYS.PRODUCTS, selectedCategory, sortBy, searchQuery],
-    queryFn: async ({ pageParam = 1 }) => {
-      const mockProducts: Product[] = Array.from({ length: 10 }, (_, i) => ({
-        id: `browse-${pageParam}-${i}`,
-        tenant_id: '1',
-        name: `Product ${(pageParam - 1) * 10 + i + 1}`,
-        slug: `product-${(pageParam - 1) * 10 + i + 1}`,
-        description: 'Product description',
-        price: Math.floor(Math.random() * 150) + 20,
-        compare_at_price: i % 3 === 0 ? Math.floor(Math.random() * 50) + 150 : undefined,
-        cost_price: 10,
-        sku: `SKU-${(pageParam - 1) * 10 + i + 1}`,
-        barcode: null,
-        inventory_quantity: Math.floor(Math.random() * 50),
-        low_stock_threshold: 5,
-        track_inventory: true,
-        status: 'active',
-        images: [{ id: '1', url: `https://picsum.photos/seed/browse${pageParam}${i}/400`, alt: '', position: 0 }],
-        variants: [],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      }));
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } =
+    useInfiniteQuery({
+      queryKey: [QUERY_KEYS.PRODUCTS, selectedCategory, sortBy, searchQuery],
+      queryFn: async ({ pageParam = 1 }) => {
+        const mockProducts: Product[] = Array.from({ length: 10 }, (_, i) => ({
+          id: `browse-${pageParam}-${i}`,
+          tenant_id: '1',
+          name: `Product ${(pageParam - 1) * 10 + i + 1}`,
+          slug: `product-${(pageParam - 1) * 10 + i + 1}`,
+          description: 'Product description',
+          price: Math.floor(Math.random() * 150) + 20,
+          compare_at_price: i % 3 === 0 ? Math.floor(Math.random() * 50) + 150 : undefined,
+          cost_price: 10,
+          sku: `SKU-${(pageParam - 1) * 10 + i + 1}`,
+          barcode: null,
+          inventory_quantity: Math.floor(Math.random() * 50),
+          low_stock_threshold: 5,
+          track_inventory: true,
+          status: 'active',
+          images: [
+            {
+              id: '1',
+              url: `https://picsum.photos/seed/browse${pageParam}${i}/400`,
+              alt: '',
+              position: 0,
+            },
+          ],
+          variants: [],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        }));
 
-      return {
-        products: mockProducts,
-        page: pageParam,
-        totalPages: 5,
-      };
-    },
-    getNextPageParam: (lastPage) => {
-      return lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
-    },
-    initialPageParam: 1,
-  });
+        return {
+          products: mockProducts,
+          page: pageParam,
+          totalPages: 5,
+        };
+      },
+      getNextPageParam: (lastPage) => {
+        return lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
+      },
+      initialPageParam: 1,
+    });
 
   const products = useMemo(() => {
     return data?.pages.flatMap((page) => page.products) || [];
   }, [data]);
 
   const filteredProducts = useMemo(() => {
-    if (!searchQuery) return products;
+    if (!searchQuery) {
+      return products;
+    }
     const query = searchQuery.toLowerCase();
     return products.filter((p) => p.name.toLowerCase().includes(query));
   }, [products, searchQuery]);
@@ -205,16 +200,18 @@ export default function BrowseScreen() {
 
   const renderProduct = useCallback(
     ({ item, index }: { item: Product; index: number }) => (
-      <ProductCard product={item} index={index} />
+      <ProductCard index={index} product={item} />
     ),
     []
   );
 
   const renderFooter = useCallback(() => {
-    if (!isFetchingNextPage) return null;
+    if (!isFetchingNextPage) {
+      return null;
+    }
     return (
       <View style={styles.loadingMore}>
-        <Skeleton width={100} height={20} borderRadius={10} />
+        <Skeleton borderRadius={10} height={20} width={100} />
       </View>
     );
   }, [isFetchingNextPage]);
@@ -222,7 +219,9 @@ export default function BrowseScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
-      <View style={[styles.header, { paddingTop: insets.top + 16, backgroundColor: colors.background }]}>
+      <View
+        style={[styles.header, { paddingTop: insets.top + 16, backgroundColor: colors.background }]}
+      >
         <Animated.View entering={FadeInDown}>
           <Text style={[styles.title, { color: colors.text }]}>Browse</Text>
         </Animated.View>
@@ -232,22 +231,22 @@ export default function BrowseScreen() {
           entering={FadeInDown.delay(100)}
           style={[styles.searchContainer, { backgroundColor: colors.surface }]}
         >
-          <Ionicons name="search" size={20} color={colors.textSecondary} />
+          <Ionicons color={colors.textSecondary} name="search" size={20} />
           <TextInput
-            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search products..."
             placeholderTextColor={colors.textTertiary}
+            style={[styles.searchInput, { color: colors.text }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          {searchQuery.length > 0 && (
+          {searchQuery.length > 0 ? (
             <Pressable onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={20} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="close-circle" size={20} />
             </Pressable>
-          )}
+          ) : null}
           <View style={[styles.searchDivider, { backgroundColor: colors.border }]} />
           <Pressable onPress={() => setShowFilters(!showFilters)}>
-            <Ionicons name="options" size={20} color={colors.textSecondary} />
+            <Ionicons color={colors.textSecondary} name="options" size={20} />
           </Pressable>
         </Animated.View>
 
@@ -255,8 +254,8 @@ export default function BrowseScreen() {
         <Animated.View entering={FadeInDown.delay(150)}>
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.categoriesContainer}
+            showsHorizontalScrollIndicator={false}
           >
             {categories?.map((category) => (
               <Pressable
@@ -265,11 +264,13 @@ export default function BrowseScreen() {
                   styles.categoryChip,
                   {
                     backgroundColor:
-                      (selectedCategory === category.id || (category.id === 'all' && !selectedCategory))
+                      selectedCategory === category.id ||
+                      (category.id === 'all' && !selectedCategory)
                         ? colors.primary
                         : colors.surface,
                     borderColor:
-                      (selectedCategory === category.id || (category.id === 'all' && !selectedCategory))
+                      selectedCategory === category.id ||
+                      (category.id === 'all' && !selectedCategory)
                         ? colors.primary
                         : colors.border,
                   },
@@ -281,7 +282,8 @@ export default function BrowseScreen() {
                     styles.categoryChipText,
                     {
                       color:
-                        (selectedCategory === category.id || (category.id === 'all' && !selectedCategory))
+                        selectedCategory === category.id ||
+                        (category.id === 'all' && !selectedCategory)
                           ? '#FFFFFF'
                           : colors.textSecondary,
                     },
@@ -295,13 +297,13 @@ export default function BrowseScreen() {
         </Animated.View>
 
         {/* Sort Options */}
-        {showFilters && (
+        {showFilters ? (
           <Animated.View entering={FadeInDown} style={styles.filtersSection}>
             <Text style={[styles.filterLabel, { color: colors.textSecondary }]}>Sort by</Text>
             <ScrollView
               horizontal
-              showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.sortContainer}
+              showsHorizontalScrollIndicator={false}
             >
               {SORT_OPTIONS.map((option) => (
                 <Pressable
@@ -327,7 +329,7 @@ export default function BrowseScreen() {
               ))}
             </ScrollView>
           </Animated.View>
-        )}
+        ) : null}
       </View>
 
       {/* Products Grid */}
@@ -335,16 +337,16 @@ export default function BrowseScreen() {
         <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
           <View style={styles.productsGrid}>
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <Skeleton key={i} width={(SCREEN_WIDTH - 52) / 2} height={240} borderRadius={12} />
+              <Skeleton key={i} borderRadius={12} height={240} width={(SCREEN_WIDTH - 52) / 2} />
             ))}
           </View>
         </ScrollView>
       ) : filteredProducts.length === 0 ? (
         <EmptyState
+          actionLabel="Clear filters"
+          description="Try adjusting your search or browse different categories"
           icon="search-outline"
           title="No products found"
-          description="Try adjusting your search or browse different categories"
-          actionLabel="Clear filters"
           onAction={() => {
             setSearchQuery('');
             setSelectedCategory(null);
@@ -352,26 +354,23 @@ export default function BrowseScreen() {
         />
       ) : (
         <FlatList
-          data={filteredProducts}
-          renderItem={renderProduct}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
           columnWrapperStyle={styles.columnWrapper}
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
-          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
+          data={filteredProducts}
+          keyExtractor={(item) => item.id}
+          ListFooterComponent={renderFooter}
+          numColumns={2}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
               tintColor={colors.primary}
+              onRefresh={onRefresh}
             />
           }
+          renderItem={renderProduct}
+          showsVerticalScrollIndicator={false}
           onEndReached={loadMore}
           onEndReachedThreshold={0.3}
-          ListFooterComponent={renderFooter}
         />
       )}
     </View>

@@ -172,17 +172,13 @@ export default function CheckoutScreen() {
   }, [currentStep, selectedAddress, selectedShipping, selectedPayment]);
 
   const handlePlaceOrder = useCallback(() => {
-    Alert.alert(
-      'Confirm Order',
-      `Place order for ${formatCurrency(total)}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Place Order',
-          onPress: () => createOrderMutation.mutate(),
-        },
-      ]
-    );
+    Alert.alert('Confirm Order', `Place order for ${formatCurrency(total)}?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Place Order',
+        onPress: () => createOrderMutation.mutate(),
+      },
+    ]);
   }, [total, createOrderMutation]);
 
   const steps = [
@@ -196,11 +192,11 @@ export default function CheckoutScreen() {
   if (items.length === 0) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-50 p-6">
-        <Ionicons name="cart-outline" size={64} color="#d1d5db" />
+        <Ionicons color="#d1d5db" name="cart-outline" size={64} />
         <Text className="mt-4 text-xl font-semibold text-gray-900">Your Cart is Empty</Text>
         <TouchableOpacity
-          onPress={() => router.push('/(tabs)/(storefront)/browse')}
           className="mt-6 rounded-xl bg-indigo-600 px-6 py-3"
+          onPress={() => router.push('/(tabs)/(storefront)/browse')}
         >
           <Text className="font-semibold text-white">Start Shopping</Text>
         </TouchableOpacity>
@@ -226,57 +222,49 @@ export default function CheckoutScreen() {
           {steps.map((step, index) => (
             <React.Fragment key={step.key}>
               <TouchableOpacity
+                className="flex-row items-center"
+                disabled={index > currentStepIndex}
                 onPress={() => {
                   if (index < currentStepIndex) {
                     setCurrentStep(step.key);
                   }
                 }}
-                className="flex-row items-center"
-                disabled={index > currentStepIndex}
               >
                 <View
                   className={`h-8 w-8 items-center justify-center rounded-full ${
-                    index <= currentStepIndex
-                      ? 'bg-indigo-600'
-                      : 'bg-gray-200'
+                    index <= currentStepIndex ? 'bg-indigo-600' : 'bg-gray-200'
                   }`}
                 >
                   {index < currentStepIndex ? (
-                    <Ionicons name="checkmark" size={18} color="#fff" />
+                    <Ionicons color="#fff" name="checkmark" size={18} />
                   ) : (
-                    <Text
-                      className={
-                        index <= currentStepIndex ? 'text-white' : 'text-gray-500'
-                      }
-                    >
+                    <Text className={index <= currentStepIndex ? 'text-white' : 'text-gray-500'}>
                       {index + 1}
                     </Text>
                   )}
                 </View>
                 <Text
                   className={`ml-2 text-sm ${
-                    index <= currentStepIndex
-                      ? 'font-medium text-indigo-600'
-                      : 'text-gray-500'
+                    index <= currentStepIndex ? 'font-medium text-indigo-600' : 'text-gray-500'
                   }`}
                 >
                   {step.label}
                 </Text>
               </TouchableOpacity>
-              {index < steps.length - 1 && (
+              {index < steps.length - 1 ? (
                 <View
-                  className={`h-0.5 flex-1 mx-2 ${
+                  className={`mx-2 h-0.5 flex-1 ${
                     index < currentStepIndex ? 'bg-indigo-600' : 'bg-gray-200'
                   }`}
                 />
-              )}
+              ) : null}
             </React.Fragment>
           ))}
         </View>
 
         <ScrollView className="flex-1 bg-gray-50" keyboardShouldPersistTaps="handled">
           {/* Shipping Step */}
-          {currentStep === 'shipping' && (
+          {currentStep === 'shipping' ? (
             <View className="p-4">
               {/* Shipping Address */}
               <View className="rounded-xl bg-white p-4 shadow-sm">
@@ -285,12 +273,12 @@ export default function CheckoutScreen() {
                 {addresses.map((address) => (
                   <TouchableOpacity
                     key={address.id}
-                    onPress={() => setSelectedAddress(address)}
                     className={`mb-3 rounded-lg border-2 p-3 ${
                       selectedAddress?.id === address.id
                         ? 'border-indigo-600 bg-indigo-50'
                         : 'border-gray-200'
                     }`}
+                    onPress={() => setSelectedAddress(address)}
                   >
                     <View className="flex-row items-start">
                       <View
@@ -300,81 +288,81 @@ export default function CheckoutScreen() {
                             : 'border-gray-300'
                         }`}
                       >
-                        {selectedAddress?.id === address.id && (
-                          <Ionicons name="checkmark" size={12} color="#fff" />
-                        )}
+                        {selectedAddress?.id === address.id ? (
+                          <Ionicons color="#fff" name="checkmark" size={12} />
+                        ) : null}
                       </View>
                       <View className="flex-1">
                         <Text className="text-gray-900">{address.line1}</Text>
-                        {address.line2 && (
+                        {address.line2 ? (
                           <Text className="text-gray-700">{address.line2}</Text>
-                        )}
+                        ) : null}
                         <Text className="text-gray-700">
                           {address.city}, {address.state} {address.postal_code}
                         </Text>
                         <Text className="text-gray-500">{address.country}</Text>
-                        {address.is_default && (
+                        {address.is_default ? (
                           <View className="mt-1 self-start rounded-full bg-green-100 px-2 py-0.5">
                             <Text className="text-xs text-green-800">Default</Text>
                           </View>
-                        )}
+                        ) : null}
                       </View>
                     </View>
                   </TouchableOpacity>
                 ))}
 
                 <TouchableOpacity
-                  onPress={() => setShowAddressForm(!showAddressForm)}
                   className="flex-row items-center py-2"
+                  onPress={() => setShowAddressForm(!showAddressForm)}
                 >
-                  <Ionicons name="add-circle-outline" size={20} color="#4f46e5" />
+                  <Ionicons color="#4f46e5" name="add-circle-outline" size={20} />
                   <Text className="ml-2 text-indigo-600">Add New Address</Text>
                 </TouchableOpacity>
 
-                {showAddressForm && (
+                {showAddressForm ? (
                   <View className="mt-4 space-y-3 border-t border-gray-100 pt-4">
                     <TextInput
+                      className="rounded-lg border border-gray-200 bg-gray-50 p-3"
+                      placeholder="Street Address"
                       value={newAddress.line1}
                       onChangeText={(text) => setNewAddress({ ...newAddress, line1: text })}
-                      placeholder="Street Address"
-                      className="rounded-lg border border-gray-200 bg-gray-50 p-3"
                     />
                     <TextInput
+                      className="rounded-lg border border-gray-200 bg-gray-50 p-3"
+                      placeholder="Apartment, suite, etc. (optional)"
                       value={newAddress.line2}
                       onChangeText={(text) => setNewAddress({ ...newAddress, line2: text })}
-                      placeholder="Apartment, suite, etc. (optional)"
-                      className="rounded-lg border border-gray-200 bg-gray-50 p-3"
                     />
                     <View className="flex-row gap-3">
                       <TextInput
+                        className="flex-1 rounded-lg border border-gray-200 bg-gray-50 p-3"
+                        placeholder="City"
                         value={newAddress.city}
                         onChangeText={(text) => setNewAddress({ ...newAddress, city: text })}
-                        placeholder="City"
-                        className="flex-1 rounded-lg border border-gray-200 bg-gray-50 p-3"
                       />
                       <TextInput
+                        className="flex-1 rounded-lg border border-gray-200 bg-gray-50 p-3"
+                        placeholder="State"
                         value={newAddress.state}
                         onChangeText={(text) => setNewAddress({ ...newAddress, state: text })}
-                        placeholder="State"
-                        className="flex-1 rounded-lg border border-gray-200 bg-gray-50 p-3"
                       />
                     </View>
                     <View className="flex-row gap-3">
                       <TextInput
+                        className="flex-1 rounded-lg border border-gray-200 bg-gray-50 p-3"
+                        placeholder="Postal Code"
                         value={newAddress.postal_code}
                         onChangeText={(text) => setNewAddress({ ...newAddress, postal_code: text })}
-                        placeholder="Postal Code"
-                        className="flex-1 rounded-lg border border-gray-200 bg-gray-50 p-3"
                       />
                       <TextInput
+                        className="flex-1 rounded-lg border border-gray-200 bg-gray-50 p-3"
+                        placeholder="Country"
                         value={newAddress.country}
                         onChangeText={(text) => setNewAddress({ ...newAddress, country: text })}
-                        placeholder="Country"
-                        className="flex-1 rounded-lg border border-gray-200 bg-gray-50 p-3"
                       />
                     </View>
                   </View>
-                )}
+                ) : null}
               </View>
 
               {/* Shipping Method */}
@@ -384,12 +372,12 @@ export default function CheckoutScreen() {
                 {shippingMethods.map((method) => (
                   <TouchableOpacity
                     key={method.id}
-                    onPress={() => setSelectedShipping(method)}
                     className={`mb-3 flex-row items-center justify-between rounded-lg border-2 p-3 ${
                       selectedShipping?.id === method.id
                         ? 'border-indigo-600 bg-indigo-50'
                         : 'border-gray-200'
                     }`}
+                    onPress={() => setSelectedShipping(method)}
                   >
                     <View className="flex-row items-center">
                       <View
@@ -399,9 +387,9 @@ export default function CheckoutScreen() {
                             : 'border-gray-300'
                         }`}
                       >
-                        {selectedShipping?.id === method.id && (
-                          <Ionicons name="checkmark" size={12} color="#fff" />
-                        )}
+                        {selectedShipping?.id === method.id ? (
+                          <Ionicons color="#fff" name="checkmark" size={12} />
+                        ) : null}
                       </View>
                       <View>
                         <Text className="font-medium text-gray-900">{method.name}</Text>
@@ -415,10 +403,10 @@ export default function CheckoutScreen() {
                 ))}
               </View>
             </View>
-          )}
+          ) : null}
 
           {/* Payment Step */}
-          {currentStep === 'payment' && (
+          {currentStep === 'payment' ? (
             <View className="p-4">
               <View className="rounded-xl bg-white p-4 shadow-sm">
                 <Text className="mb-4 font-semibold text-gray-900">Payment Method</Text>
@@ -426,12 +414,12 @@ export default function CheckoutScreen() {
                 {paymentMethods.map((pm) => (
                   <TouchableOpacity
                     key={pm.id}
-                    onPress={() => setSelectedPayment(pm)}
                     className={`mb-3 flex-row items-center rounded-lg border-2 p-3 ${
                       selectedPayment?.id === pm.id
                         ? 'border-indigo-600 bg-indigo-50'
                         : 'border-gray-200'
                     }`}
+                    onPress={() => setSelectedPayment(pm)}
                   >
                     <View
                       className={`mr-3 h-5 w-5 items-center justify-center rounded-full border-2 ${
@@ -440,39 +428,39 @@ export default function CheckoutScreen() {
                           : 'border-gray-300'
                       }`}
                     >
-                      {selectedPayment?.id === pm.id && (
-                        <Ionicons name="checkmark" size={12} color="#fff" />
-                      )}
+                      {selectedPayment?.id === pm.id ? (
+                        <Ionicons color="#fff" name="checkmark" size={12} />
+                      ) : null}
                     </View>
                     <Ionicons
+                      color="#6b7280"
                       name={pm.type === 'card' ? 'card-outline' : 'wallet-outline'}
                       size={24}
-                      color="#6b7280"
                     />
                     <View className="ml-3 flex-1">
                       <Text className="font-medium text-gray-900">
                         {pm.brand ? `${pm.brand} ` : ''}**** {pm.last4}
                       </Text>
                     </View>
-                    {pm.is_default && (
+                    {pm.is_default ? (
                       <View className="rounded-full bg-green-100 px-2 py-0.5">
                         <Text className="text-xs text-green-800">Default</Text>
                       </View>
-                    )}
+                    ) : null}
                   </TouchableOpacity>
                 ))}
 
                 <TouchableOpacity className="flex-row items-center py-2">
-                  <Ionicons name="add-circle-outline" size={20} color="#4f46e5" />
+                  <Ionicons color="#4f46e5" name="add-circle-outline" size={20} />
                   <Text className="ml-2 text-indigo-600">Add Payment Method</Text>
                 </TouchableOpacity>
               </View>
             </View>
-          )}
+          ) : null}
 
           {/* Review Step */}
-          {currentStep === 'review' && (
-            <View className="p-4 space-y-4">
+          {currentStep === 'review' ? (
+            <View className="space-y-4 p-4">
               {/* Order Items */}
               <View className="rounded-xl bg-white p-4 shadow-sm">
                 <Text className="mb-4 font-semibold text-gray-900">
@@ -484,8 +472,10 @@ export default function CheckoutScreen() {
                     className="mb-3 flex-row border-b border-gray-100 pb-3 last:border-0"
                   >
                     <Image
-                      source={{ uri: item.product?.images?.[0]?.url || 'https://via.placeholder.com/100' }}
                       className="h-16 w-16 rounded-lg"
+                      source={{
+                        uri: item.product?.images?.[0]?.url || 'https://via.placeholder.com/100',
+                      }}
                     />
                     <View className="ml-3 flex-1">
                       <Text className="font-medium text-gray-900" numberOfLines={2}>
@@ -508,14 +498,14 @@ export default function CheckoutScreen() {
                     <Text className="text-sm text-indigo-600">Edit</Text>
                   </TouchableOpacity>
                 </View>
-                {selectedAddress && (
+                {selectedAddress ? (
                   <View className="mt-2">
                     <Text className="text-gray-700">{selectedAddress.line1}</Text>
                     <Text className="text-gray-700">
                       {selectedAddress.city}, {selectedAddress.state} {selectedAddress.postal_code}
                     </Text>
                   </View>
-                )}
+                ) : null}
               </View>
 
               {/* Payment Summary */}
@@ -526,24 +516,24 @@ export default function CheckoutScreen() {
                     <Text className="text-sm text-indigo-600">Edit</Text>
                   </TouchableOpacity>
                 </View>
-                {selectedPayment && (
+                {selectedPayment ? (
                   <Text className="mt-2 text-gray-700">
                     {selectedPayment.brand} **** {selectedPayment.last4}
                   </Text>
-                )}
+                ) : null}
               </View>
 
               {/* Order Notes */}
               <View className="rounded-xl bg-white p-4 shadow-sm">
                 <Text className="mb-2 font-semibold text-gray-900">Order Notes (Optional)</Text>
                 <TextInput
+                  multiline
+                  className="rounded-lg border border-gray-200 bg-gray-50 p-3"
+                  numberOfLines={3}
+                  placeholder="Special instructions for your order..."
+                  textAlignVertical="top"
                   value={orderNotes}
                   onChangeText={setOrderNotes}
-                  placeholder="Special instructions for your order..."
-                  multiline
-                  numberOfLines={3}
-                  textAlignVertical="top"
-                  className="rounded-lg border border-gray-200 bg-gray-50 p-3"
                 />
               </View>
 
@@ -572,22 +562,22 @@ export default function CheckoutScreen() {
                 </View>
               </View>
             </View>
-          )}
+          ) : null}
 
           {/* Spacer for bottom button */}
           <View className="h-24" />
         </ScrollView>
 
         {/* Bottom Action Button */}
-        {!isKeyboardVisible && (
+        {!isKeyboardVisible ? (
           <View className="border-t border-gray-200 bg-white px-4 pb-8 pt-4">
             {currentStep === 'review' ? (
               <TouchableOpacity
-                onPress={handlePlaceOrder}
-                disabled={createOrderMutation.isPending}
                 className={`rounded-xl py-4 ${
                   createOrderMutation.isPending ? 'bg-indigo-400' : 'bg-indigo-600'
                 }`}
+                disabled={createOrderMutation.isPending}
+                onPress={handlePlaceOrder}
               >
                 {createOrderMutation.isPending ? (
                   <ActivityIndicator color="#fff" />
@@ -598,17 +588,12 @@ export default function CheckoutScreen() {
                 )}
               </TouchableOpacity>
             ) : (
-              <TouchableOpacity
-                onPress={handleNextStep}
-                className="rounded-xl bg-indigo-600 py-4"
-              >
-                <Text className="text-center text-lg font-semibold text-white">
-                  Continue
-                </Text>
+              <TouchableOpacity className="rounded-xl bg-indigo-600 py-4" onPress={handleNextStep}>
+                <Text className="text-center text-lg font-semibold text-white">Continue</Text>
               </TouchableOpacity>
             )}
           </View>
-        )}
+        ) : null}
       </KeyboardAvoidingView>
     </>
   );

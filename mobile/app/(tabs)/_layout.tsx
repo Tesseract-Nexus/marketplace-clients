@@ -26,27 +26,21 @@ function TabIcon({
 }) {
   const colors = useColors();
 
-  const animatedStyle = useAnimatedStyle((): any => ({
-    transform: [
-      { scale: focused ? 1.1 : 1 },
-      { translateY: focused ? -2 : 0 },
-    ],
-  }), [focused]);
+  const animatedStyle = useAnimatedStyle(
+    (): any => ({
+      transform: [{ scale: focused ? 1.1 : 1 }, { translateY: focused ? -2 : 0 }],
+    }),
+    [focused]
+  );
 
   return (
     <Animated.View style={[styles.iconContainer, animatedStyle]}>
-      <Ionicons
-        name={focused && iconFocused ? iconFocused : icon}
-        size={24}
-        color={color}
-      />
-      {badge !== undefined && badge > 0 && (
+      <Ionicons color={color} name={focused && iconFocused ? iconFocused : icon} size={24} />
+      {badge !== undefined && badge > 0 ? (
         <View style={[styles.badge, { backgroundColor: colors.error }]}>
-          <Animated.Text style={styles.badgeText}>
-            {badge > 99 ? '99+' : badge}
-          </Animated.Text>
+          <Animated.Text style={styles.badgeText}>{badge > 99 ? '99+' : badge}</Animated.Text>
         </View>
-      )}
+      ) : null}
     </Animated.View>
   );
 }
@@ -66,13 +60,23 @@ export default function TabsLayout() {
 
   return (
     <Tabs
+      screenListeners={{
+        tabPress: () => {
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        },
+      }}
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textTertiary,
         tabBarStyle: {
           position: 'absolute',
-          backgroundColor: Platform.OS === 'ios' ? 'transparent' : isDark ? 'rgba(0,0,0,0.95)' : 'rgba(255,255,255,0.95)',
+          backgroundColor:
+            Platform.OS === 'ios'
+              ? 'transparent'
+              : isDark
+                ? 'rgba(0,0,0,0.95)'
+                : 'rgba(255,255,255,0.95)',
           borderTopWidth: 0,
           elevation: 0,
           height: 70 + insets.bottom,
@@ -88,8 +92,8 @@ export default function TabsLayout() {
             <View style={StyleSheet.absoluteFill}>
               <BlurView
                 intensity={80}
-                tint={isDark ? 'dark' : 'light'}
                 style={StyleSheet.absoluteFill}
+                tint={isDark ? 'dark' : 'light'}
               />
               <LinearGradient
                 colors={
@@ -110,11 +114,6 @@ export default function TabsLayout() {
           paddingTop: 4,
         },
       }}
-      screenListeners={{
-        tabPress: () => {
-          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        },
-      }}
     >
       {/* Admin Tabs - shown when user is admin, hidden otherwise */}
       <Tabs.Screen
@@ -123,12 +122,7 @@ export default function TabsLayout() {
           title: 'Dashboard',
           href: isAdmin ? '/(tabs)/(admin)/dashboard' : null,
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon
-              icon="grid-outline"
-              iconFocused="grid"
-              focused={focused}
-              color={color}
-            />
+            <TabIcon color={color} focused={focused} icon="grid-outline" iconFocused="grid" />
           ),
         }}
       />
@@ -140,12 +134,7 @@ export default function TabsLayout() {
           title: 'Home',
           href: !isAdmin ? '/(tabs)/(storefront)/home' : null,
           tabBarIcon: ({ color, focused }) => (
-            <TabIcon
-              icon="home-outline"
-              iconFocused="home"
-              focused={focused}
-              color={color}
-            />
+            <TabIcon color={color} focused={focused} icon="home-outline" iconFocused="home" />
           ),
         }}
       />

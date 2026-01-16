@@ -58,22 +58,27 @@ export default function SearchScreen() {
   }, []);
 
   // Save search to recent
-  const saveRecentSearch = useCallback(async (searchQuery: string) => {
-    try {
-      const trimmed = searchQuery.trim();
-      if (!trimmed) return;
+  const saveRecentSearch = useCallback(
+    async (searchQuery: string) => {
+      try {
+        const trimmed = searchQuery.trim();
+        if (!trimmed) {
+          return;
+        }
 
-      const updated = [
-        trimmed,
-        ...recentSearches.filter((s) => s.toLowerCase() !== trimmed.toLowerCase()),
-      ].slice(0, MAX_RECENT_SEARCHES);
+        const updated = [
+          trimmed,
+          ...recentSearches.filter((s) => s.toLowerCase() !== trimmed.toLowerCase()),
+        ].slice(0, MAX_RECENT_SEARCHES);
 
-      setRecentSearches(updated);
-      await AsyncStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
-    } catch (error) {
-      // Ignore error
-    }
-  }, [recentSearches]);
+        setRecentSearches(updated);
+        await AsyncStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
+      } catch (error) {
+        // Ignore error
+      }
+    },
+    [recentSearches]
+  );
 
   // Clear recent searches
   const clearRecentSearches = useCallback(async () => {
@@ -86,12 +91,12 @@ export default function SearchScreen() {
   }, []);
 
   // Suggestions query - using Typesense-powered search API
-  const { data: suggestions = [], isLoading: suggestionsLoading } = useQuery<
-    SearchSuggestion[]
-  >({
+  const { data: suggestions = [], isLoading: suggestionsLoading } = useQuery<SearchSuggestion[]>({
     queryKey: ['search-suggestions', debouncedQuery],
     queryFn: async () => {
-      if (debouncedQuery.length < 2) return [];
+      if (debouncedQuery.length < 2) {
+        return [];
+      }
 
       // Get suggestions from products (Typesense-powered)
       const productSuggestions = await searchApi.suggestions(debouncedQuery, 'products', 5);
@@ -191,34 +196,31 @@ export default function SearchScreen() {
   const renderSuggestion = useCallback(
     ({ item }: { item: SearchSuggestion }) => (
       <TouchableOpacity
+        className="flex-row items-center border-b border-gray-100 px-4 py-3"
         onPress={() => handleSuggestionPress(item)}
-        className="flex-row items-center px-4 py-3 border-b border-gray-100"
       >
         {item.type === 'product' && item.image ? (
-          <Image
-            source={{ uri: item.image }}
-            className="h-10 w-10 rounded-lg"
-          />
+          <Image className="h-10 w-10 rounded-lg" source={{ uri: item.image }} />
         ) : (
           <View className="h-10 w-10 items-center justify-center rounded-lg bg-gray-100">
             <Ionicons
+              color="#6b7280"
               name={
                 item.type === 'category'
                   ? 'grid-outline'
                   : item.type === 'product'
-                  ? 'cube-outline'
-                  : 'search-outline'
+                    ? 'cube-outline'
+                    : 'search-outline'
               }
               size={20}
-              color="#6b7280"
             />
           </View>
         )}
         <View className="ml-3 flex-1">
           <Text className="text-gray-900">{item.name}</Text>
-          <Text className="text-xs text-gray-500 capitalize">{item.type}</Text>
+          <Text className="text-xs capitalize text-gray-500">{item.type}</Text>
         </View>
-        <Ionicons name="arrow-forward" size={18} color="#9ca3af" />
+        <Ionicons color="#9ca3af" name="arrow-forward" size={18} />
       </TouchableOpacity>
     ),
     [handleSuggestionPress]
@@ -227,28 +229,26 @@ export default function SearchScreen() {
   const renderResult = useCallback(
     ({ item }: { item: ProductSearchResult }) => {
       // Calculate discount if sale_price exists and is less than price
-      const discount = item.sale_price && item.sale_price < item.price
-        ? Math.round(((item.price - item.sale_price) / item.price) * 100)
-        : 0;
+      const discount =
+        item.sale_price && item.sale_price < item.price
+          ? Math.round(((item.price - item.sale_price) / item.price) * 100)
+          : 0;
 
       // Use sale_price for display if available, otherwise regular price
-      const displayPrice = item.sale_price && item.sale_price < item.price
-        ? item.sale_price
-        : item.price;
+      const displayPrice =
+        item.sale_price && item.sale_price < item.price ? item.sale_price : item.price;
 
       return (
         <TouchableOpacity
+          className="mx-4 mb-3 flex-row rounded-xl bg-white p-3 shadow-sm"
           onPress={() => handleProductPress(item)}
-          className="mb-3 flex-row rounded-xl bg-white p-3 shadow-sm mx-4"
         >
           <Image
-            source={{ uri: item.image_url || 'https://via.placeholder.com/96' }}
             className="h-24 w-24 rounded-lg"
+            source={{ uri: item.image_url || 'https://via.placeholder.com/96' }}
           />
           <View className="ml-3 flex-1 justify-center">
-            {item.brand && (
-              <Text className="text-xs text-gray-500">{item.brand}</Text>
-            )}
+            {item.brand ? <Text className="text-xs text-gray-500">{item.brand}</Text> : null}
             <Text className="mt-1 font-medium text-gray-900" numberOfLines={2}>
               {item.name}
             </Text>
@@ -256,7 +256,7 @@ export default function SearchScreen() {
               <Text className="font-bold text-indigo-600">
                 {formatCurrency(displayPrice, item.currency)}
               </Text>
-              {discount > 0 && (
+              {discount > 0 ? (
                 <>
                   <Text className="ml-2 text-sm text-gray-400 line-through">
                     {formatCurrency(item.price, item.currency)}
@@ -265,11 +265,11 @@ export default function SearchScreen() {
                     <Text className="text-xs font-medium text-red-600">-{discount}%</Text>
                   </View>
                 </>
-              )}
+              ) : null}
             </View>
-            {!item.in_stock && (
+            {!item.in_stock ? (
               <Text className="mt-1 text-xs text-red-500">Out of Stock</Text>
-            )}
+            ) : null}
           </View>
         </TouchableOpacity>
       );
@@ -278,21 +278,25 @@ export default function SearchScreen() {
   );
 
   const renderFooter = useCallback(() => {
-    if (!isFetchingNextPage) return null;
+    if (!isFetchingNextPage) {
+      return null;
+    }
     return (
       <View className="py-4">
-        <ActivityIndicator size="small" color="#6366f1" />
+        <ActivityIndicator color="#6366f1" size="small" />
       </View>
     );
   }, [isFetchingNextPage]);
 
   const renderEmpty = useCallback(() => {
-    if (resultsLoading || debouncedQuery.length < 2) return null;
+    if (resultsLoading || debouncedQuery.length < 2) {
+      return null;
+    }
     return (
       <View className="flex-1 items-center justify-center py-16">
-        <Ionicons name="search-outline" size={48} color="#d1d5db" />
+        <Ionicons color="#d1d5db" name="search-outline" size={48} />
         <Text className="mt-4 text-lg font-medium text-gray-900">No Results Found</Text>
-        <Text className="mt-1 text-center text-gray-500 px-8">
+        <Text className="mt-1 px-8 text-center text-gray-500">
           We couldn't find anything matching "{debouncedQuery}"
         </Text>
       </View>
@@ -310,27 +314,27 @@ export default function SearchScreen() {
       <View className="flex-1 bg-gray-50 pt-14">
         {/* Search Bar */}
         <View className="flex-row items-center px-4 pb-3">
-          <TouchableOpacity onPress={() => router.back()} className="mr-3">
-            <Ionicons name="arrow-back" size={24} color="#111827" />
+          <TouchableOpacity className="mr-3" onPress={() => router.back()}>
+            <Ionicons color="#111827" name="arrow-back" size={24} />
           </TouchableOpacity>
           <View className="flex-1 flex-row items-center rounded-xl bg-white px-3 py-2.5 shadow-sm">
-            <Ionicons name="search-outline" size={20} color="#9ca3af" />
+            <Ionicons color="#9ca3af" name="search-outline" size={20} />
             <TextInput
               ref={inputRef}
+              autoFocus
+              className="ml-2 flex-1 text-base text-gray-900"
+              placeholder="Search products..."
+              returnKeyType="search"
               value={query}
               onChangeText={setQuery}
               onFocus={() => setIsFocused(true)}
               onSubmitEditing={handleSearch}
-              placeholder="Search products..."
-              returnKeyType="search"
-              autoFocus
-              className="ml-2 flex-1 text-base text-gray-900"
             />
-            {query.length > 0 && (
+            {query.length > 0 ? (
               <TouchableOpacity onPress={() => setQuery('')}>
-                <Ionicons name="close-circle" size={20} color="#9ca3af" />
+                <Ionicons color="#9ca3af" name="close-circle" size={20} />
               </TouchableOpacity>
-            )}
+            ) : null}
           </View>
         </View>
 
@@ -341,15 +345,15 @@ export default function SearchScreen() {
             {debouncedQuery.length >= 2 ? (
               suggestionsLoading ? (
                 <View className="flex-1 items-center justify-center">
-                  <ActivityIndicator size="large" color="#6366f1" />
+                  <ActivityIndicator color="#6366f1" size="large" />
                 </View>
               ) : suggestions.length > 0 ? (
                 <FlatList
+                  className="bg-white"
                   data={suggestions}
+                  keyboardShouldPersistTaps="handled"
                   keyExtractor={(item, index) => `${item.type}-${item.id || index}`}
                   renderItem={renderSuggestion}
-                  keyboardShouldPersistTaps="handled"
-                  className="bg-white"
                 />
               ) : (
                 <View className="flex-1 items-center justify-center">
@@ -359,7 +363,7 @@ export default function SearchScreen() {
             ) : (
               /* Recent Searches */
               <View className="flex-1 bg-white">
-                {recentSearches.length > 0 && (
+                {recentSearches.length > 0 ? (
                   <>
                     <View className="flex-row items-center justify-between px-4 py-3">
                       <Text className="font-semibold text-gray-900">Recent Searches</Text>
@@ -370,16 +374,16 @@ export default function SearchScreen() {
                     {recentSearches.map((search, index) => (
                       <TouchableOpacity
                         key={index}
-                        onPress={() => handleRecentSearchPress(search)}
                         className="flex-row items-center border-b border-gray-100 px-4 py-3"
+                        onPress={() => handleRecentSearchPress(search)}
                       >
-                        <Ionicons name="time-outline" size={18} color="#9ca3af" />
+                        <Ionicons color="#9ca3af" name="time-outline" size={18} />
                         <Text className="ml-3 flex-1 text-gray-700">{search}</Text>
-                        <Ionicons name="arrow-forward" size={18} color="#9ca3af" />
+                        <Ionicons color="#9ca3af" name="arrow-forward" size={18} />
                       </TouchableOpacity>
                     ))}
                   </>
-                )}
+                ) : null}
 
                 {/* Popular Searches */}
                 <View className="mt-6 px-4">
@@ -389,8 +393,8 @@ export default function SearchScreen() {
                       (term) => (
                         <TouchableOpacity
                           key={term}
-                          onPress={() => handleRecentSearchPress(term)}
                           className="rounded-full bg-gray-100 px-4 py-2"
+                          onPress={() => handleRecentSearchPress(term)}
                         >
                           <Text className="text-gray-700">{term}</Text>
                         </TouchableOpacity>
@@ -404,16 +408,16 @@ export default function SearchScreen() {
         ) : (
           /* Search Results */
           <FlatList
+            contentContainerStyle={{ paddingTop: 8, paddingBottom: 20 }}
             data={results}
+            keyboardShouldPersistTaps="handled"
             keyExtractor={(item) => item.id}
-            renderItem={renderResult}
             ListEmptyComponent={renderEmpty}
             ListFooterComponent={renderFooter}
+            renderItem={renderResult}
+            showsVerticalScrollIndicator={false}
             onEndReached={handleLoadMore}
             onEndReachedThreshold={0.5}
-            contentContainerStyle={{ paddingTop: 8, paddingBottom: 20 }}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
           />
         )}
       </View>

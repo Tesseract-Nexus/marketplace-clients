@@ -1,21 +1,8 @@
 import { useCallback } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Modal,
-  Dimensions,
-  ScrollView,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, Modal, Dimensions, ScrollView } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, {
-  FadeIn,
-  FadeOut,
-  SlideInLeft,
-  SlideOutLeft,
-} from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, SlideInLeft, SlideOutLeft } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -163,17 +150,11 @@ export function DrawerNavigation({ visible, onClose }: DrawerNavigationProps) {
     return pathname.includes(routePath);
   };
 
-  const userName =
-    `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'User';
+  const userName = `${user?.first_name || ''} ${user?.last_name || ''}`.trim() || 'User';
   const userEmail = user?.email || '';
 
   return (
-    <Modal
-      visible={visible}
-      transparent
-      animationType="none"
-      onRequestClose={onClose}
-    >
+    <Modal transparent animationType="none" visible={visible} onRequestClose={onClose}>
       {/* Backdrop */}
       <Pressable style={styles.overlay} onPress={onClose}>
         <Animated.View
@@ -183,15 +164,10 @@ export function DrawerNavigation({ visible, onClose }: DrawerNavigationProps) {
         >
           <BlurView
             intensity={25}
-            tint={isDark ? 'dark' : 'light'}
             style={StyleSheet.absoluteFill}
+            tint={isDark ? 'dark' : 'light'}
           />
-          <View
-            style={[
-              StyleSheet.absoluteFill,
-              { backgroundColor: 'rgba(0,0,0,0.3)' },
-            ]}
-          />
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.3)' }]} />
         </Animated.View>
       </Pressable>
 
@@ -212,49 +188,43 @@ export function DrawerNavigation({ visible, onClose }: DrawerNavigationProps) {
         {/* Header with gradient */}
         <LinearGradient
           colors={gradients.primary as [string, string]}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={styles.header}
         >
-          <Pressable onPress={onClose} style={styles.closeButton}>
-            <Ionicons name="close" size={24} color="#FFFFFF" />
+          <Pressable style={styles.closeButton} onPress={onClose}>
+            <Ionicons color="#FFFFFF" name="close" size={24} />
           </Pressable>
 
           <View style={styles.userSection}>
-            <Avatar
-              source={user?.avatar || user?.avatar_url}
-              name={userName}
-              size="lg"
-            />
-            <Text style={styles.userName} numberOfLines={1}>
+            <Avatar name={userName} size="lg" source={user?.avatar || user?.avatar_url} />
+            <Text numberOfLines={1} style={styles.userName}>
               {userName}
             </Text>
-            <Text style={styles.userEmail} numberOfLines={1}>
+            <Text numberOfLines={1} style={styles.userEmail}>
               {userEmail}
             </Text>
           </View>
 
-          {currentTenant && (
+          {currentTenant ? (
             <View style={styles.storeInfo}>
-              <Ionicons name="storefront" size={14} color="rgba(255,255,255,0.8)" />
-              <Text style={styles.storeName} numberOfLines={1}>
+              <Ionicons color="rgba(255,255,255,0.8)" name="storefront" size={14} />
+              <Text numberOfLines={1} style={styles.storeName}>
                 {currentTenant.name}
               </Text>
             </View>
-          )}
+          ) : null}
         </LinearGradient>
 
         {/* Navigation Items */}
         <ScrollView
-          style={styles.navContent}
-          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.navContentContainer}
+          showsVerticalScrollIndicator={false}
+          style={styles.navContent}
         >
           {navSections.map((section) => (
             <View key={section.title} style={styles.navSection}>
-              <Text
-                style={[styles.sectionTitle, { color: colors.textTertiary }]}
-              >
+              <Text style={[styles.sectionTitle, { color: colors.textTertiary }]}>
                 {section.title}
               </Text>
               {section.items.map((item) => {
@@ -270,10 +240,10 @@ export function DrawerNavigation({ visible, onClose }: DrawerNavigationProps) {
                             ? `${colors.primary}20`
                             : `${colors.primary}10`
                           : pressed
-                          ? isDark
-                            ? 'rgba(255,255,255,0.05)'
-                            : 'rgba(0,0,0,0.03)'
-                          : 'transparent',
+                            ? isDark
+                              ? 'rgba(255,255,255,0.05)'
+                              : 'rgba(0,0,0,0.03)'
+                            : 'transparent',
                       },
                     ]}
                     onPress={() => handleNavItemPress(item.route)}
@@ -285,15 +255,15 @@ export function DrawerNavigation({ visible, onClose }: DrawerNavigationProps) {
                           backgroundColor: isActive
                             ? `${colors.primary}20`
                             : isDark
-                            ? 'rgba(255,255,255,0.08)'
-                            : 'rgba(0,0,0,0.04)',
+                              ? 'rgba(255,255,255,0.08)'
+                              : 'rgba(0,0,0,0.04)',
                         },
                       ]}
                     >
                       <Ionicons
+                        color={isActive ? colors.primary : colors.text}
                         name={isActive ? item.iconFilled : item.icon}
                         size={18}
-                        color={isActive ? colors.primary : colors.text}
                       />
                     </View>
                     <Text
@@ -307,24 +277,14 @@ export function DrawerNavigation({ visible, onClose }: DrawerNavigationProps) {
                     >
                       {item.label}
                     </Text>
-                    {item.badge !== undefined && item.badge > 0 && (
-                      <View
-                        style={[
-                          styles.badge,
-                          { backgroundColor: colors.error },
-                        ]}
-                      >
+                    {item.badge !== undefined && item.badge > 0 ? (
+                      <View style={[styles.badge, { backgroundColor: colors.error }]}>
                         <Text style={styles.badgeText}>{item.badge}</Text>
                       </View>
-                    )}
-                    {isActive && (
-                      <View
-                        style={[
-                          styles.activeIndicator,
-                          { backgroundColor: colors.primary },
-                        ]}
-                      />
-                    )}
+                    ) : null}
+                    {isActive ? (
+                      <View style={[styles.activeIndicator, { backgroundColor: colors.primary }]} />
+                    ) : null}
                   </Pressable>
                 );
               })}
@@ -333,28 +293,20 @@ export function DrawerNavigation({ visible, onClose }: DrawerNavigationProps) {
         </ScrollView>
 
         {/* Footer */}
-        <View
-          style={[styles.footer, { borderTopColor: colors.border }]}
-        >
+        <View style={[styles.footer, { borderTopColor: colors.border }]}>
           <Pressable
             style={({ pressed }) => [
               styles.logoutButton,
               {
-                backgroundColor: pressed
-                  ? `${colors.error}15`
-                  : 'transparent',
+                backgroundColor: pressed ? `${colors.error}15` : 'transparent',
               },
             ]}
             onPress={handleLogout}
           >
-            <View
-              style={[styles.logoutIcon, { backgroundColor: `${colors.error}15` }]}
-            >
-              <Ionicons name="log-out-outline" size={18} color={colors.error} />
+            <View style={[styles.logoutIcon, { backgroundColor: `${colors.error}15` }]}>
+              <Ionicons color={colors.error} name="log-out-outline" size={18} />
             </View>
-            <Text style={[styles.logoutLabel, { color: colors.error }]}>
-              Sign Out
-            </Text>
+            <Text style={[styles.logoutLabel, { color: colors.error }]}>Sign Out</Text>
           </Pressable>
         </View>
       </Animated.View>

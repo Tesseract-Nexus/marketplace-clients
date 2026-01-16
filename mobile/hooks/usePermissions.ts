@@ -234,35 +234,49 @@ export function useImagePicker() {
   const cameraPermission = useCameraPermission();
   const mediaLibraryPermission = useMediaLibraryPermission();
 
-  const pickFromCamera = useCallback(async (options?: ImagePicker.ImagePickerOptions) => {
-    const hasPermission = await cameraPermission.requestPermission();
-    if (!hasPermission) return null;
+  const pickFromCamera = useCallback(
+    async (options?: ImagePicker.ImagePickerOptions) => {
+      const hasPermission = await cameraPermission.requestPermission();
+      if (!hasPermission) {
+        return null;
+      }
 
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 0.8,
-      ...options,
-    });
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.8,
+        ...options,
+      });
 
-    if (result.canceled) return null;
-    return result.assets[0];
-  }, [cameraPermission]);
+      if (result.canceled) {
+        return null;
+      }
+      return result.assets[0];
+    },
+    [cameraPermission]
+  );
 
-  const pickFromLibrary = useCallback(async (options?: ImagePicker.ImagePickerOptions) => {
-    const hasPermission = await mediaLibraryPermission.requestPermission();
-    if (!hasPermission) return null;
+  const pickFromLibrary = useCallback(
+    async (options?: ImagePicker.ImagePickerOptions) => {
+      const hasPermission = await mediaLibraryPermission.requestPermission();
+      if (!hasPermission) {
+        return null;
+      }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 0.8,
-      ...options,
-    });
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 0.8,
+        ...options,
+      });
 
-    if (result.canceled) return null;
-    return result.assets[0];
-  }, [mediaLibraryPermission]);
+      if (result.canceled) {
+        return null;
+      }
+      return result.assets[0];
+    },
+    [mediaLibraryPermission]
+  );
 
   return {
     pickFromCamera,

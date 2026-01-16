@@ -29,9 +29,7 @@ const ORDER_ACTIONS = {
   shipped: [
     { id: 'deliver', label: 'Mark as Delivered', icon: 'checkmark-circle', color: 'success' },
   ],
-  delivered: [
-    { id: 'refund', label: 'Issue Refund', icon: 'return-down-back', color: 'warning' },
-  ],
+  delivered: [{ id: 'refund', label: 'Issue Refund', icon: 'return-down-back', color: 'warning' }],
   cancelled: [],
   refunded: [],
 };
@@ -48,7 +46,7 @@ export default function OrderDetailScreen() {
     queryKey: [QUERY_KEYS.ORDERS, id],
     queryFn: async (): Promise<Order> => {
       return {
-        id: id!,
+        id: id,
         tenant_id: '1',
         order_number: 'ORD-1234',
         customer_id: 'cust-1',
@@ -65,7 +63,7 @@ export default function OrderDetailScreen() {
           addresses: [],
           tags: [],
           total_orders: 12,
-          total_spent: 1250.00,
+          total_spent: 1250.0,
           average_order_value: 104.17,
           loyalty_points: 125,
           created_at: new Date().toISOString(),
@@ -75,8 +73,8 @@ export default function OrderDetailScreen() {
         payment_status: 'paid' as const,
         fulfillment_status: 'unfulfilled' as const,
         subtotal: 249.97,
-        discount_total: 25.00,
-        tax_total: 22.50,
+        discount_total: 25.0,
+        tax_total: 22.5,
         shipping_total: 9.99,
         total: 257.46,
         currency: 'USD',
@@ -85,7 +83,7 @@ export default function OrderDetailScreen() {
         items: [
           {
             id: 'item-1',
-            order_id: id!,
+            order_id: id,
             product_id: 'prod-1',
             variant_id: undefined,
             product_name: 'Premium Wireless Headphones',
@@ -101,7 +99,7 @@ export default function OrderDetailScreen() {
           },
           {
             id: 'item-2',
-            order_id: id!,
+            order_id: id,
             product_id: 'prod-2',
             variant_id: undefined,
             product_name: 'USB-C Charging Cable (3-Pack)',
@@ -148,7 +146,7 @@ export default function OrderDetailScreen() {
 
   // Update order status mutation
   const updateStatusMutation = useMutation({
-    mutationFn: ({ status }: { status: OrderStatus }) => ordersApi.updateStatus(id!, status),
+    mutationFn: ({ status }: { status: OrderStatus }) => ordersApi.updateStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ORDERS] });
       toast.success('Order status updated');
@@ -168,7 +166,9 @@ export default function OrderDetailScreen() {
     };
 
     const newStatus = statusMap[actionId];
-    if (!newStatus) return;
+    if (!newStatus) {
+      return;
+    }
 
     if (actionId === 'cancel' || actionId === 'refund') {
       Alert.alert(
@@ -191,7 +191,10 @@ export default function OrderDetailScreen() {
   };
 
   const getStatusConfig = (status: string) => {
-    const config: Record<string, { label: string; variant: 'warning' | 'info' | 'success' | 'error' | 'secondary' }> = {
+    const config: Record<
+      string,
+      { label: string; variant: 'warning' | 'info' | 'success' | 'error' | 'secondary' }
+    > = {
       pending: { label: 'Pending', variant: 'warning' },
       processing: { label: 'Processing', variant: 'info' },
       shipped: { label: 'Shipped', variant: 'info' },
@@ -207,21 +210,23 @@ export default function OrderDetailScreen() {
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
           <IconButton
-            icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
+            icon={<Ionicons color={colors.text} name="arrow-back" size={24} />}
             onPress={() => router.back()}
           />
         </View>
         <ScrollView contentContainerStyle={styles.content}>
-          <Skeleton width="60%" height={24} borderRadius={8} />
-          <Skeleton width="40%" height={20} borderRadius={8} style={{ marginTop: 8 }} />
-          <Skeleton width="100%" height={150} borderRadius={12} style={{ marginTop: 24 }} />
-          <Skeleton width="100%" height={200} borderRadius={12} style={{ marginTop: 16 }} />
+          <Skeleton borderRadius={8} height={24} width="60%" />
+          <Skeleton borderRadius={8} height={20} style={{ marginTop: 8 }} width="40%" />
+          <Skeleton borderRadius={12} height={150} style={{ marginTop: 24 }} width="100%" />
+          <Skeleton borderRadius={12} height={200} style={{ marginTop: 16 }} width="100%" />
         </ScrollView>
       </View>
     );
   }
 
-  if (!order) return null;
+  if (!order) {
+    return null;
+  }
 
   const statusConfig = getStatusConfig(order.status);
   const actions = ORDER_ACTIONS[order.status as keyof typeof ORDER_ACTIONS] || [];
@@ -231,7 +236,7 @@ export default function OrderDetailScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
         <IconButton
-          icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
+          icon={<Ionicons color={colors.text} name="arrow-back" size={24} />}
           onPress={() => router.back()}
         />
         <Text style={[styles.headerTitle, { color: colors.text }]}>Order Details</Text>
@@ -239,8 +244,8 @@ export default function OrderDetailScreen() {
       </View>
 
       <ScrollView
-        showsVerticalScrollIndicator={false}
         contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
+        showsVerticalScrollIndicator={false}
       >
         {/* Order Header */}
         <Animated.View entering={FadeInDown.delay(100)} style={styles.orderHeader}>
@@ -258,12 +263,19 @@ export default function OrderDetailScreen() {
           <Card style={styles.section}>
             <View style={styles.sectionHeader}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>Customer</Text>
-              <Pressable onPress={() => router.push(`/(tabs)/(admin)/customer-detail?id=${order.customer_id}`)}>
+              <Pressable
+                onPress={() =>
+                  router.push(`/(tabs)/(admin)/customer-detail?id=${order.customer_id}`)
+                }
+              >
                 <Text style={[styles.viewLink, { color: colors.primary }]}>View Profile</Text>
               </Pressable>
             </View>
             <Pressable style={styles.customerRow}>
-              <Avatar name={`${order.customer?.first_name} ${order.customer?.last_name}`} size="md" />
+              <Avatar
+                name={`${order.customer?.first_name} ${order.customer?.last_name}`}
+                size="md"
+              />
               <View style={styles.customerInfo}>
                 <Text style={[styles.customerName, { color: colors.text }]}>
                   {order.customer?.first_name} {order.customer?.last_name}
@@ -278,18 +290,18 @@ export default function OrderDetailScreen() {
                 style={[styles.contactButton, { backgroundColor: colors.surface }]}
                 onPress={() => Linking.openURL(`mailto:${order.customer?.email}`)}
               >
-                <Ionicons name="mail" size={18} color={colors.primary} />
+                <Ionicons color={colors.primary} name="mail" size={18} />
                 <Text style={[styles.contactLabel, { color: colors.primary }]}>Email</Text>
               </Pressable>
-              {order.customer?.phone && (
+              {order.customer?.phone ? (
                 <Pressable
                   style={[styles.contactButton, { backgroundColor: colors.surface }]}
                   onPress={() => Linking.openURL(`tel:${order.customer?.phone}`)}
                 >
-                  <Ionicons name="call" size={18} color={colors.primary} />
+                  <Ionicons color={colors.primary} name="call" size={18} />
                   <Text style={[styles.contactLabel, { color: colors.primary }]}>Call</Text>
                 </Pressable>
-              )}
+              ) : null}
             </View>
           </Card>
         </Animated.View>
@@ -311,7 +323,7 @@ export default function OrderDetailScreen() {
               >
                 <Image source={{ uri: item.image_url }} style={styles.itemImage} />
                 <View style={styles.itemInfo}>
-                  <Text style={[styles.itemName, { color: colors.text }]} numberOfLines={2}>
+                  <Text numberOfLines={2} style={[styles.itemName, { color: colors.text }]}>
                     {item.product_name}
                   </Text>
                   <Text style={[styles.itemSku, { color: colors.textTertiary }]}>
@@ -343,7 +355,10 @@ export default function OrderDetailScreen() {
             </View>
             {[
               { label: 'Subtotal', value: formatCurrency(order.subtotal) },
-              order.discount_total > 0 && { label: 'Discount', value: `-${formatCurrency(order.discount_total)}` },
+              order.discount_total > 0 && {
+                label: 'Discount',
+                value: `-${formatCurrency(order.discount_total)}`,
+              },
               { label: 'Shipping', value: formatCurrency(order.shipping_total) },
               { label: 'Tax', value: formatCurrency(order.tax_total) },
             ]
@@ -351,9 +366,9 @@ export default function OrderDetailScreen() {
               .map((item, index) => (
                 <View key={index} style={styles.summaryRow}>
                   <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>
-                    {item!.label}
+                    {item.label}
                   </Text>
-                  <Text style={[styles.summaryValue, { color: colors.text }]}>{item!.value}</Text>
+                  <Text style={[styles.summaryValue, { color: colors.text }]}>{item.value}</Text>
                 </View>
               ))}
             <View style={[styles.totalRow, { borderTopColor: colors.border }]}>
@@ -366,53 +381,73 @@ export default function OrderDetailScreen() {
         </Animated.View>
 
         {/* Shipping Address */}
-        {order.shipping_address && (
+        {order.shipping_address ? (
           <Animated.View entering={FadeInDown.delay(300)}>
             <Card style={styles.section}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>Shipping Address</Text>
               <Text style={[styles.addressText, { color: colors.textSecondary }]}>
-                {order.shipping_address.first_name} {order.shipping_address.last_name}{'\n'}
-                {order.shipping_address.address1}{'\n'}
-                {order.shipping_address.address2 && `${order.shipping_address.address2}\n`}
-                {order.shipping_address.city}, {order.shipping_address.state} {order.shipping_address.postal_code}{'\n'}
+                {order.shipping_address.first_name} {order.shipping_address.last_name}
+                {'\n'}
+                {order.shipping_address.address1}
+                {'\n'}
+                {order.shipping_address.address2 ? `${order.shipping_address.address2}\n` : null}
+                {order.shipping_address.city}, {order.shipping_address.state}{' '}
+                {order.shipping_address.postal_code}
+                {'\n'}
                 {order.shipping_address.country}
               </Text>
             </Card>
           </Animated.View>
-        )}
+        ) : null}
 
         {/* Notes */}
-        {order.notes && (
+        {order.notes ? (
           <Animated.View entering={FadeInDown.delay(350)}>
             <Card style={styles.section}>
               <Text style={[styles.sectionTitle, { color: colors.text }]}>Order Notes</Text>
               <Text style={[styles.notesText, { color: colors.textSecondary }]}>{order.notes}</Text>
             </Card>
           </Animated.View>
-        )}
+        ) : null}
       </ScrollView>
 
       {/* Action Buttons */}
-      {actions.length > 0 && (
+      {actions.length > 0 ? (
         <View
           style={[
             styles.bottomActions,
-            { backgroundColor: colors.surface, paddingBottom: insets.bottom + 16, borderTopColor: colors.border },
+            {
+              backgroundColor: colors.surface,
+              paddingBottom: insets.bottom + 16,
+              borderTopColor: colors.border,
+            },
           ]}
         >
           {actions.map((action) => (
             <Button
               key={action.id}
-              title={action.label}
-              variant={action.color === 'error' ? 'danger' : action.color === 'success' ? 'primary' : 'outline'}
-              style={{ flex: 1 }}
-              leftIcon={<Ionicons name={action.icon as any} size={18} color={action.color === 'error' ? '#FFFFFF' : colors.primary} />}
-              onPress={() => handleAction(action.id)}
+              leftIcon={
+                <Ionicons
+                  color={action.color === 'error' ? '#FFFFFF' : colors.primary}
+                  name={action.icon}
+                  size={18}
+                />
+              }
               loading={updateStatusMutation.isPending}
+              style={{ flex: 1 }}
+              title={action.label}
+              variant={
+                action.color === 'error'
+                  ? 'danger'
+                  : action.color === 'success'
+                    ? 'primary'
+                    : 'outline'
+              }
+              onPress={() => handleAction(action.id)}
             />
           ))}
         </View>
-      )}
+      ) : null}
     </View>
   );
 }

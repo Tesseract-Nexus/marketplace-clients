@@ -28,7 +28,9 @@ export default function WelcomeScreen() {
 
   useEffect(() => {
     // Only navigate once and when navigation is ready
-    if (!navigationReady || hasNavigated) return;
+    if (!navigationReady || hasNavigated) {
+      return;
+    }
 
     if (isInitialized && isAuthenticated) {
       setHasNavigated(true);
@@ -61,40 +63,31 @@ export default function WelcomeScreen() {
   }
 
   return (
-    <LinearGradient
-      colors={[colors.primary, colors.primaryDark]}
-      style={styles.container}
-    >
-      <View style={[styles.content, { paddingTop: insets.top + 60, paddingBottom: insets.bottom + 20 }]}>
+    <LinearGradient colors={[colors.primary, colors.primaryDark]} style={styles.container}>
+      <View
+        style={[styles.content, { paddingTop: insets.top + 60, paddingBottom: insets.bottom + 20 }]}
+      >
         {/* Logo */}
         <Animated.View entering={FadeInDown.delay(200).springify()}>
           <View style={styles.logoContainer}>
             <View style={styles.logoIcon}>
-              <Ionicons name="cube" size={48} color={colors.primary} />
+              <Ionicons color={colors.primary} name="cube" size={48} />
             </View>
             <Text style={styles.logoText}>Tesseract</Text>
           </View>
         </Animated.View>
 
         {/* Hero Section */}
-        <Animated.View
-          entering={FadeInDown.delay(400).springify()}
-          style={styles.heroSection}
-        >
-          <Text style={styles.heroTitle}>
-            Launch Your Store{'\n'}In Minutes
-          </Text>
+        <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.heroSection}>
+          <Text style={styles.heroTitle}>Launch Your Store{'\n'}In Minutes</Text>
           <Text style={styles.heroSubtitle}>
-            Create a powerful online store with inventory management,
-            analytics, and everything you need to grow.
+            Create a powerful online store with inventory management, analytics, and everything you
+            need to grow.
           </Text>
         </Animated.View>
 
         {/* Features */}
-        <Animated.View
-          entering={FadeInDown.delay(600).springify()}
-          style={styles.features}
-        >
+        <Animated.View entering={FadeInDown.delay(600).springify()} style={styles.features}>
           <FeatureItem icon="cube-outline" text="Unlimited Products" />
           <FeatureItem icon="analytics-outline" text="Real-time Analytics" />
           <FeatureItem icon="card-outline" text="Secure Payments" />
@@ -102,49 +95,39 @@ export default function WelcomeScreen() {
         </Animated.View>
 
         {/* CTA Buttons */}
-        <Animated.View
-          entering={FadeInUp.delay(800).springify()}
-          style={styles.ctaSection}
-        >
+        <Animated.View entering={FadeInUp.delay(800).springify()} style={styles.ctaSection}>
           <Button
-            title="Get Started Free"
-            size="xl"
             fullWidth
-            onPress={() => router.push('/register')}
+            size="xl"
             style={{
               backgroundColor: '#FFFFFF',
             }}
             textClassName="text-indigo-600"
+            title="Get Started Free"
+            onPress={() => router.push('/register')}
           />
 
-          <Pressable
-            onPress={() => router.push('/login')}
-            style={styles.loginButton}
-          >
+          <Pressable style={styles.loginButton} onPress={() => router.push('/login')}>
             <Text style={styles.loginText}>
-              Already have an account?{' '}
-              <Text style={styles.loginLink}>Sign In</Text>
+              Already have an account? <Text style={styles.loginLink}>Sign In</Text>
             </Text>
           </Pressable>
         </Animated.View>
 
         {/* Trust Badges */}
-        <Animated.View
-          entering={FadeInUp.delay(1000).springify()}
-          style={styles.trustBadges}
-        >
+        <Animated.View entering={FadeInUp.delay(1000).springify()} style={styles.trustBadges}>
           <View style={styles.trustItem}>
-            <Ionicons name="shield-checkmark" size={16} color="rgba(255,255,255,0.7)" />
+            <Ionicons color="rgba(255,255,255,0.7)" name="shield-checkmark" size={16} />
             <Text style={styles.trustText}>256-bit SSL</Text>
           </View>
           <View style={styles.trustDivider} />
           <View style={styles.trustItem}>
-            <Ionicons name="lock-closed" size={16} color="rgba(255,255,255,0.7)" />
+            <Ionicons color="rgba(255,255,255,0.7)" name="lock-closed" size={16} />
             <Text style={styles.trustText}>GDPR Compliant</Text>
           </View>
           <View style={styles.trustDivider} />
           <View style={styles.trustItem}>
-            <Ionicons name="time" size={16} color="rgba(255,255,255,0.7)" />
+            <Ionicons color="rgba(255,255,255,0.7)" name="time" size={16} />
             <Text style={styles.trustText}>24/7 Support</Text>
           </View>
         </Animated.View>
@@ -157,7 +140,7 @@ function FeatureItem({ icon, text }: { icon: keyof typeof Ionicons.glyphMap; tex
   return (
     <View style={styles.featureItem}>
       <View style={styles.featureIcon}>
-        <Ionicons name={icon} size={20} color="#FFFFFF" />
+        <Ionicons color="#FFFFFF" name={icon} size={20} />
       </View>
       <Text style={styles.featureText}>{text}</Text>
     </View>

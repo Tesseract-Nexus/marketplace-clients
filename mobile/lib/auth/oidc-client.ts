@@ -63,17 +63,12 @@ async function generatePKCE(): Promise<PKCEPair> {
   const codeVerifier = await generateRandomString(43);
 
   // Generate SHA-256 hash of verifier
-  const hash = await Crypto.digestStringAsync(
-    Crypto.CryptoDigestAlgorithm.SHA256,
-    codeVerifier,
-    { encoding: Crypto.CryptoEncoding.BASE64 }
-  );
+  const hash = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, codeVerifier, {
+    encoding: Crypto.CryptoEncoding.BASE64,
+  });
 
   // Convert to URL-safe base64
-  const codeChallenge = hash
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
+  const codeChallenge = hash.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
 
   return { codeVerifier, codeChallenge };
 }
@@ -160,14 +155,10 @@ export async function startAuthFlow(options?: {
   });
 
   // Open browser for authentication
-  const result = await WebBrowser.openAuthSessionAsync(
-    authUrl,
-    OIDC_CONFIG.redirectUri,
-    {
-      showInRecents: false,
-      createTask: true,
-    }
-  );
+  const result = await WebBrowser.openAuthSessionAsync(authUrl, OIDC_CONFIG.redirectUri, {
+    showInRecents: false,
+    createTask: true,
+  });
 
   if (result.type === 'cancel') {
     pendingAuthState = null;
@@ -322,10 +313,7 @@ export async function revokeToken(
 /**
  * Perform full logout (end Keycloak session)
  */
-export async function logout(
-  idToken?: string,
-  refreshToken?: string
-): Promise<void> {
+export async function logout(idToken?: string, refreshToken?: string): Promise<void> {
   // Revoke refresh token first
   if (refreshToken) {
     try {
@@ -349,13 +337,9 @@ export async function logout(
 
   // Open browser for Keycloak logout
   try {
-    await WebBrowser.openAuthSessionAsync(
-      endSessionUrl,
-      OIDC_CONFIG.postLogoutRedirectUri,
-      {
-        showInRecents: false,
-      }
-    );
+    await WebBrowser.openAuthSessionAsync(endSessionUrl, OIDC_CONFIG.postLogoutRedirectUri, {
+      showInRecents: false,
+    });
   } catch (error) {
     // Logout may fail if session already expired
     console.warn('Keycloak logout error:', error);

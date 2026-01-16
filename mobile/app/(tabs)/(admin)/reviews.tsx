@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  RefreshControl,
-  Pressable,
-  StyleSheet,
-  Image,
-} from 'react-native';
+import { View, Text, ScrollView, RefreshControl, Pressable, StyleSheet, Image } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, FadeInRight } from 'react-native-reanimated';
@@ -49,7 +41,8 @@ const mockReviews: Review[] = [
     customerEmail: 'john@example.com',
     rating: 5,
     title: 'Absolutely amazing sound quality!',
-    content: 'These headphones exceeded my expectations. The noise cancellation is incredible and the battery life is outstanding. Best purchase I\'ve made this year!',
+    content:
+      "These headphones exceeded my expectations. The noise cancellation is incredible and the battery life is outstanding. Best purchase I've made this year!",
     status: 'approved',
     verifiedPurchase: true,
     helpful: 24,
@@ -64,7 +57,8 @@ const mockReviews: Review[] = [
     customerEmail: 'sarah@example.com',
     rating: 4,
     title: 'Great watch with minor issues',
-    content: 'Overall a great smartwatch. Battery life could be better but the fitness tracking features are excellent. The display is beautiful.',
+    content:
+      'Overall a great smartwatch. Battery life could be better but the fitness tracking features are excellent. The display is beautiful.',
     status: 'pending',
     verifiedPurchase: true,
     helpful: 8,
@@ -79,7 +73,8 @@ const mockReviews: Review[] = [
     customerEmail: 'mike@example.com',
     rating: 2,
     title: 'Not worth the price',
-    content: 'The quality is not what I expected for this price point. The stand wobbles and feels cheap.',
+    content:
+      'The quality is not what I expected for this price point. The stand wobbles and feels cheap.',
     status: 'flagged',
     verifiedPurchase: false,
     helpful: 3,
@@ -95,12 +90,14 @@ const mockReviews: Review[] = [
     customerEmail: 'emma@example.com',
     rating: 5,
     title: 'Perfect for work from home!',
-    content: 'I use these for video calls and music. Crystal clear audio quality and super comfortable for all-day wear.',
+    content:
+      'I use these for video calls and music. Crystal clear audio quality and super comfortable for all-day wear.',
     status: 'approved',
     verifiedPurchase: true,
     helpful: 15,
     createdAt: '2024-01-28',
-    reply: 'Thank you for your wonderful review, Emma! We\'re thrilled to hear you\'re enjoying the headphones.',
+    reply:
+      "Thank you for your wonderful review, Emma! We're thrilled to hear you're enjoying the headphones.",
     repliedAt: '2024-01-29',
   },
 ];
@@ -117,7 +114,11 @@ export default function ReviewsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
 
-  const { data: reviews = mockReviews, isLoading, refetch } = useQuery({
+  const {
+    data: reviews = mockReviews,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['reviews'],
     queryFn: async () => mockReviews,
   });
@@ -125,11 +126,11 @@ export default function ReviewsScreen() {
   const stats = {
     totalReviews: reviews.length,
     averageRating: reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length,
-    pendingReviews: reviews.filter(r => r.status === 'pending').length,
-    verifiedPurchases: reviews.filter(r => r.verifiedPurchase).length,
+    pendingReviews: reviews.filter((r) => r.status === 'pending').length,
+    verifiedPurchases: reviews.filter((r) => r.verifiedPurchase).length,
   };
 
-  const filteredReviews = reviews.filter(r => {
+  const filteredReviews = reviews.filter((r) => {
     const matchesSearch =
       r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -160,9 +161,9 @@ export default function ReviewsScreen() {
         {[1, 2, 3, 4, 5].map((star) => (
           <Ionicons
             key={star}
+            color={star <= rating ? '#FFD700' : colors.textTertiary}
             name={star <= rating ? 'star' : 'star-outline'}
             size={14}
-            color={star <= rating ? '#FFD700' : colors.textTertiary}
           />
         ))}
       </View>
@@ -172,92 +173,76 @@ export default function ReviewsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader
-        title="Reviews"
-        subtitle="Manage customer feedback"
         rightAction={{
           icon: 'settings-outline',
           onPress: () => {},
         }}
+        subtitle="Manage customer feedback"
+        title="Reviews"
       />
 
       <ScrollView
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={refetch} />
-        }
       >
         {/* Stats Overview */}
-        <Animated.View
-          entering={FadeInDown.delay(50).springify()}
-          style={styles.statsContainer}
-        >
+        <Animated.View entering={FadeInDown.delay(50).springify()} style={styles.statsContainer}>
           <LinearGradient
             colors={['#F59E0B', '#F97316', '#EF4444']}
-            start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
+            start={{ x: 0, y: 0 }}
             style={styles.heroCard}
           >
             <View style={styles.heroContent}>
               <View>
                 <Text style={styles.heroLabel}>Average Rating</Text>
                 <View style={styles.ratingDisplay}>
-                  <Text style={styles.heroValue}>
-                    {stats.averageRating.toFixed(1)}
-                  </Text>
-                  <Ionicons name="star" size={28} color="#FFFFFF" style={{ marginLeft: 4 }} />
+                  <Text style={styles.heroValue}>{stats.averageRating.toFixed(1)}</Text>
+                  <Ionicons color="#FFFFFF" name="star" size={28} style={{ marginLeft: 4 }} />
                 </View>
-                <Text style={styles.heroSubtext}>
-                  from {stats.totalReviews} reviews
-                </Text>
+                <Text style={styles.heroSubtext}>from {stats.totalReviews} reviews</Text>
               </View>
               <View style={styles.heroIcon}>
-                <Ionicons name="chatbubbles" size={48} color="rgba(255,255,255,0.3)" />
+                <Ionicons color="rgba(255,255,255,0.3)" name="chatbubbles" size={48} />
               </View>
             </View>
           </LinearGradient>
 
           <View style={styles.statsRow}>
             <MetricCard
+              icon="time-outline"
               title="Pending"
               value={stats.pendingReviews.toString()}
-              icon="time-outline"
             />
             <MetricCard
+              icon="shield-checkmark"
               title="Verified"
               value={`${Math.round((stats.verifiedPurchases / stats.totalReviews) * 100)}%`}
-              icon="shield-checkmark"
             />
           </View>
         </Animated.View>
 
         {/* Search & Filter */}
         <SearchHeader
+          filterCount={selectedFilter ? 1 : 0}
+          placeholder="Search reviews..."
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="Search reviews..."
           onFilterPress={() => {}}
-          filterCount={selectedFilter ? 1 : 0}
         />
 
-        <FilterChips
-          chips={filterChips}
-          selectedId={selectedFilter}
-          onSelect={setSelectedFilter}
-        />
+        <FilterChips chips={filterChips} selectedId={selectedFilter} onSelect={setSelectedFilter} />
 
         {/* Reviews List */}
         <SectionHeader
-          title="Recent Reviews"
           count={filteredReviews.length}
-          icon="chatbox"
           delay={100}
+          icon="chatbox"
+          title="Recent Reviews"
         />
 
         {filteredReviews.map((review, index) => (
-          <Animated.View
-            key={review.id}
-            entering={FadeInRight.delay(150 + index * 50).springify()}
-          >
+          <Animated.View key={review.id} entering={FadeInRight.delay(150 + index * 50).springify()}>
             <Pressable
               style={[styles.reviewCard, { backgroundColor: colors.surface }]}
               onPress={() => {
@@ -267,14 +252,12 @@ export default function ReviewsScreen() {
               {/* Header */}
               <View style={styles.reviewHeader}>
                 <View style={styles.customerInfo}>
-                  <View
-                    style={[
-                      styles.customerAvatar,
-                      { backgroundColor: `${colors.primary}15` },
-                    ]}
-                  >
+                  <View style={[styles.customerAvatar, { backgroundColor: `${colors.primary}15` }]}>
                     <Text style={[styles.avatarText, { color: colors.primary }]}>
-                      {review.customerName.split(' ').map(n => n[0]).join('')}
+                      {review.customerName
+                        .split(' ')
+                        .map((n) => n[0])
+                        .join('')}
                     </Text>
                   </View>
                   <View>
@@ -282,14 +265,16 @@ export default function ReviewsScreen() {
                       <Text style={[styles.customerName, { color: colors.text }]}>
                         {review.customerName}
                       </Text>
-                      {review.verifiedPurchase && (
-                        <View style={[styles.verifiedBadge, { backgroundColor: `${colors.success}15` }]}>
-                          <Ionicons name="checkmark-circle" size={12} color={colors.success} />
+                      {review.verifiedPurchase ? (
+                        <View
+                          style={[styles.verifiedBadge, { backgroundColor: `${colors.success}15` }]}
+                        >
+                          <Ionicons color={colors.success} name="checkmark-circle" size={12} />
                           <Text style={[styles.verifiedText, { color: colors.success }]}>
                             Verified
                           </Text>
                         </View>
-                      )}
+                      ) : null}
                     </View>
                     <Text style={[styles.reviewDate, { color: colors.textSecondary }]}>
                       {new Date(review.createdAt).toLocaleDateString()}
@@ -313,11 +298,19 @@ export default function ReviewsScreen() {
                 {review.productImage ? (
                   <Image source={{ uri: review.productImage }} style={styles.productImage} />
                 ) : (
-                  <View style={[styles.productImagePlaceholder, { backgroundColor: `${colors.text}08` }]}>
-                    <Ionicons name="cube-outline" size={16} color={colors.textSecondary} />
+                  <View
+                    style={[
+                      styles.productImagePlaceholder,
+                      { backgroundColor: `${colors.text}08` },
+                    ]}
+                  >
+                    <Ionicons color={colors.textSecondary} name="cube-outline" size={16} />
                   </View>
                 )}
-                <Text style={[styles.productName, { color: colors.textSecondary }]} numberOfLines={1}>
+                <Text
+                  numberOfLines={1}
+                  style={[styles.productName, { color: colors.textSecondary }]}
+                >
                   {review.productName}
                 </Text>
               </View>
@@ -325,44 +318,45 @@ export default function ReviewsScreen() {
               {/* Rating & Title */}
               <View style={styles.ratingRow}>
                 {renderStars(review.rating)}
-                <Text style={[styles.reviewTitle, { color: colors.text }]} numberOfLines={1}>
+                <Text numberOfLines={1} style={[styles.reviewTitle, { color: colors.text }]}>
                   {review.title}
                 </Text>
               </View>
 
               {/* Content */}
               <Text
-                style={[styles.reviewContent, { color: colors.textSecondary }]}
                 numberOfLines={3}
+                style={[styles.reviewContent, { color: colors.textSecondary }]}
               >
                 {review.content}
               </Text>
 
               {/* Reply */}
-              {review.reply && (
+              {review.reply ? (
                 <View style={[styles.replyContainer, { backgroundColor: `${colors.primary}08` }]}>
                   <View style={styles.replyHeader}>
-                    <Ionicons name="return-down-forward" size={16} color={colors.primary} />
-                    <Text style={[styles.replyLabel, { color: colors.primary }]}>
-                      Store Reply
-                    </Text>
+                    <Ionicons color={colors.primary} name="return-down-forward" size={16} />
+                    <Text style={[styles.replyLabel, { color: colors.primary }]}>Store Reply</Text>
                   </View>
-                  <Text style={[styles.replyText, { color: colors.textSecondary }]} numberOfLines={2}>
+                  <Text
+                    numberOfLines={2}
+                    style={[styles.replyText, { color: colors.textSecondary }]}
+                  >
                     {review.reply}
                   </Text>
                 </View>
-              )}
+              ) : null}
 
               {/* Actions */}
               <View style={styles.reviewActions}>
                 <View style={styles.helpfulCount}>
-                  <Ionicons name="thumbs-up-outline" size={16} color={colors.textSecondary} />
+                  <Ionicons color={colors.textSecondary} name="thumbs-up-outline" size={16} />
                   <Text style={[styles.helpfulText, { color: colors.textSecondary }]}>
                     {review.helpful} helpful
                   </Text>
                 </View>
                 <View style={styles.actionButtons}>
-                  {review.status === 'pending' && (
+                  {review.status === 'pending' ? (
                     <>
                       <Pressable
                         style={[styles.actionBtn, { backgroundColor: `${colors.success}10` }]}
@@ -370,7 +364,7 @@ export default function ReviewsScreen() {
                           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         }}
                       >
-                        <Ionicons name="checkmark" size={18} color={colors.success} />
+                        <Ionicons color={colors.success} name="checkmark" size={18} />
                       </Pressable>
                       <Pressable
                         style={[styles.actionBtn, { backgroundColor: `${colors.error}10` }]}
@@ -378,21 +372,21 @@ export default function ReviewsScreen() {
                           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                         }}
                       >
-                        <Ionicons name="close" size={18} color={colors.error} />
+                        <Ionicons color={colors.error} name="close" size={18} />
                       </Pressable>
                     </>
-                  )}
-                  {!review.reply && (
+                  ) : null}
+                  {!review.reply ? (
                     <Pressable
                       style={[styles.actionBtn, { backgroundColor: `${colors.primary}10` }]}
                       onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                       }}
                     >
-                      <Ionicons name="chatbubble-outline" size={16} color={colors.primary} />
+                      <Ionicons color={colors.primary} name="chatbubble-outline" size={16} />
                       <Text style={[styles.actionText, { color: colors.primary }]}>Reply</Text>
                     </Pressable>
-                  )}
+                  ) : null}
                 </View>
               </View>
             </Pressable>

@@ -27,19 +27,14 @@ function CartItemCard({ item, index }: { item: CartItem; index: number }) {
       layout={Layout.springify()}
     >
       <Card style={styles.cartItem}>
-        <Image
-          source={{ uri: imageUrl }}
-          style={styles.itemImage}
-        />
+        <Image source={{ uri: imageUrl }} style={styles.itemImage} />
         <View style={styles.itemInfo}>
-          <Text style={[styles.itemName, { color: colors.text }]} numberOfLines={2}>
+          <Text numberOfLines={2} style={[styles.itemName, { color: colors.text }]}>
             {productName}
           </Text>
-          {variantName && (
-            <Text style={[styles.itemVariant, { color: colors.textSecondary }]}>
-              {variantName}
-            </Text>
-          )}
+          {variantName ? (
+            <Text style={[styles.itemVariant, { color: colors.textSecondary }]}>{variantName}</Text>
+          ) : null}
           <Text style={[styles.itemPrice, { color: colors.primary }]}>
             {formatCurrency(item.unit_price)}
           </Text>
@@ -49,18 +44,18 @@ function CartItemCard({ item, index }: { item: CartItem; index: number }) {
             style={[styles.quantityButton, { backgroundColor: colors.surface }]}
             onPress={() => void updateItemQuantity(item.id, item.quantity - 1)}
           >
-            <Ionicons name="remove" size={18} color={colors.text} />
+            <Ionicons color={colors.text} name="remove" size={18} />
           </Pressable>
           <Text style={[styles.quantityText, { color: colors.text }]}>{item.quantity}</Text>
           <Pressable
             style={[styles.quantityButton, { backgroundColor: colors.surface }]}
             onPress={() => void updateItemQuantity(item.id, item.quantity + 1)}
           >
-            <Ionicons name="add" size={18} color={colors.text} />
+            <Ionicons color={colors.text} name="add" size={18} />
           </Pressable>
         </View>
         <Pressable style={styles.removeButton} onPress={() => void removeItem(item.id)}>
-          <Ionicons name="trash-outline" size={18} color={colors.error} />
+          <Ionicons color={colors.error} name="trash-outline" size={18} />
         </Pressable>
       </Card>
     </Animated.View>
@@ -86,10 +81,10 @@ export default function CartScreen() {
           <Text style={[styles.title, { color: colors.text }]}>Cart</Text>
         </View>
         <EmptyState
+          actionLabel="Start Shopping"
+          description="Browse our products and add items to your cart"
           icon="cart-outline"
           title="Your cart is empty"
-          description="Browse our products and add items to your cart"
-          actionLabel="Start Shopping"
           onAction={() => router.push('/(tabs)/(storefront)/browse')}
         />
       </View>
@@ -118,7 +113,7 @@ export default function CartScreen() {
         {/* Cart Items */}
         <View style={styles.itemsList}>
           {items.map((item, index) => (
-            <CartItemCard key={item.id} item={item} index={index} />
+            <CartItemCard key={item.id} index={index} item={item} />
           ))}
         </View>
 
@@ -126,7 +121,7 @@ export default function CartScreen() {
         <Animated.View entering={FadeInDown.delay(200)}>
           <Card style={styles.promoSection}>
             <View style={[styles.promoInput, { borderColor: colors.border }]}>
-              <Ionicons name="pricetag-outline" size={20} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="pricetag-outline" size={20} />
               <Text style={[styles.promoPlaceholder, { color: colors.textTertiary }]}>
                 Enter promo code
               </Text>
@@ -138,16 +133,16 @@ export default function CartScreen() {
         </Animated.View>
 
         {/* Free Shipping Banner */}
-        {subtotal < 50 && (
+        {subtotal < 50 ? (
           <Animated.View entering={FadeInDown.delay(250)}>
             <View style={[styles.shippingBanner, { backgroundColor: colors.infoLight }]}>
-              <Ionicons name="car-outline" size={20} color={colors.info} />
+              <Ionicons color={colors.info} name="car-outline" size={20} />
               <Text style={[styles.shippingText, { color: colors.info }]}>
                 Add {formatCurrency(50 - subtotal)} more for free shipping!
               </Text>
             </View>
           </Animated.View>
-        )}
+        ) : null}
       </ScrollView>
 
       {/* Checkout Section */}
@@ -170,15 +165,15 @@ export default function CartScreen() {
         </View>
         <View style={styles.summaryRow}>
           <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Shipping</Text>
-          <Text style={[styles.summaryValue, { color: shipping === 0 ? colors.success : colors.text }]}>
+          <Text
+            style={[styles.summaryValue, { color: shipping === 0 ? colors.success : colors.text }]}
+          >
             {shipping === 0 ? 'Free' : formatCurrency(shipping)}
           </Text>
         </View>
         <View style={styles.summaryRow}>
           <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Tax</Text>
-          <Text style={[styles.summaryValue, { color: colors.text }]}>
-            {formatCurrency(tax)}
-          </Text>
+          <Text style={[styles.summaryValue, { color: colors.text }]}>{formatCurrency(tax)}</Text>
         </View>
         <View style={[styles.totalRow, { borderTopColor: colors.border }]}>
           <Text style={[styles.totalLabel, { color: colors.text }]}>Total</Text>
@@ -187,11 +182,11 @@ export default function CartScreen() {
           </Text>
         </View>
         <Button
-          title="Proceed to Checkout"
-          size="lg"
           fullWidth
+          rightIcon={<Ionicons color="#FFFFFF" name="arrow-forward" size={20} />}
+          size="lg"
+          title="Proceed to Checkout"
           onPress={() => router.push('/(tabs)/(storefront)/checkout')}
-          rightIcon={<Ionicons name="arrow-forward" size={20} color="#FFFFFF" />}
         />
       </Animated.View>
     </View>

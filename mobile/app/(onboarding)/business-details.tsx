@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, KeyboardAvoidingView, Platform, Pressable, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -115,7 +123,7 @@ export default function BusinessDetailsScreen() {
         {/* Back Button */}
         <Animated.View entering={FadeInDown.delay(100)}>
           <IconButton
-            icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
+            icon={<Ionicons color={colors.text} name="arrow-back" size={24} />}
             onPress={() => router.back()}
           />
         </Animated.View>
@@ -123,7 +131,9 @@ export default function BusinessDetailsScreen() {
         {/* Progress Indicator */}
         <Animated.View entering={FadeInDown.delay(150)} style={styles.progressContainer}>
           <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: '50%', backgroundColor: colors.primary }]} />
+            <View
+              style={[styles.progressFill, { width: '50%', backgroundColor: colors.primary }]}
+            />
           </View>
           <Text style={[styles.progressText, { color: colors.textSecondary }]}>Step 2 of 4</Text>
         </Animated.View>
@@ -139,40 +149,40 @@ export default function BusinessDetailsScreen() {
         {/* Form */}
         <Animated.View entering={FadeInDown.delay(300)} style={styles.form}>
           <Input
+            containerStyle={styles.inputContainer}
+            error={errors.businessName}
             label="Legal Business Name"
             placeholder="Acme Inc."
             value={form.businessName}
             onChangeText={(text) => updateForm('businessName', text)}
-            error={errors.businessName}
-            containerStyle={styles.inputContainer}
           />
 
           <Input
+            containerStyle={styles.inputContainer}
+            error={errors.address}
             label="Street Address"
             placeholder="123 Main Street"
             value={form.address}
             onChangeText={(text) => updateForm('address', text)}
-            error={errors.address}
-            containerStyle={styles.inputContainer}
           />
 
           <View style={styles.row}>
             <View style={styles.halfField}>
               <Input
+                error={errors.city}
                 label="City"
                 placeholder="New York"
                 value={form.city}
                 onChangeText={(text) => updateForm('city', text)}
-                error={errors.city}
               />
             </View>
             <View style={styles.halfField}>
               <Input
+                error={errors.state}
                 label="State/Province"
                 placeholder="NY"
                 value={form.state}
                 onChangeText={(text) => updateForm('state', text)}
-                error={errors.state}
               />
             </View>
           </View>
@@ -180,12 +190,12 @@ export default function BusinessDetailsScreen() {
           <View style={[styles.row, { marginTop: 16 }]}>
             <View style={styles.halfField}>
               <Input
+                error={errors.zipCode}
+                keyboardType="numeric"
                 label="ZIP/Postal Code"
                 placeholder="10001"
                 value={form.zipCode}
                 onChangeText={(text) => updateForm('zipCode', text)}
-                error={errors.zipCode}
-                keyboardType="numeric"
               />
             </View>
             <View style={styles.halfField}>
@@ -200,15 +210,18 @@ export default function BusinessDetailsScreen() {
                 <Text style={[styles.pickerText, { color: colors.text }]}>
                   {selectedCountry?.name || 'Select'}
                 </Text>
-                <Ionicons name="chevron-down" size={20} color={colors.textSecondary} />
+                <Ionicons color={colors.textSecondary} name="chevron-down" size={20} />
               </Pressable>
             </View>
           </View>
 
-          {showCountryPicker && (
+          {showCountryPicker ? (
             <Animated.View
               entering={FadeInDown.duration(200)}
-              style={[styles.pickerDropdown, { backgroundColor: colors.surface, borderColor: colors.border }]}
+              style={[
+                styles.pickerDropdown,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}
             >
               {COUNTRIES.map((country) => (
                 <Pressable
@@ -225,28 +238,28 @@ export default function BusinessDetailsScreen() {
                   <Text style={[styles.pickerOptionText, { color: colors.text }]}>
                     {country.name}
                   </Text>
-                  {form.country === country.code && (
-                    <Ionicons name="checkmark" size={20} color={colors.primary} />
-                  )}
+                  {form.country === country.code ? (
+                    <Ionicons color={colors.primary} name="checkmark" size={20} />
+                  ) : null}
                 </Pressable>
               ))}
             </Animated.View>
-          )}
+          ) : null}
 
           <View style={[styles.row, { marginTop: 16 }]}>
             <View style={styles.halfField}>
               <Input
-                label="Phone Number"
-                placeholder="(555) 123-4567"
-                value={form.phone}
-                onChangeText={(text) => updateForm('phone', text)}
                 error={errors.phone}
                 keyboardType="phone-pad"
+                label="Phone Number"
                 leftElement={
                   <Text style={{ color: colors.textSecondary, marginRight: 4 }}>
                     {selectedCountry?.dialCode}
                   </Text>
                 }
+                placeholder="(555) 123-4567"
+                value={form.phone}
+                onChangeText={(text) => updateForm('phone', text)}
               />
             </View>
             <View style={styles.halfField}>
@@ -261,15 +274,18 @@ export default function BusinessDetailsScreen() {
                 <Text style={[styles.pickerText, { color: colors.text }]}>
                   {selectedCurrency?.symbol} {selectedCurrency?.code}
                 </Text>
-                <Ionicons name="chevron-down" size={20} color={colors.textSecondary} />
+                <Ionicons color={colors.textSecondary} name="chevron-down" size={20} />
               </Pressable>
             </View>
           </View>
 
-          {showCurrencyPicker && (
+          {showCurrencyPicker ? (
             <Animated.View
               entering={FadeInDown.duration(200)}
-              style={[styles.pickerDropdown, { backgroundColor: colors.surface, borderColor: colors.border }]}
+              style={[
+                styles.pickerDropdown,
+                { backgroundColor: colors.surface, borderColor: colors.border },
+              ]}
             >
               {CURRENCIES.map((currency) => (
                 <Pressable
@@ -286,23 +302,23 @@ export default function BusinessDetailsScreen() {
                   <Text style={[styles.pickerOptionText, { color: colors.text }]}>
                     {currency.symbol} {currency.code} - {currency.name}
                   </Text>
-                  {form.currency === currency.code && (
-                    <Ionicons name="checkmark" size={20} color={colors.primary} />
-                  )}
+                  {form.currency === currency.code ? (
+                    <Ionicons color={colors.primary} name="checkmark" size={20} />
+                  ) : null}
                 </Pressable>
               ))}
             </Animated.View>
-          )}
+          ) : null}
         </Animated.View>
 
         {/* Continue Button */}
         <Animated.View entering={FadeInDown.delay(400)} style={styles.buttonContainer}>
           <Button
-            title="Continue"
-            size="lg"
             fullWidth
+            rightIcon={<Ionicons color="#FFFFFF" name="arrow-forward" size={20} />}
+            size="lg"
+            title="Continue"
             onPress={handleContinue}
-            rightIcon={<Ionicons name="arrow-forward" size={20} color="#FFFFFF" />}
           />
         </Animated.View>
       </ScrollView>

@@ -7,11 +7,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
 import { useColors, useBorderRadius } from '@/providers/ThemeProvider';
@@ -19,7 +15,13 @@ import { cn } from '@/lib/utils/cn';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'danger';
+export type ButtonVariant =
+  | 'primary'
+  | 'secondary'
+  | 'outline'
+  | 'ghost'
+  | 'destructive'
+  | 'danger';
 type ButtonSize = 'sm' | 'md' | 'lg' | 'xl';
 
 interface ButtonProps extends Omit<PressableProps, 'style'> {
@@ -178,20 +180,20 @@ export function Button({
         <ActivityIndicator color={textColor} size="small" />
       ) : (
         <>
-          {leftIcon && <>{leftIcon}</>}
-          {(title || children) && (
+          {leftIcon ? <>{leftIcon}</> : null}
+          {title || children ? (
             <Text
+              className={textClassName}
               style={[
                 textStyle,
                 leftIcon ? { marginLeft: 8 } : undefined,
                 rightIcon ? { marginRight: 8 } : undefined,
               ]}
-              className={textClassName}
             >
               {title || children}
             </Text>
-          )}
-          {rightIcon && <>{rightIcon}</>}
+          ) : null}
+          {rightIcon ? <>{rightIcon}</> : null}
         </>
       )}
     </AnimatedPressable>
@@ -199,16 +201,14 @@ export function Button({
 }
 
 // Icon Button variant
-interface IconButtonProps extends Omit<ButtonProps, 'title' | 'children' | 'leftIcon' | 'rightIcon'> {
+interface IconButtonProps extends Omit<
+  ButtonProps,
+  'title' | 'children' | 'leftIcon' | 'rightIcon'
+> {
   icon: React.ReactNode;
 }
 
-export function IconButton({
-  icon,
-  size = 'md',
-  variant = 'ghost',
-  ...props
-}: IconButtonProps) {
+export function IconButton({ icon, size = 'md', variant = 'ghost', ...props }: IconButtonProps) {
   const colors = useColors();
   const borderRadius = useBorderRadius();
 
@@ -229,7 +229,6 @@ export function IconButton({
 
   return (
     <Button
-      variant={variant}
       size={size}
       style={{
         width: sizeValue,
@@ -238,6 +237,7 @@ export function IconButton({
         paddingVertical: 0,
         borderRadius: borderRadius.full,
       }}
+      variant={variant}
       {...props}
     >
       {icon}

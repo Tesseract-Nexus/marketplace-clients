@@ -1,12 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, StyleSheet, Alert, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, {
-  FadeInUp,
-  FadeOutUp,
-  SlideInUp,
-  SlideOutUp,
-} from 'react-native-reanimated';
+import Animated, { FadeInUp, FadeOutUp, SlideInUp, SlideOutUp } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import Constants from 'expo-constants';
@@ -17,7 +12,15 @@ import { useColors, useBorderRadius, useShadows } from '@/providers/ThemeProvide
 const isExpoGo = Constants.appOwnership === 'expo';
 
 // Only import burnt in development builds (not Expo Go)
-let burntToast: ((options: { title: string; message?: string; preset?: string; haptic?: string; duration?: number }) => void) | null = null;
+let burntToast:
+  | ((options: {
+      title: string;
+      message?: string;
+      preset?: string;
+      haptic?: string;
+      duration?: number;
+    }) => void)
+  | null = null;
 
 if (!isExpoGo) {
   try {
@@ -46,14 +49,19 @@ interface ToastProps {
 // Store for managing fallback toasts
 let toastTimeout: NodeJS.Timeout | null = null;
 let toastVisible = false;
-let toastListeners: Array<(visible: boolean, title: string, message?: string, type?: ToastType) => void> = [];
+let toastListeners: ((
+  visible: boolean,
+  title: string,
+  message?: string,
+  type?: ToastType
+) => void)[] = [];
 
 export const subscribeToFallbackToast = (
   listener: (visible: boolean, title: string, message?: string, type?: ToastType) => void
 ) => {
   toastListeners.push(listener);
   return () => {
-    toastListeners = toastListeners.filter(l => l !== listener);
+    toastListeners = toastListeners.filter((l) => l !== listener);
   };
 };
 
@@ -77,12 +85,12 @@ const fallbackToast = (title: string, message?: string, type?: ToastType) => {
 
   // Notify listeners to show toast
   toastVisible = true;
-  toastListeners.forEach(l => l(true, title, message, type));
+  toastListeners.forEach((l) => l(true, title, message, type));
 
   // Auto-dismiss after 2.5 seconds
   toastTimeout = setTimeout(() => {
     toastVisible = false;
-    toastListeners.forEach(l => l(false, '', undefined, undefined));
+    toastListeners.forEach((l) => l(false, '', undefined, undefined));
   }, 2500);
 };
 
@@ -185,13 +193,7 @@ export const toast = {
 };
 
 // Custom Toast Component (for more control)
-export function Toast({
-  type = 'info',
-  title,
-  message,
-  action,
-  onDismiss,
-}: ToastProps) {
+export function Toast({ type = 'info', title, message, action, onDismiss }: ToastProps) {
   const colors = useColors();
   const borderRadius = useBorderRadius();
   const shadows = useShadows();
@@ -246,37 +248,28 @@ export function Toast({
       ]}
     >
       <View style={styles.content}>
-        <View
-          style={[
-            styles.iconContainer,
-            { backgroundColor: config.bgColor },
-          ]}
-        >
-          <Ionicons name={config.icon} size={20} color={config.color} />
+        <View style={[styles.iconContainer, { backgroundColor: config.bgColor }]}>
+          <Ionicons color={config.color} name={config.icon} size={20} />
         </View>
 
         <View style={styles.textContainer}>
           <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
-          {message && (
-            <Text style={[styles.message, { color: colors.textSecondary }]}>
-              {message}
-            </Text>
-          )}
+          {message ? (
+            <Text style={[styles.message, { color: colors.textSecondary }]}>{message}</Text>
+          ) : null}
         </View>
 
-        {action && (
-          <Pressable onPress={action.onPress} style={styles.actionButton}>
-            <Text style={[styles.actionText, { color: colors.primary }]}>
-              {action.label}
-            </Text>
+        {action ? (
+          <Pressable style={styles.actionButton} onPress={action.onPress}>
+            <Text style={[styles.actionText, { color: colors.primary }]}>{action.label}</Text>
           </Pressable>
-        )}
+        ) : null}
 
-        {onDismiss && (
-          <Pressable onPress={onDismiss} style={styles.dismissButton}>
-            <Ionicons name="close" size={20} color={colors.textTertiary} />
+        {onDismiss ? (
+          <Pressable style={styles.dismissButton} onPress={onDismiss}>
+            <Ionicons color={colors.textTertiary} name="close" size={20} />
           </Pressable>
-        )}
+        ) : null}
       </View>
     </Animated.View>
   );

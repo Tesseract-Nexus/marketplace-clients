@@ -73,10 +73,7 @@ export function FloatingCard({
     // Glow animation
     if (glowing && gradient) {
       glowOpacity.value = withRepeat(
-        withSequence(
-          withTiming(0.5, { duration: 1500 }),
-          withTiming(0.2, { duration: 1500 })
-        ),
+        withSequence(withTiming(0.5, { duration: 1500 }), withTiming(0.2, { duration: 1500 })),
         -1,
         true
       );
@@ -101,12 +98,7 @@ export function FloatingCard({
         { scale: scale.value },
         { translateY: translateY.value },
         {
-          translateY: interpolate(
-            enterProgress.value,
-            [0, 1],
-            [30, 0],
-            Extrapolation.CLAMP
-          ),
+          translateY: interpolate(enterProgress.value, [0, 1], [30, 0], Extrapolation.CLAMP),
         },
       ] as any,
       opacity: enterProgress.value,
@@ -138,41 +130,29 @@ export function FloatingCard({
 
   return (
     <CardWrapper
-      style={[
-        styles.container,
-        { borderRadius },
-        getShadow(),
-        animatedStyle,
-        style,
-      ]}
+      style={[styles.container, { borderRadius }, getShadow(), animatedStyle, style]}
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
     >
       {/* Glow effect */}
-      {glowing && gradient && (
-        <Animated.View
-          style={[
-            styles.glow,
-            { borderRadius: borderRadius + 8 },
-            glowStyle,
-          ]}
-        >
+      {glowing && gradient ? (
+        <Animated.View style={[styles.glow, { borderRadius: borderRadius + 8 }, glowStyle]}>
           <LinearGradient
             colors={[...gradient]}
-            start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
+            start={{ x: 0, y: 0 }}
             style={StyleSheet.absoluteFill}
           />
         </Animated.View>
-      )}
+      ) : null}
 
       {/* Card content */}
       {gradient ? (
         <LinearGradient
           colors={[...gradient]}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={[styles.gradient, { borderRadius }]}
         >
           {children}
@@ -201,17 +181,13 @@ interface HeroCardProps {
   style?: ViewStyle;
 }
 
-export function HeroCard({
-  children,
-  gradient = premiumGradients.cosmic,
-  style,
-}: HeroCardProps) {
+export function HeroCard({ children, gradient = premiumGradients.cosmic, style }: HeroCardProps) {
   return (
     <FloatingCard
-      gradient={gradient}
       floating
       glowing
       elevation="xl"
+      gradient={gradient}
       style={StyleSheet.flatten([styles.heroCard, style])}
     >
       {children}
@@ -230,11 +206,11 @@ interface StatCardProps {
 export function StatCard({ children, delay = 0, style, onPress }: StatCardProps) {
   return (
     <FloatingCard
-      floating={false}
+      delay={delay}
       elevation="md"
+      floating={false}
       style={StyleSheet.flatten([styles.statCard, style])}
       onPress={onPress}
-      delay={delay}
     >
       {children}
     </FloatingCard>

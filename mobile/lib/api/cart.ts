@@ -119,11 +119,12 @@ export const cartApi = {
    */
   validate: async (): Promise<{
     valid: boolean;
-    errors: Array<{ field: string; message: string }>;
+    errors: { field: string; message: string }[];
   }> => {
-    const response = await apiPost<{ valid: boolean; errors: Array<{ field: string; message: string }> }>(
-      `${ENDPOINTS.CART.GET}/validate`
-    );
+    const response = await apiPost<{
+      valid: boolean;
+      errors: { field: string; message: string }[];
+    }>(`${ENDPOINTS.CART.GET}/validate`);
     return response.data;
   },
 

@@ -1,10 +1,6 @@
 import React from 'react';
 import { ScrollView, Pressable, Text, StyleSheet, ViewStyle } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -38,15 +34,13 @@ export function FilterChips({
 }: FilterChipsProps) {
   const colors = useColors();
 
-  const allChips = showAll
-    ? [{ id: null, label: allLabel } as FilterChip, ...chips]
-    : chips;
+  const allChips = showAll ? [{ id: null, label: allLabel } as FilterChip, ...chips] : chips;
 
   return (
     <ScrollView
       horizontal
-      showsHorizontalScrollIndicator={false}
       contentContainerStyle={[styles.container, style]}
+      showsHorizontalScrollIndicator={false}
     >
       {allChips.map((chip) => (
         <ChipItem
@@ -99,37 +93,30 @@ function ChipItem({ chip, isSelected, onPress }: ChipItemProps) {
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
     >
-      {chip.icon && (
+      {chip.icon ? (
         <Ionicons
+          color={isSelected ? colors.textOnPrimary : colors.textSecondary}
           name={chip.icon}
           size={16}
-          color={isSelected ? colors.textOnPrimary : colors.textSecondary}
           style={styles.chipIcon}
         />
-      )}
-      <Text
-        style={[
-          styles.chipLabel,
-          { color: isSelected ? colors.textOnPrimary : colors.text },
-        ]}
-      >
+      ) : null}
+      <Text style={[styles.chipLabel, { color: isSelected ? colors.textOnPrimary : colors.text }]}>
         {chip.label}
       </Text>
-      {chip.count !== undefined && (
+      {chip.count !== undefined ? (
         <Text
           style={[
             styles.chipCount,
             {
               color: isSelected ? colors.textOnPrimary : colors.textSecondary,
-              backgroundColor: isSelected
-                ? `${colors.textOnPrimary}20`
-                : `${colors.text}08`,
+              backgroundColor: isSelected ? `${colors.textOnPrimary}20` : `${colors.text}08`,
             },
           ]}
         >
           {chip.count}
         </Text>
-      )}
+      ) : null}
     </AnimatedPressable>
   );
 }

@@ -16,7 +16,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 
 import { useColors } from '@/providers/ThemeProvider';
-import { ScreenHeader, SearchHeader, FilterChips, DataListItem, SectionHeader, FloatingActionButton } from '@/components/admin';
+import {
+  ScreenHeader,
+  SearchHeader,
+  FilterChips,
+  DataListItem,
+  SectionHeader,
+  FloatingActionButton,
+} from '@/components/admin';
 import { MetricCard } from '@/components/admin/MetricCard';
 import { gradients } from '@/lib/design/typography';
 
@@ -42,7 +49,7 @@ const mockGiftCards: GiftCard[] = [
     id: '1',
     code: 'GIFT-A1B2-C3D4',
     initialValue: 100,
-    currentBalance: 75.50,
+    currentBalance: 75.5,
     status: 'active',
     recipientEmail: 'john@example.com',
     recipientName: 'John Doe',
@@ -105,7 +112,11 @@ export default function GiftCardsScreen() {
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const { data: giftCards = mockGiftCards, isLoading, refetch } = useQuery({
+  const {
+    data: giftCards = mockGiftCards,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['gift-cards'],
     queryFn: async () => mockGiftCards,
   });
@@ -114,12 +125,12 @@ export default function GiftCardsScreen() {
     totalCards: giftCards.length,
     totalValue: giftCards.reduce((sum, gc) => sum + gc.initialValue, 0),
     activeBalance: giftCards
-      .filter(gc => gc.status === 'active')
+      .filter((gc) => gc.status === 'active')
       .reduce((sum, gc) => sum + gc.currentBalance, 0),
-    usedThisMonth: giftCards.filter(gc => gc.lastUsedAt).length,
+    usedThisMonth: giftCards.filter((gc) => gc.lastUsedAt).length,
   };
 
-  const filteredCards = giftCards.filter(gc => {
+  const filteredCards = giftCards.filter((gc) => {
     const matchesSearch =
       gc.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
       gc.recipientName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -161,89 +172,68 @@ export default function GiftCardsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader
-        title="Gift Cards"
-        subtitle="Manage digital gift cards"
         rightAction={{
           icon: 'settings-outline',
           onPress: () => {},
         }}
+        subtitle="Manage digital gift cards"
+        title="Gift Cards"
       />
 
       <ScrollView
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={refetch} />
-        }
       >
         {/* Stats Overview */}
-        <Animated.View
-          entering={FadeInDown.delay(50).springify()}
-          style={styles.statsContainer}
-        >
+        <Animated.View entering={FadeInDown.delay(50).springify()} style={styles.statsContainer}>
           <LinearGradient
             colors={gradients.primary}
-            start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
+            start={{ x: 0, y: 0 }}
             style={styles.heroCard}
           >
             <View style={styles.heroContent}>
               <View>
                 <Text style={styles.heroLabel}>Active Balance</Text>
-                <Text style={styles.heroValue}>
-                  ${stats.activeBalance.toFixed(2)}
-                </Text>
-                <Text style={styles.heroSubtext}>
-                  across {stats.totalCards} gift cards
-                </Text>
+                <Text style={styles.heroValue}>${stats.activeBalance.toFixed(2)}</Text>
+                <Text style={styles.heroSubtext}>across {stats.totalCards} gift cards</Text>
               </View>
               <View style={styles.heroIcon}>
-                <Ionicons name="gift" size={48} color="rgba(255,255,255,0.3)" />
+                <Ionicons color="rgba(255,255,255,0.3)" name="gift" size={48} />
               </View>
             </View>
           </LinearGradient>
 
           <View style={styles.statsRow}>
             <MetricCard
+              icon="cash-outline"
               title="Total Issued"
               value={`$${stats.totalValue.toLocaleString()}`}
-              icon="cash-outline"
             />
             <MetricCard
+              icon="trending-up"
               title="Used This Month"
               value={stats.usedThisMonth.toString()}
-              icon="trending-up"
             />
           </View>
         </Animated.View>
 
         {/* Search & Filter */}
         <SearchHeader
+          filterCount={selectedFilter ? 1 : 0}
+          placeholder="Search by code, recipient..."
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="Search by code, recipient..."
           onFilterPress={() => {}}
-          filterCount={selectedFilter ? 1 : 0}
         />
 
-        <FilterChips
-          chips={filterChips}
-          selectedId={selectedFilter}
-          onSelect={setSelectedFilter}
-        />
+        <FilterChips chips={filterChips} selectedId={selectedFilter} onSelect={setSelectedFilter} />
 
         {/* Gift Cards List */}
-        <SectionHeader
-          title="Gift Cards"
-          count={filteredCards.length}
-          icon="gift"
-          delay={100}
-        />
+        <SectionHeader count={filteredCards.length} delay={100} icon="gift" title="Gift Cards" />
 
         {filteredCards.map((card, index) => (
-          <Animated.View
-            key={card.id}
-            entering={FadeInRight.delay(150 + index * 50).springify()}
-          >
+          <Animated.View key={card.id} entering={FadeInRight.delay(150 + index * 50).springify()}>
             <Pressable
               style={[styles.giftCard, { backgroundColor: colors.surface }]}
               onPress={() => {
@@ -252,18 +242,11 @@ export default function GiftCardsScreen() {
             >
               <View style={styles.cardHeader}>
                 <View style={styles.codeContainer}>
-                  <View
-                    style={[
-                      styles.codeIcon,
-                      { backgroundColor: `${colors.primary}15` },
-                    ]}
-                  >
-                    <Ionicons name="gift" size={20} color={colors.primary} />
+                  <View style={[styles.codeIcon, { backgroundColor: `${colors.primary}15` }]}>
+                    <Ionicons color={colors.primary} name="gift" size={20} />
                   </View>
                   <View>
-                    <Text style={[styles.cardCode, { color: colors.text }]}>
-                      {card.code}
-                    </Text>
+                    <Text style={[styles.cardCode, { color: colors.text }]}>{card.code}</Text>
                     <Text style={[styles.cardRecipient, { color: colors.textSecondary }]}>
                       {card.recipientName || 'No recipient assigned'}
                     </Text>
@@ -276,14 +259,9 @@ export default function GiftCardsScreen() {
                   ]}
                 >
                   <View
-                    style={[
-                      styles.statusDot,
-                      { backgroundColor: getStatusColor(card.status) },
-                    ]}
+                    style={[styles.statusDot, { backgroundColor: getStatusColor(card.status) }]}
                   />
-                  <Text
-                    style={[styles.statusText, { color: getStatusColor(card.status) }]}
-                  >
+                  <Text style={[styles.statusText, { color: getStatusColor(card.status) }]}>
                     {getStatusLabel(card.status)}
                   </Text>
                 </View>
@@ -317,24 +295,16 @@ export default function GiftCardsScreen() {
                 </View>
 
                 <View style={styles.cardMeta}>
-                  {card.expiresAt && (
+                  {card.expiresAt ? (
                     <View style={styles.metaItem}>
-                      <Ionicons
-                        name="calendar-outline"
-                        size={14}
-                        color={colors.textSecondary}
-                      />
+                      <Ionicons color={colors.textSecondary} name="calendar-outline" size={14} />
                       <Text style={[styles.metaText, { color: colors.textSecondary }]}>
                         Expires {new Date(card.expiresAt).toLocaleDateString()}
                       </Text>
                     </View>
-                  )}
+                  ) : null}
                   <View style={styles.metaItem}>
-                    <Ionicons
-                      name="repeat-outline"
-                      size={14}
-                      color={colors.textSecondary}
-                    />
+                    <Ionicons color={colors.textSecondary} name="repeat-outline" size={14} />
                     <Text style={[styles.metaText, { color: colors.textSecondary }]}>
                       Used {card.usageCount} times
                     </Text>
@@ -349,7 +319,7 @@ export default function GiftCardsScreen() {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   }}
                 >
-                  <Ionicons name="eye-outline" size={18} color={colors.primary} />
+                  <Ionicons color={colors.primary} name="eye-outline" size={18} />
                   <Text style={[styles.actionText, { color: colors.primary }]}>View</Text>
                 </Pressable>
                 <Pressable
@@ -358,20 +328,20 @@ export default function GiftCardsScreen() {
                     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   }}
                 >
-                  <Ionicons name="add-circle-outline" size={18} color={colors.success} />
+                  <Ionicons color={colors.success} name="add-circle-outline" size={18} />
                   <Text style={[styles.actionText, { color: colors.success }]}>Top Up</Text>
                 </Pressable>
-                {card.status === 'active' && (
+                {card.status === 'active' ? (
                   <Pressable
                     style={[styles.actionBtn, { backgroundColor: `${colors.error}10` }]}
                     onPress={() => {
                       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     }}
                   >
-                    <Ionicons name="close-circle-outline" size={18} color={colors.error} />
+                    <Ionicons color={colors.error} name="close-circle-outline" size={18} />
                     <Text style={[styles.actionText, { color: colors.error }]}>Disable</Text>
                   </Pressable>
-                )}
+                ) : null}
               </View>
             </Pressable>
           </Animated.View>
@@ -380,11 +350,7 @@ export default function GiftCardsScreen() {
         <View style={styles.bottomSpacer} />
       </ScrollView>
 
-      <FloatingActionButton
-        icon="add"
-        label="Create"
-        onPress={() => setShowCreateModal(true)}
-      />
+      <FloatingActionButton icon="add" label="Create" onPress={() => setShowCreateModal(true)} />
     </View>
   );
 }

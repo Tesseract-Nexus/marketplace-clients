@@ -32,56 +32,40 @@ export function SectionHeader({
   const colors = useColors();
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(delay).springify()}
-      style={[styles.container, style]}
-    >
+    <Animated.View entering={FadeInDown.delay(delay).springify()} style={[styles.container, style]}>
       <View style={styles.leftSection}>
-        {icon && (
+        {icon ? (
           <View
-            style={[
-              styles.iconContainer,
-              { backgroundColor: `${iconColor || colors.primary}15` },
-            ]}
+            style={[styles.iconContainer, { backgroundColor: `${iconColor || colors.primary}15` }]}
           >
-            <Ionicons
-              name={icon}
-              size={18}
-              color={iconColor || colors.primary}
-            />
+            <Ionicons color={iconColor || colors.primary} name={icon} size={18} />
           </View>
-        )}
+        ) : null}
         <View>
           <View style={styles.titleRow}>
             <Text style={[styles.title, { color: colors.text }]}>{title}</Text>
-            {count !== undefined && (
+            {count !== undefined ? (
               <View style={[styles.countBadge, { backgroundColor: `${colors.primary}15` }]}>
-                <Text style={[styles.countText, { color: colors.primary }]}>
-                  {count}
-                </Text>
+                <Text style={[styles.countText, { color: colors.primary }]}>{count}</Text>
               </View>
-            )}
+            ) : null}
           </View>
-          {subtitle && (
-            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              {subtitle}
-            </Text>
-          )}
+          {subtitle ? (
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
+          ) : null}
         </View>
       </View>
 
-      {action && (
+      {action ? (
         <Pressable
+          hitSlop={8}
           style={[styles.actionButton, { backgroundColor: `${colors.primary}10` }]}
           onPress={action.onPress}
-          hitSlop={8}
         >
-          <Text style={[styles.actionLabel, { color: colors.primary }]}>
-            {action.label}
-          </Text>
-          <Ionicons name="arrow-forward" size={14} color={colors.primary} />
+          <Text style={[styles.actionLabel, { color: colors.primary }]}>{action.label}</Text>
+          <Ionicons color={colors.primary} name="arrow-forward" size={14} />
         </Pressable>
-      )}
+      ) : null}
     </Animated.View>
   );
 }

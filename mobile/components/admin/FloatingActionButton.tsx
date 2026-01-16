@@ -68,29 +68,24 @@ export function FloatingActionButton({
 
   const ButtonContent = () => (
     <>
-      <Ionicons name={icon} size={24} color="#FFFFFF" />
-      {label && <Text style={styles.label}>{label}</Text>}
+      <Ionicons color="#FFFFFF" name={icon} size={24} />
+      {label ? <Text style={styles.label}>{label}</Text> : null}
     </>
   );
 
   return (
     <AnimatedPressable
-      style={[
-        styles.container,
-        getPosition(),
-        animatedStyle,
-        style,
-      ]}
+      entering={FadeInUp.delay(200).springify()}
+      style={[styles.container, getPosition(), animatedStyle, style]}
       onPress={handlePress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      entering={FadeInUp.delay(200).springify()}
     >
       {gradient ? (
         <LinearGradient
           colors={gradients.primary}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={[styles.button, label && styles.buttonExpanded]}
         >
           <ButtonContent />
@@ -112,12 +107,12 @@ export function FloatingActionButton({
 
 // Quick Actions FAB Group
 interface QuickActionsProps {
-  actions: Array<{
+  actions: {
     icon: keyof typeof Ionicons.glyphMap;
     label: string;
     onPress: () => void;
     color?: string;
-  }>;
+  }[];
   mainIcon?: keyof typeof Ionicons.glyphMap;
 }
 
@@ -139,51 +134,42 @@ export function QuickActionsFAB({ actions, mainIcon = 'add' }: QuickActionsProps
   return (
     <>
       {/* Backdrop */}
-      {isOpen && (
-        <Pressable style={styles.backdrop} onPress={toggleOpen} />
-      )}
+      {isOpen ? <Pressable style={styles.backdrop} onPress={toggleOpen} /> : null}
 
       {/* Action Items */}
-      {isOpen &&
-        actions.map((action, index) => (
-          <Animated.View
-            key={index}
-            entering={FadeInUp.delay(index * 50).springify()}
-            style={[styles.actionItem, { bottom: 100 + index * 60 }]}
-          >
-            <Text style={[styles.actionLabel, { color: colors.text }]}>
-              {action.label}
-            </Text>
-            <Pressable
-              style={[
-                styles.actionButton,
-                { backgroundColor: action.color || colors.primary },
-              ]}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                action.onPress();
-                setIsOpen(false);
-                rotation.value = withSpring(0, { damping: 15 });
-              }}
+      {isOpen
+        ? actions.map((action, index) => (
+            <Animated.View
+              key={index}
+              entering={FadeInUp.delay(index * 50).springify()}
+              style={[styles.actionItem, { bottom: 100 + index * 60 }]}
             >
-              <Ionicons name={action.icon} size={22} color="#FFFFFF" />
-            </Pressable>
-          </Animated.View>
-        ))}
+              <Text style={[styles.actionLabel, { color: colors.text }]}>{action.label}</Text>
+              <Pressable
+                style={[styles.actionButton, { backgroundColor: action.color || colors.primary }]}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  action.onPress();
+                  setIsOpen(false);
+                  rotation.value = withSpring(0, { damping: 15 });
+                }}
+              >
+                <Ionicons color="#FFFFFF" name={action.icon} size={22} />
+              </Pressable>
+            </Animated.View>
+          ))
+        : null}
 
       {/* Main Button */}
-      <Pressable
-        style={[styles.container, { right: 20 }]}
-        onPress={toggleOpen}
-      >
+      <Pressable style={[styles.container, { right: 20 }]} onPress={toggleOpen}>
         <LinearGradient
           colors={gradients.primary}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={styles.button}
         >
           <Animated.View style={mainButtonStyle}>
-            <Ionicons name={mainIcon} size={28} color="#FFFFFF" />
+            <Ionicons color="#FFFFFF" name={mainIcon} size={28} />
           </Animated.View>
         </LinearGradient>
       </Pressable>

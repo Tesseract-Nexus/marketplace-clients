@@ -14,10 +14,7 @@ interface UseRefreshReturn {
  * Hook for pull-to-refresh functionality
  * Ensures minimum visual feedback duration for better UX
  */
-export function useRefresh({
-  onRefresh,
-  minimumDelay = 500,
-}: UseRefreshOptions): UseRefreshReturn {
+export function useRefresh({ onRefresh, minimumDelay = 500 }: UseRefreshOptions): UseRefreshReturn {
   const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = useCallback(async () => {

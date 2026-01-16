@@ -170,26 +170,29 @@ export const useOIDCAuthStore = create<OIDCAuthState>()(
           } catch {
             // If tenant fetch fails, create minimal tenant from user claims
             if (user.tenant_id) {
-              tenants = [{
-                id: user.tenant_id,
-                name: 'My Store',
-                slug: user.tenant_slug || 'demo-store',
-                owner_id: user.id,
-                status: 'active',
-                subscription_plan: 'free',
-                subscription_status: 'active',
-                settings: {} as Tenant['settings'],
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-              }];
+              tenants = [
+                {
+                  id: user.tenant_id,
+                  name: 'My Store',
+                  slug: user.tenant_slug || 'demo-store',
+                  owner_id: user.id,
+                  status: 'active',
+                  subscription_plan: 'free',
+                  subscription_status: 'active',
+                  settings: {} as Tenant['settings'],
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString(),
+                },
+              ];
             }
           }
 
           // Get or set default tenant
           const storedTenant = await secureStorage.getObject<Tenant>(STORAGE_KEYS.CURRENT_TENANT);
-          const currentTenant = storedTenant && tenants.find(t => t.id === storedTenant.id)
-            ? storedTenant
-            : tenants[0] || null;
+          const currentTenant =
+            storedTenant && tenants.find((t) => t.id === storedTenant.id)
+              ? storedTenant
+              : tenants[0] || null;
 
           if (currentTenant) {
             await secureStorage.setObject(STORAGE_KEYS.CURRENT_TENANT, currentTenant);
@@ -266,7 +269,7 @@ export const useOIDCAuthStore = create<OIDCAuthState>()(
 
           await secureStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, newTokens.accessToken);
           if (newTokens.refreshToken !== currentTokens.refreshToken) {
-            await secureStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, newTokens.refreshToken!);
+            await secureStorage.setItem(STORAGE_KEYS.REFRESH_TOKEN, newTokens.refreshToken);
           }
           if (newTokens.idToken) {
             await secureStorage.setItem(STORAGE_KEYS.ID_TOKEN, newTokens.idToken);
@@ -381,7 +384,8 @@ export const useOIDCAuthStore = create<OIDCAuthState>()(
                   customer_id: userInfo.customer_id || tokenClaims.customer_id,
                   loyalty_tier: userInfo.loyalty_tier,
                   picture: userInfo.picture,
-                  roles: userInfo.realm_access?.roles || tokenClaims.realm_access?.roles || ['customer'],
+                  roles: userInfo.realm_access?.roles ||
+                    tokenClaims.realm_access?.roles || ['customer'],
                 };
 
                 const tokens: OIDCTokens = {
@@ -398,22 +402,26 @@ export const useOIDCAuthStore = create<OIDCAuthState>()(
                   tenants = await tenantsApi.list();
                 } catch {
                   if (user.tenant_id) {
-                    tenants = [{
-                      id: user.tenant_id,
-                      name: 'My Store',
-                      slug: user.tenant_slug || 'demo-store',
-                      owner_id: user.id,
-                      status: 'active',
-                      subscription_plan: 'free',
-                      subscription_status: 'active',
-                      settings: {} as Tenant['settings'],
-                      created_at: new Date().toISOString(),
-                      updated_at: new Date().toISOString(),
-                    }];
+                    tenants = [
+                      {
+                        id: user.tenant_id,
+                        name: 'My Store',
+                        slug: user.tenant_slug || 'demo-store',
+                        owner_id: user.id,
+                        status: 'active',
+                        subscription_plan: 'free',
+                        subscription_status: 'active',
+                        settings: {} as Tenant['settings'],
+                        created_at: new Date().toISOString(),
+                        updated_at: new Date().toISOString(),
+                      },
+                    ];
                   }
                 }
 
-                const storedTenant = await secureStorage.getObject<Tenant>(STORAGE_KEYS.CURRENT_TENANT);
+                const storedTenant = await secureStorage.getObject<Tenant>(
+                  STORAGE_KEYS.CURRENT_TENANT
+                );
                 const currentTenant = storedTenant || tenants[0] || null;
 
                 set({
@@ -454,7 +462,8 @@ export const useOIDCAuthStore = create<OIDCAuthState>()(
                     customer_id: userInfo.customer_id || tokenClaims.customer_id,
                     loyalty_tier: userInfo.loyalty_tier,
                     picture: userInfo.picture,
-                    roles: userInfo.realm_access?.roles || tokenClaims.realm_access?.roles || ['customer'],
+                    roles: userInfo.realm_access?.roles ||
+                      tokenClaims.realm_access?.roles || ['customer'],
                   };
 
                   let tenants: Tenant[] = [];
@@ -462,22 +471,26 @@ export const useOIDCAuthStore = create<OIDCAuthState>()(
                     tenants = await tenantsApi.list();
                   } catch {
                     if (user.tenant_id) {
-                      tenants = [{
-                        id: user.tenant_id,
-                        name: 'My Store',
-                        slug: user.tenant_slug || 'demo-store',
-                        owner_id: user.id,
-                        status: 'active',
-                        subscription_plan: 'free',
-                        subscription_status: 'active',
-                        settings: {} as Tenant['settings'],
-                        created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString(),
-                      }];
+                      tenants = [
+                        {
+                          id: user.tenant_id,
+                          name: 'My Store',
+                          slug: user.tenant_slug || 'demo-store',
+                          owner_id: user.id,
+                          status: 'active',
+                          subscription_plan: 'free',
+                          subscription_status: 'active',
+                          settings: {} as Tenant['settings'],
+                          created_at: new Date().toISOString(),
+                          updated_at: new Date().toISOString(),
+                        },
+                      ];
                     }
                   }
 
-                  const storedTenant = await secureStorage.getObject<Tenant>(STORAGE_KEYS.CURRENT_TENANT);
+                  const storedTenant = await secureStorage.getObject<Tenant>(
+                    STORAGE_KEYS.CURRENT_TENANT
+                  );
                   const currentTenant = storedTenant || tenants[0] || null;
 
                   set({
@@ -516,15 +529,17 @@ export const useOIDCAuthStore = create<OIDCAuthState>()(
       name: 'oidc-auth-storage',
       storage: createJSONStorage(() => zustandStorage),
       partialize: (state) => ({
-        user: state.user ? {
-          id: state.user.id,
-          email: state.user.email,
-          first_name: state.user.first_name,
-          last_name: state.user.last_name,
-          tenant_id: state.user.tenant_id,
-          tenant_slug: state.user.tenant_slug,
-          roles: state.user.roles,
-        } : null,
+        user: state.user
+          ? {
+              id: state.user.id,
+              email: state.user.email,
+              first_name: state.user.first_name,
+              last_name: state.user.last_name,
+              tenant_id: state.user.tenant_id,
+              tenant_slug: state.user.tenant_slug,
+              roles: state.user.roles,
+            }
+          : null,
         currentTenantId: state.currentTenant?.id || null,
       }),
       merge: (persistedState: unknown, currentState) => ({

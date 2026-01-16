@@ -10,11 +10,7 @@ interface LoadingScreenProps {
   overlay?: boolean;
 }
 
-export function LoadingScreen({
-  message,
-  fullScreen = true,
-  overlay = false,
-}: LoadingScreenProps) {
+export function LoadingScreen({ message, fullScreen = true, overlay = false }: LoadingScreenProps) {
   const colors = useColors();
 
   const containerStyle = [
@@ -30,17 +26,12 @@ export function LoadingScreen({
       exiting={FadeOut.duration(200)}
       style={containerStyle}
     >
-      <ActivityIndicator size="large" color={colors.primary} />
-      {message && (
-        <Text
-          style={[
-            styles.message,
-            { color: overlay ? colors.textInverse : colors.text },
-          ]}
-        >
+      <ActivityIndicator color={colors.primary} size="large" />
+      {message ? (
+        <Text style={[styles.message, { color: overlay ? colors.textInverse : colors.text }]}>
           {message}
         </Text>
-      )}
+      ) : null}
     </Animated.View>
   );
 }
@@ -52,16 +43,12 @@ interface LoadingIndicatorProps {
   style?: object;
 }
 
-export function LoadingIndicator({
-  size = 'small',
-  color,
-  style,
-}: LoadingIndicatorProps) {
+export function LoadingIndicator({ size = 'small', color, style }: LoadingIndicatorProps) {
   const colors = useColors();
 
   return (
     <View style={[styles.indicator, style]}>
-      <ActivityIndicator size={size} color={color || colors.primary} />
+      <ActivityIndicator color={color || colors.primary} size={size} />
     </View>
   );
 }
@@ -80,7 +67,7 @@ export function RefreshIndicator({ refreshing }: RefreshIndicatorProps) {
 
   return (
     <View style={styles.refreshContainer}>
-      <ActivityIndicator size="small" color={colors.primary} />
+      <ActivityIndicator color={colors.primary} size="small" />
     </View>
   );
 }
@@ -89,7 +76,7 @@ export function RefreshIndicator({ refreshing }: RefreshIndicatorProps) {
 export function ButtonLoading({ color }: { color?: string }) {
   const colors = useColors();
 
-  return <ActivityIndicator size="small" color={color || colors.textOnPrimary} />;
+  return <ActivityIndicator color={color || colors.textOnPrimary} size="small" />;
 }
 
 // Inline loading with text
@@ -102,10 +89,8 @@ export function InlineLoading({ text = 'Loading...' }: InlineLoadingProps) {
 
   return (
     <View style={styles.inlineContainer}>
-      <ActivityIndicator size="small" color={colors.primary} />
-      <Text style={[styles.inlineText, { color: colors.textSecondary }]}>
-        {text}
-      </Text>
+      <ActivityIndicator color={colors.primary} size="small" />
+      <Text style={[styles.inlineText, { color: colors.textSecondary }]}>{text}</Text>
     </View>
   );
 }
@@ -131,17 +116,12 @@ export function LoadingWrapper({
   if (error) {
     return (
       <View style={styles.errorContainer}>
-        <Text style={[styles.errorText, { color: colors.error }]}>
-          {error.message}
-        </Text>
-        {onRetry && (
-          <Text
-            onPress={onRetry}
-            style={[styles.retryText, { color: colors.primary }]}
-          >
+        <Text style={[styles.errorText, { color: colors.error }]}>{error.message}</Text>
+        {onRetry ? (
+          <Text style={[styles.retryText, { color: colors.primary }]} onPress={onRetry}>
             Tap to retry
           </Text>
-        )}
+        ) : null}
       </View>
     );
   }

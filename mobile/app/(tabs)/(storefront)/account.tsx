@@ -35,22 +35,23 @@ function MenuItem({
 
   return (
     <Pressable
+      disabled={!onPress}
       style={[styles.menuItem, { borderBottomColor: colors.border }]}
       onPress={onPress}
-      disabled={!onPress}
     >
       <View style={[styles.menuIcon, { backgroundColor: `${iconColor || colors.primary}20` }]}>
-        <Ionicons name={icon as any} size={20} color={iconColor || colors.primary} />
+        <Ionicons color={iconColor || colors.primary} name={icon as any} size={20} />
       </View>
       <View style={styles.menuContent}>
         <Text style={[styles.menuTitle, { color: colors.text }]}>{title}</Text>
-        {subtitle && (
+        {subtitle ? (
           <Text style={[styles.menuSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
-        )}
+        ) : null}
       </View>
-      {rightElement || (showChevron && onPress && (
-        <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
-      ))}
+      {rightElement ||
+        (showChevron && onPress && (
+          <Ionicons color={colors.textTertiary} name="chevron-forward" size={20} />
+        ))}
     </Pressable>
   );
 }
@@ -64,21 +65,17 @@ export default function AccountScreen() {
   const [pushEnabled, setPushEnabled] = useState(true);
 
   const handleLogout = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: () => {
-            logout();
-            router.replace('/');
-          },
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: () => {
+          logout();
+          router.replace('/');
         },
-      ]
-    );
+      },
+    ]);
   };
 
   if (!isAuthenticated) {
@@ -89,24 +86,19 @@ export default function AccountScreen() {
         </View>
         <View style={styles.guestContent}>
           <View style={[styles.guestIcon, { backgroundColor: colors.primaryLight }]}>
-            <Ionicons name="person" size={48} color={colors.primary} />
+            <Ionicons color={colors.primary} name="person" size={48} />
           </View>
           <Text style={[styles.guestTitle, { color: colors.text }]}>Welcome!</Text>
           <Text style={[styles.guestSubtitle, { color: colors.textSecondary }]}>
             Sign in to track orders, save items, and get personalized recommendations.
           </Text>
           <View style={styles.guestButtons}>
+            <Button fullWidth size="lg" title="Sign In" onPress={() => router.push('/login')} />
             <Button
-              title="Sign In"
-              size="lg"
               fullWidth
-              onPress={() => router.push('/login')}
-            />
-            <Button
+              size="lg"
               title="Create Account"
               variant="outline"
-              size="lg"
-              fullWidth
               onPress={() => router.push('/register')}
             />
           </View>
@@ -137,8 +129,8 @@ export default function AccountScreen() {
           >
             <Avatar
               name={`${user?.first_name || ''} ${user?.last_name || ''}`}
-              source={user?.avatar || user?.avatar_url}
               size="lg"
+              source={user?.avatar || user?.avatar_url}
             />
             <View style={styles.profileInfo}>
               <Text style={[styles.profileName, { color: colors.text }]}>
@@ -148,7 +140,7 @@ export default function AccountScreen() {
                 {user?.email}
               </Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
+            <Ionicons color={colors.textTertiary} name="chevron-forward" size={20} />
           </Pressable>
         </Animated.View>
 
@@ -159,29 +151,29 @@ export default function AccountScreen() {
             <MenuItem
               icon="receipt"
               iconColor={colors.info}
-              title="My Orders"
               subtitle="Track and manage your orders"
+              title="My Orders"
               onPress={() => router.push('/(tabs)/(storefront)/order-history')}
             />
             <MenuItem
               icon="heart"
               iconColor={colors.error}
-              title="Wishlist"
               subtitle="Items you've saved"
+              title="Wishlist"
               onPress={() => router.push('/(tabs)/(storefront)/wishlist' as any)}
             />
             <MenuItem
               icon="location"
               iconColor={colors.success}
-              title="Addresses"
               subtitle="Manage delivery addresses"
+              title="Addresses"
               onPress={() => router.push('/(tabs)/(storefront)/addresses' as any)}
             />
             <MenuItem
               icon="card"
               iconColor={colors.warning}
-              title="Payment Methods"
               subtitle="Manage saved cards"
+              title="Payment Methods"
               onPress={() => router.push('/(tabs)/(storefront)/payment-methods' as any)}
             />
           </Card>
@@ -194,43 +186,43 @@ export default function AccountScreen() {
             <MenuItem
               icon="moon"
               iconColor={colors.info}
-              title="Dark Mode"
-              showChevron={false}
               rightElement={
                 <Switch
+                  thumbColor="#FFFFFF"
+                  trackColor={{ false: colors.border, true: colors.primary }}
                   value={isDark}
                   onValueChange={toggleMode}
-                  trackColor={{ false: colors.border, true: colors.primary }}
-                  thumbColor="#FFFFFF"
                 />
               }
+              showChevron={false}
+              title="Dark Mode"
             />
             <MenuItem
               icon="notifications"
               iconColor={colors.error}
-              title="Push Notifications"
-              showChevron={false}
               rightElement={
                 <Switch
+                  thumbColor="#FFFFFF"
+                  trackColor={{ false: colors.border, true: colors.primary }}
                   value={pushEnabled}
                   onValueChange={setPushEnabled}
-                  trackColor={{ false: colors.border, true: colors.primary }}
-                  thumbColor="#FFFFFF"
                 />
               }
+              showChevron={false}
+              title="Push Notifications"
             />
             <MenuItem
               icon="language"
               iconColor={colors.primary}
-              title="Language"
               subtitle="English"
+              title="Language"
               onPress={() => {}}
             />
             <MenuItem
               icon="cash"
               iconColor={colors.success}
-              title="Currency"
               subtitle="USD ($)"
+              title="Currency"
               onPress={() => {}}
             />
           </Card>
@@ -273,8 +265,8 @@ export default function AccountScreen() {
             <MenuItem
               icon="log-out"
               iconColor={colors.error}
-              title="Sign Out"
               showChevron={false}
+              title="Sign Out"
               onPress={handleLogout}
             />
           </Card>
@@ -282,9 +274,7 @@ export default function AccountScreen() {
 
         {/* App Version */}
         <Animated.View entering={FadeInDown.delay(600)} style={styles.versionContainer}>
-          <Text style={[styles.versionText, { color: colors.textTertiary }]}>
-            Version 1.0.0
-          </Text>
+          <Text style={[styles.versionText, { color: colors.textTertiary }]}>Version 1.0.0</Text>
         </Animated.View>
       </ScrollView>
     </View>

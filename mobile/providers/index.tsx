@@ -22,9 +22,7 @@ export function AppProviders({ children }: AppProvidersProps) {
         <QueryProvider>
           <ThemeProvider>
             <AuthProvider>
-              <ToastProvider>
-                {children}
-              </ToastProvider>
+              <ToastProvider>{children}</ToastProvider>
             </AuthProvider>
           </ThemeProvider>
         </QueryProvider>

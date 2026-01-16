@@ -127,7 +127,10 @@ export const ordersApi = {
   /**
    * Get orders by customer
    */
-  byCustomer: async (customerId: string, params?: Omit<OrderListParams, 'customer_id'>): Promise<ApiListResponse<Order>> => {
+  byCustomer: async (
+    customerId: string,
+    params?: Omit<OrderListParams, 'customer_id'>
+  ): Promise<ApiListResponse<Order>> => {
     const response = await apiGet<Order[]>(ENDPOINTS.ORDERS.LIST, {
       params: { ...params, customer_id: customerId },
     });
@@ -147,7 +150,10 @@ export const ordersApi = {
   /**
    * Get orders by status
    */
-  byStatus: async (status: OrderStatus, params?: Omit<OrderListParams, 'status'>): Promise<ApiListResponse<Order>> => {
+  byStatus: async (
+    status: OrderStatus,
+    params?: Omit<OrderListParams, 'status'>
+  ): Promise<ApiListResponse<Order>> => {
     const response = await apiGet<Order[]>(ENDPOINTS.ORDERS.LIST, {
       params: { ...params, status },
     });

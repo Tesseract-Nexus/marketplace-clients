@@ -1,5 +1,13 @@
 import { useState, useEffect } from 'react';
-import { View, Text, Pressable, StyleSheet, Modal, FlatList, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  StyleSheet,
+  Modal,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeIn, FadeOut, SlideInDown } from 'react-native-reanimated';
@@ -60,29 +68,29 @@ export function StoreSelector({ variant = 'default' }: StoreSelectorProps) {
             {currentTenant.name.charAt(0).toUpperCase()}
           </Text>
           {/* Badge showing number of stores */}
-          {tenants.length > 1 && (
+          {tenants.length > 1 ? (
             <View style={[styles.storeBadge, { backgroundColor: colors.primary }]}>
               <Text style={styles.storeBadgeText}>{tenants.length}</Text>
             </View>
-          )}
+          ) : null}
         </View>
-        {variant === 'default' && (
+        {variant === 'default' ? (
           <View style={styles.storeInfo}>
-            <Text style={[styles.storeName, { color: colors.text }]} numberOfLines={1}>
+            <Text numberOfLines={1} style={[styles.storeName, { color: colors.text }]}>
               {currentTenant.name}
             </Text>
-            <Text style={[styles.storeUrl, { color: colors.textSecondary }]} numberOfLines={1}>
+            <Text numberOfLines={1} style={[styles.storeUrl, { color: colors.textSecondary }]}>
               {currentTenant.slug}.tesserix.app
             </Text>
           </View>
-        )}
-        <Ionicons name="chevron-down" size={20} color={colors.textSecondary} />
+        ) : null}
+        <Ionicons color={colors.textSecondary} name="chevron-down" size={20} />
       </Pressable>
 
       <Modal
-        visible={showModal}
         transparent
         animationType="none"
+        visible={showModal}
         onRequestClose={() => setShowModal(false)}
       >
         <Pressable style={styles.overlay} onPress={() => setShowModal(false)}>
@@ -94,21 +102,35 @@ export function StoreSelector({ variant = 'default' }: StoreSelectorProps) {
             <View style={[styles.handle, { backgroundColor: colors.border }]} />
 
             <Text style={[styles.modalTitle, { color: colors.text }]}>
-              Select Store {tenants.length > 0 && `(${tenants.length})`}
+              Select Store {tenants.length > 0 ? `(${tenants.length})` : null}
             </Text>
 
-            {isRefreshing && (
+            {isRefreshing ? (
               <View style={styles.loadingContainer}>
-                <ActivityIndicator size="small" color={colors.primary} />
+                <ActivityIndicator color={colors.primary} size="small" />
                 <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
                   Loading stores...
                 </Text>
               </View>
-            )}
+            ) : null}
 
             <FlatList
+              contentContainerStyle={styles.listContent}
               data={tenants}
               keyExtractor={(item) => item.id}
+              ListFooterComponent={() => (
+                <Pressable
+                  style={[styles.createButton, { borderColor: colors.primary }]}
+                  onPress={handleCreateStore}
+                >
+                  <View style={[styles.createIcon, { backgroundColor: colors.primaryLight }]}>
+                    <Ionicons color={colors.primary} name="add" size={24} />
+                  </View>
+                  <Text style={[styles.createText, { color: colors.primary }]}>
+                    Create New Store
+                  </Text>
+                </Pressable>
+              )}
               renderItem={({ item }) => (
                 <Pressable
                   style={[
@@ -127,32 +149,16 @@ export function StoreSelector({ variant = 'default' }: StoreSelectorProps) {
                     </Text>
                   </View>
                   <View style={styles.storeItemInfo}>
-                    <Text style={[styles.storeItemName, { color: colors.text }]}>
-                      {item.name}
-                    </Text>
+                    <Text style={[styles.storeItemName, { color: colors.text }]}>{item.name}</Text>
                     <Text style={[styles.storeItemUrl, { color: colors.textSecondary }]}>
                       {item.slug}.tesserix.app
                     </Text>
                   </View>
-                  {item.id === currentTenant.id && (
-                    <Ionicons name="checkmark-circle" size={24} color={colors.primary} />
-                  )}
+                  {item.id === currentTenant.id ? (
+                    <Ionicons color={colors.primary} name="checkmark-circle" size={24} />
+                  ) : null}
                 </Pressable>
               )}
-              ListFooterComponent={() => (
-                <Pressable
-                  style={[styles.createButton, { borderColor: colors.primary }]}
-                  onPress={handleCreateStore}
-                >
-                  <View style={[styles.createIcon, { backgroundColor: colors.primaryLight }]}>
-                    <Ionicons name="add" size={24} color={colors.primary} />
-                  </View>
-                  <Text style={[styles.createText, { color: colors.primary }]}>
-                    Create New Store
-                  </Text>
-                </Pressable>
-              )}
-              contentContainerStyle={styles.listContent}
               showsVerticalScrollIndicator={false}
             />
           </Animated.View>

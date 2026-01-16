@@ -46,8 +46,7 @@ export const useTenantStore = create<TenantState>((set, get) => ({
 
       // Restore current tenant from storage
       const storedTenant = await secureStorage.getObject<Tenant>(STORAGE_KEYS.CURRENT_TENANT);
-      const currentTenant =
-        tenants.find((t) => t.id === storedTenant?.id) || tenants[0] || null;
+      const currentTenant = tenants.find((t) => t.id === storedTenant?.id) || tenants[0] || null;
 
       set({
         tenants,
@@ -218,8 +217,7 @@ export const useTenantStore = create<TenantState>((set, get) => ({
 
     set({
       tenants: updatedTenants,
-      currentTenant:
-        currentTenant?.id === tenantId ? updatedTenants[0] || null : currentTenant,
+      currentTenant: currentTenant?.id === tenantId ? updatedTenants[0] || null : currentTenant,
     });
   },
 
@@ -245,5 +243,4 @@ export const useTenantStoreCurrentTenant = () => useTenantStore((state) => state
 export const useTenantStoreTenants = () => useTenantStore((state) => state.tenants);
 export const useTenantLoading = () => useTenantStore((state) => state.isLoading);
 export const useTenantSwitching = () => useTenantStore((state) => state.isSwitching);
-export const useTenantTheme = () =>
-  useTenantStore((state) => state.currentTenant?.settings?.theme);
+export const useTenantTheme = () => useTenantStore((state) => state.currentTenant?.settings?.theme);

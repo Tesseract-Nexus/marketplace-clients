@@ -86,7 +86,10 @@ export const customersApi = {
   /**
    * Search customers
    */
-  search: async (query: string, params?: Omit<CustomerListParams, 'search'>): Promise<ApiListResponse<Customer>> => {
+  search: async (
+    query: string,
+    params?: Omit<CustomerListParams, 'search'>
+  ): Promise<ApiListResponse<Customer>> => {
     const response = await apiGet<Customer[]>(ENDPOINTS.CUSTOMERS.LIST, {
       params: { ...params, search: query },
     });
@@ -104,7 +107,11 @@ export const customersApi = {
   /**
    * Update customer address
    */
-  updateAddress: async (id: string, addressId: string, address: Partial<Address>): Promise<Customer> => {
+  updateAddress: async (
+    id: string,
+    addressId: string,
+    address: Partial<Address>
+  ): Promise<Customer> => {
     const response = await apiPatch<Customer>(
       `${ENDPOINTS.CUSTOMERS.GET(id)}/addresses/${addressId}`,
       address
@@ -169,7 +176,9 @@ export const customersApi = {
    * Block a customer
    */
   block: async (id: string): Promise<Customer> => {
-    const response = await apiPatch<Customer>(ENDPOINTS.CUSTOMERS.UPDATE(id), { status: 'blocked' });
+    const response = await apiPatch<Customer>(ENDPOINTS.CUSTOMERS.UPDATE(id), {
+      status: 'blocked',
+    });
     return response.data;
   },
 

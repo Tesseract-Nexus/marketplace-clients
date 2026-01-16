@@ -72,10 +72,7 @@ export function PulseButton({
   useEffect(() => {
     if (glow && !disabled) {
       glowOpacity.value = withRepeat(
-        withSequence(
-          withTiming(0.6, { duration: 1500 }),
-          withTiming(0.2, { duration: 1500 })
-        ),
+        withSequence(withTiming(0.6, { duration: 1500 }), withTiming(0.2, { duration: 1500 })),
         -1,
         true
       );
@@ -102,9 +99,7 @@ export function PulseButton({
   };
 
   const animatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: scale.value * pulseScale.value },
-    ],
+    transform: [{ scale: scale.value * pulseScale.value }],
   }));
 
   const glowStyle = useAnimatedStyle(() => ({
@@ -151,18 +146,18 @@ export function PulseButton({
     <>
       {loading ? (
         <Animated.View style={loadingStyle}>
-          <Ionicons name="sync" size={sizeStyles.iconSize} color="#FFFFFF" />
+          <Ionicons color="#FFFFFF" name="sync" size={sizeStyles.iconSize} />
         </Animated.View>
       ) : (
         <>
-          {icon && (
+          {icon ? (
             <Ionicons
+              color={variant === 'solid' ? '#FFFFFF' : gradient[0]}
               name={icon}
               size={sizeStyles.iconSize}
-              color={variant === 'solid' ? '#FFFFFF' : gradient[0]}
               style={{ marginRight: 8 }}
             />
-          )}
+          ) : null}
           <Text
             style={[
               styles.text,
@@ -179,6 +174,7 @@ export function PulseButton({
 
   return (
     <AnimatedPressable
+      disabled={disabled || loading}
       style={[
         styles.container,
         fullWidth && styles.fullWidth,
@@ -189,37 +185,30 @@ export function PulseButton({
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      disabled={disabled || loading}
     >
       {/* Glow effect */}
-      {glow && (
+      {glow ? (
         <Animated.View style={[styles.glow, glowStyle]}>
           <LinearGradient
             colors={[...gradient]}
-            start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
+            start={{ x: 0, y: 0 }}
             style={StyleSheet.absoluteFill}
           />
         </Animated.View>
-      )}
+      ) : null}
 
       {variant === 'solid' ? (
         <LinearGradient
           colors={disabled ? ['#9CA3AF', '#6B7280'] : [...gradient]}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={[styles.gradient, sizeStyles.container, shadows.md]}
         >
           {renderContent()}
         </LinearGradient>
       ) : variant === 'outline' ? (
-        <Animated.View
-          style={[
-            styles.outline,
-            sizeStyles.container,
-            { borderColor: gradient[0] },
-          ]}
-        >
+        <Animated.View style={[styles.outline, sizeStyles.container, { borderColor: gradient[0] }]}>
           {renderContent()}
         </Animated.View>
       ) : (
@@ -290,11 +279,11 @@ export function FAB({
     >
       <LinearGradient
         colors={[...gradient]}
-        start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
+        start={{ x: 0, y: 0 }}
         style={[styles.fabGradient, { borderRadius: size / 2 }]}
       >
-        <Ionicons name={icon} size={size * 0.45} color="#FFFFFF" />
+        <Ionicons color="#FFFFFF" name={icon} size={size * 0.45} />
       </LinearGradient>
     </AnimatedPressable>
   );

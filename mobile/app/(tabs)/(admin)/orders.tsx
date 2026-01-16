@@ -58,7 +58,7 @@ function AnimatedStatValue({ value, prefix = '' }: { value: number; prefix?: str
   const [displayValue, setDisplayValue] = useState(0);
 
   useEffect(() => {
-    let startValue = 0;
+    const startValue = 0;
     const endValue = value;
     const duration = 1200;
     const startTime = Date.now();
@@ -84,7 +84,8 @@ function AnimatedStatValue({ value, prefix = '' }: { value: number; prefix?: str
 
   return (
     <Text style={styles.animatedValue}>
-      {prefix}{displayValue.toLocaleString()}
+      {prefix}
+      {displayValue.toLocaleString()}
     </Text>
   );
 }
@@ -105,10 +106,8 @@ function StatusTimeline({ status }: { status?: string }) {
         entering={FadeInDown.delay(200).springify()}
         style={[styles.timelineCancelled, { backgroundColor: colors.errorLight }]}
       >
-        <Ionicons name="close-circle" size={14} color={colors.error} />
-        <Text style={[styles.timelineCancelledText, { color: colors.error }]}>
-          Order Cancelled
-        </Text>
+        <Ionicons color={colors.error} name="close-circle" size={14} />
+        <Text style={[styles.timelineCancelledText, { color: colors.error }]}>Order Cancelled</Text>
       </Animated.View>
     );
   }
@@ -125,16 +124,18 @@ function StatusTimeline({ status }: { status?: string }) {
               style={[
                 styles.timelineDot,
                 {
-                  backgroundColor: isCompleted ? colors.success : isDark ? colors.surface : '#E5E7EB',
+                  backgroundColor: isCompleted
+                    ? colors.success
+                    : isDark
+                      ? colors.surface
+                      : '#E5E7EB',
                   borderColor: isCompleted ? colors.success : colors.border,
                 },
               ]}
             >
-              {isCompleted && (
-                <Ionicons name="checkmark" size={10} color="#FFFFFF" />
-              )}
+              {isCompleted ? <Ionicons color="#FFFFFF" name="checkmark" size={10} /> : null}
             </View>
-            {!isLast && (
+            {!isLast ? (
               <View
                 style={[
                   styles.timelineLine,
@@ -143,7 +144,7 @@ function StatusTimeline({ status }: { status?: string }) {
                   },
                 ]}
               />
-            )}
+            ) : null}
           </View>
         );
       })}
@@ -174,10 +175,7 @@ function OrderCard({ order, index }: { order: Order; index: number }) {
   const animatedStyle = useAnimatedStyle(() => {
     'worklet';
     return {
-      transform: [
-        { scale: scale.value },
-        { translateY: translateY.value },
-      ] as any,
+      transform: [{ scale: scale.value }, { translateY: translateY.value }] as any,
     };
   });
 
@@ -235,7 +233,9 @@ function OrderCard({ order, index }: { order: Order; index: number }) {
 
   return (
     <Animated.View
-      entering={FadeInRight.delay(index * 50).springify().damping(14)}
+      entering={FadeInRight.delay(index * 50)
+        .springify()
+        .damping(14)}
       layout={Layout.springify()}
       style={animatedStyle}
     >
@@ -260,11 +260,11 @@ function OrderCard({ order, index }: { order: Order; index: number }) {
           <View style={styles.orderHeaderLeft}>
             <LinearGradient
               colors={[...statusConfig.gradient]}
-              start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
+              start={{ x: 0, y: 0 }}
               style={styles.orderIconContainer}
             >
-              <Ionicons name={statusConfig.icon} size={18} color="#FFFFFF" />
+              <Ionicons color="#FFFFFF" name={statusConfig.icon} size={18} />
             </LinearGradient>
             <View>
               <Text style={[styles.orderNumber, { color: colors.text }]}>
@@ -280,7 +280,7 @@ function OrderCard({ order, index }: { order: Order; index: number }) {
               {formatCurrency(order.total)}
             </Text>
             <View style={[styles.orderTotalBadge, { backgroundColor: `${colors.success}15` }]}>
-              <Ionicons name="trending-up" size={10} color={colors.success} />
+              <Ionicons color={colors.success} name="trending-up" size={10} />
             </View>
           </View>
         </View>
@@ -300,7 +300,7 @@ function OrderCard({ order, index }: { order: Order; index: number }) {
               {order.items?.length || 0} items
             </Text>
           </View>
-          <Badge label={statusConfig.label} variant={statusConfig.variant} size="sm" />
+          <Badge label={statusConfig.label} size="sm" variant={statusConfig.variant} />
         </View>
 
         {/* Status Timeline */}
@@ -309,10 +309,15 @@ function OrderCard({ order, index }: { order: Order; index: number }) {
         {/* Footer */}
         <View style={[styles.orderFooter, { borderTopColor: colors.border }]}>
           <View style={styles.paymentInfo}>
-            <View style={[
-              styles.paymentDot,
-              { backgroundColor: order.payment_status === 'paid' ? colors.success : colors.warning }
-            ]} />
+            <View
+              style={[
+                styles.paymentDot,
+                {
+                  backgroundColor:
+                    order.payment_status === 'paid' ? colors.success : colors.warning,
+                },
+              ]}
+            />
             <Text
               style={[
                 styles.paymentStatus,
@@ -323,15 +328,15 @@ function OrderCard({ order, index }: { order: Order; index: number }) {
             </Text>
           </View>
           <Pressable
-            style={[styles.actionButton, { backgroundColor: `${colors.primary}10` }]}
             hitSlop={8}
+            style={[styles.actionButton, { backgroundColor: `${colors.primary}10` }]}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               router.push(`/(tabs)/(admin)/order-detail?id=${order.id}`);
             }}
           >
             <Text style={[styles.actionButtonText, { color: colors.primary }]}>View</Text>
-            <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+            <Ionicons color={colors.primary} name="chevron-forward" size={14} />
           </Pressable>
         </View>
       </Pressable>
@@ -379,8 +384,8 @@ function OrderStats({
       <Animated.View style={[styles.revenueCardWrapper, floatStyle, shadows.lg]}>
         <LinearGradient
           colors={[...premiumGradients.cosmic]}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={styles.revenueCard}
         >
           {/* Decorative circles */}
@@ -389,7 +394,7 @@ function OrderStats({
 
           <View style={styles.revenueContent}>
             <View style={styles.revenueIcon}>
-              <Ionicons name="wallet" size={18} color="rgba(255,255,255,0.95)" />
+              <Ionicons color="rgba(255,255,255,0.95)" name="wallet" size={18} />
             </View>
             <Text style={styles.revenueLabel}>Today's Revenue</Text>
             <Text style={styles.revenueValue}>{formatCurrency(revenue)}</Text>
@@ -398,10 +403,7 @@ function OrderStats({
           {/* Mini sparkline visualization */}
           <View style={styles.sparkline}>
             {[0.4, 0.6, 0.45, 0.8, 0.65, 0.9, 0.75].map((h, i) => (
-              <View
-                key={i}
-                style={[styles.sparklineBar, { height: h * 24 }]}
-              />
+              <View key={i} style={[styles.sparklineBar, { height: h * 24 }]} />
             ))}
           </View>
         </LinearGradient>
@@ -418,7 +420,7 @@ function OrderStats({
           ]}
         >
           <View style={[styles.statIconBg, { backgroundColor: `${colors.warning}20` }]}>
-            <Ionicons name="time" size={16} color={colors.warning} />
+            <Ionicons color={colors.warning} name="time" size={16} />
           </View>
           <Text style={[styles.statValue, { color: colors.text }]}>{pending}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Pending</Text>
@@ -433,7 +435,7 @@ function OrderStats({
           ]}
         >
           <View style={[styles.statIconBg, { backgroundColor: `${colors.info}20` }]}>
-            <Ionicons name="sync" size={16} color={colors.info} />
+            <Ionicons color={colors.info} name="sync" size={16} />
           </View>
           <Text style={[styles.statValue, { color: colors.text }]}>{processing}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Processing</Text>
@@ -447,9 +449,9 @@ function OrderStats({
 function FilterChip({
   status,
   isActive,
-  onPress
+  onPress,
 }: {
-  status: typeof ORDER_STATUSES[number];
+  status: (typeof ORDER_STATUSES)[number];
   isActive: boolean;
   onPress: () => void;
 }) {
@@ -487,16 +489,11 @@ function FilterChip({
         onPressOut={handlePressOut}
       >
         <Ionicons
+          color={isActive ? '#FFFFFF' : colors.textSecondary}
           name={status.icon}
           size={14}
-          color={isActive ? '#FFFFFF' : colors.textSecondary}
         />
-        <Text
-          style={[
-            styles.filterText,
-            { color: isActive ? '#FFFFFF' : colors.textSecondary },
-          ]}
-        >
+        <Text style={[styles.filterText, { color: isActive ? '#FFFFFF' : colors.textSecondary }]}>
           {status.label}
         </Text>
       </Pressable>
@@ -516,102 +513,107 @@ export default function OrdersScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch orders with infinite scroll using real API
-  const {
-    data,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-    refetch,
-  } = useInfiniteQuery({
-    queryKey: currentTenant
-      ? [...QUERY_KEYS.ORDERS(currentTenant.id), activeStatus, searchQuery]
-      : ['orders', activeStatus, searchQuery],
-    queryFn: async ({ pageParam = 1 }) => {
-      try {
-        const params: Record<string, any> = {
-          page: pageParam,
-          limit: 20,
-        };
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } =
+    useInfiniteQuery({
+      queryKey: currentTenant
+        ? [...QUERY_KEYS.ORDERS(currentTenant.id), activeStatus, searchQuery]
+        : ['orders', activeStatus, searchQuery],
+      queryFn: async ({ pageParam = 1 }) => {
+        try {
+          const params: Record<string, any> = {
+            page: pageParam,
+            limit: 20,
+          };
 
-        if (searchQuery) {
-          params.search = searchQuery;
+          if (searchQuery) {
+            params.search = searchQuery;
+          }
+
+          if (activeStatus !== 'all') {
+            params.status = activeStatus;
+          }
+
+          console.log('[Orders] Fetching orders with params:', params);
+          const response = await ordersApi.list(params);
+
+          const ordersArray = (response as any).orders || (response as any).data || [];
+          const total = (response as any).total || ordersArray.length;
+          const totalPages = Math.ceil(total / 20);
+
+          console.log(
+            '[Orders] Fetched',
+            ordersArray.length,
+            'orders, page',
+            pageParam,
+            'of',
+            totalPages
+          );
+
+          const orders: Order[] = ordersArray.map((o: any) => ({
+            id: o.id,
+            tenant_id: o.tenantId || o.tenant_id || currentTenant?.id,
+            order_number: o.orderNumber || o.order_number || o.id.slice(0, 8).toUpperCase(),
+            customer_id: o.customerId || o.customer_id,
+            customer: o.customer
+              ? {
+                  id: o.customer.id,
+                  tenant_id: o.customer.tenantId || o.customer.tenant_id || currentTenant?.id,
+                  user_id: o.customer.userId || o.customer.user_id,
+                  email: o.customer.email,
+                  first_name: o.customer.firstName || o.customer.first_name,
+                  last_name: o.customer.lastName || o.customer.last_name,
+                  phone: o.customer.phone || null,
+                  status: o.customer.status || 'active',
+                  total_orders: o.customer.totalOrders || o.customer.total_orders || 0,
+                  total_spent: o.customer.totalSpent || o.customer.total_spent || 0,
+                  created_at:
+                    o.customer.createdAt || o.customer.created_at || new Date().toISOString(),
+                  updated_at:
+                    o.customer.updatedAt || o.customer.updated_at || new Date().toISOString(),
+                }
+              : null,
+            status: o.status || 'pending',
+            payment_status: o.paymentStatus || o.payment_status || 'pending',
+            fulfillment_status: o.fulfillmentStatus || o.fulfillment_status || 'unfulfilled',
+            subtotal: parseFloat(o.subtotal?.toString() || '0'),
+            discount: parseFloat(o.discount?.toString() || '0'),
+            tax: parseFloat(o.tax?.toString() || '0'),
+            shipping: parseFloat(o.shipping?.toString() || o.shippingCost?.toString() || '0'),
+            total: parseFloat(o.total?.toString() || o.totalAmount?.toString() || '0'),
+            items: (o.items || o.orderItems || []).map((item: any) => ({
+              id: item.id,
+              order_id: o.id,
+              product_id: item.productId || item.product_id,
+              variant_id: item.variantId || item.variant_id || null,
+              name: item.name || item.productName || 'Product',
+              sku: item.sku || null,
+              price: parseFloat(item.price?.toString() || '0'),
+              quantity: item.quantity || 1,
+              total: parseFloat(item.total?.toString() || item.subtotal?.toString() || '0'),
+            })),
+            shipping_address: o.shippingAddress || o.shipping_address || null,
+            billing_address: o.billingAddress || o.billing_address || null,
+            notes: o.notes || null,
+            created_at: o.createdAt || o.created_at || new Date().toISOString(),
+            updated_at: o.updatedAt || o.updated_at || new Date().toISOString(),
+          }));
+
+          return {
+            orders,
+            page: pageParam,
+            totalPages,
+          };
+        } catch (error) {
+          console.error('[Orders] Error fetching orders:', error);
+          return { orders: [], page: pageParam, totalPages: 1 };
         }
-
-        if (activeStatus !== 'all') {
-          params.status = activeStatus;
-        }
-
-        console.log('[Orders] Fetching orders with params:', params);
-        const response = await ordersApi.list(params);
-
-        const ordersArray = (response as any).orders || (response as any).data || [];
-        const total = (response as any).total || ordersArray.length;
-        const totalPages = Math.ceil(total / 20);
-
-        console.log('[Orders] Fetched', ordersArray.length, 'orders, page', pageParam, 'of', totalPages);
-
-        const orders: Order[] = ordersArray.map((o: any) => ({
-          id: o.id,
-          tenant_id: o.tenantId || o.tenant_id || currentTenant?.id,
-          order_number: o.orderNumber || o.order_number || o.id.slice(0, 8).toUpperCase(),
-          customer_id: o.customerId || o.customer_id,
-          customer: o.customer ? {
-            id: o.customer.id,
-            tenant_id: o.customer.tenantId || o.customer.tenant_id || currentTenant?.id,
-            user_id: o.customer.userId || o.customer.user_id,
-            email: o.customer.email,
-            first_name: o.customer.firstName || o.customer.first_name,
-            last_name: o.customer.lastName || o.customer.last_name,
-            phone: o.customer.phone || null,
-            status: o.customer.status || 'active',
-            total_orders: o.customer.totalOrders || o.customer.total_orders || 0,
-            total_spent: o.customer.totalSpent || o.customer.total_spent || 0,
-            created_at: o.customer.createdAt || o.customer.created_at || new Date().toISOString(),
-            updated_at: o.customer.updatedAt || o.customer.updated_at || new Date().toISOString(),
-          } : null,
-          status: o.status || 'pending',
-          payment_status: o.paymentStatus || o.payment_status || 'pending',
-          fulfillment_status: o.fulfillmentStatus || o.fulfillment_status || 'unfulfilled',
-          subtotal: parseFloat(o.subtotal?.toString() || '0'),
-          discount: parseFloat(o.discount?.toString() || '0'),
-          tax: parseFloat(o.tax?.toString() || '0'),
-          shipping: parseFloat(o.shipping?.toString() || o.shippingCost?.toString() || '0'),
-          total: parseFloat(o.total?.toString() || o.totalAmount?.toString() || '0'),
-          items: (o.items || o.orderItems || []).map((item: any) => ({
-            id: item.id,
-            order_id: o.id,
-            product_id: item.productId || item.product_id,
-            variant_id: item.variantId || item.variant_id || null,
-            name: item.name || item.productName || 'Product',
-            sku: item.sku || null,
-            price: parseFloat(item.price?.toString() || '0'),
-            quantity: item.quantity || 1,
-            total: parseFloat(item.total?.toString() || item.subtotal?.toString() || '0'),
-          })),
-          shipping_address: o.shippingAddress || o.shipping_address || null,
-          billing_address: o.billingAddress || o.billing_address || null,
-          notes: o.notes || null,
-          created_at: o.createdAt || o.created_at || new Date().toISOString(),
-          updated_at: o.updatedAt || o.updated_at || new Date().toISOString(),
-        }));
-
-        return {
-          orders,
-          page: pageParam,
-          totalPages,
-        };
-      } catch (error) {
-        console.error('[Orders] Error fetching orders:', error);
-        return { orders: [], page: pageParam, totalPages: 1 };
-      }
-    },
-    getNextPageParam: (lastPage) => {
-      return lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
-    },
-    initialPageParam: 1,
-    enabled: !!currentTenant,
-  });
+      },
+      getNextPageParam: (lastPage) => {
+        return lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
+      },
+      initialPageParam: 1,
+      enabled: !!currentTenant,
+    });
 
   const orders = useMemo(() => {
     return data?.pages.flatMap((page) => page.orders) || [];
@@ -661,14 +663,14 @@ export default function OrdersScreen() {
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const renderOrder = useCallback(
-    ({ item, index }: { item: Order; index: number }) => (
-      <OrderCard order={item} index={index} />
-    ),
+    ({ item, index }: { item: Order; index: number }) => <OrderCard index={index} order={item} />,
     []
   );
 
   const renderFooter = useCallback(() => {
-    if (!isFetchingNextPage) return null;
+    if (!isFetchingNextPage) {
+      return null;
+    }
     return (
       <View style={styles.loadingMore}>
         <CardSkeleton />
@@ -699,38 +701,38 @@ export default function OrdersScreen() {
             shadows.sm,
           ]}
         >
-          <Ionicons name="search" size={18} color={colors.textSecondary} />
+          <Ionicons color={colors.textSecondary} name="search" size={18} />
           <TextInput
-            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search orders..."
             placeholderTextColor={colors.textTertiary}
+            style={[styles.searchInput, { color: colors.text }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          {searchQuery.length > 0 && (
+          {searchQuery.length > 0 ? (
             <Pressable
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setSearchQuery('');
               }}
             >
-              <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="close-circle" size={18} />
             </Pressable>
-          )}
+          ) : null}
         </Animated.View>
 
         {/* Status Filters */}
         <Animated.View entering={FadeInDown.delay(200).springify()}>
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filtersContainer}
+            showsHorizontalScrollIndicator={false}
           >
             {ORDER_STATUSES.map((status) => (
               <FilterChip
                 key={status.id}
-                status={status}
                 isActive={activeStatus === status.id}
+                status={status}
                 onPress={() => setActiveStatus(status.id)}
               />
             ))}
@@ -740,10 +742,7 @@ export default function OrdersScreen() {
 
       {/* Orders List */}
       {isLoading ? (
-        <ScrollView
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
           {[1, 2, 3, 4].map((i) => (
             <Animated.View
               key={i}
@@ -756,36 +755,33 @@ export default function OrdersScreen() {
         </ScrollView>
       ) : filteredOrders.length === 0 ? (
         <EmptyState
-          icon="receipt-outline"
-          title={searchQuery ? 'No orders found' : 'No orders yet'}
+          actionLabel={searchQuery ? 'Clear Search' : undefined}
           description={
             searchQuery
               ? 'Try adjusting your search or filters'
               : 'Orders will appear here once customers start buying'
           }
-          actionLabel={searchQuery ? 'Clear Search' : undefined}
+          icon="receipt-outline"
+          title={searchQuery ? 'No orders found' : 'No orders yet'}
           onAction={searchQuery ? () => setSearchQuery('') : undefined}
         />
       ) : (
         <FlatList
+          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
           data={filteredOrders}
-          renderItem={renderOrder}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
-          showsVerticalScrollIndicator={false}
+          ListFooterComponent={renderFooter}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
               tintColor={colors.primary}
+              onRefresh={onRefresh}
             />
           }
+          renderItem={renderOrder}
+          showsVerticalScrollIndicator={false}
           onEndReached={loadMore}
           onEndReachedThreshold={0.3}
-          ListFooterComponent={renderFooter}
         />
       )}
     </View>

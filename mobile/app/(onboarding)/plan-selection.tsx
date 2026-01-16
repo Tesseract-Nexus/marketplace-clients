@@ -3,7 +3,12 @@ import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, FadeInUp, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+  useAnimatedStyle,
+  withSpring,
+} from 'react-native-reanimated';
 
 import { useOnboardingStore } from '@/stores/onboarding-store';
 import { useColors } from '@/providers/ThemeProvider';
@@ -96,7 +101,9 @@ export default function PlanSelectionScreen() {
   const { data, setData } = useOnboardingStore();
 
   const [selectedPlan, setSelectedPlan] = useState<PlanId>(data.plan || 'starter');
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>(data.billingCycle || 'monthly');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>(
+    data.billingCycle || 'monthly'
+  );
 
   const handleContinue = () => {
     setData({
@@ -114,12 +121,16 @@ export default function PlanSelectionScreen() {
 
   const getPrice = (plan: Plan) => {
     const price = billingCycle === 'yearly' ? plan.price.yearly : plan.price.monthly;
-    if (price === 0) return 'Free';
+    if (price === 0) {
+      return 'Free';
+    }
     return `$${price}`;
   };
 
   const getSavings = (plan: Plan) => {
-    if (plan.price.monthly === 0) return null;
+    if (plan.price.monthly === 0) {
+      return null;
+    }
     const yearlySavings = plan.price.monthly * 12 - plan.price.yearly;
     return yearlySavings > 0 ? yearlySavings : null;
   };
@@ -136,7 +147,7 @@ export default function PlanSelectionScreen() {
         {/* Back Button */}
         <Animated.View entering={FadeInDown.delay(100)}>
           <IconButton
-            icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
+            icon={<Ionicons color={colors.text} name="arrow-back" size={24} />}
             onPress={() => router.back()}
           />
         </Animated.View>
@@ -144,7 +155,9 @@ export default function PlanSelectionScreen() {
         {/* Progress Indicator */}
         <Animated.View entering={FadeInDown.delay(150)} style={styles.progressContainer}>
           <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: '75%', backgroundColor: colors.primary }]} />
+            <View
+              style={[styles.progressFill, { width: '75%', backgroundColor: colors.primary }]}
+            />
           </View>
           <Text style={[styles.progressText, { color: colors.textSecondary }]}>Step 3 of 4</Text>
         </Animated.View>
@@ -191,9 +204,9 @@ export default function PlanSelectionScreen() {
               >
                 Yearly
               </Text>
-              {billingCycle !== 'yearly' && (
-                <Badge label="Save 17%" variant="success" size="sm" style={{ marginLeft: 6 }} />
-              )}
+              {billingCycle !== 'yearly' ? (
+                <Badge label="Save 17%" size="sm" style={{ marginLeft: 6 }} variant="success" />
+              ) : null}
             </Pressable>
           </View>
         </Animated.View>
@@ -205,10 +218,7 @@ export default function PlanSelectionScreen() {
             const savings = getSavings(plan);
 
             return (
-              <Animated.View
-                key={plan.id}
-                entering={FadeInUp.delay(300 + index * 100).springify()}
-              >
+              <Animated.View key={plan.id} entering={FadeInUp.delay(300 + index * 100).springify()}>
                 <Pressable
                   style={[
                     styles.planCard,
@@ -220,21 +230,21 @@ export default function PlanSelectionScreen() {
                   ]}
                   onPress={() => setSelectedPlan(plan.id)}
                 >
-                  {plan.popular && (
+                  {plan.popular ? (
                     <View style={[styles.popularBadge, { backgroundColor: colors.primary }]}>
-                      <Ionicons name="star" size={12} color="#FFFFFF" />
+                      <Ionicons color="#FFFFFF" name="star" size={12} />
                       <Text style={styles.popularText}>Most Popular</Text>
                     </View>
-                  )}
+                  ) : null}
 
                   <View style={styles.planHeader}>
                     <View style={styles.planNameRow}>
                       <Text style={[styles.planName, { color: colors.text }]}>{plan.name}</Text>
-                      {isSelected && (
+                      {isSelected ? (
                         <View style={[styles.checkCircle, { backgroundColor: colors.primary }]}>
-                          <Ionicons name="checkmark" size={16} color="#FFFFFF" />
+                          <Ionicons color="#FFFFFF" name="checkmark" size={16} />
                         </View>
-                      )}
+                      ) : null}
                     </View>
                     <Text style={[styles.planDescription, { color: colors.textSecondary }]}>
                       {plan.description}
@@ -245,27 +255,23 @@ export default function PlanSelectionScreen() {
                     <Text style={[styles.priceAmount, { color: colors.text }]}>
                       {getPrice(plan)}
                     </Text>
-                    {plan.price.monthly > 0 && (
+                    {plan.price.monthly > 0 ? (
                       <Text style={[styles.pricePeriod, { color: colors.textSecondary }]}>
                         /{billingCycle === 'yearly' ? 'year' : 'month'}
                       </Text>
-                    )}
+                    ) : null}
                   </View>
 
-                  {billingCycle === 'yearly' && savings && (
+                  {billingCycle === 'yearly' && savings ? (
                     <Text style={[styles.savingsText, { color: colors.success }]}>
                       Save ${savings}/year
                     </Text>
-                  )}
+                  ) : null}
 
                   <View style={styles.featuresContainer}>
                     {plan.features.map((feature, featureIndex) => (
                       <View key={featureIndex} style={styles.featureRow}>
-                        <Ionicons
-                          name="checkmark-circle"
-                          size={18}
-                          color={colors.success}
-                        />
+                        <Ionicons color={colors.success} name="checkmark-circle" size={18} />
                         <Text style={[styles.featureText, { color: colors.textSecondary }]}>
                           {feature}
                         </Text>
@@ -292,11 +298,11 @@ export default function PlanSelectionScreen() {
         ]}
       >
         <Button
-          title={selectedPlan === 'starter' ? 'Start Free' : 'Continue to Payment'}
-          size="lg"
           fullWidth
+          rightIcon={<Ionicons color="#FFFFFF" name="arrow-forward" size={20} />}
+          size="lg"
+          title={selectedPlan === 'starter' ? 'Start Free' : 'Continue to Payment'}
           onPress={handleContinue}
-          rightIcon={<Ionicons name="arrow-forward" size={20} color="#FFFFFF" />}
         />
       </Animated.View>
     </View>

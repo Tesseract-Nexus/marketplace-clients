@@ -259,8 +259,20 @@ export const QUERY_KEYS = {
   ANALYTICS: (tenantId: string, type: string) => ['tenant', tenantId, 'analytics', type],
   SETTINGS: (tenantId: string) => ['tenant', tenantId, 'settings'],
   SEARCH: (tenantId: string, query: string) => ['tenant', tenantId, 'search', query],
-  SEARCH_PRODUCTS: (tenantId: string, query: string) => ['tenant', tenantId, 'search', 'products', query],
-  SEARCH_SUGGESTIONS: (tenantId: string, query: string) => ['tenant', tenantId, 'search', 'suggestions', query],
+  SEARCH_PRODUCTS: (tenantId: string, query: string) => [
+    'tenant',
+    tenantId,
+    'search',
+    'products',
+    query,
+  ],
+  SEARCH_SUGGESTIONS: (tenantId: string, query: string) => [
+    'tenant',
+    tenantId,
+    'search',
+    'suggestions',
+    query,
+  ],
 } as const;
 
 // App Configuration

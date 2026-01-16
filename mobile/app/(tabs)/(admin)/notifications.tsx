@@ -51,10 +51,7 @@ function NotificationItem({
   const iconConfig = NOTIFICATION_ICONS[notification.type] || NOTIFICATION_ICONS.system;
 
   return (
-    <Animated.View
-      entering={FadeInRight.delay(index * 40).springify()}
-      layout={Layout.springify()}
-    >
+    <Animated.View entering={FadeInRight.delay(index * 40).springify()} layout={Layout.springify()}>
       <PressableCard
         style={StyleSheet.flatten([
           styles.notificationItem,
@@ -64,28 +61,21 @@ function NotificationItem({
         onPress={onPress}
       >
         <View style={[styles.iconContainer, { backgroundColor: `${iconConfig.color}15` }]}>
-          <Ionicons name={iconConfig.icon as any} size={20} color={iconConfig.color} />
+          <Ionicons color={iconConfig.color} name={iconConfig.icon as any} size={20} />
         </View>
         <View style={styles.contentContainer}>
           <View style={styles.titleRow}>
             <Text
-              style={[
-                styles.title,
-                { color: colors.text },
-                !isRead && { fontWeight: '700' },
-              ]}
               numberOfLines={1}
+              style={[styles.title, { color: colors.text }, !isRead && { fontWeight: '700' }]}
             >
               {notification.title}
             </Text>
-            {!isRead && (
+            {!isRead ? (
               <View style={[styles.unreadDot, { backgroundColor: colors.primary }]} />
-            )}
+            ) : null}
           </View>
-          <Text
-            style={[styles.message, { color: colors.textSecondary }]}
-            numberOfLines={2}
-          >
+          <Text numberOfLines={2} style={[styles.message, { color: colors.textSecondary }]}>
             {notification.message}
           </Text>
           <Text style={[styles.time, { color: colors.textTertiary }]}>
@@ -93,27 +83,27 @@ function NotificationItem({
           </Text>
         </View>
         <View style={styles.actionsContainer}>
-          {!isRead && (
+          {!isRead ? (
             <Pressable
+              hitSlop={8}
               style={[styles.actionButton, { backgroundColor: `${colors.primary}10` }]}
               onPress={(e) => {
                 e.stopPropagation?.();
                 onMarkRead();
               }}
-              hitSlop={8}
             >
-              <Ionicons name="checkmark" size={16} color={colors.primary} />
+              <Ionicons color={colors.primary} name="checkmark" size={16} />
             </Pressable>
-          )}
+          ) : null}
           <Pressable
+            hitSlop={8}
             style={[styles.actionButton, { backgroundColor: `${colors.error}10` }]}
             onPress={(e) => {
               e.stopPropagation?.();
               onDelete();
             }}
-            hitSlop={8}
           >
-            <Ionicons name="trash-outline" size={16} color={colors.error} />
+            <Ionicons color={colors.error} name="trash-outline" size={16} />
           </Pressable>
         </View>
       </PressableCard>
@@ -209,60 +199,69 @@ export default function NotificationsScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={22} color={colors.text} />
+          <Ionicons color={colors.text} name="arrow-back" size={22} />
         </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Notifications</Text>
         <View style={styles.headerActions}>
-          {notifications.length > 0 && (
+          {notifications.length > 0 ? (
             <Pressable style={styles.headerButton} onPress={handleDeleteAll}>
-              <Ionicons name="trash-outline" size={20} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="trash-outline" size={20} />
             </Pressable>
-          )}
+          ) : null}
         </View>
       </View>
 
       {/* Unread Count & Mark All Read */}
-      {unreadCount > 0 && (
+      {unreadCount > 0 ? (
         <Animated.View entering={FadeInDown} style={styles.unreadBanner}>
-          <View style={[styles.unreadPill, { backgroundColor: isDark ? colors.surface : `${colors.primary}10` }]}>
-            <Ionicons name="notifications" size={16} color={colors.primary} />
-            <Text style={[styles.unreadText, { color: colors.primary }]}>
-              {unreadCount} unread
-            </Text>
+          <View
+            style={[
+              styles.unreadPill,
+              { backgroundColor: isDark ? colors.surface : `${colors.primary}10` },
+            ]}
+          >
+            <Ionicons color={colors.primary} name="notifications" size={16} />
+            <Text style={[styles.unreadText, { color: colors.primary }]}>{unreadCount} unread</Text>
           </View>
           <Pressable
             style={[styles.markAllButton, { backgroundColor: colors.primary }]}
             onPress={handleMarkAllRead}
           >
-            <Ionicons name="checkmark-done" size={16} color="#FFFFFF" />
+            <Ionicons color="#FFFFFF" name="checkmark-done" size={16} />
             <Text style={styles.markAllText}>Mark all read</Text>
           </Pressable>
         </Animated.View>
-      )}
+      ) : null}
 
       {/* Error Banner */}
-      {error && (
+      {error ? (
         <View style={[styles.errorBanner, { backgroundColor: colors.errorLight }]}>
-          <Ionicons name="alert-circle" size={16} color={colors.error} />
+          <Ionicons color={colors.error} name="alert-circle" size={16} />
           <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
         </View>
-      )}
+      ) : null}
 
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
-        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={onRefresh}
             tintColor={colors.primary}
+            onRefresh={onRefresh}
           />
         }
+        showsVerticalScrollIndicator={false}
       >
         {isLoading ? (
           <View style={styles.loadingContainer}>
             {[1, 2, 3, 4, 5].map((i) => (
-              <Skeleton key={i} width="100%" height={90} borderRadius={12} style={{ marginBottom: 10 }} />
+              <Skeleton
+                key={i}
+                borderRadius={12}
+                height={90}
+                style={{ marginBottom: 10 }}
+                width="100%"
+              />
             ))}
           </View>
         ) : notifications.length > 0 ? (
@@ -270,22 +269,28 @@ export default function NotificationsScreen() {
             {notifications.map((notification, index) => (
               <NotificationItem
                 key={notification.id}
-                notification={notification}
                 index={index}
-                onPress={() => handleNotificationPress(notification)}
-                onMarkRead={() => markAsRead(notification.id)}
+                notification={notification}
                 onDelete={() => handleDeleteNotification(notification.id)}
+                onMarkRead={() => markAsRead(notification.id)}
+                onPress={() => handleNotificationPress(notification)}
               />
             ))}
           </View>
         ) : (
           <View style={styles.emptyState}>
-            <View style={[styles.emptyIconContainer, { backgroundColor: isDark ? colors.surface : `${colors.primary}10` }]}>
-              <Ionicons name="notifications-off-outline" size={48} color={colors.textTertiary} />
+            <View
+              style={[
+                styles.emptyIconContainer,
+                { backgroundColor: isDark ? colors.surface : `${colors.primary}10` },
+              ]}
+            >
+              <Ionicons color={colors.textTertiary} name="notifications-off-outline" size={48} />
             </View>
             <Text style={[styles.emptyTitle, { color: colors.text }]}>No Notifications</Text>
             <Text style={[styles.emptyMessage, { color: colors.textSecondary }]}>
-              You're all caught up! New notifications will appear here when you receive orders, reviews, or important updates.
+              You're all caught up! New notifications will appear here when you receive orders,
+              reviews, or important updates.
             </Text>
           </View>
         )}

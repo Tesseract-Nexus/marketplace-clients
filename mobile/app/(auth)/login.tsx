@@ -90,11 +90,7 @@ export default function LoginScreen() {
 
   useEffect(() => {
     // Shimmer effect for logo
-    shimmer.value = withRepeat(
-      withTiming(1, { duration: 3000, easing: Easing.linear }),
-      -1,
-      false
-    );
+    shimmer.value = withRepeat(withTiming(1, { duration: 3000, easing: Easing.linear }), -1, false);
 
     // Floating icons animation
     iconFloat.value = withRepeat(
@@ -175,20 +171,20 @@ export default function LoginScreen() {
       {/* Gradient Background */}
       <LinearGradient
         colors={['#0F0F0F', '#1A1A1A', '#0F0F0F']}
-        style={StyleSheet.absoluteFill}
-        start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
+        start={{ x: 0, y: 0 }}
+        style={StyleSheet.absoluteFill}
       />
 
       {/* Floating marketplace icons */}
       <Animated.View style={[styles.floatingIcon, styles.floatingIcon1, floatingStyle1]}>
-        <Ionicons name="cart" size={28} color={COLORS.primary} />
+        <Ionicons color={COLORS.primary} name="cart" size={28} />
       </Animated.View>
       <Animated.View style={[styles.floatingIcon, styles.floatingIcon2, floatingStyle2]}>
-        <Ionicons name="storefront" size={24} color={COLORS.accent} />
+        <Ionicons color={COLORS.accent} name="storefront" size={24} />
       </Animated.View>
       <Animated.View style={[styles.floatingIcon, styles.floatingIcon3, floatingStyle3]}>
-        <Ionicons name="bag-handle" size={22} color={COLORS.primaryLight} />
+        <Ionicons color={COLORS.primaryLight} name="bag-handle" size={22} />
       </Animated.View>
 
       {/* Gradient orbs */}
@@ -210,6 +206,7 @@ export default function LoginScreen() {
           {/* Back Button */}
           <Animated.View entering={FadeIn.delay(100).duration(400)}>
             <Pressable
+              style={styles.backButton}
               onPress={() => {
                 void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 // Check if we can go back, otherwise go to index
@@ -219,9 +216,8 @@ export default function LoginScreen() {
                   router.replace('/');
                 }
               }}
-              style={styles.backButton}
             >
-              <Ionicons name="chevron-back" size={24} color={COLORS.text} />
+              <Ionicons color={COLORS.text} name="chevron-back" size={24} />
             </Pressable>
           </Animated.View>
 
@@ -235,11 +231,11 @@ export default function LoginScreen() {
               <View style={styles.logoGlow} />
               <LinearGradient
                 colors={[COLORS.primary, COLORS.primaryLight]}
-                style={styles.logo}
-                start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
+                start={{ x: 0, y: 0 }}
+                style={styles.logo}
               >
-                <Ionicons name="cube" size={32} color="#FFFFFF" />
+                <Ionicons color="#FFFFFF" name="cube" size={32} />
               </LinearGradient>
             </View>
             <Text style={styles.brandName}>TESSERACT</Text>
@@ -247,10 +243,7 @@ export default function LoginScreen() {
           </Animated.View>
 
           {/* Welcome Text */}
-          <Animated.View
-            entering={FadeInDown.delay(250).duration(500)}
-            style={styles.header}
-          >
+          <Animated.View entering={FadeInDown.delay(250).duration(500)} style={styles.header}>
             <Text style={styles.title}>Welcome back</Text>
             <Text style={styles.subtitle}>
               Sign in to manage your store and connect with customers
@@ -258,10 +251,7 @@ export default function LoginScreen() {
           </Animated.View>
 
           {/* Form */}
-          <Animated.View
-            entering={FadeInDown.delay(350).duration(500)}
-            style={styles.form}
-          >
+          <Animated.View entering={FadeInDown.delay(350).duration(500)} style={styles.form}>
             {/* Email */}
             <View style={styles.inputGroup}>
               <Text style={styles.inputLabel}>Email address</Text>
@@ -274,30 +264,32 @@ export default function LoginScreen() {
               >
                 <View style={[styles.inputIconBox, emailFocused && styles.inputIconBoxActive]}>
                   <Ionicons
+                    color={emailFocused ? COLORS.primary : COLORS.textMuted}
                     name="mail"
                     size={18}
-                    color={emailFocused ? COLORS.primary : COLORS.textMuted}
                   />
                 </View>
                 <TextInput
-                  style={styles.input}
-                  placeholder="you@example.com"
-                  placeholderTextColor={COLORS.textMuted}
-                  value={email}
-                  onChangeText={(text) => {
-                    setEmail(text);
-                    if (errors.email) setErrors((prev) => ({ ...prev, email: '' }));
-                  }}
-                  onFocus={() => setEmailFocused(true)}
-                  onBlur={() => setEmailFocused(false)}
-                  keyboardType="email-address"
                   autoCapitalize="none"
                   autoCorrect={false}
+                  keyboardType="email-address"
+                  placeholder="you@example.com"
+                  placeholderTextColor={COLORS.textMuted}
                   returnKeyType="next"
+                  style={styles.input}
+                  value={email}
+                  onBlur={() => setEmailFocused(false)}
+                  onChangeText={(text) => {
+                    setEmail(text);
+                    if (errors.email) {
+                      setErrors((prev) => ({ ...prev, email: '' }));
+                    }
+                  }}
+                  onFocus={() => setEmailFocused(true)}
                   onSubmitEditing={() => passwordRef.current?.focus()}
                 />
               </View>
-              {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+              {errors.email ? <Text style={styles.errorText}>{errors.email}</Text> : null}
             </View>
 
             {/* Password */}
@@ -312,47 +304,49 @@ export default function LoginScreen() {
               >
                 <View style={[styles.inputIconBox, passwordFocused && styles.inputIconBoxActive]}>
                   <Ionicons
+                    color={passwordFocused ? COLORS.primary : COLORS.textMuted}
                     name="lock-closed"
                     size={18}
-                    color={passwordFocused ? COLORS.primary : COLORS.textMuted}
                   />
                 </View>
                 <TextInput
                   ref={passwordRef}
-                  style={styles.input}
+                  autoCapitalize="none"
                   placeholder="Enter your password"
                   placeholderTextColor={COLORS.textMuted}
+                  returnKeyType="done"
+                  secureTextEntry={!showPassword}
+                  style={styles.input}
                   value={password}
+                  onBlur={() => setPasswordFocused(false)}
                   onChangeText={(text) => {
                     setPassword(text);
-                    if (errors.password) setErrors((prev) => ({ ...prev, password: '' }));
+                    if (errors.password) {
+                      setErrors((prev) => ({ ...prev, password: '' }));
+                    }
                   }}
                   onFocus={() => setPasswordFocused(true)}
-                  onBlur={() => setPasswordFocused(false)}
-                  secureTextEntry={!showPassword}
-                  autoCapitalize="none"
-                  returnKeyType="done"
                   onSubmitEditing={handleLogin}
                 />
                 <Pressable
+                  style={styles.eyeButton}
                   onPress={() => {
                     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                     setShowPassword(!showPassword);
                   }}
-                  style={styles.eyeButton}
                 >
                   <Ionicons
+                    color={COLORS.textMuted}
                     name={showPassword ? 'eye-off' : 'eye'}
                     size={20}
-                    color={COLORS.textMuted}
                   />
                 </Pressable>
               </View>
-              {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
+              {errors.password ? <Text style={styles.errorText}>{errors.password}</Text> : null}
             </View>
 
             {/* Forgot Password */}
-            <Link href="/forgot-password" asChild>
+            <Link asChild href="/forgot-password">
               <Pressable
                 style={styles.forgotButton}
                 onPress={() => void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
@@ -362,33 +356,37 @@ export default function LoginScreen() {
             </Link>
 
             {/* Error Banner */}
-            {error && (
+            {error ? (
               <Animated.View entering={FadeIn.duration(200)} style={styles.errorBanner}>
-                <Ionicons name="alert-circle" size={18} color={COLORS.error} />
+                <Ionicons color={COLORS.error} name="alert-circle" size={18} />
                 <Text style={styles.errorBannerText}>{error}</Text>
               </Animated.View>
-            )}
+            ) : null}
 
             {/* Sign In Button */}
             <AnimatedPressable
-              style={[styles.signInButton, buttonAnimatedStyle]}
-              onPressIn={() => { buttonScale.value = withSpring(0.97); }}
-              onPressOut={() => { buttonScale.value = withSpring(1); }}
-              onPress={handleLogin}
               disabled={isLoading}
+              style={[styles.signInButton, buttonAnimatedStyle]}
+              onPress={handleLogin}
+              onPressIn={() => {
+                buttonScale.value = withSpring(0.97);
+              }}
+              onPressOut={() => {
+                buttonScale.value = withSpring(1);
+              }}
             >
               <LinearGradient
                 colors={[COLORS.primary, COLORS.primaryDark]}
-                style={styles.signInGradient}
-                start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 0 }}
+                start={{ x: 0, y: 0 }}
+                style={styles.signInGradient}
               >
                 {isLoading ? (
                   <Text style={styles.signInText}>Signing in...</Text>
                 ) : (
                   <>
                     <Text style={styles.signInText}>Sign In to Marketplace</Text>
-                    <Ionicons name="arrow-forward" size={20} color="#FFFFFF" />
+                    <Ionicons color="#FFFFFF" name="arrow-forward" size={20} />
                   </>
                 )}
               </LinearGradient>
@@ -408,27 +406,29 @@ export default function LoginScreen() {
               style={styles.socialButton}
               onPress={() => void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
             >
-              <Ionicons name="logo-google" size={22} color="#EA4335" />
+              <Ionicons color="#EA4335" name="logo-google" size={22} />
             </Pressable>
             <Pressable
               style={styles.socialButton}
               onPress={() => void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
             >
-              <Ionicons name="logo-apple" size={22} color={COLORS.text} />
+              <Ionicons color={COLORS.text} name="logo-apple" size={22} />
             </Pressable>
             <Pressable
               style={styles.socialButton}
               onPress={() => void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
             >
-              <Ionicons name="logo-facebook" size={22} color="#1877F2" />
+              <Ionicons color="#1877F2" name="logo-facebook" size={22} />
             </Pressable>
           </Animated.View>
 
           {/* Sign Up */}
           <Animated.View entering={FadeInDown.delay(550).duration(400)} style={styles.signUpRow}>
             <Text style={styles.signUpText}>New to Tesseract? </Text>
-            <Link href="/register" asChild>
-              <Pressable onPress={() => void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}>
+            <Link asChild href="/register">
+              <Pressable
+                onPress={() => void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
+              >
                 <Text style={styles.signUpLink}>Create an account</Text>
               </Pressable>
             </Link>
@@ -437,17 +437,17 @@ export default function LoginScreen() {
           {/* Trust indicators */}
           <Animated.View entering={FadeInDown.delay(600).duration(400)} style={styles.trustSection}>
             <View style={styles.trustItem}>
-              <Ionicons name="shield-checkmark" size={16} color={COLORS.primary} />
+              <Ionicons color={COLORS.primary} name="shield-checkmark" size={16} />
               <Text style={styles.trustText}>Secure</Text>
             </View>
             <View style={styles.trustDot} />
             <View style={styles.trustItem}>
-              <Ionicons name="lock-closed" size={16} color={COLORS.primary} />
+              <Ionicons color={COLORS.primary} name="lock-closed" size={16} />
               <Text style={styles.trustText}>Encrypted</Text>
             </View>
             <View style={styles.trustDot} />
             <View style={styles.trustItem}>
-              <Ionicons name="people" size={16} color={COLORS.primary} />
+              <Ionicons color={COLORS.primary} name="people" size={16} />
               <Text style={styles.trustText}>10K+ Sellers</Text>
             </View>
           </Animated.View>

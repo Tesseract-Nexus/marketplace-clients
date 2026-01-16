@@ -100,12 +100,7 @@ export function Avatar({
   if (source) {
     return (
       <View style={containerStyle}>
-        <Image
-          source={{ uri: source }}
-          style={imageStyle}
-          contentFit="cover"
-          transition={200}
-        />
+        <Image contentFit="cover" source={{ uri: source }} style={imageStyle} transition={200} />
       </View>
     );
   }
@@ -129,18 +124,13 @@ export function Avatar({
 
 // Avatar Group
 interface AvatarGroupProps {
-  items: Array<{ source?: string; name: string }>;
+  items: { source?: string; name: string }[];
   max?: number;
   size?: AvatarSize;
   style?: ViewStyle;
 }
 
-export function AvatarGroup({
-  items,
-  max = 4,
-  size = 'md',
-  style,
-}: AvatarGroupProps) {
+export function AvatarGroup({ items, max = 4, size = 'md', style }: AvatarGroupProps) {
   const colors = useColors();
   const displayItems = items.slice(0, max);
   const remainingCount = items.length - max;
@@ -176,9 +166,9 @@ export function AvatarGroup({
           }}
         >
           <Avatar
-            source={item.source}
             name={item.name}
             size={size}
+            source={item.source}
             style={{
               borderWidth: 2,
               borderColor: colors.background,
@@ -186,7 +176,7 @@ export function AvatarGroup({
           />
         </View>
       ))}
-      {remainingCount > 0 && (
+      {remainingCount > 0 ? (
         <View
           style={{
             marginLeft: -overlap,
@@ -210,7 +200,7 @@ export function AvatarGroup({
             +{remainingCount}
           </Text>
         </View>
-      )}
+      ) : null}
     </View>
   );
 }
@@ -248,18 +238,12 @@ export function AvatarWithBadge({
   const sizeValue = getSizeValue();
 
   const badgePositionStyle: ViewStyle =
-    badgePosition === 'top-right'
-      ? { top: 0, right: 0 }
-      : { bottom: 0, right: 0 };
+    badgePosition === 'top-right' ? { top: 0, right: 0 } : { bottom: 0, right: 0 };
 
   return (
     <View style={{ width: sizeValue, height: sizeValue }}>
       <Avatar {...avatarProps} />
-      {badge && (
-        <View style={[{ position: 'absolute' }, badgePositionStyle]}>
-          {badge}
-        </View>
-      )}
+      {badge ? <View style={[{ position: 'absolute' }, badgePositionStyle]}>{badge}</View> : null}
     </View>
   );
 }

@@ -63,8 +63,8 @@ function StatsCards({ items }: { items: InventoryItem[] }) {
   const stats = useMemo(() => {
     const totalItems = items.length;
     const totalUnits = items.reduce((sum, i) => sum + i.quantity, 0);
-    const lowStock = items.filter(i => i.status === 'low_stock').length;
-    const outOfStock = items.filter(i => i.status === 'out_of_stock').length;
+    const lowStock = items.filter((i) => i.status === 'low_stock').length;
+    const outOfStock = items.filter((i) => i.status === 'out_of_stock').length;
     const inventoryValue = items.reduce((sum, i) => sum + i.quantity * i.unitPrice, 0);
     return { totalItems, totalUnits, lowStock, outOfStock, inventoryValue };
   }, [items]);
@@ -74,12 +74,12 @@ function StatsCards({ items }: { items: InventoryItem[] }) {
       {/* Inventory Value Card */}
       <LinearGradient
         colors={['#059669', '#10B981']}
-        start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
+        start={{ x: 0, y: 0 }}
         style={styles.valueCard}
       >
         <View style={styles.valueIcon}>
-          <Ionicons name="cube" size={16} color="rgba(255,255,255,0.9)" />
+          <Ionicons color="rgba(255,255,255,0.9)" name="cube" size={16} />
         </View>
         <Text style={styles.valueLabel}>Inventory Value</Text>
         <Text style={styles.valueAmount}>{formatCurrency(stats.inventoryValue)}</Text>
@@ -88,12 +88,9 @@ function StatsCards({ items }: { items: InventoryItem[] }) {
       {/* Stats Row */}
       <View style={styles.statsRow}>
         <View
-          style={[
-            styles.statItem,
-            { backgroundColor: isDark ? colors.surface : colors.infoLight },
-          ]}
+          style={[styles.statItem, { backgroundColor: isDark ? colors.surface : colors.infoLight }]}
         >
-          <Ionicons name="layers" size={16} color={colors.info} />
+          <Ionicons color={colors.info} name="layers" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>{stats.totalUnits}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Units</Text>
         </View>
@@ -104,7 +101,7 @@ function StatsCards({ items }: { items: InventoryItem[] }) {
             { backgroundColor: isDark ? colors.surface : colors.warningLight },
           ]}
         >
-          <Ionicons name="warning" size={16} color={colors.warning} />
+          <Ionicons color={colors.warning} name="warning" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>{stats.lowStock}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Low</Text>
         </View>
@@ -115,7 +112,7 @@ function StatsCards({ items }: { items: InventoryItem[] }) {
             { backgroundColor: isDark ? colors.surface : colors.errorLight },
           ]}
         >
-          <Ionicons name="alert-circle" size={16} color={colors.error} />
+          <Ionicons color={colors.error} name="alert-circle" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>{stats.outOfStock}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Out</Text>
         </View>
@@ -153,7 +150,15 @@ function InventoryCard({
     transform: [{ scale: scale.value }],
   }));
 
-  const statusConfig: Record<StockStatus, { label: string; variant: 'success' | 'warning' | 'error'; icon: keyof typeof Ionicons.glyphMap; color: string }> = {
+  const statusConfig: Record<
+    StockStatus,
+    {
+      label: string;
+      variant: 'success' | 'warning' | 'error';
+      icon: keyof typeof Ionicons.glyphMap;
+      color: string;
+    }
+  > = {
     in_stock: {
       label: 'In Stock',
       variant: 'success',
@@ -181,7 +186,9 @@ function InventoryCard({
 
   return (
     <Animated.View
-      entering={FadeInRight.delay(index * 30).springify().damping(15)}
+      entering={FadeInRight.delay(index * 30)
+        .springify()
+        .damping(15)}
       style={animatedStyle}
     >
       <Pressable
@@ -200,19 +207,19 @@ function InventoryCard({
         <View style={styles.inventoryHeader}>
           <View style={styles.inventoryHeaderLeft}>
             <View style={[styles.inventoryIconContainer, { backgroundColor: `${config.color}15` }]}>
-              <Ionicons name="cube-outline" size={20} color={config.color} />
+              <Ionicons color={config.color} name="cube-outline" size={20} />
             </View>
             <View style={styles.productInfo}>
-              <Text style={[styles.productName, { color: colors.text }]} numberOfLines={1}>
+              <Text numberOfLines={1} style={[styles.productName, { color: colors.text }]}>
                 {item.productName}
               </Text>
               <Text style={[styles.skuText, { color: colors.textTertiary }]}>
                 SKU: {item.sku}
-                {item.variantName && ` • ${item.variantName}`}
+                {item.variantName ? ` • ${item.variantName}` : null}
               </Text>
             </View>
           </View>
-          <Badge label={config.label} variant={config.variant} size="sm" />
+          <Badge label={config.label} size="sm" variant={config.variant} />
         </View>
 
         {/* Stock Level */}
@@ -246,24 +253,22 @@ function InventoryCard({
 
         {/* Footer */}
         <View style={[styles.inventoryFooter, { borderTopColor: colors.border }]}>
-          {item.location && (
+          {item.location ? (
             <View style={styles.locationInfo}>
-              <Ionicons name="location-outline" size={14} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="location-outline" size={14} />
               <Text style={[styles.locationText, { color: colors.textSecondary }]}>
                 {item.location}
               </Text>
             </View>
-          )}
+          ) : null}
           <View style={styles.actionButtons}>
             <Pressable
+              hitSlop={8}
               style={[styles.adjustButton, { backgroundColor: `${colors.primary}15` }]}
               onPress={() => onAdjustStock(item)}
-              hitSlop={8}
             >
-              <Ionicons name="add-circle-outline" size={16} color={colors.primary} />
-              <Text style={[styles.adjustButtonText, { color: colors.primary }]}>
-                Adjust
-              </Text>
+              <Ionicons color={colors.primary} name="add-circle-outline" size={16} />
+              <Text style={[styles.adjustButtonText, { color: colors.primary }]}>Adjust</Text>
             </Pressable>
           </View>
         </View>
@@ -284,7 +289,11 @@ export default function InventoryScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch inventory items
-  const { data: items = [], isLoading, refetch } = useQuery({
+  const {
+    data: items = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: currentTenant ? ['inventory', currentTenant.id] : ['inventory'],
     queryFn: async (): Promise<InventoryItem[]> => {
       // TODO: Replace with actual API call
@@ -383,13 +392,13 @@ export default function InventoryScreen() {
     let filtered = items;
 
     if (activeFilter !== 'all') {
-      filtered = filtered.filter(i => i.status === activeFilter);
+      filtered = filtered.filter((i) => i.status === activeFilter);
     }
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        i =>
+        (i) =>
           i.productName.toLowerCase().includes(query) ||
           i.sku.toLowerCase().includes(query) ||
           (i.variantName && i.variantName.toLowerCase().includes(query))
@@ -406,74 +415,73 @@ export default function InventoryScreen() {
   }, [refetch]);
 
   const handleAdjustStock = useCallback((item: InventoryItem) => {
-    Alert.alert(
-      'Adjust Stock',
-      `Current stock for ${item.productName}: ${item.quantity} units`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Add Stock',
-          onPress: () => {
-            Alert.prompt(
-              'Add Stock',
-              'Enter quantity to add:',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                  text: 'Add',
-                  onPress: (qty) => {
-                    if (qty && !isNaN(parseInt(qty))) {
-                      // TODO: Call API to update stock
-                      Alert.alert('Success', `Added ${qty} units to ${item.productName}`);
-                    }
-                  },
+    Alert.alert('Adjust Stock', `Current stock for ${item.productName}: ${item.quantity} units`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Add Stock',
+        onPress: () => {
+          Alert.prompt(
+            'Add Stock',
+            'Enter quantity to add:',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              {
+                text: 'Add',
+                onPress: (qty) => {
+                  if (qty && !isNaN(parseInt(qty))) {
+                    // TODO: Call API to update stock
+                    Alert.alert('Success', `Added ${qty} units to ${item.productName}`);
+                  }
                 },
-              ],
-              'plain-text',
-              '',
-              'number-pad'
-            );
-          },
+              },
+            ],
+            'plain-text',
+            '',
+            'number-pad'
+          );
         },
-        {
-          text: 'Remove Stock',
-          style: 'destructive',
-          onPress: () => {
-            Alert.prompt(
-              'Remove Stock',
-              'Enter quantity to remove:',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                  text: 'Remove',
-                  style: 'destructive',
-                  onPress: (qty) => {
-                    if (qty && !isNaN(parseInt(qty))) {
-                      // TODO: Call API to update stock
-                      Alert.alert('Success', `Removed ${qty} units from ${item.productName}`);
-                    }
-                  },
+      },
+      {
+        text: 'Remove Stock',
+        style: 'destructive',
+        onPress: () => {
+          Alert.prompt(
+            'Remove Stock',
+            'Enter quantity to remove:',
+            [
+              { text: 'Cancel', style: 'cancel' },
+              {
+                text: 'Remove',
+                style: 'destructive',
+                onPress: (qty) => {
+                  if (qty && !isNaN(parseInt(qty))) {
+                    // TODO: Call API to update stock
+                    Alert.alert('Success', `Removed ${qty} units from ${item.productName}`);
+                  }
                 },
-              ],
-              'plain-text',
-              '',
-              'number-pad'
-            );
-          },
+              },
+            ],
+            'plain-text',
+            '',
+            'number-pad'
+          );
         },
-      ]
-    );
+      },
+    ]);
   }, []);
 
-  const handleViewDetails = useCallback((item: InventoryItem) => {
-    router.push(`/(tabs)/(admin)/product-detail?id=${item.productId}`);
-  }, [router]);
+  const handleViewDetails = useCallback(
+    (item: InventoryItem) => {
+      router.push(`/(tabs)/(admin)/product-detail?id=${item.productId}`);
+    },
+    [router]
+  );
 
   const renderItem = useCallback(
     ({ item, index }: { item: InventoryItem; index: number }) => (
       <InventoryCard
-        item={item}
         index={index}
+        item={item}
         onAdjustStock={handleAdjustStock}
         onViewDetails={handleViewDetails}
       />
@@ -487,14 +495,14 @@ export default function InventoryScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerTop}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
+            <Ionicons color={colors.text} name="arrow-back" size={24} />
           </Pressable>
           <Text style={[styles.title, { color: colors.text }]}>Inventory</Text>
           <Pressable
             style={styles.addButton}
             onPress={() => Alert.alert('Coming Soon', 'Bulk import feature coming soon!')}
           >
-            <Ionicons name="cloud-upload-outline" size={24} color={colors.primary} />
+            <Ionicons color={colors.primary} name="cloud-upload-outline" size={24} />
           </Pressable>
         </View>
 
@@ -512,46 +520,44 @@ export default function InventoryScreen() {
             },
           ]}
         >
-          <Ionicons name="search" size={18} color={colors.textSecondary} />
+          <Ionicons color={colors.textSecondary} name="search" size={18} />
           <TextInput
-            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search products or SKU..."
             placeholderTextColor={colors.textTertiary}
+            style={[styles.searchInput, { color: colors.text }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          {searchQuery.length > 0 && (
+          {searchQuery.length > 0 ? (
             <Pressable onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="close-circle" size={18} />
             </Pressable>
-          )}
+          ) : null}
         </Animated.View>
 
         {/* Stock Filters */}
         <Animated.View entering={FadeInDown.delay(200)}>
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filtersContainer}
+            showsHorizontalScrollIndicator={false}
           >
-            {STOCK_FILTERS.map(filter => (
+            {STOCK_FILTERS.map((filter) => (
               <Pressable
                 key={filter.id}
                 style={[
                   styles.filterChip,
                   {
-                    backgroundColor:
-                      activeFilter === filter.id ? colors.primary : colors.surface,
-                    borderColor:
-                      activeFilter === filter.id ? colors.primary : colors.border,
+                    backgroundColor: activeFilter === filter.id ? colors.primary : colors.surface,
+                    borderColor: activeFilter === filter.id ? colors.primary : colors.border,
                   },
                 ]}
                 onPress={() => setActiveFilter(filter.id)}
               >
                 <Ionicons
+                  color={activeFilter === filter.id ? '#FFFFFF' : colors.textSecondary}
                   name={filter.icon}
                   size={14}
-                  color={activeFilter === filter.id ? '#FFFFFF' : colors.textSecondary}
                 />
                 <Text
                   style={[
@@ -569,49 +575,43 @@ export default function InventoryScreen() {
 
       {/* Inventory List */}
       {isLoading ? (
-        <ScrollView
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {[1, 2, 3, 4].map(i => (
+        <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
+          {[1, 2, 3, 4].map((i) => (
             <Skeleton
               key={i}
-              width="100%"
-              height={160}
               borderRadius={16}
+              height={160}
               style={{ marginBottom: 12 }}
+              width="100%"
             />
           ))}
         </ScrollView>
       ) : filteredItems.length === 0 ? (
         <EmptyState
-          icon="cube-outline"
-          title={searchQuery ? 'No items found' : 'No inventory items'}
+          actionLabel={searchQuery ? 'Clear Search' : undefined}
           description={
             searchQuery
               ? 'Try adjusting your search or filters'
               : 'Your inventory will appear here once you add products'
           }
-          actionLabel={searchQuery ? 'Clear Search' : undefined}
+          icon="cube-outline"
+          title={searchQuery ? 'No items found' : 'No inventory items'}
           onAction={searchQuery ? () => setSearchQuery('') : undefined}
         />
       ) : (
         <FlatList
+          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
           data={filteredItems}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
-          showsVerticalScrollIndicator={false}
+          keyExtractor={(item) => item.id}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
               tintColor={colors.primary}
+              onRefresh={onRefresh}
             />
           }
+          renderItem={renderItem}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </View>

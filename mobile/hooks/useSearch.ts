@@ -48,10 +48,7 @@ export interface UseProductSearchOptions extends UseSearchOptions {
  * Hook for searching products with Typesense
  * Includes debouncing, caching, and automatic tenant context
  */
-export function useProductSearch(
-  query: string,
-  options: UseProductSearchOptions = {}
-) {
+export function useProductSearch(query: string, options: UseProductSearchOptions = {}) {
   const {
     enabled = true,
     debounceMs = APP_CONFIG.SEARCH_DEBOUNCE,
@@ -75,7 +72,10 @@ export function useProductSearch(
   const shouldSearch = enabled && debouncedQuery.length >= minLength;
 
   const queryResult = useQuery<SearchResult<ProductSearchResult>>({
-    queryKey: [...QUERY_KEYS.SEARCH_PRODUCTS(tenantId, debouncedQuery), { category, brand, minPrice, maxPrice, inStock, sortBy }],
+    queryKey: [
+      ...QUERY_KEYS.SEARCH_PRODUCTS(tenantId, debouncedQuery),
+      { category, brand, minPrice, maxPrice, inStock, sortBy },
+    ],
     queryFn: () =>
       searchProductsWithFacets(debouncedQuery, {
         category,
@@ -109,10 +109,7 @@ export function useProductSearch(
 /**
  * Hook for searching categories with Typesense
  */
-export function useCategorySearch(
-  query: string,
-  options: UseSearchOptions = {}
-) {
+export function useCategorySearch(query: string, options: UseSearchOptions = {}) {
   const {
     enabled = true,
     debounceMs = APP_CONFIG.SEARCH_DEBOUNCE,
@@ -176,7 +173,9 @@ export function useGlobalSearch(
   });
 
   const totalResults = useMemo(() => {
-    if (!queryResult.data) return 0;
+    if (!queryResult.data) {
+      return 0;
+    }
     return (queryResult.data.products?.found || 0) + (queryResult.data.categories?.found || 0);
   }, [queryResult.data]);
 

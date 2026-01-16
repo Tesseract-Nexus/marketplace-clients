@@ -58,15 +58,18 @@ export default function ResetPasswordScreen() {
 
   if (success) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top + 20 }]}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: colors.background, paddingTop: insets.top + 20 },
+        ]}
+      >
         <Animated.View entering={FadeInDown} style={styles.successContainer}>
           <View style={[styles.iconCircle, { backgroundColor: colors.successLight }]}>
-            <Ionicons name="checkmark-circle" size={64} color={colors.success} />
+            <Ionicons color={colors.success} name="checkmark-circle" size={64} />
           </View>
 
-          <Text style={[styles.successTitle, { color: colors.text }]}>
-            Password Reset Complete
-          </Text>
+          <Text style={[styles.successTitle, { color: colors.text }]}>Password Reset Complete</Text>
 
           <Text style={[styles.successText, { color: colors.textSecondary }]}>
             Your password has been successfully updated.{'\n'}
@@ -74,11 +77,11 @@ export default function ResetPasswordScreen() {
           </Text>
 
           <Button
-            title="Sign In"
-            size="lg"
             fullWidth
-            onPress={() => router.replace('/login')}
+            size="lg"
             style={{ marginTop: 32 }}
+            title="Sign In"
+            onPress={() => router.replace('/login')}
           />
         </Animated.View>
       </View>
@@ -86,11 +89,16 @@ export default function ResetPasswordScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top + 20 }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.background, paddingTop: insets.top + 20 },
+      ]}
+    >
       {/* Back Button */}
       <Animated.View entering={FadeInDown.delay(100)}>
         <IconButton
-          icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
+          icon={<Ionicons color={colors.text} name="arrow-back" size={24} />}
           onPress={() => router.back()}
         />
       </Animated.View>
@@ -98,7 +106,7 @@ export default function ResetPasswordScreen() {
       {/* Icon */}
       <Animated.View entering={FadeInDown.delay(200)} style={styles.iconContainer}>
         <View style={[styles.iconCircle, { backgroundColor: colors.primaryLight }]}>
-          <Ionicons name="key" size={48} color={colors.primary} />
+          <Ionicons color={colors.primary} name="key" size={48} />
         </View>
       </Animated.View>
 
@@ -113,42 +121,42 @@ export default function ResetPasswordScreen() {
       {/* Form */}
       <Animated.View entering={FadeInDown.delay(400)} style={styles.form}>
         <Input
-          label="New Password"
-          type="password"
-          placeholder="Enter new password"
-          value={form.password}
-          onChangeText={(text) => updateForm('password', text)}
+          containerStyle={styles.inputContainer}
           error={errors.password}
           hint="Must include uppercase, lowercase, and number"
-          containerStyle={styles.inputContainer}
+          label="New Password"
+          placeholder="Enter new password"
+          type="password"
+          value={form.password}
+          onChangeText={(text) => updateForm('password', text)}
         />
 
         <Input
+          containerStyle={styles.inputContainer}
+          error={errors.confirm_password}
           label="Confirm New Password"
-          type="password"
           placeholder="Re-enter new password"
+          type="password"
           value={form.confirm_password}
           onChangeText={(text) => updateForm('confirm_password', text)}
-          error={errors.confirm_password}
-          containerStyle={styles.inputContainer}
         />
 
         <Button
-          title="Reset Password"
-          size="lg"
           fullWidth
           loading={isLoading}
-          onPress={handleSubmit}
+          size="lg"
           style={{ marginTop: 24 }}
+          title="Reset Password"
+          onPress={handleSubmit}
         />
 
         <Button
+          fullWidth
+          size="lg"
+          style={{ marginTop: 12 }}
           title="Back to Login"
           variant="ghost"
-          size="lg"
-          fullWidth
           onPress={() => router.replace('/login')}
-          style={{ marginTop: 12 }}
         />
       </Animated.View>
     </View>

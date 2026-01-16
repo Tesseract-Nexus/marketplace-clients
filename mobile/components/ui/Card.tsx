@@ -1,10 +1,6 @@
 import React, { ReactNode } from 'react';
 import { View, Pressable, ViewStyle, PressableProps } from 'react-native';
-import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 
 import { useColors, useBorderRadius, useShadows, useSpacing } from '@/providers/ThemeProvider';
@@ -73,7 +69,7 @@ export function Card({
   };
 
   return (
-    <View style={cardStyle} className={className}>
+    <View className={className} style={cardStyle}>
       {children}
     </View>
   );

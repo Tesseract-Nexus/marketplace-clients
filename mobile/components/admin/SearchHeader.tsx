@@ -64,31 +64,31 @@ export function SearchHeader({
         ]}
       >
         <Ionicons
+          color={isFocused ? colors.primary : colors.textSecondary}
           name="search"
           size={20}
-          color={isFocused ? colors.primary : colors.textSecondary}
         />
         <TextInput
-          value={value}
-          onChangeText={onChangeText}
+          autoFocus={autoFocus}
           placeholder={placeholder}
           placeholderTextColor={colors.textTertiary}
-          autoFocus={autoFocus}
-          onFocus={() => setIsFocused(true)}
-          onBlur={() => setIsFocused(false)}
-          style={[styles.input, { color: colors.text }]}
           returnKeyType="search"
+          style={[styles.input, { color: colors.text }]}
+          value={value}
+          onBlur={() => setIsFocused(false)}
+          onChangeText={onChangeText}
+          onFocus={() => setIsFocused(true)}
         />
-        {value.length > 0 && (
+        {value.length > 0 ? (
           <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(150)}>
-            <Pressable onPress={() => onChangeText('')} hitSlop={8}>
-              <Ionicons name="close-circle" size={20} color={colors.textSecondary} />
+            <Pressable hitSlop={8} onPress={() => onChangeText('')}>
+              <Ionicons color={colors.textSecondary} name="close-circle" size={20} />
             </Pressable>
           </Animated.View>
-        )}
+        ) : null}
       </View>
 
-      {onFilterPress && (
+      {onFilterPress ? (
         <AnimatedPressable
           style={[
             styles.filterButton,
@@ -98,21 +98,19 @@ export function SearchHeader({
           onPress={handleFilterPress}
         >
           <Ionicons
+            color={filterCount > 0 ? colors.textOnPrimary : colors.textSecondary}
             name="options"
             size={20}
-            color={filterCount > 0 ? colors.textOnPrimary : colors.textSecondary}
           />
-          {filterCount > 0 && (
+          {filterCount > 0 ? (
             <View style={[styles.filterBadge, { backgroundColor: colors.textOnPrimary }]}>
-              <Animated.Text
-                style={[styles.filterBadgeText, { color: colors.primary }]}
-              >
+              <Animated.Text style={[styles.filterBadgeText, { color: colors.primary }]}>
                 {filterCount}
               </Animated.Text>
             </View>
-          )}
+          ) : null}
         </AnimatedPressable>
-      )}
+      ) : null}
     </View>
   );
 }

@@ -73,25 +73,23 @@ export function Sparkline({
 
   return (
     <Animated.View entering={FadeIn.duration(500)} style={{ width, height }}>
-      <Svg width={width} height={height}>
+      <Svg height={height} width={width}>
         <Defs>
-          <LinearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+          <LinearGradient id={gradientId} x1="0" x2="0" y1="0" y2="1">
             <Stop offset="0" stopColor={actualFillColor} stopOpacity="0.3" />
             <Stop offset="1" stopColor={actualFillColor} stopOpacity="0" />
           </LinearGradient>
         </Defs>
 
-        {showFill && (
-          <Path d={fillPath} fill={`url(#${gradientId})`} />
-        )}
+        {showFill ? <Path d={fillPath} fill={`url(#${gradientId})`} /> : null}
 
         <Path
           d={path}
+          fill="none"
           stroke={strokeColor}
-          strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeLinejoin="round"
-          fill="none"
+          strokeWidth={strokeWidth}
         />
       </Svg>
     </Animated.View>

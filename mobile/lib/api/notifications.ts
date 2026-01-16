@@ -56,11 +56,17 @@ export const notificationsApi = {
 
       return {
         notifications: normalizedNotifications,
-        unread_count: data?.unread_count || data?.unreadCount || normalizedNotifications.filter((n: any) => !n.read_at).length,
+        unread_count:
+          data?.unread_count ||
+          data?.unreadCount ||
+          normalizedNotifications.filter((n: any) => !n.read_at).length,
         total: data?.total || normalizedNotifications.length,
         page: data?.page || params?.page || 1,
         limit: data?.limit || params?.limit || 20,
-        has_more: data?.has_more ?? data?.hasMore ?? (normalizedNotifications.length >= (params?.limit || 20)),
+        has_more:
+          data?.has_more ??
+          data?.hasMore ??
+          normalizedNotifications.length >= (params?.limit || 20),
       };
     } catch (error: any) {
       // Gracefully handle API not available
@@ -85,7 +91,9 @@ export const notificationsApi = {
   getUnreadCount: async (): Promise<number> => {
     try {
       // Try dedicated unread-count endpoint first
-      const response = await apiGet<UnreadCountResponse>(`${ENDPOINTS.NOTIFICATIONS.LIST}/unread-count`);
+      const response = await apiGet<UnreadCountResponse>(
+        `${ENDPOINTS.NOTIFICATIONS.LIST}/unread-count`
+      );
       return response.data?.count || 0;
     } catch {
       // Fallback to list endpoint

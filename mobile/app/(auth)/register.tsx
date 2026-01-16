@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { View, Text, Pressable, ScrollView, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  Pressable,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+} from 'react-native';
 import { useRouter, Link } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -76,9 +84,9 @@ export default function RegisterScreen() {
         {/* Back Button */}
         <Animated.View entering={FadeInDown.delay(100)}>
           <IconButton
-            icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
-            onPress={() => router.back()}
+            icon={<Ionicons color={colors.text} name="arrow-back" size={24} />}
             style={styles.backButton}
+            onPress={() => router.back()}
           />
         </Animated.View>
 
@@ -96,53 +104,53 @@ export default function RegisterScreen() {
           <View style={styles.nameRow}>
             <View style={styles.nameField}>
               <Input
+                error={errors.first_name}
                 label="First Name"
                 placeholder="John"
                 value={form.first_name}
                 onChangeText={(text) => updateForm('first_name', text)}
-                error={errors.first_name}
               />
             </View>
             <View style={styles.nameField}>
               <Input
+                error={errors.last_name}
                 label="Last Name"
                 placeholder="Doe"
                 value={form.last_name}
                 onChangeText={(text) => updateForm('last_name', text)}
-                error={errors.last_name}
               />
             </View>
           </View>
 
           <Input
+            containerStyle={styles.inputContainer}
+            error={errors.email}
             label="Email"
-            type="email"
             placeholder="john@example.com"
+            type="email"
             value={form.email}
             onChangeText={(text) => updateForm('email', text)}
-            error={errors.email}
-            containerStyle={styles.inputContainer}
           />
 
           <Input
-            label="Password"
-            type="password"
-            placeholder="Minimum 8 characters"
-            value={form.password}
-            onChangeText={(text) => updateForm('password', text)}
+            containerStyle={styles.inputContainer}
             error={errors.password}
             hint="Must include uppercase, lowercase, and number"
-            containerStyle={styles.inputContainer}
+            label="Password"
+            placeholder="Minimum 8 characters"
+            type="password"
+            value={form.password}
+            onChangeText={(text) => updateForm('password', text)}
           />
 
           <Input
+            containerStyle={styles.inputContainer}
+            error={errors.confirm_password}
             label="Confirm Password"
-            type="password"
             placeholder="Re-enter your password"
+            type="password"
             value={form.confirm_password}
             onChangeText={(text) => updateForm('confirm_password', text)}
-            error={errors.confirm_password}
-            containerStyle={styles.inputContainer}
           />
 
           {/* Terms Checkbox */}
@@ -155,52 +163,48 @@ export default function RegisterScreen() {
                 styles.checkbox,
                 {
                   backgroundColor: form.accept_terms ? colors.primary : 'transparent',
-                  borderColor: errors.accept_terms ? colors.error : form.accept_terms ? colors.primary : colors.border,
+                  borderColor: errors.accept_terms
+                    ? colors.error
+                    : form.accept_terms
+                      ? colors.primary
+                      : colors.border,
                 },
               ]}
             >
-              {form.accept_terms && (
-                <Ionicons name="checkmark" size={14} color="#FFFFFF" />
-              )}
+              {form.accept_terms ? <Ionicons color="#FFFFFF" name="checkmark" size={14} /> : null}
             </View>
             <Text style={[styles.termsText, { color: colors.textSecondary }]}>
-              I agree to the{' '}
-              <Text style={{ color: colors.primary }}>Terms of Service</Text>
-              {' '}and{' '}
+              I agree to the <Text style={{ color: colors.primary }}>Terms of Service</Text> and{' '}
               <Text style={{ color: colors.primary }}>Privacy Policy</Text>
             </Text>
           </Pressable>
-          {errors.accept_terms && (
-            <Text style={[styles.errorText, { color: colors.error }]}>
-              {errors.accept_terms}
-            </Text>
-          )}
+          {errors.accept_terms ? (
+            <Text style={[styles.errorText, { color: colors.error }]}>{errors.accept_terms}</Text>
+          ) : null}
 
           {/* Error Message */}
-          {error && (
+          {error ? (
             <View style={[styles.errorContainer, { backgroundColor: colors.errorLight }]}>
-              <Ionicons name="alert-circle" size={20} color={colors.error} />
+              <Ionicons color={colors.error} name="alert-circle" size={20} />
               <Text style={[styles.errorText, { color: colors.error }]}>{error}</Text>
             </View>
-          )}
+          ) : null}
 
           {/* Register Button */}
           <Button
-            title="Create Account"
-            size="lg"
             fullWidth
             loading={isLoading}
-            onPress={handleRegister}
+            size="lg"
             style={styles.registerButton}
+            title="Create Account"
+            onPress={handleRegister}
           />
         </Animated.View>
 
         {/* Divider */}
         <Animated.View entering={FadeInDown.delay(400)} style={styles.dividerContainer}>
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
-          <Text style={[styles.dividerText, { color: colors.textTertiary }]}>
-            or continue with
-          </Text>
+          <Text style={[styles.dividerText, { color: colors.textTertiary }]}>or continue with</Text>
           <View style={[styles.divider, { backgroundColor: colors.border }]} />
         </Animated.View>
 
@@ -212,7 +216,7 @@ export default function RegisterScreen() {
               { backgroundColor: colors.surface, borderColor: colors.border },
             ]}
           >
-            <Ionicons name="logo-google" size={24} color="#DB4437" />
+            <Ionicons color="#DB4437" name="logo-google" size={24} />
           </Pressable>
 
           <Pressable
@@ -221,7 +225,7 @@ export default function RegisterScreen() {
               { backgroundColor: colors.surface, borderColor: colors.border },
             ]}
           >
-            <Ionicons name="logo-apple" size={24} color={colors.text} />
+            <Ionicons color={colors.text} name="logo-apple" size={24} />
           </Pressable>
         </Animated.View>
 
@@ -230,11 +234,9 @@ export default function RegisterScreen() {
           <Text style={[styles.signinText, { color: colors.textSecondary }]}>
             Already have an account?{' '}
           </Text>
-          <Link href="/login" asChild>
+          <Link asChild href="/login">
             <Pressable>
-              <Text style={[styles.signinLink, { color: colors.primary }]}>
-                Sign In
-              </Text>
+              <Text style={[styles.signinLink, { color: colors.primary }]}>Sign In</Text>
             </Pressable>
           </Link>
         </Animated.View>

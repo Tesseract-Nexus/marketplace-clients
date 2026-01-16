@@ -84,13 +84,11 @@ export function MetricCard({
         style={[
           styles.iconContainer,
           {
-            backgroundColor: gradient
-              ? 'rgba(255,255,255,0.2)'
-              : `${colors.primary}15`,
+            backgroundColor: gradient ? 'rgba(255,255,255,0.2)' : `${colors.primary}15`,
           },
         ]}
       >
-        <Ionicons name={icon} size={20} color={iconColor} />
+        <Ionicons color={iconColor} name={icon} size={20} />
       </View>
 
       {/* Value */}
@@ -102,7 +100,7 @@ export function MetricCard({
       <View style={styles.bottomRow}>
         <Text style={[styles.title, { color: secondaryTextColor }]}>{title}</Text>
 
-        {change !== undefined && (
+        {change !== undefined ? (
           <View
             style={[
               styles.changeBadge,
@@ -112,56 +110,68 @@ export function MetricCard({
                     ? 'rgba(16,185,129,0.25)'
                     : 'rgba(239,68,68,0.25)'
                   : isPositive
-                  ? colors.successLight
-                  : colors.errorLight,
+                    ? colors.successLight
+                    : colors.errorLight,
               },
             ]}
           >
             <Ionicons
+              color={
+                isPositive
+                  ? gradient
+                    ? '#34D399'
+                    : colors.success
+                  : gradient
+                    ? '#F87171'
+                    : colors.error
+              }
               name={isPositive ? 'arrow-up' : 'arrow-down'}
               size={10}
-              color={isPositive ? (gradient ? '#34D399' : colors.success) : (gradient ? '#F87171' : colors.error)}
             />
             <Text
               style={[
                 styles.changeText,
-                { color: isPositive ? (gradient ? '#34D399' : colors.success) : (gradient ? '#F87171' : colors.error) },
+                {
+                  color: isPositive
+                    ? gradient
+                      ? '#34D399'
+                      : colors.success
+                    : gradient
+                      ? '#F87171'
+                      : colors.error,
+                },
               ]}
             >
               {Math.abs(change)}%
             </Text>
           </View>
-        )}
+        ) : null}
       </View>
 
       {/* Sparkline (if provided) */}
-      {sparklineData && sparklineData.length > 0 && (
+      {sparklineData && sparklineData.length > 0 ? (
         <View style={styles.sparklineContainer}>
           <Sparkline
             data={sparklineData}
-            width={60}
             height={24}
+            showFill={false}
             strokeColor={gradient ? 'rgba(255,255,255,0.6)' : colors.primary}
             strokeWidth={1.5}
-            showFill={false}
+            width={60}
           />
         </View>
-      )}
+      ) : null}
     </View>
   );
 
   return (
     <Animated.View style={[styles.wrapper, animatedStyle]}>
-      <Pressable
-        onPress={onPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-      >
+      <Pressable onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut}>
         {gradient ? (
           <LinearGradient
             colors={[...gradient]}
-            start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
+            start={{ x: 0, y: 0 }}
             style={styles.container}
           >
             {CardContent}
@@ -204,14 +214,11 @@ export function StatPill({
 
   return (
     <Pressable
-      style={[
-        styles.pillContainer,
-        { backgroundColor: isDark ? colors.surface : colors.card },
-      ]}
+      style={[styles.pillContainer, { backgroundColor: isDark ? colors.surface : colors.card }]}
       onPress={onPress}
     >
       <View style={[styles.pillIcon, { backgroundColor: `${color}15` }]}>
-        <Ionicons name={icon} size={16} color={color} />
+        <Ionicons color={color} name={icon} size={16} />
       </View>
       <View style={styles.pillContent}>
         <Text style={[styles.pillValue, { color: colors.text }]}>{value}</Text>

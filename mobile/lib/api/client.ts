@@ -1,4 +1,9 @@
-import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, InternalAxiosRequestConfig } from 'axios';
+import axios, {
+  AxiosError,
+  AxiosInstance,
+  AxiosRequestConfig,
+  InternalAxiosRequestConfig,
+} from 'axios';
 
 import { API_URL, APP_CONFIG, ERROR_MESSAGES, getTenantApiUrl } from '../constants';
 import { decodeJwtPayload } from '../utils/base64';
@@ -29,7 +34,7 @@ const processQueue = (error: Error | null, token: string | null = null) => {
 // Create axios instance with unified API gateway
 const createApiClient = (): AxiosInstance => {
   const client = axios.create({
-    baseURL: API_URL,  // All requests go through the unified API gateway
+    baseURL: API_URL, // All requests go through the unified API gateway
     timeout: APP_CONFIG.API_TIMEOUT,
     headers: {
       'Content-Type': 'application/json',
@@ -99,10 +104,11 @@ const createApiClient = (): AxiosInstance => {
       const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
       // Skip token refresh for auth endpoints (login, register, etc.)
-      const isAuthEndpoint = originalRequest.url?.includes('/auth/login') ||
-                            originalRequest.url?.includes('/auth/register') ||
-                            originalRequest.url?.includes('/auth/refresh') ||
-                            originalRequest.url?.includes('/auth/forgot-password');
+      const isAuthEndpoint =
+        originalRequest.url?.includes('/auth/login') ||
+        originalRequest.url?.includes('/auth/register') ||
+        originalRequest.url?.includes('/auth/refresh') ||
+        originalRequest.url?.includes('/auth/forgot-password');
 
       // Handle 401 Unauthorized - Token refresh (but not for auth endpoints)
       if (error.response?.status === 401 && !originalRequest._retry && !isAuthEndpoint) {
@@ -248,13 +254,13 @@ const transformError = (error: AxiosError<ApiErrorResponse>): Error => {
 export class ApiError extends Error {
   status: number;
   code?: string;
-  errors?: Array<{ code: string; message: string; field?: string }>;
+  errors?: { code: string; message: string; field?: string }[];
 
   constructor(
     message: string,
     status: number,
     code?: string,
-    errors?: Array<{ code: string; message: string; field?: string }>
+    errors?: { code: string; message: string; field?: string }[]
   ) {
     super(message);
     this.name = 'ApiError';
@@ -290,7 +296,10 @@ export const api = createApiClient();
 export const apiClient = api; // Alias for convenience
 
 // Typed API helpers
-export const apiGet = async <T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
+export const apiGet = async <T>(
+  url: string,
+  config?: AxiosRequestConfig
+): Promise<ApiResponse<T>> => {
   const response = await api.get<ApiResponse<T>>(url, config);
   return response.data;
 };
@@ -322,7 +331,10 @@ export const apiPatch = async <T>(
   return response.data;
 };
 
-export const apiDelete = async <T>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> => {
+export const apiDelete = async <T>(
+  url: string,
+  config?: AxiosRequestConfig
+): Promise<ApiResponse<T>> => {
   const response = await api.delete<ApiResponse<T>>(url, config);
   return response.data;
 };

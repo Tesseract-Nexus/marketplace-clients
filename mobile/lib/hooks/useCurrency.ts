@@ -100,10 +100,7 @@ export function useCurrency(options: UseCurrencyOptions = {}): UseCurrencyResult
       loadedRef.current = true;
       setIsLoading(true);
 
-      Promise.all([
-        currencyApi.preloadRates(baseCurrencies),
-        currencyApi.getSupportedCurrencies(),
-      ])
+      Promise.all([currencyApi.preloadRates(baseCurrencies), currencyApi.getSupportedCurrencies()])
         .then(([, currenciesResponse]) => {
           if (currenciesResponse.success) {
             setSupportedCurrencies(currenciesResponse.currencies);
@@ -204,11 +201,7 @@ export function useCurrency(options: UseCurrencyOptions = {}): UseCurrencyResult
 
   // Format converted amount
   const formatConverted = useCallback(
-    async (
-      amount: number,
-      from: string,
-      options: FormatOptions = {}
-    ): Promise<string> => {
+    async (amount: number, from: string, options: FormatOptions = {}): Promise<string> => {
       const { compact = false, locale = 'en-US', showOriginal = false } = options;
       const fromUpper = from.toUpperCase();
       const toUpper = preferredCurrency.toUpperCase();

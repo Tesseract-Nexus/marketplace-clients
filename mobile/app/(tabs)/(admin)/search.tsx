@@ -110,6 +110,9 @@ function QuickActionCard({
       style={styles.quickActionWrapper}
     >
       <AnimatedTouchable
+        activeOpacity={1}
+        style={[styles.quickActionCard, animatedStyle]}
+        onPress={onPress}
         onPressIn={() => {
           scale.value = withSpring(0.95);
           void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -117,18 +120,15 @@ function QuickActionCard({
         onPressOut={() => {
           scale.value = withSpring(1);
         }}
-        onPress={onPress}
-        activeOpacity={1}
-        style={[styles.quickActionCard, animatedStyle]}
       >
         <LinearGradient
           colors={action.gradient}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={styles.quickActionGradient}
         >
           <View style={styles.quickActionIconContainer}>
-            <Ionicons name={action.icon} size={24} color="#FFFFFF" />
+            <Ionicons color="#FFFFFF" name={action.icon} size={24} />
           </View>
           <Text style={styles.quickActionLabel}>{action.label}</Text>
           <Text style={styles.quickActionDescription}>{action.description}</Text>
@@ -155,21 +155,18 @@ function RecentSearchItem({
   return (
     <Animated.View entering={FadeInRight.delay(index * 30)}>
       <TouchableOpacity
-        onPress={onPress}
-        style={[styles.recentItem, { backgroundColor: colors.surface }]}
         activeOpacity={0.7}
+        style={[styles.recentItem, { backgroundColor: colors.surface }]}
+        onPress={onPress}
       >
         <View style={[styles.recentIcon, { backgroundColor: `${colors.primary}10` }]}>
-          <Ionicons name="time-outline" size={16} color={colors.primary} />
+          <Ionicons color={colors.primary} name="time-outline" size={16} />
         </View>
-        <Text style={[styles.recentText, { color: colors.text }]} numberOfLines={1}>
+        <Text numberOfLines={1} style={[styles.recentText, { color: colors.text }]}>
           {query}
         </Text>
-        <TouchableOpacity
-          onPress={onRemove}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <Ionicons name="close" size={18} color={colors.textTertiary} />
+        <TouchableOpacity hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={onRemove}>
+          <Ionicons color={colors.textTertiary} name="close" size={18} />
         </TouchableOpacity>
       </TouchableOpacity>
     </Animated.View>
@@ -209,7 +206,7 @@ function SearchResultCard({
   return (
     <Animated.View entering={FadeInDown.delay(index * 40).springify()}>
       <TouchableOpacity
-        onPress={onPress}
+        activeOpacity={0.7}
         style={[
           styles.resultCard,
           {
@@ -218,44 +215,37 @@ function SearchResultCard({
             borderWidth: isDark ? 1 : 0,
           },
         ]}
-        activeOpacity={0.7}
+        onPress={onPress}
       >
         {result.image ? (
           <Image source={{ uri: result.image }} style={styles.resultImage} />
         ) : (
           <View style={[styles.resultIconBox, { backgroundColor: `${typeColor}15` }]}>
-            <Ionicons name={result.icon} size={22} color={typeColor} />
+            <Ionicons color={typeColor} name={result.icon} size={22} />
           </View>
         )}
         <View style={styles.resultContent}>
           <View style={styles.resultHeader}>
-            <Text
-              style={[styles.resultTitle, { color: colors.text }]}
-              numberOfLines={1}
-            >
+            <Text numberOfLines={1} style={[styles.resultTitle, { color: colors.text }]}>
               {result.title}
             </Text>
             <View style={[styles.typePill, { backgroundColor: `${typeColor}15` }]}>
-              <Text style={[styles.typeLabel, { color: typeColor }]}>
-                {result.type}
-              </Text>
+              <Text style={[styles.typeLabel, { color: typeColor }]}>{result.type}</Text>
             </View>
           </View>
-          {result.subtitle && (
+          {result.subtitle ? (
             <Text
-              style={[styles.resultSubtitle, { color: colors.textSecondary }]}
               numberOfLines={1}
+              style={[styles.resultSubtitle, { color: colors.textSecondary }]}
             >
               {result.subtitle}
             </Text>
-          )}
-          {result.meta && (
-            <Text style={[styles.resultMeta, { color: colors.textTertiary }]}>
-              {result.meta}
-            </Text>
-          )}
+          ) : null}
+          {result.meta ? (
+            <Text style={[styles.resultMeta, { color: colors.textTertiary }]}>{result.meta}</Text>
+          ) : null}
         </View>
-        <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+        <Ionicons color={colors.textTertiary} name="chevron-forward" size={18} />
       </TouchableOpacity>
     </Animated.View>
   );
@@ -292,13 +282,13 @@ export default function AdminSearchScreen() {
     async (searchQuery: string) => {
       try {
         const trimmed = searchQuery.trim();
-        if (!trimmed || trimmed.length < 2) return;
+        if (!trimmed || trimmed.length < 2) {
+          return;
+        }
 
         const updated = [
           trimmed,
-          ...recentSearches.filter(
-            (s) => s.toLowerCase() !== trimmed.toLowerCase()
-          ),
+          ...recentSearches.filter((s) => s.toLowerCase() !== trimmed.toLowerCase()),
         ].slice(0, MAX_RECENT_SEARCHES);
 
         setRecentSearches(updated);
@@ -314,9 +304,7 @@ export default function AdminSearchScreen() {
   const removeRecentSearch = useCallback(
     async (searchQuery: string) => {
       try {
-        const updated = recentSearches.filter(
-          (s) => s.toLowerCase() !== searchQuery.toLowerCase()
-        );
+        const updated = recentSearches.filter((s) => s.toLowerCase() !== searchQuery.toLowerCase());
         setRecentSearches(updated);
         await AsyncStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
         void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -342,7 +330,9 @@ export default function AdminSearchScreen() {
   const { data: results = [], isLoading } = useQuery<AdminSearchResult[]>({
     queryKey: ['admin-search', debouncedQuery],
     queryFn: async () => {
-      if (debouncedQuery.length < 2) return [];
+      if (debouncedQuery.length < 2) {
+        return [];
+      }
 
       // Save to recent searches
       saveRecentSearch(debouncedQuery);
@@ -413,15 +403,15 @@ export default function AdminSearchScreen() {
   }, []);
 
   const renderEmpty = useCallback(() => {
-    if (isLoading || debouncedQuery.length < 2) return null;
+    if (isLoading || debouncedQuery.length < 2) {
+      return null;
+    }
     return (
       <Animated.View entering={FadeIn} style={styles.emptyContainer}>
         <View style={[styles.emptyIconBox, { backgroundColor: colors.surface }]}>
-          <Ionicons name="search-outline" size={40} color={colors.textTertiary} />
+          <Ionicons color={colors.textTertiary} name="search-outline" size={40} />
         </View>
-        <Text style={[styles.emptyTitle, { color: colors.text }]}>
-          No results found
-        </Text>
+        <Text style={[styles.emptyTitle, { color: colors.text }]}>No results found</Text>
         <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
           We couldn't find anything matching "{debouncedQuery}"
         </Text>
@@ -439,49 +429,49 @@ export default function AdminSearchScreen() {
       <View style={[styles.container, { backgroundColor: colors.background }]}>
         {/* Header with blur */}
         <View style={[styles.headerContainer, { paddingTop: insets.top }]}>
-          {Platform.OS === 'ios' && (
+          {Platform.OS === 'ios' ? (
             <BlurView
               intensity={isDark ? 40 : 80}
-              tint={isDark ? 'dark' : 'light'}
               style={StyleSheet.absoluteFill}
+              tint={isDark ? 'dark' : 'light'}
             />
-          )}
+          ) : null}
           <View style={styles.header}>
             <TouchableOpacity
+              style={[styles.backButton, { backgroundColor: colors.surface }]}
               onPress={() => {
                 void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.back();
               }}
-              style={[styles.backButton, { backgroundColor: colors.surface }]}
             >
-              <Ionicons name="arrow-back" size={22} color={colors.text} />
+              <Ionicons color={colors.text} name="arrow-back" size={22} />
             </TouchableOpacity>
 
             <View style={[styles.searchBox, { backgroundColor: colors.surface }]}>
-              <Ionicons name="search" size={20} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="search" size={20} />
               <TextInput
                 ref={inputRef}
-                value={query}
-                onChangeText={setQuery}
-                placeholder="Search products, orders, customers..."
-                placeholderTextColor={colors.textTertiary}
-                returnKeyType="search"
                 autoFocus
                 autoCapitalize="none"
                 autoCorrect={false}
+                placeholder="Search products, orders, customers..."
+                placeholderTextColor={colors.textTertiary}
+                returnKeyType="search"
                 style={[styles.searchInput, { color: colors.text }]}
+                value={query}
+                onChangeText={setQuery}
               />
-              {query.length > 0 && (
+              {query.length > 0 ? (
                 <TouchableOpacity
+                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                   onPress={() => {
                     setQuery('');
                     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   }}
-                  hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                  <Ionicons name="close-circle" size={20} color={colors.textSecondary} />
+                  <Ionicons color={colors.textSecondary} name="close-circle" size={20} />
                 </TouchableOpacity>
-              )}
+              ) : null}
             </View>
           </View>
         </View>
@@ -490,43 +480,38 @@ export default function AdminSearchScreen() {
         {debouncedQuery.length >= 2 ? (
           isLoading ? (
             <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color={colors.primary} />
+              <ActivityIndicator color={colors.primary} size="large" />
               <Text style={[styles.loadingText, { color: colors.textSecondary }]}>
                 Searching...
               </Text>
             </View>
           ) : (
             <FlatList
+              contentContainerStyle={styles.resultsList}
               data={results}
+              keyboardShouldPersistTaps="handled"
               keyExtractor={(item) => `${item.type}-${item.id}`}
+              ListEmptyComponent={renderEmpty}
               renderItem={({ item, index }) => (
                 <SearchResultCard
-                  result={item}
                   index={index}
+                  result={item}
                   onPress={() => handleResultPress(item)}
                 />
               )}
-              ListEmptyComponent={renderEmpty}
-              contentContainerStyle={styles.resultsList}
-              keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
             />
           )
         ) : (
           <FlatList
-            data={[]}
-            renderItem={null}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.idleContent}
+            data={[]}
+            keyboardShouldPersistTaps="handled"
             ListHeaderComponent={
               <>
                 {/* Recent Searches */}
-                {recentSearches.length > 0 && (
-                  <Animated.View
-                    entering={FadeInDown.delay(50)}
-                    style={styles.section}
-                  >
+                {recentSearches.length > 0 ? (
+                  <Animated.View entering={FadeInDown.delay(50)} style={styles.section}>
                     <View style={styles.sectionHeader}>
                       <Text style={[styles.sectionTitle, { color: colors.text }]}>
                         Recent Searches
@@ -541,15 +526,15 @@ export default function AdminSearchScreen() {
                       {recentSearches.map((item, index) => (
                         <RecentSearchItem
                           key={item}
-                          query={item}
                           index={index}
+                          query={item}
                           onPress={() => handleRecentSearchPress(item)}
                           onRemove={() => removeRecentSearch(item)}
                         />
                       ))}
                     </View>
                   </Animated.View>
-                )}
+                ) : null}
 
                 {/* Quick Navigation */}
                 <Animated.View entering={FadeInDown.delay(100)} style={styles.section}>
@@ -571,11 +556,9 @@ export default function AdminSearchScreen() {
                 {/* Search Tips */}
                 <Animated.View entering={FadeInDown.delay(200)} style={styles.tipsSection}>
                   <View style={[styles.tipsCard, { backgroundColor: colors.surface }]}>
-                    <Ionicons name="bulb-outline" size={20} color={colors.warning} />
+                    <Ionicons color={colors.warning} name="bulb-outline" size={20} />
                     <View style={styles.tipsContent}>
-                      <Text style={[styles.tipsTitle, { color: colors.text }]}>
-                        Search Tips
-                      </Text>
+                      <Text style={[styles.tipsTitle, { color: colors.text }]}>Search Tips</Text>
                       <Text style={[styles.tipsText, { color: colors.textSecondary }]}>
                         Search by product name, SKU, category, or customer name
                       </Text>
@@ -584,6 +567,8 @@ export default function AdminSearchScreen() {
                 </Animated.View>
               </>
             }
+            renderItem={null}
+            showsVerticalScrollIndicator={false}
           />
         )}
       </View>

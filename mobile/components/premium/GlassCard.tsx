@@ -70,14 +70,14 @@ export function GlassCard({
   const CardContent = (
     <BlurView
       intensity={blurIntensity}
-      tint={isDark ? 'dark' : 'light'}
       style={[styles.blur, variant === 'bordered' && styles.bordered]}
+      tint={isDark ? 'dark' : 'light'}
     >
       {variant === 'gradient' && gradientColors ? (
         <LinearGradient
           colors={[...gradientColors]}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={styles.gradientOverlay}
         />
       ) : null}
@@ -85,9 +85,7 @@ export function GlassCard({
         style={[
           styles.content,
           {
-            backgroundColor: isDark
-              ? 'rgba(255,255,255,0.05)'
-              : 'rgba(255,255,255,0.7)',
+            backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.7)',
           },
         ]}
       >
@@ -99,16 +97,11 @@ export function GlassCard({
   if (onPress) {
     return (
       <AnimatedPressable
-        style={[
-          styles.container,
-          variant === 'elevated' && shadows.lg,
-          animatedStyle,
-          style,
-        ]}
+        disabled={disabled}
+        style={[styles.container, variant === 'elevated' && shadows.lg, animatedStyle, style]}
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        disabled={disabled}
       >
         {CardContent}
       </AnimatedPressable>
@@ -116,13 +109,7 @@ export function GlassCard({
   }
 
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        variant === 'elevated' && shadows.lg,
-        style,
-      ]}
-    >
+    <Animated.View style={[styles.container, variant === 'elevated' && shadows.lg, style]}>
       {CardContent}
     </Animated.View>
   );

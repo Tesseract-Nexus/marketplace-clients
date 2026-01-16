@@ -18,33 +18,20 @@ interface SkeletonProps {
   style?: ViewStyle;
 }
 
-export function Skeleton({
-  width = '100%',
-  height = 20,
-  borderRadius,
-  style,
-}: SkeletonProps) {
+export function Skeleton({ width = '100%', height = 20, borderRadius, style }: SkeletonProps) {
   const colors = useColors();
   const defaultBorderRadius = useBorderRadius();
   const shimmerPosition = useSharedValue(0);
 
   useEffect(() => {
-    shimmerPosition.value = withRepeat(
-      withTiming(1, { duration: 1500 }),
-      -1,
-      false
-    );
+    shimmerPosition.value = withRepeat(withTiming(1, { duration: 1500 }), -1, false);
   }, [shimmerPosition]);
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
         {
-          translateX: interpolate(
-            shimmerPosition.value,
-            [0, 1],
-            [-200, 200]
-          ),
+          translateX: interpolate(shimmerPosition.value, [0, 1], [-200, 200]),
         },
       ],
     };
@@ -65,13 +52,9 @@ export function Skeleton({
     >
       <Animated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
         <LinearGradient
-          colors={[
-            'transparent',
-            colors.background,
-            'transparent',
-          ]}
-          start={{ x: 0, y: 0 }}
+          colors={['transparent', colors.background, 'transparent']}
           end={{ x: 1, y: 0 }}
+          start={{ x: 0, y: 0 }}
           style={StyleSheet.absoluteFill}
         />
       </Animated.View>
@@ -99,8 +82,8 @@ export function SkeletonText({
         <Skeleton
           key={index}
           height={lineHeight}
-          width={index === lines - 1 ? lastLineWidth : '100%'}
           style={{ marginTop: index > 0 ? spacing : 0 }}
+          width={index === lines - 1 ? lastLineWidth : '100%'}
         />
       ))}
     </View>
@@ -114,10 +97,10 @@ export function SkeletonCard() {
   return (
     <View style={{ padding: 16 }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: spacing }}>
-        <Skeleton width={48} height={48} borderRadius={24} />
+        <Skeleton borderRadius={24} height={48} width={48} />
         <View style={{ flex: 1, marginLeft: spacing }}>
-          <Skeleton width="60%" height={16} />
-          <Skeleton width="40%" height={12} style={{ marginTop: 6 }} />
+          <Skeleton height={16} width="60%" />
+          <Skeleton height={12} style={{ marginTop: 6 }} width="40%" />
         </View>
       </View>
       <SkeletonText lines={2} spacing={6} />
@@ -131,14 +114,10 @@ export function SkeletonProductCard() {
 
   return (
     <View>
-      <Skeleton
-        height={180}
-        borderRadius={borderRadius.xl}
-        style={{ marginBottom: 12 }}
-      />
-      <Skeleton width="80%" height={16} />
-      <Skeleton width="40%" height={14} style={{ marginTop: 6 }} />
-      <Skeleton width="30%" height={20} style={{ marginTop: 8 }} />
+      <Skeleton borderRadius={borderRadius.xl} height={180} style={{ marginBottom: 12 }} />
+      <Skeleton height={16} width="80%" />
+      <Skeleton height={14} style={{ marginTop: 6 }} width="40%" />
+      <Skeleton height={20} style={{ marginTop: 8 }} width="30%" />
     </View>
   );
 }
@@ -153,13 +132,13 @@ export function SkeletonListItem() {
         padding: 16,
       }}
     >
-      <Skeleton width={56} height={56} borderRadius={12} />
+      <Skeleton borderRadius={12} height={56} width={56} />
       <View style={{ flex: 1, marginLeft: 12 }}>
-        <Skeleton width="70%" height={16} />
-        <Skeleton width="50%" height={12} style={{ marginTop: 6 }} />
-        <Skeleton width="30%" height={12} style={{ marginTop: 6 }} />
+        <Skeleton height={16} width="70%" />
+        <Skeleton height={12} style={{ marginTop: 6 }} width="50%" />
+        <Skeleton height={12} style={{ marginTop: 6 }} width="30%" />
       </View>
-      <Skeleton width={60} height={24} borderRadius={12} />
+      <Skeleton borderRadius={12} height={24} width={60} />
     </View>
   );
 }
@@ -177,9 +156,9 @@ export function SkeletonDashboardStats() {
             backgroundColor: 'transparent',
           }}
         >
-          <Skeleton width={40} height={40} borderRadius={20} />
-          <Skeleton width="60%" height={24} style={{ marginTop: 12 }} />
-          <Skeleton width="40%" height={14} style={{ marginTop: 6 }} />
+          <Skeleton borderRadius={20} height={40} width={40} />
+          <Skeleton height={24} style={{ marginTop: 12 }} width="60%" />
+          <Skeleton height={14} style={{ marginTop: 6 }} width="40%" />
         </View>
       ))}
     </View>
@@ -191,18 +170,18 @@ export function SkeletonOrderItem() {
   return (
     <View style={{ padding: 16 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 12 }}>
-        <Skeleton width={100} height={18} />
-        <Skeleton width={80} height={24} borderRadius={12} />
+        <Skeleton height={18} width={100} />
+        <Skeleton borderRadius={12} height={24} width={80} />
       </View>
-      <Skeleton width="60%" height={14} />
+      <Skeleton height={14} width="60%" />
       <View style={{ flexDirection: 'row', marginTop: 12, gap: 12 }}>
-        <Skeleton width={48} height={48} borderRadius={8} />
-        <Skeleton width={48} height={48} borderRadius={8} />
-        <Skeleton width={48} height={48} borderRadius={8} />
+        <Skeleton borderRadius={8} height={48} width={48} />
+        <Skeleton borderRadius={8} height={48} width={48} />
+        <Skeleton borderRadius={8} height={48} width={48} />
       </View>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 12 }}>
-        <Skeleton width="30%" height={14} />
-        <Skeleton width="20%" height={16} />
+        <Skeleton height={14} width="30%" />
+        <Skeleton height={16} width="20%" />
       </View>
     </View>
   );

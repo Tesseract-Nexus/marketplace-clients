@@ -85,10 +85,7 @@ function ProductCard({
   const animatedStyle = useAnimatedStyle(() => {
     'worklet';
     return {
-      transform: [
-        { scale: scale.value },
-        { translateY: translateY.value },
-      ] as any,
+      transform: [{ scale: scale.value }, { translateY: translateY.value }] as any,
     };
   });
 
@@ -96,8 +93,8 @@ function ProductCard({
     product.inventory_quantity === 0
       ? 'out-of-stock'
       : product.inventory_quantity <= (product.low_stock_threshold || 10)
-      ? 'low-stock'
-      : 'in-stock';
+        ? 'low-stock'
+        : 'in-stock';
 
   const statusConfig = {
     'in-stock': {
@@ -126,7 +123,9 @@ function ProductCard({
   if (viewMode === 'grid') {
     return (
       <Animated.View
-        entering={FadeInUp.delay(index * 50).springify().damping(14)}
+        entering={FadeInUp.delay(index * 50)
+          .springify()
+          .damping(14)}
         layout={Layout.springify()}
         style={[styles.gridCardWrapper, animatedStyle]}
       >
@@ -158,8 +157,8 @@ function ProductCard({
             <View style={styles.gridStatusBadge}>
               <LinearGradient
                 colors={[...statusConfig.gradient]}
-                start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
+                start={{ x: 0, y: 0 }}
                 style={styles.statusGradient}
               >
                 <View style={styles.statusDot} />
@@ -174,10 +173,7 @@ function ProductCard({
 
           {/* Info */}
           <View style={styles.gridInfo}>
-            <Text
-              style={[styles.gridProductName, { color: colors.text }]}
-              numberOfLines={2}
-            >
+            <Text numberOfLines={2} style={[styles.gridProductName, { color: colors.text }]}>
               {product.name}
             </Text>
             <Text style={[styles.gridSku, { color: colors.textTertiary }]}>
@@ -201,7 +197,9 @@ function ProductCard({
 
   return (
     <Animated.View
-      entering={FadeInRight.delay(index * 50).springify().damping(14)}
+      entering={FadeInRight.delay(index * 50)
+        .springify()
+        .damping(14)}
       layout={Layout.springify()}
       style={animatedStyle}
     >
@@ -236,13 +234,10 @@ function ProductCard({
         {/* Info */}
         <View style={styles.listInfo}>
           <View style={styles.listHeader}>
-            <Text
-              style={[styles.listProductName, { color: colors.text }]}
-              numberOfLines={1}
-            >
+            <Text numberOfLines={1} style={[styles.listProductName, { color: colors.text }]}>
               {product.name}
             </Text>
-            <Badge label={statusConfig.label} variant={statusConfig.variant} size="sm" />
+            <Badge label={statusConfig.label} size="sm" variant={statusConfig.variant} />
           </View>
           <Text style={[styles.listSku, { color: colors.textTertiary }]}>
             SKU: {product.sku || 'N/A'}
@@ -252,7 +247,7 @@ function ProductCard({
               {formatCurrency(product.price)}
             </Text>
             <View style={styles.stockInfo}>
-              <Ionicons name="cube-outline" size={12} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="cube-outline" size={12} />
               <Text style={[styles.listStock, { color: colors.textSecondary }]}>
                 {product.inventory_quantity} units
               </Text>
@@ -262,13 +257,13 @@ function ProductCard({
 
         {/* Menu */}
         <Pressable
-          style={styles.menuButton}
           hitSlop={8}
+          style={styles.menuButton}
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
           }}
         >
-          <Ionicons name="ellipsis-vertical" size={18} color={colors.textSecondary} />
+          <Ionicons color={colors.textSecondary} name="ellipsis-vertical" size={18} />
         </Pressable>
       </Pressable>
     </Animated.View>
@@ -300,11 +295,11 @@ function ProductStats({
       >
         <LinearGradient
           colors={[...premiumGradients.cosmic]}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={styles.statIconBg}
         >
-          <Ionicons name="cube" size={16} color="#FFFFFF" />
+          <Ionicons color="#FFFFFF" name="cube" size={16} />
         </LinearGradient>
         <Text style={[styles.statValue, { color: colors.text }]}>{total}</Text>
         <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Total</Text>
@@ -319,7 +314,7 @@ function ProductStats({
         ]}
       >
         <View style={[styles.statIconBgSolid, { backgroundColor: `${colors.success}20` }]}>
-          <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+          <Ionicons color={colors.success} name="checkmark-circle" size={16} />
         </View>
         <Text style={[styles.statValue, { color: colors.text }]}>{active}</Text>
         <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Active</Text>
@@ -334,7 +329,7 @@ function ProductStats({
         ]}
       >
         <View style={[styles.statIconBgSolid, { backgroundColor: `${colors.warning}20` }]}>
-          <Ionicons name="alert-circle" size={16} color={colors.warning} />
+          <Ionicons color={colors.warning} name="alert-circle" size={16} />
         </View>
         <Text style={[styles.statValue, { color: colors.text }]}>{lowStock}</Text>
         <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Low</Text>
@@ -347,9 +342,9 @@ function ProductStats({
 function FilterChip({
   filter,
   isActive,
-  onPress
+  onPress,
 }: {
-  filter: typeof FILTERS[number];
+  filter: (typeof FILTERS)[number];
   isActive: boolean;
   onPress: () => void;
 }) {
@@ -388,16 +383,11 @@ function FilterChip({
         onPressOut={handlePressOut}
       >
         <Ionicons
+          color={isActive ? '#FFFFFF' : colors.textSecondary}
           name={filter.icon}
           size={14}
-          color={isActive ? '#FFFFFF' : colors.textSecondary}
         />
-        <Text
-          style={[
-            styles.filterText,
-            { color: isActive ? '#FFFFFF' : colors.textSecondary },
-          ]}
-        >
+        <Text style={[styles.filterText, { color: isActive ? '#FFFFFF' : colors.textSecondary }]}>
           {filter.label}
         </Text>
       </Pressable>
@@ -408,7 +398,7 @@ function FilterChip({
 // Premium View Toggle
 function ViewToggle({
   viewMode,
-  onToggle
+  onToggle,
 }: {
   viewMode: 'list' | 'grid';
   onToggle: (mode: 'list' | 'grid') => void;
@@ -430,9 +420,9 @@ function ViewToggle({
         }}
       >
         <Ionicons
+          color={viewMode === 'list' ? '#FFFFFF' : colors.textSecondary}
           name="list"
           size={18}
-          color={viewMode === 'list' ? '#FFFFFF' : colors.textSecondary}
         />
       </Pressable>
       <Pressable
@@ -448,9 +438,9 @@ function ViewToggle({
         }}
       >
         <Ionicons
+          color={viewMode === 'grid' ? '#FFFFFF' : colors.textSecondary}
           name="grid"
           size={18}
-          color={viewMode === 'grid' ? '#FFFFFF' : colors.textSecondary}
         />
       </Pressable>
     </View>
@@ -471,85 +461,88 @@ export default function ProductsScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch products with infinite scroll using real API
-  const {
-    data,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-    refetch,
-  } = useInfiniteQuery({
-    queryKey: currentTenant
-      ? [...QUERY_KEYS.PRODUCTS(currentTenant.id), activeFilter, searchQuery]
-      : ['products', activeFilter, searchQuery],
-    queryFn: async ({ pageParam = 1 }) => {
-      try {
-        const params: Record<string, any> = {
-          page: pageParam,
-          limit: 20,
-        };
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } =
+    useInfiniteQuery({
+      queryKey: currentTenant
+        ? [...QUERY_KEYS.PRODUCTS(currentTenant.id), activeFilter, searchQuery]
+        : ['products', activeFilter, searchQuery],
+      queryFn: async ({ pageParam = 1 }) => {
+        try {
+          const params: Record<string, any> = {
+            page: pageParam,
+            limit: 20,
+          };
 
-        if (searchQuery) {
-          params.search = searchQuery;
+          if (searchQuery) {
+            params.search = searchQuery;
+          }
+
+          if (activeFilter === 'active') {
+            params.status = 'active';
+          } else if (activeFilter === 'draft') {
+            params.status = 'draft';
+          }
+
+          console.log('[Products] Fetching products with params:', params);
+          const response = await productsApi.list(params);
+
+          const productsArray = (response as any).data || [];
+          const pagination = (response as any).pagination || {};
+          const totalPages =
+            pagination.totalPages || Math.ceil((pagination.total || productsArray.length) / 20);
+
+          console.log(
+            '[Products] Fetched',
+            productsArray.length,
+            'products, page',
+            pageParam,
+            'of',
+            totalPages
+          );
+
+          const products: Product[] = productsArray.map((p: any) => ({
+            id: p.id,
+            tenant_id: p.tenantId || p.tenant_id || currentTenant?.id,
+            name: p.name,
+            slug: p.slug,
+            description: p.description || '',
+            price: parseFloat(p.price?.toString() || '0'),
+            compare_at_price: p.compareAtPrice ? parseFloat(p.compareAtPrice.toString()) : null,
+            cost_price: p.costPrice ? parseFloat(p.costPrice.toString()) : null,
+            sku: p.sku || null,
+            barcode: p.barcode || null,
+            inventory_quantity: p.stock ?? p.inventory_quantity ?? p.inventoryQuantity ?? 0,
+            low_stock_threshold: p.lowStockThreshold || p.low_stock_threshold || 10,
+            track_inventory: p.trackInventory ?? p.track_inventory ?? true,
+            status: p.status || 'active',
+            images:
+              p.images?.map((img: any, idx: number) => ({
+                id: img.id || `${p.id}-img-${idx}`,
+                url: img.url || img.imageUrl || img,
+                alt: img.alt || p.name,
+                position: img.position || idx,
+              })) || [],
+            variants: p.variants || [],
+            created_at: p.createdAt || p.created_at || new Date().toISOString(),
+            updated_at: p.updatedAt || p.updated_at || new Date().toISOString(),
+          }));
+
+          return {
+            products,
+            page: pageParam,
+            totalPages,
+          };
+        } catch (error) {
+          console.error('[Products] Error fetching products:', error);
+          return { products: [], page: pageParam, totalPages: 1 };
         }
-
-        if (activeFilter === 'active') {
-          params.status = 'active';
-        } else if (activeFilter === 'draft') {
-          params.status = 'draft';
-        }
-
-        console.log('[Products] Fetching products with params:', params);
-        const response = await productsApi.list(params);
-
-        const productsArray = (response as any).data || [];
-        const pagination = (response as any).pagination || {};
-        const totalPages = pagination.totalPages || Math.ceil((pagination.total || productsArray.length) / 20);
-
-        console.log('[Products] Fetched', productsArray.length, 'products, page', pageParam, 'of', totalPages);
-
-        const products: Product[] = productsArray.map((p: any) => ({
-          id: p.id,
-          tenant_id: p.tenantId || p.tenant_id || currentTenant?.id,
-          name: p.name,
-          slug: p.slug,
-          description: p.description || '',
-          price: parseFloat(p.price?.toString() || '0'),
-          compare_at_price: p.compareAtPrice ? parseFloat(p.compareAtPrice.toString()) : null,
-          cost_price: p.costPrice ? parseFloat(p.costPrice.toString()) : null,
-          sku: p.sku || null,
-          barcode: p.barcode || null,
-          inventory_quantity: p.stock ?? p.inventory_quantity ?? p.inventoryQuantity ?? 0,
-          low_stock_threshold: p.lowStockThreshold || p.low_stock_threshold || 10,
-          track_inventory: p.trackInventory ?? p.track_inventory ?? true,
-          status: p.status || 'active',
-          images: p.images?.map((img: any, idx: number) => ({
-            id: img.id || `${p.id}-img-${idx}`,
-            url: img.url || img.imageUrl || img,
-            alt: img.alt || p.name,
-            position: img.position || idx,
-          })) || [],
-          variants: p.variants || [],
-          created_at: p.createdAt || p.created_at || new Date().toISOString(),
-          updated_at: p.updatedAt || p.updated_at || new Date().toISOString(),
-        }));
-
-        return {
-          products,
-          page: pageParam,
-          totalPages,
-        };
-      } catch (error) {
-        console.error('[Products] Error fetching products:', error);
-        return { products: [], page: pageParam, totalPages: 1 };
-      }
-    },
-    getNextPageParam: (lastPage) => {
-      return lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
-    },
-    initialPageParam: 1,
-    enabled: !!currentTenant,
-  });
+      },
+      getNextPageParam: (lastPage) => {
+        return lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
+      },
+      initialPageParam: 1,
+      enabled: !!currentTenant,
+    });
 
   const products = useMemo(() => {
     return data?.pages.flatMap((page) => page.products) || [];
@@ -567,8 +560,7 @@ export default function ProductsScreen() {
             return p.status === 'draft';
           case 'low-stock':
             return (
-              p.inventory_quantity <= (p.low_stock_threshold || 10) &&
-              p.inventory_quantity > 0
+              p.inventory_quantity <= (p.low_stock_threshold || 10) && p.inventory_quantity > 0
             );
           case 'out-of-stock':
             return p.inventory_quantity === 0;
@@ -581,9 +573,7 @@ export default function ProductsScreen() {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query) ||
-          p.sku?.toLowerCase().includes(query)
+        (p) => p.name.toLowerCase().includes(query) || p.sku?.toLowerCase().includes(query)
       );
     }
 
@@ -595,9 +585,7 @@ export default function ProductsScreen() {
       total: products.length,
       active: products.filter((p) => p.status === 'active').length,
       lowStock: products.filter(
-        (p) =>
-          p.inventory_quantity <= (p.low_stock_threshold || 10) &&
-          p.inventory_quantity > 0
+        (p) => p.inventory_quantity <= (p.low_stock_threshold || 10) && p.inventory_quantity > 0
       ).length,
     }),
     [products]
@@ -618,13 +606,15 @@ export default function ProductsScreen() {
 
   const renderProduct = useCallback(
     ({ item, index }: { item: Product; index: number }) => (
-      <ProductCard product={item} index={index} viewMode={viewMode} />
+      <ProductCard index={index} product={item} viewMode={viewMode} />
     ),
     [viewMode]
   );
 
   const renderFooter = useCallback(() => {
-    if (!isFetchingNextPage) return null;
+    if (!isFetchingNextPage) {
+      return null;
+    }
     return (
       <View style={styles.loadingMore}>
         <CardSkeleton />
@@ -636,10 +626,7 @@ export default function ProductsScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 16 }]}>
-        <Animated.View
-          entering={FadeInDown.springify()}
-          style={styles.headerTop}
-        >
+        <Animated.View entering={FadeInDown.springify()} style={styles.headerTop}>
           <Text style={[styles.title, { color: colors.text }]}>Products</Text>
           <ViewToggle viewMode={viewMode} onToggle={setViewMode} />
         </Animated.View>
@@ -659,32 +646,32 @@ export default function ProductsScreen() {
             shadows.sm,
           ]}
         >
-          <Ionicons name="search" size={18} color={colors.textSecondary} />
+          <Ionicons color={colors.textSecondary} name="search" size={18} />
           <TextInput
-            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search products..."
             placeholderTextColor={colors.textTertiary}
+            style={[styles.searchInput, { color: colors.text }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          {searchQuery.length > 0 && (
+          {searchQuery.length > 0 ? (
             <Pressable
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setSearchQuery('');
               }}
             >
-              <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="close-circle" size={18} />
             </Pressable>
-          )}
+          ) : null}
         </Animated.View>
 
         {/* Filters */}
         <Animated.View entering={FadeInDown.delay(200).springify()}>
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filtersContainer}
+            showsHorizontalScrollIndicator={false}
           >
             {FILTERS.map((filter) => (
               <FilterChip
@@ -700,10 +687,7 @@ export default function ProductsScreen() {
 
       {/* Product List */}
       {isLoading ? (
-        <ScrollView
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
           {viewMode === 'grid' ? (
             <View style={styles.gridContainer}>
               {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -730,44 +714,39 @@ export default function ProductsScreen() {
         </ScrollView>
       ) : filteredProducts.length === 0 ? (
         <EmptyState
-          icon="cube-outline"
-          title={searchQuery ? 'No products found' : 'No products yet'}
+          actionLabel={searchQuery ? 'Clear Search' : 'Add Product'}
           description={
             searchQuery
               ? 'Try adjusting your search or filters'
               : 'Add your first product to start selling'
           }
-          actionLabel={searchQuery ? 'Clear Search' : 'Add Product'}
+          icon="cube-outline"
+          title={searchQuery ? 'No products found' : 'No products yet'}
           onAction={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            searchQuery
-              ? setSearchQuery('')
-              : router.push('/(tabs)/(admin)/add-product');
+            searchQuery ? setSearchQuery('') : router.push('/(tabs)/(admin)/add-product');
           }}
         />
       ) : (
         <FlatList
-          data={filteredProducts}
-          renderItem={renderProduct}
-          keyExtractor={(item) => item.id}
-          numColumns={viewMode === 'grid' ? 2 : 1}
           key={viewMode}
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
           columnWrapperStyle={viewMode === 'grid' ? styles.gridRow : undefined}
-          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
+          data={filteredProducts}
+          keyExtractor={(item) => item.id}
+          ListFooterComponent={renderFooter}
+          numColumns={viewMode === 'grid' ? 2 : 1}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
               tintColor={colors.primary}
+              onRefresh={onRefresh}
             />
           }
+          renderItem={renderProduct}
+          showsVerticalScrollIndicator={false}
           onEndReached={loadMore}
           onEndReachedThreshold={0.3}
-          ListFooterComponent={renderFooter}
         />
       )}
 
@@ -785,11 +764,11 @@ export default function ProductsScreen() {
         >
           <LinearGradient
             colors={[...premiumGradients.cosmic]}
-            start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
+            start={{ x: 0, y: 0 }}
             style={styles.fabGradient}
           >
-            <Ionicons name="add" size={28} color="#FFFFFF" />
+            <Ionicons color="#FFFFFF" name="add" size={28} />
           </LinearGradient>
         </Pressable>
       </Animated.View>

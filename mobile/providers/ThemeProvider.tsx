@@ -69,4 +69,12 @@ export function useThemeContext(): ThemeContextValue {
 }
 
 // Re-export theme hooks for convenience
-export { useTheme, useIsDark, useThemeMode, useColors, useBorderRadius, useShadows, useSpacing } from '@/stores/theme-store';
+export {
+  useTheme,
+  useIsDark,
+  useThemeMode,
+  useColors,
+  useBorderRadius,
+  useShadows,
+  useSpacing,
+} from '@/stores/theme-store';

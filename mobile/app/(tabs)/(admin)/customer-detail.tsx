@@ -86,9 +86,16 @@ export default function CustomerDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'addresses' | 'notes'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'orders' | 'addresses' | 'notes'>(
+    'overview'
+  );
 
-  const { data: customer, isLoading, error, refetch } = useQuery<Customer>({
+  const {
+    data: customer,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery<Customer>({
     queryKey: ['customer', id],
     queryFn: async () => {
       const response = await apiClient.get(`/customers/${id}`);
@@ -127,7 +134,9 @@ export default function CustomerDetailScreen() {
   }, [customer?.email]);
 
   const handleBlockCustomer = useCallback(() => {
-    if (!customer) return;
+    if (!customer) {
+      return;
+    }
 
     const isBlocked = customer.status === 'blocked';
     Alert.alert(
@@ -146,14 +155,17 @@ export default function CustomerDetailScreen() {
     );
   }, [customer, blockMutation]);
 
-  const handleViewOrder = useCallback((orderId: string) => {
-    router.push(`/(tabs)/(admin)/order-detail?id=${orderId}`);
-  }, [router]);
+  const handleViewOrder = useCallback(
+    (orderId: string) => {
+      router.push(`/(tabs)/(admin)/order-detail?id=${orderId}`);
+    },
+    [router]
+  );
 
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-50">
-        <ActivityIndicator size="large" color="#6366f1" />
+        <ActivityIndicator color="#6366f1" size="large" />
         <Text className="mt-2 text-gray-500">Loading customer...</Text>
       </View>
     );
@@ -162,14 +174,14 @@ export default function CustomerDetailScreen() {
   if (error || !customer) {
     return (
       <View className="flex-1 items-center justify-center bg-gray-50 p-6">
-        <Ionicons name="alert-circle-outline" size={48} color="#ef4444" />
+        <Ionicons color="#ef4444" name="alert-circle-outline" size={48} />
         <Text className="mt-4 text-lg font-semibold text-gray-900">Customer Not Found</Text>
         <Text className="mt-2 text-center text-gray-500">
           The customer you're looking for doesn't exist or has been removed.
         </Text>
         <TouchableOpacity
-          onPress={() => router.back()}
           className="mt-6 rounded-lg bg-indigo-600 px-6 py-3"
+          onPress={() => router.back()}
         >
           <Text className="font-semibold text-white">Go Back</Text>
         </TouchableOpacity>
@@ -193,11 +205,11 @@ export default function CustomerDetailScreen() {
         options={{
           title: `${customer.first_name} ${customer.last_name}`,
           headerRight: () => (
-            <TouchableOpacity onPress={handleBlockCustomer} className="mr-4">
+            <TouchableOpacity className="mr-4" onPress={handleBlockCustomer}>
               <Ionicons
+                color={customer.status === 'blocked' ? '#22c55e' : '#ef4444'}
                 name={customer.status === 'blocked' ? 'lock-open-outline' : 'ban-outline'}
                 size={24}
-                color={customer.status === 'blocked' ? '#22c55e' : '#ef4444'}
               />
             </TouchableOpacity>
           ),
@@ -207,17 +219,14 @@ export default function CustomerDetailScreen() {
       <ScrollView
         className="flex-1 bg-gray-50"
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#6366f1" />
+          <RefreshControl refreshing={refreshing} tintColor="#6366f1" onRefresh={onRefresh} />
         }
       >
         {/* Customer Header */}
         <View className="bg-white p-6">
           <View className="flex-row items-center">
             {customer.avatar_url ? (
-              <Image
-                source={{ uri: customer.avatar_url }}
-                className="h-20 w-20 rounded-full"
-              />
+              <Image className="h-20 w-20 rounded-full" source={{ uri: customer.avatar_url }} />
             ) : (
               <View className="h-20 w-20 items-center justify-center rounded-full bg-indigo-100">
                 <Text className="text-2xl font-bold text-indigo-600">{initials}</Text>
@@ -229,11 +238,11 @@ export default function CustomerDetailScreen() {
                 <Text className="text-xl font-bold text-gray-900">
                   {customer.first_name} {customer.last_name}
                 </Text>
-                {customer.total_spent >= 1000 && (
+                {customer.total_spent >= 1000 ? (
                   <View className="ml-2 rounded-full bg-amber-100 px-2 py-0.5">
                     <Text className="text-xs font-medium text-amber-800">VIP</Text>
                   </View>
-                )}
+                ) : null}
               </View>
               <View className={`mt-1 self-start rounded-full px-3 py-1 ${statusStyle.bg}`}>
                 <Text className={`text-xs font-medium capitalize ${statusStyle.text}`}>
@@ -246,21 +255,21 @@ export default function CustomerDetailScreen() {
           {/* Contact Actions */}
           <View className="mt-4 flex-row gap-3">
             <TouchableOpacity
-              onPress={handleEmail}
               className="flex-1 flex-row items-center justify-center rounded-lg border border-gray-200 bg-gray-50 py-3"
+              onPress={handleEmail}
             >
-              <Ionicons name="mail-outline" size={20} color="#4b5563" />
+              <Ionicons color="#4b5563" name="mail-outline" size={20} />
               <Text className="ml-2 font-medium text-gray-700">Email</Text>
             </TouchableOpacity>
-            {customer.phone && (
+            {customer.phone ? (
               <TouchableOpacity
-                onPress={handleCall}
                 className="flex-1 flex-row items-center justify-center rounded-lg border border-gray-200 bg-gray-50 py-3"
+                onPress={handleCall}
               >
-                <Ionicons name="call-outline" size={20} color="#4b5563" />
+                <Ionicons color="#4b5563" name="call-outline" size={20} />
                 <Text className="ml-2 font-medium text-gray-700">Call</Text>
               </TouchableOpacity>
-            )}
+            ) : null}
           </View>
         </View>
 
@@ -268,9 +277,7 @@ export default function CustomerDetailScreen() {
         <View className="flex-row gap-3 p-4">
           <View className="flex-1 rounded-xl bg-white p-4 shadow-sm">
             <Text className="text-xs text-gray-500">Total Orders</Text>
-            <Text className="mt-1 text-2xl font-bold text-gray-900">
-              {customer.total_orders}
-            </Text>
+            <Text className="mt-1 text-2xl font-bold text-gray-900">{customer.total_orders}</Text>
           </View>
           <View className="flex-1 rounded-xl bg-white p-4 shadow-sm">
             <Text className="text-xs text-gray-500">Total Spent</Text>
@@ -291,15 +298,15 @@ export default function CustomerDetailScreen() {
           {tabs.map((tab) => (
             <TouchableOpacity
               key={tab.key}
-              onPress={() => setActiveTab(tab.key)}
               className={`flex-1 flex-row items-center justify-center py-3 ${
                 activeTab === tab.key ? 'border-b-2 border-indigo-600' : ''
               }`}
+              onPress={() => setActiveTab(tab.key)}
             >
               <Ionicons
+                color={activeTab === tab.key ? '#4f46e5' : '#9ca3af'}
                 name={tab.icon as any}
                 size={18}
-                color={activeTab === tab.key ? '#4f46e5' : '#9ca3af'}
               />
               <Text
                 className={`ml-1 text-sm font-medium ${
@@ -314,41 +321,43 @@ export default function CustomerDetailScreen() {
 
         {/* Tab Content */}
         <View className="p-4">
-          {activeTab === 'overview' && (
+          {activeTab === 'overview' ? (
             <View className="space-y-4">
               {/* Contact Info */}
               <View className="rounded-xl bg-white p-4 shadow-sm">
-                <Text className="mb-3 text-sm font-semibold text-gray-900">Contact Information</Text>
+                <Text className="mb-3 text-sm font-semibold text-gray-900">
+                  Contact Information
+                </Text>
                 <View className="space-y-3">
                   <View className="flex-row items-center">
-                    <Ionicons name="mail-outline" size={18} color="#6b7280" />
+                    <Ionicons color="#6b7280" name="mail-outline" size={18} />
                     <Text className="ml-3 text-gray-700">{customer.email}</Text>
                   </View>
-                  {customer.phone && (
+                  {customer.phone ? (
                     <View className="flex-row items-center">
-                      <Ionicons name="call-outline" size={18} color="#6b7280" />
+                      <Ionicons color="#6b7280" name="call-outline" size={18} />
                       <Text className="ml-3 text-gray-700">{customer.phone}</Text>
                     </View>
-                  )}
+                  ) : null}
                   <View className="flex-row items-center">
-                    <Ionicons name="calendar-outline" size={18} color="#6b7280" />
+                    <Ionicons color="#6b7280" name="calendar-outline" size={18} />
                     <Text className="ml-3 text-gray-700">
                       Customer since {formatDate(customer.created_at)}
                     </Text>
                   </View>
-                  {customer.last_order_at && (
+                  {customer.last_order_at ? (
                     <View className="flex-row items-center">
-                      <Ionicons name="time-outline" size={18} color="#6b7280" />
+                      <Ionicons color="#6b7280" name="time-outline" size={18} />
                       <Text className="ml-3 text-gray-700">
                         Last order {formatRelativeTime(customer.last_order_at)}
                       </Text>
                     </View>
-                  )}
+                  ) : null}
                 </View>
               </View>
 
               {/* Tags */}
-              {customer.tags.length > 0 && (
+              {customer.tags.length > 0 ? (
                 <View className="rounded-xl bg-white p-4 shadow-sm">
                   <Text className="mb-3 text-sm font-semibold text-gray-900">Tags</Text>
                   <View className="flex-row flex-wrap gap-2">
@@ -359,20 +368,21 @@ export default function CustomerDetailScreen() {
                     ))}
                   </View>
                 </View>
-              )}
+              ) : null}
 
               {/* Default Address */}
-              {customer.addresses.length > 0 && (
+              {customer.addresses.length > 0 ? (
                 <View className="rounded-xl bg-white p-4 shadow-sm">
                   <Text className="mb-3 text-sm font-semibold text-gray-900">Default Address</Text>
                   {(() => {
-                    const defaultAddr = customer.addresses.find((a) => a.is_default) || customer.addresses[0];
+                    const defaultAddr =
+                      customer.addresses.find((a) => a.is_default) || customer.addresses[0];
                     return (
                       <View>
                         <Text className="text-gray-700">{defaultAddr.line1}</Text>
-                        {defaultAddr.line2 && (
+                        {defaultAddr.line2 ? (
                           <Text className="text-gray-700">{defaultAddr.line2}</Text>
-                        )}
+                        ) : null}
                         <Text className="text-gray-700">
                           {defaultAddr.city}, {defaultAddr.state} {defaultAddr.postal_code}
                         </Text>
@@ -381,15 +391,15 @@ export default function CustomerDetailScreen() {
                     );
                   })()}
                 </View>
-              )}
+              ) : null}
             </View>
-          )}
+          ) : null}
 
-          {activeTab === 'orders' && (
+          {activeTab === 'orders' ? (
             <View className="space-y-3">
               {customer.recent_orders.length === 0 ? (
                 <View className="items-center justify-center rounded-xl bg-white p-8">
-                  <Ionicons name="receipt-outline" size={48} color="#d1d5db" />
+                  <Ionicons color="#d1d5db" name="receipt-outline" size={48} />
                   <Text className="mt-2 text-gray-500">No orders yet</Text>
                 </View>
               ) : (
@@ -398,14 +408,12 @@ export default function CustomerDetailScreen() {
                   return (
                     <TouchableOpacity
                       key={order.id}
-                      onPress={() => handleViewOrder(order.id)}
                       className="rounded-xl bg-white p-4 shadow-sm"
+                      onPress={() => handleViewOrder(order.id)}
                     >
                       <View className="flex-row items-center justify-between">
                         <View>
-                          <Text className="font-semibold text-gray-900">
-                            #{order.order_number}
-                          </Text>
+                          <Text className="font-semibold text-gray-900">#{order.order_number}</Text>
                           <Text className="text-sm text-gray-500">
                             {order.items_count} item{order.items_count !== 1 ? 's' : ''} •{' '}
                             {formatRelativeTime(order.created_at)}
@@ -427,13 +435,13 @@ export default function CustomerDetailScreen() {
                 })
               )}
             </View>
-          )}
+          ) : null}
 
-          {activeTab === 'addresses' && (
+          {activeTab === 'addresses' ? (
             <View className="space-y-3">
               {customer.addresses.length === 0 ? (
                 <View className="items-center justify-center rounded-xl bg-white p-8">
-                  <Ionicons name="location-outline" size={48} color="#d1d5db" />
+                  <Ionicons color="#d1d5db" name="location-outline" size={48} />
                   <Text className="mt-2 text-gray-500">No addresses saved</Text>
                 </View>
               ) : (
@@ -441,25 +449,29 @@ export default function CustomerDetailScreen() {
                   <View key={address.id} className="rounded-xl bg-white p-4 shadow-sm">
                     <View className="mb-2 flex-row items-center justify-between">
                       <View className="flex-row items-center">
-                        <View className={`rounded-full px-2 py-0.5 ${
-                          address.type === 'shipping' ? 'bg-blue-100' : 'bg-purple-100'
-                        }`}>
-                          <Text className={`text-xs font-medium capitalize ${
-                            address.type === 'shipping' ? 'text-blue-800' : 'text-purple-800'
-                          }`}>
+                        <View
+                          className={`rounded-full px-2 py-0.5 ${
+                            address.type === 'shipping' ? 'bg-blue-100' : 'bg-purple-100'
+                          }`}
+                        >
+                          <Text
+                            className={`text-xs font-medium capitalize ${
+                              address.type === 'shipping' ? 'text-blue-800' : 'text-purple-800'
+                            }`}
+                          >
                             {address.type}
                           </Text>
                         </View>
-                        {address.is_default && (
+                        {address.is_default ? (
                           <View className="ml-2 rounded-full bg-green-100 px-2 py-0.5">
                             <Text className="text-xs font-medium text-green-800">Default</Text>
                           </View>
-                        )}
+                        ) : null}
                       </View>
-                      <Ionicons name="ellipsis-horizontal" size={20} color="#9ca3af" />
+                      <Ionicons color="#9ca3af" name="ellipsis-horizontal" size={20} />
                     </View>
                     <Text className="text-gray-700">{address.line1}</Text>
-                    {address.line2 && <Text className="text-gray-700">{address.line2}</Text>}
+                    {address.line2 ? <Text className="text-gray-700">{address.line2}</Text> : null}
                     <Text className="text-gray-700">
                       {address.city}, {address.state} {address.postal_code}
                     </Text>
@@ -468,13 +480,13 @@ export default function CustomerDetailScreen() {
                 ))
               )}
             </View>
-          )}
+          ) : null}
 
-          {activeTab === 'notes' && (
+          {activeTab === 'notes' ? (
             <View className="space-y-3">
               {customer.notes.length === 0 ? (
                 <View className="items-center justify-center rounded-xl bg-white p-8">
-                  <Ionicons name="document-text-outline" size={48} color="#d1d5db" />
+                  <Ionicons color="#d1d5db" name="document-text-outline" size={48} />
                   <Text className="mt-2 text-gray-500">No notes yet</Text>
                   <TouchableOpacity className="mt-4 rounded-lg bg-indigo-600 px-4 py-2">
                     <Text className="font-medium text-white">Add Note</Text>
@@ -499,7 +511,7 @@ export default function CustomerDetailScreen() {
                 </>
               )}
             </View>
-          )}
+          ) : null}
         </View>
       </ScrollView>
     </>

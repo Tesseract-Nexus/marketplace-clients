@@ -74,16 +74,15 @@ function CustomerCard({ customer, index }: { customer: Customer; index: number }
   const animatedStyle = useAnimatedStyle(() => {
     'worklet';
     return {
-      transform: [
-        { scale: scale.value },
-        { translateY: translateY.value },
-      ] as any,
+      transform: [{ scale: scale.value }, { translateY: translateY.value }] as any,
     };
   });
 
   return (
     <Animated.View
-      entering={FadeInRight.delay(index * 50).springify().damping(14)}
+      entering={FadeInRight.delay(index * 50)
+        .springify()
+        .damping(14)}
       layout={Layout.springify()}
       style={animatedStyle}
     >
@@ -105,22 +104,19 @@ function CustomerCard({ customer, index }: { customer: Customer; index: number }
       >
         {/* Avatar with VIP indicator */}
         <View style={styles.avatarContainer}>
-          <Avatar
-            name={`${customer.first_name} ${customer.last_name}`}
-            size="lg"
-          />
-          {isVip && (
+          <Avatar name={`${customer.first_name} ${customer.last_name}`} size="lg" />
+          {isVip ? (
             <View style={[styles.vipBadge, shadows.sm]}>
               <LinearGradient
                 colors={[...premiumGradients.gold]}
-                start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
+                start={{ x: 0, y: 0 }}
                 style={styles.vipBadgeGradient}
               >
-                <Ionicons name="star" size={10} color="#FFFFFF" />
+                <Ionicons color="#FFFFFF" name="star" size={10} />
               </LinearGradient>
             </View>
-          )}
+          ) : null}
         </View>
 
         <View style={styles.customerInfo}>
@@ -128,25 +124,21 @@ function CustomerCard({ customer, index }: { customer: Customer; index: number }
             <Text style={[styles.customerName, { color: colors.text }]}>
               {customer.first_name} {customer.last_name}
             </Text>
-            {isVip && (
-              <Badge label="VIP" variant="warning" size="sm" />
-            )}
-            {isNew && !isVip && (
-              <Badge label="New" variant="info" size="sm" />
-            )}
+            {isVip ? <Badge label="VIP" size="sm" variant="warning" /> : null}
+            {isNew && !isVip ? <Badge label="New" size="sm" variant="info" /> : null}
           </View>
           <Text style={[styles.customerEmail, { color: colors.textSecondary }]}>
             {customer.email}
           </Text>
           <View style={styles.customerMeta}>
             <View style={[styles.metaItem, { backgroundColor: `${colors.primary}10` }]}>
-              <Ionicons name="receipt-outline" size={12} color={colors.primary} />
+              <Ionicons color={colors.primary} name="receipt-outline" size={12} />
               <Text style={[styles.metaText, { color: colors.primary }]}>
                 {customer.total_orders}
               </Text>
             </View>
             <View style={[styles.metaItem, { backgroundColor: `${colors.success}10` }]}>
-              <Ionicons name="wallet-outline" size={12} color={colors.success} />
+              <Ionicons color={colors.success} name="wallet-outline" size={12} />
               <Text style={[styles.metaText, { color: colors.success }]}>
                 {formatCurrency(customer.total_spent, { compact: true })}
               </Text>
@@ -162,7 +154,7 @@ function CustomerCard({ customer, index }: { customer: Customer; index: number }
           }}
         >
           <View style={[styles.arrowCircle, { backgroundColor: `${colors.primary}10` }]}>
-            <Ionicons name="chevron-forward" size={16} color={colors.primary} />
+            <Ionicons color={colors.primary} name="chevron-forward" size={16} />
           </View>
         </Pressable>
       </Pressable>
@@ -212,8 +204,8 @@ function CustomerStats({
       <Animated.View style={[styles.heroCardWrapper, floatStyle, shadows.lg]}>
         <LinearGradient
           colors={[...premiumGradients.aurora]}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={styles.heroCard}
         >
           {/* Decorative elements */}
@@ -222,7 +214,7 @@ function CustomerStats({
 
           <View style={styles.heroContent}>
             <View style={styles.heroIcon}>
-              <Ionicons name="people" size={20} color="rgba(255,255,255,0.95)" />
+              <Ionicons color="rgba(255,255,255,0.95)" name="people" size={20} />
             </View>
             <Text style={styles.heroLabel}>Customer Revenue</Text>
             <Text style={styles.heroValue}>{formatCurrency(totalRevenue)}</Text>
@@ -254,7 +246,7 @@ function CustomerStats({
           ]}
         >
           <View style={[styles.statIconBg, { backgroundColor: `${colors.primary}20` }]}>
-            <Ionicons name="people" size={16} color={colors.primary} />
+            <Ionicons color={colors.primary} name="people" size={16} />
           </View>
           <Text style={[styles.statValue, { color: colors.text }]}>{total}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Total</Text>
@@ -269,7 +261,7 @@ function CustomerStats({
           ]}
         >
           <View style={[styles.statIconBg, { backgroundColor: `${colors.warning}20` }]}>
-            <Ionicons name="star" size={16} color={colors.warning} />
+            <Ionicons color={colors.warning} name="star" size={16} />
           </View>
           <Text style={[styles.statValue, { color: colors.text }]}>{vip}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>VIP</Text>
@@ -284,7 +276,7 @@ function CustomerStats({
           ]}
         >
           <View style={[styles.statIconBg, { backgroundColor: `${colors.info}20` }]}>
-            <Ionicons name="sparkles" size={16} color={colors.info} />
+            <Ionicons color={colors.info} name="sparkles" size={16} />
           </View>
           <Text style={[styles.statValue, { color: colors.text }]}>{newCustomers}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>New</Text>
@@ -298,9 +290,9 @@ function CustomerStats({
 function FilterChip({
   filter,
   isActive,
-  onPress
+  onPress,
 }: {
-  filter: typeof CUSTOMER_FILTERS[number];
+  filter: (typeof CUSTOMER_FILTERS)[number];
   isActive: boolean;
   onPress: () => void;
 }) {
@@ -339,16 +331,11 @@ function FilterChip({
         onPressOut={handlePressOut}
       >
         <Ionicons
+          color={isActive ? '#FFFFFF' : colors.textSecondary}
           name={filter.icon}
           size={14}
-          color={isActive ? '#FFFFFF' : colors.textSecondary}
         />
-        <Text
-          style={[
-            styles.filterText,
-            { color: isActive ? '#FFFFFF' : colors.textSecondary },
-          ]}
-        >
+        <Text style={[styles.filterText, { color: isActive ? '#FFFFFF' : colors.textSecondary }]}>
           {filter.label}
         </Text>
       </Pressable>
@@ -368,75 +355,81 @@ export default function CustomersScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch customers with infinite scroll using real API
-  const {
-    data,
-    isLoading,
-    isFetchingNextPage,
-    hasNextPage,
-    fetchNextPage,
-    refetch,
-  } = useInfiniteQuery({
-    queryKey: currentTenant
-      ? [...QUERY_KEYS.CUSTOMERS(currentTenant.id), activeFilter, searchQuery]
-      : ['customers', activeFilter, searchQuery],
-    queryFn: async ({ pageParam = 1 }) => {
-      try {
-        const params: Record<string, any> = {
-          page: pageParam,
-          limit: 20,
-        };
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, refetch } =
+    useInfiniteQuery({
+      queryKey: currentTenant
+        ? [...QUERY_KEYS.CUSTOMERS(currentTenant.id), activeFilter, searchQuery]
+        : ['customers', activeFilter, searchQuery],
+      queryFn: async ({ pageParam = 1 }) => {
+        try {
+          const params: Record<string, any> = {
+            page: pageParam,
+            limit: 20,
+          };
 
-        if (searchQuery) {
-          params.search = searchQuery;
+          if (searchQuery) {
+            params.search = searchQuery;
+          }
+
+          if (activeFilter === 'active') {
+            params.status = 'active';
+          } else if (activeFilter === 'inactive') {
+            params.status = 'inactive';
+          }
+
+          console.log('[Customers] Fetching customers with params:', params);
+          const response = await customersApi.list(params);
+
+          const customersArray = (response as any).customers || (response as any).data || [];
+          const total = (response as any).total || customersArray.length;
+          const totalPages = (response as any).totalPages || Math.ceil(total / 20);
+
+          console.log(
+            '[Customers] Fetched',
+            customersArray.length,
+            'customers, page',
+            pageParam,
+            'of',
+            totalPages
+          );
+
+          const customers: Customer[] = customersArray.map((c: any) => ({
+            id: c.id,
+            tenant_id: c.tenantId || c.tenant_id || currentTenant?.id,
+            user_id: c.userId || c.user_id || c.id,
+            email: c.email,
+            first_name: c.firstName || c.first_name || '',
+            last_name: c.lastName || c.last_name || '',
+            phone: c.phone || null,
+            status: c.status || 'active',
+            total_orders: c.totalOrders || c.total_orders || c.ordersCount || 0,
+            total_spent: parseFloat(
+              c.totalSpent?.toString() ||
+                c.total_spent?.toString() ||
+                c.totalRevenue?.toString() ||
+                '0'
+            ),
+            addresses: c.addresses || [],
+            created_at: c.createdAt || c.created_at || new Date().toISOString(),
+            updated_at: c.updatedAt || c.updated_at || new Date().toISOString(),
+          }));
+
+          return {
+            customers,
+            page: pageParam,
+            totalPages,
+          };
+        } catch (error) {
+          console.error('[Customers] Error fetching customers:', error);
+          return { customers: [], page: pageParam, totalPages: 1 };
         }
-
-        if (activeFilter === 'active') {
-          params.status = 'active';
-        } else if (activeFilter === 'inactive') {
-          params.status = 'inactive';
-        }
-
-        console.log('[Customers] Fetching customers with params:', params);
-        const response = await customersApi.list(params);
-
-        const customersArray = (response as any).customers || (response as any).data || [];
-        const total = (response as any).total || customersArray.length;
-        const totalPages = (response as any).totalPages || Math.ceil(total / 20);
-
-        console.log('[Customers] Fetched', customersArray.length, 'customers, page', pageParam, 'of', totalPages);
-
-        const customers: Customer[] = customersArray.map((c: any) => ({
-          id: c.id,
-          tenant_id: c.tenantId || c.tenant_id || currentTenant?.id,
-          user_id: c.userId || c.user_id || c.id,
-          email: c.email,
-          first_name: c.firstName || c.first_name || '',
-          last_name: c.lastName || c.last_name || '',
-          phone: c.phone || null,
-          status: c.status || 'active',
-          total_orders: c.totalOrders || c.total_orders || c.ordersCount || 0,
-          total_spent: parseFloat(c.totalSpent?.toString() || c.total_spent?.toString() || c.totalRevenue?.toString() || '0'),
-          addresses: c.addresses || [],
-          created_at: c.createdAt || c.created_at || new Date().toISOString(),
-          updated_at: c.updatedAt || c.updated_at || new Date().toISOString(),
-        }));
-
-        return {
-          customers,
-          page: pageParam,
-          totalPages,
-        };
-      } catch (error) {
-        console.error('[Customers] Error fetching customers:', error);
-        return { customers: [], page: pageParam, totalPages: 1 };
-      }
-    },
-    getNextPageParam: (lastPage) => {
-      return lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
-    },
-    initialPageParam: 1,
-    enabled: !!currentTenant,
-  });
+      },
+      getNextPageParam: (lastPage) => {
+        return lastPage.page < lastPage.totalPages ? lastPage.page + 1 : undefined;
+      },
+      initialPageParam: 1,
+      enabled: !!currentTenant,
+    });
 
   const customers = useMemo(() => {
     return data?.pages.flatMap((page) => page.customers) || [];
@@ -497,7 +490,9 @@ export default function CustomersScreen() {
   );
 
   const renderFooter = useCallback(() => {
-    if (!isFetchingNextPage) return null;
+    if (!isFetchingNextPage) {
+      return null;
+    }
     return (
       <View style={styles.loadingMore}>
         <CardSkeleton />
@@ -539,32 +534,32 @@ export default function CustomersScreen() {
             shadows.sm,
           ]}
         >
-          <Ionicons name="search" size={18} color={colors.textSecondary} />
+          <Ionicons color={colors.textSecondary} name="search" size={18} />
           <TextInput
-            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search customers..."
             placeholderTextColor={colors.textTertiary}
+            style={[styles.searchInput, { color: colors.text }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          {searchQuery.length > 0 && (
+          {searchQuery.length > 0 ? (
             <Pressable
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 setSearchQuery('');
               }}
             >
-              <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="close-circle" size={18} />
             </Pressable>
-          )}
+          ) : null}
         </Animated.View>
 
         {/* Filters */}
         <Animated.View entering={FadeInDown.delay(200).springify()}>
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filtersContainer}
+            showsHorizontalScrollIndicator={false}
           >
             {CUSTOMER_FILTERS.map((filter) => (
               <FilterChip
@@ -580,10 +575,7 @@ export default function CustomersScreen() {
 
       {/* Customer List */}
       {isLoading ? (
-        <ScrollView
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        >
+        <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
           {[1, 2, 3, 4, 5].map((i) => (
             <Animated.View
               key={i}
@@ -596,39 +588,40 @@ export default function CustomersScreen() {
         </ScrollView>
       ) : filteredCustomers.length === 0 ? (
         <EmptyState
-          icon="people-outline"
-          title={searchQuery ? 'No customers found' : 'No customers yet'}
+          actionLabel={searchQuery ? 'Clear Search' : undefined}
           description={
             searchQuery
               ? 'Try adjusting your search or filters'
               : 'Customers will appear here when they make purchases'
           }
-          actionLabel={searchQuery ? 'Clear Search' : undefined}
-          onAction={searchQuery ? () => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            setSearchQuery('');
-          } : undefined}
+          icon="people-outline"
+          title={searchQuery ? 'No customers found' : 'No customers yet'}
+          onAction={
+            searchQuery
+              ? () => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                  setSearchQuery('');
+                }
+              : undefined
+          }
         />
       ) : (
         <FlatList
+          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
           data={filteredCustomers}
-          renderItem={renderCustomer}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
-          showsVerticalScrollIndicator={false}
+          ListFooterComponent={renderFooter}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
               tintColor={colors.primary}
+              onRefresh={onRefresh}
             />
           }
+          renderItem={renderCustomer}
+          showsVerticalScrollIndicator={false}
           onEndReached={loadMore}
           onEndReachedThreshold={0.3}
-          ListFooterComponent={renderFooter}
         />
       )}
     </View>

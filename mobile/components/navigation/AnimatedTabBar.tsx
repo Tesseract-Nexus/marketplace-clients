@@ -1,12 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Platform,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, Platform, Dimensions } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -109,38 +102,26 @@ function TabBarItem({
   return (
     <AnimatedPressable
       style={[styles.tabItem, { width: tabWidth }, containerStyle]}
+      onPress={handlePress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      onPress={handlePress}
     >
       <Animated.View style={[styles.iconContainer, iconStyle]}>
-        <Ionicons name={iconName} size={24} color={iconColor} />
-        {tab.badge !== undefined && tab.badge > 0 && (
+        <Ionicons color={iconColor} name={iconName} size={24} />
+        {tab.badge !== undefined && tab.badge > 0 ? (
           <View style={[styles.badge, { backgroundColor: colors.error }]}>
-            <Text style={styles.badgeText}>
-              {tab.badge > 99 ? '99+' : tab.badge}
-            </Text>
+            <Text style={styles.badgeText}>{tab.badge > 99 ? '99+' : tab.badge}</Text>
           </View>
-        )}
+        ) : null}
       </Animated.View>
-      <Animated.Text
-        style={[
-          styles.label,
-          { color: iconColor },
-          labelStyle,
-        ]}
-      >
+      <Animated.Text style={[styles.label, { color: iconColor }, labelStyle]}>
         {tab.label}
       </Animated.Text>
     </AnimatedPressable>
   );
 }
 
-export function AnimatedTabBar({
-  tabs,
-  activeIndex,
-  onTabPress,
-}: AnimatedTabBarProps) {
+export function AnimatedTabBar({ tabs, activeIndex, onTabPress }: AnimatedTabBarProps) {
   const colors = useColors();
   const isDark = useIsDark();
   const insets = useSafeAreaInsets();
@@ -172,11 +153,7 @@ export function AnimatedTabBar({
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
       {/* Glassmorphism Background */}
       {Platform.OS === 'ios' ? (
-        <BlurView
-          intensity={80}
-          tint={isDark ? 'dark' : 'light'}
-          style={StyleSheet.absoluteFill}
-        />
+        <BlurView intensity={80} style={StyleSheet.absoluteFill} tint={isDark ? 'dark' : 'light'} />
       ) : (
         <View
           style={[
@@ -202,9 +179,7 @@ export function AnimatedTabBar({
           styles.indicator,
           {
             width: tabWidth - 16,
-            backgroundColor: isDark
-              ? 'rgba(79,70,229,0.15)'
-              : 'rgba(79,70,229,0.1)',
+            backgroundColor: isDark ? 'rgba(79,70,229,0.15)' : 'rgba(79,70,229,0.1)',
           },
           indicatorStyle,
         ]}
@@ -214,8 +189,8 @@ export function AnimatedTabBar({
             isDark ? 'rgba(79,70,229,0.3)' : 'rgba(79,70,229,0.2)',
             isDark ? 'rgba(139,92,246,0.2)' : 'rgba(139,92,246,0.1)',
           ]}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={[StyleSheet.absoluteFill, { borderRadius: 20 }]}
         />
       </Animated.View>
@@ -225,11 +200,11 @@ export function AnimatedTabBar({
         {tabsWithBadges.map((tab, index) => (
           <TabBarItem
             key={tab.name}
-            tab={tab}
             index={index}
             isActive={index === activeIndex}
-            onPress={() => onTabPress(index)}
+            tab={tab}
             tabWidth={tabWidth}
+            onPress={() => onTabPress(index)}
           />
         ))}
       </View>

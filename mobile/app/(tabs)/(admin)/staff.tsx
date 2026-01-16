@@ -70,9 +70,9 @@ function StatsCards({ staff }: { staff: StaffMember[] }) {
 
   const stats = useMemo(() => {
     const total = staff.length;
-    const active = staff.filter(s => s.status === 'active').length;
-    const inactive = staff.filter(s => s.status === 'inactive').length;
-    const invited = staff.filter(s => s.status === 'invited').length;
+    const active = staff.filter((s) => s.status === 'active').length;
+    const inactive = staff.filter((s) => s.status === 'inactive').length;
+    const invited = staff.filter((s) => s.status === 'invited').length;
     return { total, active, inactive, invited };
   }, [staff]);
 
@@ -81,12 +81,12 @@ function StatsCards({ staff }: { staff: StaffMember[] }) {
       {/* Total Staff Card */}
       <LinearGradient
         colors={['#6366F1', '#8B5CF6']}
-        start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
+        start={{ x: 0, y: 0 }}
         style={styles.totalCard}
       >
         <View style={styles.totalIcon}>
-          <Ionicons name="people" size={16} color="rgba(255,255,255,0.9)" />
+          <Ionicons color="rgba(255,255,255,0.9)" name="people" size={16} />
         </View>
         <Text style={styles.totalLabel}>Total Staff</Text>
         <Text style={styles.totalValue}>{stats.total}</Text>
@@ -100,7 +100,7 @@ function StatsCards({ staff }: { staff: StaffMember[] }) {
             { backgroundColor: isDark ? colors.surface : colors.successLight },
           ]}
         >
-          <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+          <Ionicons color={colors.success} name="checkmark-circle" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>{stats.active}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Active</Text>
         </View>
@@ -111,18 +111,15 @@ function StatsCards({ staff }: { staff: StaffMember[] }) {
             { backgroundColor: isDark ? colors.surface : colors.warningLight },
           ]}
         >
-          <Ionicons name="pause-circle" size={16} color={colors.warning} />
+          <Ionicons color={colors.warning} name="pause-circle" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>{stats.inactive}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Inactive</Text>
         </View>
 
         <View
-          style={[
-            styles.statItem,
-            { backgroundColor: isDark ? colors.surface : colors.infoLight },
-          ]}
+          style={[styles.statItem, { backgroundColor: isDark ? colors.surface : colors.infoLight }]}
         >
-          <Ionicons name="mail" size={16} color={colors.info} />
+          <Ionicons color={colors.info} name="mail" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>{stats.invited}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Invited</Text>
         </View>
@@ -160,7 +157,14 @@ function StaffCard({
     transform: [{ scale: scale.value }],
   }));
 
-  const statusConfig: Record<StaffStatus, { label: string; variant: 'success' | 'warning' | 'info' | 'error' | 'secondary'; color: string }> = {
+  const statusConfig: Record<
+    StaffStatus,
+    {
+      label: string;
+      variant: 'success' | 'warning' | 'info' | 'error' | 'secondary';
+      color: string;
+    }
+  > = {
     active: {
       label: 'Active',
       variant: 'success',
@@ -190,16 +194,18 @@ function StaffCard({
   // Role badge color based on priority
   const rolePriorityColors: Record<number, string> = {
     100: '#DC2626', // Owner - Red
-    90: '#7C3AED',  // Admin - Purple
-    80: '#2563EB',  // Manager - Blue
-    70: '#059669',  // Supervisor - Green
-    50: '#6B7280',  // Staff - Gray
+    90: '#7C3AED', // Admin - Purple
+    80: '#2563EB', // Manager - Blue
+    70: '#059669', // Supervisor - Green
+    50: '#6B7280', // Staff - Gray
   };
   const roleColor = rolePriorityColors[member.role.priority] || colors.textSecondary;
 
   return (
     <Animated.View
-      entering={FadeInRight.delay(index * 30).springify().damping(15)}
+      entering={FadeInRight.delay(index * 30)
+        .springify()
+        .damping(15)}
       style={animatedStyle}
     >
       <Pressable
@@ -231,29 +237,29 @@ function StaffCard({
               </Text>
             </View>
           </View>
-          <Badge label={config.label} variant={config.variant} size="sm" />
+          <Badge label={config.label} size="sm" variant={config.variant} />
         </View>
 
         {/* Role & Department */}
         <View style={styles.roleRow}>
           <View style={[styles.roleBadge, { backgroundColor: `${roleColor}15` }]}>
-            <Ionicons name="shield-checkmark" size={14} color={roleColor} />
+            <Ionicons color={roleColor} name="shield-checkmark" size={14} />
             <Text style={[styles.roleText, { color: roleColor }]}>{member.role.name}</Text>
           </View>
-          {member.department && (
+          {member.department ? (
             <View style={[styles.deptBadge, { backgroundColor: colors.surface }]}>
-              <Ionicons name="business-outline" size={14} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="business-outline" size={14} />
               <Text style={[styles.deptText, { color: colors.textSecondary }]}>
                 {member.department.name}
               </Text>
             </View>
-          )}
+          ) : null}
         </View>
 
         {/* Footer */}
         <View style={[styles.staffFooter, { borderTopColor: colors.border }]}>
           <View style={styles.lastActiveInfo}>
-            <Ionicons name="time-outline" size={14} color={colors.textTertiary} />
+            <Ionicons color={colors.textTertiary} name="time-outline" size={14} />
             <Text style={[styles.lastActiveText, { color: colors.textTertiary }]}>
               {member.lastActive
                 ? `Active ${formatRelativeTime(member.lastActive)}`
@@ -262,22 +268,20 @@ function StaffCard({
           </View>
           <View style={styles.actionButtons}>
             <Pressable
+              hitSlop={8}
               style={[styles.actionButton, { backgroundColor: `${colors.primary}10` }]}
               onPress={() => onManageAccess(member)}
-              hitSlop={8}
             >
-              <Ionicons name="key-outline" size={14} color={colors.primary} />
-              <Text style={[styles.actionButtonText, { color: colors.primary }]}>
-                Access
-              </Text>
+              <Ionicons color={colors.primary} name="key-outline" size={14} />
+              <Text style={[styles.actionButtonText, { color: colors.primary }]}>Access</Text>
             </Pressable>
             <Pressable
+              hitSlop={8}
               style={[styles.actionButton, { backgroundColor: `${colors.info}10` }]}
               onPress={() => onViewProfile(member)}
-              hitSlop={8}
             >
               <Text style={[styles.actionButtonText, { color: colors.info }]}>Profile</Text>
-              <Ionicons name="chevron-forward" size={14} color={colors.info} />
+              <Ionicons color={colors.info} name="chevron-forward" size={14} />
             </Pressable>
           </View>
         </View>
@@ -298,7 +302,11 @@ export default function StaffScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch staff members
-  const { data: staff = [], isLoading, refetch } = useQuery({
+  const {
+    data: staff = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: currentTenant ? ['staff', currentTenant.id] : ['staff'],
     queryFn: async (): Promise<StaffMember[]> => {
       // TODO: Replace with actual API call
@@ -375,13 +383,13 @@ export default function StaffScreen() {
     let filtered = staff;
 
     if (activeFilter !== 'all') {
-      filtered = filtered.filter(s => s.status === activeFilter);
+      filtered = filtered.filter((s) => s.status === activeFilter);
     }
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        s =>
+        (s) =>
           s.firstName.toLowerCase().includes(query) ||
           s.lastName.toLowerCase().includes(query) ||
           s.email.toLowerCase().includes(query) ||
@@ -463,10 +471,10 @@ export default function StaffScreen() {
   const renderMember = useCallback(
     ({ item, index }: { item: StaffMember; index: number }) => (
       <StaffCard
-        member={item}
         index={index}
-        onViewProfile={handleViewProfile}
+        member={item}
         onManageAccess={handleManageAccess}
+        onViewProfile={handleViewProfile}
       />
     ),
     [handleViewProfile, handleManageAccess]
@@ -478,11 +486,11 @@ export default function StaffScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerTop}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
+            <Ionicons color={colors.text} name="arrow-back" size={24} />
           </Pressable>
           <Text style={[styles.title, { color: colors.text }]}>Staff</Text>
           <Pressable style={styles.addButton} onPress={handleInviteStaff}>
-            <Ionicons name="person-add" size={22} color={colors.primary} />
+            <Ionicons color={colors.primary} name="person-add" size={22} />
           </Pressable>
         </View>
 
@@ -500,46 +508,44 @@ export default function StaffScreen() {
             },
           ]}
         >
-          <Ionicons name="search" size={18} color={colors.textSecondary} />
+          <Ionicons color={colors.textSecondary} name="search" size={18} />
           <TextInput
-            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search staff..."
             placeholderTextColor={colors.textTertiary}
+            style={[styles.searchInput, { color: colors.text }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          {searchQuery.length > 0 && (
+          {searchQuery.length > 0 ? (
             <Pressable onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="close-circle" size={18} />
             </Pressable>
-          )}
+          ) : null}
         </Animated.View>
 
         {/* Status Filters */}
         <Animated.View entering={FadeInDown.delay(200)}>
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filtersContainer}
+            showsHorizontalScrollIndicator={false}
           >
-            {STATUS_FILTERS.map(filter => (
+            {STATUS_FILTERS.map((filter) => (
               <Pressable
                 key={filter.id}
                 style={[
                   styles.filterChip,
                   {
-                    backgroundColor:
-                      activeFilter === filter.id ? colors.primary : colors.surface,
-                    borderColor:
-                      activeFilter === filter.id ? colors.primary : colors.border,
+                    backgroundColor: activeFilter === filter.id ? colors.primary : colors.surface,
+                    borderColor: activeFilter === filter.id ? colors.primary : colors.border,
                   },
                 ]}
                 onPress={() => setActiveFilter(filter.id)}
               >
                 <Ionicons
+                  color={activeFilter === filter.id ? '#FFFFFF' : colors.textSecondary}
                   name={filter.icon}
                   size={14}
-                  color={activeFilter === filter.id ? '#FFFFFF' : colors.textSecondary}
                 />
                 <Text
                   style={[
@@ -557,49 +563,43 @@ export default function StaffScreen() {
 
       {/* Staff List */}
       {isLoading ? (
-        <ScrollView
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {[1, 2, 3, 4].map(i => (
+        <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
+          {[1, 2, 3, 4].map((i) => (
             <Skeleton
               key={i}
-              width="100%"
-              height={160}
               borderRadius={16}
+              height={160}
               style={{ marginBottom: 12 }}
+              width="100%"
             />
           ))}
         </ScrollView>
       ) : filteredStaff.length === 0 ? (
         <EmptyState
-          icon="people-outline"
-          title={searchQuery ? 'No staff found' : 'No staff members'}
+          actionLabel={searchQuery ? 'Clear Search' : 'Invite Staff'}
           description={
             searchQuery
               ? 'Try adjusting your search or filters'
               : 'Invite team members to help manage your store'
           }
-          actionLabel={searchQuery ? 'Clear Search' : 'Invite Staff'}
+          icon="people-outline"
+          title={searchQuery ? 'No staff found' : 'No staff members'}
           onAction={searchQuery ? () => setSearchQuery('') : handleInviteStaff}
         />
       ) : (
         <FlatList
+          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
           data={filteredStaff}
-          renderItem={renderMember}
-          keyExtractor={item => item.id}
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
-          showsVerticalScrollIndicator={false}
+          keyExtractor={(item) => item.id}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
               tintColor={colors.primary}
+              onRefresh={onRefresh}
             />
           }
+          renderItem={renderMember}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </View>

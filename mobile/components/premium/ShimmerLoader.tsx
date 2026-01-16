@@ -92,8 +92,8 @@ export function ShimmerLoader({
       <Animated.View style={[styles.shimmer, animatedStyle]}>
         <LinearGradient
           colors={['transparent', shimmerColor, 'transparent']}
-          start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}
+          start={{ x: 0, y: 0.5 }}
           style={styles.gradient}
         />
       </Animated.View>
@@ -103,7 +103,7 @@ export function ShimmerLoader({
 
 // Preset shimmer components
 export function ShimmerAvatar({ size = 48 }: { size?: number }) {
-  return <ShimmerLoader variant="circle" height={size} />;
+  return <ShimmerLoader height={size} variant="circle" />;
 }
 
 export function ShimmerText({ width = '60%' }: { width?: number | string }) {
@@ -120,12 +120,7 @@ export function CardSkeleton() {
   const isDark = useIsDark();
 
   return (
-    <View
-      style={[
-        styles.cardSkeleton,
-        { backgroundColor: isDark ? colors.surface : colors.card },
-      ]}
-    >
+    <View style={[styles.cardSkeleton, { backgroundColor: isDark ? colors.surface : colors.card }]}>
       <View style={styles.cardSkeletonHeader}>
         <ShimmerAvatar size={44} />
         <View style={styles.cardSkeletonHeaderText}>
@@ -134,10 +129,10 @@ export function CardSkeleton() {
         </View>
       </View>
       <ShimmerLoader height={16} style={{ marginTop: 16 }} />
-      <ShimmerLoader height={16} width="80%" style={{ marginTop: 8 }} />
+      <ShimmerLoader height={16} style={{ marginTop: 8 }} width="80%" />
       <View style={styles.cardSkeletonFooter}>
-        <ShimmerLoader height={32} width={80} borderRadius={8} />
-        <ShimmerLoader height={32} width={80} borderRadius={8} />
+        <ShimmerLoader borderRadius={8} height={32} width={80} />
+        <ShimmerLoader borderRadius={8} height={32} width={80} />
       </View>
     </View>
   );
@@ -149,7 +144,7 @@ export function StatsSkeleton() {
     <View style={styles.statsRow}>
       {[1, 2, 3].map((i) => (
         <View key={i} style={styles.statItem}>
-          <ShimmerLoader height={48} borderRadius={12} />
+          <ShimmerLoader borderRadius={12} height={48} />
           <ShimmerText width="60%" />
         </View>
       ))}

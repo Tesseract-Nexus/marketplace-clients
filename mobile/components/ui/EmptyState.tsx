@@ -118,12 +118,7 @@ export function EmptyState({
     >
       {/* Animation or Icon */}
       {animation ? (
-        <LottieView
-          source={animation}
-          autoPlay
-          loop
-          style={{ width: 200, height: 200 }}
-        />
+        <LottieView autoPlay loop source={animation} style={{ width: 200, height: 200 }} />
       ) : icon ? (
         <View style={{ marginBottom: spacing.lg }}>{icon}</View>
       ) : (
@@ -138,11 +133,7 @@ export function EmptyState({
             marginBottom: spacing.lg,
           }}
         >
-          <Ionicons
-            name={displayIconName}
-            size={40}
-            color={colors.textTertiary}
-          />
+          <Ionicons color={colors.textTertiary} name={displayIconName} size={40} />
         </View>
       )}
 
@@ -173,33 +164,21 @@ export function EmptyState({
       </Text>
 
       {/* Actions */}
-      {(onAction || onSecondaryAction) && (
+      {onAction || onSecondaryAction ? (
         <View style={{ marginTop: spacing.xl, alignItems: 'center', gap: spacing.sm }}>
-          {onAction && actionLabel && (
-            <Button onPress={onAction} title={actionLabel} />
-          )}
-          {onSecondaryAction && secondaryActionLabel && (
-            <Button
-              onPress={onSecondaryAction}
-              title={secondaryActionLabel}
-              variant="ghost"
-            />
-          )}
+          {onAction && actionLabel ? <Button title={actionLabel} onPress={onAction} /> : null}
+          {onSecondaryAction && secondaryActionLabel ? (
+            <Button title={secondaryActionLabel} variant="ghost" onPress={onSecondaryAction} />
+          ) : null}
         </View>
-      )}
+      ) : null}
     </View>
   );
 }
 
 // Quick empty state variants
 export function NoProductsEmpty({ onAdd }: { onAdd?: () => void }) {
-  return (
-    <EmptyState
-      type="no-products"
-      actionLabel="Add Product"
-      onAction={onAdd}
-    />
-  );
+  return <EmptyState actionLabel="Add Product" type="no-products" onAction={onAdd} />;
 }
 
 export function NoOrdersEmpty() {
@@ -211,48 +190,17 @@ export function NoCustomersEmpty() {
 }
 
 export function NoSearchResultsEmpty({ onClear }: { onClear?: () => void }) {
-  return (
-    <EmptyState
-      type="no-results"
-      actionLabel="Clear Search"
-      onAction={onClear}
-    />
-  );
+  return <EmptyState actionLabel="Clear Search" type="no-results" onAction={onClear} />;
 }
 
 export function CartEmptyState({ onShop }: { onShop?: () => void }) {
-  return (
-    <EmptyState
-      type="cart-empty"
-      actionLabel="Start Shopping"
-      onAction={onShop}
-    />
-  );
+  return <EmptyState actionLabel="Start Shopping" type="cart-empty" onAction={onShop} />;
 }
 
-export function ErrorState({
-  onRetry,
-  error,
-}: {
-  onRetry?: () => void;
-  error?: string;
-}) {
-  return (
-    <EmptyState
-      type="error"
-      description={error}
-      actionLabel="Try Again"
-      onAction={onRetry}
-    />
-  );
+export function ErrorState({ onRetry, error }: { onRetry?: () => void; error?: string }) {
+  return <EmptyState actionLabel="Try Again" description={error} type="error" onAction={onRetry} />;
 }
 
 export function OfflineState({ onRetry }: { onRetry?: () => void }) {
-  return (
-    <EmptyState
-      type="offline"
-      actionLabel="Retry"
-      onAction={onRetry}
-    />
-  );
+  return <EmptyState actionLabel="Retry" type="offline" onAction={onRetry} />;
 }

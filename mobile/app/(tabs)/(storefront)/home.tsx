@@ -72,30 +72,22 @@ function SectionHeader({
   const colors = useColors();
 
   return (
-    <Animated.View
-      entering={FadeInDown.delay(delay).springify()}
-      style={styles.sectionHeader}
-    >
+    <Animated.View entering={FadeInDown.delay(delay).springify()} style={styles.sectionHeader}>
       <View>
         <Text style={[styles.sectionTitle, { color: colors.text }]}>{title}</Text>
-        {subtitle && (
-          <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>
-            {subtitle}
-          </Text>
-        )}
+        {subtitle ? (
+          <Text style={[styles.sectionSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
+        ) : null}
       </View>
-      {onSeeAll && (
+      {onSeeAll ? (
         <Pressable
+          style={({ pressed }) => [styles.seeAllButton, { opacity: pressed ? 0.7 : 1 }]}
           onPress={onSeeAll}
-          style={({ pressed }) => [
-            styles.seeAllButton,
-            { opacity: pressed ? 0.7 : 1 },
-          ]}
         >
           <Text style={[styles.seeAllText, { color: colors.primary }]}>See All</Text>
-          <Ionicons name="chevron-forward" size={16} color={colors.primary} />
+          <Ionicons color={colors.primary} name="chevron-forward" size={16} />
         </Pressable>
-      )}
+      ) : null}
     </Animated.View>
   );
 }
@@ -123,6 +115,19 @@ function CategoryPill({
   return (
     <Animated.View entering={FadeInRight.delay(100 + index * 50).springify()}>
       <AnimatedPressable
+        style={[
+          styles.categoryPill,
+          {
+            backgroundColor: isSelected
+              ? colors.primary
+              : isDark
+                ? colors.surface
+                : colors.background,
+            borderColor: isSelected ? colors.primary : colors.border,
+          },
+          animatedStyle,
+        ]}
+        onPress={onPress}
         onPressIn={() => {
           scale.value = withSpring(0.95);
           void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -130,27 +135,9 @@ function CategoryPill({
         onPressOut={() => {
           scale.value = withSpring(1);
         }}
-        onPress={onPress}
-        style={[
-          styles.categoryPill,
-          {
-            backgroundColor: isSelected
-              ? colors.primary
-              : isDark
-              ? colors.surface
-              : colors.background,
-            borderColor: isSelected ? colors.primary : colors.border,
-          },
-          animatedStyle,
-        ]}
       >
         <Image source={{ uri: category.image_url }} style={styles.categoryIcon} />
-        <Text
-          style={[
-            styles.categoryPillText,
-            { color: isSelected ? '#FFFFFF' : colors.text },
-          ]}
-        >
+        <Text style={[styles.categoryPillText, { color: isSelected ? '#FFFFFF' : colors.text }]}>
           {category.name}
         </Text>
       </AnimatedPressable>
@@ -170,15 +157,21 @@ function FlashSaleTimer({ endTime }: { endTime: Date }) {
   return (
     <View style={styles.timerContainer}>
       <View style={[styles.timerBlock, { backgroundColor: colors.text }]}>
-        <Text style={[styles.timerText, { color: colors.background }]}>{hours.toString().padStart(2, '0')}</Text>
+        <Text style={[styles.timerText, { color: colors.background }]}>
+          {hours.toString().padStart(2, '0')}
+        </Text>
       </View>
       <Text style={[styles.timerColon, { color: colors.text }]}>:</Text>
       <View style={[styles.timerBlock, { backgroundColor: colors.text }]}>
-        <Text style={[styles.timerText, { color: colors.background }]}>{minutes.toString().padStart(2, '0')}</Text>
+        <Text style={[styles.timerText, { color: colors.background }]}>
+          {minutes.toString().padStart(2, '0')}
+        </Text>
       </View>
       <Text style={[styles.timerColon, { color: colors.text }]}>:</Text>
       <View style={[styles.timerBlock, { backgroundColor: colors.text }]}>
-        <Text style={[styles.timerText, { color: colors.background }]}>{seconds.toString().padStart(2, '0')}</Text>
+        <Text style={[styles.timerText, { color: colors.background }]}>
+          {seconds.toString().padStart(2, '0')}
+        </Text>
       </View>
     </View>
   );
@@ -206,12 +199,7 @@ export default function HomeScreen() {
 
   // Animated header background
   const headerAnimatedStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [0, 100],
-      [0, 1],
-      Extrapolation.CLAMP
-    );
+    const opacity = interpolate(scrollY.value, [0, 100], [0, 1], Extrapolation.CLAMP);
     return { opacity };
   });
 
@@ -249,11 +237,66 @@ export default function HomeScreen() {
       ];
 
       const categories: Category[] = [
-        { id: '1', tenant_id: '1', name: 'Fashion', slug: 'fashion', image_url: 'https://cdn-icons-png.flaticon.com/128/3531/3531849.png', position: 1, is_active: true, product_count: 256, created_at: '', updated_at: '' },
-        { id: '2', tenant_id: '1', name: 'Electronics', slug: 'electronics', image_url: 'https://cdn-icons-png.flaticon.com/128/3659/3659899.png', position: 2, is_active: true, product_count: 189, created_at: '', updated_at: '' },
-        { id: '3', tenant_id: '1', name: 'Home', slug: 'home', image_url: 'https://cdn-icons-png.flaticon.com/128/2838/2838912.png', position: 3, is_active: true, product_count: 142, created_at: '', updated_at: '' },
-        { id: '4', tenant_id: '1', name: 'Beauty', slug: 'beauty', image_url: 'https://cdn-icons-png.flaticon.com/128/3163/3163186.png', position: 4, is_active: true, product_count: 98, created_at: '', updated_at: '' },
-        { id: '5', tenant_id: '1', name: 'Sports', slug: 'sports', image_url: 'https://cdn-icons-png.flaticon.com/128/857/857455.png', position: 5, is_active: true, product_count: 76, created_at: '', updated_at: '' },
+        {
+          id: '1',
+          tenant_id: '1',
+          name: 'Fashion',
+          slug: 'fashion',
+          image_url: 'https://cdn-icons-png.flaticon.com/128/3531/3531849.png',
+          position: 1,
+          is_active: true,
+          product_count: 256,
+          created_at: '',
+          updated_at: '',
+        },
+        {
+          id: '2',
+          tenant_id: '1',
+          name: 'Electronics',
+          slug: 'electronics',
+          image_url: 'https://cdn-icons-png.flaticon.com/128/3659/3659899.png',
+          position: 2,
+          is_active: true,
+          product_count: 189,
+          created_at: '',
+          updated_at: '',
+        },
+        {
+          id: '3',
+          tenant_id: '1',
+          name: 'Home',
+          slug: 'home',
+          image_url: 'https://cdn-icons-png.flaticon.com/128/2838/2838912.png',
+          position: 3,
+          is_active: true,
+          product_count: 142,
+          created_at: '',
+          updated_at: '',
+        },
+        {
+          id: '4',
+          tenant_id: '1',
+          name: 'Beauty',
+          slug: 'beauty',
+          image_url: 'https://cdn-icons-png.flaticon.com/128/3163/3163186.png',
+          position: 4,
+          is_active: true,
+          product_count: 98,
+          created_at: '',
+          updated_at: '',
+        },
+        {
+          id: '5',
+          tenant_id: '1',
+          name: 'Sports',
+          slug: 'sports',
+          image_url: 'https://cdn-icons-png.flaticon.com/128/857/857455.png',
+          position: 5,
+          is_active: true,
+          product_count: 76,
+          created_at: '',
+          updated_at: '',
+        },
       ];
 
       const products = (prefix: string, count: number): Product[] =>
@@ -289,12 +332,14 @@ export default function HomeScreen() {
           rating_average: 4.2 + (i % 8) * 0.1,
           rating_count: 20 + i * 5,
           tags: [],
-          images: [{
-            id: '1',
-            url: `https://picsum.photos/seed/${prefix}${i}/400/400`,
-            position: 0,
-            is_primary: true,
-          }],
+          images: [
+            {
+              id: '1',
+              url: `https://picsum.photos/seed/${prefix}${i}/400/400`,
+              position: 0,
+              is_primary: true,
+            },
+          ],
           variants: [],
           options: [],
           created_at: new Date().toISOString(),
@@ -330,115 +375,106 @@ export default function HomeScreen() {
           headerAnimatedStyle,
         ]}
       >
-        {Platform.OS === 'ios' && (
-          <BlurView intensity={80} style={StyleSheet.absoluteFill} />
-        )}
+        {Platform.OS === 'ios' ? <BlurView intensity={80} style={StyleSheet.absoluteFill} /> : null}
       </Animated.View>
 
       {/* Fixed Header */}
       <View style={[styles.header, { paddingTop: insets.top }]}>
         <Animated.View entering={FadeIn} style={styles.headerContent}>
           <View style={styles.headerLeft}>
-            <Text style={[styles.greeting, { color: colors.textSecondary }]}>
-              Welcome to
-            </Text>
+            <Text style={[styles.greeting, { color: colors.textSecondary }]}>Welcome to</Text>
             <Text style={[styles.storeName, { color: colors.text }]}>
               {currentTenant?.name || 'Demo Store'}
             </Text>
           </View>
           <View style={styles.headerRight}>
             <Pressable
+              style={[styles.iconButton, { backgroundColor: colors.surface }]}
               onPress={() => {
                 void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push('/(tabs)/(storefront)/search');
               }}
-              style={[styles.iconButton, { backgroundColor: colors.surface }]}
             >
-              <Ionicons name="search" size={22} color={colors.text} />
+              <Ionicons color={colors.text} name="search" size={22} />
             </Pressable>
             <Pressable
+              style={[styles.iconButton, { backgroundColor: colors.surface }]}
               onPress={() => {
                 void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push('/(tabs)/(storefront)/cart');
               }}
-              style={[styles.iconButton, { backgroundColor: colors.surface }]}
             >
-              <Ionicons name="bag-outline" size={22} color={colors.text} />
-              {cartItemCount > 0 && (
+              <Ionicons color={colors.text} name="bag-outline" size={22} />
+              {cartItemCount > 0 ? (
                 <View style={[styles.cartBadge, { backgroundColor: colors.primary }]}>
                   <Text style={styles.cartBadgeText}>
                     {cartItemCount > 9 ? '9+' : cartItemCount}
                   </Text>
                 </View>
-              )}
+              ) : null}
             </Pressable>
           </View>
         </Animated.View>
       </View>
 
       <Animated.ScrollView
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
         contentContainerStyle={[
           styles.scrollContent,
           { paddingTop: insets.top + 70, paddingBottom: insets.bottom + 100 },
         ]}
-        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
-            refreshing={refreshing}
-            onRefresh={onRefresh}
-            tintColor={colors.primary}
             progressViewOffset={insets.top + 70}
+            refreshing={refreshing}
+            tintColor={colors.primary}
+            onRefresh={onRefresh}
           />
         }
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+        onScroll={scrollHandler}
       >
         {/* Hero Carousel */}
         <Animated.View entering={FadeInDown.delay(100).springify()}>
           {isLoading ? (
             <Skeleton
-              width={SCREEN_WIDTH - 32}
-              height={220}
               borderRadius={24}
+              height={220}
               style={{ marginHorizontal: 16, marginBottom: 24 }}
+              width={SCREEN_WIDTH - 32}
             />
           ) : (
             <View style={styles.carouselContainer}>
               <Carousel
-                width={SCREEN_WIDTH - 32}
-                height={220}
-                data={data?.banners || []}
                 autoPlay
                 autoPlayInterval={5000}
-                scrollAnimationDuration={800}
-                onSnapToItem={setActiveBannerIndex}
-                style={styles.carousel}
+                data={data?.banners || []}
+                height={220}
                 renderItem={({ item }) => (
                   <Pressable
                     style={styles.bannerCard}
-                    onPress={() =>
-                      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-                    }
+                    onPress={() => void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}
                   >
                     <Image source={{ uri: item.image }} style={styles.bannerImage} />
-                    <LinearGradient
-                      colors={item.gradient}
-                      style={styles.bannerGradient}
-                    />
+                    <LinearGradient colors={item.gradient} style={styles.bannerGradient} />
                     <View style={styles.bannerContent}>
                       <Text style={styles.bannerTitle}>{item.title}</Text>
-                      {item.subtitle && (
+                      {item.subtitle ? (
                         <Text style={styles.bannerSubtitle}>{item.subtitle}</Text>
-                      )}
-                      {item.cta && (
+                      ) : null}
+                      {item.cta ? (
                         <View style={styles.bannerCta}>
                           <Text style={styles.bannerCtaText}>{item.cta}</Text>
-                          <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
+                          <Ionicons color="#FFFFFF" name="arrow-forward" size={16} />
                         </View>
-                      )}
+                      ) : null}
                     </View>
                   </Pressable>
                 )}
+                scrollAnimationDuration={800}
+                style={styles.carousel}
+                width={SCREEN_WIDTH - 32}
+                onSnapToItem={setActiveBannerIndex}
               />
               {/* Carousel Indicators */}
               <View style={styles.carouselIndicators}>
@@ -449,9 +485,7 @@ export default function HomeScreen() {
                       styles.indicator,
                       {
                         backgroundColor:
-                          index === activeBannerIndex
-                            ? colors.primary
-                            : colors.border,
+                          index === activeBannerIndex ? colors.primary : colors.border,
                         width: index === activeBannerIndex ? 24 : 8,
                       },
                     ]}
@@ -465,36 +499,34 @@ export default function HomeScreen() {
         {/* Categories */}
         <View style={styles.section}>
           <SectionHeader
+            delay={200}
             title="Categories"
             onSeeAll={() => router.push('/(tabs)/(storefront)/browse')}
-            delay={200}
           />
           {isLoading ? (
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               {[1, 2, 3, 4, 5].map((i) => (
                 <Skeleton
                   key={i}
-                  width={100}
-                  height={44}
                   borderRadius={22}
+                  height={44}
                   style={{ marginRight: 8, marginLeft: i === 1 ? 16 : 0 }}
+                  width={100}
                 />
               ))}
             </ScrollView>
           ) : (
             <ScrollView
               horizontal
-              showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.categoriesScroll}
+              showsHorizontalScrollIndicator={false}
             >
               {data?.categories.map((category, index) => (
                 <CategoryPill
                   key={category.id}
                   category={category}
                   index={index}
-                  onPress={() =>
-                    router.push(`/(tabs)/(storefront)/category?id=${category.id}`)
-                  }
+                  onPress={() => router.push(`/(tabs)/(storefront)/category?id=${category.id}`)}
                 />
               ))}
             </ScrollView>
@@ -502,19 +534,16 @@ export default function HomeScreen() {
         </View>
 
         {/* Flash Sale Section */}
-        <Animated.View
-          entering={FadeInDown.delay(300).springify()}
-          style={styles.section}
-        >
+        <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.section}>
           <LinearGradient
             colors={isDark ? ['#7C3AED', '#4F46E5'] : ['#8B5CF6', '#6366F1']}
-            start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
+            start={{ x: 0, y: 0 }}
             style={[styles.flashSaleHeader, { borderRadius: borderRadius.xl }]}
           >
             <View style={styles.flashSaleInfo}>
               <View style={styles.flashSaleIconContainer}>
-                <Ionicons name="flash" size={20} color="#FFFFFF" />
+                <Ionicons color="#FFFFFF" name="flash" size={20} />
               </View>
               <View>
                 <Text style={styles.flashSaleTitle}>Flash Sale</Text>
@@ -526,106 +555,86 @@ export default function HomeScreen() {
 
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.productsScroll}
+            showsHorizontalScrollIndicator={false}
           >
             {isLoading
               ? [1, 2, 3].map((i) => (
                   <Skeleton
                     key={i}
-                    width={160}
-                    height={220}
                     borderRadius={16}
+                    height={220}
                     style={{ marginRight: 12 }}
+                    width={160}
                   />
                 ))
               : data?.flashSaleProducts.map((product, index) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    variant="compact"
-                    index={index}
-                  />
+                  <ProductCard key={product.id} index={index} product={product} variant="compact" />
                 ))}
           </ScrollView>
         </Animated.View>
 
         {/* Featured Product - Full Width Hero */}
-        {data?.featuredProducts?.[0] && (
+        {data?.featuredProducts?.[0] ? (
           <View style={styles.section}>
-            <SectionHeader
-              title="Featured"
-              subtitle="Handpicked for you"
-              delay={400}
-            />
+            <SectionHeader delay={400} subtitle="Handpicked for you" title="Featured" />
             <View style={styles.featuredContainer}>
               <FeaturedProductCard product={data.featuredProducts[0]} />
             </View>
           </View>
-        )}
+        ) : null}
 
         {/* New Arrivals Grid */}
         <View style={styles.section}>
           <SectionHeader
-            title="New Arrivals"
-            subtitle="Fresh from the collection"
-            onSeeAll={() => router.push('/(tabs)/(storefront)/browse')}
             delay={500}
+            subtitle="Fresh from the collection"
+            title="New Arrivals"
+            onSeeAll={() => router.push('/(tabs)/(storefront)/browse')}
           />
           <View style={styles.productsGrid}>
             {isLoading
               ? [1, 2, 3, 4].map((i) => (
                   <Skeleton
                     key={i}
-                    width={(SCREEN_WIDTH - 52) / 2}
-                    height={260}
                     borderRadius={16}
+                    height={260}
+                    width={(SCREEN_WIDTH - 52) / 2}
                   />
                 ))
-              : data?.newArrivals.slice(0, 4).map((product, index) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    variant="default"
-                    index={index}
-                  />
-                ))}
+              : data?.newArrivals
+                  .slice(0, 4)
+                  .map((product, index) => (
+                    <ProductCard
+                      key={product.id}
+                      index={index}
+                      product={product}
+                      variant="default"
+                    />
+                  ))}
           </View>
         </View>
 
         {/* Promo Banner */}
-        <Animated.View
-          entering={FadeInDown.delay(600).springify()}
-          style={styles.section}
-        >
-          <Pressable
-            onPress={() =>
-              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-            }
-          >
+        <Animated.View entering={FadeInDown.delay(600).springify()} style={styles.section}>
+          <Pressable onPress={() => void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)}>
             <LinearGradient
               colors={isDark ? ['#1F2937', '#111827'] : ['#F3F4F6', '#E5E7EB']}
               style={[styles.promoBanner, { borderRadius: borderRadius.xl }]}
             >
               <View style={styles.promoContent}>
-                <Badge label="Limited Time" variant="primary" size="sm" />
-                <Text style={[styles.promoTitle, { color: colors.text }]}>
-                  Get 20% Off
-                </Text>
+                <Badge label="Limited Time" size="sm" variant="primary" />
+                <Text style={[styles.promoTitle, { color: colors.text }]}>Get 20% Off</Text>
                 <Text style={[styles.promoSubtitle, { color: colors.textSecondary }]}>
                   On your first order
                 </Text>
                 <View style={styles.promoCodeContainer}>
-                  <Text style={[styles.promoCode, { color: colors.primary }]}>
-                    WELCOME20
-                  </Text>
-                  <Feather name="copy" size={16} color={colors.primary} />
+                  <Text style={[styles.promoCode, { color: colors.primary }]}>WELCOME20</Text>
+                  <Feather color={colors.primary} name="copy" size={16} />
                 </View>
               </View>
-              <View
-                style={[styles.promoIconContainer, { backgroundColor: colors.primaryLight }]}
-              >
-                <Ionicons name="gift" size={48} color={colors.primary} />
+              <View style={[styles.promoIconContainer, { backgroundColor: colors.primaryLight }]}>
+                <Ionicons color={colors.primary} name="gift" size={48} />
               </View>
             </LinearGradient>
           </Pressable>
@@ -634,29 +643,31 @@ export default function HomeScreen() {
         {/* Recommended For You */}
         <View style={styles.section}>
           <SectionHeader
-            title="Recommended"
-            subtitle="Based on your preferences"
-            onSeeAll={() => router.push('/(tabs)/(storefront)/browse')}
             delay={700}
+            subtitle="Based on your preferences"
+            title="Recommended"
+            onSeeAll={() => router.push('/(tabs)/(storefront)/browse')}
           />
           <View style={styles.productsGrid}>
             {isLoading
               ? [1, 2, 3, 4].map((i) => (
                   <Skeleton
                     key={i}
-                    width={(SCREEN_WIDTH - 52) / 2}
-                    height={260}
                     borderRadius={16}
+                    height={260}
+                    width={(SCREEN_WIDTH - 52) / 2}
                   />
                 ))
-              : data?.recommended.slice(0, 4).map((product, index) => (
-                  <ProductCard
-                    key={product.id}
-                    product={product}
-                    variant="default"
-                    index={index}
-                  />
-                ))}
+              : data?.recommended
+                  .slice(0, 4)
+                  .map((product, index) => (
+                    <ProductCard
+                      key={product.id}
+                      index={index}
+                      product={product}
+                      variant="default"
+                    />
+                  ))}
           </View>
         </View>
       </Animated.ScrollView>

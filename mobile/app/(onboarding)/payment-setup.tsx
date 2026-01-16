@@ -1,5 +1,13 @@
 import { useState } from 'react';
-import { View, Text, ScrollView, KeyboardAvoidingView, Platform, Pressable, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -81,7 +89,10 @@ export default function PaymentSetupScreen() {
       const currentMonth = new Date().getMonth() + 1;
       if (!month || !year || parseInt(month) > 12 || parseInt(month) < 1) {
         newErrors.expiryDate = 'Invalid expiry date';
-      } else if (parseInt(year) < currentYear || (parseInt(year) === currentYear && parseInt(month) < currentMonth)) {
+      } else if (
+        parseInt(year) < currentYear ||
+        (parseInt(year) === currentYear && parseInt(month) < currentMonth)
+      ) {
         newErrors.expiryDate = 'Card has expired';
       }
     }
@@ -127,10 +138,18 @@ export default function PaymentSetupScreen() {
 
   const getCardBrand = (number: string): string => {
     const cleanNumber = number.replace(/\s/g, '');
-    if (/^4/.test(cleanNumber)) return 'visa';
-    if (/^5[1-5]/.test(cleanNumber)) return 'mastercard';
-    if (/^3[47]/.test(cleanNumber)) return 'amex';
-    if (/^6(?:011|5)/.test(cleanNumber)) return 'discover';
+    if (/^4/.test(cleanNumber)) {
+      return 'visa';
+    }
+    if (/^5[1-5]/.test(cleanNumber)) {
+      return 'mastercard';
+    }
+    if (/^3[47]/.test(cleanNumber)) {
+      return 'amex';
+    }
+    if (/^6(?:011|5)/.test(cleanNumber)) {
+      return 'discover';
+    }
     return 'unknown';
   };
 
@@ -159,7 +178,7 @@ export default function PaymentSetupScreen() {
         {/* Back Button */}
         <Animated.View entering={FadeInDown.delay(100)}>
           <IconButton
-            icon={<Ionicons name="arrow-back" size={24} color={colors.text} />}
+            icon={<Ionicons color={colors.text} name="arrow-back" size={24} />}
             onPress={() => router.back()}
           />
         </Animated.View>
@@ -167,7 +186,9 @@ export default function PaymentSetupScreen() {
         {/* Progress Indicator */}
         <Animated.View entering={FadeInDown.delay(150)} style={styles.progressContainer}>
           <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: '100%', backgroundColor: colors.primary }]} />
+            <View
+              style={[styles.progressFill, { width: '100%', backgroundColor: colors.primary }]}
+            />
           </View>
           <Text style={[styles.progressText, { color: colors.textSecondary }]}>Step 4 of 4</Text>
         </Animated.View>
@@ -183,7 +204,10 @@ export default function PaymentSetupScreen() {
         {/* Order Summary */}
         <Animated.View
           entering={FadeInDown.delay(250)}
-          style={[styles.summaryCard, { backgroundColor: colors.surface, borderColor: colors.border }]}
+          style={[
+            styles.summaryCard,
+            { backgroundColor: colors.surface, borderColor: colors.border },
+          ]}
         >
           <View style={styles.summaryRow}>
             <Text style={[styles.summaryLabel, { color: colors.textSecondary }]}>Plan</Text>
@@ -206,54 +230,56 @@ export default function PaymentSetupScreen() {
         {/* Payment Form */}
         <Animated.View entering={FadeInDown.delay(300)} style={styles.form}>
           <Input
-            label="Card Number"
-            placeholder="1234 5678 9012 3456"
-            value={form.cardNumber}
-            onChangeText={(text) => updateForm('cardNumber', text)}
+            containerStyle={styles.inputContainer}
             error={errors.cardNumber}
             keyboardType="numeric"
-            rightElement={<Ionicons name={cardIcon as any} size={24} color={colors.textSecondary} />}
-            containerStyle={styles.inputContainer}
+            label="Card Number"
+            placeholder="1234 5678 9012 3456"
+            rightElement={
+              <Ionicons color={colors.textSecondary} name={cardIcon as any} size={24} />
+            }
+            value={form.cardNumber}
+            onChangeText={(text) => updateForm('cardNumber', text)}
           />
 
           <View style={styles.row}>
             <View style={styles.halfField}>
               <Input
+                error={errors.expiryDate}
+                keyboardType="numeric"
                 label="Expiry Date"
                 placeholder="MM/YY"
                 value={form.expiryDate}
                 onChangeText={(text) => updateForm('expiryDate', text)}
-                error={errors.expiryDate}
-                keyboardType="numeric"
               />
             </View>
             <View style={styles.halfField}>
               <Input
+                secureTextEntry
+                error={errors.cvv}
+                keyboardType="numeric"
                 label="CVV"
                 placeholder="123"
                 value={form.cvv}
                 onChangeText={(text) => updateForm('cvv', text)}
-                error={errors.cvv}
-                keyboardType="numeric"
-                secureTextEntry
               />
             </View>
           </View>
 
           <Input
+            autoCapitalize="words"
+            containerStyle={[styles.inputContainer, { marginTop: 16 }]}
+            error={errors.cardholderName}
             label="Cardholder Name"
             placeholder="John Doe"
             value={form.cardholderName}
             onChangeText={(text) => updateForm('cardholderName', text)}
-            error={errors.cardholderName}
-            autoCapitalize="words"
-            containerStyle={[styles.inputContainer, { marginTop: 16 }]}
           />
         </Animated.View>
 
         {/* Security Note */}
         <Animated.View entering={FadeInDown.delay(350)} style={styles.securityNote}>
-          <Ionicons name="lock-closed" size={16} color={colors.textTertiary} />
+          <Ionicons color={colors.textTertiary} name="lock-closed" size={16} />
           <Text style={[styles.securityText, { color: colors.textTertiary }]}>
             Your payment information is encrypted and secure.
           </Text>
@@ -262,18 +288,17 @@ export default function PaymentSetupScreen() {
         {/* Submit Button */}
         <Animated.View entering={FadeInDown.delay(400)} style={styles.buttonContainer}>
           <Button
-            title={`Pay $${price} and Start`}
-            size="lg"
             fullWidth
             loading={isCreating}
+            size="lg"
+            title={`Pay $${price} and Start`}
             onPress={handleSubmit}
           />
 
           <Pressable style={styles.termsLink}>
             <Text style={[styles.termsText, { color: colors.textSecondary }]}>
-              By subscribing, you agree to our{' '}
-              <Text style={{ color: colors.primary }}>Terms</Text> and{' '}
-              <Text style={{ color: colors.primary }}>Privacy Policy</Text>
+              By subscribing, you agree to our <Text style={{ color: colors.primary }}>Terms</Text>{' '}
+              and <Text style={{ color: colors.primary }}>Privacy Policy</Text>
             </Text>
           </Pressable>
         </Animated.View>

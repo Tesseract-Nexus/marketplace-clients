@@ -70,7 +70,12 @@ export const useAuthStore = create<AuthState>()(
         try {
           console.log('[Auth] Starting login...');
           const response = await authApi.login(data);
-          console.log('[Auth] Login response received, user:', response.user?.email, 'tenant_id:', response.user?.tenant_id);
+          console.log(
+            '[Auth] Login response received, user:',
+            response.user?.email,
+            'tenant_id:',
+            response.user?.tenant_id
+          );
 
           // Build tokens object from flat response
           const tokens: AuthTokens = {
@@ -105,12 +110,17 @@ export const useAuthStore = create<AuthState>()(
 
           // If no tenants from API but user has tenant_id, create a minimal tenant object
           if (tenants.length === 0 && response.user.tenant_id) {
-            console.log('[Auth] No tenants from API, creating from tenant_id:', response.user.tenant_id);
+            console.log(
+              '[Auth] No tenants from API, creating from tenant_id:',
+              response.user.tenant_id
+            );
 
             const tenantSlug = KNOWN_TENANT_SLUGS[response.user.tenant_id] || 'demo-store';
             const derivedTenant: Tenant = {
               id: response.user.tenant_id,
-              name: KNOWN_TENANT_NAMES[response.user.tenant_id] || `${response.user.first_name}'s Store`,
+              name:
+                KNOWN_TENANT_NAMES[response.user.tenant_id] ||
+                `${response.user.first_name}'s Store`,
               slug: tenantSlug,
               owner_id: response.user.id,
               status: 'active',
@@ -125,13 +135,27 @@ export const useAuthStore = create<AuthState>()(
               updated_at: new Date().toISOString(),
             };
             tenants = [derivedTenant];
-            console.log('[Auth] Created derived tenant:', derivedTenant.id, derivedTenant.slug, derivedTenant.name);
+            console.log(
+              '[Auth] Created derived tenant:',
+              derivedTenant.id,
+              derivedTenant.slug,
+              derivedTenant.name
+            );
           }
 
           // Find default tenant (prefer is_default flag, otherwise use first tenant)
-          const defaultTenant = tenants.find(t => (t as any).is_default) || tenants[0] || null;
-          console.log('[Auth] Default tenant:', defaultTenant?.id, defaultTenant?.slug, defaultTenant?.name);
-          console.log('[Auth] Total tenants:', tenants.length, tenants.map(t => t.name).join(', '));
+          const defaultTenant = tenants.find((t) => (t as any).is_default) || tenants[0] || null;
+          console.log(
+            '[Auth] Default tenant:',
+            defaultTenant?.id,
+            defaultTenant?.slug,
+            defaultTenant?.name
+          );
+          console.log(
+            '[Auth] Total tenants:',
+            tenants.length,
+            tenants.map((t) => t.name).join(', ')
+          );
 
           // Set state with all tenants
           set({
@@ -154,7 +178,10 @@ export const useAuthStore = create<AuthState>()(
                 owner_id: defaultTenant.owner_id,
                 status: defaultTenant.status,
               };
-              await secureStorage.setItem(STORAGE_KEYS.CURRENT_TENANT, JSON.stringify(minimalTenant));
+              await secureStorage.setItem(
+                STORAGE_KEYS.CURRENT_TENANT,
+                JSON.stringify(minimalTenant)
+              );
               console.log('[Auth] Current tenant saved to secure storage');
             } catch (storageError) {
               console.warn('[Auth] Failed to save tenant to secure storage:', storageError);
@@ -382,7 +409,7 @@ export const useAuthStore = create<AuthState>()(
           // Update current tenant if it's in the list
           const { currentTenant } = get();
           if (currentTenant) {
-            const updatedTenant = tenants.find(t => t.id === currentTenant.id);
+            const updatedTenant = tenants.find((t) => t.id === currentTenant.id);
             if (updatedTenant) {
               set({ currentTenant: updatedTenant });
             }
@@ -425,13 +452,20 @@ export const useAuthStore = create<AuthState>()(
 
         // Helper to fix/create tenant from stored data
         const resolveTenant = (storedData: any, user: User | null): Tenant | null => {
-          if (!storedData && !user?.tenant_id) return null;
+          if (!storedData && !user?.tenant_id) {
+            return null;
+          }
 
           const tenantId = storedData?.id || user?.tenant_id;
-          if (!tenantId) return null;
+          if (!tenantId) {
+            return null;
+          }
 
           const correctSlug = KNOWN_TENANT_SLUGS[tenantId] || storedData?.slug || 'demo-store';
-          const name = KNOWN_TENANT_NAMES[tenantId] || storedData?.name || `${user?.first_name || 'My'}'s Store`;
+          const name =
+            KNOWN_TENANT_NAMES[tenantId] ||
+            storedData?.name ||
+            `${user?.first_name || 'My'}'s Store`;
 
           return {
             id: tenantId,
@@ -484,7 +518,12 @@ export const useAuthStore = create<AuthState>()(
 
               // Resolve current tenant from stored data or user's tenant_id
               const currentTenant = resolveTenant(storedTenant || tenants[0], user);
-              console.log('[Auth Init] Resolved tenant:', currentTenant?.id, currentTenant?.slug, currentTenant?.name);
+              console.log(
+                '[Auth Init] Resolved tenant:',
+                currentTenant?.id,
+                currentTenant?.slug,
+                currentTenant?.name
+              );
 
               // If we have a resolved tenant but no tenants array, add it
               if (currentTenant && tenants.length === 0) {
@@ -572,27 +611,36 @@ export const useAuthStore = create<AuthState>()(
       // Only persist minimal data to avoid SecureStore size limits
       partialize: (state) => ({
         // Store only essential user fields
-        user: state.user ? {
-          id: state.user.id,
-          email: state.user.email,
-          first_name: state.user.first_name,
-          last_name: state.user.last_name,
-          role: state.user.role,
-          tenant_id: state.user.tenant_id,
-          email_verified: state.user.email_verified,
-        } : null,
+        user: state.user
+          ? {
+              id: state.user.id,
+              email: state.user.email,
+              first_name: state.user.first_name,
+              last_name: state.user.last_name,
+              role: state.user.role,
+              tenant_id: state.user.tenant_id,
+              email_verified: state.user.email_verified,
+            }
+          : null,
         // Store minimal tenant data
-        currentTenant: state.currentTenant ? {
-          id: state.currentTenant.id,
-          name: state.currentTenant.name,
-          slug: state.currentTenant.slug,
-          owner_id: state.currentTenant.owner_id,
-          status: state.currentTenant.status,
-        } : null,
+        currentTenant: state.currentTenant
+          ? {
+              id: state.currentTenant.id,
+              name: state.currentTenant.name,
+              slug: state.currentTenant.slug,
+              owner_id: state.currentTenant.owner_id,
+              status: state.currentTenant.status,
+            }
+          : null,
       }),
       // Merge persisted state on rehydration
       merge: (persistedState: any, currentState) => {
-        console.log('[Auth Persist] Merging state, persisted user:', persistedState?.user?.email, 'tenant:', persistedState?.currentTenant?.slug);
+        console.log(
+          '[Auth Persist] Merging state, persisted user:',
+          persistedState?.user?.email,
+          'tenant:',
+          persistedState?.currentTenant?.slug
+        );
 
         // Known tenant slugs for fixing
         const KNOWN_TENANT_SLUGS: Record<string, string> = {
@@ -609,7 +657,8 @@ export const useAuthStore = create<AuthState>()(
           currentTenant = {
             id: tenantId,
             name: KNOWN_TENANT_NAMES[tenantId] || persistedState?.currentTenant?.name || 'Store',
-            slug: KNOWN_TENANT_SLUGS[tenantId] || persistedState?.currentTenant?.slug || 'demo-store',
+            slug:
+              KNOWN_TENANT_SLUGS[tenantId] || persistedState?.currentTenant?.slug || 'demo-store',
             owner_id: persistedState?.currentTenant?.owner_id || persistedState?.user?.id || '',
             status: persistedState?.currentTenant?.status || 'active',
             subscription_plan: 'free',

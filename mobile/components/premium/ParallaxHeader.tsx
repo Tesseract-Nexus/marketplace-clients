@@ -1,12 +1,5 @@
 import React, { ReactNode } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  StatusBar,
-  Platform,
-} from 'react-native';
+import { View, Text, StyleSheet, Dimensions, StatusBar, Platform } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -69,12 +62,7 @@ export function ParallaxHeader({
   // Background scale for parallax effect
   const backgroundStyle = useAnimatedStyle(() => {
     'worklet';
-    const scale = interpolate(
-      scrollY.value,
-      [-100, 0],
-      [1.3, 1],
-      Extrapolation.CLAMP
-    );
+    const scale = interpolate(scrollY.value, [-100, 0], [1.3, 1], Extrapolation.CLAMP);
 
     const translateY = interpolate(
       scrollY.value,
@@ -91,26 +79,11 @@ export function ParallaxHeader({
   // Title animations
   const titleStyle = useAnimatedStyle(() => {
     'worklet';
-    const opacity = interpolate(
-      scrollY.value,
-      [0, 80, 120],
-      [1, 0.5, 0],
-      Extrapolation.CLAMP
-    );
+    const opacity = interpolate(scrollY.value, [0, 80, 120], [1, 0.5, 0], Extrapolation.CLAMP);
 
-    const translateY = interpolate(
-      scrollY.value,
-      [0, 100],
-      [0, -20],
-      Extrapolation.CLAMP
-    );
+    const translateY = interpolate(scrollY.value, [0, 100], [0, -20], Extrapolation.CLAMP);
 
-    const scale = interpolate(
-      scrollY.value,
-      [0, 100],
-      [1, 0.9],
-      Extrapolation.CLAMP
-    );
+    const scale = interpolate(scrollY.value, [0, 100], [1, 0.9], Extrapolation.CLAMP);
 
     return {
       opacity,
@@ -120,12 +93,7 @@ export function ParallaxHeader({
 
   // Mini title (shows when scrolled)
   const miniTitleStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [80, 120],
-      [0, 1],
-      Extrapolation.CLAMP
-    );
+    const opacity = interpolate(scrollY.value, [80, 120], [0, 1], Extrapolation.CLAMP);
 
     return {
       opacity,
@@ -134,12 +102,7 @@ export function ParallaxHeader({
 
   // Content opacity (fades out when scrolling)
   const contentStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      scrollY.value,
-      [0, 60],
-      [1, 0],
-      Extrapolation.CLAMP
-    );
+    const opacity = interpolate(scrollY.value, [0, 60], [1, 0], Extrapolation.CLAMP);
 
     return {
       opacity,
@@ -152,8 +115,8 @@ export function ParallaxHeader({
       <Animated.View style={[styles.backgroundContainer, backgroundStyle]}>
         <LinearGradient
           colors={[...gradient]}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={StyleSheet.absoluteFill}
         />
         {/* Decorative elements */}
@@ -168,9 +131,7 @@ export function ParallaxHeader({
       <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
         <View style={styles.topBarAction}>{leftAction}</View>
 
-        <Animated.Text style={[styles.miniTitle, miniTitleStyle]}>
-          {title}
-        </Animated.Text>
+        <Animated.Text style={[styles.miniTitle, miniTitleStyle]}>{title}</Animated.Text>
 
         <View style={styles.topBarAction}>{rightAction}</View>
       </View>
@@ -178,15 +139,13 @@ export function ParallaxHeader({
       {/* Main title */}
       <Animated.View style={[styles.titleContainer, titleStyle]}>
         <Text style={styles.title}>{title}</Text>
-        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+        {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
       </Animated.View>
 
       {/* Additional content */}
-      {children && (
-        <Animated.View style={[styles.content, contentStyle]}>
-          {children}
-        </Animated.View>
-      )}
+      {children ? (
+        <Animated.View style={[styles.content, contentStyle]}>{children}</Animated.View>
+      ) : null}
     </Animated.View>
   );
 }
@@ -255,18 +214,10 @@ export function StickyHeader({
   });
 
   return (
-    <Animated.View
-      style={[
-        styles.stickyHeader,
-        { paddingTop: insets.top },
-        headerStyle,
-      ]}
-    >
+    <Animated.View style={[styles.stickyHeader, { paddingTop: insets.top }, headerStyle]}>
       <View style={styles.stickyHeaderContent}>
         <View style={styles.topBarAction}>{leftAction}</View>
-        <Animated.Text
-          style={[styles.stickyTitle, { color: colors.text }, titleStyle]}
-        >
+        <Animated.Text style={[styles.stickyTitle, { color: colors.text }, titleStyle]}>
           {title}
         </Animated.Text>
         <View style={styles.topBarAction}>{rightAction}</View>

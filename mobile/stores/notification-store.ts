@@ -60,9 +60,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
       const { notifications: newNotifications, unread_count, has_more } = response.data;
 
       set((state) => ({
-        notifications: refresh
-          ? newNotifications
-          : [...state.notifications, ...newNotifications],
+        notifications: refresh ? newNotifications : [...state.notifications, ...newNotifications],
         unreadCount: unread_count,
         hasMore: has_more,
         page: currentPage,
@@ -160,9 +158,7 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 
         return {
           notifications: state.notifications.filter((n) => n.id !== id),
-          unreadCount: wasUnread
-            ? Math.max(0, state.unreadCount - 1)
-            : state.unreadCount,
+          unreadCount: wasUnread ? Math.max(0, state.unreadCount - 1) : state.unreadCount,
         };
       });
     } catch (error) {
@@ -216,13 +212,8 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
 }));
 
 // Selector hooks
-export const useNotifications = () =>
-  useNotificationStore((state) => state.notifications);
-export const useUnreadCount = () =>
-  useNotificationStore((state) => state.unreadCount);
+export const useNotifications = () => useNotificationStore((state) => state.notifications);
+export const useUnreadCount = () => useNotificationStore((state) => state.unreadCount);
 export const useUnreadNotifications = () =>
-  useNotificationStore((state) =>
-    state.notifications.filter((n) => !n.read_at)
-  );
-export const useNotificationLoading = () =>
-  useNotificationStore((state) => state.isLoading);
+  useNotificationStore((state) => state.notifications.filter((n) => !n.read_at));
+export const useNotificationLoading = () => useNotificationStore((state) => state.isLoading);

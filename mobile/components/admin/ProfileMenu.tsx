@@ -1,20 +1,8 @@
 import { useState, useCallback } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  StyleSheet,
-  Modal,
-  Dimensions,
-} from 'react-native';
+import { View, Text, Pressable, StyleSheet, Modal, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, {
-  FadeIn,
-  FadeOut,
-  SlideInUp,
-  SlideOutUp,
-} from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, SlideInUp, SlideOutUp } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 
@@ -106,23 +94,16 @@ export function ProfileMenu({ onOpenDrawer }: ProfileMenuProps) {
   return (
     <>
       <Pressable
+        style={({ pressed }) => [styles.avatarButton, { opacity: pressed ? 0.7 : 1 }]}
         onPress={handleAvatarPress}
-        style={({ pressed }) => [
-          styles.avatarButton,
-          { opacity: pressed ? 0.7 : 1 },
-        ]}
       >
-        <Avatar
-          source={user?.avatar || user?.avatar_url}
-          name={userName}
-          size="md"
-        />
+        <Avatar name={userName} size="md" source={user?.avatar || user?.avatar_url} />
       </Pressable>
 
       <Modal
-        visible={menuVisible}
         transparent
         animationType="none"
+        visible={menuVisible}
         onRequestClose={handleMenuClose}
       >
         <Pressable style={styles.overlay} onPress={handleMenuClose}>
@@ -133,8 +114,8 @@ export function ProfileMenu({ onOpenDrawer }: ProfileMenuProps) {
           >
             <BlurView
               intensity={20}
-              tint={isDark ? 'dark' : 'light'}
               style={StyleSheet.absoluteFill}
+              tint={isDark ? 'dark' : 'light'}
             />
           </Animated.View>
         </Pressable>
@@ -152,22 +133,12 @@ export function ProfileMenu({ onOpenDrawer }: ProfileMenuProps) {
         >
           {/* User Info Header */}
           <View style={styles.userInfo}>
-            <Avatar
-              source={user?.avatar || user?.avatar_url}
-              name={userName}
-              size="lg"
-            />
+            <Avatar name={userName} size="lg" source={user?.avatar || user?.avatar_url} />
             <View style={styles.userDetails}>
-              <Text
-                style={[styles.userName, { color: colors.text }]}
-                numberOfLines={1}
-              >
+              <Text numberOfLines={1} style={[styles.userName, { color: colors.text }]}>
                 {userName}
               </Text>
-              <Text
-                style={[styles.userEmail, { color: colors.textSecondary }]}
-                numberOfLines={1}
-              >
+              <Text numberOfLines={1} style={[styles.userEmail, { color: colors.textSecondary }]}>
                 {userEmail}
               </Text>
             </View>
@@ -180,10 +151,7 @@ export function ProfileMenu({ onOpenDrawer }: ProfileMenuProps) {
                 return (
                   <View
                     key={item.id}
-                    style={[
-                      styles.divider,
-                      { backgroundColor: colors.border },
-                    ]}
+                    style={[styles.divider, { backgroundColor: colors.border }]}
                   />
                 );
               }
@@ -191,6 +159,7 @@ export function ProfileMenu({ onOpenDrawer }: ProfileMenuProps) {
               return (
                 <Pressable
                   key={item.id}
+                  disabled={isLoading ? item.action === 'logout' : null}
                   style={({ pressed }) => [
                     styles.menuItem,
                     {
@@ -202,7 +171,6 @@ export function ProfileMenu({ onOpenDrawer }: ProfileMenuProps) {
                     },
                   ]}
                   onPress={() => handleMenuItemPress(item)}
-                  disabled={isLoading && item.action === 'logout'}
                 >
                   <View
                     style={[
@@ -211,15 +179,15 @@ export function ProfileMenu({ onOpenDrawer }: ProfileMenuProps) {
                         backgroundColor: item.destructive
                           ? `${colors.error}15`
                           : isDark
-                          ? 'rgba(255,255,255,0.08)'
-                          : 'rgba(0,0,0,0.04)',
+                            ? 'rgba(255,255,255,0.08)'
+                            : 'rgba(0,0,0,0.04)',
                       },
                     ]}
                   >
                     <Ionicons
+                      color={item.destructive ? colors.error : colors.text}
                       name={item.icon}
                       size={18}
-                      color={item.destructive ? colors.error : colors.text}
                     />
                   </View>
                   <Text
@@ -232,13 +200,9 @@ export function ProfileMenu({ onOpenDrawer }: ProfileMenuProps) {
                   >
                     {item.label}
                   </Text>
-                  {!item.destructive && (
-                    <Ionicons
-                      name="chevron-forward"
-                      size={16}
-                      color={colors.textTertiary}
-                    />
-                  )}
+                  {!item.destructive ? (
+                    <Ionicons color={colors.textTertiary} name="chevron-forward" size={16} />
+                  ) : null}
                 </Pressable>
               );
             })}

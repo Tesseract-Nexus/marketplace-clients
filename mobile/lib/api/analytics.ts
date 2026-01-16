@@ -38,7 +38,10 @@ export const analyticsApi = {
     return response.data;
   },
 
-  getSales: async (tenantId: string, period: 'daily' | 'weekly' | 'monthly' = 'daily'): Promise<SalesAnalytics> => {
+  getSales: async (
+    tenantId: string,
+    period: 'daily' | 'weekly' | 'monthly' = 'daily'
+  ): Promise<SalesAnalytics> => {
     const response = await apiClient.get(`/analytics/sales`, {
       params: { period },
       headers: { 'X-Tenant-ID': tenantId },

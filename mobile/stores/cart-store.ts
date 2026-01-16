@@ -6,7 +6,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { cartApi } from '@/lib/api/cart';
 
 import type { AddToCartRequest, CheckoutRequest } from '@/types/api';
-import type { Address, Cart, CartItem, CartValidationResult, Order, Product, ProductVariant } from '@/types/entities';
+import type {
+  Address,
+  Cart,
+  CartItem,
+  CartValidationResult,
+  Order,
+  Product,
+  ProductVariant,
+} from '@/types/entities';
 
 interface CartState {
   // State
@@ -312,13 +320,15 @@ export const useCartStore = create<CartState>()(
       // Validate cart
       validateCart: async () => {
         const { isValidating } = get();
-        if (isValidating) return null;
+        if (isValidating) {
+          return null;
+        }
 
         set({ isValidating: true, error: null });
         try {
           const result = await cartApi.validateItems();
           set({
-            cart: { ...get().cart!, items: result.items },
+            cart: { ...get().cart, items: result.items },
             isValidating: false,
             lastValidatedAt: result.validated_at,
           });
@@ -389,9 +399,11 @@ export const useCartStore = create<CartState>()(
       // Get available items
       getAvailableItems: () => {
         const { cart } = get();
-        return cart?.items.filter((item) =>
-          !item.status || item.status === 'AVAILABLE' || item.status === 'LOW_STOCK'
-        ) || [];
+        return (
+          cart?.items.filter(
+            (item) => !item.status || item.status === 'AVAILABLE' || item.status === 'LOW_STOCK'
+          ) || []
+        );
       },
 
       // Check if cart has issues

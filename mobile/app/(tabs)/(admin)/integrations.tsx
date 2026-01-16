@@ -198,14 +198,18 @@ export default function IntegrationsScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const { data: integrations = mockIntegrations, isLoading, refetch } = useQuery({
+  const {
+    data: integrations = mockIntegrations,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ['integrations'],
     queryFn: async () => mockIntegrations,
   });
 
-  const connectedCount = integrations.filter(i => i.status === 'connected').length;
+  const connectedCount = integrations.filter((i) => i.status === 'connected').length;
 
-  const filteredIntegrations = integrations.filter(i => {
+  const filteredIntegrations = integrations.filter((i) => {
     const matchesSearch =
       i.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       i.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -213,13 +217,16 @@ export default function IntegrationsScreen() {
     return matchesSearch && matchesCategory;
   });
 
-  const groupedIntegrations = categories.reduce((acc, cat) => {
-    const items = filteredIntegrations.filter(i => i.category === cat.id);
-    if (items.length > 0) {
-      acc[cat.id] = items;
-    }
-    return acc;
-  }, {} as Record<string, Integration[]>);
+  const groupedIntegrations = categories.reduce(
+    (acc, cat) => {
+      const items = filteredIntegrations.filter((i) => i.category === cat.id);
+      if (items.length > 0) {
+        acc[cat.id] = items;
+      }
+      return acc;
+    },
+    {} as Record<string, Integration[]>
+  );
 
   const getStatusConfig = (status: Integration['status']) => {
     switch (status) {
@@ -237,32 +244,30 @@ export default function IntegrationsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <ScreenHeader
-        title="Integrations"
-        subtitle={`${connectedCount} connected`}
         rightAction={{
           icon: 'settings-outline',
           onPress: () => {},
         }}
+        subtitle={`${connectedCount} connected`}
+        title="Integrations"
       />
 
       <ScrollView
+        refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} />}
         showsVerticalScrollIndicator={false}
-        refreshControl={
-          <RefreshControl refreshing={isLoading} onRefresh={refetch} />
-        }
       >
         {/* Search */}
         <SearchHeader
+          placeholder="Search integrations..."
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="Search integrations..."
         />
 
         {/* Category Filter */}
         <ScrollView
           horizontal
-          showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoryScroll}
+          showsHorizontalScrollIndicator={false}
         >
           <Pressable
             style={[
@@ -276,9 +281,9 @@ export default function IntegrationsScreen() {
             }}
           >
             <Ionicons
+              color={!selectedCategory ? colors.textOnPrimary : colors.textSecondary}
               name="apps"
               size={18}
-              color={!selectedCategory ? colors.textOnPrimary : colors.textSecondary}
             />
             <Text
               style={[
@@ -303,9 +308,9 @@ export default function IntegrationsScreen() {
               }}
             >
               <Ionicons
+                color={selectedCategory === cat.id ? colors.textOnPrimary : colors.textSecondary}
                 name={cat.icon as any}
                 size={18}
-                color={selectedCategory === cat.id ? colors.textOnPrimary : colors.textSecondary}
               />
               <Text
                 style={[
@@ -321,14 +326,14 @@ export default function IntegrationsScreen() {
 
         {/* Integrations by Category */}
         {Object.entries(groupedIntegrations).map(([categoryId, items], catIndex) => {
-          const category = categories.find(c => c.id === categoryId);
+          const category = categories.find((c) => c.id === categoryId);
           return (
             <View key={categoryId}>
               <SectionHeader
-                title={category?.label || categoryId}
                 count={items.length}
-                icon={category?.icon as any}
                 delay={catIndex * 50}
+                icon={category?.icon as any}
+                title={category?.label || categoryId}
               />
 
               {items.map((integration, index) => {
@@ -339,11 +344,11 @@ export default function IntegrationsScreen() {
                     entering={FadeInRight.delay(100 + catIndex * 50 + index * 30).springify()}
                   >
                     <Pressable
+                      disabled={integration.status === 'coming_soon'}
                       style={[styles.integrationCard, { backgroundColor: colors.surface }]}
                       onPress={() => {
                         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                       }}
-                      disabled={integration.status === 'coming_soon'}
                     >
                       <View style={styles.integrationContent}>
                         <View
@@ -353,9 +358,9 @@ export default function IntegrationsScreen() {
                           ]}
                         >
                           <Ionicons
+                            color={integration.iconColor}
                             name={integration.icon as any}
                             size={24}
-                            color={integration.iconColor}
                           />
                         </View>
                         <View style={styles.integrationDetails}>
@@ -370,9 +375,9 @@ export default function IntegrationsScreen() {
                               ]}
                             >
                               <Ionicons
+                                color={statusConfig.color}
                                 name={statusConfig.icon as any}
                                 size={12}
-                                color={statusConfig.color}
                               />
                               <Text style={[styles.statusText, { color: statusConfig.color }]}>
                                 {statusConfig.label}
@@ -380,31 +385,33 @@ export default function IntegrationsScreen() {
                             </View>
                           </View>
                           <Text
-                            style={[styles.integrationDesc, { color: colors.textSecondary }]}
                             numberOfLines={1}
+                            style={[styles.integrationDesc, { color: colors.textSecondary }]}
                           >
                             {integration.description}
                           </Text>
-                          {integration.lastSync && (
+                          {integration.lastSync ? (
                             <Text style={[styles.syncTime, { color: colors.textTertiary }]}>
                               Last sync: {integration.lastSync}
                             </Text>
-                          )}
+                          ) : null}
                         </View>
                       </View>
 
-                      {integration.status === 'connected' && (
+                      {integration.status === 'connected' ? (
                         <View style={styles.integrationActions}>
                           <Switch
+                            thumbColor={
+                              integration.isEnabled ? colors.success : colors.textSecondary
+                            }
+                            trackColor={{ false: colors.border, true: `${colors.success}50` }}
                             value={integration.isEnabled}
                             onValueChange={() => {}}
-                            trackColor={{ false: colors.border, true: `${colors.success}50` }}
-                            thumbColor={integration.isEnabled ? colors.success : colors.textSecondary}
                           />
                         </View>
-                      )}
+                      ) : null}
 
-                      {integration.status === 'available' && (
+                      {integration.status === 'available' ? (
                         <Pressable
                           style={[styles.connectBtn, { backgroundColor: `${colors.primary}10` }]}
                           onPress={() => {
@@ -415,7 +422,7 @@ export default function IntegrationsScreen() {
                             Connect
                           </Text>
                         </Pressable>
-                      )}
+                      ) : null}
                     </Pressable>
                   </Animated.View>
                 );

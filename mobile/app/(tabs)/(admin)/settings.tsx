@@ -37,35 +37,29 @@ function SettingItem({
 
   return (
     <Pressable
+      disabled={!onPress}
       style={[styles.settingItem, { borderBottomColor: colors.border }]}
       onPress={onPress}
-      disabled={!onPress}
     >
       <View style={[styles.settingIcon, { backgroundColor: `${iconColor || colors.primary}20` }]}>
         <Ionicons
+          color={destructive ? colors.error : iconColor || colors.primary}
           name={icon as any}
           size={20}
-          color={destructive ? colors.error : iconColor || colors.primary}
         />
       </View>
       <View style={styles.settingContent}>
-        <Text
-          style={[
-            styles.settingTitle,
-            { color: destructive ? colors.error : colors.text },
-          ]}
-        >
+        <Text style={[styles.settingTitle, { color: destructive ? colors.error : colors.text }]}>
           {title}
         </Text>
-        {subtitle && (
-          <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>
-            {subtitle}
-          </Text>
-        )}
+        {subtitle ? (
+          <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
+        ) : null}
       </View>
-      {rightElement || (showChevron && onPress && (
-        <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
-      ))}
+      {rightElement ||
+        (showChevron && onPress && (
+          <Ionicons color={colors.textTertiary} name="chevron-forward" size={20} />
+        ))}
     </Pressable>
   );
 }
@@ -100,21 +94,17 @@ export default function SettingsScreen() {
   const [biometricEnabled, setBiometricEnabled] = useState(false);
 
   const handleLogout = () => {
-    Alert.alert(
-      'Sign Out',
-      'Are you sure you want to sign out?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Sign Out',
-          style: 'destructive',
-          onPress: () => {
-            logout();
-            router.replace('/');
-          },
+    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Sign Out',
+        style: 'destructive',
+        onPress: () => {
+          logout();
+          router.replace('/');
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleDeleteAccount = () => {
@@ -156,8 +146,8 @@ export default function SettingsScreen() {
           >
             <Avatar
               name={`${user?.first_name || ''} ${user?.last_name || ''}`}
-              source={user?.avatar || user?.avatar_url}
               size="lg"
+              source={user?.avatar || user?.avatar_url}
             />
             <View style={styles.profileInfo}>
               <Text style={[styles.profileName, { color: colors.text }]}>
@@ -168,27 +158,27 @@ export default function SettingsScreen() {
               </Text>
               <Badge
                 label={user?.role === 'admin' ? 'Admin' : 'Merchant'}
-                variant="primary"
                 size="sm"
                 style={{ marginTop: 8 }}
+                variant="primary"
               />
             </View>
-            <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
+            <Ionicons color={colors.textTertiary} name="chevron-forward" size={20} />
           </Pressable>
         </Animated.View>
 
         {/* Store Settings */}
-        <SettingSection title="STORE" delay={200}>
+        <SettingSection delay={200} title="STORE">
           <SettingItem
             icon="storefront"
-            title="Store Information"
             subtitle={currentTenant?.name}
+            title="Store Information"
             onPress={() => router.push('/(tabs)/(admin)/store-settings' as any)}
           />
           <SettingItem
             icon="globe"
-            title="Domain & URL"
             subtitle={`${currentTenant?.slug}.tesserix.app`}
+            title="Domain & URL"
             onPress={() => router.push('/(tabs)/(admin)/domain-settings' as any)}
           />
           <SettingItem
@@ -209,21 +199,21 @@ export default function SettingsScreen() {
         </SettingSection>
 
         {/* Appearance */}
-        <SettingSection title="APPEARANCE" delay={300}>
+        <SettingSection delay={300} title="APPEARANCE">
           <SettingItem
             icon="moon"
             iconColor={colors.info}
-            title="Dark Mode"
-            subtitle={isDark ? 'On' : 'Off'}
-            showChevron={false}
             rightElement={
               <Switch
+                thumbColor="#FFFFFF"
+                trackColor={{ false: colors.border, true: colors.primary }}
                 value={isDark}
                 onValueChange={toggleMode}
-                trackColor={{ false: colors.border, true: colors.primary }}
-                thumbColor="#FFFFFF"
               />
             }
+            showChevron={false}
+            subtitle={isDark ? 'On' : 'Off'}
+            title="Dark Mode"
           />
           <SettingItem
             icon="color-palette"
@@ -234,21 +224,21 @@ export default function SettingsScreen() {
         </SettingSection>
 
         {/* Notifications */}
-        <SettingSection title="NOTIFICATIONS" delay={400}>
+        <SettingSection delay={400} title="NOTIFICATIONS">
           <SettingItem
             icon="notifications"
             iconColor={colors.error}
-            title="Push Notifications"
-            subtitle={pushEnabled ? 'Enabled' : 'Disabled'}
-            showChevron={false}
             rightElement={
               <Switch
+                thumbColor="#FFFFFF"
+                trackColor={{ false: colors.border, true: colors.primary }}
                 value={pushEnabled}
                 onValueChange={setPushEnabled}
-                trackColor={{ false: colors.border, true: colors.primary }}
-                thumbColor="#FFFFFF"
               />
             }
+            showChevron={false}
+            subtitle={pushEnabled ? 'Enabled' : 'Disabled'}
+            title="Push Notifications"
           />
           <SettingItem
             icon="mail"
@@ -259,7 +249,7 @@ export default function SettingsScreen() {
         </SettingSection>
 
         {/* Security */}
-        <SettingSection title="SECURITY" delay={500}>
+        <SettingSection delay={500} title="SECURITY">
           <SettingItem
             icon="lock-closed"
             iconColor={colors.success}
@@ -269,17 +259,17 @@ export default function SettingsScreen() {
           <SettingItem
             icon="finger-print"
             iconColor={colors.primary}
-            title="Biometric Login"
-            subtitle={biometricEnabled ? 'Enabled' : 'Disabled'}
-            showChevron={false}
             rightElement={
               <Switch
+                thumbColor="#FFFFFF"
+                trackColor={{ false: colors.border, true: colors.primary }}
                 value={biometricEnabled}
                 onValueChange={setBiometricEnabled}
-                trackColor={{ false: colors.border, true: colors.primary }}
-                thumbColor="#FFFFFF"
               />
             }
+            showChevron={false}
+            subtitle={biometricEnabled ? 'Enabled' : 'Disabled'}
+            title="Biometric Login"
           />
           <SettingItem
             icon="shield-checkmark"
@@ -290,12 +280,12 @@ export default function SettingsScreen() {
         </SettingSection>
 
         {/* Billing */}
-        <SettingSection title="BILLING" delay={600}>
+        <SettingSection delay={600} title="BILLING">
           <SettingItem
             icon="ribbon"
             iconColor={colors.warning}
-            title="Current Plan"
             subtitle="Growth - $29/month"
+            title="Current Plan"
             onPress={() => router.push('/(tabs)/(admin)/subscription' as any)}
           />
           <SettingItem
@@ -307,7 +297,7 @@ export default function SettingsScreen() {
         </SettingSection>
 
         {/* Support */}
-        <SettingSection title="SUPPORT" delay={700}>
+        <SettingSection delay={700} title="SUPPORT">
           <SettingItem
             icon="help-circle"
             iconColor={colors.info}
@@ -323,25 +313,20 @@ export default function SettingsScreen() {
           <SettingItem
             icon="information-circle"
             iconColor={colors.textSecondary}
-            title="About"
             subtitle="Version 1.0.0"
+            title="About"
             onPress={() => router.push('/(tabs)/(admin)/about' as any)}
           />
         </SettingSection>
 
         {/* Account Actions */}
-        <SettingSection title="ACCOUNT" delay={800}>
+        <SettingSection delay={800} title="ACCOUNT">
+          <SettingItem destructive icon="log-out" title="Sign Out" onPress={handleLogout} />
           <SettingItem
-            icon="log-out"
-            title="Sign Out"
-            onPress={handleLogout}
             destructive
-          />
-          <SettingItem
             icon="trash"
             title="Delete Account"
             onPress={handleDeleteAccount}
-            destructive
           />
         </SettingSection>
       </ScrollView>

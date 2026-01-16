@@ -32,16 +32,16 @@ export function ToastProvider({ children }: ToastProviderProps) {
   return (
     <View style={styles.container}>
       {children}
-      {toastState.visible && (
-        <View style={styles.toastContainer} pointerEvents="box-none">
+      {toastState.visible ? (
+        <View pointerEvents="box-none" style={styles.toastContainer}>
           <Toast
-            type={toastState.type}
-            title={toastState.title}
             message={toastState.message}
+            title={toastState.title}
+            type={toastState.type}
             onDismiss={() => setToastState({ ...toastState, visible: false })}
           />
         </View>
-      )}
+      ) : null}
     </View>
   );
 }

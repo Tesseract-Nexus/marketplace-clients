@@ -84,7 +84,9 @@ function CategoryCard({
   return (
     <>
       <Animated.View
-        entering={FadeInRight.delay(index * 30).springify().damping(15)}
+        entering={FadeInRight.delay(index * 30)
+          .springify()
+          .damping(15)}
         style={[animatedStyle, { marginLeft: level * 16 }]}
       >
         <Pressable
@@ -102,73 +104,77 @@ function CategoryCard({
           {/* Header */}
           <View style={styles.categoryHeader}>
             <View style={styles.categoryHeaderLeft}>
-              {hasChildren && (
+              {hasChildren ? (
                 <Pressable
+                  hitSlop={8}
                   style={styles.expandButton}
                   onPress={() => setExpanded(!expanded)}
-                  hitSlop={8}
                 >
                   <Ionicons
+                    color={colors.textSecondary}
                     name={expanded ? 'chevron-down' : 'chevron-forward'}
                     size={18}
-                    color={colors.textSecondary}
                   />
                 </Pressable>
-              )}
+              ) : null}
               {category.image ? (
                 <Image source={{ uri: category.image }} style={styles.categoryImage} />
               ) : (
-                <View style={[styles.categoryImagePlaceholder, { backgroundColor: `${colors.primary}15` }]}>
-                  <Ionicons name="folder" size={20} color={colors.primary} />
+                <View
+                  style={[
+                    styles.categoryImagePlaceholder,
+                    { backgroundColor: `${colors.primary}15` },
+                  ]}
+                >
+                  <Ionicons color={colors.primary} name="folder" size={20} />
                 </View>
               )}
               <View style={styles.categoryInfo}>
-                <Text style={[styles.categoryName, { color: colors.text }]}>
-                  {category.name}
-                </Text>
-                {category.parentName && (
+                <Text style={[styles.categoryName, { color: colors.text }]}>{category.name}</Text>
+                {category.parentName ? (
                   <Text style={[styles.parentName, { color: colors.textTertiary }]}>
                     in {category.parentName}
                   </Text>
-                )}
+                ) : null}
               </View>
             </View>
             <Badge
               label={category.isActive ? 'Active' : 'Inactive'}
-              variant={category.isActive ? 'success' : 'secondary'}
               size="sm"
+              variant={category.isActive ? 'success' : 'secondary'}
             />
           </View>
 
           {/* Stats Row */}
           <View style={styles.statsRow}>
             <View style={styles.statItem}>
-              <Ionicons name="cube-outline" size={14} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="cube-outline" size={14} />
               <Text style={[styles.statText, { color: colors.textSecondary }]}>
                 {category.productCount} products
               </Text>
             </View>
-            {hasChildren && (
+            {hasChildren ? (
               <View style={styles.statItem}>
-                <Ionicons name="folder-outline" size={14} color={colors.textSecondary} />
+                <Ionicons color={colors.textSecondary} name="folder-outline" size={14} />
                 <Text style={[styles.statText, { color: colors.textSecondary }]}>
                   {category.children?.length} subcategories
                 </Text>
               </View>
-            )}
+            ) : null}
           </View>
 
           {/* Footer */}
           <View style={[styles.categoryFooter, { borderTopColor: colors.border }]}>
             <View style={styles.actionButtons}>
               <Pressable
+                hitSlop={8}
                 style={[styles.iconButton, { backgroundColor: `${colors.primary}10` }]}
                 onPress={() => onEdit(category)}
-                hitSlop={8}
               >
-                <Ionicons name="create-outline" size={18} color={colors.primary} />
+                <Ionicons color={colors.primary} name="create-outline" size={18} />
               </Pressable>
               <Pressable
+                hitSlop={8}
                 style={[
                   styles.iconButton,
                   {
@@ -178,23 +184,20 @@ function CategoryCard({
                   },
                 ]}
                 onPress={() => onToggleActive(category)}
-                hitSlop={8}
               >
                 <Ionicons
+                  color={category.isActive ? colors.warning : colors.success}
                   name={category.isActive ? 'eye-off-outline' : 'eye-outline'}
                   size={18}
-                  color={category.isActive ? colors.warning : colors.success}
                 />
               </Pressable>
               <Pressable
+                hitSlop={8}
                 style={[styles.actionButton, { backgroundColor: `${colors.info}10` }]}
                 onPress={() => onViewProducts(category)}
-                hitSlop={8}
               >
-                <Text style={[styles.actionButtonText, { color: colors.info }]}>
-                  Products
-                </Text>
-                <Ionicons name="chevron-forward" size={14} color={colors.info} />
+                <Text style={[styles.actionButtonText, { color: colors.info }]}>Products</Text>
+                <Ionicons color={colors.info} name="chevron-forward" size={14} />
               </Pressable>
             </View>
           </View>
@@ -202,19 +205,19 @@ function CategoryCard({
       </Animated.View>
 
       {/* Render children if expanded */}
-      {expanded &&
-        hasChildren &&
-        category.children?.map((child, idx) => (
-          <CategoryCard
-            key={child.id}
-            category={child}
-            index={idx}
-            onEdit={onEdit}
-            onToggleActive={onToggleActive}
-            onViewProducts={onViewProducts}
-            level={level + 1}
-          />
-        ))}
+      {expanded && hasChildren
+        ? category.children?.map((child, idx) => (
+            <CategoryCard
+              key={child.id}
+              category={child}
+              index={idx}
+              level={level + 1}
+              onEdit={onEdit}
+              onToggleActive={onToggleActive}
+              onViewProducts={onViewProducts}
+            />
+          ))
+        : null}
     </>
   );
 }
@@ -230,7 +233,11 @@ export default function CategoriesScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch categories
-  const { data: categories = [], isLoading, refetch } = useQuery({
+  const {
+    data: categories = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: currentTenant ? ['categories', currentTenant.id] : ['categories'],
     queryFn: async (): Promise<Category[]> => {
       // TODO: Replace with actual API call
@@ -338,11 +345,13 @@ export default function CategoriesScreen() {
   });
 
   const filteredCategories = useMemo(() => {
-    if (!searchQuery) return categories;
+    if (!searchQuery) {
+      return categories;
+    }
 
     const query = searchQuery.toLowerCase();
     return categories.filter(
-      c =>
+      (c) =>
         c.name.toLowerCase().includes(query) ||
         c.slug.toLowerCase().includes(query) ||
         c.description?.toLowerCase().includes(query)
@@ -352,9 +361,9 @@ export default function CategoriesScreen() {
   // Calculate stats
   const stats = useMemo(() => {
     const total = categories.length;
-    const active = categories.filter(c => c.isActive).length;
+    const active = categories.filter((c) => c.isActive).length;
     const totalProducts = categories.reduce((sum, c) => sum + c.productCount, 0);
-    const withChildren = categories.filter(c => c.children && c.children.length > 0).length;
+    const withChildren = categories.filter((c) => c.children && c.children.length > 0).length;
     return { total, active, totalProducts, withChildren };
   }, [categories]);
 
@@ -365,17 +374,13 @@ export default function CategoriesScreen() {
   }, [refetch]);
 
   const handleEdit = useCallback((category: Category) => {
-    Alert.alert(
-      'Edit Category',
-      `Edit "${category.name}"?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Edit',
-          onPress: () => Alert.alert('Coming Soon', 'Category editing coming soon!'),
-        },
-      ]
-    );
+    Alert.alert('Edit Category', `Edit "${category.name}"?`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Edit',
+        onPress: () => Alert.alert('Coming Soon', 'Category editing coming soon!'),
+      },
+    ]);
   }, []);
 
   const handleToggleActive = useCallback((category: Category) => {
@@ -397,9 +402,12 @@ export default function CategoriesScreen() {
     );
   }, []);
 
-  const handleViewProducts = useCallback((category: Category) => {
-    router.push(`/(tabs)/(admin)/products?category=${category.id}`);
-  }, [router]);
+  const handleViewProducts = useCallback(
+    (category: Category) => {
+      router.push(`/(tabs)/(admin)/products?category=${category.id}`);
+    },
+    [router]
+  );
 
   const handleAddCategory = useCallback(() => {
     Alert.alert('Coming Soon', 'Category creation will be available soon!');
@@ -411,11 +419,11 @@ export default function CategoriesScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerTop}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
+            <Ionicons color={colors.text} name="arrow-back" size={24} />
           </Pressable>
           <Text style={[styles.title, { color: colors.text }]}>Categories</Text>
           <Pressable style={styles.addButton} onPress={handleAddCategory}>
-            <Ionicons name="add" size={24} color={colors.primary} />
+            <Ionicons color={colors.primary} name="add" size={24} />
           </Pressable>
         </View>
 
@@ -428,7 +436,7 @@ export default function CategoriesScreen() {
                 { backgroundColor: isDark ? colors.surface : colors.primaryLight },
               ]}
             >
-              <Ionicons name="folder" size={18} color={colors.primary} />
+              <Ionicons color={colors.primary} name="folder" size={18} />
               <Text style={[styles.statValue, { color: colors.text }]}>{stats.total}</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Total</Text>
             </View>
@@ -438,7 +446,7 @@ export default function CategoriesScreen() {
                 { backgroundColor: isDark ? colors.surface : colors.successLight },
               ]}
             >
-              <Ionicons name="checkmark-circle" size={18} color={colors.success} />
+              <Ionicons color={colors.success} name="checkmark-circle" size={18} />
               <Text style={[styles.statValue, { color: colors.text }]}>{stats.active}</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Active</Text>
             </View>
@@ -448,7 +456,7 @@ export default function CategoriesScreen() {
                 { backgroundColor: isDark ? colors.surface : colors.infoLight },
               ]}
             >
-              <Ionicons name="cube" size={18} color={colors.info} />
+              <Ionicons color={colors.info} name="cube" size={18} />
               <Text style={[styles.statValue, { color: colors.text }]}>{stats.totalProducts}</Text>
               <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Products</Text>
             </View>
@@ -466,64 +474,58 @@ export default function CategoriesScreen() {
             },
           ]}
         >
-          <Ionicons name="search" size={18} color={colors.textSecondary} />
+          <Ionicons color={colors.textSecondary} name="search" size={18} />
           <TextInput
-            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search categories..."
             placeholderTextColor={colors.textTertiary}
+            style={[styles.searchInput, { color: colors.text }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          {searchQuery.length > 0 && (
+          {searchQuery.length > 0 ? (
             <Pressable onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="close-circle" size={18} />
             </Pressable>
-          )}
+          ) : null}
         </Animated.View>
       </View>
 
       {/* Categories List */}
       {isLoading ? (
-        <ScrollView
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {[1, 2, 3, 4].map(i => (
+        <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
+          {[1, 2, 3, 4].map((i) => (
             <Skeleton
               key={i}
-              width="100%"
-              height={120}
               borderRadius={16}
+              height={120}
               style={{ marginBottom: 12 }}
+              width="100%"
             />
           ))}
         </ScrollView>
       ) : filteredCategories.length === 0 ? (
         <EmptyState
-          icon="folder-outline"
-          title={searchQuery ? 'No categories found' : 'No categories yet'}
+          actionLabel={searchQuery ? 'Clear Search' : 'Add Category'}
           description={
             searchQuery
               ? 'Try adjusting your search'
               : 'Create categories to organize your products'
           }
-          actionLabel={searchQuery ? 'Clear Search' : 'Add Category'}
+          icon="folder-outline"
+          title={searchQuery ? 'No categories found' : 'No categories yet'}
           onAction={searchQuery ? () => setSearchQuery('') : handleAddCategory}
         />
       ) : (
         <ScrollView
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
-          showsVerticalScrollIndicator={false}
+          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
               tintColor={colors.primary}
+              onRefresh={onRefresh}
             />
           }
+          showsVerticalScrollIndicator={false}
         >
           {filteredCategories.map((category, index) => (
             <CategoryCard

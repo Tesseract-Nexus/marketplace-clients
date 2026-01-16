@@ -87,7 +87,9 @@ export default function AddProductScreen() {
 
   const [formData, setFormData] = useState<ProductFormData>(initialFormData);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [activeSection, setActiveSection] = useState<'basic' | 'pricing' | 'inventory' | 'variants' | 'media'>('basic');
+  const [activeSection, setActiveSection] = useState<
+    'basic' | 'pricing' | 'inventory' | 'variants' | 'media'
+  >('basic');
   const [tagInput, setTagInput] = useState('');
   const [showCategoryPicker, setShowCategoryPicker] = useState(false);
 
@@ -123,16 +125,19 @@ export default function AddProductScreen() {
     },
   });
 
-  const updateField = useCallback((field: keyof ProductFormData, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors[field];
-        return newErrors;
-      });
-    }
-  }, [errors]);
+  const updateField = useCallback(
+    (field: keyof ProductFormData, value: any) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      if (errors[field]) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[field];
+          return newErrors;
+        });
+      }
+    },
+    [errors]
+  );
 
   const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = {};
@@ -188,9 +193,15 @@ export default function AddProductScreen() {
     }
   }, [formData.images, updateField]);
 
-  const handleRemoveImage = useCallback((index: number) => {
-    updateField('images', formData.images.filter((_, i) => i !== index));
-  }, [formData.images, updateField]);
+  const handleRemoveImage = useCallback(
+    (index: number) => {
+      updateField(
+        'images',
+        formData.images.filter((_, i) => i !== index)
+      );
+    },
+    [formData.images, updateField]
+  );
 
   const handleAddTag = useCallback(() => {
     if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
@@ -199,9 +210,15 @@ export default function AddProductScreen() {
     }
   }, [tagInput, formData.tags, updateField]);
 
-  const handleRemoveTag = useCallback((tag: string) => {
-    updateField('tags', formData.tags.filter((t) => t !== tag));
-  }, [formData.tags, updateField]);
+  const handleRemoveTag = useCallback(
+    (tag: string) => {
+      updateField(
+        'tags',
+        formData.tags.filter((t) => t !== tag)
+      );
+    },
+    [formData.tags, updateField]
+  );
 
   const handleAddVariant = useCallback(() => {
     const newVariant: ProductVariant = {
@@ -214,11 +231,23 @@ export default function AddProductScreen() {
       options: [{ name: '', value: '' }],
     };
     updateField('variants', [...formData.variants, newVariant]);
-  }, [formData.price, formData.compare_at_price, formData.quantity, formData.variants, updateField]);
+  }, [
+    formData.price,
+    formData.compare_at_price,
+    formData.quantity,
+    formData.variants,
+    updateField,
+  ]);
 
-  const handleRemoveVariant = useCallback((id: string) => {
-    updateField('variants', formData.variants.filter((v) => v.id !== id));
-  }, [formData.variants, updateField]);
+  const handleRemoveVariant = useCallback(
+    (id: string) => {
+      updateField(
+        'variants',
+        formData.variants.filter((v) => v.id !== id)
+      );
+    },
+    [formData.variants, updateField]
+  );
 
   const sections = [
     { key: 'basic', label: 'Basic', icon: 'information-circle-outline' },
@@ -237,12 +266,12 @@ export default function AddProductScreen() {
           title: 'Add Product',
           headerRight: () => (
             <TouchableOpacity
-              onPress={handleSubmit}
-              disabled={createMutation.isPending}
               className="mr-4"
+              disabled={createMutation.isPending}
+              onPress={handleSubmit}
             >
               {createMutation.isPending ? (
-                <ActivityIndicator size="small" color="#6366f1" />
+                <ActivityIndicator color="#6366f1" size="small" />
               ) : (
                 <Text className="font-semibold text-indigo-600">Save</Text>
               )}
@@ -258,22 +287,22 @@ export default function AddProductScreen() {
         {/* Section Tabs */}
         <ScrollView
           horizontal
-          showsHorizontalScrollIndicator={false}
           className="border-b border-gray-200 bg-white"
           contentContainerStyle={{ paddingHorizontal: 12 }}
+          showsHorizontalScrollIndicator={false}
         >
           {sections.map((section) => (
             <TouchableOpacity
               key={section.key}
-              onPress={() => setActiveSection(section.key)}
               className={`flex-row items-center px-4 py-3 ${
                 activeSection === section.key ? 'border-b-2 border-indigo-600' : ''
               }`}
+              onPress={() => setActiveSection(section.key)}
             >
               <Ionicons
+                color={activeSection === section.key ? '#4f46e5' : '#9ca3af'}
                 name={section.icon as any}
                 size={18}
-                color={activeSection === section.key ? '#4f46e5' : '#9ca3af'}
               />
               <Text
                 className={`ml-1 text-sm font-medium ${
@@ -288,7 +317,7 @@ export default function AddProductScreen() {
 
         <ScrollView className="flex-1 bg-gray-50" keyboardShouldPersistTaps="handled">
           {/* Basic Info Section */}
-          {activeSection === 'basic' && (
+          {activeSection === 'basic' ? (
             <View className="space-y-4 p-4">
               <View className="rounded-xl bg-white p-4 shadow-sm">
                 <View className="space-y-4">
@@ -298,29 +327,29 @@ export default function AddProductScreen() {
                       Product Name <Text className="text-red-500">*</Text>
                     </Text>
                     <TextInput
-                      value={formData.name}
-                      onChangeText={(text) => updateField('name', text)}
-                      placeholder="Enter product name"
                       className={`rounded-lg border bg-gray-50 p-3 ${
                         errors.name ? 'border-red-500' : 'border-gray-200'
                       }`}
+                      placeholder="Enter product name"
+                      value={formData.name}
+                      onChangeText={(text) => updateField('name', text)}
                     />
-                    {errors.name && (
+                    {errors.name ? (
                       <Text className="mt-1 text-xs text-red-500">{errors.name}</Text>
-                    )}
+                    ) : null}
                   </View>
 
                   {/* Description */}
                   <View>
                     <Text className="mb-1 text-sm font-medium text-gray-700">Description</Text>
                     <TextInput
+                      multiline
+                      className="min-h-[100px] rounded-lg border border-gray-200 bg-gray-50 p-3"
+                      numberOfLines={4}
+                      placeholder="Enter product description"
+                      textAlignVertical="top"
                       value={formData.description}
                       onChangeText={(text) => updateField('description', text)}
-                      placeholder="Enter product description"
-                      multiline
-                      numberOfLines={4}
-                      textAlignVertical="top"
-                      className="min-h-[100px] rounded-lg border border-gray-200 bg-gray-50 p-3"
                     />
                   </View>
 
@@ -328,13 +357,13 @@ export default function AddProductScreen() {
                   <View>
                     <Text className="mb-1 text-sm font-medium text-gray-700">Category</Text>
                     <TouchableOpacity
-                      onPress={() => setShowCategoryPicker(true)}
                       className="flex-row items-center justify-between rounded-lg border border-gray-200 bg-gray-50 p-3"
+                      onPress={() => setShowCategoryPicker(true)}
                     >
                       <Text className={selectedCategory ? 'text-gray-900' : 'text-gray-400'}>
                         {selectedCategory?.name || 'Select category'}
                       </Text>
-                      <Ionicons name="chevron-down" size={20} color="#9ca3af" />
+                      <Ionicons color="#9ca3af" name="chevron-down" size={20} />
                     </TouchableOpacity>
                   </View>
 
@@ -343,20 +372,20 @@ export default function AddProductScreen() {
                     <View className="flex-1">
                       <Text className="mb-1 text-sm font-medium text-gray-700">SKU</Text>
                       <TextInput
+                        className="rounded-lg border border-gray-200 bg-gray-50 p-3"
+                        placeholder="SKU-001"
                         value={formData.sku}
                         onChangeText={(text) => updateField('sku', text)}
-                        placeholder="SKU-001"
-                        className="rounded-lg border border-gray-200 bg-gray-50 p-3"
                       />
                     </View>
                     <View className="flex-1">
                       <Text className="mb-1 text-sm font-medium text-gray-700">Barcode</Text>
                       <TextInput
+                        className="rounded-lg border border-gray-200 bg-gray-50 p-3"
+                        keyboardType="numeric"
+                        placeholder="123456789"
                         value={formData.barcode}
                         onChangeText={(text) => updateField('barcode', text)}
-                        placeholder="123456789"
-                        keyboardType="numeric"
-                        className="rounded-lg border border-gray-200 bg-gray-50 p-3"
                       />
                     </View>
                   </View>
@@ -366,33 +395,33 @@ export default function AddProductScreen() {
                     <Text className="mb-1 text-sm font-medium text-gray-700">Tags</Text>
                     <View className="flex-row items-center rounded-lg border border-gray-200 bg-gray-50 p-1">
                       <TextInput
+                        className="flex-1 p-2"
+                        placeholder="Add tag"
                         value={tagInput}
                         onChangeText={setTagInput}
                         onSubmitEditing={handleAddTag}
-                        placeholder="Add tag"
-                        className="flex-1 p-2"
                       />
                       <TouchableOpacity
-                        onPress={handleAddTag}
                         className="rounded-lg bg-indigo-600 px-3 py-2"
+                        onPress={handleAddTag}
                       >
-                        <Ionicons name="add" size={20} color="#fff" />
+                        <Ionicons color="#fff" name="add" size={20} />
                       </TouchableOpacity>
                     </View>
-                    {formData.tags.length > 0 && (
+                    {formData.tags.length > 0 ? (
                       <View className="mt-2 flex-row flex-wrap gap-2">
                         {formData.tags.map((tag) => (
                           <TouchableOpacity
                             key={tag}
-                            onPress={() => handleRemoveTag(tag)}
                             className="flex-row items-center rounded-full bg-gray-100 px-3 py-1"
+                            onPress={() => handleRemoveTag(tag)}
                           >
                             <Text className="text-sm text-gray-700">{tag}</Text>
-                            <Ionicons name="close" size={14} color="#6b7280" className="ml-1" />
+                            <Ionicons className="ml-1" color="#6b7280" name="close" size={14} />
                           </TouchableOpacity>
                         ))}
                       </View>
-                    )}
+                    ) : null}
                   </View>
 
                   {/* Status Toggles */}
@@ -403,10 +432,10 @@ export default function AddProductScreen() {
                         <Text className="text-xs text-gray-500">Product is visible in store</Text>
                       </View>
                       <Switch
+                        thumbColor={formData.is_active ? '#4f46e5' : '#9ca3af'}
+                        trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
                         value={formData.is_active}
                         onValueChange={(value) => updateField('is_active', value)}
-                        trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
-                        thumbColor={formData.is_active ? '#4f46e5' : '#9ca3af'}
                       />
                     </View>
                     <View className="flex-row items-center justify-between">
@@ -415,20 +444,20 @@ export default function AddProductScreen() {
                         <Text className="text-xs text-gray-500">Show in featured section</Text>
                       </View>
                       <Switch
+                        thumbColor={formData.is_featured ? '#4f46e5' : '#9ca3af'}
+                        trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
                         value={formData.is_featured}
                         onValueChange={(value) => updateField('is_featured', value)}
-                        trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
-                        thumbColor={formData.is_featured ? '#4f46e5' : '#9ca3af'}
                       />
                     </View>
                   </View>
                 </View>
               </View>
             </View>
-          )}
+          ) : null}
 
           {/* Pricing Section */}
-          {activeSection === 'pricing' && (
+          {activeSection === 'pricing' ? (
             <View className="space-y-4 p-4">
               <View className="rounded-xl bg-white p-4 shadow-sm">
                 <View className="space-y-4">
@@ -440,16 +469,16 @@ export default function AddProductScreen() {
                     <View className="flex-row items-center rounded-lg border border-gray-200 bg-gray-50">
                       <Text className="px-3 text-gray-500">$</Text>
                       <TextInput
+                        className={`flex-1 p-3 ${errors.price ? 'border-red-500' : ''}`}
+                        keyboardType="decimal-pad"
+                        placeholder="0.00"
                         value={formData.price}
                         onChangeText={(text) => updateField('price', text)}
-                        placeholder="0.00"
-                        keyboardType="decimal-pad"
-                        className={`flex-1 p-3 ${errors.price ? 'border-red-500' : ''}`}
                       />
                     </View>
-                    {errors.price && (
+                    {errors.price ? (
                       <Text className="mt-1 text-xs text-red-500">{errors.price}</Text>
-                    )}
+                    ) : null}
                   </View>
 
                   {/* Compare at Price */}
@@ -458,11 +487,11 @@ export default function AddProductScreen() {
                     <View className="flex-row items-center rounded-lg border border-gray-200 bg-gray-50">
                       <Text className="px-3 text-gray-500">$</Text>
                       <TextInput
+                        className="flex-1 p-3"
+                        keyboardType="decimal-pad"
+                        placeholder="0.00"
                         value={formData.compare_at_price}
                         onChangeText={(text) => updateField('compare_at_price', text)}
-                        placeholder="0.00"
-                        keyboardType="decimal-pad"
-                        className="flex-1 p-3"
                       />
                     </View>
                     <Text className="mt-1 text-xs text-gray-500">
@@ -476,11 +505,11 @@ export default function AddProductScreen() {
                     <View className="flex-row items-center rounded-lg border border-gray-200 bg-gray-50">
                       <Text className="px-3 text-gray-500">$</Text>
                       <TextInput
+                        className="flex-1 p-3"
+                        keyboardType="decimal-pad"
+                        placeholder="0.00"
                         value={formData.cost_price}
                         onChangeText={(text) => updateField('cost_price', text)}
-                        placeholder="0.00"
-                        keyboardType="decimal-pad"
-                        className="flex-1 p-3"
                       />
                     </View>
                     <Text className="mt-1 text-xs text-gray-500">
@@ -489,7 +518,7 @@ export default function AddProductScreen() {
                   </View>
 
                   {/* Margin Preview */}
-                  {formData.price && formData.cost_price && (
+                  {formData.price && formData.cost_price ? (
                     <View className="rounded-lg bg-gray-50 p-3">
                       <Text className="text-sm text-gray-500">Estimated Margin</Text>
                       <Text className="text-lg font-semibold text-green-600">
@@ -501,14 +530,14 @@ export default function AddProductScreen() {
                         %
                       </Text>
                     </View>
-                  )}
+                  ) : null}
                 </View>
               </View>
             </View>
-          )}
+          ) : null}
 
           {/* Inventory Section */}
-          {activeSection === 'inventory' && (
+          {activeSection === 'inventory' ? (
             <View className="space-y-4 p-4">
               <View className="rounded-xl bg-white p-4 shadow-sm">
                 <View className="space-y-4">
@@ -521,14 +550,14 @@ export default function AddProductScreen() {
                       </Text>
                     </View>
                     <Switch
+                      thumbColor={formData.track_inventory ? '#4f46e5' : '#9ca3af'}
+                      trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
                       value={formData.track_inventory}
                       onValueChange={(value) => updateField('track_inventory', value)}
-                      trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
-                      thumbColor={formData.track_inventory ? '#4f46e5' : '#9ca3af'}
                     />
                   </View>
 
-                  {formData.track_inventory && (
+                  {formData.track_inventory ? (
                     <>
                       {/* Quantity */}
                       <View>
@@ -536,17 +565,17 @@ export default function AddProductScreen() {
                           Quantity <Text className="text-red-500">*</Text>
                         </Text>
                         <TextInput
-                          value={formData.quantity}
-                          onChangeText={(text) => updateField('quantity', text)}
-                          placeholder="0"
-                          keyboardType="number-pad"
                           className={`rounded-lg border bg-gray-50 p-3 ${
                             errors.quantity ? 'border-red-500' : 'border-gray-200'
                           }`}
+                          keyboardType="number-pad"
+                          placeholder="0"
+                          value={formData.quantity}
+                          onChangeText={(text) => updateField('quantity', text)}
                         />
-                        {errors.quantity && (
+                        {errors.quantity ? (
                           <Text className="mt-1 text-xs text-red-500">{errors.quantity}</Text>
-                        )}
+                        ) : null}
                       </View>
 
                       {/* Low Stock Threshold */}
@@ -555,11 +584,11 @@ export default function AddProductScreen() {
                           Low Stock Alert Threshold
                         </Text>
                         <TextInput
+                          className="rounded-lg border border-gray-200 bg-gray-50 p-3"
+                          keyboardType="number-pad"
+                          placeholder="10"
                           value={formData.low_stock_threshold}
                           onChangeText={(text) => updateField('low_stock_threshold', text)}
-                          placeholder="10"
-                          keyboardType="number-pad"
-                          className="rounded-lg border border-gray-200 bg-gray-50 p-3"
                         />
                         <Text className="mt-1 text-xs text-gray-500">
                           Get notified when stock falls below this level
@@ -575,36 +604,36 @@ export default function AddProductScreen() {
                           </Text>
                         </View>
                         <Switch
+                          thumbColor={formData.allow_backorder ? '#4f46e5' : '#9ca3af'}
+                          trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
                           value={formData.allow_backorder}
                           onValueChange={(value) => updateField('allow_backorder', value)}
-                          trackColor={{ false: '#d1d5db', true: '#a5b4fc' }}
-                          thumbColor={formData.allow_backorder ? '#4f46e5' : '#9ca3af'}
                         />
                       </View>
                     </>
-                  )}
+                  ) : null}
 
                   {/* Weight */}
                   <View className="border-t border-gray-100 pt-4">
                     <Text className="mb-1 text-sm font-medium text-gray-700">Weight</Text>
                     <View className="flex-row gap-2">
                       <TextInput
+                        className="flex-1 rounded-lg border border-gray-200 bg-gray-50 p-3"
+                        keyboardType="decimal-pad"
+                        placeholder="0.0"
                         value={formData.weight}
                         onChangeText={(text) => updateField('weight', text)}
-                        placeholder="0.0"
-                        keyboardType="decimal-pad"
-                        className="flex-1 rounded-lg border border-gray-200 bg-gray-50 p-3"
                       />
                       <View className="flex-row rounded-lg border border-gray-200 bg-gray-50">
                         {(['kg', 'lb', 'g', 'oz'] as const).map((unit) => (
                           <TouchableOpacity
                             key={unit}
-                            onPress={() => updateField('weight_unit', unit)}
                             className={`px-3 py-3 ${
                               formData.weight_unit === unit ? 'bg-indigo-600' : ''
                             } ${unit === 'kg' ? 'rounded-l-lg' : ''} ${
                               unit === 'oz' ? 'rounded-r-lg' : ''
                             }`}
+                            onPress={() => updateField('weight_unit', unit)}
                           >
                             <Text
                               className={
@@ -621,26 +650,26 @@ export default function AddProductScreen() {
                 </View>
               </View>
             </View>
-          )}
+          ) : null}
 
           {/* Variants Section */}
-          {activeSection === 'variants' && (
+          {activeSection === 'variants' ? (
             <View className="space-y-4 p-4">
               <View className="rounded-xl bg-white p-4 shadow-sm">
                 <View className="mb-4 flex-row items-center justify-between">
                   <Text className="text-lg font-semibold text-gray-900">Product Variants</Text>
                   <TouchableOpacity
-                    onPress={handleAddVariant}
                     className="flex-row items-center rounded-lg bg-indigo-600 px-3 py-2"
+                    onPress={handleAddVariant}
                   >
-                    <Ionicons name="add" size={18} color="#fff" />
+                    <Ionicons color="#fff" name="add" size={18} />
                     <Text className="ml-1 font-medium text-white">Add Variant</Text>
                   </TouchableOpacity>
                 </View>
 
                 {formData.variants.length === 0 ? (
                   <View className="items-center justify-center py-8">
-                    <Ionicons name="layers-outline" size={48} color="#d1d5db" />
+                    <Ionicons color="#d1d5db" name="layers-outline" size={48} />
                     <Text className="mt-2 text-gray-500">No variants added</Text>
                     <Text className="mt-1 text-center text-sm text-gray-400">
                       Add variants for different sizes, colors, or other options
@@ -651,75 +680,73 @@ export default function AddProductScreen() {
                     {formData.variants.map((variant, index) => (
                       <View key={variant.id} className="rounded-lg border border-gray-200 p-3">
                         <View className="mb-2 flex-row items-center justify-between">
-                          <Text className="font-medium text-gray-900">
-                            Variant {index + 1}
-                          </Text>
+                          <Text className="font-medium text-gray-900">Variant {index + 1}</Text>
                           <TouchableOpacity onPress={() => handleRemoveVariant(variant.id)}>
-                            <Ionicons name="trash-outline" size={20} color="#ef4444" />
+                            <Ionicons color="#ef4444" name="trash-outline" size={20} />
                           </TouchableOpacity>
                         </View>
 
                         <View className="space-y-3">
                           <TextInput
+                            className="rounded-lg border border-gray-200 bg-gray-50 p-2"
+                            placeholder="Variant name (e.g., Small / Red)"
                             value={variant.name}
                             onChangeText={(text) => {
                               const newVariants = [...formData.variants];
                               newVariants[index].name = text;
                               updateField('variants', newVariants);
                             }}
-                            placeholder="Variant name (e.g., Small / Red)"
-                            className="rounded-lg border border-gray-200 bg-gray-50 p-2"
                           />
                           <View className="flex-row gap-2">
                             <TextInput
+                              className="flex-1 rounded-lg border border-gray-200 bg-gray-50 p-2"
+                              placeholder="SKU"
                               value={variant.sku}
                               onChangeText={(text) => {
                                 const newVariants = [...formData.variants];
                                 newVariants[index].sku = text;
                                 updateField('variants', newVariants);
                               }}
-                              placeholder="SKU"
-                              className="flex-1 rounded-lg border border-gray-200 bg-gray-50 p-2"
                             />
                             <TextInput
+                              className="w-20 rounded-lg border border-gray-200 bg-gray-50 p-2"
+                              keyboardType="number-pad"
+                              placeholder="Qty"
                               value={variant.quantity}
                               onChangeText={(text) => {
                                 const newVariants = [...formData.variants];
                                 newVariants[index].quantity = text;
                                 updateField('variants', newVariants);
                               }}
-                              placeholder="Qty"
-                              keyboardType="number-pad"
-                              className="w-20 rounded-lg border border-gray-200 bg-gray-50 p-2"
                             />
                           </View>
                           <View className="flex-row gap-2">
                             <View className="flex-1 flex-row items-center rounded-lg border border-gray-200 bg-gray-50">
                               <Text className="px-2 text-gray-500">$</Text>
                               <TextInput
+                                className="flex-1 p-2"
+                                keyboardType="decimal-pad"
+                                placeholder="Price"
                                 value={variant.price}
                                 onChangeText={(text) => {
                                   const newVariants = [...formData.variants];
                                   newVariants[index].price = text;
                                   updateField('variants', newVariants);
                                 }}
-                                placeholder="Price"
-                                keyboardType="decimal-pad"
-                                className="flex-1 p-2"
                               />
                             </View>
                             <View className="flex-1 flex-row items-center rounded-lg border border-gray-200 bg-gray-50">
                               <Text className="px-2 text-gray-500">$</Text>
                               <TextInput
+                                className="flex-1 p-2"
+                                keyboardType="decimal-pad"
+                                placeholder="Compare"
                                 value={variant.compare_at_price}
                                 onChangeText={(text) => {
                                   const newVariants = [...formData.variants];
                                   newVariants[index].compare_at_price = text;
                                   updateField('variants', newVariants);
                                 }}
-                                placeholder="Compare"
-                                keyboardType="decimal-pad"
-                                className="flex-1 p-2"
                               />
                             </View>
                           </View>
@@ -730,10 +757,10 @@ export default function AddProductScreen() {
                 )}
               </View>
             </View>
-          )}
+          ) : null}
 
           {/* Media Section */}
-          {activeSection === 'media' && (
+          {activeSection === 'media' ? (
             <View className="space-y-4 p-4">
               <View className="rounded-xl bg-white p-4 shadow-sm">
                 <Text className="mb-4 text-lg font-semibold text-gray-900">Product Images</Text>
@@ -742,30 +769,27 @@ export default function AddProductScreen() {
                 <View className="flex-row flex-wrap gap-3">
                   {formData.images.map((uri, index) => (
                     <View key={index} className="relative">
-                      <Image
-                        source={{ uri }}
-                        className="h-24 w-24 rounded-lg"
-                      />
+                      <Image className="h-24 w-24 rounded-lg" source={{ uri }} />
                       <TouchableOpacity
-                        onPress={() => handleRemoveImage(index)}
                         className="absolute -right-2 -top-2 rounded-full bg-red-500 p-1"
+                        onPress={() => handleRemoveImage(index)}
                       >
-                        <Ionicons name="close" size={14} color="#fff" />
+                        <Ionicons color="#fff" name="close" size={14} />
                       </TouchableOpacity>
-                      {index === 0 && (
+                      {index === 0 ? (
                         <View className="absolute bottom-1 left-1 rounded bg-black/60 px-2 py-0.5">
                           <Text className="text-xs text-white">Main</Text>
                         </View>
-                      )}
+                      ) : null}
                     </View>
                   ))}
 
                   {/* Add Image Button */}
                   <TouchableOpacity
-                    onPress={handlePickImage}
                     className="h-24 w-24 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50"
+                    onPress={handlePickImage}
                   >
-                    <Ionicons name="camera-outline" size={24} color="#9ca3af" />
+                    <Ionicons color="#9ca3af" name="camera-outline" size={24} />
                     <Text className="mt-1 text-xs text-gray-500">Add</Text>
                   </TouchableOpacity>
                 </View>
@@ -775,40 +799,38 @@ export default function AddProductScreen() {
                 </Text>
               </View>
             </View>
-          )}
+          ) : null}
 
           {/* Bottom Spacer for Keyboard */}
-          {isKeyboardVisible && <View className="h-40" />}
+          {isKeyboardVisible ? <View className="h-40" /> : null}
         </ScrollView>
 
         {/* Submit Button */}
-        {!isKeyboardVisible && (
+        {!isKeyboardVisible ? (
           <View className="border-t border-gray-200 bg-white p-4">
             <TouchableOpacity
-              onPress={handleSubmit}
-              disabled={createMutation.isPending}
               className={`rounded-xl py-4 ${
                 createMutation.isPending ? 'bg-indigo-400' : 'bg-indigo-600'
               }`}
+              disabled={createMutation.isPending}
+              onPress={handleSubmit}
             >
               {createMutation.isPending ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text className="text-center text-lg font-semibold text-white">
-                  Create Product
-                </Text>
+                <Text className="text-center text-lg font-semibold text-white">Create Product</Text>
               )}
             </TouchableOpacity>
           </View>
-        )}
+        ) : null}
       </KeyboardAvoidingView>
 
       {/* Category Picker Modal */}
-      {showCategoryPicker && (
+      {showCategoryPicker ? (
         <TouchableOpacity
           activeOpacity={1}
-          onPress={() => setShowCategoryPicker(false)}
           className="absolute inset-0 items-center justify-center bg-black/50"
+          onPress={() => setShowCategoryPicker(false)}
         >
           <View className="mx-6 max-h-96 w-full rounded-xl bg-white">
             <View className="border-b border-gray-200 p-4">
@@ -818,13 +840,13 @@ export default function AddProductScreen() {
               {categories.map((category) => (
                 <TouchableOpacity
                   key={category.id}
+                  className={`flex-row items-center justify-between border-b border-gray-100 p-4 ${
+                    formData.category_id === category.id ? 'bg-indigo-50' : ''
+                  }`}
                   onPress={() => {
                     updateField('category_id', category.id);
                     setShowCategoryPicker(false);
                   }}
-                  className={`flex-row items-center justify-between border-b border-gray-100 p-4 ${
-                    formData.category_id === category.id ? 'bg-indigo-50' : ''
-                  }`}
                 >
                   <Text
                     className={
@@ -835,15 +857,15 @@ export default function AddProductScreen() {
                   >
                     {category.name}
                   </Text>
-                  {formData.category_id === category.id && (
-                    <Ionicons name="checkmark" size={20} color="#4f46e5" />
-                  )}
+                  {formData.category_id === category.id ? (
+                    <Ionicons color="#4f46e5" name="checkmark" size={20} />
+                  ) : null}
                 </TouchableOpacity>
               ))}
             </ScrollView>
           </View>
         </TouchableOpacity>
-      )}
+      ) : null}
     </>
   );
 }

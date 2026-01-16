@@ -1,5 +1,13 @@
 import { useState, useCallback } from 'react';
-import { View, Text, ScrollView, RefreshControl, Pressable, StyleSheet, Dimensions } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  RefreshControl,
+  Pressable,
+  StyleSheet,
+  Dimensions,
+} from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -40,12 +48,12 @@ function CategoryCard({
       <Pressable onPress={onPress}>
         <LinearGradient
           colors={[...gradient]}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={styles.categoryGradient}
         >
           <View style={styles.categoryIcon}>
-            <Ionicons name={icon as any} size={24} color="rgba(255,255,255,0.9)" />
+            <Ionicons color="rgba(255,255,255,0.9)" name={icon as any} size={24} />
           </View>
           <Text style={styles.categoryTitle}>{title}</Text>
           <Text style={styles.categorySubtitle}>{subtitle}</Text>
@@ -76,24 +84,29 @@ function MetricRow({
   return (
     <View style={[styles.metricRow, { backgroundColor: isDark ? colors.surface : colors.card }]}>
       <View style={[styles.metricIcon, { backgroundColor: `${iconColor}15` }]}>
-        <Ionicons name={icon as any} size={18} color={iconColor} />
+        <Ionicons color={iconColor} name={icon as any} size={18} />
       </View>
       <View style={styles.metricContent}>
         <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{label}</Text>
         <Text style={[styles.metricValue, { color: colors.text }]}>{value}</Text>
       </View>
-      {change !== undefined && (
-        <View style={[styles.changeBadge, { backgroundColor: isPositive ? `${colors.success}15` : `${colors.error}15` }]}>
+      {change !== undefined ? (
+        <View
+          style={[
+            styles.changeBadge,
+            { backgroundColor: isPositive ? `${colors.success}15` : `${colors.error}15` },
+          ]}
+        >
           <Ionicons
+            color={isPositive ? colors.success : colors.error}
             name={isPositive ? 'trending-up' : 'trending-down'}
             size={12}
-            color={isPositive ? colors.success : colors.error}
           />
           <Text style={[styles.changeText, { color: isPositive ? colors.success : colors.error }]}>
             {Math.abs(change)}%
           </Text>
         </View>
-      )}
+      ) : null}
     </View>
   );
 }
@@ -108,7 +121,11 @@ export default function AnalyticsScreen() {
   const [activeTab, setActiveTab] = useState<AnalyticsTab>('overview');
 
   // Fetch overview stats
-  const { data: stats, isLoading, refetch } = useQuery({
+  const {
+    data: stats,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: currentTenant
       ? [...QUERY_KEYS.ANALYTICS(currentTenant.id, 'overview')]
       : ['analytics-overview'],
@@ -123,11 +140,13 @@ export default function AnalyticsScreen() {
 
         const ordersArray = (ordersResponse as any).orders || (ordersResponse as any).data || [];
         const productsArray = (productsResponse as any).data || [];
-        const customersArray = (customersResponse as any).customers || (customersResponse as any).data || [];
+        const customersArray =
+          (customersResponse as any).customers || (customersResponse as any).data || [];
 
         // Calculate totals
         const totalRevenue = ordersArray.reduce(
-          (sum: number, o: any) => sum + parseFloat(o.total?.toString() || o.totalAmount?.toString() || '0'),
+          (sum: number, o: any) =>
+            sum + parseFloat(o.total?.toString() || o.totalAmount?.toString() || '0'),
           0
         );
         const totalOrders = ordersArray.length;
@@ -216,17 +235,21 @@ export default function AnalyticsScreen() {
       {/* Header */}
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <Pressable style={styles.backButton} onPress={() => router.back()}>
-          <Ionicons name="arrow-back" size={22} color={colors.text} />
+          <Ionicons color={colors.text} name="arrow-back" size={22} />
         </Pressable>
         <Text style={[styles.headerTitle, { color: colors.text }]}>Analytics</Text>
         <Pressable style={styles.headerAction}>
-          <Ionicons name="download-outline" size={22} color={colors.text} />
+          <Ionicons color={colors.text} name="download-outline" size={22} />
         </Pressable>
       </View>
 
       {/* Tab Bar */}
       <View style={styles.tabContainer}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabScroll}>
+        <ScrollView
+          horizontal
+          contentContainerStyle={styles.tabScroll}
+          showsHorizontalScrollIndicator={false}
+        >
           {tabs.map((tab) => (
             <Pressable
               key={tab.id}
@@ -251,12 +274,16 @@ export default function AnalyticsScreen() {
 
       <ScrollView
         contentContainerStyle={[styles.scrollContent, { paddingBottom: insets.bottom + 100 }]}
-        showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />
+          <RefreshControl
+            refreshing={refreshing}
+            tintColor={colors.primary}
+            onRefresh={onRefresh}
+          />
         }
+        showsVerticalScrollIndicator={false}
       >
-        {activeTab === 'overview' && (
+        {activeTab === 'overview' ? (
           <>
             {/* Category Navigation Cards */}
             <Animated.View entering={FadeInDown.delay(100)} style={styles.section}>
@@ -276,52 +303,52 @@ export default function AnalyticsScreen() {
             {/* Key Metrics */}
             {isLoading ? (
               <View style={styles.section}>
-                <Skeleton width="100%" height={70} borderRadius={12} style={{ marginBottom: 8 }} />
-                <Skeleton width="100%" height={70} borderRadius={12} style={{ marginBottom: 8 }} />
-                <Skeleton width="100%" height={70} borderRadius={12} />
+                <Skeleton borderRadius={12} height={70} style={{ marginBottom: 8 }} width="100%" />
+                <Skeleton borderRadius={12} height={70} style={{ marginBottom: 8 }} width="100%" />
+                <Skeleton borderRadius={12} height={70} width="100%" />
               </View>
             ) : stats ? (
               <Animated.View entering={FadeInDown.delay(300)} style={styles.section}>
                 <Text style={[styles.sectionTitle, { color: colors.text }]}>Key Metrics</Text>
                 <View style={styles.metricsContainer}>
                   <MetricRow
-                    label="Total Revenue"
-                    value={formatCurrency(stats.revenue)}
                     change={stats.revenueChange}
                     icon="wallet"
                     iconColor={colors.success}
+                    label="Total Revenue"
+                    value={formatCurrency(stats.revenue)}
                   />
                   <MetricRow
-                    label="Total Orders"
-                    value={formatNumber(stats.orders)}
                     change={stats.ordersChange}
                     icon="receipt"
                     iconColor={colors.info}
+                    label="Total Orders"
+                    value={formatNumber(stats.orders)}
                   />
                   <MetricRow
-                    label="Total Customers"
-                    value={formatNumber(stats.customers)}
                     change={stats.customersChange}
                     icon="people"
                     iconColor={colors.warning}
+                    label="Total Customers"
+                    value={formatNumber(stats.customers)}
                   />
                   <MetricRow
-                    label="Avg. Order Value"
-                    value={formatCurrency(stats.avgOrderValue)}
                     icon="stats-chart"
                     iconColor={colors.primary}
+                    label="Avg. Order Value"
+                    value={formatCurrency(stats.avgOrderValue)}
                   />
                   <MetricRow
-                    label="Products"
-                    value={formatNumber(stats.products)}
                     icon="cube"
                     iconColor={colors.textSecondary}
+                    label="Products"
+                    value={formatNumber(stats.products)}
                   />
                 </View>
               </Animated.View>
             ) : (
               <View style={[styles.emptyState, { backgroundColor: colors.surface }]}>
-                <Ionicons name="analytics-outline" size={48} color={colors.textTertiary} />
+                <Ionicons color={colors.textTertiary} name="analytics-outline" size={48} />
                 <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
                   No analytics data available
                 </Text>
@@ -329,124 +356,124 @@ export default function AnalyticsScreen() {
             )}
 
             {/* Inventory Status */}
-            {stats && (stats.lowStock > 0 || stats.outOfStock > 0) && (
+            {stats && (stats.lowStock > 0 || stats.outOfStock > 0) ? (
               <Animated.View entering={FadeInDown.delay(400)} style={styles.section}>
                 <Text style={[styles.sectionTitle, { color: colors.text }]}>Inventory Alerts</Text>
                 <View style={styles.metricsContainer}>
-                  {stats.lowStock > 0 && (
+                  {stats.lowStock > 0 ? (
                     <MetricRow
-                      label="Low Stock Items"
-                      value={formatNumber(stats.lowStock)}
                       icon="alert-circle"
                       iconColor={colors.warning}
+                      label="Low Stock Items"
+                      value={formatNumber(stats.lowStock)}
                     />
-                  )}
-                  {stats.outOfStock > 0 && (
+                  ) : null}
+                  {stats.outOfStock > 0 ? (
                     <MetricRow
-                      label="Out of Stock"
-                      value={formatNumber(stats.outOfStock)}
                       icon="close-circle"
                       iconColor={colors.error}
+                      label="Out of Stock"
+                      value={formatNumber(stats.outOfStock)}
                     />
-                  )}
+                  ) : null}
                 </View>
               </Animated.View>
-            )}
+            ) : null}
           </>
-        )}
+        ) : null}
 
-        {activeTab === 'sales' && (
+        {activeTab === 'sales' ? (
           <Animated.View entering={FadeInDown} style={styles.tabContent}>
             <CategoryCard
-              title="Sales Analytics"
-              subtitle="Detailed revenue & orders analysis"
-              icon="trending-up"
               gradient={gradients.revenue}
+              icon="trending-up"
+              subtitle="Detailed revenue & orders analysis"
+              title="Sales Analytics"
               onPress={() => router.push('/(tabs)/(admin)/analytics-sales' as any)}
             />
-            {stats && (
+            {stats ? (
               <View style={[styles.metricsContainer, { marginTop: 16 }]}>
                 <MetricRow
-                  label="Total Revenue"
-                  value={formatCurrency(stats.revenue)}
                   change={stats.revenueChange}
                   icon="wallet"
                   iconColor={colors.success}
+                  label="Total Revenue"
+                  value={formatCurrency(stats.revenue)}
                 />
                 <MetricRow
-                  label="Total Orders"
-                  value={formatNumber(stats.orders)}
                   change={stats.ordersChange}
                   icon="receipt"
                   iconColor={colors.info}
+                  label="Total Orders"
+                  value={formatNumber(stats.orders)}
                 />
                 <MetricRow
-                  label="Avg. Order Value"
-                  value={formatCurrency(stats.avgOrderValue)}
                   icon="stats-chart"
                   iconColor={colors.primary}
+                  label="Avg. Order Value"
+                  value={formatCurrency(stats.avgOrderValue)}
                 />
               </View>
-            )}
+            ) : null}
           </Animated.View>
-        )}
+        ) : null}
 
-        {activeTab === 'customers' && (
+        {activeTab === 'customers' ? (
           <Animated.View entering={FadeInDown} style={styles.tabContent}>
             <CategoryCard
-              title="Customer Insights"
-              subtitle="Behavior & retention analysis"
-              icon="people"
               gradient={gradients.ocean}
+              icon="people"
+              subtitle="Behavior & retention analysis"
+              title="Customer Insights"
               onPress={() => router.push('/(tabs)/(admin)/analytics-customers' as any)}
             />
-            {stats && (
+            {stats ? (
               <View style={[styles.metricsContainer, { marginTop: 16 }]}>
                 <MetricRow
-                  label="Total Customers"
-                  value={formatNumber(stats.customers)}
                   change={stats.customersChange}
                   icon="people"
                   iconColor={colors.warning}
+                  label="Total Customers"
+                  value={formatNumber(stats.customers)}
                 />
               </View>
-            )}
+            ) : null}
           </Animated.View>
-        )}
+        ) : null}
 
-        {activeTab === 'inventory' && (
+        {activeTab === 'inventory' ? (
           <Animated.View entering={FadeInDown} style={styles.tabContent}>
             <CategoryCard
-              title="Inventory Health"
-              subtitle="Stock levels & turnover"
-              icon="cube"
               gradient={gradients.warning}
+              icon="cube"
+              subtitle="Stock levels & turnover"
+              title="Inventory Health"
               onPress={() => router.push('/(tabs)/(admin)/analytics-inventory' as any)}
             />
-            {stats && (
+            {stats ? (
               <View style={[styles.metricsContainer, { marginTop: 16 }]}>
                 <MetricRow
-                  label="Total Products"
-                  value={formatNumber(stats.products)}
                   icon="cube"
                   iconColor={colors.primary}
+                  label="Total Products"
+                  value={formatNumber(stats.products)}
                 />
                 <MetricRow
-                  label="Low Stock Items"
-                  value={formatNumber(stats.lowStock)}
                   icon="alert-circle"
                   iconColor={colors.warning}
+                  label="Low Stock Items"
+                  value={formatNumber(stats.lowStock)}
                 />
                 <MetricRow
-                  label="Out of Stock"
-                  value={formatNumber(stats.outOfStock)}
                   icon="close-circle"
                   iconColor={colors.error}
+                  label="Out of Stock"
+                  value={formatNumber(stats.outOfStock)}
                 />
               </View>
-            )}
+            ) : null}
           </Animated.View>
-        )}
+        ) : null}
       </ScrollView>
     </View>
   );

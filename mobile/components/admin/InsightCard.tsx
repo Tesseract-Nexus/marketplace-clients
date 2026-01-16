@@ -2,11 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 
 import { useColors, useIsDark } from '@/providers/ThemeProvider';
 import { typography, gradients } from '@/lib/design/typography';
@@ -46,25 +42,21 @@ export function InsightCard({
 
   return (
     <Animated.View style={[styles.wrapper, animatedStyle]}>
-      <Pressable
-        onPress={onPress}
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-      >
+      <Pressable onPress={onPress} onPressIn={handlePressIn} onPressOut={handlePressOut}>
         <LinearGradient
           colors={[...gradient]}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={styles.container}
         >
           <View style={styles.iconContainer}>
-            <Ionicons name={icon} size={18} color="rgba(255,255,255,0.9)" />
+            <Ionicons color="rgba(255,255,255,0.9)" name={icon} size={18} />
           </View>
 
           <Text style={styles.value}>{value}</Text>
           <Text style={styles.title}>{title}</Text>
 
-          {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+          {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
         </LinearGradient>
       </Pressable>
     </Animated.View>
@@ -80,13 +72,7 @@ interface QuickActionProps {
   index?: number;
 }
 
-export function QuickAction({
-  icon,
-  label,
-  color,
-  onPress,
-  index = 0,
-}: QuickActionProps) {
+export function QuickAction({ icon, label, color, onPress, index = 0 }: QuickActionProps) {
   const colors = useColors();
   const isDark = useIsDark();
 
@@ -112,16 +98,10 @@ export function QuickAction({
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
       >
-        <LinearGradient
-          colors={[`${color}20`, `${color}10`]}
-          style={styles.actionIconContainer}
-        >
-          <Ionicons name={icon} size={26} color={color} />
+        <LinearGradient colors={[`${color}20`, `${color}10`]} style={styles.actionIconContainer}>
+          <Ionicons color={color} name={icon} size={26} />
         </LinearGradient>
-        <Text
-          style={[styles.actionLabel, { color: colors.text }]}
-          numberOfLines={1}
-        >
+        <Text numberOfLines={1} style={[styles.actionLabel, { color: colors.text }]}>
           {label}
         </Text>
       </Pressable>
@@ -178,14 +158,12 @@ export function ActivityItem({
         onPressOut={handlePressOut}
       >
         <View style={[styles.activityIcon, { backgroundColor: `${iconColor}15` }]}>
-          <Ionicons name={icon} size={18} color={iconColor} />
+          <Ionicons color={iconColor} name={icon} size={18} />
         </View>
 
         <View style={styles.activityContent}>
           <Text style={[styles.activityTitle, { color: colors.text }]}>{title}</Text>
-          <Text style={[styles.activitySubtitle, { color: colors.textSecondary }]}>
-            {subtitle}
-          </Text>
+          <Text style={[styles.activitySubtitle, { color: colors.textSecondary }]}>{subtitle}</Text>
         </View>
 
         <Text style={[styles.activityTime, { color: colors.textTertiary }]}>{time}</Text>

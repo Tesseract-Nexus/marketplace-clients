@@ -124,7 +124,9 @@ export default function StoreSetupScreen() {
         {/* Progress Indicator */}
         <Animated.View entering={FadeInDown.delay(100)} style={styles.progressContainer}>
           <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: '25%', backgroundColor: colors.primary }]} />
+            <View
+              style={[styles.progressFill, { width: '25%', backgroundColor: colors.primary }]}
+            />
           </View>
           <Text style={[styles.progressText, { color: colors.textSecondary }]}>Step 1 of 4</Text>
         </Animated.View>
@@ -140,40 +142,44 @@ export default function StoreSetupScreen() {
         {/* Form */}
         <Animated.View entering={FadeInDown.delay(300)} style={styles.form}>
           <Input
+            containerStyle={styles.inputContainer}
+            error={errors.storeName}
             label="Store Name"
+            maxLength={50}
             placeholder="My Awesome Store"
             value={storeName}
             onChangeText={(text) => {
               setStoreName(text);
-              if (errors.storeName) setErrors((prev) => ({ ...prev, storeName: '' }));
+              if (errors.storeName) {
+                setErrors((prev) => ({ ...prev, storeName: '' }));
+              }
             }}
-            error={errors.storeName}
-            maxLength={50}
-            containerStyle={styles.inputContainer}
           />
 
           <View style={styles.urlInputContainer}>
             <Input
+              autoCapitalize="none"
+              containerStyle={styles.inputContainer}
+              error={errors.storeUrl}
               label="Store URL"
+              maxLength={30}
               placeholder="my-store"
+              rightElement={
+                isCheckingUrl ? (
+                  <Ionicons color={colors.textSecondary} name="hourglass" size={20} />
+                ) : isUrlAvailable === true ? (
+                  <Ionicons color={colors.success} name="checkmark-circle" size={20} />
+                ) : isUrlAvailable === false ? (
+                  <Ionicons color={colors.error} name="close-circle" size={20} />
+                ) : null
+              }
               value={storeUrl}
               onChangeText={(text) => {
                 setStoreUrl(text.toLowerCase().replace(/[^a-z0-9-]/g, ''));
-                if (errors.storeUrl) setErrors((prev) => ({ ...prev, storeUrl: '' }));
+                if (errors.storeUrl) {
+                  setErrors((prev) => ({ ...prev, storeUrl: '' }));
+                }
               }}
-              error={errors.storeUrl}
-              maxLength={30}
-              autoCapitalize="none"
-              containerStyle={styles.inputContainer}
-              rightElement={
-                isCheckingUrl ? (
-                  <Ionicons name="hourglass" size={20} color={colors.textSecondary} />
-                ) : isUrlAvailable === true ? (
-                  <Ionicons name="checkmark-circle" size={20} color={colors.success} />
-                ) : isUrlAvailable === false ? (
-                  <Ionicons name="close-circle" size={20} color={colors.error} />
-                ) : null
-              }
             />
             <Text style={[styles.urlPreview, { color: colors.textSecondary }]}>
               Your store will be available at:{' '}
@@ -186,28 +192,30 @@ export default function StoreSetupScreen() {
           {/* Category Selection */}
           <View style={styles.categorySection}>
             <Text style={[styles.categoryLabel, { color: colors.text }]}>Store Category</Text>
-            {errors.category && (
+            {errors.category ? (
               <Text style={[styles.errorText, { color: colors.error }]}>{errors.category}</Text>
-            )}
+            ) : null}
             <View style={styles.categoryGrid}>
               {STORE_CATEGORIES.map((cat, index) => (
                 <Animated.View key={cat.id} entering={FadeInRight.delay(400 + index * 50)}>
                   <Button
-                    title={cat.label}
-                    variant={category === cat.id ? 'primary' : 'outline'}
-                    size="sm"
-                    onPress={() => {
-                      setCategory(cat.id);
-                      if (errors.category) setErrors((prev) => ({ ...prev, category: '' }));
-                    }}
                     leftIcon={
                       <Ionicons
+                        color={category === cat.id ? '#FFFFFF' : colors.text}
                         name={cat.icon as any}
                         size={16}
-                        color={category === cat.id ? '#FFFFFF' : colors.text}
                       />
                     }
+                    size="sm"
                     style={styles.categoryButton}
+                    title={cat.label}
+                    variant={category === cat.id ? 'primary' : 'outline'}
+                    onPress={() => {
+                      setCategory(cat.id);
+                      if (errors.category) {
+                        setErrors((prev) => ({ ...prev, category: '' }));
+                      }
+                    }}
                   />
                 </Animated.View>
               ))}
@@ -218,11 +226,11 @@ export default function StoreSetupScreen() {
         {/* Continue Button */}
         <Animated.View entering={FadeInDown.delay(600)} style={styles.buttonContainer}>
           <Button
-            title="Continue"
-            size="lg"
             fullWidth
+            rightIcon={<Ionicons color="#FFFFFF" name="arrow-forward" size={20} />}
+            size="lg"
+            title="Continue"
             onPress={handleContinue}
-            rightIcon={<Ionicons name="arrow-forward" size={20} color="#FFFFFF" />}
           />
         </Animated.View>
       </ScrollView>

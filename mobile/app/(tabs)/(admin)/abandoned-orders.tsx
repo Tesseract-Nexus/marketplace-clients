@@ -66,11 +66,11 @@ function StatsCards({ carts }: { carts: AbandonedCart[] }) {
   const isDark = useIsDark();
 
   const stats = useMemo(() => {
-    const abandoned = carts.filter(c => c.status === 'ABANDONED').length;
-    const contacted = carts.filter(c => c.status === 'CONTACTED').length;
-    const recovered = carts.filter(c => c.status === 'RECOVERED').length;
+    const abandoned = carts.filter((c) => c.status === 'ABANDONED').length;
+    const contacted = carts.filter((c) => c.status === 'CONTACTED').length;
+    const recovered = carts.filter((c) => c.status === 'RECOVERED').length;
     const potentialRevenue = carts
-      .filter(c => c.status !== 'RECOVERED' && c.status !== 'EXPIRED')
+      .filter((c) => c.status !== 'RECOVERED' && c.status !== 'EXPIRED')
       .reduce((sum, c) => sum + c.subtotal, 0);
     return { abandoned, contacted, recovered, potentialRevenue };
   }, [carts]);
@@ -80,12 +80,12 @@ function StatsCards({ carts }: { carts: AbandonedCart[] }) {
       {/* Potential Revenue Card */}
       <LinearGradient
         colors={[...gradients.primary]}
-        start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
+        start={{ x: 0, y: 0 }}
         style={styles.revenueCard}
       >
         <View style={styles.revenueIcon}>
-          <Ionicons name="cash" size={16} color="rgba(255,255,255,0.9)" />
+          <Ionicons color="rgba(255,255,255,0.9)" name="cash" size={16} />
         </View>
         <Text style={styles.revenueLabel}>Potential Revenue</Text>
         <Text style={styles.revenueValue}>{formatCurrency(stats.potentialRevenue)}</Text>
@@ -99,18 +99,15 @@ function StatsCards({ carts }: { carts: AbandonedCart[] }) {
             { backgroundColor: isDark ? colors.surface : colors.warningLight },
           ]}
         >
-          <Ionicons name="cart" size={16} color={colors.warning} />
+          <Ionicons color={colors.warning} name="cart" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>{stats.abandoned}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Abandoned</Text>
         </View>
 
         <View
-          style={[
-            styles.statItem,
-            { backgroundColor: isDark ? colors.surface : colors.infoLight },
-          ]}
+          style={[styles.statItem, { backgroundColor: isDark ? colors.surface : colors.infoLight }]}
         >
-          <Ionicons name="mail" size={16} color={colors.info} />
+          <Ionicons color={colors.info} name="mail" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>{stats.contacted}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Contacted</Text>
         </View>
@@ -121,7 +118,7 @@ function StatsCards({ carts }: { carts: AbandonedCart[] }) {
             { backgroundColor: isDark ? colors.surface : colors.successLight },
           ]}
         >
-          <Ionicons name="checkmark-circle" size={16} color={colors.success} />
+          <Ionicons color={colors.success} name="checkmark-circle" size={16} />
           <Text style={[styles.statValue, { color: colors.text }]}>{stats.recovered}</Text>
           <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Recovered</Text>
         </View>
@@ -188,7 +185,9 @@ function AbandonedCartCard({
 
   return (
     <Animated.View
-      entering={FadeInRight.delay(index * 40).springify().damping(15)}
+      entering={FadeInRight.delay(index * 40)
+        .springify()
+        .damping(15)}
       style={animatedStyle}
     >
       <Pressable
@@ -206,13 +205,13 @@ function AbandonedCartCard({
         {/* Header */}
         <View style={styles.cartHeader}>
           <View style={styles.cartHeaderLeft}>
-            <View style={[styles.cartIconContainer, { backgroundColor: `${statusConfig.color}15` }]}>
-              <Ionicons name={statusConfig.icon} size={18} color={statusConfig.color} />
+            <View
+              style={[styles.cartIconContainer, { backgroundColor: `${statusConfig.color}15` }]}
+            >
+              <Ionicons color={statusConfig.color} name={statusConfig.icon} size={18} />
             </View>
             <View>
-              <Text style={[styles.customerName, { color: colors.text }]}>
-                {cart.customerName}
-              </Text>
+              <Text style={[styles.customerName, { color: colors.text }]}>{cart.customerName}</Text>
               <Text style={[styles.customerEmail, { color: colors.textTertiary }]}>
                 {cart.customerEmail}
               </Text>
@@ -226,48 +225,46 @@ function AbandonedCartCard({
         {/* Cart Info */}
         <View style={styles.cartInfoRow}>
           <View style={styles.cartInfoItem}>
-            <Ionicons name="bag-outline" size={14} color={colors.textSecondary} />
+            <Ionicons color={colors.textSecondary} name="bag-outline" size={14} />
             <Text style={[styles.cartInfoText, { color: colors.textSecondary }]}>
               {cart.items.length} items
             </Text>
           </View>
           <View style={styles.cartInfoItem}>
-            <Ionicons name="time-outline" size={14} color={colors.textSecondary} />
+            <Ionicons color={colors.textSecondary} name="time-outline" size={14} />
             <Text style={[styles.cartInfoText, { color: colors.textSecondary }]}>
               {formatRelativeTime(cart.abandonedAt)}
             </Text>
           </View>
-          <Badge label={statusConfig.label} variant={statusConfig.variant} size="sm" />
+          <Badge label={statusConfig.label} size="sm" variant={statusConfig.variant} />
         </View>
 
         {/* Footer */}
         <View style={[styles.cartFooter, { borderTopColor: colors.border }]}>
           <View style={styles.recoveryInfo}>
-            <Ionicons name="reload" size={14} color={colors.textSecondary} />
+            <Ionicons color={colors.textSecondary} name="reload" size={14} />
             <Text style={[styles.recoveryText, { color: colors.textSecondary }]}>
               {cart.recoveryAttempts} attempts
             </Text>
           </View>
           <View style={styles.actionButtons}>
-            {(cart.status === 'ABANDONED' || cart.status === 'CONTACTED') && (
+            {cart.status === 'ABANDONED' || cart.status === 'CONTACTED' ? (
               <Pressable
+                hitSlop={8}
                 style={[styles.actionButton, { backgroundColor: `${colors.success}15` }]}
                 onPress={() => onSendEmail(cart.id)}
-                hitSlop={8}
               >
-                <Ionicons name="mail" size={14} color={colors.success} />
-                <Text style={[styles.actionButtonText, { color: colors.success }]}>
-                  Send Email
-                </Text>
+                <Ionicons color={colors.success} name="mail" size={14} />
+                <Text style={[styles.actionButtonText, { color: colors.success }]}>Send Email</Text>
               </Pressable>
-            )}
+            ) : null}
             <Pressable
+              hitSlop={8}
               style={[styles.actionButton, { backgroundColor: `${colors.primary}10` }]}
               onPress={() => onViewDetails(cart)}
-              hitSlop={8}
             >
               <Text style={[styles.actionButtonText, { color: colors.primary }]}>View</Text>
-              <Ionicons name="chevron-forward" size={14} color={colors.primary} />
+              <Ionicons color={colors.primary} name="chevron-forward" size={14} />
             </Pressable>
           </View>
         </View>
@@ -288,7 +285,11 @@ export default function AbandonedOrdersScreen() {
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch abandoned carts
-  const { data: carts = [], isLoading, refetch } = useQuery({
+  const {
+    data: carts = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: currentTenant ? ['abandoned-carts', currentTenant.id] : ['abandoned-carts'],
     queryFn: async (): Promise<AbandonedCart[]> => {
       // TODO: Replace with actual API call
@@ -318,9 +319,7 @@ export default function AbandonedOrdersScreen() {
           customerName: 'Jane Smith',
           customerEmail: 'jane@example.com',
           status: 'CONTACTED',
-          items: [
-            { id: 'i3', productName: 'Wireless Mouse', quantity: 1, price: 49.99 },
-          ],
+          items: [{ id: 'i3', productName: 'Wireless Mouse', quantity: 1, price: 49.99 }],
           subtotal: 49.99,
           abandonedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
           lastContactedAt: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString(),
@@ -333,9 +332,7 @@ export default function AbandonedOrdersScreen() {
           customerName: 'Bob Wilson',
           customerEmail: 'bob@example.com',
           status: 'RECOVERED',
-          items: [
-            { id: 'i4', productName: 'Laptop Stand', quantity: 1, price: 79.99 },
-          ],
+          items: [{ id: 'i4', productName: 'Laptop Stand', quantity: 1, price: 79.99 }],
           subtotal: 79.99,
           abandonedAt: new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString(),
           lastContactedAt: new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString(),
@@ -366,13 +363,13 @@ export default function AbandonedOrdersScreen() {
     let filtered = carts;
 
     if (activeStatus !== 'all') {
-      filtered = filtered.filter(c => c.status === activeStatus);
+      filtered = filtered.filter((c) => c.status === activeStatus);
     }
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        c =>
+        (c) =>
           c.customerName.toLowerCase().includes(query) ||
           c.customerEmail.toLowerCase().includes(query)
       );
@@ -388,20 +385,16 @@ export default function AbandonedOrdersScreen() {
   }, [refetch]);
 
   const handleSendEmail = useCallback((cartId: string) => {
-    Alert.alert(
-      'Send Recovery Email',
-      'Send a cart recovery email to this customer?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Send',
-          onPress: () => {
-            // TODO: Call API to send recovery email
-            Alert.alert('Success', 'Recovery email sent successfully!');
-          },
+    Alert.alert('Send Recovery Email', 'Send a cart recovery email to this customer?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Send',
+        onPress: () => {
+          // TODO: Call API to send recovery email
+          Alert.alert('Success', 'Recovery email sent successfully!');
         },
-      ]
-    );
+      },
+    ]);
   }, []);
 
   const handleViewDetails = useCallback((cart: AbandonedCart) => {
@@ -430,7 +423,7 @@ export default function AbandonedOrdersScreen() {
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.headerTop}>
           <Pressable style={styles.backButton} onPress={() => router.back()}>
-            <Ionicons name="arrow-back" size={24} color={colors.text} />
+            <Ionicons color={colors.text} name="arrow-back" size={24} />
           </Pressable>
           <Text style={[styles.title, { color: colors.text }]}>Abandoned Carts</Text>
           <View style={styles.placeholder} />
@@ -450,46 +443,44 @@ export default function AbandonedOrdersScreen() {
             },
           ]}
         >
-          <Ionicons name="search" size={18} color={colors.textSecondary} />
+          <Ionicons color={colors.textSecondary} name="search" size={18} />
           <TextInput
-            style={[styles.searchInput, { color: colors.text }]}
             placeholder="Search customers..."
             placeholderTextColor={colors.textTertiary}
+            style={[styles.searchInput, { color: colors.text }]}
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          {searchQuery.length > 0 && (
+          {searchQuery.length > 0 ? (
             <Pressable onPress={() => setSearchQuery('')}>
-              <Ionicons name="close-circle" size={18} color={colors.textSecondary} />
+              <Ionicons color={colors.textSecondary} name="close-circle" size={18} />
             </Pressable>
-          )}
+          ) : null}
         </Animated.View>
 
         {/* Status Filters */}
         <Animated.View entering={FadeInDown.delay(200)}>
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filtersContainer}
+            showsHorizontalScrollIndicator={false}
           >
-            {CART_STATUSES.map(status => (
+            {CART_STATUSES.map((status) => (
               <Pressable
                 key={status.id}
                 style={[
                   styles.filterChip,
                   {
-                    backgroundColor:
-                      activeStatus === status.id ? colors.primary : colors.surface,
-                    borderColor:
-                      activeStatus === status.id ? colors.primary : colors.border,
+                    backgroundColor: activeStatus === status.id ? colors.primary : colors.surface,
+                    borderColor: activeStatus === status.id ? colors.primary : colors.border,
                   },
                 ]}
                 onPress={() => setActiveStatus(status.id)}
               >
                 <Ionicons
+                  color={activeStatus === status.id ? '#FFFFFF' : colors.textSecondary}
                   name={status.icon}
                   size={14}
-                  color={activeStatus === status.id ? '#FFFFFF' : colors.textSecondary}
                 />
                 <Text
                   style={[
@@ -507,49 +498,43 @@ export default function AbandonedOrdersScreen() {
 
       {/* Cart List */}
       {isLoading ? (
-        <ScrollView
-          contentContainerStyle={styles.listContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {[1, 2, 3, 4].map(i => (
+        <ScrollView contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false}>
+          {[1, 2, 3, 4].map((i) => (
             <Skeleton
               key={i}
-              width="100%"
-              height={160}
               borderRadius={16}
+              height={160}
               style={{ marginBottom: 12 }}
+              width="100%"
             />
           ))}
         </ScrollView>
       ) : filteredCarts.length === 0 ? (
         <EmptyState
-          icon="cart-outline"
-          title={searchQuery ? 'No carts found' : 'No abandoned carts'}
+          actionLabel={searchQuery ? 'Clear Search' : undefined}
           description={
             searchQuery
               ? 'Try adjusting your search or filters'
               : 'Great news! No customers have abandoned their carts'
           }
-          actionLabel={searchQuery ? 'Clear Search' : undefined}
+          icon="cart-outline"
+          title={searchQuery ? 'No carts found' : 'No abandoned carts'}
           onAction={searchQuery ? () => setSearchQuery('') : undefined}
         />
       ) : (
         <FlatList
+          contentContainerStyle={[styles.listContent, { paddingBottom: insets.bottom + 100 }]}
           data={filteredCarts}
-          renderItem={renderCart}
-          keyExtractor={item => item.id}
-          contentContainerStyle={[
-            styles.listContent,
-            { paddingBottom: insets.bottom + 100 },
-          ]}
-          showsVerticalScrollIndicator={false}
+          keyExtractor={(item) => item.id}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
-              onRefresh={onRefresh}
               tintColor={colors.primary}
+              onRefresh={onRefresh}
             />
           }
+          renderItem={renderCart}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </View>

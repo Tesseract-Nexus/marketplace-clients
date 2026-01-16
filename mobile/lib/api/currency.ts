@@ -113,7 +113,9 @@ const setToMemoryCache = (rates: Record<string, number>): void => {
 const getFromAsyncCache = async <T>(key: string): Promise<T | null> => {
   try {
     const cached = await AsyncStorage.getItem(key);
-    if (!cached) return null;
+    if (!cached) {
+      return null;
+    }
 
     const parsed: CachedData<T> = JSON.parse(cached);
     if (!isCacheValid(parsed.cachedAt)) {
@@ -193,7 +195,9 @@ export const currencyApi = {
     }
 
     // Fall back to API call
-    const response = await apiGet<ConvertResponse>(`/currency/convert?amount=${amount}&from=${from}&to=${to}`);
+    const response = await apiGet<ConvertResponse>(
+      `/currency/convert?amount=${amount}&from=${from}&to=${to}`
+    );
     return response.data;
   },
 
@@ -240,7 +244,10 @@ export const currencyApi = {
     }
 
     // Fall back to API call
-    const response = await apiPost<BulkConvertResponse>('/currency/bulk-convert', { amounts: items, to });
+    const response = await apiPost<BulkConvertResponse>('/currency/bulk-convert', {
+      amounts: items,
+      to,
+    });
     return response.data;
   },
 

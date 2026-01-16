@@ -37,10 +37,7 @@ import { typography, gradients, spacing } from '@/lib/design/typography';
 import { springs, shadows, premiumGradients } from '@/lib/design/animations';
 import { useUnreadNotificationCount } from '@/hooks/useNotifications';
 import { useCurrency } from '@/lib/hooks/useCurrency';
-import {
-  ProfileMenu,
-  DrawerNavigation,
-} from '@/components/admin';
+import { ProfileMenu, DrawerNavigation } from '@/components/admin';
 import {
   SimpleAnimatedCounter,
   ShimmerLoader,
@@ -102,10 +99,7 @@ function HeroRevenueCard({
   const animatedStyle = useAnimatedStyle(() => {
     'worklet';
     return {
-      transform: [
-        { scale: scale.value },
-        { translateY: floatY.value },
-      ] as any,
+      transform: [{ scale: scale.value }, { translateY: floatY.value }] as any,
     };
   });
 
@@ -129,8 +123,8 @@ function HeroRevenueCard({
     >
       <LinearGradient
         colors={[...premiumGradients.cosmic]}
-        start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
+        start={{ x: 0, y: 0 }}
         style={styles.heroGradient}
       >
         {/* Decorative circles */}
@@ -144,18 +138,26 @@ function HeroRevenueCard({
           <View style={styles.heroTop}>
             <View style={styles.heroLabelContainer}>
               <View style={styles.heroIconBg}>
-                <Ionicons name="wallet" size={20} color="#FFFFFF" />
+                <Ionicons color="#FFFFFF" name="wallet" size={20} />
               </View>
               <Text style={styles.heroLabel}>Total Revenue</Text>
             </View>
-            <View style={[styles.changeBadge, { backgroundColor: isPositive ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)' }]}>
+            <View
+              style={[
+                styles.changeBadge,
+                {
+                  backgroundColor: isPositive ? 'rgba(52,211,153,0.25)' : 'rgba(248,113,113,0.25)',
+                },
+              ]}
+            >
               <Ionicons
+                color={isPositive ? '#34D399' : '#F87171'}
                 name={isPositive ? 'trending-up' : 'trending-down'}
                 size={14}
-                color={isPositive ? '#34D399' : '#F87171'}
               />
               <Text style={[styles.changeText, { color: isPositive ? '#34D399' : '#F87171' }]}>
-                {isPositive ? '+' : ''}{change}%
+                {isPositive ? '+' : ''}
+                {change}%
               </Text>
             </View>
           </View>
@@ -163,10 +165,10 @@ function HeroRevenueCard({
           <View style={styles.heroValueContainer}>
             <Text style={styles.heroCurrency}>{currency}</Text>
             <SimpleAnimatedCounter
-              value={value}
-              prefix=""
               duration={1500}
+              prefix=""
               style={styles.heroValue}
+              value={value}
             />
           </View>
 
@@ -178,10 +180,7 @@ function HeroRevenueCard({
               <Animated.View
                 key={i}
                 entering={FadeInUp.delay(i * 50).springify()}
-                style={[
-                  styles.sparklineBar,
-                  { height: val * 0.4, opacity: 0.3 + (i * 0.07) },
-                ]}
+                style={[styles.sparklineBar, { height: val * 0.4, opacity: 0.3 + i * 0.07 }]}
               />
             ))}
           </View>
@@ -230,6 +229,7 @@ function StatCard({
 
   return (
     <AnimatedPressable
+      entering={FadeInUp.delay(100 + index * 80).springify()}
       style={[
         styles.statCard,
         { backgroundColor: isDark ? colors.surface : colors.card },
@@ -239,38 +239,34 @@ function StatCard({
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      entering={FadeInUp.delay(100 + index * 80).springify()}
     >
       <View style={[styles.statIconBg, { backgroundColor: `${color}15` }]}>
-        <Ionicons name={icon} size={20} color={color} />
+        <Ionicons color={color} name={icon} size={20} />
       </View>
 
       <SimpleAnimatedCounter
-        value={value}
-        duration={1200}
         delay={200 + index * 100}
+        duration={1200}
         style={[styles.statValue, { color: colors.text }]}
+        value={value}
       />
 
       <View style={styles.statBottom}>
         <Text style={[styles.statTitle, { color: colors.textSecondary }]}>{title}</Text>
-        {change !== undefined && (
+        {change !== undefined ? (
           <View style={styles.statChange}>
             <Ionicons
+              color={isPositive ? colors.success : colors.error}
               name={isPositive ? 'arrow-up' : 'arrow-down'}
               size={10}
-              color={isPositive ? colors.success : colors.error}
             />
             <Text
-              style={[
-                styles.statChangeText,
-                { color: isPositive ? colors.success : colors.error },
-              ]}
+              style={[styles.statChangeText, { color: isPositive ? colors.success : colors.error }]}
             >
               {Math.abs(change)}%
             </Text>
           </View>
-        )}
+        ) : null}
       </View>
     </AnimatedPressable>
   );
@@ -309,21 +305,21 @@ function QuickActionButton({
 
   return (
     <AnimatedPressable
+      entering={FadeInUp.delay(300 + index * 60).springify()}
       style={[styles.quickAction, animatedStyle]}
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      entering={FadeInUp.delay(300 + index * 60).springify()}
     >
       <LinearGradient
         colors={[color, `${color}CC`]}
-        start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
+        start={{ x: 0, y: 0 }}
         style={styles.quickActionGradient}
       >
-        <Ionicons name={icon} size={24} color="#FFFFFF" />
+        <Ionicons color="#FFFFFF" name={icon} size={24} />
       </LinearGradient>
-      <Text style={[styles.quickActionLabel, { color: colors.text }]} numberOfLines={1}>
+      <Text numberOfLines={1} style={[styles.quickActionLabel, { color: colors.text }]}>
         {label}
       </Text>
     </AnimatedPressable>
@@ -353,11 +349,19 @@ function ActivityItem({
       case 'shipped':
         return { icon: 'airplane' as const, color: colors.primary, bg: `${colors.primary}15` };
       case 'delivered':
-        return { icon: 'checkmark-circle' as const, color: colors.success, bg: `${colors.success}15` };
+        return {
+          icon: 'checkmark-circle' as const,
+          color: colors.success,
+          bg: `${colors.success}15`,
+        };
       case 'cancelled':
         return { icon: 'close-circle' as const, color: colors.error, bg: `${colors.error}15` };
       default:
-        return { icon: 'ellipse' as const, color: colors.textSecondary, bg: `${colors.textSecondary}15` };
+        return {
+          icon: 'ellipse' as const,
+          color: colors.textSecondary,
+          bg: `${colors.textSecondary}15`,
+        };
     }
   };
 
@@ -378,6 +382,7 @@ function ActivityItem({
 
   return (
     <AnimatedPressable
+      entering={FadeInRight.delay(400 + index * 60).springify()}
       style={[
         styles.activityItem,
         { backgroundColor: isDark ? colors.surface : colors.card },
@@ -387,16 +392,15 @@ function ActivityItem({
       onPress={onPress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      entering={FadeInRight.delay(400 + index * 60).springify()}
     >
       <View style={[styles.activityIcon, { backgroundColor: statusConfig.bg }]}>
-        <Ionicons name={statusConfig.icon} size={18} color={statusConfig.color} />
+        <Ionicons color={statusConfig.color} name={statusConfig.icon} size={18} />
       </View>
       <View style={styles.activityContent}>
-        <Text style={[styles.activityTitle, { color: colors.text }]} numberOfLines={1}>
+        <Text numberOfLines={1} style={[styles.activityTitle, { color: colors.text }]}>
           Order #{order.orderNumber}
         </Text>
-        <Text style={[styles.activitySubtitle, { color: colors.textSecondary }]} numberOfLines={1}>
+        <Text numberOfLines={1} style={[styles.activitySubtitle, { color: colors.textSecondary }]}>
           {order.customerName} • {formatCurrency(order.total, order.currency)}
         </Text>
       </View>
@@ -404,7 +408,7 @@ function ActivityItem({
         <Text style={[styles.activityTime, { color: colors.textTertiary }]}>
           {formatRelativeTime(order.createdAt)}
         </Text>
-        <Ionicons name="chevron-forward" size={16} color={colors.textTertiary} />
+        <Ionicons color={colors.textTertiary} name="chevron-forward" size={16} />
       </View>
     </AnimatedPressable>
   );
@@ -443,9 +447,7 @@ export default function DashboardScreen() {
     isLoading: statsLoading,
     refetch: refetchStats,
   } = useQuery({
-    queryKey: currentTenant
-      ? QUERY_KEYS.DASHBOARD_STATS(currentTenant.id)
-      : ['dashboard-stats'],
+    queryKey: currentTenant ? QUERY_KEYS.DASHBOARD_STATS(currentTenant.id) : ['dashboard-stats'],
     queryFn: async (): Promise<DashboardStats> => {
       try {
         const [allProducts, allOrders, allCustomers] = await Promise.all([
@@ -472,12 +474,16 @@ export default function DashboardScreen() {
         const customersTotal = (allCustomers as any).total || customersArray.length;
 
         const orderCurrencies = ordersArray.map((o: any) => o.currency || 'USD');
-        const mostCommonCurrency = orderCurrencies.length > 0
-          ? orderCurrencies.sort((a: string, b: string) =>
-              orderCurrencies.filter((v: string) => v === a).length -
-              orderCurrencies.filter((v: string) => v === b).length
-            ).pop()
-          : 'USD';
+        const mostCommonCurrency =
+          orderCurrencies.length > 0
+            ? orderCurrencies
+                .sort(
+                  (a: string, b: string) =>
+                    orderCurrencies.filter((v: string) => v === a).length -
+                    orderCurrencies.filter((v: string) => v === b).length
+                )
+                .pop()
+            : 'USD';
 
         return {
           revenue: { total: revenue, change: 12.5, currency: mostCommonCurrency || 'USD' },
@@ -543,11 +549,9 @@ export default function DashboardScreen() {
     const convertRevenue = async () => {
       if (stats?.revenue.total && stats.revenue.total > 0) {
         try {
-          const formatted = await formatConverted(
-            stats.revenue.total,
-            stats.revenue.currency,
-            { compact: false }
-          );
+          const formatted = await formatConverted(stats.revenue.total, stats.revenue.currency, {
+            compact: false,
+          });
           setConvertedRevenue(formatted);
         } catch (error) {
           setConvertedRevenue(formatCurrency(stats.revenue.total, stats.revenue.currency));
@@ -568,16 +572,40 @@ export default function DashboardScreen() {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
+    if (hour < 12) {
+      return 'Good morning';
+    }
+    if (hour < 17) {
+      return 'Good afternoon';
+    }
     return 'Good evening';
   };
 
   const quickActions = [
-    { icon: 'add-circle' as const, label: 'Add Product', color: '#6366F1', route: '/(tabs)/(admin)/add-product' },
-    { icon: 'receipt' as const, label: 'Orders', color: '#3B82F6', route: '/(tabs)/(admin)/orders' },
-    { icon: 'people' as const, label: 'Customers', color: '#10B981', route: '/(tabs)/(admin)/customers' },
-    { icon: 'bar-chart' as const, label: 'Analytics', color: '#F59E0B', route: '/(tabs)/(admin)/analytics' },
+    {
+      icon: 'add-circle' as const,
+      label: 'Add Product',
+      color: '#6366F1',
+      route: '/(tabs)/(admin)/add-product',
+    },
+    {
+      icon: 'receipt' as const,
+      label: 'Orders',
+      color: '#3B82F6',
+      route: '/(tabs)/(admin)/orders',
+    },
+    {
+      icon: 'people' as const,
+      label: 'Customers',
+      color: '#10B981',
+      route: '/(tabs)/(admin)/customers',
+    },
+    {
+      icon: 'bar-chart' as const,
+      label: 'Analytics',
+      color: '#F59E0B',
+      route: '/(tabs)/(admin)/analytics',
+    },
   ];
 
   return (
@@ -587,20 +615,17 @@ export default function DashboardScreen() {
           styles.scrollContent,
           { paddingTop: insets.top + 16, paddingBottom: insets.bottom + 100 },
         ]}
-        showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
-            onRefresh={onRefresh}
             tintColor={colors.primary}
+            onRefresh={onRefresh}
           />
         }
+        showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <Animated.View
-          entering={FadeInDown.springify().damping(15)}
-          style={styles.header}
-        >
+        <Animated.View entering={FadeInDown.springify().damping(15)} style={styles.header}>
           <View style={styles.headerLeft}>
             <Pressable
               style={[styles.menuButton, { backgroundColor: colors.surface }]}
@@ -609,7 +634,7 @@ export default function DashboardScreen() {
                 setDrawerVisible(true);
               }}
             >
-              <Ionicons name="menu" size={22} color={colors.text} />
+              <Ionicons color={colors.text} name="menu" size={22} />
             </Pressable>
             <View>
               <Text style={[styles.greeting, { color: colors.textSecondary }]}>
@@ -628,7 +653,7 @@ export default function DashboardScreen() {
                 router.push('/(tabs)/(admin)/search' as any);
               }}
             >
-              <Ionicons name="search" size={20} color={colors.text} />
+              <Ionicons color={colors.text} name="search" size={20} />
             </Pressable>
             <Pressable
               style={[styles.notificationButton, { backgroundColor: colors.surface }]}
@@ -637,40 +662,40 @@ export default function DashboardScreen() {
                 router.push('/(tabs)/(admin)/notifications' as any);
               }}
             >
-              <Ionicons name="notifications-outline" size={20} color={colors.text} />
-              {unreadNotificationCount > 0 && (
+              <Ionicons color={colors.text} name="notifications-outline" size={20} />
+              {unreadNotificationCount > 0 ? (
                 <View style={[styles.notificationBadge, { backgroundColor: colors.error }]}>
                   <Text style={styles.notificationCount}>
                     {unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}
                   </Text>
                 </View>
-              )}
+              ) : null}
             </Pressable>
             <ProfileMenu />
           </View>
         </Animated.View>
 
         {/* Store Selector */}
-        {currentTenant && (
+        {currentTenant ? (
           <Animated.View
             entering={FadeInDown.delay(50).springify()}
             style={styles.storeSelectorContainer}
           >
             <StoreSelector />
           </Animated.View>
-        )}
+        ) : null}
 
         {/* Hero Revenue Card */}
         {statsLoading || currencyLoading ? (
           <View style={styles.heroSkeleton}>
-            <ShimmerLoader height={180} borderRadius={24} />
+            <ShimmerLoader borderRadius={24} height={180} />
           </View>
         ) : (
           <Animated.View entering={FadeInDown.delay(100).springify()}>
             <HeroRevenueCard
-              value={stats?.revenue.total || 0}
               change={stats?.revenue.change || 0}
               currency={adminCurrency}
+              value={stats?.revenue.total || 0}
               onPress={() => router.push('/(tabs)/(admin)/analytics')}
             />
           </Animated.View>
@@ -681,43 +706,43 @@ export default function DashboardScreen() {
           <View style={styles.statsRow}>
             {[1, 2, 3].map((i) => (
               <View key={i} style={styles.statCardSkeleton}>
-                <ShimmerLoader height={120} borderRadius={20} />
+                <ShimmerLoader borderRadius={20} height={120} />
               </View>
             ))}
           </View>
         ) : (
           <View style={styles.statsRow}>
             <StatCard
+              change={stats?.orders.change}
+              color={colors.info}
+              icon="receipt"
+              index={0}
               title="Orders"
               value={stats?.orders.total || 0}
-              change={stats?.orders.change}
-              icon="receipt"
-              color={colors.info}
-              index={0}
               onPress={() => router.push('/(tabs)/(admin)/orders')}
             />
             <StatCard
+              change={stats?.customers.change}
+              color={colors.success}
+              icon="people"
+              index={1}
               title="Customers"
               value={stats?.customers.total || 0}
-              change={stats?.customers.change}
-              icon="people"
-              color={colors.success}
-              index={1}
               onPress={() => router.push('/(tabs)/(admin)/customers')}
             />
             <StatCard
+              color={colors.warning}
+              icon="cube"
+              index={2}
               title="Products"
               value={stats?.products.total || 0}
-              icon="cube"
-              color={colors.warning}
-              index={2}
               onPress={() => router.push('/(tabs)/(admin)/products')}
             />
           </View>
         )}
 
         {/* Low Stock Alert */}
-        {stats && stats.products.outOfStock > 2 && (
+        {stats && stats.products.outOfStock > 2 ? (
           <Animated.View entering={FadeInDown.delay(280).springify()}>
             <Pressable
               style={[styles.alertCard, { backgroundColor: `${colors.warning}12` }]}
@@ -727,23 +752,23 @@ export default function DashboardScreen() {
               }}
             >
               <View style={[styles.alertIcon, { backgroundColor: `${colors.warning}20` }]}>
-                <Ionicons name="alert-circle" size={20} color={colors.warning} />
+                <Ionicons color={colors.warning} name="alert-circle" size={20} />
               </View>
               <View style={styles.alertContent}>
                 <Text style={[styles.alertTitle, { color: colors.text }]}>
                   {stats.products.outOfStock} products low on stock
                 </Text>
                 <AnimatedProgressBar
-                  progress={(stats.products.outOfStock / stats.products.total) * 100}
-                  height={4}
                   gradient={[colors.warning, colors.error]}
+                  height={4}
+                  progress={(stats.products.outOfStock / stats.products.total) * 100}
                   style={{ marginTop: 8 }}
                 />
               </View>
-              <Ionicons name="chevron-forward" size={18} color={colors.textTertiary} />
+              <Ionicons color={colors.textTertiary} name="chevron-forward" size={18} />
             </Pressable>
           </Animated.View>
-        )}
+        ) : null}
 
         {/* Quick Actions */}
         <View style={styles.section}>
@@ -752,10 +777,10 @@ export default function DashboardScreen() {
             {quickActions.map((action, index) => (
               <QuickActionButton
                 key={action.label}
-                icon={action.icon}
-                label={action.label}
                 color={action.color}
+                icon={action.icon}
                 index={index}
+                label={action.label}
                 onPress={() => router.push(action.route as any)}
               />
             ))}
@@ -787,8 +812,8 @@ export default function DashboardScreen() {
               {recentOrders.map((order, index) => (
                 <ActivityItem
                   key={order.id}
-                  order={order}
                   index={index}
+                  order={order}
                   onPress={() => router.push(`/(tabs)/(admin)/order-detail?id=${order.id}`)}
                 />
               ))}
@@ -799,11 +824,9 @@ export default function DashboardScreen() {
               style={[styles.emptyState, { backgroundColor: colors.surface }]}
             >
               <View style={[styles.emptyIcon, { backgroundColor: `${colors.primary}10` }]}>
-                <Ionicons name="receipt-outline" size={32} color={colors.primary} />
+                <Ionicons color={colors.primary} name="receipt-outline" size={32} />
               </View>
-              <Text style={[styles.emptyText, { color: colors.text }]}>
-                No recent orders
-              </Text>
+              <Text style={[styles.emptyText, { color: colors.text }]}>No recent orders</Text>
               <Text style={[styles.emptySubtext, { color: colors.textSecondary }]}>
                 Orders will appear here when customers make purchases
               </Text>
@@ -814,16 +837,13 @@ export default function DashboardScreen() {
 
       {/* Floating Action Button */}
       <FAB
+        gradient={premiumGradients.cosmic}
         icon="add"
         onPress={() => router.push('/(tabs)/(admin)/add-product')}
-        gradient={premiumGradients.cosmic}
       />
 
       {/* Drawer Navigation */}
-      <DrawerNavigation
-        visible={drawerVisible}
-        onClose={() => setDrawerVisible(false)}
-      />
+      <DrawerNavigation visible={drawerVisible} onClose={() => setDrawerVisible(false)} />
     </View>
   );
 }

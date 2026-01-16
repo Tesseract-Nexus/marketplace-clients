@@ -60,36 +60,29 @@ export const queryKeys = {
     all: (tenantId: string) => [...queryKeys.tenant(tenantId), 'products'] as const,
     list: (tenantId: string, filters?: object) =>
       [...queryKeys.products.all(tenantId), 'list', filters] as const,
-    detail: (tenantId: string, id: string) =>
-      [...queryKeys.products.all(tenantId), id] as const,
-    stats: (tenantId: string) =>
-      [...queryKeys.products.all(tenantId), 'stats'] as const,
+    detail: (tenantId: string, id: string) => [...queryKeys.products.all(tenantId), id] as const,
+    stats: (tenantId: string) => [...queryKeys.products.all(tenantId), 'stats'] as const,
   },
 
   orders: {
     all: (tenantId: string) => [...queryKeys.tenant(tenantId), 'orders'] as const,
     list: (tenantId: string, filters?: object) =>
       [...queryKeys.orders.all(tenantId), 'list', filters] as const,
-    detail: (tenantId: string, id: string) =>
-      [...queryKeys.orders.all(tenantId), id] as const,
-    stats: (tenantId: string) =>
-      [...queryKeys.orders.all(tenantId), 'stats'] as const,
+    detail: (tenantId: string, id: string) => [...queryKeys.orders.all(tenantId), id] as const,
+    stats: (tenantId: string) => [...queryKeys.orders.all(tenantId), 'stats'] as const,
   },
 
   customers: {
     all: (tenantId: string) => [...queryKeys.tenant(tenantId), 'customers'] as const,
     list: (tenantId: string, filters?: object) =>
       [...queryKeys.customers.all(tenantId), 'list', filters] as const,
-    detail: (tenantId: string, id: string) =>
-      [...queryKeys.customers.all(tenantId), id] as const,
-    stats: (tenantId: string) =>
-      [...queryKeys.customers.all(tenantId), 'stats'] as const,
+    detail: (tenantId: string, id: string) => [...queryKeys.customers.all(tenantId), id] as const,
+    stats: (tenantId: string) => [...queryKeys.customers.all(tenantId), 'stats'] as const,
   },
 
   categories: {
     all: (tenantId: string) => [...queryKeys.tenant(tenantId), 'categories'] as const,
-    tree: (tenantId: string) =>
-      [...queryKeys.categories.all(tenantId), 'tree'] as const,
+    tree: (tenantId: string) => [...queryKeys.categories.all(tenantId), 'tree'] as const,
   },
 
   cart: {
@@ -99,16 +92,14 @@ export const queryKeys = {
   },
 
   notifications: {
-    all: (tenantId: string) =>
-      [...queryKeys.tenant(tenantId), 'notifications'] as const,
+    all: (tenantId: string) => [...queryKeys.tenant(tenantId), 'notifications'] as const,
     list: (tenantId: string, filters?: object) =>
       [...queryKeys.notifications.all(tenantId), 'list', filters] as const,
   },
 
   analytics: {
     all: (tenantId: string) => [...queryKeys.tenant(tenantId), 'analytics'] as const,
-    dashboard: (tenantId: string) =>
-      [...queryKeys.analytics.all(tenantId), 'dashboard'] as const,
+    dashboard: (tenantId: string) => [...queryKeys.analytics.all(tenantId), 'dashboard'] as const,
     sales: (tenantId: string, params?: object) =>
       [...queryKeys.analytics.all(tenantId), 'sales', params] as const,
     customers: (tenantId: string, params?: object) =>
@@ -129,16 +120,15 @@ export const invalidateTenantQueries = (tenantId: string) => {
 
 // Utility to clear cache for non-current tenants (memory optimization)
 export const clearOtherTenantCaches = (currentTenantId: string) => {
-  queryClient.getQueryCache().findAll().forEach((query) => {
-    const key = query.queryKey;
-    if (
-      Array.isArray(key) &&
-      key[0] === 'tenant' &&
-      key[1] !== currentTenantId
-    ) {
-      queryClient.removeQueries({ queryKey: key });
-    }
-  });
+  queryClient
+    .getQueryCache()
+    .findAll()
+    .forEach((query) => {
+      const key = query.queryKey;
+      if (Array.isArray(key) && key[0] === 'tenant' && key[1] !== currentTenantId) {
+        queryClient.removeQueries({ queryKey: key });
+      }
+    });
 };
 
 interface QueryProviderProps {
@@ -146,11 +136,7 @@ interface QueryProviderProps {
 }
 
 export function QueryProvider({ children }: QueryProviderProps) {
-  return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
-  );
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
 }
 
 export { queryClient };

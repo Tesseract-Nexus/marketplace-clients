@@ -49,11 +49,7 @@ function AnimatedNumber({ value }: { value: string }) {
     ],
   }));
 
-  return (
-    <Animated.Text style={[styles.heroValue, animatedStyle]}>
-      {value}
-    </Animated.Text>
-  );
+  return <Animated.Text style={[styles.heroValue, animatedStyle]}>{value}</Animated.Text>;
 }
 
 export function HeroMetric({
@@ -76,13 +72,13 @@ export function HeroMetric({
       <Pressable onPress={onPress}>
         <LinearGradient
           colors={[...gradient]}
-          start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
+          start={{ x: 0, y: 0 }}
           style={styles.container}
         >
           {/* Glass overlay */}
           <View style={styles.glassOverlay}>
-            <BlurView intensity={20} tint="light" style={StyleSheet.absoluteFill} />
+            <BlurView intensity={20} style={StyleSheet.absoluteFill} tint="light" />
           </View>
 
           {/* Content */}
@@ -90,7 +86,7 @@ export function HeroMetric({
             {/* Header Row */}
             <View style={styles.headerRow}>
               <View style={styles.iconContainer}>
-                <Ionicons name={icon} size={20} color="rgba(255,255,255,0.9)" />
+                <Ionicons color="rgba(255,255,255,0.9)" name={icon} size={20} />
               </View>
               <Text style={styles.title}>{title}</Text>
             </View>
@@ -101,42 +97,48 @@ export function HeroMetric({
                 <AnimatedNumber value={value} />
 
                 {/* Change indicator */}
-                {change !== undefined && (
+                {change !== undefined ? (
                   <View style={styles.changeContainer}>
-                    <View style={[
-                      styles.changeBadge,
-                      { backgroundColor: isPositive ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)' }
-                    ]}>
+                    <View
+                      style={[
+                        styles.changeBadge,
+                        {
+                          backgroundColor: isPositive
+                            ? 'rgba(16,185,129,0.2)'
+                            : 'rgba(239,68,68,0.2)',
+                        },
+                      ]}
+                    >
                       <Ionicons
+                        color={isPositive ? '#34D399' : '#F87171'}
                         name={isPositive ? 'trending-up' : 'trending-down'}
                         size={14}
-                        color={isPositive ? '#34D399' : '#F87171'}
                       />
-                      <Text style={[
-                        styles.changeValue,
-                        { color: isPositive ? '#34D399' : '#F87171' }
-                      ]}>
-                        {isPositive ? '+' : ''}{change.toFixed(1)}%
+                      <Text
+                        style={[styles.changeValue, { color: isPositive ? '#34D399' : '#F87171' }]}
+                      >
+                        {isPositive ? '+' : ''}
+                        {change.toFixed(1)}%
                       </Text>
                     </View>
                     <Text style={styles.changeLabel}>{changeLabel}</Text>
                   </View>
-                )}
+                ) : null}
               </View>
 
               {/* Sparkline */}
-              {sparklineData && sparklineData.length > 0 && (
+              {sparklineData && sparklineData.length > 0 ? (
                 <View style={styles.sparklineContainer}>
                   <Sparkline
                     data={sparklineData}
-                    width={100}
+                    fillColor="rgba(255,255,255,0.3)"
                     height={48}
                     strokeColor="rgba(255,255,255,0.8)"
-                    fillColor="rgba(255,255,255,0.3)"
                     strokeWidth={2.5}
+                    width={100}
                   />
                 </View>
-              )}
+              ) : null}
             </View>
           </View>
 

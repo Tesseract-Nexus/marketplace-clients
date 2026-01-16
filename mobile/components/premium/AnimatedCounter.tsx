@@ -64,7 +64,9 @@ export function AnimatedCounter({
   const formatValue = () => {
     const fixed = displayValue.toFixed(decimals);
     if (formatNumber && !decimals) {
-      const formatted = Math.round(displayValue).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      const formatted = Math.round(displayValue)
+        .toString()
+        .replace(/\B(?=(\d{3})+(?!\d))/g, ',');
       return `${prefix}${formatted}${suffix}`;
     }
     return `${prefix}${fixed}${suffix}`;

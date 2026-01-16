@@ -80,7 +80,7 @@ export const productsApi = {
    * Bulk update products
    */
   bulkUpdate: async (
-    products: Array<{ id: string; data: Partial<UpdateProductRequest> }>
+    products: { id: string; data: Partial<UpdateProductRequest> }[]
   ): Promise<Product[]> => {
     const response = await apiPost<Product[]>(ENDPOINTS.PRODUCTS.BULK_UPDATE, { products });
     return response.data;
@@ -96,7 +96,10 @@ export const productsApi = {
   /**
    * Search products
    */
-  search: async (query: string, params?: Omit<ProductListParams, 'search'>): Promise<ApiListResponse<Product>> => {
+  search: async (
+    query: string,
+    params?: Omit<ProductListParams, 'search'>
+  ): Promise<ApiListResponse<Product>> => {
     const response = await apiGet<Product[]>(ENDPOINTS.PRODUCTS.LIST, {
       params: { ...params, search: query },
     });
@@ -116,7 +119,10 @@ export const productsApi = {
   /**
    * Get products by category
    */
-  byCategory: async (categoryId: string, params?: Omit<ProductListParams, 'category_id'>): Promise<ApiListResponse<Product>> => {
+  byCategory: async (
+    categoryId: string,
+    params?: Omit<ProductListParams, 'category_id'>
+  ): Promise<ApiListResponse<Product>> => {
     const response = await apiGet<Product[]>(ENDPOINTS.PRODUCTS.LIST, {
       params: { ...params, category_id: categoryId },
     });

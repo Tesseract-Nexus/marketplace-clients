@@ -1,13 +1,5 @@
 import React, { useCallback } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  Image,
-  StyleSheet,
-  Dimensions,
-  ViewStyle,
-} from 'react-native';
+import { View, Text, Pressable, Image, StyleSheet, Dimensions, ViewStyle } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -94,9 +86,7 @@ export function ProductCard({
   }));
 
   const heartAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [
-      { scale: interpolate(liked.value, [0, 0.5, 1], [1, 1.3, 1]) },
-    ],
+    transform: [{ scale: interpolate(liked.value, [0, 0.5, 1], [1, 1.3, 1]) }],
   }));
 
   const imageUrl = product.images?.[0]?.url || 'https://via.placeholder.com/400';
@@ -108,63 +98,51 @@ export function ProductCard({
         style={[styles.heroContainer, style]}
       >
         <AnimatedPressable
+          style={[styles.heroCard, { backgroundColor: colors.card }, shadows.lg, animatedStyle]}
+          onPress={handlePress}
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
-          onPress={handlePress}
-          style={[
-            styles.heroCard,
-            { backgroundColor: colors.card },
-            shadows.lg,
-            animatedStyle,
-          ]}
         >
           <Image source={{ uri: imageUrl }} style={styles.heroImage} />
-          <LinearGradient
-            colors={['transparent', 'rgba(0,0,0,0.8)']}
-            style={styles.heroGradient}
-          />
+          <LinearGradient colors={['transparent', 'rgba(0,0,0,0.8)']} style={styles.heroGradient} />
           <View style={styles.heroContent}>
             <View style={styles.heroHeader}>
-              {discount > 0 && (
-                <Badge label={`${discount}% OFF`} variant="error" size="sm" />
-              )}
+              {discount > 0 ? <Badge label={`${discount}% OFF`} size="sm" variant="error" /> : null}
               <Pressable
-                onPress={handleLike}
                 style={[styles.heroLikeButton, { backgroundColor: 'rgba(255,255,255,0.2)' }]}
+                onPress={handleLike}
               >
                 <Animated.View style={heartAnimatedStyle}>
                   <Ionicons
+                    color="#FFFFFF"
                     name={liked.value > 0.5 ? 'heart' : 'heart-outline'}
                     size={22}
-                    color="#FFFFFF"
                   />
                 </Animated.View>
               </Pressable>
             </View>
             <View style={styles.heroFooter}>
-              <Text style={styles.heroName} numberOfLines={2}>
+              <Text numberOfLines={2} style={styles.heroName}>
                 {product.name}
               </Text>
               <View style={styles.heroPriceRow}>
-                <Text style={styles.heroPrice}>
-                  {formatCurrency(product.price)}
-                </Text>
-                {product.compare_at_price && (
+                <Text style={styles.heroPrice}>{formatCurrency(product.price)}</Text>
+                {product.compare_at_price ? (
                   <Text style={styles.heroComparePrice}>
                     {formatCurrency(product.compare_at_price)}
                   </Text>
-                )}
+                ) : null}
               </View>
             </View>
           </View>
           <Pressable
-            onPress={handleAddToCart}
             style={({ pressed }) => [
               styles.heroAddButton,
               { backgroundColor: colors.primary, opacity: pressed ? 0.8 : 1 },
             ]}
+            onPress={handleAddToCart}
           >
-            <Ionicons name="add" size={24} color="#FFFFFF" />
+            <Ionicons color="#FFFFFF" name="add" size={24} />
           </Pressable>
         </AnimatedPressable>
       </Animated.View>
@@ -178,19 +156,14 @@ export function ProductCard({
         style={[styles.compactContainer, style]}
       >
         <AnimatedPressable
+          style={[styles.compactCard, { backgroundColor: colors.card }, shadows.sm, animatedStyle]}
+          onPress={handlePress}
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
-          onPress={handlePress}
-          style={[
-            styles.compactCard,
-            { backgroundColor: colors.card },
-            shadows.sm,
-            animatedStyle,
-          ]}
         >
           <Image source={{ uri: imageUrl }} style={styles.compactImage} />
           <View style={styles.compactContent}>
-            <Text style={[styles.compactName, { color: colors.text }]} numberOfLines={1}>
+            <Text numberOfLines={1} style={[styles.compactName, { color: colors.text }]}>
               {product.name}
             </Text>
             <Text style={[styles.compactPrice, { color: colors.primary }]}>
@@ -204,24 +177,18 @@ export function ProductCard({
 
   if (variant === 'minimal') {
     return (
-      <Animated.View
-        entering={FadeIn.delay(index * 50)}
-        style={[styles.minimalContainer, style]}
-      >
+      <Animated.View entering={FadeIn.delay(index * 50)} style={[styles.minimalContainer, style]}>
         <AnimatedPressable
+          style={animatedStyle}
+          onPress={handlePress}
           onPressIn={handlePressIn}
           onPressOut={handlePressOut}
-          onPress={handlePress}
-          style={animatedStyle}
         >
           <Image
             source={{ uri: imageUrl }}
             style={[styles.minimalImage, { borderRadius: borderRadius.lg }]}
           />
-          <Text
-            style={[styles.minimalName, { color: colors.text }]}
-            numberOfLines={1}
-          >
+          <Text numberOfLines={1} style={[styles.minimalName, { color: colors.text }]}>
             {product.name}
           </Text>
           <Text style={[styles.minimalPrice, { color: colors.textSecondary }]}>
@@ -239,15 +206,15 @@ export function ProductCard({
       style={[styles.defaultContainer, style]}
     >
       <AnimatedPressable
-        onPressIn={handlePressIn}
-        onPressOut={handlePressOut}
-        onPress={handlePress}
         style={[
           styles.defaultCard,
           { backgroundColor: colors.card, borderRadius: borderRadius.xl },
           shadows.md,
           animatedStyle,
         ]}
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
       >
         {/* Image Section */}
         <View style={styles.imageContainer}>
@@ -257,15 +224,14 @@ export function ProductCard({
           />
 
           {/* Discount Badge */}
-          {discount > 0 && (
+          {discount > 0 ? (
             <View style={styles.discountBadge}>
-              <Badge label={`-${discount}%`} variant="error" size="sm" />
+              <Badge label={`-${discount}%`} size="sm" variant="error" />
             </View>
-          )}
+          ) : null}
 
           {/* Wishlist Button */}
           <Pressable
-            onPress={handleLike}
             style={[
               styles.wishlistButton,
               {
@@ -273,19 +239,19 @@ export function ProductCard({
                 borderRadius: borderRadius.full,
               },
             ]}
+            onPress={handleLike}
           >
             <Animated.View style={heartAnimatedStyle}>
               <Ionicons
+                color={liked.value > 0.5 ? colors.error : colors.text}
                 name={liked.value > 0.5 ? 'heart' : 'heart-outline'}
                 size={18}
-                color={liked.value > 0.5 ? colors.error : colors.text}
               />
             </Animated.View>
           </Pressable>
 
           {/* Quick Add Button */}
           <Pressable
-            onPress={handleAddToCart}
             style={({ pressed }) => [
               styles.quickAddButton,
               {
@@ -294,40 +260,38 @@ export function ProductCard({
                 opacity: pressed ? 0.8 : 1,
               },
             ]}
+            onPress={handleAddToCart}
           >
-            <Ionicons name="add" size={20} color="#FFFFFF" />
+            <Ionicons color="#FFFFFF" name="add" size={20} />
           </Pressable>
         </View>
 
         {/* Content Section */}
         <View style={styles.contentSection}>
-          <Text
-            style={[styles.productName, { color: colors.text }]}
-            numberOfLines={2}
-          >
+          <Text numberOfLines={2} style={[styles.productName, { color: colors.text }]}>
             {product.name}
           </Text>
 
           {/* Rating */}
-          {product.rating_average > 0 && (
+          {product.rating_average > 0 ? (
             <View style={styles.ratingRow}>
-              <Ionicons name="star" size={12} color={colors.warning} />
+              <Ionicons color={colors.warning} name="star" size={12} />
               <Text style={[styles.ratingText, { color: colors.textSecondary }]}>
                 {product.rating_average.toFixed(1)} ({product.rating_count})
               </Text>
             </View>
-          )}
+          ) : null}
 
           {/* Price */}
           <View style={styles.priceRow}>
             <Text style={[styles.price, { color: colors.primary }]}>
               {formatCurrency(product.price)}
             </Text>
-            {product.compare_at_price && (
+            {product.compare_at_price ? (
               <Text style={[styles.comparePrice, { color: colors.textTertiary }]}>
                 {formatCurrency(product.compare_at_price)}
               </Text>
-            )}
+            ) : null}
           </View>
         </View>
       </AnimatedPressable>
@@ -363,19 +327,16 @@ export function FeaturedProductCard({ product, onPress }: FeaturedProductCardPro
   return (
     <Animated.View entering={FadeInDown.springify()}>
       <AnimatedPressable
+        style={[styles.featuredCard, shadows.xl, animatedStyle]}
+        onPress={handlePress}
         onPressIn={() => {
           scale.value = withSpring(0.98, { damping: 15 });
         }}
         onPressOut={() => {
           scale.value = withSpring(1, { damping: 15 });
         }}
-        onPress={handlePress}
-        style={[styles.featuredCard, shadows.xl, animatedStyle]}
       >
-        <Image
-          source={{ uri: product.images?.[0]?.url }}
-          style={styles.featuredImage}
-        />
+        <Image source={{ uri: product.images?.[0]?.url }} style={styles.featuredImage} />
         <LinearGradient
           colors={['transparent', 'rgba(0,0,0,0.9)']}
           locations={[0.4, 1]}
@@ -383,30 +344,26 @@ export function FeaturedProductCard({ product, onPress }: FeaturedProductCardPro
         />
         <View style={styles.featuredContent}>
           <View style={styles.featuredBadges}>
-            {product.is_featured && (
-              <Badge label="Featured" variant="primary" size="sm" />
-            )}
-            {product.compare_at_price && (
+            {product.is_featured ? <Badge label="Featured" size="sm" variant="primary" /> : null}
+            {product.compare_at_price ? (
               <Badge
                 label={`${Math.round((1 - product.price / product.compare_at_price) * 100)}% OFF`}
-                variant="error"
                 size="sm"
+                variant="error"
               />
-            )}
+            ) : null}
           </View>
           <Text style={styles.featuredName}>{product.name}</Text>
-          <Text style={styles.featuredDescription} numberOfLines={2}>
+          <Text numberOfLines={2} style={styles.featuredDescription}>
             {product.short_description || product.description}
           </Text>
           <View style={styles.featuredPriceRow}>
-            <Text style={styles.featuredPrice}>
-              {formatCurrency(product.price)}
-            </Text>
-            {product.compare_at_price && (
+            <Text style={styles.featuredPrice}>{formatCurrency(product.price)}</Text>
+            {product.compare_at_price ? (
               <Text style={styles.featuredComparePrice}>
                 {formatCurrency(product.compare_at_price)}
               </Text>
-            )}
+            ) : null}
           </View>
         </View>
       </AnimatedPressable>

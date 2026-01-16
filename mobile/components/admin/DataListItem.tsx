@@ -27,11 +27,11 @@ interface DataListItemProps {
   badgeColor?: string;
   onPress?: () => void;
   onLongPress?: () => void;
-  actions?: Array<{
+  actions?: {
     icon: keyof typeof Ionicons.glyphMap;
     color?: string;
     onPress: () => void;
-  }>;
+  }[];
   index?: number;
   style?: ViewStyle;
 }
@@ -82,102 +82,80 @@ export function DataListItem({
 
   return (
     <Container
+      entering={FadeInRight.delay(index * 50).springify()}
       style={[
         styles.container,
         { backgroundColor: colors.surface },
         onPress && animatedStyle,
         style,
       ]}
+      onLongPress={onLongPress}
       onPress={handlePress}
       onPressIn={handlePressIn}
       onPressOut={handlePressOut}
-      onLongPress={onLongPress}
-      entering={FadeInRight.delay(index * 50).springify()}
     >
       {/* Left Section */}
       <View style={styles.leftSection}>
         {leftElement}
-        {leftIcon && !leftElement && (
+        {leftIcon && !leftElement ? (
           <View
             style={[
               styles.iconContainer,
               { backgroundColor: `${leftIconColor || colors.primary}15` },
             ]}
           >
-            <Ionicons
-              name={leftIcon}
-              size={22}
-              color={leftIconColor || colors.primary}
-            />
+            <Ionicons color={leftIconColor || colors.primary} name={leftIcon} size={22} />
           </View>
-        )}
+        ) : null}
 
         {/* Content */}
         <View style={styles.content}>
           <View style={styles.titleRow}>
-            <Text
-              style={[styles.title, { color: colors.text }]}
-              numberOfLines={1}
-            >
+            <Text numberOfLines={1} style={[styles.title, { color: colors.text }]}>
               {title}
             </Text>
-            {badge && (
+            {badge ? (
               <View
-                style={[
-                  styles.badge,
-                  { backgroundColor: `${badgeColor || colors.primary}15` },
-                ]}
+                style={[styles.badge, { backgroundColor: `${badgeColor || colors.primary}15` }]}
               >
-                <Text
-                  style={[
-                    styles.badgeText,
-                    { color: badgeColor || colors.primary },
-                  ]}
-                >
+                <Text style={[styles.badgeText, { color: badgeColor || colors.primary }]}>
                   {badge}
                 </Text>
               </View>
-            )}
+            ) : null}
           </View>
-          {subtitle && (
-            <Text
-              style={[styles.subtitle, { color: colors.textSecondary }]}
-              numberOfLines={1}
-            >
+          {subtitle ? (
+            <Text numberOfLines={1} style={[styles.subtitle, { color: colors.textSecondary }]}>
               {subtitle}
             </Text>
-          )}
-          {description && (
-            <Text
-              style={[styles.description, { color: colors.textTertiary }]}
-              numberOfLines={2}
-            >
+          ) : null}
+          {description ? (
+            <Text numberOfLines={2} style={[styles.description, { color: colors.textTertiary }]}>
               {description}
             </Text>
-          )}
+          ) : null}
         </View>
       </View>
 
       {/* Right Section */}
       <View style={styles.rightSection}>
         {rightElement}
-        {rightText && !rightElement && (
+        {rightText && !rightElement ? (
           <View style={styles.rightTextContainer}>
-            <Text style={[styles.rightText, { color: colors.text }]}>
-              {rightText}
-            </Text>
-            {rightSubtext && (
+            <Text style={[styles.rightText, { color: colors.text }]}>{rightText}</Text>
+            {rightSubtext ? (
               <Text style={[styles.rightSubtext, { color: colors.textSecondary }]}>
                 {rightSubtext}
               </Text>
-            )}
+            ) : null}
           </View>
-        )}
-        {actions && (
+        ) : null}
+        {actions ? (
           <View style={styles.actionsContainer}>
             {actions.map((action, i) => (
               <Pressable
                 key={i}
+                hitSlop={4}
                 style={[
                   styles.actionButton,
                   { backgroundColor: `${action.color || colors.primary}10` },
@@ -186,20 +164,15 @@ export function DataListItem({
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                   action.onPress();
                 }}
-                hitSlop={4}
               >
-                <Ionicons
-                  name={action.icon}
-                  size={18}
-                  color={action.color || colors.primary}
-                />
+                <Ionicons color={action.color || colors.primary} name={action.icon} size={18} />
               </Pressable>
             ))}
           </View>
-        )}
-        {onPress && !rightElement && !actions && (
-          <Ionicons name="chevron-forward" size={20} color={colors.textTertiary} />
-        )}
+        ) : null}
+        {onPress && !rightElement && !actions ? (
+          <Ionicons color={colors.textTertiary} name="chevron-forward" size={20} />
+        ) : null}
       </View>
     </Container>
   );

@@ -162,18 +162,19 @@ export const useOnboardingStore = create<OnboardingState>()(
             business_name: data.businessName,
             business_type: data.businessType,
             phone: data.phone,
-            address: data.address || data.city
-              ? {
-                  first_name: '',
-                  last_name: '',
-                  address1: data.address || '',
-                  city: data.city || '',
-                  state: data.state || '',
-                  postal_code: data.zipCode || '',
-                  country: data.country || '',
-                  country_code: data.country || '',
-                }
-              : undefined,
+            address:
+              data.address || data.city
+                ? {
+                    first_name: '',
+                    last_name: '',
+                    address1: data.address || '',
+                    city: data.city || '',
+                    state: data.state || '',
+                    postal_code: data.zipCode || '',
+                    country: data.country || '',
+                    country_code: data.country || '',
+                  }
+                : undefined,
             payment_provider: data.paymentProvider,
           });
 
