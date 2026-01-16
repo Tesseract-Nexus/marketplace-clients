@@ -24,9 +24,16 @@ export async function getAccessTokenFromBFF(): Promise<InternalTokenResponse | n
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('bff_session');
 
+    // Debug: Log all cookies to understand what's available
+    const allCookies = cookieStore.getAll();
+    console.log('[Auth Helper] Available cookies:', allCookies.map(c => c.name).join(', ') || 'none');
+
     if (!sessionCookie?.value) {
+      console.log('[Auth Helper] No bff_session cookie found');
       return null;
     }
+
+    console.log('[Auth Helper] Found bff_session, calling auth-bff at:', AUTH_BFF_URL);
 
     // Call the auth-bff internal endpoint to get the token
     const response = await fetch(`${AUTH_BFF_URL}/internal/get-token`, {
@@ -38,11 +45,14 @@ export async function getAccessTokenFromBFF(): Promise<InternalTokenResponse | n
     });
 
     if (!response.ok) {
-      console.error('[Auth Helper] Failed to get token from BFF:', response.status);
+      const errorText = await response.text();
+      console.error('[Auth Helper] Failed to get token from BFF:', response.status, errorText);
       return null;
     }
 
-    return await response.json();
+    const tokenData = await response.json();
+    console.log('[Auth Helper] Got token, tenant_id:', tokenData.tenant_id || 'not set');
+    return tokenData;
   } catch (error) {
     console.error('[Auth Helper] Error getting token from BFF:', error);
     return null;

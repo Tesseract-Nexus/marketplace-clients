@@ -218,17 +218,22 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
 
   // First try to get Authorization from the incoming request
   let authHeader = incomingRequest?.headers.get('Authorization') || incomingRequest?.headers.get('authorization');
+  console.log('[Proxy Headers] Incoming auth header present:', !!authHeader);
 
   // If no Authorization header, try to get token from BFF session
   if (!authHeader) {
+    console.log('[Proxy Headers] No auth header, trying BFF session...');
     const bffToken = await getAccessTokenFromBFF();
     if (bffToken?.access_token) {
       authHeader = `Bearer ${bffToken.access_token}`;
+      console.log('[Proxy Headers] Got token from BFF, tenant_id:', bffToken.tenant_id || 'none');
 
       // Also set tenant context from BFF session
       if (bffToken.tenant_id) {
         headers['X-Tenant-ID'] = bffToken.tenant_id;
       }
+    } else {
+      console.log('[Proxy Headers] No token from BFF session');
     }
   }
 
@@ -285,6 +290,10 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
   if (headers['X-Tenant-ID'] && !headers['x-jwt-claim-tenant-id']) {
     headers['x-jwt-claim-tenant-id'] = headers['X-Tenant-ID'];
   }
+
+  // Debug: Log final headers being set
+  console.log('[Proxy Headers] Final headers - sub:', headers['x-jwt-claim-sub'] || 'MISSING',
+    'tenant:', headers['x-jwt-claim-tenant-id'] || headers['X-Tenant-ID'] || 'MISSING');
 
   return {
     ...headers,
