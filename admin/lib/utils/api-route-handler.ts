@@ -10,6 +10,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { ERROR_CODES } from './api-error';
+import { getAccessTokenFromBFF } from '@/app/api/lib/auth-helper';
 
 /**
  * Cache configuration for different resource types
@@ -204,6 +205,88 @@ export function getProxyHeaders(incomingRequest?: Request, additionalHeaders?: H
 }
 
 /**
+ * Get proxy headers with BFF session token support (async)
+ * This tries to get the access token from the BFF session if no Authorization header is present
+ *
+ * @param incomingRequest - The incoming request (optional)
+ * @param additionalHeaders - Any additional headers to include
+ */
+export async function getProxyHeadersAsync(incomingRequest?: Request, additionalHeaders?: HeadersInit): Promise<HeadersInit> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // First try to get Authorization from the incoming request
+  let authHeader = incomingRequest?.headers.get('Authorization') || incomingRequest?.headers.get('authorization');
+
+  // If no Authorization header, try to get token from BFF session
+  if (!authHeader) {
+    const bffToken = await getAccessTokenFromBFF();
+    if (bffToken?.access_token) {
+      authHeader = `Bearer ${bffToken.access_token}`;
+
+      // Also set tenant context from BFF session
+      if (bffToken.tenant_id) {
+        headers['X-Tenant-ID'] = bffToken.tenant_id;
+      }
+    }
+  }
+
+  if (authHeader) {
+    headers['Authorization'] = authHeader;
+
+    // Extract JWT claims and forward as x-jwt-claim-* headers
+    const token = authHeader.replace(/^Bearer\s+/i, '');
+    const payload = decodeJwtPayload(token);
+
+    if (payload) {
+      if (payload.sub) {
+        headers['x-jwt-claim-sub'] = String(payload.sub);
+      }
+      if (payload.tenant_id) {
+        headers['x-jwt-claim-tenant-id'] = String(payload.tenant_id);
+      }
+      if (payload.staff_id) {
+        headers['x-jwt-claim-staff-id'] = String(payload.staff_id);
+      }
+      if (payload.vendor_id) {
+        headers['x-jwt-claim-vendor-id'] = String(payload.vendor_id);
+      }
+      if (payload.email) {
+        headers['x-jwt-claim-email'] = String(payload.email);
+      }
+      if (payload.preferred_username) {
+        headers['x-jwt-claim-preferred-username'] = String(payload.preferred_username);
+      }
+      if (payload.roles) {
+        headers['x-jwt-claim-roles'] = Array.isArray(payload.roles)
+          ? payload.roles.join(',')
+          : String(payload.roles);
+      }
+      if (payload.realm_access && typeof payload.realm_access === 'object') {
+        const realmAccess = payload.realm_access as { roles?: string[] };
+        if (realmAccess.roles) {
+          headers['x-jwt-claim-realm-roles'] = realmAccess.roles.join(',');
+        }
+      }
+    }
+  }
+
+  // Forward X-Tenant-ID from incoming request if not already set
+  if (!headers['X-Tenant-ID'] && incomingRequest) {
+    const tenantId = incomingRequest.headers.get('X-Tenant-ID') || incomingRequest.headers.get('x-tenant-id');
+    if (tenantId) {
+      headers['X-Tenant-ID'] = tenantId;
+    }
+  }
+
+  return {
+    ...headers,
+    ...additionalHeaders,
+  };
+}
+
+/**
  * Handle API route errors consistently
  */
 export function handleApiError(error: any, context?: string): NextResponse {
@@ -286,9 +369,12 @@ export async function proxyToBackend(
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   try {
+    // Use async version to support BFF session token retrieval
+    const proxyHeaders = await getProxyHeadersAsync(incomingRequest, headers);
+
     const response = await fetch(url.toString(), {
       method,
-      headers: getProxyHeaders(incomingRequest, headers),
+      headers: proxyHeaders,
       body: body ? JSON.stringify(body) : undefined,
       signal: controller.signal,
     });

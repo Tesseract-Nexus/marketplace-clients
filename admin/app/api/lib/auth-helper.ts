@@ -4,6 +4,51 @@ import { cookies } from 'next/headers';
 // Auth BFF URL for session validation
 const AUTH_BFF_URL = process.env.AUTH_BFF_INTERNAL_URL || 'http://auth-bff.marketplace.svc.cluster.local:8080';
 
+/**
+ * Response from the internal get-token endpoint
+ */
+interface InternalTokenResponse {
+  access_token: string;
+  user_id: string;
+  tenant_id?: string;
+  tenant_slug?: string;
+  expires_at: number;
+}
+
+/**
+ * Get access token from BFF session for server-side API calls
+ * This allows the Next.js BFF to make authenticated calls to backend services
+ */
+export async function getAccessTokenFromBFF(): Promise<InternalTokenResponse | null> {
+  try {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('bff_session');
+
+    if (!sessionCookie?.value) {
+      return null;
+    }
+
+    // Call the auth-bff internal endpoint to get the token
+    const response = await fetch(`${AUTH_BFF_URL}/internal/get-token`, {
+      method: 'GET',
+      headers: {
+        'Cookie': `bff_session=${sessionCookie.value}`,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.error('[Auth Helper] Failed to get token from BFF:', response.status);
+      return null;
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('[Auth Helper] Error getting token from BFF:', error);
+    return null;
+  }
+}
+
 interface BFFSessionResponse {
   authenticated: boolean;
   user?: {
