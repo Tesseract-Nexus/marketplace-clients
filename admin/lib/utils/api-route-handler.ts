@@ -287,13 +287,17 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
 
   // IMPORTANT: Also set x-jwt-claim-tenant-id for backend services using IstioAuth middleware
   // Backend services expect tenant_id from JWT claims (via Istio) but BFF calls bypass Istio
+  console.log('[Proxy Headers] Before copy - X-Tenant-ID:', headers['X-Tenant-ID'] || 'MISSING',
+    'x-jwt-claim-tenant-id:', headers['x-jwt-claim-tenant-id'] || 'MISSING');
   if (headers['X-Tenant-ID'] && !headers['x-jwt-claim-tenant-id']) {
     headers['x-jwt-claim-tenant-id'] = headers['X-Tenant-ID'];
+    console.log('[Proxy Headers] Copied X-Tenant-ID to x-jwt-claim-tenant-id');
   }
 
   // Debug: Log final headers being set
   console.log('[Proxy Headers] Final headers - sub:', headers['x-jwt-claim-sub'] || 'MISSING',
-    'tenant:', headers['x-jwt-claim-tenant-id'] || headers['X-Tenant-ID'] || 'MISSING');
+    'x-jwt-claim-tenant-id:', headers['x-jwt-claim-tenant-id'] || 'MISSING',
+    'X-Tenant-ID:', headers['X-Tenant-ID'] || 'MISSING');
 
   return {
     ...headers,
