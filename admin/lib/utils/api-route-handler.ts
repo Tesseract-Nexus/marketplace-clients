@@ -417,6 +417,44 @@ export function createApiRouteHandler(
 }
 
 /**
+ * Safely parse JSON response, handling non-JSON error responses
+ */
+async function safeParseJson(response: Response): Promise<{ data: any; isJson: boolean }> {
+  const contentType = response.headers.get('content-type') || '';
+  const text = await response.text();
+
+  if (contentType.includes('application/json') && text) {
+    try {
+      return { data: JSON.parse(text), isJson: true };
+    } catch {
+      // Failed to parse JSON, return as text error
+      return {
+        data: {
+          success: false,
+          error: {
+            code: 'PARSE_ERROR',
+            message: text.substring(0, 200)
+          }
+        },
+        isJson: false
+      };
+    }
+  }
+
+  // Non-JSON response (e.g., "upstream connect error")
+  return {
+    data: {
+      success: false,
+      error: {
+        code: response.ok ? 'INVALID_RESPONSE' : 'UPSTREAM_ERROR',
+        message: text.substring(0, 200) || `Backend returned ${response.status}`
+      }
+    },
+    isJson: false
+  };
+}
+
+/**
  * Proxy GET request to backend
  * Performance: Automatically adds Cache-Control headers based on resource type
  */
@@ -434,10 +472,11 @@ export async function proxyGet(
       incomingRequest: request,
     });
 
-    const data = await response.json();
+    const { data, isJson } = await safeParseJson(response);
 
-    if (!response.ok) {
-      return NextResponse.json(data, { status: response.status });
+    if (!response.ok || !isJson) {
+      const status = response.ok ? 502 : response.status;
+      return NextResponse.json(data, { status });
     }
 
     // Create response with cache headers
@@ -471,8 +510,9 @@ export async function proxyPost(
       incomingRequest: request,
     });
 
-    const data = await response.json();
-    const nextResponse = NextResponse.json(data, { status: response.status });
+    const { data, isJson } = await safeParseJson(response);
+    const status = !response.ok ? response.status : (!isJson ? 502 : response.status);
+    const nextResponse = NextResponse.json(data, { status });
 
     // Mutations should never be cached
     nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
@@ -500,8 +540,9 @@ export async function proxyPut(
       incomingRequest: request,
     });
 
-    const data = await response.json();
-    const nextResponse = NextResponse.json(data, { status: response.status });
+    const { data, isJson } = await safeParseJson(response);
+    const status = !response.ok ? response.status : (!isJson ? 502 : response.status);
+    const nextResponse = NextResponse.json(data, { status });
     nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
 
     return nextResponse;
@@ -527,8 +568,9 @@ export async function proxyPatch(
       incomingRequest: request,
     });
 
-    const data = await response.json();
-    const nextResponse = NextResponse.json(data, { status: response.status });
+    const { data, isJson } = await safeParseJson(response);
+    const status = !response.ok ? response.status : (!isJson ? 502 : response.status);
+    const nextResponse = NextResponse.json(data, { status });
     nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
 
     return nextResponse;
@@ -561,8 +603,9 @@ export async function proxyDelete(
       return nextResponse;
     }
 
-    const data = await response.json();
-    const nextResponse = NextResponse.json(data, { status: response.status });
+    const { data, isJson } = await safeParseJson(response);
+    const status = !response.ok ? response.status : (!isJson ? 502 : response.status);
+    const nextResponse = NextResponse.json(data, { status });
     nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
 
     return nextResponse;
