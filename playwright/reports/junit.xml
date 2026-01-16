@@ -1,0 +1,327 @@
+<testsuites id="" name="" tests="31" failures="0" skipped="0" errors="0" time="506.358718">
+<testsuite name="admin/catalog.spec.ts" timestamp="2026-01-16T13:03:14.542Z" hostname="chromium" tests="5" failures="0" skipped="0" time="77.291" errors="0">
+<testcase name="Admin Catalog › should navigate to Catalog section" classname="admin/catalog.spec.ts" time="17.477">
+<system-out>
+<![CDATA[Catalog link not found - skipping
+
+[[ATTACHMENT|../test-results/artifacts/admin-catalog-Admin-Catalo-14581-navigate-to-Catalog-section-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Catalog › should display products list" classname="admin/catalog.spec.ts" time="12.46">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-catalog-Admin-Catalog-should-display-products-list-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Catalog › should display categories" classname="admin/catalog.spec.ts" time="18.513">
+<system-out>
+<![CDATA[Categories link not found - may be under Catalog submenu
+
+[[ATTACHMENT|../test-results/artifacts/admin-catalog-Admin-Catalog-should-display-categories-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Catalog › should have product search functionality" classname="admin/catalog.spec.ts" time="16.061">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-catalog-Admin-Catalo-45189-roduct-search-functionality-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Catalog › should have add product button" classname="admin/catalog.spec.ts" time="12.78">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-catalog-Admin-Catalog-should-have-add-product-button-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="admin/customers.spec.ts" timestamp="2026-01-16T13:03:14.542Z" hostname="chromium" tests="5" failures="0" skipped="0" time="75.46" errors="0">
+<testcase name="Admin Customers › should navigate to Customers section" classname="admin/customers.spec.ts" time="20.82">
+<system-out>
+<![CDATA[Customers link not found
+
+[[ATTACHMENT|../test-results/artifacts/admin-customers-Admin-Cust-7a2c7-vigate-to-Customers-section-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Customers › should display customers list or empty state" classname="admin/customers.spec.ts" time="16.824">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-customers-Admin-Cust-7548c-stomers-list-or-empty-state-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Customers › should have customer search functionality" classname="admin/customers.spec.ts" time="12.772">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-customers-Admin-Cust-e9d2d-stomer-search-functionality-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Customers › should access customer segments" classname="admin/customers.spec.ts" time="13.626">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-customers-Admin-Cust-2198f-ld-access-customer-segments-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Customers › should have export functionality" classname="admin/customers.spec.ts" time="11.418">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-customers-Admin-Cust-dd716-d-have-export-functionality-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="admin/dashboard.spec.ts" timestamp="2026-01-16T13:03:14.542Z" hostname="chromium" tests="4" failures="0" skipped="0" time="86.928" errors="0">
+<testcase name="Admin Dashboard › should display dashboard with key metrics" classname="admin/dashboard.spec.ts" time="27.152">
+<system-out>
+<![CDATA[Dashboard content visible
+
+[[ATTACHMENT|../test-results/artifacts/admin-dashboard-Admin-Dash-02c41--dashboard-with-key-metrics-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Dashboard › should display store information in sidebar" classname="admin/dashboard.spec.ts" time="14.248">
+<system-out>
+<![CDATA[Store information visible in sidebar
+
+[[ATTACHMENT|../test-results/artifacts/admin-dashboard-Admin-Dash-13cf0-tore-information-in-sidebar-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Dashboard › should have working navigation menu" classname="admin/dashboard.spec.ts" time="24.772">
+<system-out>
+<![CDATA[Found nav item: dashboard
+Found nav item: catalog
+Found nav item: products
+Found nav item: orders
+Found nav item: customers
+Found nav item: marketing
+Found nav item: settings
+Found 7 navigation items
+
+[[ATTACHMENT|../test-results/artifacts/admin-dashboard-Admin-Dash-0d9fe-ave-working-navigation-menu-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Dashboard › should display user profile section" classname="admin/dashboard.spec.ts" time="20.756">
+<system-out>
+<![CDATA[User profile section visible
+
+[[ATTACHMENT|../test-results/artifacts/admin-dashboard-Admin-Dash-de7bd-isplay-user-profile-section-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="admin/login.spec.ts" timestamp="2026-01-16T13:03:14.542Z" hostname="chromium" tests="6" failures="0" skipped="0" time="95.246" errors="0">
+<testcase name="Admin Portal Login › should load admin and redirect to login" classname="admin/login.spec.ts" time="13.802">
+<system-out>
+<![CDATA[
+=== Test starting ===
+Admin URL: https://demo-store-admin.tesserix.app
+Test user: samyak.rout@gmail.com
+Waiting for authentication check...
+On login page (Tesseract Hub)
+Auth state: login
+
+[[ATTACHMENT|../test-results/artifacts/admin-login-Admin-Portal-L-1b3c6-admin-and-redirect-to-login-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Portal Login › should login with valid credentials" classname="admin/login.spec.ts" time="14.712">
+<system-out>
+<![CDATA[
+=== Test starting ===
+Admin URL: https://demo-store-admin.tesserix.app
+Test user: samyak.rout@gmail.com
+Waiting for authentication check...
+On login page (Tesseract Hub)
+Performing Keycloak login...
+Entered email: samyak.rout@gmail.com
+Clicked Continue
+Entered password
+Clicked Sign In
+Waiting for dashboard...
+Dashboard loaded!
+Final URL: https://demo-store-admin.tesserix.app/
+
+[[ATTACHMENT|../test-results/artifacts/admin-login-Admin-Portal-L-ffc26-ogin-with-valid-credentials-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Portal Login › should display user info after login" classname="admin/login.spec.ts" time="12.5">
+<system-out>
+<![CDATA[
+=== Test starting ===
+Admin URL: https://demo-store-admin.tesserix.app
+Test user: samyak.rout@gmail.com
+Waiting for authentication check...
+On login page (Tesseract Hub)
+Performing Keycloak login...
+Entered email: samyak.rout@gmail.com
+Clicked Continue
+Entered password
+Clicked Sign In
+Waiting for dashboard...
+Dashboard loaded!
+User info visible: true
+
+[[ATTACHMENT|../test-results/artifacts/admin-login-Admin-Portal-L-49dac-splay-user-info-after-login-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Portal Login › should navigate admin sections" classname="admin/login.spec.ts" time="14.799">
+<system-out>
+<![CDATA[
+=== Test starting ===
+Admin URL: https://demo-store-admin.tesserix.app
+Test user: samyak.rout@gmail.com
+Waiting for authentication check...
+On login page (Tesseract Hub)
+Performing Keycloak login...
+Entered email: samyak.rout@gmail.com
+Clicked Continue
+Entered password
+Clicked Sign In
+Waiting for dashboard...
+Dashboard loaded!
+
+[[ATTACHMENT|../test-results/artifacts/admin-login-Admin-Portal-L-f4c73-uld-navigate-admin-sections-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Portal Login › should access Feature Flags" classname="admin/login.spec.ts" time="16.786">
+<system-out>
+<![CDATA[
+=== Test starting ===
+Admin URL: https://demo-store-admin.tesserix.app
+Test user: samyak.rout@gmail.com
+Waiting for authentication check...
+On login page (Tesseract Hub)
+Performing Keycloak login...
+Entered email: samyak.rout@gmail.com
+Clicked Continue
+Entered password
+Clicked Sign In
+Waiting for dashboard...
+Dashboard loaded!
+Feature Flags page loaded
+
+[[ATTACHMENT|../test-results/artifacts/admin-login-Admin-Portal-Login-should-access-Feature-Flags-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Portal Login › should persist session on reload" classname="admin/login.spec.ts" time="22.647">
+<system-out>
+<![CDATA[
+=== Test starting ===
+Admin URL: https://demo-store-admin.tesserix.app
+Test user: samyak.rout@gmail.com
+Waiting for authentication check...
+On login page (Tesseract Hub)
+Performing Keycloak login...
+Entered email: samyak.rout@gmail.com
+Clicked Continue
+Entered password
+Clicked Sign In
+Waiting for dashboard...
+Dashboard loaded!
+Waiting for authentication check...
+On dashboard (already authenticated)
+Waiting for dashboard...
+Dashboard loaded!
+After reload - logged in: true
+
+[[ATTACHMENT|../test-results/artifacts/admin-login-Admin-Portal-L-bc522-d-persist-session-on-reload-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="admin/orders.spec.ts" timestamp="2026-01-16T13:03:14.542Z" hostname="chromium" tests="5" failures="0" skipped="0" time="85.51" errors="0">
+<testcase name="Admin Orders › should navigate to Orders section" classname="admin/orders.spec.ts" time="18.116">
+<system-out>
+<![CDATA[Orders link not found
+
+[[ATTACHMENT|../test-results/artifacts/admin-orders-Admin-Orders-should-navigate-to-Orders-section-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Orders › should display orders list or empty state" classname="admin/orders.spec.ts" time="11.381">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-orders-Admin-Orders--60b70--orders-list-or-empty-state-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Orders › should have order status filters" classname="admin/orders.spec.ts" time="14.51">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-orders-Admin-Orders-should-have-order-status-filters-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Orders › should have order search functionality" classname="admin/orders.spec.ts" time="13.623">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-orders-Admin-Orders--4c3e6--order-search-functionality-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Orders › should have date range filter" classname="admin/orders.spec.ts" time="27.88">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-orders-Admin-Orders-should-have-date-range-filter-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+<testsuite name="admin/settings.spec.ts" timestamp="2026-01-16T13:03:14.542Z" hostname="chromium" tests="6" failures="0" skipped="0" time="84.183" errors="0">
+<testcase name="Admin Settings › should navigate to Settings section" classname="admin/settings.spec.ts" time="13.416">
+<system-out>
+<![CDATA[Settings link not found
+
+[[ATTACHMENT|../test-results/artifacts/admin-settings-Admin-Setti-28632-avigate-to-Settings-section-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Settings › should display general store settings" classname="admin/settings.spec.ts" time="12.274">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-settings-Admin-Setti-9d200-play-general-store-settings-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Settings › should access team/staff management" classname="admin/settings.spec.ts" time="13.561">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-settings-Admin-Setti-9ba23-ccess-team-staff-management-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Settings › should access payment settings" classname="admin/settings.spec.ts" time="12.807">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-settings-Admin-Settings-should-access-payment-settings-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Settings › should access shipping settings" classname="admin/settings.spec.ts" time="17.442">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-settings-Admin-Setti-0d27f-ld-access-shipping-settings-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+<testcase name="Admin Settings › should access audit logs" classname="admin/settings.spec.ts" time="14.683">
+<system-out>
+<![CDATA[
+[[ATTACHMENT|../test-results/artifacts/admin-settings-Admin-Settings-should-access-audit-logs-chromium/test-finished-1.png]]
+]]>
+</system-out>
+</testcase>
+</testsuite>
+</testsuites>

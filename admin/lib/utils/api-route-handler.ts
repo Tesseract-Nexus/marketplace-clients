@@ -143,6 +143,18 @@ function decodeJwtPayload(token: string): Record<string, unknown> | null {
   }
 }
 
+/**
+ * Extract email from JWT Authorization header
+ */
+function extractEmailFromJWT(authHeader: string): string | null {
+  const token = authHeader.replace(/^Bearer\s+/i, '');
+  const payload = decodeJwtPayload(token);
+  if (payload?.email && typeof payload.email === 'string') {
+    return payload.email;
+  }
+  return null;
+}
+
 async function getBffAccessToken(incomingRequest?: Request): Promise<BffTokenResponse | null> {
   if (!incomingRequest) {
     return null;
