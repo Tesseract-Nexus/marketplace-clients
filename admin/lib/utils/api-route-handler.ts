@@ -424,26 +424,23 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
     }
   }
 
-  // Forward X-Tenant-ID from incoming request if not already set
-  if (!headers['X-Tenant-ID'] && incomingRequest) {
-    const tenantId = incomingRequest.headers.get('X-Tenant-ID') || incomingRequest.headers.get('x-tenant-id');
-    if (tenantId) {
-      headers['X-Tenant-ID'] = tenantId;
+  // CRITICAL: Always prefer X-Tenant-ID from incoming request (set by VirtualService)
+  // The VirtualService header represents the "accessed tenant" which MUST take precedence
+  // over the JWT/session tenant for proper multi-tenant data isolation.
+  if (incomingRequest) {
+    const incomingTenantId = incomingRequest.headers.get('X-Tenant-ID') || incomingRequest.headers.get('x-tenant-id');
+    if (incomingTenantId) {
+      const sessionTenant = headers['X-Tenant-ID'];
+      if (sessionTenant && sessionTenant !== incomingTenantId) {
+        console.log('[Proxy Headers] Tenant override - Session:', sessionTenant, '-> VirtualService:', incomingTenantId);
+      }
+      headers['X-Tenant-ID'] = incomingTenantId;
     }
   }
 
-  // CRITICAL: Override x-jwt-claim-tenant-id with X-Tenant-ID from VirtualService
-  // In multi-tenant systems, users can belong to multiple tenants. The JWT's tenant_id is the
-  // "default/logged-in tenant", but the X-Tenant-ID header (set by Istio VirtualService) represents
-  // the "accessed tenant" which MUST take precedence for proper data isolation.
-  // Without this override, users accessing tenant B would get data from tenant A (the JWT tenant).
+  // Also override x-jwt-claim-tenant-id to match the accessed tenant
   if (headers['X-Tenant-ID']) {
-    const accessedTenant = headers['X-Tenant-ID'];
-    const jwtTenant = headers['x-jwt-claim-tenant-id'];
-    if (jwtTenant && jwtTenant !== accessedTenant) {
-      console.log('[Proxy Headers] Tenant override - JWT tenant:', jwtTenant, 'Accessed tenant:', accessedTenant);
-    }
-    headers['x-jwt-claim-tenant-id'] = accessedTenant;
+    headers['x-jwt-claim-tenant-id'] = headers['X-Tenant-ID'];
   } else if (!headers['x-jwt-claim-tenant-id']) {
     console.log('[Proxy Headers] WARNING: No tenant ID available');
   }
