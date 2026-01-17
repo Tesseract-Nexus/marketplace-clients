@@ -976,10 +976,13 @@ export default function OnboardingPage() {
       const phoneCountry = data.phoneCountryCode;
       const currentCountry = addressForm.getValues('country');
       if (phoneCountry) {
-        // If country is different or not set, update it and load states
+        // If country is different or not set, update it and clear all address fields
         if (currentCountry !== phoneCountry) {
           addressForm.setValue('country', phoneCountry, { shouldValidate: true });
-          addressForm.setValue('state', ''); // Reset state when country changes
+          addressForm.setValue('state', '');
+          addressForm.setValue('city', '');
+          addressForm.setValue('postalCode', '');
+          addressForm.setValue('streetAddress', '');
           loadStates(phoneCountry); // Don't await - let it load in background
         } else if (!states.length) {
           // Same country but states not loaded yet
@@ -1295,7 +1298,7 @@ export default function OnboardingPage() {
 
               {/* Step 1: Business Information */}
               {currentSection === 0 && (
-                <form onSubmit={businessForm.handleSubmit(handleBusinessSubmit)} className="space-y-6">
+                <form onSubmit={businessForm.handleSubmit(handleBusinessSubmit)} className="space-y-6" noValidate>
                   <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
@@ -1469,7 +1472,7 @@ export default function OnboardingPage() {
 
               {/* Step 2: Contact Details */}
               {currentSection === 1 && (
-                <form onSubmit={contactForm.handleSubmit(handleContactSubmit)} className="space-y-6">
+                <form onSubmit={contactForm.handleSubmit(handleContactSubmit)} className="space-y-6" noValidate>
                   <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
@@ -1491,6 +1494,9 @@ export default function OnboardingPage() {
                           placeholder="John"
                           className={contactForm.formState.errors.firstName ? inputErrorClass : inputClass}
                         />
+                        {contactForm.formState.errors.firstName && (
+                          <p className="mt-1 text-sm text-red-500">{contactForm.formState.errors.firstName.message}</p>
+                        )}
                       </div>
                       <div>
                         <label className={labelClass}>Last Name *</label>
@@ -1499,6 +1505,9 @@ export default function OnboardingPage() {
                           placeholder="Doe"
                           className={contactForm.formState.errors.lastName ? inputErrorClass : inputClass}
                         />
+                        {contactForm.formState.errors.lastName && (
+                          <p className="mt-1 text-sm text-red-500">{contactForm.formState.errors.lastName.message}</p>
+                        )}
                       </div>
                     </div>
 
@@ -1510,6 +1519,9 @@ export default function OnboardingPage() {
                         placeholder="john@example.com"
                         className={contactForm.formState.errors.email ? inputErrorClass : inputClass}
                       />
+                      {contactForm.formState.errors.email && (
+                        <p className="mt-1 text-sm text-red-500">{contactForm.formState.errors.email.message}</p>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-3 gap-4">
@@ -1554,6 +1566,9 @@ export default function OnboardingPage() {
                         error={!!contactForm.formState.errors.jobTitle}
                         enableSearch={false}
                       />
+                      {contactForm.formState.errors.jobTitle && (
+                        <p className="mt-1 text-sm text-red-500">{contactForm.formState.errors.jobTitle.message}</p>
+                      )}
                     </div>
                   </div>
 
@@ -1578,7 +1593,7 @@ export default function OnboardingPage() {
 
               {/* Step 3: Business Address */}
               {currentSection === 2 && (
-                <form onSubmit={addressForm.handleSubmit(handleAddressSubmit)} className="space-y-6">
+                <form onSubmit={addressForm.handleSubmit(handleAddressSubmit)} className="space-y-6" noValidate>
                   <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
@@ -1624,6 +1639,9 @@ export default function OnboardingPage() {
                           searchPlaceholder="Search countries..."
                           error={!!addressForm.formState.errors.country}
                         />
+                        {addressForm.formState.errors.country && (
+                          <p className="mt-1 text-sm text-red-500">{addressForm.formState.errors.country.message}</p>
+                        )}
                       </div>
                       <div>
                         <label className={labelClass}>State/Province *</label>
@@ -1642,23 +1660,35 @@ export default function OnboardingPage() {
                           error={!!addressForm.formState.errors.state}
                           emptyMessage={addressForm.watch('country') ? 'No states found' : 'Select a country first'}
                         />
+                        {addressForm.formState.errors.state && (
+                          <p className="mt-1 text-sm text-red-500">{addressForm.formState.errors.state.message}</p>
+                        )}
                       </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className={labelClass}>City *</label>
-                        <input {...addressForm.register('city')} placeholder="City" className={inputClass} />
+                        <input {...addressForm.register('city')} placeholder="City" className={addressForm.formState.errors.city ? inputErrorClass : inputClass} />
+                        {addressForm.formState.errors.city && (
+                          <p className="mt-1 text-sm text-red-500">{addressForm.formState.errors.city.message}</p>
+                        )}
                       </div>
                       <div>
                         <label className={labelClass}>Postal Code *</label>
-                        <input {...addressForm.register('postalCode')} placeholder="12345" className={inputClass} />
+                        <input {...addressForm.register('postalCode')} placeholder="12345" className={addressForm.formState.errors.postalCode ? inputErrorClass : inputClass} />
+                        {addressForm.formState.errors.postalCode && (
+                          <p className="mt-1 text-sm text-red-500">{addressForm.formState.errors.postalCode.message}</p>
+                        )}
                       </div>
                     </div>
 
                     <div>
                       <label className={labelClass}>Street Address *</label>
-                      <input {...addressForm.register('streetAddress')} placeholder="123 Main Street" className={inputClass} />
+                      <input {...addressForm.register('streetAddress')} placeholder="123 Main Street" className={addressForm.formState.errors.streetAddress ? inputErrorClass : inputClass} />
+                      {addressForm.formState.errors.streetAddress && (
+                        <p className="mt-1 text-sm text-red-500">{addressForm.formState.errors.streetAddress.message}</p>
+                      )}
                     </div>
 
                     <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-colors">
@@ -1693,7 +1723,7 @@ export default function OnboardingPage() {
 
               {/* Step 4: Store Setup */}
               {currentSection === 3 && (
-                <form onSubmit={storeSetupForm.handleSubmit(handleStoreSetupSubmit, (errors) => console.error('[StoreSetup] Validation errors:', errors))} className="space-y-6">
+                <form onSubmit={storeSetupForm.handleSubmit(handleStoreSetupSubmit, (errors) => console.error('[StoreSetup] Validation errors:', errors))} className="space-y-6" noValidate>
                   <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
                       <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
