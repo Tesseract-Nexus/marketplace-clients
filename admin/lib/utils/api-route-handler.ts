@@ -285,6 +285,41 @@ export async function getProxyHeaders(incomingRequest?: Request, additionalHeade
     bffToken = await getBffAccessToken(incomingRequest);
     if (bffToken?.access_token) {
       headers['Authorization'] = `Bearer ${bffToken.access_token}`;
+
+      // Also extract JWT claims from BFF token (same as when authHeader is present)
+      const token = bffToken.access_token;
+      const payload = decodeJwtPayload(token);
+      if (payload) {
+        if (payload.sub) {
+          headers['x-jwt-claim-sub'] = String(payload.sub);
+        }
+        if (payload.tenant_id) {
+          headers['x-jwt-claim-tenant-id'] = String(payload.tenant_id);
+        }
+        if (payload.staff_id) {
+          headers['x-jwt-claim-staff-id'] = String(payload.staff_id);
+        }
+        if (payload.vendor_id) {
+          headers['x-jwt-claim-vendor-id'] = String(payload.vendor_id);
+        }
+        if (payload.email) {
+          headers['x-jwt-claim-email'] = String(payload.email);
+        }
+        if (payload.preferred_username) {
+          headers['x-jwt-claim-preferred-username'] = String(payload.preferred_username);
+        }
+        if (payload.roles) {
+          headers['x-jwt-claim-roles'] = Array.isArray(payload.roles)
+            ? payload.roles.join(',')
+            : String(payload.roles);
+        }
+        if (payload.realm_access && typeof payload.realm_access === 'object') {
+          const realmAccess = payload.realm_access as { roles?: string[] };
+          if (realmAccess.roles) {
+            headers['x-jwt-claim-realm-roles'] = realmAccess.roles.join(',');
+          }
+        }
+      }
     }
   }
 
@@ -498,7 +533,7 @@ export async function proxyToBackend(
 
     const response = await fetch(url.toString(), {
       method,
-      headers: await getProxyHeaders(incomingRequest, headers),
+      headers: proxyHeaders,
       body: body ? JSON.stringify(body) : undefined,
       signal: controller.signal,
     });
