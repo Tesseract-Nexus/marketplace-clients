@@ -1045,14 +1045,11 @@ export default function OnboardingPage() {
         postal_code: data.postalCode,
         country: data.country,
       } as any);
-      // Pre-fill currency and timezone based on address country if not already set
+      // Pre-fill currency and timezone based on address country
+      // Always set them to match the selected country - user can still change on next page
       const countryDefaults = getCountryDefaults(data.country);
-      if (!storeSetupForm.getValues('currency')) {
-        storeSetupForm.setValue('currency', countryDefaults.currency);
-      }
-      if (!storeSetupForm.getValues('timezone')) {
-        storeSetupForm.setValue('timezone', countryDefaults.timezone);
-      }
+      storeSetupForm.setValue('currency', countryDefaults.currency);
+      storeSetupForm.setValue('timezone', countryDefaults.timezone);
       setCurrentSection(3);
     } catch (error) {
       // Use OnboardingAPIError for better error handling
