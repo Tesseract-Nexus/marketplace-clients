@@ -519,7 +519,7 @@ export default function OnboardingPage() {
   useBrowserClose({ sessionId, enabled: !!sessionId, hasUnsavedChanges: false });
   const { state: draftRecoveryState, recoverDraft, dismissDraft, deleteDraft } = useDraftRecovery({
     sessionId,
-    enabled: !!sessionId,
+    enabled: false, // Disabled for testing - set to !!sessionId to re-enable draft recovery
     onRecoveryComplete: handleDraftRecovery,
     onSessionNotFound: handleSessionNotFound,
   });
@@ -971,12 +971,20 @@ export default function OnboardingPage() {
         phone_country_code: callingCode,
         position: data.jobTitle,
       });
-      // Pre-fill address country based on phone country code if not already set
+      // Pre-fill address country based on phone country code
+      // Always set the country to help users - they can still change it
       const phoneCountry = data.phoneCountryCode;
-      if (phoneCountry && !addressForm.getValues('country')) {
-        addressForm.setValue('country', phoneCountry);
-        addressForm.setValue('state', ''); // Reset state when country changes
-        await loadStates(phoneCountry);
+      const currentCountry = addressForm.getValues('country');
+      if (phoneCountry) {
+        // If country is different or not set, update it and load states
+        if (currentCountry !== phoneCountry) {
+          addressForm.setValue('country', phoneCountry, { shouldValidate: true });
+          addressForm.setValue('state', ''); // Reset state when country changes
+          loadStates(phoneCountry); // Don't await - let it load in background
+        } else if (!states.length) {
+          // Same country but states not loaded yet
+          loadStates(phoneCountry);
+        }
       }
       setCurrentSection(2);
     } catch (error) {
