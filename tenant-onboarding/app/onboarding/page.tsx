@@ -19,6 +19,7 @@ import { analytics } from '../../lib/analytics/posthog';
 import { getBrowserGeolocation, reverseGeocode, checkGeolocationPermission } from '../../lib/utils/geolocation';
 import { useAutoSave, useBrowserClose, useDraftRecovery, type DraftFormData } from '../../lib/hooks';
 import { config } from '../../lib/config/app';
+import { getCountryDefaults } from '../../lib/utils/country-defaults';
 
 // Default base domain for subdomain-based URLs (will be updated from runtime config)
 // URL format: {subdomain}-admin.{baseDomain}
@@ -970,6 +971,13 @@ export default function OnboardingPage() {
         phone_country_code: callingCode,
         position: data.jobTitle,
       });
+      // Pre-fill address country based on phone country code if not already set
+      const phoneCountry = data.phoneCountryCode;
+      if (phoneCountry && !addressForm.getValues('country')) {
+        addressForm.setValue('country', phoneCountry);
+        addressForm.setValue('state', ''); // Reset state when country changes
+        await loadStates(phoneCountry);
+      }
       setCurrentSection(2);
     } catch (error) {
       // Use OnboardingAPIError for better error handling
@@ -1026,6 +1034,14 @@ export default function OnboardingPage() {
         postal_code: data.postalCode,
         country: data.country,
       } as any);
+      // Pre-fill currency and timezone based on address country if not already set
+      const countryDefaults = getCountryDefaults(data.country);
+      if (!storeSetupForm.getValues('currency')) {
+        storeSetupForm.setValue('currency', countryDefaults.currency);
+      }
+      if (!storeSetupForm.getValues('timezone')) {
+        storeSetupForm.setValue('timezone', countryDefaults.timezone);
+      }
       setCurrentSection(3);
     } catch (error) {
       // Use OnboardingAPIError for better error handling

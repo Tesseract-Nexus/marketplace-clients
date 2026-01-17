@@ -87,27 +87,69 @@ const REQUIRED_FIELDS = [
 ];
 
 const currencyOptions = [
-  { value: 'AUD', label: 'AUD - Australian Dollar' },
   { value: 'USD', label: 'USD - US Dollar' },
   { value: 'EUR', label: 'EUR - Euro' },
   { value: 'GBP', label: 'GBP - British Pound' },
+  { value: 'AUD', label: 'AUD - Australian Dollar' },
+  { value: 'CAD', label: 'CAD - Canadian Dollar' },
   { value: 'INR', label: 'INR - Indian Rupee' },
+  { value: 'JPY', label: 'JPY - Japanese Yen' },
+  { value: 'CNY', label: 'CNY - Chinese Yuan' },
+  { value: 'CHF', label: 'CHF - Swiss Franc' },
   { value: 'NZD', label: 'NZD - New Zealand Dollar' },
   { value: 'SGD', label: 'SGD - Singapore Dollar' },
-  { value: 'CAD', label: 'CAD - Canadian Dollar' },
+  { value: 'HKD', label: 'HKD - Hong Kong Dollar' },
+  { value: 'KRW', label: 'KRW - South Korean Won' },
+  { value: 'MXN', label: 'MXN - Mexican Peso' },
+  { value: 'BRL', label: 'BRL - Brazilian Real' },
+  { value: 'AED', label: 'AED - UAE Dirham' },
+  { value: 'SAR', label: 'SAR - Saudi Riyal' },
+  { value: 'SEK', label: 'SEK - Swedish Krona' },
+  { value: 'NOK', label: 'NOK - Norwegian Krone' },
+  { value: 'DKK', label: 'DKK - Danish Krone' },
+  { value: 'PLN', label: 'PLN - Polish Zloty' },
+  { value: 'ZAR', label: 'ZAR - South African Rand' },
+  { value: 'THB', label: 'THB - Thai Baht' },
+  { value: 'IDR', label: 'IDR - Indonesian Rupiah' },
+  { value: 'MYR', label: 'MYR - Malaysian Ringgit' },
+  { value: 'PHP', label: 'PHP - Philippine Peso' },
 ];
 
 const timezoneOptions = [
+  // Americas
+  { value: 'America/New_York', label: 'Eastern Time (US)' },
+  { value: 'America/Chicago', label: 'Central Time (US)' },
+  { value: 'America/Denver', label: 'Mountain Time (US)' },
+  { value: 'America/Los_Angeles', label: 'Pacific Time (US)' },
+  { value: 'America/Toronto', label: 'Toronto (EST/EDT)' },
+  { value: 'America/Mexico_City', label: 'Mexico City (CST/CDT)' },
+  { value: 'America/Sao_Paulo', label: 'São Paulo (BRT)' },
+  { value: 'America/Argentina/Buenos_Aires', label: 'Buenos Aires (ART)' },
+  // Europe
+  { value: 'Europe/London', label: 'London (GMT/BST)' },
+  { value: 'Europe/Paris', label: 'Paris (CET/CEST)' },
+  { value: 'Europe/Berlin', label: 'Berlin (CET/CEST)' },
+  { value: 'Europe/Amsterdam', label: 'Amsterdam (CET/CEST)' },
+  { value: 'Europe/Stockholm', label: 'Stockholm (CET/CEST)' },
+  { value: 'Europe/Moscow', label: 'Moscow (MSK)' },
+  // Asia
+  { value: 'Asia/Dubai', label: 'Dubai (GST)' },
+  { value: 'Asia/Kolkata', label: 'India (IST)' },
+  { value: 'Asia/Singapore', label: 'Singapore (SGT)' },
+  { value: 'Asia/Hong_Kong', label: 'Hong Kong (HKT)' },
+  { value: 'Asia/Shanghai', label: 'Shanghai (CST)' },
+  { value: 'Asia/Tokyo', label: 'Tokyo (JST)' },
+  { value: 'Asia/Seoul', label: 'Seoul (KST)' },
+  { value: 'Asia/Jakarta', label: 'Jakarta (WIB)' },
+  { value: 'Asia/Bangkok', label: 'Bangkok (ICT)' },
+  // Oceania
   { value: 'Australia/Sydney', label: 'Sydney (AEST/AEDT)' },
   { value: 'Australia/Melbourne', label: 'Melbourne (AEST/AEDT)' },
   { value: 'Australia/Brisbane', label: 'Brisbane (AEST)' },
   { value: 'Australia/Perth', label: 'Perth (AWST)' },
   { value: 'Pacific/Auckland', label: 'Auckland (NZST/NZDT)' },
-  { value: 'America/Los_Angeles', label: 'Pacific Time (US)' },
-  { value: 'America/New_York', label: 'Eastern Time (US)' },
-  { value: 'Europe/London', label: 'London (GMT/BST)' },
-  { value: 'Asia/Singapore', label: 'Singapore (SGT)' },
-  { value: 'Asia/Kolkata', label: 'India (IST)' },
+  // Other
+  { value: 'UTC', label: 'UTC' },
 ];
 
 const dateFormatOptions = [
@@ -119,44 +161,125 @@ const dateFormatOptions = [
 
 // Country options with flags
 const countryOptions = [
-  { value: 'AU', label: '🇦🇺 Australia', name: 'Australia' },
+  // North America
   { value: 'US', label: '🇺🇸 United States', name: 'United States' },
-  { value: 'GB', label: '🇬🇧 United Kingdom', name: 'United Kingdom' },
   { value: 'CA', label: '🇨🇦 Canada', name: 'Canada' },
-  { value: 'IN', label: '🇮🇳 India', name: 'India' },
-  { value: 'NZ', label: '🇳🇿 New Zealand', name: 'New Zealand' },
-  { value: 'SG', label: '🇸🇬 Singapore', name: 'Singapore' },
+  { value: 'MX', label: '🇲🇽 Mexico', name: 'Mexico' },
+  // Europe
+  { value: 'GB', label: '🇬🇧 United Kingdom', name: 'United Kingdom' },
   { value: 'DE', label: '🇩🇪 Germany', name: 'Germany' },
   { value: 'FR', label: '🇫🇷 France', name: 'France' },
+  { value: 'IT', label: '🇮🇹 Italy', name: 'Italy' },
+  { value: 'ES', label: '🇪🇸 Spain', name: 'Spain' },
+  { value: 'NL', label: '🇳🇱 Netherlands', name: 'Netherlands' },
+  { value: 'CH', label: '🇨🇭 Switzerland', name: 'Switzerland' },
+  { value: 'SE', label: '🇸🇪 Sweden', name: 'Sweden' },
+  { value: 'NO', label: '🇳🇴 Norway', name: 'Norway' },
+  { value: 'DK', label: '🇩🇰 Denmark', name: 'Denmark' },
+  { value: 'PL', label: '🇵🇱 Poland', name: 'Poland' },
+  // Asia Pacific
+  { value: 'IN', label: '🇮🇳 India', name: 'India' },
+  { value: 'CN', label: '🇨🇳 China', name: 'China' },
+  { value: 'JP', label: '🇯🇵 Japan', name: 'Japan' },
+  { value: 'KR', label: '🇰🇷 South Korea', name: 'South Korea' },
+  { value: 'AU', label: '🇦🇺 Australia', name: 'Australia' },
+  { value: 'NZ', label: '🇳🇿 New Zealand', name: 'New Zealand' },
+  { value: 'SG', label: '🇸🇬 Singapore', name: 'Singapore' },
+  { value: 'HK', label: '🇭🇰 Hong Kong', name: 'Hong Kong' },
+  { value: 'MY', label: '🇲🇾 Malaysia', name: 'Malaysia' },
+  { value: 'TH', label: '🇹🇭 Thailand', name: 'Thailand' },
+  { value: 'ID', label: '🇮🇩 Indonesia', name: 'Indonesia' },
+  { value: 'PH', label: '🇵🇭 Philippines', name: 'Philippines' },
+  // Middle East
+  { value: 'AE', label: '🇦🇪 UAE', name: 'United Arab Emirates' },
+  { value: 'SA', label: '🇸🇦 Saudi Arabia', name: 'Saudi Arabia' },
+  // South America
+  { value: 'BR', label: '🇧🇷 Brazil', name: 'Brazil' },
+  { value: 'AR', label: '🇦🇷 Argentina', name: 'Argentina' },
+  // Africa
+  { value: 'ZA', label: '🇿🇦 South Africa', name: 'South Africa' },
 ];
 
 // Country to timezone mapping for auto-detection
 const countryTimezoneMap: Record<string, string> = {
-  AU: 'Australia/Sydney',
-  US: 'America/Los_Angeles',
+  // North America
+  US: 'America/New_York',
+  CA: 'America/Toronto',
+  MX: 'America/Mexico_City',
+  // Europe
   GB: 'Europe/London',
-  CA: 'America/New_York',
+  DE: 'Europe/Berlin',
+  FR: 'Europe/Paris',
+  IT: 'Europe/Paris',
+  ES: 'Europe/Paris',
+  NL: 'Europe/Amsterdam',
+  CH: 'Europe/Paris',
+  SE: 'Europe/Stockholm',
+  NO: 'Europe/Stockholm',
+  DK: 'Europe/Stockholm',
+  PL: 'Europe/Paris',
+  // Asia Pacific
   IN: 'Asia/Kolkata',
+  CN: 'Asia/Shanghai',
+  JP: 'Asia/Tokyo',
+  KR: 'Asia/Seoul',
+  AU: 'Australia/Sydney',
   NZ: 'Pacific/Auckland',
   SG: 'Asia/Singapore',
-  DE: 'Europe/London',
-  FR: 'Europe/London',
+  HK: 'Asia/Hong_Kong',
+  MY: 'Asia/Singapore',
+  TH: 'Asia/Bangkok',
+  ID: 'Asia/Jakarta',
+  PH: 'Asia/Singapore',
+  // Middle East
+  AE: 'Asia/Dubai',
+  SA: 'Asia/Dubai',
+  // South America
+  BR: 'America/Sao_Paulo',
+  AR: 'America/Argentina/Buenos_Aires',
+  // Africa
+  ZA: 'Europe/Paris', // Close to CET
 };
 
 // Country to currency mapping for auto-detection
 const countryCurrencyMap: Record<string, string> = {
-  AU: 'AUD',
+  // North America
   US: 'USD',
-  GB: 'GBP',
   CA: 'CAD',
-  IN: 'INR',
-  NZ: 'NZD',
-  SG: 'SGD',
+  MX: 'MXN',
+  // Europe
+  GB: 'GBP',
   DE: 'EUR',
   FR: 'EUR',
-  ES: 'EUR',
   IT: 'EUR',
+  ES: 'EUR',
   NL: 'EUR',
+  CH: 'CHF',
+  SE: 'SEK',
+  NO: 'NOK',
+  DK: 'DKK',
+  PL: 'PLN',
+  // Asia Pacific
+  IN: 'INR',
+  CN: 'CNY',
+  JP: 'JPY',
+  KR: 'KRW',
+  AU: 'AUD',
+  NZ: 'NZD',
+  SG: 'SGD',
+  HK: 'HKD',
+  MY: 'MYR',
+  TH: 'THB',
+  ID: 'IDR',
+  PH: 'PHP',
+  // Middle East
+  AE: 'AED',
+  SA: 'SAR',
+  // South America
+  BR: 'BRL',
+  AR: 'USD', // ARS is unstable, USD is commonly used
+  // Africa
+  ZA: 'ZAR',
 };
 
 // Helper to get nested value from object

@@ -82,6 +82,7 @@ interface OnboardingDataResponse {
     last_name: string;
     email: string;
     phone?: string;
+    phone_country_code?: string;
     job_title?: string;
   };
   address?: {
