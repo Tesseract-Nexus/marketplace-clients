@@ -338,17 +338,13 @@ export async function getProxyHeaders(incomingRequest?: Request, additionalHeade
     }
   }
 
-  // CRITICAL: Detect tenant override and clear stale staff/vendor claims
-  // When accessing a different tenant than the JWT tenant, the staff_id and vendor_id
-  // from the JWT are for the wrong tenant. Clear them so backend falls back to lookup.
-  const jwtTenant = headers['x-jwt-claim-tenant-id'];
-  const accessedTenant = headers['X-Tenant-ID'];
-  if (accessedTenant && jwtTenant && accessedTenant !== jwtTenant) {
-    console.log('[Proxy Headers Sync] Tenant override - clearing stale claims');
-    delete headers['x-jwt-claim-staff-id'];
-    delete headers['x-jwt-claim-vendor-id'];
-    delete headers['X-Vendor-ID'];
-  }
+  // CRITICAL: Always clear staff_id and vendor_id claims from JWT
+  // The JWT claims represent the user's context when they logged in, which may be
+  // for a different tenant than they're currently accessing. The backend services
+  // will look up the correct staff/vendor from user_id + tenant_id.
+  delete headers['x-jwt-claim-staff-id'];
+  delete headers['x-jwt-claim-vendor-id'];
+  delete headers['X-Vendor-ID'];
 
   // CRITICAL: Override x-jwt-claim-tenant-id with X-Tenant-ID from VirtualService
   // The X-Tenant-ID from the incoming request (set by VirtualService) represents the "accessed tenant"
@@ -460,15 +456,18 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
     console.log('[Proxy Headers] WARNING: No tenant ID available');
   }
 
-  // CRITICAL: When tenant is overridden, clear staff_id and vendor_id claims
-  // The JWT claims are for the logged-in tenant, not the accessed tenant.
-  // Backend services will fall back to looking up staff/vendor from user_id + tenant_id.
-  if (tenantOverridden) {
-    console.log('[Proxy Headers] Tenant overridden - clearing stale staff_id and vendor_id claims');
-    delete headers['x-jwt-claim-staff-id'];
-    delete headers['x-jwt-claim-vendor-id'];
-    delete headers['X-Vendor-ID'];
-  }
+  // CRITICAL: Always clear staff_id and vendor_id claims from JWT
+  // The JWT claims represent the user's context when they logged in, which may be
+  // for a different tenant than they're currently accessing. The backend services
+  // will look up the correct staff/vendor from user_id + tenant_id.
+  // This is safe because:
+  // 1. Backend RBAC middleware falls back to user_id when staff_id is empty
+  // 2. Backend looks up staff record by user_id + tenant_id
+  // 3. This ensures correct permissions for the accessed tenant
+  console.log('[Proxy Headers] Clearing JWT staff_id/vendor_id - backend will look up from user_id + tenant_id');
+  delete headers['x-jwt-claim-staff-id'];
+  delete headers['x-jwt-claim-vendor-id'];
+  delete headers['X-Vendor-ID'];
 
   // Debug: Log final headers being set
   console.log('[Proxy Headers] Final headers - sub:', headers['x-jwt-claim-sub'] || 'MISSING',
