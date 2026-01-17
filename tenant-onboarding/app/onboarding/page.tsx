@@ -1116,6 +1116,30 @@ export default function OnboardingPage() {
         }
       }
 
+      // Save store setup to backend (persists to application_configurations)
+      const storeSetupPayload = {
+        subdomain: data.subdomain,
+        storefront_slug: data.storefrontSlug,
+        currency: data.currency,
+        timezone: data.timezone,
+        language: data.language,
+        business_model: data.businessModel,
+        logo_url: data.logo,
+        primary_color: data.primaryColor,
+        secondary_color: data.secondaryColor,
+      };
+
+      const storeSetupResponse = await fetch(`/api/onboarding/${sessionId}/store-setup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(storeSetupPayload),
+      });
+
+      if (!storeSetupResponse.ok) {
+        const errorData = await storeSetupResponse.json();
+        throw new Error(errorData.error?.message || 'Failed to save store setup');
+      }
+
       analytics.onboarding.storeSetupCompleted({ subdomain: data.subdomain, storefrontSlug: data.storefrontSlug, currency: data.currency, timezone: data.timezone, businessModel: data.businessModel });
       setStoreSetup({
         business_model: data.businessModel,

@@ -9,6 +9,18 @@ export interface InitializeSessionRequest {
   referral_code?: string;
 }
 
+export interface StoreSetup {
+  subdomain?: string;
+  storefront_slug?: string;
+  currency?: string;
+  timezone?: string;
+  language?: string;
+  business_model?: string;
+  logo_url?: string;
+  primary_color?: string;
+  secondary_color?: string;
+}
+
 export interface SessionResponse {
   session_id: string;
   status: OnboardingStatus;
@@ -17,6 +29,7 @@ export interface SessionResponse {
   business_info?: BusinessInformation;
   contact_info?: ContactInformation;
   address?: BusinessAddress;
+  store_setup?: StoreSetup;
   created_at: string;
   updated_at: string;
   expires_at: string;
