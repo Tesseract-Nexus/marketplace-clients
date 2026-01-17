@@ -1339,6 +1339,9 @@ export default function OnboardingPage() {
                           error={!!businessForm.formState.errors.businessType}
                           enableSearch={false}
                         />
+                        {businessForm.formState.errors.businessType && (
+                          <p className="mt-1 text-sm text-red-500">{businessForm.formState.errors.businessType.message}</p>
+                        )}
                       </div>
                       <div>
                         <label className={labelClass}>Industry *</label>
@@ -1353,6 +1356,9 @@ export default function OnboardingPage() {
                           searchPlaceholder="Search industries..."
                           error={!!businessForm.formState.errors.industryCategory}
                         />
+                        {businessForm.formState.errors.industryCategory && (
+                          <p className="mt-1 text-sm text-red-500">{businessForm.formState.errors.industryCategory.message}</p>
+                        )}
                       </div>
                     </div>
 
@@ -2005,6 +2011,9 @@ export default function OnboardingPage() {
                           searchPlaceholder="Search currencies..."
                           error={!!storeSetupForm.formState.errors.currency}
                         />
+                        {storeSetupForm.formState.errors.currency && (
+                          <p className="mt-1 text-sm text-red-500">{storeSetupForm.formState.errors.currency.message}</p>
+                        )}
                       </div>
                       <div>
                         <label className={labelClass}>Timezone *</label>
@@ -2021,6 +2030,9 @@ export default function OnboardingPage() {
                           searchPlaceholder="Search timezones..."
                           error={!!storeSetupForm.formState.errors.timezone}
                         />
+                        {storeSetupForm.formState.errors.timezone && (
+                          <p className="mt-1 text-sm text-red-500">{storeSetupForm.formState.errors.timezone.message}</p>
+                        )}
                       </div>
                     </div>
 
