@@ -338,6 +338,18 @@ export async function getProxyHeaders(incomingRequest?: Request, additionalHeade
     }
   }
 
+  // CRITICAL: Detect tenant override and clear stale staff/vendor claims
+  // When accessing a different tenant than the JWT tenant, the staff_id and vendor_id
+  // from the JWT are for the wrong tenant. Clear them so backend falls back to lookup.
+  const jwtTenant = headers['x-jwt-claim-tenant-id'];
+  const accessedTenant = headers['X-Tenant-ID'];
+  if (accessedTenant && jwtTenant && accessedTenant !== jwtTenant) {
+    console.log('[Proxy Headers Sync] Tenant override - clearing stale claims');
+    delete headers['x-jwt-claim-staff-id'];
+    delete headers['x-jwt-claim-vendor-id'];
+    delete headers['X-Vendor-ID'];
+  }
+
   // CRITICAL: Override x-jwt-claim-tenant-id with X-Tenant-ID from VirtualService
   // The X-Tenant-ID from the incoming request (set by VirtualService) represents the "accessed tenant"
   // which must take precedence over the JWT's tenant_id for proper multi-tenant data isolation.
@@ -427,12 +439,15 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
   // CRITICAL: Always prefer X-Tenant-ID from incoming request (set by VirtualService)
   // The VirtualService header represents the "accessed tenant" which MUST take precedence
   // over the JWT/session tenant for proper multi-tenant data isolation.
+  let tenantOverridden = false;
   if (incomingRequest) {
     const incomingTenantId = incomingRequest.headers.get('X-Tenant-ID') || incomingRequest.headers.get('x-tenant-id');
     if (incomingTenantId) {
       const sessionTenant = headers['X-Tenant-ID'];
-      if (sessionTenant && sessionTenant !== incomingTenantId) {
-        console.log('[Proxy Headers] Tenant override - Session:', sessionTenant, '-> VirtualService:', incomingTenantId);
+      const jwtTenant = headers['x-jwt-claim-tenant-id'];
+      if ((sessionTenant && sessionTenant !== incomingTenantId) || (jwtTenant && jwtTenant !== incomingTenantId)) {
+        console.log('[Proxy Headers] Tenant override - JWT:', jwtTenant, 'Session:', sessionTenant, '-> VirtualService:', incomingTenantId);
+        tenantOverridden = true;
       }
       headers['X-Tenant-ID'] = incomingTenantId;
     }
@@ -443,6 +458,16 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
     headers['x-jwt-claim-tenant-id'] = headers['X-Tenant-ID'];
   } else if (!headers['x-jwt-claim-tenant-id']) {
     console.log('[Proxy Headers] WARNING: No tenant ID available');
+  }
+
+  // CRITICAL: When tenant is overridden, clear staff_id and vendor_id claims
+  // The JWT claims are for the logged-in tenant, not the accessed tenant.
+  // Backend services will fall back to looking up staff/vendor from user_id + tenant_id.
+  if (tenantOverridden) {
+    console.log('[Proxy Headers] Tenant overridden - clearing stale staff_id and vendor_id claims');
+    delete headers['x-jwt-claim-staff-id'];
+    delete headers['x-jwt-claim-vendor-id'];
+    delete headers['X-Vendor-ID'];
   }
 
   // Debug: Log final headers being set
