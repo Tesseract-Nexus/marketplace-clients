@@ -519,7 +519,7 @@ export default function OnboardingPage() {
   useBrowserClose({ sessionId, enabled: !!sessionId, hasUnsavedChanges: false });
   const { state: draftRecoveryState, recoverDraft, dismissDraft, deleteDraft } = useDraftRecovery({
     sessionId,
-    enabled: false, // Disabled for testing - set to !!sessionId to re-enable draft recovery
+    enabled: !!sessionId,
     onRecoveryComplete: handleDraftRecovery,
     onSessionNotFound: handleSessionNotFound,
   });
