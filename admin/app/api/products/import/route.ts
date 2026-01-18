@@ -65,7 +65,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const targetUrl = `${PRODUCTS_SERVICE_URL}/api/v1/products/import`;
+    // PRODUCTS_SERVICE_URL already includes /api/v1 (e.g., http://....:8080/api/v1)
+    const targetUrl = `${PRODUCTS_SERVICE_URL}/products/import`;
     console.log(`[Import] Forwarding to: ${targetUrl}`);
     console.log(`[Import] TenantID: ${tenantId}, UserID: ${userId}, Email: ${userEmail}`);
     console.log(`[Import] Istio headers:`, Object.keys(istioHeaders));
