@@ -338,14 +338,6 @@ export async function getProxyHeaders(incomingRequest?: Request, additionalHeade
     }
   }
 
-  // CRITICAL: Always clear staff_id and vendor_id claims from JWT
-  // The JWT claims represent the user's context when they logged in, which may be
-  // for a different tenant than they're currently accessing. The backend services
-  // will look up the correct staff/vendor from user_id + tenant_id.
-  delete headers['x-jwt-claim-staff-id'];
-  delete headers['x-jwt-claim-vendor-id'];
-  delete headers['X-Vendor-ID'];
-
   // CRITICAL: Override x-jwt-claim-tenant-id with X-Tenant-ID from VirtualService
   // The X-Tenant-ID from the incoming request (set by VirtualService) represents the "accessed tenant"
   // which must take precedence over the JWT's tenant_id for proper multi-tenant data isolation.
@@ -455,19 +447,6 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
   } else if (!headers['x-jwt-claim-tenant-id']) {
     console.log('[Proxy Headers] WARNING: No tenant ID available');
   }
-
-  // CRITICAL: Always clear staff_id and vendor_id claims from JWT
-  // The JWT claims represent the user's context when they logged in, which may be
-  // for a different tenant than they're currently accessing. The backend services
-  // will look up the correct staff/vendor from user_id + tenant_id.
-  // This is safe because:
-  // 1. Backend RBAC middleware falls back to user_id when staff_id is empty
-  // 2. Backend looks up staff record by user_id + tenant_id
-  // 3. This ensures correct permissions for the accessed tenant
-  console.log('[Proxy Headers] Clearing JWT staff_id/vendor_id - backend will look up from user_id + tenant_id');
-  delete headers['x-jwt-claim-staff-id'];
-  delete headers['x-jwt-claim-vendor-id'];
-  delete headers['X-Vendor-ID'];
 
   // Debug: Log final headers being set
   console.log('[Proxy Headers] Final headers - sub:', headers['x-jwt-claim-sub'] || 'MISSING',
