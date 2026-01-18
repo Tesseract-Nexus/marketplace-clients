@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cached);
     }
 
-    const response = await proxyToBackend(SETTINGS_SERVICE_URL, 'settings', {
+    const response = await proxyToBackend(SETTINGS_SERVICE_URL, 'api/v1/settings', {
       method: 'GET',
       params: searchParams,
       headers: proxyHeaders,
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    const response = await proxyToBackend(SETTINGS_SERVICE_URL, 'settings', {
+    const response = await proxyToBackend(SETTINGS_SERVICE_URL, 'api/v1/settings', {
       method: 'POST',
       body,
       headers: proxyHeaders,

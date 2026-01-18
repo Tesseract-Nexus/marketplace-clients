@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cached);
     }
 
-    const response = await proxyToBackend(SETTINGS_SERVICE_URL, 'settings/context', {
+    const response = await proxyToBackend(SETTINGS_SERVICE_URL, 'api/v1/settings/context', {
       method: 'GET',
       params: searchParams,
       headers: await getProxyHeaders(request),

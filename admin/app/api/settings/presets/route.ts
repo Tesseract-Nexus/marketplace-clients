@@ -10,5 +10,5 @@ const SETTINGS_SERVICE_URL = getServiceUrl('SETTINGS');
  * Uses proxyGet which properly extracts JWT claims and forwards Istio headers
  */
 export async function GET(request: NextRequest) {
-  return proxyGet(SETTINGS_SERVICE_URL, 'presets', request);
+  return proxyGet(SETTINGS_SERVICE_URL, 'api/v1/presets', request);
 }
