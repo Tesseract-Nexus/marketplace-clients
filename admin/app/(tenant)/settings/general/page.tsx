@@ -722,13 +722,29 @@ export default function GeneralSettingsPage() {
   const loadSettings = async (storefrontId: string) => {
     try {
       setLoading(true);
+      console.log('[Settings] Loading settings for storefront:', storefrontId, 'vendorId:', vendorId, 'userId:', user?.id);
 
-      // Fetch settings for the selected storefront
-      const data = await settingsService.getSettingsByContext({
-        applicationId: 'admin-portal',
-        scope: 'application',
-        tenantId: storefrontId,
-      });
+      // ALWAYS load tenant details first as the primary data source
+      // This ensures onboarding data (address, phone, currency, timezone) is available
+      let tenant = tenantDetails;
+      if (!tenant && vendorId) {
+        console.log('[Settings] Loading tenant details for vendor:', vendorId);
+        tenant = await loadTenantDetails();
+        console.log('[Settings] Tenant details loaded:', tenant ? 'success' : 'failed');
+      }
+
+      // Try to fetch saved settings for this storefront
+      let data = null;
+      try {
+        data = await settingsService.getSettingsByContext({
+          applicationId: 'admin-portal',
+          scope: 'application',
+          tenantId: storefrontId,
+        });
+        console.log('[Settings] Settings service returned:', data ? 'data' : 'null');
+      } catch (settingsErr) {
+        console.log('[Settings] Settings service error (will use tenant data):', settingsErr);
+      }
 
       if (data) {
         setSettingsId(data.id);
@@ -737,46 +753,50 @@ export default function GeneralSettingsPage() {
         const countryName = data.ecommerce?.store?.address?.country || '';
         const countryCode = countryOptions.find(c => c.name === countryName)?.value || '';
 
+        // Build tenant defaults from onboarding data (if available)
+        const tenantDefaults = tenant ? buildSettingsFromTenantData(tenant, selectedStorefront?.name || '') : null;
+
+        // Merge: prefer saved settings, fallback to tenant onboarding data, then defaults
         const mappedSettings: GeneralSettings = {
           store: {
-            name: data.ecommerce?.store?.name || selectedStorefront?.name || '',
-            email: data.ecommerce?.store?.contactEmail || '',
-            phone: data.ecommerce?.store?.supportPhone || '',
-            address: data.ecommerce?.store?.address?.street1 || '',
-            city: data.ecommerce?.store?.address?.city || '',
-            state: data.ecommerce?.store?.address?.state || '',
-            country: countryName,
-            countryCode: countryCode,
-            zipCode: data.ecommerce?.store?.address?.zipCode || '',
+            name: data.ecommerce?.store?.name || tenantDefaults?.store.name || selectedStorefront?.name || '',
+            email: data.ecommerce?.store?.contactEmail || tenantDefaults?.store.email || '',
+            phone: data.ecommerce?.store?.supportPhone || tenantDefaults?.store.phone || '',
+            address: data.ecommerce?.store?.address?.street1 || tenantDefaults?.store.address || '',
+            city: data.ecommerce?.store?.address?.city || tenantDefaults?.store.city || '',
+            state: data.ecommerce?.store?.address?.state || tenantDefaults?.store.state || '',
+            country: countryName || tenantDefaults?.store.country || '',
+            countryCode: countryCode || tenantDefaults?.store.countryCode || '',
+            zipCode: data.ecommerce?.store?.address?.zipCode || tenantDefaults?.store.zipCode || '',
           },
           business: {
-            currency: data.ecommerce?.pricing?.currencies?.primary || countryCurrencyMap[countryCode] || 'USD',
-            timezone: data.localization?.timezone || countryTimezoneMap[countryCode] || 'UTC',
-            dateFormat: data.localization?.dateFormat || 'DD/MM/YYYY',
+            currency: data.ecommerce?.pricing?.currencies?.primary || tenantDefaults?.business.currency || countryCurrencyMap[countryCode] || 'USD',
+            timezone: data.localization?.timezone || tenantDefaults?.business.timezone || countryTimezoneMap[countryCode] || 'UTC',
+            dateFormat: data.localization?.dateFormat || tenantDefaults?.business.dateFormat || 'DD/MM/YYYY',
           },
         };
+        console.log('[Settings] Final mapped settings:', mappedSettings);
         setSettings(mappedSettings);
         setSavedSettings(mappedSettings);
 
         // Set detected country code for phone input
-        if (countryCode) {
-          setDetectedCountryCode(countryCode);
+        const finalCountryCode = countryCode || tenantDefaults?.store.countryCode;
+        if (finalCountryCode) {
+          setDetectedCountryCode(finalCountryCode);
         }
       } else {
-        // No settings exist - try to auto-populate from tenant onboarding data
-        let tenant = tenantDetails;
-        if (!tenant) {
-          tenant = await loadTenantDetails();
-        }
-
+        // No settings exist - use tenant onboarding data (already loaded above)
+        console.log('[Settings] No saved settings, using tenant data');
         if (tenant) {
           // Auto-populate from tenant onboarding data
           const newSettings = buildSettingsFromTenantData(tenant, selectedStorefront?.name || '');
+          console.log('[Settings] Using tenant onboarding data:', newSettings);
           setSettings(newSettings);
           setSavedSettings(newSettings);
           setSettingsId(null);
         } else {
           // Fallback to defaults with storefront name - will auto-detect location
+          console.log('[Settings] No tenant data, using defaults');
           const newSettings = {
             ...defaultSettings,
             store: {
@@ -790,20 +810,17 @@ export default function GeneralSettingsPage() {
         }
       }
     } catch (err) {
-      console.error('Failed to load settings:', err);
+      console.error('[Settings] Failed to load settings:', err);
 
-      // Try to use tenant data as fallback
-      let tenant = tenantDetails;
-      if (!tenant) {
-        tenant = await loadTenantDetails();
-      }
-
+      // Try to use tenant data as fallback (may already be loaded)
       if (tenant) {
+        console.log('[Settings] Using cached tenant data after error');
         const newSettings = buildSettingsFromTenantData(tenant, selectedStorefront?.name || '');
         setSettings(newSettings);
         setSavedSettings(newSettings);
       } else {
         // Use defaults with storefront name
+        console.log('[Settings] No tenant data available, using defaults');
         const newSettings = {
           ...defaultSettings,
           store: {
