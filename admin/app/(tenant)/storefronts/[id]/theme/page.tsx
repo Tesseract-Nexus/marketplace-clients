@@ -28,6 +28,7 @@ import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/PageHeader';
 import { useDialog } from '@/contexts/DialogContext';
 import { useTenant } from '@/contexts/TenantContext';
+import { useUser } from '@/contexts/UserContext';
 
 // Import storefront builder components
 import {
@@ -47,7 +48,7 @@ import {
 } from '@/components/storefront-builder';
 
 // Import API and types
-import { storefrontApi, setCurrentStorefrontId, setCurrentTenantId } from '@/lib/api/storefront';
+import { storefrontApi, setCurrentStorefrontId, setCurrentTenantId, setCurrentUserInfo } from '@/lib/api/storefront';
 import { storefrontService } from '@/lib/services/storefrontService';
 import { settingsService } from '@/lib/services/settingsService';
 import { getStorefrontUrl } from '@/lib/utils/tenant';
@@ -86,6 +87,7 @@ export default function StorefrontThemePage() {
   const storefrontId = params?.id as string;
   const { showSuccess, showError, showConfirm } = useDialog();
   const { currentTenant } = useTenant();
+  const { user } = useUser();
 
   const [storefront, setStorefront] = useState<Storefront | null>(null);
   const [settings, setSettings] = useState<StorefrontSettings | null>(null);
@@ -102,6 +104,13 @@ export default function StorefrontThemePage() {
       setCurrentTenantId(currentTenant.id);
     }
   }, [currentTenant?.id]);
+
+  // Set user info for API calls (required for Istio auth headers)
+  useEffect(() => {
+    if (user?.id) {
+      setCurrentUserInfo(user.id, user.email || null);
+    }
+  }, [user?.id, user?.email]);
 
   // Load storefront and settings
   useEffect(() => {

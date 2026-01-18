@@ -30,8 +30,9 @@ import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/PageHeader';
 import { useDialog } from '@/contexts/DialogContext';
 import { useTenant } from '@/contexts/TenantContext';
+import { useUser } from '@/contexts/UserContext';
 import { storefrontService } from '@/lib/services/storefrontService';
-import { storefrontApi, setCurrentStorefrontId, setCurrentTenantId } from '@/lib/api/storefront';
+import { storefrontApi, setCurrentStorefrontId, setCurrentTenantId, setCurrentUserInfo } from '@/lib/api/storefront';
 import { Storefront, StorefrontNavLink } from '@/lib/api/types';
 import { getStorefrontUrl } from '@/lib/utils/tenant';
 
@@ -60,6 +61,7 @@ export default function StorefrontNavigationPage() {
   const storefrontId = params?.id as string;
   const { showSuccess, showError, showConfirm } = useDialog();
   const { currentTenant } = useTenant();
+  const { user } = useUser();
 
   const [storefront, setStorefront] = useState<Storefront | null>(null);
   const [headerLinks, setHeaderLinks] = useState<StorefrontNavLink[]>([]);
@@ -78,6 +80,13 @@ export default function StorefrontNavigationPage() {
       setCurrentTenantId(currentTenant.id);
     }
   }, [currentTenant?.id]);
+
+  // Set user info for API authentication
+  useEffect(() => {
+    if (user?.id) {
+      setCurrentUserInfo(user.id, user.email || null);
+    }
+  }, [user?.id, user?.email]);
 
   useEffect(() => {
     if (storefrontId) {
