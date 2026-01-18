@@ -49,6 +49,22 @@ import {
   ArrowLeft,
 } from 'lucide-react';
 
+/**
+ * Convert datetime-local input value to ISO 8601 string for backend
+ * datetime-local format: "2026-01-20T00:02" (no seconds, no timezone)
+ * ISO 8601 format: "2026-01-20T00:02:00.000Z" (with seconds and timezone)
+ */
+const toISODateString = (dateStr: string | undefined): string | undefined => {
+  if (!dateStr) return undefined;
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return undefined;
+    return date.toISOString();
+  } catch {
+    return undefined;
+  }
+};
+
 interface CouponFormProps {
   couponId?: string;
   mode: 'create' | 'edit';
@@ -215,8 +231,10 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
       setSaving(true);
 
       // Convert string values to proper types for the API
-      // Use current time as default validFrom if startDate is not provided
-      const validFrom = formData.startDate || new Date().toISOString();
+      // Convert datetime-local values to ISO 8601 format for Go backend
+      const startDateISO = toISODateString(formData.startDate);
+      const endDateISO = toISODateString(formData.endDate);
+      const validFrom = startDateISO || new Date().toISOString();
 
       const requestData: CreateCouponRequest = {
         code: formData.code,
@@ -229,9 +247,9 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
         totalUsageLimit: formData.totalUsageLimit,
         perCustomerLimit: formData.perCustomerLimit,
         validFrom: validFrom,
-        validTo: formData.endDate,
-        startDate: formData.startDate,
-        endDate: formData.endDate,
+        validTo: endDateISO,
+        startDate: startDateISO,
+        endDate: endDateISO,
         restrictions: formData.restrictions ? {
           ...formData.restrictions,
           minPurchaseAmount: formData.restrictions.minPurchaseAmount
