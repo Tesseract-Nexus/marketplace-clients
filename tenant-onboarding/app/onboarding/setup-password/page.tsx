@@ -314,7 +314,7 @@ function SetupPasswordContent() {
               Setting Up Your Store
             </h2>
             <p className="text-gray-500 dark:text-white/60 mb-6">
-              We're configuring your store infrastructure. This usually takes 10-30 seconds.
+              We're configuring your store infrastructure. This usually takes 10-15 minutes.
             </p>
 
             {/* Progress indicator */}
