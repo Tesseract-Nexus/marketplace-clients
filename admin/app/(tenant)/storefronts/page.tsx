@@ -505,7 +505,7 @@ export default function StorefrontsPage() {
                               <Edit className="w-4 h-4 text-violet-600" aria-hidden="true" />
                             </Button>
                           </Link>
-                          <Link href={`/storefronts/${storefront.id}/theme`} onClick={(e) => e.stopPropagation()}>
+                          <Link href="/settings/storefront-theme" onClick={(e) => e.stopPropagation()}>
                             <Button
                               variant="ghost"
                               size="sm"
