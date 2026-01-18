@@ -4,16 +4,43 @@ import { getBFFSession } from '@/app/api/lib/auth-helper';
 
 const PRODUCTS_SERVICE_URL = process.env.PRODUCTS_SERVICE_URL || 'http://localhost:8082';
 
+/**
+ * Extract and forward Istio JWT claim headers for service-to-service calls
+ * Products-service requires x-jwt-claim-* headers (not legacy X-User-ID headers)
+ */
+function getIstioHeaders(request: NextRequest): Record<string, string> {
+  const headers: Record<string, string> = {};
+
+  // Forward all x-jwt-claim-* headers from Istio
+  const istioHeaderPrefixes = ['x-jwt-claim-'];
+  request.headers.forEach((value, key) => {
+    const lowerKey = key.toLowerCase();
+    if (istioHeaderPrefixes.some(prefix => lowerKey.startsWith(prefix))) {
+      headers[key] = value;
+    }
+  });
+
+  // Also forward Authorization header
+  const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
+  if (authHeader) {
+    headers['Authorization'] = authHeader;
+  }
+
+  return headers;
+}
+
 export async function POST(request: NextRequest) {
   try {
-    // Get authorized headers from request (may include JWT-decoded email)
-    const headers = getAuthorizedHeaders(request);
-    const tenantId = headers['X-Tenant-ID'] || request.headers.get('X-Vendor-ID') || request.headers.get('x-vendor-id') || '';
+    // Get Istio JWT claim headers for forwarding to products-service
+    const istioHeaders = getIstioHeaders(request);
 
-    // Get user info from BFF session if email not available from headers
-    // This is needed when the client uses session cookies instead of JWT
-    let userEmail = headers['X-User-Email'] || '';
-    let userId = headers['X-User-ID'] || '';
+    // Get authorized headers for fallback context
+    const legacyHeaders = getAuthorizedHeaders(request);
+    const tenantId = legacyHeaders['X-Tenant-ID'] || request.headers.get('X-Vendor-ID') || request.headers.get('x-vendor-id') || '';
+
+    // Get user info from BFF session if not available from Istio headers
+    let userEmail = istioHeaders['x-jwt-claim-email'] || legacyHeaders['X-User-Email'] || '';
+    let userId = istioHeaders['x-jwt-claim-sub'] || legacyHeaders['X-User-ID'] || '';
 
     if (!userEmail || !userId) {
       const session = await getBFFSession();
@@ -38,19 +65,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const targetUrl = `${PRODUCTS_SERVICE_URL}/products/import`;
+    const targetUrl = `${PRODUCTS_SERVICE_URL}/api/v1/products/import`;
     console.log(`[Import] Forwarding to: ${targetUrl}`);
     console.log(`[Import] TenantID: ${tenantId}, UserID: ${userId}, Email: ${userEmail}`);
+    console.log(`[Import] Istio headers:`, Object.keys(istioHeaders));
 
-    // Forward to the products service with all user context headers
+    // Forward to the products service with Istio JWT claim headers
+    // Products-service expects x-jwt-claim-* headers for authentication
     const response = await fetch(targetUrl, {
       method: 'POST',
       headers: {
-        'X-Vendor-ID': tenantId,
-        'X-Tenant-ID': tenantId,
-        'X-User-ID': userId,
-        'X-User-Email': userEmail,
-        ...(headers['Authorization'] ? { 'Authorization': headers['Authorization'] } : {}),
+        // Forward Istio JWT claim headers (required by products-service)
+        ...istioHeaders,
+        // Also include tenant context headers for compatibility
+        'x-jwt-claim-tenant-id': istioHeaders['x-jwt-claim-tenant-id'] || tenantId,
       },
       body: outgoingFormData,
     });
