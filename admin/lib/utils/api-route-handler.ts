@@ -437,7 +437,7 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
 /**
  * Handle API route errors consistently
  */
-export function handleApiError(error: any, context?: string): NextResponse {
+export function handleApiError<T = unknown>(error: any, context?: string): NextResponse<T> {
   console.error(`[API Error]${context ? ` ${context}:` : ''}`, error);
 
   // Parse error
@@ -479,7 +479,7 @@ export function handleApiError(error: any, context?: string): NextResponse {
     },
   };
 
-  return NextResponse.json(response, { status: statusCode });
+  return NextResponse.json(response, { status: statusCode }) as NextResponse<T>;
 }
 
 /**

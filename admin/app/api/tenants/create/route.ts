@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getProxyHeaders } from '@/lib/utils/api-route-handler';
+import { getProxyHeaders, handleApiError } from '@/lib/utils/api-route-handler';
 
 const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8082';
 
@@ -130,10 +130,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateTen
       );
     }
   } catch (error) {
-    console.error('Error creating tenant:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to create store' },
-      { status: 500 }
-    );
+    return handleApiError<CreateTenantResponse>(error, 'POST tenants/create');
   }
 }
