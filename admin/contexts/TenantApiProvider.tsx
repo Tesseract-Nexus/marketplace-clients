@@ -155,19 +155,36 @@ export function TenantApiProvider({ children, requireTenant = true }: TenantApiP
   }
 
   // Show error state if tenant loading failed
+  // IMPORTANT: Only show tenant error if user IS authenticated
+  // If user is not authenticated, let the layout redirect to login first
   if (requireTenant && error) {
+    // Check if user is authenticated - if not, redirect to login instead of showing error
+    if (!user && !userLoading) {
+      // Not authenticated - return null and let TenantLayoutInner handle redirect to login
+      return null;
+    }
+
+    // User IS authenticated but doesn't have access to this tenant - show error
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center max-w-md p-6 bg-card rounded-xl shadow-lg">
           <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-foreground mb-2">Tenant Error</h2>
           <p className="text-muted-foreground mb-4">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors"
-          >
-            Retry
-          </button>
+          <div className="space-y-2">
+            <button
+              onClick={() => window.location.reload()}
+              className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors"
+            >
+              Retry
+            </button>
+            <button
+              onClick={() => window.location.href = '/auth/logout?returnTo=/login'}
+              className="w-full px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted transition-colors"
+            >
+              Sign Out & Login with Different Account
+            </button>
+          </div>
         </div>
       </div>
     );
