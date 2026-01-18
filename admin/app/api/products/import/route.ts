@@ -77,8 +77,11 @@ export async function POST(request: NextRequest) {
       headers: {
         // Forward Istio JWT claim headers (required by products-service)
         ...istioHeaders,
-        // Also include tenant context headers for compatibility
+        // Ensure all required Istio claim headers are present
+        // Products-service auth middleware requires: tenant-id, sub (userId), email
         'x-jwt-claim-tenant-id': istioHeaders['x-jwt-claim-tenant-id'] || tenantId,
+        'x-jwt-claim-sub': istioHeaders['x-jwt-claim-sub'] || userId,
+        'x-jwt-claim-email': istioHeaders['x-jwt-claim-email'] || userEmail,
       },
       body: outgoingFormData,
     });
