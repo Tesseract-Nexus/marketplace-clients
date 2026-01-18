@@ -161,10 +161,10 @@ export async function getContentPages(
           scope: 'application',
           tenantId: storefrontId
         });
-        
-        // Use storefrontId as tenantId for the header to match Admin's behavior
+
+        // Use public endpoint for anonymous storefront access (no auth required)
         const adminResponse = await apiRequest<ApiResponse<any>>(
-          `${serviceUrls.settings}/api/v1/settings/context?${queryParams.toString()}`,
+          `${serviceUrls.settings}/api/v1/public/settings/context?${queryParams.toString()}`,
           { tenantId: storefrontId, storefrontId, cache: 'no-store' }
         );
         
@@ -212,8 +212,9 @@ export async function getMarketingSettings(
       tenantId: storefrontId
     });
 
+    // Use public endpoint for anonymous storefront access (no auth required)
     const response = await apiRequest<ApiResponse<any>>(
-      `${serviceUrls.settings}/api/v1/settings/context?${queryParams.toString()}`,
+      `${serviceUrls.settings}/api/v1/public/settings/context?${queryParams.toString()}`,
       { tenantId: storefrontId, storefrontId, cache: 'no-store' }
     );
 
@@ -295,8 +296,9 @@ export async function getStoreLocalization(
       tenantId: storefrontId
     });
 
+    // Use public endpoint for anonymous storefront access (no auth required)
     const response = await apiRequest<ApiResponse<any>>(
-      `${serviceUrls.settings}/api/v1/settings/context?${queryParams.toString()}`,
+      `${serviceUrls.settings}/api/v1/public/settings/context?${queryParams.toString()}`,
       { tenantId: storefrontId, storefrontId, cache: 'no-store' }
     );
 
