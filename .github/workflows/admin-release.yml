@@ -3,7 +3,7 @@ name: Admin Portal - Release Build
 on:
   push:
     tags:
-      - 'admin-v*.*.*'
+      - 'v*.*.*'
   workflow_dispatch:
     inputs:
       tag:

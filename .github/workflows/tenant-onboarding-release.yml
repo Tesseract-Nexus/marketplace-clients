@@ -3,7 +3,7 @@ name: Tenant Onboarding - Release Build
 on:
   push:
     tags:
-      - 'tenant-onboarding-v*.*.*'
+      - 'v*.*.*'
   workflow_dispatch:
     inputs:
       tag:

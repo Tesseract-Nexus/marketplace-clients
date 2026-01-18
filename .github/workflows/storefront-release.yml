@@ -3,7 +3,7 @@ name: Storefront - Release Build
 on:
   push:
     tags:
-      - 'storefront-v*.*.*'
+      - 'v*.*.*'
   workflow_dispatch:
     inputs:
       tag:
