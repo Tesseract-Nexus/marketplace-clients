@@ -114,10 +114,10 @@ export default function StorefrontThemePage() {
 
   // Load storefront and settings
   useEffect(() => {
-    if (storefrontId) {
+    if (storefrontId && currentTenant?.id) {
       loadStorefrontAndSettings();
     }
-  }, [storefrontId]);
+  }, [storefrontId, currentTenant?.id]);
 
   const loadStorefrontAndSettings = async () => {
     setIsLoading(true);
@@ -133,7 +133,7 @@ export default function StorefrontThemePage() {
         settingsService.getSettingsByContext({
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: storefrontId,
+          tenantId: currentTenant?.id || '',
         })
       ]);
 
