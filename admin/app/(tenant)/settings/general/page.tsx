@@ -604,10 +604,12 @@ export default function GeneralSettingsPage() {
   }, []);
 
   useEffect(() => {
-    if (selectedStorefront) {
+    // Wait for selectedStorefront, user, AND vendorId (tenant context) to be available
+    // This ensures the fallback to tenant onboarding data works correctly
+    if (selectedStorefront && user?.id && vendorId) {
       loadSettings(selectedStorefront.id);
     }
-  }, [selectedStorefront]);
+  }, [selectedStorefront, user?.id, vendorId]);
 
   // Auto-detect location on page load - shows confirmation modal
   useEffect(() => {
