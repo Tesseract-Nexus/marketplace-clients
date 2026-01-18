@@ -169,8 +169,8 @@ export function BulkImportModal({
         `${config.apiBase}/import/template?format=${format}`,
         {
           headers: {
-            'X-Tenant-ID': tenantId || '',
-            'X-Vendor-ID': tenantId || '',
+            'x-jwt-claim-tenant-id': tenantId || '',
+            'x-jwt-claim-vendor-id': tenantId || '',
           },
           credentials: 'include', // Include session cookies for BFF authentication
         }
@@ -215,8 +215,8 @@ export function BulkImportModal({
       const response = await fetch(`${config.apiBase}/import`, {
         method: 'POST',
         headers: {
-          'X-Tenant-ID': tenantId || '',
-          'X-Vendor-ID': tenantId || '',
+          'x-jwt-claim-tenant-id': tenantId || '',
+          'x-jwt-claim-vendor-id': tenantId || '',
         },
         credentials: 'include', // Include session cookies for BFF authentication
         body: formData,

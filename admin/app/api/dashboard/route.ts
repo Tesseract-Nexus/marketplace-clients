@@ -28,8 +28,8 @@ interface DashboardData {
  */
 export async function GET(request: NextRequest) {
   try {
-    const tenantId = request.headers.get('X-Tenant-ID') || 'default';
-    const headers = await getProxyHeaders(request);
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'] || 'default';
 
     // Check cache first
     const cacheKey = cacheKeys.dashboard(tenantId);
@@ -109,7 +109,7 @@ export async function GET(request: NextRequest) {
       headers: {
         'X-Cache': 'MISS',
         'Cache-Control': 'public, max-age=30, stale-while-revalidate=60',
-        'Vary': 'Accept-Encoding, X-Tenant-ID',
+        'Vary': 'Accept-Encoding, x-jwt-claim-tenant-id',
       },
     });
   } catch (error) {

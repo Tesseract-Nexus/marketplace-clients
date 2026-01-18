@@ -52,10 +52,10 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
 
   const getHeaders = (): HeadersInit => {
     const headers: Record<string, string> = {
-      'X-Tenant-ID': currentTenant?.id || '',
+      'x-jwt-claim-tenant-id': currentTenant?.id || '',
     };
-    if (user?.id) headers['X-User-ID'] = user.id;
-    if (user?.email) headers['X-User-Email'] = user.email;
+    if (user?.id) headers['x-jwt-claim-sub'] = user.id;
+    if (user?.email) headers['x-jwt-claim-email'] = user.email;
     return headers;
   };
 

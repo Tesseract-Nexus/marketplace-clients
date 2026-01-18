@@ -51,15 +51,15 @@ export class EnhancedApiClient {
       }
 
       // Add tenant ID header for multi-tenant isolation
-      // Backend services expect X-Tenant-ID header
+      // Backend services expect x-jwt-claim-tenant-id header
       if (this.tenantId) {
-        existingHeaders['X-Tenant-ID'] = this.tenantId;
+        existingHeaders['x-jwt-claim-tenant-id'] = this.tenantId;
       }
 
       // Add vendor ID header for marketplace isolation
       // This is critical for vendor-service to find the correct storefronts
       if (this.vendorId) {
-        existingHeaders['X-Vendor-ID'] = this.vendorId;
+        existingHeaders['x-jwt-claim-vendor-id'] = this.vendorId;
       }
 
       return { ...config, headers: existingHeaders };
@@ -236,26 +236,24 @@ export class EnhancedApiClient {
 
     // CRITICAL: Add tenant ID header for multi-tenant isolation
     if (this.tenantId) {
-      headers['X-Tenant-ID'] = this.tenantId;
+      headers['x-jwt-claim-tenant-id'] = this.tenantId;
     }
 
     // Add vendor ID header for marketplace isolation (Tenant -> Vendor -> Staff)
     if (this.vendorId) {
-      headers['X-Vendor-ID'] = this.vendorId;
+      headers['x-jwt-claim-vendor-id'] = this.vendorId;
     }
 
     // Add user info headers for proper attribution
     if (this.userId) {
-      headers['X-User-ID'] = this.userId;
+      headers['x-jwt-claim-sub'] = this.userId;
     }
     if (this.userName) {
-      headers['X-User-Name'] = this.userName;
+      headers['x-jwt-claim-preferred-username'] = this.userName;
     }
-    if (this.userRole) {
-      headers['X-User-Role'] = this.userRole;
-    }
+    // Note: User role should come from Istio JWT validation, not client headers
     if (this.userEmail) {
-      headers['X-User-Email'] = this.userEmail;
+      headers['x-jwt-claim-email'] = this.userEmail;
     }
 
     // Merge with any additional headers from options

@@ -30,7 +30,8 @@ export async function PUT(
 
     // PERFORMANCE: Invalidate products cache for this tenant on successful update
     if (response.ok) {
-      const tenantId = request.headers.get('X-Tenant-ID') || 'default';
+      const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+      const tenantId = proxyHeaders['x-jwt-claim-tenant-id'] || 'default';
       // Use pattern without colon before * to match both:
       // - products:tenantId (no params)
       // - products:tenantId:params (with params)

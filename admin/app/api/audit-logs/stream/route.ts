@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceUrl } from '@/lib/config/api';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
 const AUDIT_SERVICE_URL = getServiceUrl('AUDIT');
 
@@ -14,25 +15,21 @@ const AUDIT_SERVICE_URL = getServiceUrl('AUDIT');
  * - Heartbeats every 5 seconds to keep the connection alive
  */
 export async function GET(request: NextRequest) {
-  const tenantId = request.headers.get('X-Tenant-ID');
-  const authorization = request.headers.get('Authorization');
-
-  if (!tenantId) {
-    return NextResponse.json(
-      { error: 'Tenant ID is required' },
-      { status: 400 }
-    );
-  }
-
   try {
-    const headers: Record<string, string> = {
-      'Accept': 'text/event-stream',
-      'X-Tenant-ID': tenantId,
-    };
+    const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
 
-    if (authorization) {
-      headers['Authorization'] = authorization;
+    if (!tenantId) {
+      return NextResponse.json(
+        { error: 'Tenant ID is required' },
+        { status: 400 }
+      );
     }
+
+    const headers: Record<string, string> = {
+      ...proxyHeaders,
+      'Accept': 'text/event-stream',
+    };
 
     const response = await fetch(`${AUDIT_SERVICE_URL}/audit-logs/stream`, {
       headers,

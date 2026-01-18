@@ -186,8 +186,8 @@ export function AdminLanguageProvider({ children }: AdminLanguageProviderProps) 
     try {
       const response = await fetch('/api/translations?endpoint=users/me/language', {
         headers: {
-          'X-Tenant-ID': currentTenant?.id || '',
-          'X-User-ID': user?.id || '',
+          'x-jwt-claim-tenant-id': currentTenant?.id || '',
+          'x-jwt-claim-sub': user?.id || '',
         },
       });
 
@@ -234,8 +234,8 @@ export function AdminLanguageProvider({ children }: AdminLanguageProviderProps) 
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
-            'X-Tenant-ID': currentTenant.id,
-            'X-User-ID': user.id,
+            'x-jwt-claim-tenant-id': currentTenant.id,
+            'x-jwt-claim-sub': user.id,
           },
           body: JSON.stringify({
             preferred_language: code,
@@ -268,7 +268,7 @@ export function AdminLanguageProvider({ children }: AdminLanguageProviderProps) 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Tenant-ID': currentTenant?.id || 'admin',
+          'x-jwt-claim-tenant-id': currentTenant?.id || 'admin',
         },
         body: JSON.stringify({
           text,
@@ -340,7 +340,7 @@ export function AdminLanguageProvider({ children }: AdminLanguageProviderProps) 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Tenant-ID': currentTenant?.id || 'admin',
+          'x-jwt-claim-tenant-id': currentTenant?.id || 'admin',
         },
         body: JSON.stringify({
           items: uncachedTexts.map((item, idx) => ({

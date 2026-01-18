@@ -1,53 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServiceUrl } from '@/lib/config/api';
+import { proxyToBackend, handleApiError, getProxyHeaders, CACHE_CONFIG } from '@/lib/utils/api-route-handler';
 import { cache, cacheKeys } from '@/lib/cache/redis';
 
-// Remove trailing slashes and ensure proper base URL
-const getBaseUrl = () => {
-  const url = process.env.SETTINGS_SERVICE_URL || 'http://localhost:8085';
-  return url.replace(/\/+$/, '').replace(/\/api\/v1\/?$/, '');
-};
+const SETTINGS_SERVICE_URL = getServiceUrl('SETTINGS');
 
-const SETTINGS_SERVICE_BASE = getBaseUrl();
-
-const getAuthHeaders = (request: NextRequest, tenantIdOverride?: string | null) => {
-  const tenantId = tenantIdOverride || request.headers.get('x-tenant-id') || request.headers.get('X-Tenant-ID');
-  const userId = request.headers.get('x-user-id') || request.headers.get('X-User-ID');
-
-  // Tenant ID is required for multi-tenant isolation
-  if (!tenantId) {
-    return null;
-  }
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-    'X-Tenant-ID': tenantId,
-  };
-
-  // User ID is optional but included if available
-  if (userId) {
-    headers['X-User-ID'] = userId;
-  }
-
-  return headers;
-};
-
+/**
+ * GET /api/settings/:id
+ * Fetch a single setting by ID
+ * Uses proxyToBackend which properly extracts JWT claims and forwards Istio headers
+ */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const authHeaders = getAuthHeaders(request);
-    if (!authHeaders) {
+    // Get tenant ID for validation from JWT claims
+    const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
+    if (!tenantId) {
       return NextResponse.json(
-        { success: false, message: 'Missing required X-Tenant-ID header' },
+        { success: false, message: 'Missing tenant ID in JWT claims' },
         { status: 400 }
       );
     }
 
     const { id } = await params;
-    const response = await fetch(`${SETTINGS_SERVICE_BASE}/api/v1/settings/${id}`, {
+
+    const response = await proxyToBackend(SETTINGS_SERVICE_URL, `settings/${id}`, {
       method: 'GET',
-      headers: authHeaders,
+      headers: proxyHeaders,
+      incomingRequest: request,
     });
 
     const data = await response.json();
@@ -58,13 +41,15 @@ export async function GET(
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error fetching settings:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to fetch settings' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'GET settings/:id');
   }
 }
 
+/**
+ * PUT /api/settings/:id
+ * Update a setting by ID
+ * Uses proxyToBackend which properly extracts JWT claims and forwards Istio headers
+ */
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -72,20 +57,23 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    // Extract tenantId from context in the body
-    const tenantId = body?.context?.tenantId;
-    const authHeaders = getAuthHeaders(request, tenantId);
-    if (!authHeaders) {
+
+    // Get tenant ID from JWT claims
+    const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'] || body?.context?.tenantId;
+
+    if (!tenantId) {
       return NextResponse.json(
-        { success: false, message: 'Missing required X-Tenant-ID header' },
+        { success: false, message: 'Missing tenant ID in JWT claims' },
         { status: 400 }
       );
     }
 
-    const response = await fetch(`${SETTINGS_SERVICE_BASE}/api/v1/settings/${id}`, {
+    const response = await proxyToBackend(SETTINGS_SERVICE_URL, `settings/${id}`, {
       method: 'PUT',
-      headers: authHeaders,
-      body: JSON.stringify(body),
+      body,
+      headers: proxyHeaders,
+      incomingRequest: request,
     });
 
     const data = await response.json();
@@ -94,38 +82,43 @@ export async function PUT(
     }
 
     // Invalidate settings cache for this tenant
-    if (tenantId) {
-      await cache.delPattern(`${cacheKeys.settings(tenantId)}*`);
-    }
+    await cache.delPattern(`${cacheKeys.settings(tenantId)}*`);
 
-    return NextResponse.json(data);
+    const nextResponse = NextResponse.json(data);
+    nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
+    return nextResponse;
   } catch (error) {
     console.error('Error updating settings:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to update settings' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'PUT settings/:id');
   }
 }
 
+/**
+ * DELETE /api/settings/:id
+ * Delete a setting by ID
+ * Uses proxyToBackend which properly extracts JWT claims and forwards Istio headers
+ */
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const tenantId = request.headers.get('x-tenant-id') || request.headers.get('X-Tenant-ID');
-    const authHeaders = getAuthHeaders(request);
-    if (!authHeaders) {
+    // Get tenant ID for cache invalidation from JWT claims
+    const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
+    if (!tenantId) {
       return NextResponse.json(
-        { success: false, message: 'Missing required X-Tenant-ID header' },
+        { success: false, message: 'Missing tenant ID in JWT claims' },
         { status: 400 }
       );
     }
 
     const { id } = await params;
-    const response = await fetch(`${SETTINGS_SERVICE_BASE}/api/v1/settings/${id}`, {
+
+    const response = await proxyToBackend(SETTINGS_SERVICE_URL, `settings/${id}`, {
       method: 'DELETE',
-      headers: authHeaders,
+      headers: proxyHeaders,
+      incomingRequest: request,
     });
 
     const data = await response.json();
@@ -134,16 +127,13 @@ export async function DELETE(
     }
 
     // Invalidate settings cache for this tenant
-    if (tenantId) {
-      await cache.delPattern(`${cacheKeys.settings(tenantId)}*`);
-    }
+    await cache.delPattern(`${cacheKeys.settings(tenantId)}*`);
 
-    return NextResponse.json(data);
+    const nextResponse = NextResponse.json(data);
+    nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
+    return nextResponse;
   } catch (error) {
     console.error('Error deleting settings:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to delete settings' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'DELETE settings/:id');
   }
 }

@@ -1,34 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
 // Document service URL
 const DOCUMENT_SERVICE_URL = process.env.DOCUMENT_SERVICE_URL || 'http://document-service:8082';
 const DOCUMENT_SERVICE_BUCKET = process.env.DOCUMENT_SERVICE_BUCKET || 'tesseracthub-devtest-assets';
 
-const getAuthHeaders = (request: NextRequest) => {
-  const tenantId = request.headers.get('x-tenant-id') || request.headers.get('X-Tenant-ID');
-
-  if (!tenantId) {
-    return null; // Missing required tenant header
-  }
-
-  return { tenantId };
-};
-
 /**
  * GET /api/storefront/assets/serve?path=xxx
  * Proxy endpoint to serve storefront assets from document-service
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  * This allows consistent URLs that don't expire (unlike presigned URLs)
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const authHeaders = getAuthHeaders(request);
-    if (!authHeaders) {
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+
+    if (!tenantId) {
       return NextResponse.json(
-        { success: false, message: 'Missing required X-Tenant-ID header' },
+        { success: false, message: 'Missing required tenant ID' },
         { status: 401 }
       );
     }
-    const { tenantId } = authHeaders;
+
     const { searchParams } = new URL(request.url);
     const path = searchParams.get('path');
 
@@ -52,7 +46,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
+        'x-jwt-claim-tenant-id': tenantId,
       },
       body: JSON.stringify({
         path,

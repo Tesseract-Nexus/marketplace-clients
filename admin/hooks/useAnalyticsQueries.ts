@@ -216,7 +216,7 @@ export function useAnalyticsOverview(dateRange: string = 'last30days') {
 
       const response = await fetch(`/api/analytics/overview?preset=${dateRange}`, {
         headers: {
-          'X-Tenant-ID': tenantId,
+          'x-jwt-claim-tenant-id': tenantId,
         },
       });
 
@@ -249,8 +249,8 @@ export function useSalesAnalytics(dateRange: string = 'last30days') {
 
       const response = await fetch(`/api/analytics/sales?preset=${dateRange}`, {
         headers: {
-          'X-Tenant-ID': tenantId,
-          'X-User-ID': userId,
+          'x-jwt-claim-tenant-id': tenantId,
+          'x-jwt-claim-sub': userId,
         },
       });
 
@@ -282,8 +282,8 @@ export function useCustomerAnalytics(dateRange: string = 'last30days') {
 
       const response = await fetch(`/api/analytics/customers?preset=${dateRange}`, {
         headers: {
-          'X-Tenant-ID': tenantId,
-          'X-User-ID': userId,
+          'x-jwt-claim-tenant-id': tenantId,
+          'x-jwt-claim-sub': userId,
         },
       });
 
@@ -315,8 +315,8 @@ export function useInventoryAnalytics(dateRange: string = 'last30days') {
 
       const response = await fetch(`/api/analytics/inventory?preset=${dateRange}`, {
         headers: {
-          'X-Tenant-ID': tenantId,
-          'X-User-ID': userId,
+          'x-jwt-claim-tenant-id': tenantId,
+          'x-jwt-claim-sub': userId,
         },
       });
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
 // Document service URL - uses internal k8s service name or external URL
 const DOCUMENT_SERVICE_URL = process.env.DOCUMENT_SERVICE_URL || 'http://document-service:8082';
@@ -30,15 +31,16 @@ interface MediaUploadResponse {
   message?: string;
 }
 
-const getAuthHeaders = (request: NextRequest) => {
-  const tenantId = request.headers.get('x-tenant-id') || request.headers.get('X-Tenant-ID');
-  const userId = request.headers.get('x-user-id') || request.headers.get('X-User-ID');
+const getAuthInfo = async (request: NextRequest) => {
+  const headers = await getProxyHeaders(request) as Record<string, string>;
+  const tenantId = headers['x-jwt-claim-tenant-id'] || '';
+  const userId = headers['x-jwt-claim-sub'] || '';
 
   if (!tenantId) {
     return null; // Missing required tenant header
   }
 
-  return { tenantId, userId: userId || '' };
+  return { tenantId, userId, headers };
 };
 
 // File type validation based on media type
@@ -82,14 +84,14 @@ const getMaxSize = (mediaType: MediaType): number => {
  */
 export async function POST(request: NextRequest): Promise<NextResponse<MediaUploadResponse>> {
   try {
-    const authHeaders = getAuthHeaders(request);
-    if (!authHeaders) {
+    const authInfo = await getAuthInfo(request);
+    if (!authInfo) {
       return NextResponse.json(
-        { success: false, message: 'Missing required X-Tenant-ID header' },
+        { success: false, message: 'Missing required tenant ID' },
         { status: 401 }
       );
     }
-    const { tenantId, userId } = authHeaders;
+    const { tenantId, userId, headers } = authInfo;
     const formData = await request.formData();
 
     const file = formData.get('file') as File | null;
@@ -165,13 +167,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<MediaUplo
     uploadFormData.append('tags', tags);
     uploadFormData.append('isPublic', 'true'); // Media assets should be public for storefront access
 
-    // Upload to document-service
+    // Upload to document-service - remove Content-Type as it's set by FormData
     const uploadUrl = `${DOCUMENT_SERVICE_URL}/api/v1/documents/upload`;
+    const { 'Content-Type': _, ...uploadHeaders } = headers;
     const response = await fetch(uploadUrl, {
       method: 'POST',
       headers: {
-        'X-Tenant-ID': tenantId,
-        'X-User-ID': userId,
+        ...uploadHeaders,
         'X-Product-ID': 'marketplace',
       },
       body: uploadFormData,

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceUrl } from '@/lib/config/api';
-import { handleApiError, CACHE_CONFIG } from '@/lib/utils/api-route-handler';
+import { handleApiError, CACHE_CONFIG, getProxyHeaders } from '@/lib/utils/api-route-handler';
 
 const QR_SERVICE_URL = getServiceUrl('QR');
 
@@ -45,12 +45,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    // Get tenant ID from headers
-    const tenantId = request.headers.get('x-tenant-id') || request.headers.get('X-Tenant-ID') || '';
+    // Get Istio JWT headers
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'];
 
     if (!tenantId) {
       return NextResponse.json(
-        { success: false, error: { message: 'X-Tenant-ID header is required' } },
+        { success: false, error: { message: 'Tenant ID is required' } },
         { status: 401 }
       );
     }
@@ -59,8 +60,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const response = await fetch(`${QR_SERVICE_URL}/qr/upload`, {
       method: 'POST',
       headers: {
+        ...headers,
         'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
       },
       body: JSON.stringify({
         qr_id: body.qr_id,

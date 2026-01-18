@@ -1,17 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServiceUrl } from '@/lib/config/api';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 import { ApiResponse, StorefrontSettings } from '@/lib/api/types';
 
-// Settings Service URL - connects to the backend Go service
-const SETTINGS_SERVICE_URL = process.env.SETTINGS_SERVICE_URL || 'http://localhost:8085';
-
-// Get auth headers from incoming request
-const getAuthHeaders = (request: NextRequest) => {
-  const tenantId = request.headers.get('x-tenant-id');
-  const storefrontId = request.headers.get('x-storefront-id');
-  const userId = request.headers.get('x-user-id');
-  const authorization = request.headers.get('authorization');
-  return { tenantId, storefrontId, userId, authorization };
-};
+const SETTINGS_SERVICE_URL = getServiceUrl('SETTINGS');
 
 interface CloneRequest {
   sourceStorefrontId: string;
@@ -20,10 +12,15 @@ interface CloneRequest {
 /**
  * POST /api/storefront/settings/clone
  * Clone theme settings from another storefront
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
 export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<StorefrontSettings>>> {
   try {
-    const { tenantId, storefrontId, userId, authorization } = getAuthHeaders(request);
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const storefrontId = request.headers.get('x-storefront-id') || request.headers.get('X-Storefront-ID');
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+    const userId = headers['x-jwt-claim-sub'];
+    const authorization = headers['Authorization'];
 
     if (!storefrontId) {
       return NextResponse.json(
@@ -53,13 +50,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     // The target storefront is identified by storefrontId header
     // The source is passed in the request body
     const response = await fetch(
-      `${SETTINGS_SERVICE_URL}/api/v1/storefront-theme/${storefrontId}/clone`,
+      `${SETTINGS_SERVICE_URL}/storefront-theme/${storefrontId}/clone`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(tenantId && { 'X-Tenant-ID': tenantId }),
-          ...(userId && { 'X-User-ID': userId }),
+          ...(tenantId && { 'x-jwt-claim-tenant-id': tenantId }),
+          ...(userId && { 'x-jwt-claim-sub': userId }),
           ...(authorization && { 'Authorization': authorization }),
         },
         body: JSON.stringify({

@@ -146,7 +146,7 @@ export default function CustomerDetailPage() {
       setLoading(true);
       setError(null);
 
-      const headers: Record<string, string> = { 'X-Tenant-ID': currentTenant!.id };
+      const headers: Record<string, string> = { 'x-jwt-claim-tenant-id': currentTenant!.id };
 
       // Fetch customer details
       const customerRes = await fetch(`/api/customers/${customerId}`, { headers, credentials: 'include' });
@@ -230,7 +230,7 @@ export default function CustomerDetailPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-Tenant-ID': currentTenant!.id,
+          'x-jwt-claim-tenant-id': currentTenant!.id,
         },
         body: JSON.stringify(editForm),
       });
@@ -259,7 +259,7 @@ export default function CustomerDetailPage() {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'X-Tenant-ID': currentTenant!.id,
+          'x-jwt-claim-tenant-id': currentTenant!.id,
         },
         body: JSON.stringify(addressForm),
       });
@@ -286,7 +286,7 @@ export default function CustomerDetailPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Tenant-ID': currentTenant!.id,
+          'x-jwt-claim-tenant-id': currentTenant!.id,
         },
         body: JSON.stringify({ note: newNote }),
       });
@@ -313,7 +313,7 @@ export default function CustomerDetailPage() {
 
       const res = await fetch(url, {
         method: 'DELETE',
-        headers: { 'X-Tenant-ID': currentTenant!.id },
+        headers: { 'x-jwt-claim-tenant-id': currentTenant!.id },
       });
 
       if (!res.ok) throw new Error(`Failed to delete ${deleteTarget.type}`);
@@ -333,7 +333,7 @@ export default function CustomerDetailPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Tenant-ID': currentTenant!.id,
+          'x-jwt-claim-tenant-id': currentTenant!.id,
         },
         body: JSON.stringify({ customerIds: [customerId] }),
       });
@@ -356,7 +356,7 @@ export default function CustomerDetailPage() {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'X-Tenant-ID': currentTenant!.id,
+          'x-jwt-claim-tenant-id': currentTenant!.id,
         },
         body: JSON.stringify({ customerIds: [customerId] }),
       });

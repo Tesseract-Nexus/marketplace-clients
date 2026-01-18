@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
 // Feature flags service URL
 // Note: Service port is 8080, container port is 8096
@@ -45,21 +46,15 @@ async function proxyToFeatureFlagsService(
 
   const requestId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
+  // Get Istio JWT headers
+  const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+
   // Build headers
   const headers: Record<string, string> = {
+    ...proxyHeaders,
     'Content-Type': 'application/json',
     'X-Request-ID': requestId,
   };
-
-  // Copy tenant headers
-  const vendorId = request.headers.get('x-vendor-id');
-  const tenantId = request.headers.get('x-tenant-id');
-  if (vendorId) headers['X-Vendor-ID'] = vendorId;
-  if (tenantId) headers['X-Tenant-ID'] = tenantId;
-
-  // Copy auth header
-  const authHeader = request.headers.get('authorization');
-  if (authHeader) headers['Authorization'] = authHeader;
 
   // Copy client IP
   const forwardedFor = request.headers.get('x-forwarded-for');

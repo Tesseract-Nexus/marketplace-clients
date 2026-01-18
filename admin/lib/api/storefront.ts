@@ -59,7 +59,7 @@ export function getCurrentTenantId(): string | null {
 }
 
 /**
- * Set user info for auth headers (required for backend IstioAuth)
+ * Set user info for auth headers (required for backend IstioAuth via x-jwt-claim-* headers)
  */
 export function setCurrentUserInfo(userId: string | null, userEmail: string | null): void {
   currentUserId = userId;
@@ -69,30 +69,30 @@ export function setCurrentUserInfo(userId: string | null, userEmail: string | nu
 /**
  * Get default headers for API requests
  * Requires storefrontId to be set via setCurrentStorefrontId()
- * Includes auth headers (X-User-ID, X-User-Email) for backend IstioAuth middleware
+ * Includes auth headers (x-jwt-claim-sub, x-jwt-claim-email) for backend IstioAuth middleware
  */
 function getHeaders(): HeadersInit {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
   };
 
-  // X-Storefront-ID is required for storefront theme API
+  // x-storefront-id is required for storefront theme API
   if (currentStorefrontId) {
-    headers['X-Storefront-ID'] = currentStorefrontId;
+    headers['x-storefront-id'] = currentStorefrontId;
   }
 
-  // X-Tenant-ID is used for authorization
+  // x-jwt-claim-tenant-id is used for authorization
   if (currentTenantId) {
-    headers['X-Tenant-ID'] = currentTenantId;
+    headers['x-jwt-claim-tenant-id'] = currentTenantId;
   }
 
-  // Auth headers required by backend IstioAuth middleware (AllowLegacyHeaders)
-  // Without X-User-ID, the backend returns 401 Unauthorized
+  // Auth headers required by backend IstioAuth middleware
+  // Without x-jwt-claim-sub, the backend returns 401 Unauthorized
   if (currentUserId) {
-    headers['X-User-ID'] = currentUserId;
+    headers['x-jwt-claim-sub'] = currentUserId;
   }
   if (currentUserEmail) {
-    headers['X-User-Email'] = currentUserEmail;
+    headers['x-jwt-claim-email'] = currentUserEmail;
   }
 
   // Also get auth token from enhancedApiClient if available
@@ -296,10 +296,10 @@ export const storefrontAssetsApi = {
     // Build headers - don't include Content-Type for FormData
     const headers: Record<string, string> = {};
     if (currentStorefrontId) {
-      headers['X-Storefront-ID'] = currentStorefrontId;
+      headers['x-storefront-id'] = currentStorefrontId;
     }
     if (currentTenantId) {
-      headers['X-Tenant-ID'] = currentTenantId;
+      headers['x-jwt-claim-tenant-id'] = currentTenantId;
     }
 
     const response = await fetch(`${API_BASE}/assets`, {

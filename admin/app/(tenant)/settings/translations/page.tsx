@@ -172,7 +172,7 @@ export default function TranslationSettingsPage() {
         `/api/translations?endpoint=preferences`,
         {
           headers: {
-            'X-Tenant-ID': selectedStorefront.id,
+            'x-jwt-claim-tenant-id': selectedStorefront.id,
           },
         }
       );
@@ -212,7 +212,7 @@ export default function TranslationSettingsPage() {
         `/api/translations?endpoint=stats`,
         {
           headers: {
-            'X-Tenant-ID': selectedStorefront.id,
+            'x-jwt-claim-tenant-id': selectedStorefront.id,
           },
         }
       );
@@ -244,7 +244,7 @@ export default function TranslationSettingsPage() {
         {
           method: 'PUT',
           headers: {
-            'X-Tenant-ID': selectedStorefront.id,
+            'x-jwt-claim-tenant-id': selectedStorefront.id,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
@@ -289,7 +289,7 @@ export default function TranslationSettingsPage() {
         {
           method: 'DELETE',
           headers: {
-            'X-Tenant-ID': selectedStorefront.id,
+            'x-jwt-claim-tenant-id': selectedStorefront.id,
           },
         }
       );

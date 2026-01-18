@@ -3,7 +3,7 @@
 // ==========================================
 
 export interface SettingsContext {
-  tenantId?: string; // Optional - when not provided, uses X-Tenant-ID header
+  tenantId?: string; // Optional - when not provided, uses x-jwt-claim-tenant-id header
   applicationId: string;
   userId?: string;
   scope: 'global' | 'tenant' | 'application' | 'user';

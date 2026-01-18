@@ -1,54 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthorizedHeaders } from '@/lib/security/authorization';
-import { getBFFSession } from '@/app/api/lib/auth-helper';
+import { getServiceUrl } from '@/lib/config/api';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
-const PRODUCTS_SERVICE_URL = process.env.PRODUCTS_SERVICE_URL || 'http://localhost:8082';
+const PRODUCTS_SERVICE_URL = getServiceUrl('PRODUCTS');
 
 /**
- * Extract and forward Istio JWT claim headers for service-to-service calls
- * Products-service requires x-jwt-claim-* headers (not legacy X-User-ID headers)
+ * POST /api/products/import
+ * Import products from a file (CSV/Excel)
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
-function getIstioHeaders(request: NextRequest): Record<string, string> {
-  const headers: Record<string, string> = {};
-
-  // Forward all x-jwt-claim-* headers from Istio
-  const istioHeaderPrefixes = ['x-jwt-claim-'];
-  request.headers.forEach((value, key) => {
-    const lowerKey = key.toLowerCase();
-    if (istioHeaderPrefixes.some(prefix => lowerKey.startsWith(prefix))) {
-      headers[key] = value;
-    }
-  });
-
-  // Also forward Authorization header
-  const authHeader = request.headers.get('Authorization') || request.headers.get('authorization');
-  if (authHeader) {
-    headers['Authorization'] = authHeader;
-  }
-
-  return headers;
-}
-
 export async function POST(request: NextRequest) {
   try {
-    // Get Istio JWT claim headers for forwarding to products-service
-    const istioHeaders = getIstioHeaders(request);
-
-    // Get authorized headers for fallback context
-    const legacyHeaders = getAuthorizedHeaders(request);
-    const tenantId = legacyHeaders['X-Tenant-ID'] || request.headers.get('X-Vendor-ID') || request.headers.get('x-vendor-id') || '';
-
-    // Get user info from BFF session if not available from Istio headers
-    let userEmail = istioHeaders['x-jwt-claim-email'] || legacyHeaders['X-User-Email'] || '';
-    let userId = istioHeaders['x-jwt-claim-sub'] || legacyHeaders['X-User-ID'] || '';
-
-    if (!userEmail || !userId) {
-      const session = await getBFFSession();
-      if (session?.authenticated && session.user) {
-        if (!userEmail) userEmail = session.user.email;
-        if (!userId) userId = session.user.id;
-      }
-    }
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'] || '';
+    const userId = headers['x-jwt-claim-sub'] || '';
+    const userEmail = headers['x-jwt-claim-email'] || '';
+    const authorization = headers['Authorization'] || '';
 
     // Get the form data from the request
     const incomingFormData = await request.formData();
@@ -69,7 +36,6 @@ export async function POST(request: NextRequest) {
     const targetUrl = `${PRODUCTS_SERVICE_URL}/products/import`;
     console.log(`[Import] Forwarding to: ${targetUrl}`);
     console.log(`[Import] TenantID: ${tenantId}, UserID: ${userId}, Email: ${userEmail}`);
-    console.log(`[Import] Istio headers:`, Object.keys(istioHeaders));
 
     // Forward to the products service with Istio JWT claim headers
     // Products-service expects x-jwt-claim-* headers for authentication
@@ -77,12 +43,10 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         // Forward Istio JWT claim headers (required by products-service)
-        ...istioHeaders,
-        // Ensure all required Istio claim headers are present
-        // Products-service auth middleware requires: tenant-id, sub (userId), email
-        'x-jwt-claim-tenant-id': istioHeaders['x-jwt-claim-tenant-id'] || tenantId,
-        'x-jwt-claim-sub': istioHeaders['x-jwt-claim-sub'] || userId,
-        'x-jwt-claim-email': istioHeaders['x-jwt-claim-email'] || userEmail,
+        'x-jwt-claim-tenant-id': tenantId,
+        'x-jwt-claim-sub': userId,
+        'x-jwt-claim-email': userEmail,
+        ...(authorization ? { 'Authorization': authorization } : {}),
       },
       body: outgoingFormData,
     });

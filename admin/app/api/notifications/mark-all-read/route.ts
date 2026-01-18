@@ -1,28 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { proxyToBackend, handleApiError, getProxyHeaders, CACHE_CONFIG } from '@/lib/utils/api-route-handler';
 
-const NOTIFICATION_HUB_URL = process.env.NOTIFICATION_HUB_URL || 'http://notification-hub.devtest.svc.cluster.local:8080';
+const NOTIFICATION_HUB_URL = process.env.NOTIFICATION_HUB_URL || 'http://notification-hub.devtest.svc.cluster.local:8080/api/v1';
 
+/**
+ * POST /api/notifications/mark-all-read
+ * Mark all notifications as read for the current user
+ * Uses proxyToBackend which properly extracts JWT claims and forwards Istio headers
+ */
 export async function POST(request: NextRequest) {
-  const tenantId = request.headers.get('X-Tenant-ID') || request.headers.get('x-tenant-id');
-  const userId = request.headers.get('X-User-ID') || request.headers.get('x-user-id');
-
-  if (!tenantId || !userId) {
-    return NextResponse.json(
-      { success: false, error: 'Unauthorized - missing tenant or user ID' },
-      { status: 401 }
-    );
-  }
-
-  const url = `${NOTIFICATION_HUB_URL}/api/v1/notifications/mark-all-read`;
-
   try {
-    const response = await fetch(url, {
+    const response = await proxyToBackend(NOTIFICATION_HUB_URL, 'notifications/mark-all-read', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
-        'X-User-ID': userId,
-      },
+      headers: await getProxyHeaders(request),
+      incomingRequest: request,
     });
 
     const data = await response.json();
@@ -31,12 +22,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(data, { status: response.status });
     }
 
-    return NextResponse.json({ success: true, markedCount: data.markedCount || 0 });
+    const nextResponse = NextResponse.json({ success: true, markedCount: data.markedCount || 0 });
+    nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
+    return nextResponse;
   } catch (error) {
     console.error('[Notifications API] Error marking all as read:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to mark all as read' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'POST notifications/mark-all-read');
   }
 }

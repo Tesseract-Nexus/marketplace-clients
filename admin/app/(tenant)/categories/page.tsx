@@ -227,7 +227,7 @@ export default function CategoriesPage() {
   };
 
   // Load categories on mount and when tenant changes
-  // Wait for tenant context to be ready to ensure correct X-Tenant-ID header
+  // Wait for tenant context to be ready to ensure correct tenant ID header
   useEffect(() => {
     // Don't fetch if tenant is still loading or not set
     if (tenantLoading || !currentTenant) {

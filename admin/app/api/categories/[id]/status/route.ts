@@ -30,7 +30,8 @@ export async function PUT(
 
     // PERFORMANCE: Invalidate categories cache for this tenant on successful update
     if (response.ok) {
-      const tenantId = request.headers.get('X-Tenant-ID') || 'default';
+      const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+      const tenantId = proxyHeaders['x-jwt-claim-tenant-id'] || 'default';
       await cache.delPattern(`categories:${tenantId}*`);
     }
 

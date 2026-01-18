@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
 // Document service URL - uses internal k8s service name or external URL
 const DOCUMENT_SERVICE_URL = process.env.DOCUMENT_SERVICE_URL || 'http://document-service:8082';
@@ -32,33 +33,23 @@ interface ListImagesResponse {
   }>;
 }
 
-const getAuthHeaders = (request: NextRequest) => {
-  // Support both X-Tenant-ID and X-Vendor-ID headers for flexibility
-  const tenantId = request.headers.get('x-tenant-id') || request.headers.get('X-Tenant-ID');
-  const vendorId = request.headers.get('x-vendor-id') || request.headers.get('X-Vendor-ID') || tenantId; // Default vendorId to tenantId if not provided
-  const userId = request.headers.get('x-user-id') || request.headers.get('X-User-ID');
-
-  if (!tenantId) {
-    return null; // Missing required tenant header
-  }
-
-  return { tenantId, vendorId: vendorId || tenantId, userId: userId || '' };
-};
-
 /**
  * GET /api/products/images?productId=xxx
  * List all images for a product via document-service
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
 export async function GET(request: NextRequest): Promise<NextResponse<ListImagesResponse>> {
   try {
-    const authHeaders = getAuthHeaders(request);
-    if (!authHeaders) {
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+
+    if (!tenantId) {
       return NextResponse.json(
-        { success: false, images: [], message: 'Missing required X-Tenant-ID header' },
+        { success: false, images: [], message: 'Missing required tenant ID' },
         { status: 401 }
       );
     }
-    const { tenantId, vendorId } = authHeaders;
+
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get('productId');
 
@@ -76,8 +67,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ListImages
 
     const response = await fetch(listUrl, {
       headers: {
-        'X-Tenant-ID': tenantId,
-        'X-Product-ID': 'marketplace',
+        'x-jwt-claim-tenant-id': tenantId,
       },
     });
 
@@ -114,17 +104,21 @@ export async function GET(request: NextRequest): Promise<NextResponse<ListImages
 /**
  * POST /api/products/images
  * Upload a new product image via document-service
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
 export async function POST(request: NextRequest): Promise<NextResponse<ProductImageResponse>> {
   try {
-    const authHeaders = getAuthHeaders(request);
-    if (!authHeaders) {
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+    const vendorId = headers['x-jwt-claim-vendor-id'] || tenantId;
+    const userId = headers['x-jwt-claim-sub'] || '';
+
+    if (!tenantId) {
       return NextResponse.json(
-        { success: false, message: 'Missing required X-Tenant-ID header' },
+        { success: false, message: 'Missing required tenant ID' },
         { status: 401 }
       );
     }
-    const { tenantId, vendorId, userId } = authHeaders;
 
     const formData = await request.formData();
 
@@ -195,9 +189,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ProductIm
     const response = await fetch(uploadUrl, {
       method: 'POST',
       headers: {
-        'X-Tenant-ID': tenantId,
-        'X-User-ID': userId,
-        'X-Product-ID': 'marketplace',
+        'x-jwt-claim-tenant-id': tenantId,
+        ...(userId && { 'x-jwt-claim-sub': userId }),
       },
       body: uploadFormData,
     });
@@ -206,8 +199,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<ProductIm
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.message || `Document service returned ${response.status}`);
     }
-
-    const result = await response.json();
 
     const imageId = `img_${timestamp}`;
 
@@ -244,17 +235,20 @@ export async function POST(request: NextRequest): Promise<NextResponse<ProductIm
 /**
  * DELETE /api/products/images?path=xxx
  * Delete a product image via document-service
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const authHeaders = getAuthHeaders(request);
-    if (!authHeaders) {
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+
+    if (!tenantId) {
       return NextResponse.json(
-        { success: false, message: 'Missing required X-Tenant-ID header' },
+        { success: false, message: 'Missing required tenant ID' },
         { status: 401 }
       );
     }
-    const { tenantId } = authHeaders;
+
     const { searchParams } = new URL(request.url);
     const path = searchParams.get('path');
 
@@ -278,8 +272,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     const response = await fetch(deleteUrl, {
       method: 'DELETE',
       headers: {
-        'X-Tenant-ID': tenantId,
-        'X-Product-ID': 'marketplace',
+        'x-jwt-claim-tenant-id': tenantId,
       },
     });
 

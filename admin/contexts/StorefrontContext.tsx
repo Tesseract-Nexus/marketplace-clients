@@ -60,7 +60,7 @@ export function StorefrontProvider({ children }: StorefrontProviderProps) {
       // hasn't run yet (child effects run before parent effects)
       apiClient.setTenantId(currentTenant.id);
 
-      // Don't filter by vendorId - the backend filters by tenant via X-Tenant-ID header
+      // Don't filter by vendorId - the backend filters by tenant via x-jwt-claim-tenant-id header
       const response = await storefrontService.getStorefronts();
 
       const storefrontList = response.data || [];

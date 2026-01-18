@@ -1,7 +1,7 @@
 /**
  * Tenant-aware fetch utility
  *
- * All API calls should use this utility to ensure the X-Tenant-ID header is included.
+ * All API calls should use this utility to ensure the x-jwt-claim-tenant-id header is included.
  * The tenant ID must be provided by the caller (typically from TenantContext).
  */
 
@@ -30,11 +30,11 @@ export function createTenantFetch(defaultTenantId?: string, defaultUserId?: stri
     const headers = new Headers(customHeaders);
 
     if (effectiveTenantId) {
-      headers.set('X-Tenant-ID', effectiveTenantId);
+      headers.set('x-jwt-claim-tenant-id', effectiveTenantId);
     }
 
     if (effectiveUserId) {
-      headers.set('X-User-ID', effectiveUserId);
+      headers.set('x-jwt-claim-sub', effectiveUserId);
     }
 
     // Ensure Content-Type for JSON requests

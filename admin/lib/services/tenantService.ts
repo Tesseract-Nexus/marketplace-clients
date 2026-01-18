@@ -166,7 +166,7 @@ class TenantService {
     if (userId) {
       options.headers = {
         ...options.headers,
-        'X-User-ID': userId,
+        'x-jwt-claim-sub': userId,
       };
     }
 

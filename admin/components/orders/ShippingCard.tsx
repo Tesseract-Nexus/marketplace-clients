@@ -115,7 +115,7 @@ export function ShippingCard({ order, onShipmentCreated }: ShippingCardProps) {
       // Fetch the label through the API proxy with tenant context
       const headers: Record<string, string> = {};
       if (currentTenant?.id) {
-        headers['X-Tenant-ID'] = currentTenant.id;
+        headers['x-jwt-claim-tenant-id'] = currentTenant.id;
       }
 
       const response = await fetch(`/api/shipping/shipments/${shipmentId}/label`, {

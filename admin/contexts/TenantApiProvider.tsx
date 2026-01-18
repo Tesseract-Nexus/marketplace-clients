@@ -78,7 +78,7 @@ interface TenantApiProviderProps {
  * Provider component that synchronizes the current tenant context
  * with ALL API clients for automatic tenant header injection.
  *
- * SECURITY: This ensures all API requests include the X-Tenant-ID header
+ * SECURITY: This ensures all API requests include the tenant ID header
  * for proper multi-tenant data isolation.
  *
  * Production-grade features:

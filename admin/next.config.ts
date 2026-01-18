@@ -128,7 +128,7 @@ const nextConfig: NextConfig = {
           // In development, allow localhost; in production, must be explicitly configured
           { key: 'Access-Control-Allow-Origin', value: process.env.NEXT_PUBLIC_ALLOWED_ORIGIN || (process.env.NODE_ENV === 'development' ? 'http://localhost:3001' : '') },
           { key: 'Access-Control-Allow-Methods', value: 'GET,OPTIONS,PATCH,DELETE,POST,PUT' },
-          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, X-Tenant-ID, X-User-ID, X-User-Name, X-User-Role, X-User-Email, Authorization' },
+          { key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, x-jwt-claim-tenant-id, x-jwt-claim-sub, x-jwt-claim-email, x-jwt-claim-vendor-id, Authorization' },
           { key: 'Access-Control-Max-Age', value: '86400' }, // Cache preflight for 24 hours
         ],
       },

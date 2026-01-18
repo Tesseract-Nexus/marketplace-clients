@@ -82,8 +82,8 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       setIsLoading(true);
       const response = await fetch('/api/notifications?limit=20', {
         headers: {
-          'X-Tenant-ID': currentTenant.id,
-          'X-User-ID': user.id,
+          'x-jwt-claim-tenant-id': currentTenant.id,
+          'x-jwt-claim-sub': user.id,
         },
       });
 
@@ -106,8 +106,8 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     try {
       const response = await fetch('/api/notifications/unread-count', {
         headers: {
-          'X-Tenant-ID': currentTenant.id,
-          'X-User-ID': user.id,
+          'x-jwt-claim-tenant-id': currentTenant.id,
+          'x-jwt-claim-sub': user.id,
         },
       });
 
@@ -128,8 +128,8 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       const response = await fetch(`/api/notifications/${notificationId}/read`, {
         method: 'PATCH',
         headers: {
-          'X-Tenant-ID': currentTenant.id,
-          'X-User-ID': user.id,
+          'x-jwt-claim-tenant-id': currentTenant.id,
+          'x-jwt-claim-sub': user.id,
         },
       });
 
@@ -160,8 +160,8 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       const response = await fetch('/api/notifications/mark-all-read', {
         method: 'POST',
         headers: {
-          'X-Tenant-ID': currentTenant.id,
-          'X-User-ID': user.id,
+          'x-jwt-claim-tenant-id': currentTenant.id,
+          'x-jwt-claim-sub': user.id,
         },
       });
 
@@ -187,8 +187,8 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       const response = await fetch(`/api/notifications/${notificationId}`, {
         method: 'DELETE',
         headers: {
-          'X-Tenant-ID': currentTenant.id,
-          'X-User-ID': user.id,
+          'x-jwt-claim-tenant-id': currentTenant.id,
+          'x-jwt-claim-sub': user.id,
         },
       });
 
@@ -212,8 +212,8 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       const response = await fetch('/api/notifications/delete-all', {
         method: 'DELETE',
         headers: {
-          'X-Tenant-ID': currentTenant.id,
-          'X-User-ID': user.id,
+          'x-jwt-claim-tenant-id': currentTenant.id,
+          'x-jwt-claim-sub': user.id,
         },
       });
 

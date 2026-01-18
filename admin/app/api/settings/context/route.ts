@@ -1,50 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServiceUrl } from '@/lib/config/api';
+import { proxyToBackend, handleApiError, getProxyHeaders } from '@/lib/utils/api-route-handler';
 import { cache, cacheKeys, cacheTTL } from '@/lib/cache/redis';
 
-// Remove trailing slashes and ensure proper base URL
-const getBaseUrl = () => {
-  const url = process.env.SETTINGS_SERVICE_URL || 'http://localhost:8085';
-  // Remove trailing slash and /api/v1 suffix if present (we'll add it ourselves)
-  return url.replace(/\/+$/, '').replace(/\/api\/v1\/?$/, '');
-};
+const SETTINGS_SERVICE_URL = getServiceUrl('SETTINGS');
 
-const SETTINGS_SERVICE_BASE = getBaseUrl();
-
-// Get auth headers from incoming request - NO fallbacks, tenant must come from request
-const getAuthHeaders = (request: NextRequest) => {
-  const tenantId = request.headers.get('x-tenant-id');
-  const userId = request.headers.get('x-user-id');
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  if (tenantId) {
-    headers['X-Tenant-ID'] = tenantId;
-  }
-
-  if (userId) {
-    headers['X-User-ID'] = userId;
-  }
-
-  return headers;
-};
-
-// Validate that tenant ID is present
-const validateTenantId = (request: NextRequest): string | null => {
-  const tenantId = request.headers.get('x-tenant-id');
-  if (!tenantId) {
-    return null;
-  }
-  return tenantId;
-};
-
+/**
+ * GET /api/settings/context
+ * Fetch settings by context
+ * Uses proxyToBackend which properly extracts JWT claims and forwards Istio headers
+ */
 export async function GET(request: NextRequest) {
   try {
-    const tenantId = validateTenantId(request);
+    // Get tenant ID for validation and caching from JWT claims
+    const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
     if (!tenantId) {
       return NextResponse.json(
-        { success: false, message: 'X-Tenant-ID header is required' },
+        { success: false, message: 'Missing tenant ID in JWT claims' },
         { status: 400 }
       );
     }
@@ -61,11 +34,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(cached);
     }
 
-    const url = `${SETTINGS_SERVICE_BASE}/api/v1/settings/context${queryString ? `?${queryString}` : ''}`;
-
-    const response = await fetch(url, {
+    const response = await proxyToBackend(SETTINGS_SERVICE_URL, 'settings/context', {
       method: 'GET',
-      headers: getAuthHeaders(request),
+      params: searchParams,
+      headers: await getProxyHeaders(request),
+      incomingRequest: request,
     });
 
     const data = await response.json();
@@ -79,9 +52,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error fetching settings by context:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to fetch settings by context' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'GET settings/context');
   }
 }

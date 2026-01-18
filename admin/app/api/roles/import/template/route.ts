@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServiceUrl, getAuthHeaders } from '@/lib/config/api';
+import { getServiceUrl } from '@/lib/config/api';
+import { getProxyHeaders, handleApiError } from '@/lib/utils/api-route-handler';
 
 const STAFF_SERVICE_URL = getServiceUrl('STAFF');
 
@@ -7,22 +8,11 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const format = searchParams.get('format') || 'json';
-
-    const tenantId = request.headers.get('X-Tenant-ID') ||
-                     request.headers.get('x-tenant-id') ||
-                     request.headers.get('X-Vendor-ID') ||
-                     request.headers.get('x-vendor-id');
-
-    const authHeaders = getAuthHeaders();
+    const headers = await getProxyHeaders(request) as Record<string, string>;
 
     const response = await fetch(
       `${STAFF_SERVICE_URL}/roles/import/template?format=${format}`,
-      {
-        headers: {
-          'X-Vendor-ID': tenantId || '',
-          'X-Tenant-ID': tenantId || authHeaders['X-Tenant-ID'] || '',
-        },
-      }
+      { headers }
     );
 
     if (!response.ok) {
@@ -36,23 +26,19 @@ export async function GET(request: NextRequest) {
     // For file downloads, pass through the response
     if (format === 'csv' || format === 'xlsx') {
       const blob = await response.blob();
-      const headers = new Headers();
-      headers.set('Content-Type', response.headers.get('Content-Type') || 'application/octet-stream');
-      headers.set('Content-Disposition', response.headers.get('Content-Disposition') || `attachment; filename=role_import_template.${format}`);
+      const responseHeaders = new Headers();
+      responseHeaders.set('Content-Type', response.headers.get('Content-Type') || 'application/octet-stream');
+      responseHeaders.set('Content-Disposition', response.headers.get('Content-Disposition') || `attachment; filename=role_import_template.${format}`);
 
       return new NextResponse(blob, {
         status: 200,
-        headers,
+        headers: responseHeaders,
       });
     }
 
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error fetching role import template:', error);
-    return NextResponse.json(
-      { success: false, error: { message: 'Failed to fetch template' } },
-      { status: 500 }
-    );
+    return handleApiError(error, 'GET roles/import/template');
   }
 }

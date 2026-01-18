@@ -1,38 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthorizedHeaders } from '@/lib/security/authorization';
-import { getBFFSession } from '@/app/api/lib/auth-helper';
+import { getServiceUrl } from '@/lib/config/api';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
-const CATEGORIES_SERVICE_URL = process.env.CATEGORIES_SERVICE_URL || 'http://localhost:8083';
+const CATEGORIES_SERVICE_URL = getServiceUrl('CATEGORIES');
 
+/**
+ * POST /api/categories/import
+ * Import categories from a file (CSV/Excel)
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
+ */
 export async function POST(request: NextRequest) {
   try {
-    // Get authorized headers from request (may include JWT-decoded email)
-    const headers = getAuthorizedHeaders(request);
-    const tenantId = headers['X-Tenant-ID'] || request.headers.get('X-Vendor-ID') || request.headers.get('x-vendor-id') || '';
-
-    // Get user info from BFF session if not available from headers
-    let userEmail = headers['X-User-Email'] || '';
-    let userId = headers['X-User-ID'] || '';
-
-    if (!userEmail || !userId) {
-      const session = await getBFFSession();
-      if (session?.authenticated && session.user) {
-        if (!userEmail) userEmail = session.user.email;
-        if (!userId) userId = session.user.id;
-      }
-    }
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'] || '';
+    const userId = headers['x-jwt-claim-sub'] || '';
+    const userEmail = headers['x-jwt-claim-email'] || '';
+    const authorization = headers['Authorization'] || '';
 
     const formData = await request.formData();
 
-    // Forward to the categories service with all user context headers
+    // Forward to the categories service with Istio JWT claim headers
     const response = await fetch(`${CATEGORIES_SERVICE_URL}/categories/import`, {
       method: 'POST',
       headers: {
-        'X-Vendor-ID': tenantId,
-        'X-Tenant-ID': tenantId,
-        'X-User-ID': userId,
-        'X-User-Email': userEmail,
-        ...(headers['Authorization'] ? { 'Authorization': headers['Authorization'] } : {}),
+        // Forward Istio JWT claim headers for service authentication
+        'x-jwt-claim-tenant-id': tenantId,
+        'x-jwt-claim-sub': userId,
+        'x-jwt-claim-email': userEmail,
+        ...(authorization ? { 'Authorization': authorization } : {}),
       },
       body: formData,
     });

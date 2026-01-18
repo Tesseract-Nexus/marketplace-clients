@@ -600,8 +600,8 @@ export default function ProductsPage() {
           method: 'POST',
           headers: {
             // Use current tenant and vendor IDs for proper multi-tenant/multi-vendor isolation
-            'X-Tenant-ID': currentTenant?.id || '',
-            'X-Vendor-ID': currentTenant?.id || '', // In MVP, vendor ID = tenant ID; extend for multi-vendor later
+            'x-jwt-claim-tenant-id': currentTenant?.id || '',
+            'x-jwt-claim-vendor-id': currentTenant?.id || '', // In MVP, vendor ID = tenant ID; extend for multi-vendor later
           },
           body: uploadFormData,
         });

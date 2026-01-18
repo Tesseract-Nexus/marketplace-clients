@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
 
     // Customers are moderate data - 1 min cache with stale-while-revalidate
     nextResponse.headers.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
-    nextResponse.headers.set('Vary', 'Accept-Encoding, X-Tenant-ID');
+    nextResponse.headers.set('Vary', 'Accept-Encoding, x-jwt-claim-tenant-id');
 
     return nextResponse;
   } catch (error) {

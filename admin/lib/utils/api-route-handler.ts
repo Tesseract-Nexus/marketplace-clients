@@ -95,7 +95,7 @@ function addCacheHeaders(response: NextResponse, path: string, method: string): 
   response.headers.set('Cache-Control', cacheConfig.cacheControl);
 
   // Add Vary header for proper cache keying with multi-tenant
-  response.headers.set('Vary', 'Accept-Encoding, X-Tenant-ID');
+  response.headers.set('Vary', 'Accept-Encoding, x-jwt-claim-tenant-id');
 
   return response;
 }
@@ -214,24 +214,8 @@ export async function getProxyHeaders(incomingRequest?: Request, additionalHeade
   let bffToken: BffTokenResponse | null = null;
 
   if (incomingRequest) {
-    // Forward X-Tenant-ID (required for multi-tenant data isolation)
-    const incomingTenantId = incomingRequest.headers.get('X-Tenant-ID') || incomingRequest.headers.get('x-tenant-id');
-    if (incomingTenantId) {
-      headers['X-Tenant-ID'] = incomingTenantId;
-    }
-
-    // Forward X-Vendor-ID (required for marketplace/storefront isolation)
-    // Backend vendor-service looks for this header first for storefront operations
-    const incomingVendorId = incomingRequest.headers.get('X-Vendor-ID') || incomingRequest.headers.get('x-vendor-id');
-    if (incomingVendorId) {
-      headers['X-Vendor-ID'] = incomingVendorId;
-    }
-
-    // Forward X-User-ID if present
-    const incomingUserId = incomingRequest.headers.get('X-User-ID') || incomingRequest.headers.get('x-user-id');
-    if (incomingUserId) {
-      headers['X-User-ID'] = incomingUserId;
-    }
+    // Track incoming tenant ID for later use (from VirtualService header or JWT claim)
+    const incomingTenantId = incomingRequest.headers.get('x-jwt-claim-tenant-id');
 
     // Forward Authorization header if present (for JWT validation)
     authHeader = incomingRequest.headers.get('Authorization') || incomingRequest.headers.get('authorization') || '';
@@ -323,26 +307,24 @@ export async function getProxyHeaders(incomingRequest?: Request, additionalHeade
     }
   }
 
-  if (!headers['X-User-ID'] && bffToken?.user_id) {
-    headers['X-User-ID'] = bffToken.user_id;
+  // Set x-jwt-claim-sub from BFF token if not already set
+  if (!headers['x-jwt-claim-sub'] && bffToken?.user_id) {
+    headers['x-jwt-claim-sub'] = bffToken.user_id;
   }
 
-  if (!headers['X-Tenant-ID'] && bffToken?.tenant_id) {
-    headers['X-Tenant-ID'] = bffToken.tenant_id;
+  // Set x-jwt-claim-tenant-id from BFF token if not already set
+  if (!headers['x-jwt-claim-tenant-id'] && bffToken?.tenant_id) {
+    headers['x-jwt-claim-tenant-id'] = bffToken.tenant_id;
   }
 
-  if (headers['Authorization']) {
-    const email = extractEmailFromJWT(headers['Authorization']);
-    if (email) {
-      headers['X-User-Email'] = email;
-    }
-  }
-
-  // CRITICAL: Override x-jwt-claim-tenant-id with X-Tenant-ID from VirtualService
-  // The X-Tenant-ID from the incoming request (set by VirtualService) represents the "accessed tenant"
+  // CRITICAL: Override x-jwt-claim-tenant-id with tenant ID from incoming request
+  // The tenant ID from the incoming request represents the "accessed tenant"
   // which must take precedence over the JWT's tenant_id for proper multi-tenant data isolation.
-  if (headers['X-Tenant-ID']) {
-    headers['x-jwt-claim-tenant-id'] = headers['X-Tenant-ID'];
+  if (incomingRequest) {
+    const incomingTenantId = incomingRequest.headers.get('x-jwt-claim-tenant-id');
+    if (incomingTenantId) {
+      headers['x-jwt-claim-tenant-id'] = incomingTenantId;
+    }
   }
 
   return {
@@ -377,7 +359,7 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
 
       // Also set tenant context from BFF session
       if (bffToken.tenant_id) {
-        headers['X-Tenant-ID'] = bffToken.tenant_id;
+        headers['x-jwt-claim-tenant-id'] = bffToken.tenant_id;
       }
     } else {
       console.log('[Proxy Headers] No token from BFF session');
@@ -424,34 +406,27 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
     }
   }
 
-  // CRITICAL: Always prefer X-Tenant-ID from incoming request (set by VirtualService)
-  // The VirtualService header represents the "accessed tenant" which MUST take precedence
+  // CRITICAL: Always prefer tenant ID from incoming request
+  // The tenant ID header represents the "accessed tenant" which MUST take precedence
   // over the JWT/session tenant for proper multi-tenant data isolation.
-  let tenantOverridden = false;
   if (incomingRequest) {
-    const incomingTenantId = incomingRequest.headers.get('X-Tenant-ID') || incomingRequest.headers.get('x-tenant-id');
+    const incomingTenantId = incomingRequest.headers.get('x-jwt-claim-tenant-id');
     if (incomingTenantId) {
-      const sessionTenant = headers['X-Tenant-ID'];
       const jwtTenant = headers['x-jwt-claim-tenant-id'];
-      if ((sessionTenant && sessionTenant !== incomingTenantId) || (jwtTenant && jwtTenant !== incomingTenantId)) {
-        console.log('[Proxy Headers] Tenant override - JWT:', jwtTenant, 'Session:', sessionTenant, '-> VirtualService:', incomingTenantId);
-        tenantOverridden = true;
+      if (jwtTenant && jwtTenant !== incomingTenantId) {
+        console.log('[Proxy Headers] Tenant override - JWT:', jwtTenant, '-> Incoming:', incomingTenantId);
       }
-      headers['X-Tenant-ID'] = incomingTenantId;
+      headers['x-jwt-claim-tenant-id'] = incomingTenantId;
     }
   }
 
-  // Also override x-jwt-claim-tenant-id to match the accessed tenant
-  if (headers['X-Tenant-ID']) {
-    headers['x-jwt-claim-tenant-id'] = headers['X-Tenant-ID'];
-  } else if (!headers['x-jwt-claim-tenant-id']) {
+  if (!headers['x-jwt-claim-tenant-id']) {
     console.log('[Proxy Headers] WARNING: No tenant ID available');
   }
 
   // Debug: Log final headers being set
   console.log('[Proxy Headers] Final headers - sub:', headers['x-jwt-claim-sub'] || 'MISSING',
-    'x-jwt-claim-tenant-id:', headers['x-jwt-claim-tenant-id'] || 'MISSING',
-    'X-Tenant-ID:', headers['X-Tenant-ID'] || 'MISSING');
+    'x-jwt-claim-tenant-id:', headers['x-jwt-claim-tenant-id'] || 'MISSING');
 
   return {
     ...headers,
@@ -652,7 +627,7 @@ export async function proxyGet(
     // Apply custom cache config or auto-detect from path
     const cacheConfig = options?.cacheConfig || getCacheConfigForPath(path, 'GET');
     nextResponse.headers.set('Cache-Control', cacheConfig.cacheControl);
-    nextResponse.headers.set('Vary', 'Accept-Encoding, X-Tenant-ID');
+    nextResponse.headers.set('Vary', 'Accept-Encoding, x-jwt-claim-tenant-id');
 
     return nextResponse;
   } catch (error) {

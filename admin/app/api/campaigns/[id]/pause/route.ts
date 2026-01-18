@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceUrl } from '@/lib/config/api';
+import { getProxyHeaders, handleApiError } from '@/lib/utils/api-route-handler';
 
 const MARKETING_SERVICE_URL = getServiceUrl('MARKETING');
 
@@ -8,19 +9,15 @@ export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  const tenantId = request.headers.get('X-Tenant-ID');
-
-  if (!tenantId) {
-    return NextResponse.json({ error: 'Missing tenant ID' }, { status: 400 });
-  }
-
   try {
+    const { id } = await params;
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+
     const response = await fetch(`${MARKETING_SERVICE_URL}/campaigns/${id}`, {
       method: 'PUT',
       headers: {
+        ...headers,
         'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
       },
       body: JSON.stringify({ status: 'PAUSED' }),
     });
@@ -33,10 +30,6 @@ export async function POST(
 
     return NextResponse.json(data);
   } catch (error) {
-    console.error('[Pause Campaign] Error:', error);
-    return NextResponse.json(
-      { error: 'Failed to pause campaign' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'POST campaigns/pause');
   }
 }

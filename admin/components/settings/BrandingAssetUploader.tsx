@@ -122,7 +122,7 @@ export function BrandingAssetUploader({
       // Upload to API
       const headers: Record<string, string> = {};
       if (tenantId) {
-        headers['X-Tenant-ID'] = tenantId;
+        headers['x-jwt-claim-tenant-id'] = tenantId;
       }
 
       const response = await fetch('/api/admin/branding/assets', {
@@ -215,7 +215,7 @@ export function BrandingAssetUploader({
 
       const headers: Record<string, string> = {};
       if (tenantId) {
-        headers['X-Tenant-ID'] = tenantId;
+        headers['x-jwt-claim-tenant-id'] = tenantId;
       }
 
       await fetch(`/api/admin/branding/assets?${params.toString()}`, {

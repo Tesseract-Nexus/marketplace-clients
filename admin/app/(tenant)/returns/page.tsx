@@ -109,7 +109,7 @@ export default function ReturnsPage() {
 
       const response = await fetch(`/api/returns?${params}`, {
         headers: {
-          'X-Tenant-ID': currentTenant.id,
+          'x-jwt-claim-tenant-id': currentTenant.id,
         },
       });
       if (!response.ok) throw new Error('Failed to fetch returns');
@@ -146,7 +146,7 @@ export default function ReturnsPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Tenant-ID': currentTenant.id,
+          'x-jwt-claim-tenant-id': currentTenant.id,
         },
         body: JSON.stringify(body),
       });
@@ -171,7 +171,7 @@ export default function ReturnsPage() {
     try {
       const response = await fetch(`/api/returns/${id}`, {
         headers: {
-          'X-Tenant-ID': currentTenant.id,
+          'x-jwt-claim-tenant-id': currentTenant.id,
         },
       });
       if (!response.ok) throw new Error('Failed to fetch return details');

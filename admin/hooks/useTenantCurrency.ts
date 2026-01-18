@@ -37,7 +37,7 @@ export function useTenantCurrency(): {
         const response = await fetch(`/api/tenants/${currentTenant.id}/details`, {
           credentials: 'include',
           headers: {
-            'X-Tenant-ID': currentTenant.id,
+            'x-jwt-claim-tenant-id': currentTenant.id,
           },
         });
 

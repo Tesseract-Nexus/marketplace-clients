@@ -14,7 +14,8 @@ const PRODUCTS_SERVICE_URL = getServiceUrl('PRODUCTS');
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const tenantId = request.headers.get('X-Tenant-ID') || 'default';
+    const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'] || 'default';
 
     // Build cache key from query params
     const paramsString = searchParams.toString();
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
 
     nextResponse.headers.set('X-Cache', 'MISS');
     nextResponse.headers.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
-    nextResponse.headers.set('Vary', 'Accept-Encoding, X-Tenant-ID');
+    nextResponse.headers.set('Vary', 'Accept-Encoding, x-jwt-claim-tenant-id');
 
     return nextResponse;
   } catch (error) {
@@ -101,7 +102,8 @@ export async function POST(request: NextRequest) {
 
     // PERFORMANCE: Invalidate products cache for this tenant on successful creation
     if (response.ok) {
-      const tenantId = request.headers.get('X-Tenant-ID') || 'default';
+      const postHeaders = await getProxyHeaders(request) as Record<string, string>;
+      const tenantId = postHeaders['x-jwt-claim-tenant-id'] || 'default';
       await cache.delPattern(`products:${tenantId}:*`);
     }
 

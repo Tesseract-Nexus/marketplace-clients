@@ -217,10 +217,13 @@ interface AuthHeaders {
 }
 
 /**
+ * @deprecated Use getProxyHeaders from @/lib/utils/api-route-handler instead.
+ * This function is kept for backwards compatibility but should not be used for new code.
+ *
  * Get authentication headers from request
  * Tries multiple authentication methods in order:
  * 1. JWT token from Authorization header
- * 2. X-User-ID header (for service-to-service calls)
+ * 2. x-jwt-claim-sub header (Istio JWT claim for user ID)
  * 3. BFF session cookie (for browser-based auth)
  * 4. DEV_USER_ID env var (development only)
  */
@@ -236,9 +239,9 @@ export async function getAuthHeaders(request: NextRequest): Promise<AuthHeaders>
     }
   }
 
-  // Fall back to x-user-id header
+  // Use Istio JWT claim header (x-jwt-claim-sub) for user ID
   if (!userId) {
-    userId = request.headers.get('x-user-id') || request.headers.get('X-User-ID') || '';
+    userId = request.headers.get('x-jwt-claim-sub') || '';
   }
 
   // Try BFF session cookie (for BFF-based auth flow)

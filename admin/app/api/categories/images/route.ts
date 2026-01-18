@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
 // Document service URL - uses internal k8s service name or external URL
 const DOCUMENT_SERVICE_URL = process.env.DOCUMENT_SERVICE_URL || 'http://document-service:8082';
@@ -40,31 +41,23 @@ interface ListImagesResponse {
   maxAllowed: number;
 }
 
-const getAuthHeaders = (request: NextRequest) => {
-  const tenantId = request.headers.get('x-tenant-id') || request.headers.get('X-Tenant-ID');
-  const userId = request.headers.get('x-user-id') || request.headers.get('X-User-ID');
-
-  if (!tenantId) {
-    return null; // Missing required tenant header
-  }
-
-  return { tenantId, userId: userId || '' };
-};
-
 /**
  * GET /api/categories/images?categoryId=xxx
  * List all images for a category via document-service
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
 export async function GET(request: NextRequest): Promise<NextResponse<ListImagesResponse>> {
   try {
-    const authHeaders = getAuthHeaders(request);
-    if (!authHeaders) {
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+
+    if (!tenantId) {
       return NextResponse.json(
-        { success: false, images: [], count: 0, maxAllowed: MAX_CATEGORY_IMAGES, message: 'Missing required X-Tenant-ID header' },
+        { success: false, images: [], count: 0, maxAllowed: MAX_CATEGORY_IMAGES, message: 'Missing required tenant ID' },
         { status: 401 }
       );
     }
-    const { tenantId } = authHeaders;
+
     const { searchParams } = new URL(request.url);
     const categoryId = searchParams.get('categoryId');
 
@@ -82,8 +75,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ListImages
 
     const response = await fetch(listUrl, {
       headers: {
-        'X-Tenant-ID': tenantId,
-        'X-Product-ID': 'marketplace',
+        'x-jwt-claim-tenant-id': tenantId,
       },
     });
 
@@ -125,6 +117,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ListImages
 /**
  * POST /api/categories/images
  * Upload a new category image via document-service
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  *
  * Form fields:
  * - file: File (required)
@@ -134,14 +127,16 @@ export async function GET(request: NextRequest): Promise<NextResponse<ListImages
  */
 export async function POST(request: NextRequest): Promise<NextResponse<CategoryImageResponse>> {
   try {
-    const authHeaders = getAuthHeaders(request);
-    if (!authHeaders) {
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+    const userId = headers['x-jwt-claim-sub'] || '';
+
+    if (!tenantId) {
       return NextResponse.json(
-        { success: false, message: 'Missing required X-Tenant-ID header' },
+        { success: false, message: 'Missing required tenant ID' },
         { status: 401 }
       );
     }
-    const { tenantId, userId } = authHeaders;
 
     const formData = await request.formData();
 
@@ -190,8 +185,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<CategoryI
 
     const listResponse = await fetch(listUrl, {
       headers: {
-        'X-Tenant-ID': tenantId,
-        'X-Product-ID': 'marketplace',
+        'x-jwt-claim-tenant-id': tenantId,
       },
     });
 
@@ -234,9 +228,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<CategoryI
     const response = await fetch(uploadUrl, {
       method: 'POST',
       headers: {
-        'X-Tenant-ID': tenantId,
-        'X-User-ID': userId,
-        'X-Product-ID': 'marketplace',
+        'x-jwt-claim-tenant-id': tenantId,
+        ...(userId && { 'x-jwt-claim-sub': userId }),
       },
       body: uploadFormData,
     });
@@ -280,17 +273,20 @@ export async function POST(request: NextRequest): Promise<NextResponse<CategoryI
 /**
  * DELETE /api/categories/images?path=xxx
  * Delete a category image via document-service
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const authHeaders = getAuthHeaders(request);
-    if (!authHeaders) {
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+
+    if (!tenantId) {
       return NextResponse.json(
-        { success: false, message: 'Missing required X-Tenant-ID header' },
+        { success: false, message: 'Missing required tenant ID' },
         { status: 401 }
       );
     }
-    const { tenantId } = authHeaders;
+
     const { searchParams } = new URL(request.url);
     const path = searchParams.get('path');
 
@@ -314,8 +310,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
     const response = await fetch(deleteUrl, {
       method: 'DELETE',
       headers: {
-        'X-Tenant-ID': tenantId,
-        'X-Product-ID': 'marketplace',
+        'x-jwt-claim-tenant-id': tenantId,
       },
     });
 

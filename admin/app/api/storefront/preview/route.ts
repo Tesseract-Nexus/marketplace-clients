@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 import { ApiResponse } from '@/lib/api/types';
 
 interface PreviewResponse {
@@ -6,30 +7,23 @@ interface PreviewResponse {
   expiresAt: string;
 }
 
-const getAuthHeaders = (request: NextRequest) => {
-  const tenantId = request.headers.get('x-tenant-id') || request.headers.get('X-Tenant-ID');
-
-  if (!tenantId) {
-    return null; // Missing required tenant header
-  }
-
-  return { tenantId };
-};
-
 /**
  * POST /api/storefront/preview
  * Generate a preview URL for the storefront with current settings
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
 export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<PreviewResponse>>> {
   try {
-    const authHeaders = getAuthHeaders(request);
-    if (!authHeaders) {
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+
+    if (!tenantId) {
       return NextResponse.json(
-        { success: false, data: null as any, message: 'Missing required X-Tenant-ID header' },
+        { success: false, data: null as any, message: 'Missing required tenant ID' },
         { status: 401 }
       );
     }
-    const { tenantId } = authHeaders;
+
     const body = await request.json().catch(() => ({}));
 
     // Get the tenant slug from the request or use a default demo store
@@ -64,17 +58,19 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
 /**
  * GET /api/storefront/preview
  * Get the current preview URL if one exists
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<PreviewResponse | null>>> {
   try {
-    const authHeaders = getAuthHeaders(request);
-    if (!authHeaders) {
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+
+    if (!tenantId) {
       return NextResponse.json(
-        { success: false, data: null, message: 'Missing required X-Tenant-ID header' },
+        { success: false, data: null, message: 'Missing required tenant ID' },
         { status: 401 }
       );
     }
-    const { tenantId } = authHeaders;
 
     // Generate preview URL with preview=true flag and timestamp
     const storefrontBaseUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || 'http://localhost:3200';

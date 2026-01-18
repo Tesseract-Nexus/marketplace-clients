@@ -374,13 +374,13 @@ async function fetchPermissions(tenantId: string, staffId: string, userEmail?: s
   // No localStorage tokens needed - credentials: 'include' sends cookies
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'X-Tenant-ID': tenantId,
-    'X-User-ID': staffId,
+    'x-jwt-claim-tenant-id': tenantId,
+    'x-jwt-claim-sub': staffId,
   };
 
   // Include email for multi-tenant staff lookup (staff ID may differ from auth user ID)
   if (userEmail) {
-    headers['X-User-Email'] = userEmail;
+    headers['x-jwt-claim-email'] = userEmail;
   }
 
   // Use /me/permissions endpoint - doesn't require prior permissions

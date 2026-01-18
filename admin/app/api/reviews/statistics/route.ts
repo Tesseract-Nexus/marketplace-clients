@@ -152,7 +152,7 @@ export async function GET(request: NextRequest) {
     }, {
       headers: {
         'Cache-Control': 'public, max-age=60, stale-while-revalidate=120',
-        'Vary': 'Accept-Encoding, X-Tenant-ID',
+        'Vary': 'Accept-Encoding, x-jwt-claim-tenant-id',
       },
     });
   } catch (error) {

@@ -1,25 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DEFAULT_WIDGET_ORDER, DashboardWidget } from '@/lib/types/dashboard';
-
-// Get auth headers from incoming request
-const getAuthHeaders = (request: NextRequest) => {
-  const tenantId = request.headers.get('x-tenant-id');
-  const userId = request.headers.get('x-user-id');
-
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-
-  if (tenantId) {
-    headers['X-Tenant-ID'] = tenantId;
-  }
-
-  if (userId) {
-    headers['X-User-ID'] = userId;
-  }
-
-  return headers;
-};
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
 const getBaseUrl = () => {
   const url = process.env.SETTINGS_SERVICE_URL || 'http://localhost:8085';
@@ -28,23 +9,24 @@ const getBaseUrl = () => {
 
 const SETTINGS_SERVICE_BASE = getBaseUrl();
 
-// Validate that required headers are present
-const validateRequest = (request: NextRequest): { tenantId: string; userId: string } | null => {
-  const tenantId = request.headers.get('x-tenant-id');
-  const userId = request.headers.get('x-user-id');
+// Get auth headers and validate that required fields are present
+const getAuthInfo = async (request: NextRequest): Promise<{ tenantId: string; userId: string; headers: Record<string, string> } | null> => {
+  const headers = await getProxyHeaders(request) as Record<string, string>;
+  const tenantId = headers['x-jwt-claim-tenant-id'];
+  const userId = headers['x-jwt-claim-sub'];
 
   if (!tenantId || !userId) {
     return null;
   }
 
-  return { tenantId, userId };
+  return { tenantId, userId, headers };
 };
 
 // GET: Retrieve user's dashboard layout preferences
 export async function GET(request: NextRequest) {
   try {
-    const validation = validateRequest(request);
-    if (!validation) {
+    const authInfo = await getAuthInfo(request);
+    if (!authInfo) {
       // Return defaults if no user context
       return NextResponse.json({
         success: true,
@@ -54,7 +36,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const { userId } = validation;
+    const { userId, headers } = authInfo;
 
     // Try to get user preferences from settings service
     const url = `${SETTINGS_SERVICE_BASE}/api/v1/settings?key=user_preferences_${userId}`;
@@ -62,7 +44,7 @@ export async function GET(request: NextRequest) {
     try {
       const response = await fetch(url, {
         method: 'GET',
-        headers: getAuthHeaders(request),
+        headers,
       });
 
       if (response.ok) {
@@ -105,15 +87,15 @@ export async function GET(request: NextRequest) {
 // POST: Save user's dashboard layout preferences
 export async function POST(request: NextRequest) {
   try {
-    const validation = validateRequest(request);
-    if (!validation) {
+    const authInfo = await getAuthInfo(request);
+    if (!authInfo) {
       return NextResponse.json(
         { success: false, message: 'User authentication required' },
         { status: 401 }
       );
     }
 
-    const { userId } = validation;
+    const { userId, headers } = authInfo;
     const body = await request.json();
     const { dashboardLayout } = body;
 
@@ -130,7 +112,7 @@ export async function POST(request: NextRequest) {
     try {
       const response = await fetch(url, {
         method: 'POST',
-        headers: getAuthHeaders(request),
+        headers,
         body: JSON.stringify({
           key: `user_preferences_${userId}`,
           value: {

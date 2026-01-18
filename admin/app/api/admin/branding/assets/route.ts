@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
 // Document service URL - uses internal k8s service name or external URL
 const DOCUMENT_SERVICE_URL = process.env.DOCUMENT_SERVICE_URL || 'http://document-service:8082';
@@ -40,16 +41,17 @@ interface BrandingAssetResponse {
   message?: string;
 }
 
-// Get auth info from request headers - NO fallbacks
-const getAuthHeaders = (request: NextRequest) => {
-  const tenantId = request.headers.get('x-tenant-id');
-  const userId = request.headers.get('x-user-id');
-  return { tenantId, userId };
+// Get auth info from Istio JWT headers
+const getAuthInfo = async (request: NextRequest) => {
+  const headers = await getProxyHeaders(request) as Record<string, string>;
+  const tenantId = headers['x-jwt-claim-tenant-id'] || '';
+  const userId = headers['x-jwt-claim-sub'] || '';
+  return { tenantId, userId, headers };
 };
 
 // Validate that tenant ID is present
-const validateTenantId = (request: NextRequest): string | null => {
-  const tenantId = request.headers.get('x-tenant-id');
+const validateTenantId = async (request: NextRequest): Promise<string | null> => {
+  const { tenantId } = await getAuthInfo(request);
   if (!tenantId) {
     return null;
   }
@@ -107,14 +109,15 @@ function buildPublicUrl(path: string): string {
  */
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const tenantId = validateTenantId(request);
+    const tenantId = await validateTenantId(request);
     if (!tenantId) {
       return NextResponse.json(
-        { success: false, message: 'X-Tenant-ID header is required' },
+        { success: false, message: 'Tenant ID is required' },
         { status: 400 }
       );
     }
 
+    const { headers } = await getAuthInfo(request);
     const { searchParams } = new URL(request.url);
     const assetType = searchParams.get('assetType') as AssetType;
     const storefrontId = searchParams.get('storefrontId') || undefined;
@@ -139,7 +142,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
       try {
         const response = await fetch(checkUrl, {
-          headers: { 'X-Tenant-ID': tenantId },
+          headers,
         });
 
         if (response.ok) {
@@ -149,8 +152,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             const presignedResponse = await fetch(`${DOCUMENT_SERVICE_URL}/api/v1/documents/presigned-url`, {
               method: 'POST',
               headers: {
+                ...headers,
                 'Content-Type': 'application/json',
-                'X-Tenant-ID': tenantId,
               },
               body: JSON.stringify({
                 path,
@@ -205,15 +208,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
  */
 export async function POST(request: NextRequest): Promise<NextResponse<BrandingAssetResponse>> {
   try {
-    const tenantId = validateTenantId(request);
+    const tenantId = await validateTenantId(request);
     if (!tenantId) {
       return NextResponse.json(
-        { success: false, message: 'X-Tenant-ID header is required' },
+        { success: false, message: 'Tenant ID is required' },
         { status: 400 }
       );
     }
 
-    const { userId } = getAuthHeaders(request);
+    const { userId, headers } = await getAuthInfo(request);
     const formData = await request.formData();
 
     const file = formData.get('file') as File | null;
@@ -274,7 +277,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<BrandingA
       try {
         await fetch(`${DOCUMENT_SERVICE_URL}/api/v1/documents/${DOCUMENT_SERVICE_BUCKET}/file/${encodeURIComponent(oldPath)}`, {
           method: 'DELETE',
-          headers: { 'X-Tenant-ID': tenantId },
+          headers,
         });
       } catch {
         // Ignore errors - file might not exist
@@ -289,14 +292,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<BrandingA
     uploadFormData.append('tags', tags);
     uploadFormData.append('isPublic', 'true'); // Branding assets should be public
 
-    // Upload to document-service
+    // Upload to document-service - remove Content-Type as it's set by FormData
     const uploadUrl = `${DOCUMENT_SERVICE_URL}/api/v1/documents/upload`;
-    const uploadHeaders: Record<string, string> = {
-      'X-Tenant-ID': tenantId,
-    };
-    if (userId) {
-      uploadHeaders['X-User-ID'] = userId;
-    }
+    const { 'Content-Type': _, ...uploadHeaders } = headers;
     const response = await fetch(uploadUrl, {
       method: 'POST',
       headers: uploadHeaders,
@@ -316,8 +314,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<BrandingA
       const presignedResponse = await fetch(`${DOCUMENT_SERVICE_URL}/api/v1/documents/presigned-url`, {
         method: 'POST',
         headers: {
+          ...headers,
           'Content-Type': 'application/json',
-          'X-Tenant-ID': tenantId,
         },
         body: JSON.stringify({
           path: storagePath,
@@ -367,14 +365,15 @@ export async function POST(request: NextRequest): Promise<NextResponse<BrandingA
  */
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   try {
-    const tenantId = validateTenantId(request);
+    const tenantId = await validateTenantId(request);
     if (!tenantId) {
       return NextResponse.json(
-        { success: false, message: 'X-Tenant-ID header is required' },
+        { success: false, message: 'Tenant ID is required' },
         { status: 400 }
       );
     }
 
+    const { headers } = await getAuthInfo(request);
     const { searchParams } = new URL(request.url);
     const assetType = searchParams.get('assetType') as AssetType;
     const storefrontId = searchParams.get('storefrontId') || undefined;
@@ -397,7 +396,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse> {
           `${DOCUMENT_SERVICE_URL}/api/v1/documents/${DOCUMENT_SERVICE_BUCKET}/file/${encodeURIComponent(path)}`,
           {
             method: 'DELETE',
-            headers: { 'X-Tenant-ID': tenantId },
+            headers,
           }
         );
         if (response.ok) {

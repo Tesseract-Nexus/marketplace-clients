@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 import { StorefrontAsset, UploadAssetResponse, ApiResponse } from '@/lib/api/types';
 
 // Document service URL - uses internal k8s service name or external URL
@@ -42,13 +43,6 @@ const ASSET_CONFIG: Record<string, { maxSize: number; allowedTypes: string[]; fi
     allowedTypes: ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'],
     filename: 'custom',
   },
-};
-
-const getAuthHeaders = (request: NextRequest) => {
-  const tenantId = request.headers.get('x-tenant-id');
-  const storefrontId = request.headers.get('x-storefront-id');
-  const userId = request.headers.get('x-user-id');
-  return { tenantId, storefrontId, userId };
 };
 
 /**
@@ -99,7 +93,7 @@ async function generatePresignedUrl(path: string, tenantId: string): Promise<str
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
+        'x-jwt-claim-tenant-id': tenantId,
       },
       body: JSON.stringify({
         path,
@@ -122,21 +116,24 @@ async function generatePresignedUrl(path: string, tenantId: string): Promise<str
 /**
  * GET /api/storefront/assets
  * List all assets for the current storefront
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<StorefrontAsset[]>>> {
   try {
-    const { tenantId, storefrontId } = getAuthHeaders(request);
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+    const storefrontId = request.headers.get('x-storefront-id') || request.headers.get('X-Storefront-ID');
 
     if (!tenantId) {
       return NextResponse.json(
-        { success: false, data: [], message: 'X-Tenant-ID header is required' },
+        { success: false, data: [], message: 'Tenant ID is required' },
         { status: 400 }
       );
     }
 
     if (!storefrontId) {
       return NextResponse.json(
-        { success: false, data: [], message: 'X-Storefront-ID header is required' },
+        { success: false, data: [], message: 'Storefront ID is required' },
         { status: 400 }
       );
     }
@@ -151,7 +148,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
       `${DOCUMENT_SERVICE_URL}/api/v1/documents?bucket=${DOCUMENT_SERVICE_BUCKET}&prefix=${encodeURIComponent(prefix)}&includeMetadata=true`,
       {
         headers: {
-          'X-Tenant-ID': tenantId,
+          'x-jwt-claim-tenant-id': tenantId,
         },
       }
     );
@@ -203,23 +200,27 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
 /**
  * POST /api/storefront/assets
  * Upload a new asset to the document service with proper directory structure
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  *
  * Directory structure: storefront-assets/{tenant-id}/{storefront-id}/{type}/{filename}
  */
 export async function POST(request: NextRequest): Promise<NextResponse<UploadAssetResponse>> {
   try {
-    const { tenantId, storefrontId, userId } = getAuthHeaders(request);
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+    const storefrontId = request.headers.get('x-storefront-id') || request.headers.get('X-Storefront-ID');
+    const userId = headers['x-jwt-claim-sub'] || '';
 
     if (!tenantId) {
       return NextResponse.json(
-        { success: false, asset: null as any, message: 'X-Tenant-ID header is required' } as any,
+        { success: false, asset: null as any, message: 'Tenant ID is required' } as any,
         { status: 400 }
       );
     }
 
     if (!storefrontId) {
       return NextResponse.json(
-        { success: false, asset: null as any, message: 'X-Storefront-ID header is required' } as any,
+        { success: false, asset: null as any, message: 'Storefront ID is required' } as any,
         { status: 400 }
       );
     }
@@ -283,8 +284,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadAss
     const uploadResponse = await fetch(uploadUrl, {
       method: 'POST',
       headers: {
-        'X-Tenant-ID': tenantId,
-        ...(userId && { 'X-User-ID': userId }),
+        'x-jwt-claim-tenant-id': tenantId,
+        ...(userId && { 'x-jwt-claim-sub': userId }),
       },
       body: uploadFormData,
     });
@@ -337,14 +338,16 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadAss
 /**
  * DELETE /api/storefront/assets
  * Delete an asset by path from document service
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
 export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResponse<null>>> {
   try {
-    const { tenantId } = getAuthHeaders(request);
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'];
 
     if (!tenantId) {
       return NextResponse.json(
-        { success: false, data: null, message: 'X-Tenant-ID header is required' },
+        { success: false, data: null, message: 'Tenant ID is required' },
         { status: 400 }
       );
     }
@@ -367,7 +370,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResp
       {
         method: 'DELETE',
         headers: {
-          'X-Tenant-ID': tenantId,
+          'x-jwt-claim-tenant-id': tenantId,
         },
       }
     );

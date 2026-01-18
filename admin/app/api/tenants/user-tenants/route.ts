@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthHeaders } from '../../lib/auth-helper';
+import { getProxyHeaders, handleApiError } from '@/lib/utils/api-route-handler';
 
 // Tenant Service URL - connects to the backend Go service
 const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8082';
@@ -29,7 +29,8 @@ interface ApiResponse {
  */
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
-    const { userId, authToken } = await getAuthHeaders(request);
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const userId = headers['x-jwt-claim-sub'];
 
     // Require authentication - return 401 if no user ID found
     if (!userId) {
@@ -40,15 +41,14 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
     }
 
     // Try to fetch from Tenant Service
-    // Uses /users/me/tenants with X-User-ID header
+    // Uses /users/me/tenants with Istio JWT headers
     const response = await fetch(
       `${TENANT_SERVICE_URL}/api/v1/users/me/tenants`,
       {
         method: 'GET',
         headers: {
+          ...headers,
           'Content-Type': 'application/json',
-          'X-User-ID': userId,
-          ...(authToken && { 'Authorization': authToken }),
         },
         // Short cache for tenant data
         next: { revalidate: 30 },
@@ -87,10 +87,6 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
       { status: 503 }
     );
   } catch (error) {
-    console.error('Error fetching user tenants:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to fetch tenants' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'GET tenants/user-tenants');
   }
 }

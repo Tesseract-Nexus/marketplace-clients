@@ -317,7 +317,7 @@ export default function AuditLogsPage() {
       'Content-Type': 'application/json',
     };
     if (currentTenant?.id) {
-      headers['X-Tenant-ID'] = currentTenant.id;
+      headers['x-jwt-claim-tenant-id'] = currentTenant.id;
     }
     return headers;
   };

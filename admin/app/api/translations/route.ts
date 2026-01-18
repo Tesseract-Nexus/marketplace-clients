@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
 // Translation service URL - uses Kubernetes internal DNS in production
 // Falls back to localhost for local development
@@ -68,29 +69,24 @@ function handleError(error: unknown, endpoint: string, method: string): NextResp
  * Proxy requests to the translation service
  */
 export async function GET(request: NextRequest) {
-  const tenantId = request.headers.get('X-Tenant-ID');
-  const userId = request.headers.get('X-User-ID');
+  const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+  const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
   const { searchParams } = new URL(request.url);
   const endpoint = searchParams.get('endpoint') || 'languages';
 
   // Languages endpoint doesn't require tenant ID
   if (!tenantId && endpoint !== 'languages' && !endpoint.startsWith('users/me')) {
     return NextResponse.json(
-      { error: 'X-Tenant-ID header is required' },
+      { error: 'Tenant ID is required' },
       { status: 400 }
     );
   }
 
   try {
     const headers: Record<string, string> = {
+      ...proxyHeaders,
       'Content-Type': 'application/json',
     };
-    if (tenantId) {
-      headers['X-Tenant-ID'] = tenantId;
-    }
-    if (userId) {
-      headers['X-User-ID'] = userId;
-    }
 
     const response = await fetchWithTimeout(`${TRANSLATION_SERVICE_BASE}/api/v1/${endpoint}`, {
       method: 'GET',
@@ -116,11 +112,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const tenantId = request.headers.get('X-Tenant-ID');
+  const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+  const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
 
   if (!tenantId) {
     return NextResponse.json(
-      { error: 'X-Tenant-ID header is required' },
+      { error: 'Tenant ID is required' },
       { status: 400 }
     );
   }
@@ -142,7 +139,7 @@ export async function POST(request: NextRequest) {
     const response = await fetchWithTimeout(`${TRANSLATION_SERVICE_BASE}/api/v1/${endpoint}`, {
       method: 'POST',
       headers: {
-        'X-Tenant-ID': tenantId,
+        ...proxyHeaders,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
@@ -167,8 +164,8 @@ export async function POST(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
-  const tenantId = request.headers.get('X-Tenant-ID');
-  const userId = request.headers.get('X-User-ID');
+  const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+  const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
 
   const { searchParams } = new URL(request.url);
   const endpoint = searchParams.get('endpoint') || 'preferences';
@@ -176,7 +173,7 @@ export async function PUT(request: NextRequest) {
   // User preference endpoints don't strictly require tenant ID
   if (!tenantId && !endpoint.startsWith('users/me')) {
     return NextResponse.json(
-      { error: 'X-Tenant-ID header is required' },
+      { error: 'Tenant ID is required' },
       { status: 400 }
     );
   }
@@ -193,14 +190,9 @@ export async function PUT(request: NextRequest) {
 
   try {
     const headers: Record<string, string> = {
+      ...proxyHeaders,
       'Content-Type': 'application/json',
     };
-    if (tenantId) {
-      headers['X-Tenant-ID'] = tenantId;
-    }
-    if (userId) {
-      headers['X-User-ID'] = userId;
-    }
 
     const response = await fetchWithTimeout(`${TRANSLATION_SERVICE_BASE}/api/v1/${endpoint}`, {
       method: 'PUT',
@@ -227,11 +219,12 @@ export async function PUT(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const tenantId = request.headers.get('X-Tenant-ID');
+  const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+  const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
 
   if (!tenantId) {
     return NextResponse.json(
-      { error: 'X-Tenant-ID header is required' },
+      { error: 'Tenant ID is required' },
       { status: 400 }
     );
   }
@@ -243,7 +236,7 @@ export async function DELETE(request: NextRequest) {
     const response = await fetchWithTimeout(`${TRANSLATION_SERVICE_BASE}/api/v1/${endpoint}`, {
       method: 'DELETE',
       headers: {
-        'X-Tenant-ID': tenantId,
+        ...proxyHeaders,
         'Content-Type': 'application/json',
       },
     });

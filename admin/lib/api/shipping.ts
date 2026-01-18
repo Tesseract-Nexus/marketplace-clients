@@ -68,7 +68,7 @@ export class ShippingService {
         try {
           const currentTenant = JSON.parse(currentTenantStr);
           if (currentTenant?.id) {
-            (headers as Record<string, string>)['X-Tenant-ID'] = currentTenant.id;
+            (headers as Record<string, string>)['x-jwt-claim-tenant-id'] = currentTenant.id;
           }
         } catch (e) {
           console.error('Failed to parse currentTenant from localStorage:', e);

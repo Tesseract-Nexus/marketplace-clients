@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthHeaders } from '../../lib/auth-helper';
+import { getProxyHeaders, handleApiError } from '@/lib/utils/api-route-handler';
 
 const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8082';
 
@@ -9,7 +9,8 @@ const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8
  */
 export async function PUT(request: NextRequest) {
   try {
-    const { userId, authToken } = await getAuthHeaders(request);
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const userId = headers['x-jwt-claim-sub'];
 
     if (!userId) {
       return NextResponse.json(
@@ -34,9 +35,8 @@ export async function PUT(request: NextRequest) {
       {
         method: 'PUT',
         headers: {
+          ...headers,
           'Content-Type': 'application/json',
-          'X-User-ID': userId,
-          ...(authToken && { 'Authorization': authToken }),
         },
         body: JSON.stringify({ tenant_id: tenantId }),
       }
@@ -52,10 +52,6 @@ export async function PUT(request: NextRequest) {
       { status: response.status }
     );
   } catch (error) {
-    console.error('Error setting default tenant:', error);
-    return NextResponse.json(
-      { success: false, error: 'Failed to set default tenant' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'PUT tenants/set-default');
   }
 }

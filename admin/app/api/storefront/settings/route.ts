@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServiceUrl } from '@/lib/config/api';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 import {
   StorefrontSettings,
   CreateStorefrontSettingsRequest,
@@ -8,32 +10,7 @@ import {
   ColorMode,
 } from '@/lib/api/types';
 
-// Settings Service URL - connects to the backend Go service
-const SETTINGS_SERVICE_URL = process.env.SETTINGS_SERVICE_URL || 'http://localhost:8085';
-
-// Get auth headers from incoming request - NO fallbacks, IDs must come from headers
-const getAuthHeaders = (request: NextRequest) => {
-  const tenantId = request.headers.get('x-tenant-id');
-  const storefrontId = request.headers.get('x-storefront-id');
-  const userId = request.headers.get('x-user-id');
-  const authorization = request.headers.get('authorization');
-  return { tenantId, storefrontId, userId, authorization };
-};
-
-// Validate that required headers are present
-const validateHeaders = (request: NextRequest): { storefrontId: string; tenantId: string | null; userId: string | null; userEmail: string | null; authorization: string | null } | null => {
-  const storefrontId = request.headers.get('x-storefront-id');
-  if (!storefrontId) {
-    return null;
-  }
-  return {
-    storefrontId,
-    tenantId: request.headers.get('x-tenant-id'),
-    userId: request.headers.get('x-user-id'),
-    userEmail: request.headers.get('x-user-email'),
-    authorization: request.headers.get('authorization'),
-  };
-};
+const SETTINGS_SERVICE_URL = getServiceUrl('SETTINGS');
 
 /**
  * Transform backend homepageConfig to frontend format
@@ -226,43 +203,37 @@ function transformResponse(data: Record<string, unknown>, tenantId: string): Sto
 /**
  * GET /api/storefront/settings
  * Get storefront settings for a specific storefront
- * Requires X-Storefront-ID header
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse<StorefrontSettings>>> {
   try {
-    const headers = validateHeaders(request);
-    if (!headers) {
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const storefrontId = request.headers.get('x-storefront-id') || request.headers.get('X-Storefront-ID');
+    const tenantId = headers['x-jwt-claim-tenant-id'] || storefrontId;
+
+    if (!storefrontId) {
       return NextResponse.json(
         { success: false, data: null as unknown as StorefrontSettings, message: 'X-Storefront-ID header is required' },
         { status: 400 }
       );
     }
 
-    const { storefrontId, tenantId, authorization } = headers;
-    const userId = request.headers.get('x-user-id');
-    const userEmail = request.headers.get('x-user-email');
-
-    // Build headers for backend request - include all auth headers for Istio
+    // Build headers for backend request
     const backendHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
-      'X-Tenant-ID': tenantId || storefrontId,
       'X-Storefront-ID': storefrontId,
+      // Forward Istio JWT claim headers
+      'x-jwt-claim-tenant-id': tenantId || storefrontId,
     };
-    // Forward user info for legacy auth (required by IstioAuth AllowLegacyHeaders)
-    if (userId) {
-      backendHeaders['X-User-ID'] = userId;
-    }
-    if (userEmail) {
-      backendHeaders['X-User-Email'] = userEmail;
-    }
-    // Forward Authorization header for Istio JWT validation
-    if (authorization) {
-      backendHeaders['Authorization'] = authorization;
+
+    // Forward Authorization header
+    if (headers['Authorization']) {
+      backendHeaders['Authorization'] = headers['Authorization'];
     }
 
     // Fetch from Settings Service - use storefrontId as the key
     const response = await fetch(
-      `${SETTINGS_SERVICE_URL}/api/v1/storefront-theme/${storefrontId}`,
+      `${SETTINGS_SERVICE_URL}/storefront-theme/${storefrontId}`,
       {
         method: 'GET',
         headers: backendHeaders,
@@ -300,8 +271,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
     console.error('Error fetching storefront settings from Settings Service:', error);
 
     // Fallback to defaults on error
-    const headers = validateHeaders(request);
-    const storefrontId = headers?.storefrontId || 'unknown';
+    const storefrontId = request.headers.get('x-storefront-id') || 'unknown';
     const now = new Date().toISOString();
     const defaultSettings: StorefrontSettings = {
       id: crypto.randomUUID(),
@@ -321,20 +291,23 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
 /**
  * POST /api/storefront/settings
  * Create or update storefront settings
- * Requires X-Storefront-ID header
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
 export async function POST(request: NextRequest): Promise<NextResponse<ApiResponse<StorefrontSettings>>> {
   try {
-    const headers = validateHeaders(request);
-    if (!headers) {
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const storefrontId = request.headers.get('x-storefront-id') || request.headers.get('X-Storefront-ID');
+    const tenantId = headers['x-jwt-claim-tenant-id'] || storefrontId;
+    const userId = headers['x-jwt-claim-sub'];
+    const userEmail = headers['x-jwt-claim-email'];
+
+    if (!storefrontId) {
       console.error('POST /api/storefront/settings: Missing X-Storefront-ID header');
       return NextResponse.json(
         { success: false, data: null as unknown as StorefrontSettings, message: 'X-Storefront-ID header is required' },
         { status: 400 }
       );
     }
-
-    const { storefrontId, tenantId, userId, userEmail, authorization } = headers;
 
     // Log request info for debugging
     console.log(`POST /api/storefront/settings: storefrontId=${storefrontId}, tenantId=${tenantId}, userId=${userId ? 'set' : 'not set'}`);
@@ -344,19 +317,19 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     // Build headers for backend request
     const backendHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
-      'X-Tenant-ID': tenantId || storefrontId,
       'X-Storefront-ID': storefrontId,
+      // Forward Istio JWT claim headers
+      'x-jwt-claim-tenant-id': tenantId || storefrontId,
     };
-    // Forward user info for legacy auth (required by IstioAuth AllowLegacyHeaders)
+
     if (userId) {
-      backendHeaders['X-User-ID'] = userId;
+      backendHeaders['x-jwt-claim-sub'] = userId;
     }
     if (userEmail) {
-      backendHeaders['X-User-Email'] = userEmail;
+      backendHeaders['x-jwt-claim-email'] = userEmail;
     }
-    // Forward Authorization header for Istio JWT validation
-    if (authorization) {
-      backendHeaders['Authorization'] = authorization;
+    if (headers['Authorization']) {
+      backendHeaders['Authorization'] = headers['Authorization'];
     }
 
     // Transform frontend format to backend format
@@ -389,7 +362,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     if (backendPayload.advancedConfig) payload.advancedConfig = backendPayload.advancedConfig;
 
     // Send to Settings Service - use storefrontId as the key
-    const backendUrl = `${SETTINGS_SERVICE_URL}/api/v1/storefront-theme/${storefrontId}`;
+    const backendUrl = `${SETTINGS_SERVICE_URL}/storefront-theme/${storefrontId}`;
     console.log(`POST /api/storefront/settings: Calling backend at ${backendUrl}`);
 
     const response = await fetch(backendUrl, {
@@ -436,37 +409,40 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
 /**
  * PATCH /api/storefront/settings
  * Partially update storefront settings
- * Requires X-Storefront-ID header
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
 export async function PATCH(request: NextRequest): Promise<NextResponse<ApiResponse<StorefrontSettings>>> {
   try {
-    const headers = validateHeaders(request);
-    if (!headers) {
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const storefrontId = request.headers.get('x-storefront-id') || request.headers.get('X-Storefront-ID');
+    const tenantId = headers['x-jwt-claim-tenant-id'] || storefrontId;
+    const userId = headers['x-jwt-claim-sub'];
+    const userEmail = headers['x-jwt-claim-email'];
+
+    if (!storefrontId) {
       return NextResponse.json(
         { success: false, data: null as unknown as StorefrontSettings, message: 'X-Storefront-ID header is required' },
         { status: 400 }
       );
     }
 
-    const { storefrontId, tenantId, userId, userEmail, authorization } = headers;
     const body: Partial<CreateStorefrontSettingsRequest> = await request.json();
 
     // Build headers for backend request
     const backendHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
-      'X-Tenant-ID': tenantId || storefrontId,
       'X-Storefront-ID': storefrontId,
+      'x-jwt-claim-tenant-id': tenantId || storefrontId,
     };
-    // Forward user info for legacy auth (required by IstioAuth AllowLegacyHeaders)
+
     if (userId) {
-      backendHeaders['X-User-ID'] = userId;
+      backendHeaders['x-jwt-claim-sub'] = userId;
     }
     if (userEmail) {
-      backendHeaders['X-User-Email'] = userEmail;
+      backendHeaders['x-jwt-claim-email'] = userEmail;
     }
-    // Forward Authorization header for Istio JWT validation
-    if (authorization) {
-      backendHeaders['Authorization'] = authorization;
+    if (headers['Authorization']) {
+      backendHeaders['Authorization'] = headers['Authorization'];
     }
 
     // Transform frontend format to backend format
@@ -499,7 +475,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse<ApiRespo
 
     // Send PATCH to Settings Service
     const response = await fetch(
-      `${SETTINGS_SERVICE_URL}/api/v1/storefront-theme/${storefrontId}`,
+      `${SETTINGS_SERVICE_URL}/storefront-theme/${storefrontId}`,
       {
         method: 'PATCH',
         headers: backendHeaders,
@@ -540,41 +516,43 @@ export async function PATCH(request: NextRequest): Promise<NextResponse<ApiRespo
 /**
  * DELETE /api/storefront/settings
  * Reset storefront settings to defaults
- * Requires X-Storefront-ID header
+ * Uses getProxyHeaders which properly extracts JWT claims and forwards Istio headers
  */
 export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResponse<StorefrontSettings>>> {
   try {
-    const headers = validateHeaders(request);
-    if (!headers) {
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const storefrontId = request.headers.get('x-storefront-id') || request.headers.get('X-Storefront-ID');
+    const tenantId = headers['x-jwt-claim-tenant-id'] || storefrontId;
+    const userId = headers['x-jwt-claim-sub'];
+    const userEmail = headers['x-jwt-claim-email'];
+
+    if (!storefrontId) {
       return NextResponse.json(
         { success: false, data: null as unknown as StorefrontSettings, message: 'X-Storefront-ID header is required' },
         { status: 400 }
       );
     }
 
-    const { storefrontId, tenantId, userId, userEmail, authorization } = headers;
-
     // Build headers for backend request
     const backendHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
-      'X-Tenant-ID': tenantId || storefrontId,
       'X-Storefront-ID': storefrontId,
+      'x-jwt-claim-tenant-id': tenantId || storefrontId,
     };
-    // Forward user info for legacy auth (required by IstioAuth AllowLegacyHeaders)
+
     if (userId) {
-      backendHeaders['X-User-ID'] = userId;
+      backendHeaders['x-jwt-claim-sub'] = userId;
     }
     if (userEmail) {
-      backendHeaders['X-User-Email'] = userEmail;
+      backendHeaders['x-jwt-claim-email'] = userEmail;
     }
-    // Forward Authorization header for Istio JWT validation
-    if (authorization) {
-      backendHeaders['Authorization'] = authorization;
+    if (headers['Authorization']) {
+      backendHeaders['Authorization'] = headers['Authorization'];
     }
 
     // Delete from Settings Service
     const response = await fetch(
-      `${SETTINGS_SERVICE_URL}/api/v1/storefront-theme/${storefrontId}`,
+      `${SETTINGS_SERVICE_URL}/storefront-theme/${storefrontId}`,
       {
         method: 'DELETE',
         headers: backendHeaders,
@@ -611,8 +589,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResp
   } catch (error) {
     console.error('Error resetting storefront settings in Settings Service:', error);
 
-    const headers = validateHeaders(request);
-    const storefrontId = headers?.storefrontId || 'unknown';
+    const storefrontId = request.headers.get('x-storefront-id') || 'unknown';
     const now = new Date().toISOString();
     const defaultSettings: StorefrontSettings = {
       id: crypto.randomUUID(),

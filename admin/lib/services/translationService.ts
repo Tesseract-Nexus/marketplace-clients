@@ -91,7 +91,7 @@ class TranslationService {
     };
 
     if (tenantId) {
-      headers['X-Tenant-ID'] = tenantId;
+      headers['x-jwt-claim-tenant-id'] = tenantId;
     }
 
     // Use query parameter for endpoint routing

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAuthHeaders } from '../../lib/auth-helper';
+import { getProxyHeaders, handleApiError } from '@/lib/utils/api-route-handler';
 
 // Tenant Service URL - connects to the backend Go service
 const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8082';
@@ -14,7 +14,8 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const { id } = await params;
-    const { userId, authToken } = await getAuthHeaders(request);
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const userId = headers['x-jwt-claim-sub'];
 
     if (!userId) {
       return NextResponse.json(
@@ -28,9 +29,8 @@ export async function GET(
       {
         method: 'GET',
         headers: {
+          ...headers,
           'Content-Type': 'application/json',
-          'X-User-ID': userId,
-          ...(authToken && { 'Authorization': authToken }),
         },
       }
     );
@@ -46,11 +46,7 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: data.data });
   } catch (error) {
-    console.error('Error getting tenant deletion info:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to get tenant info' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'GET tenants/[id]');
   }
 }
 
@@ -64,7 +60,8 @@ export async function DELETE(
 ): Promise<NextResponse> {
   try {
     const { id } = await params;
-    const { userId, authToken } = await getAuthHeaders(request);
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const userId = headers['x-jwt-claim-sub'];
 
     if (!userId) {
       return NextResponse.json(
@@ -80,9 +77,8 @@ export async function DELETE(
       {
         method: 'DELETE',
         headers: {
+          ...headers,
           'Content-Type': 'application/json',
-          'X-User-ID': userId,
-          ...(authToken && { 'Authorization': authToken }),
         },
         body: JSON.stringify(body),
       }
@@ -100,10 +96,6 @@ export async function DELETE(
 
     return NextResponse.json({ success: true, data: data.data });
   } catch (error) {
-    console.error('Error deleting tenant:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to delete tenant' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'DELETE tenants/[id]');
   }
 }

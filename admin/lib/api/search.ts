@@ -125,8 +125,8 @@ function getSearchUrl(): string {
 function getAuthHeaders(tenantId: string): HeadersInit {
   return {
     'Content-Type': 'application/json',
-    'X-Vendor-ID': tenantId,
-    'X-Tenant-ID': tenantId,
+    'x-jwt-claim-vendor-id': tenantId,
+    'x-jwt-claim-tenant-id': tenantId,
   };
 }
 
@@ -389,8 +389,8 @@ export async function syncCollection(
   try {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
-      'X-Vendor-ID': tenantId,
-      'X-Tenant-ID': tenantId,
+      'x-jwt-claim-vendor-id': tenantId,
+      'x-jwt-claim-tenant-id': tenantId,
     };
 
     if (authToken) {
@@ -427,8 +427,8 @@ export async function syncAllCollections(
   try {
     const headers: HeadersInit = {
       'Content-Type': 'application/json',
-      'X-Vendor-ID': tenantId,
-      'X-Tenant-ID': tenantId,
+      'x-jwt-claim-vendor-id': tenantId,
+      'x-jwt-claim-tenant-id': tenantId,
     };
 
     if (authToken) {

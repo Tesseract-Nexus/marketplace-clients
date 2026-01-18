@@ -98,7 +98,7 @@ export default function CustomerSegmentsPage() {
   // SECURITY: Use HttpOnly cookies for authentication instead of localStorage
   // The Authorization header is handled by the backend API routes via cookies
   const getAuthHeaders = (): Record<string, string> => {
-    return { 'X-Tenant-ID': currentTenant!.id };
+    return { 'x-jwt-claim-tenant-id': currentTenant!.id };
   };
 
   const fetchSegments = async () => {

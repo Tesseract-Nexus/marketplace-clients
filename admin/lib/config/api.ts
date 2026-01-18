@@ -60,13 +60,13 @@ export function getServiceUrl(service: keyof typeof API_CONFIG.SERVICES): string
 /**
  * Get auth headers for API requests
  * NOTE: Returns empty headers - actual values MUST come from:
- * 1. JWT authentication (for user ID)
- * 2. TenantContext (for tenant ID set on API client)
+ * 1. JWT authentication (for user ID via x-jwt-claim-sub)
+ * 2. TenantContext (for tenant ID set on API client via x-jwt-claim-tenant-id)
  * 3. Incoming request headers (forwarded by proxy functions)
  *
  * This function now returns empty headers intentionally.
  * The getProxyHeaders() function in api-route-handler.ts will extract
- * X-Tenant-ID from the incoming client request if present.
+ * x-jwt-claim-tenant-id from the incoming client request if present.
  */
 export function getAuthHeaders(): Record<string, string> {
   // Return empty object - no fallback values

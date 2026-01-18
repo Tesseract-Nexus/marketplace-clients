@@ -112,7 +112,7 @@ export default function EnterpriseSSOPage() {
       setLoading(true);
       const response = await fetch('/api/staff/sso/status', {
         headers: {
-          'X-Tenant-ID': tenantId || '',
+          'x-jwt-claim-tenant-id': tenantId || '',
         },
       });
 
@@ -123,7 +123,7 @@ export default function EnterpriseSSOPage() {
         // Also load full config
         const configResponse = await fetch('/api/staff/sso/config', {
           headers: {
-            'X-Tenant-ID': tenantId || '',
+            'x-jwt-claim-tenant-id': tenantId || '',
           },
         });
 
@@ -169,7 +169,7 @@ export default function EnterpriseSSOPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Tenant-ID': tenantId || '',
+          'x-jwt-claim-tenant-id': tenantId || '',
         },
         body: JSON.stringify(entraConfig),
       });
@@ -195,7 +195,7 @@ export default function EnterpriseSSOPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Tenant-ID': tenantId || '',
+          'x-jwt-claim-tenant-id': tenantId || '',
         },
         body: JSON.stringify(oktaConfig),
       });
@@ -220,7 +220,7 @@ export default function EnterpriseSSOPage() {
       const response = await fetch(`/api/staff/sso/providers/${provider}/test`, {
         method: 'POST',
         headers: {
-          'X-Tenant-ID': tenantId || '',
+          'x-jwt-claim-tenant-id': tenantId || '',
         },
       });
 
@@ -242,7 +242,7 @@ export default function EnterpriseSSOPage() {
       const response = await fetch(`/api/staff/sso/providers/${provider}`, {
         method: 'DELETE',
         headers: {
-          'X-Tenant-ID': tenantId || '',
+          'x-jwt-claim-tenant-id': tenantId || '',
         },
       });
 
@@ -264,7 +264,7 @@ export default function EnterpriseSSOPage() {
       const response = await fetch('/api/staff/sso/scim/enable', {
         method: 'POST',
         headers: {
-          'X-Tenant-ID': tenantId || '',
+          'x-jwt-claim-tenant-id': tenantId || '',
         },
       });
 
@@ -290,7 +290,7 @@ export default function EnterpriseSSOPage() {
       const response = await fetch('/api/staff/sso/scim/rotate-token', {
         method: 'POST',
         headers: {
-          'X-Tenant-ID': tenantId || '',
+          'x-jwt-claim-tenant-id': tenantId || '',
         },
       });
 
@@ -318,7 +318,7 @@ export default function EnterpriseSSOPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-Tenant-ID': tenantId || '',
+          'x-jwt-claim-tenant-id': tenantId || '',
         },
         body: JSON.stringify({
           enforceSSO: ssoConfig.enforceSSO,

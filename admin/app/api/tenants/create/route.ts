@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getProxyHeaders, handleApiError } from '@/lib/utils/api-route-handler';
 
 const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8082';
 
@@ -21,48 +22,6 @@ interface CreateTenantResponse {
 }
 
 /**
- * Decode JWT token and extract user ID
- * JWT format: header.payload.signature (base64 encoded)
- */
-function extractUserIdFromJWT(token: string): string | null {
-  try {
-    // Remove "Bearer " prefix if present
-    const jwt = token.replace(/^Bearer\s+/i, '');
-    const parts = jwt.split('.');
-    if (parts.length !== 3) return null;
-
-    // Decode the payload (second part)
-    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf-8'));
-
-    // Try common JWT user ID fields
-    return payload.sub || payload.user_id || payload.userId || null;
-  } catch (error) {
-    console.error('Error decoding JWT:', error);
-    return null;
-  }
-}
-
-const getAuthHeaders = (request: NextRequest) => {
-  const authToken = request.headers.get('authorization') || '';
-
-  // Try to extract user ID from JWT token first
-  let userId = '';
-  if (authToken) {
-    const jwtUserId = extractUserIdFromJWT(authToken);
-    if (jwtUserId) {
-      userId = jwtUserId;
-    }
-  }
-
-  // Fall back to x-user-id header (set by ingress/middleware)
-  if (!userId) {
-    userId = request.headers.get('x-user-id') || '';
-  }
-
-  return { userId, authToken };
-};
-
-/**
  * POST /api/tenants/create
  * Create a new independent store (tenant) from the admin panel
  *
@@ -71,7 +30,8 @@ const getAuthHeaders = (request: NextRequest) => {
  */
 export async function POST(request: NextRequest): Promise<NextResponse<CreateTenantResponse>> {
   try {
-    const { userId, authToken } = getAuthHeaders(request);
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const userId = headers['x-jwt-claim-sub'];
 
     // Validate user is authenticated
     if (!userId) {
@@ -113,9 +73,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateTen
       {
         method: 'POST',
         headers: {
+          ...headers,
           'Content-Type': 'application/json',
-          'X-User-ID': userId,
-          ...(authToken && { 'Authorization': authToken }),
         },
         body: JSON.stringify({
           name: body.name,
@@ -171,10 +130,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<CreateTen
       );
     }
   } catch (error) {
-    console.error('Error creating tenant:', error);
-    return NextResponse.json(
-      { success: false, error: 'An unexpected error occurred while creating the store' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'POST tenants/create');
   }
 }

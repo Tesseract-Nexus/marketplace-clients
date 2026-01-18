@@ -123,9 +123,7 @@ export function extractUserContext(request: NextRequest): UserContext {
   // Check both 'session' and 'bff_session' cookie names
   const hasValidSession = !!(request.cookies.get('session')?.value || request.cookies.get('bff_session')?.value);
 
-  // Source 3: Legacy headers (only with valid session cookie)
-  const legacyUserId = hasValidSession ? (request.headers.get('X-User-ID') || request.headers.get('x-user-id')) : null;
-  const legacyTenantId = hasValidSession ? (request.headers.get('X-Tenant-ID') || request.headers.get('x-tenant-id')) : null;
+  // Source 3: No legacy headers - they are disabled in backend services (AllowLegacyHeaders: false)
 
   // === DISPLAY ONLY: Decoded JWT claims (NOT verified, NOT for auth) ===
   let displayUserName: string | null = null;
@@ -143,11 +141,11 @@ export function extractUserContext(request: NextRequest): UserContext {
 
   // === COMBINE with priority (TRUSTED sources first) ===
 
-  // User ID: Only from trusted sources
-  const userId = istioUserId || legacyUserId;
+  // User ID: Only from Istio-validated headers
+  const userId = istioUserId;
 
-  // Tenant ID: Only from trusted sources
-  const tenantId = istioTenantId || legacyTenantId;
+  // Tenant ID: Only from Istio-validated headers
+  const tenantId = istioTenantId;
 
   // Email: Prefer Istio, fallback to display (not for auth)
   const userEmail = istioUserEmail || displayUserEmail;
@@ -181,7 +179,7 @@ export function extractUserContext(request: NextRequest): UserContext {
   // User is authenticated ONLY if:
   // 1. We have Istio-validated user ID (JWT verified at ingress), OR
   // 2. We have valid session cookie (session verified by auth-bff when proxying)
-  // Note: For BFF routes, browser only sends bff_session cookie, not X-User-ID
+  // Note: For BFF routes, browser only sends bff_session cookie, not user ID headers
   // The actual token and user context is retrieved by getProxyHeadersAsync when proxying
   const isAuthenticated = !!istioUserId || hasValidSession;
 
@@ -320,19 +318,19 @@ export function requireAdminPortalAccess(request: NextRequest): AuthorizationRes
 /**
  * Get headers to forward to backend services
  *
- * SECURITY: This function forwards:
- * - X-Tenant-ID: Required for multi-tenant isolation
- * - X-User-ID: User identifier (backend validates via JWT/Istio)
- * - X-User-Email: Email for RBAC staff lookup (extracted from JWT by BFF)
+ * SECURITY: This function forwards Istio JWT claim headers:
+ * - x-jwt-claim-tenant-id: Required for multi-tenant isolation
+ * - x-jwt-claim-sub: User identifier (validated by Istio at ingress)
+ * - x-jwt-claim-email: Email for RBAC staff lookup (extracted from JWT by Istio)
  * - Authorization: JWT token for backend validation
  *
- * NOTE: X-User-Email is included because:
- * 1. It's extracted from the JWT which the BFF decoded (not from client headers)
+ * NOTE: x-jwt-claim-email is included because:
+ * 1. It's extracted from the JWT which Istio validates at ingress
  * 2. Backend services need it for email-based staff lookup when auth user ID
  *    (e.g., Keycloak subject UUID) differs from the staff-service staff ID
  * 3. This is for internal BFF → service communication, not client → server
  *
- * Do NOT forward X-User-Role (use x-jwt-claim-platform-owner from Istio instead)
+ * Do NOT forward user role headers - use x-jwt-claim-platform-owner from Istio instead
  */
 export function getAuthorizedHeaders(
   request: NextRequest,
@@ -343,22 +341,22 @@ export function getAuthorizedHeaders(
 
   // Forward tenant ID (required for multi-tenant isolation)
   if (userContext.tenantId) {
-    headers['X-Tenant-ID'] = userContext.tenantId;
+    headers['x-jwt-claim-tenant-id'] = userContext.tenantId;
   }
 
-  // Forward user ID (backend validates via JWT/Istio)
+  // Forward user ID (validated by Istio at ingress)
   if (userContext.userId) {
-    headers['X-User-ID'] = userContext.userId;
+    headers['x-jwt-claim-sub'] = userContext.userId;
   }
 
   // Forward user email for RBAC staff lookup
-  // This is extracted from the JWT by the BFF (not from client headers),
+  // This is extracted from the JWT by Istio (not from client headers),
   // so it's trusted for internal service-to-service calls
   if (userContext.userEmail) {
-    headers['X-User-Email'] = userContext.userEmail;
+    headers['x-jwt-claim-email'] = userContext.userEmail;
   }
 
-  // SECURITY: Do NOT forward X-User-Role - can be spoofed
+  // SECURITY: Do NOT forward user role headers - can be spoofed
   // Backend should use x-jwt-claim-platform-owner from Istio
 
   // Forward Authorization header (backend validates the JWT)
@@ -371,10 +369,9 @@ export function getAuthorizedHeaders(
   if (overrides) {
     // Block attempts to override security headers via overrides
     const safeOverrides = { ...overrides };
-    delete safeOverrides['X-User-Role'];
-    delete safeOverrides['X-User-ID'];
-    delete safeOverrides['X-Tenant-ID'];
-    delete safeOverrides['X-User-Email'];
+    delete safeOverrides['x-jwt-claim-sub'];
+    delete safeOverrides['x-jwt-claim-tenant-id'];
+    delete safeOverrides['x-jwt-claim-email'];
     delete safeOverrides['Authorization'];
 
     Object.assign(headers, safeOverrides);

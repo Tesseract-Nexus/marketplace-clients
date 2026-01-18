@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cache, cacheKeys, cacheTTL } from '@/lib/cache/redis';
-import { getAuthHeaders } from '@/app/api/lib/auth-helper';
+import { getProxyHeaders, handleApiError } from '@/lib/utils/api-route-handler';
 
 // Tenant Service URL - connects to the backend Go service
 const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8082';
@@ -125,7 +125,8 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const { id } = await params;
-    const { userId, authToken } = await getAuthHeaders(request);
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const userId = headers['x-jwt-claim-sub'] || '';
 
     // Note: userId is optional - we can still fetch basic tenant config
     // Sensitive PII data (contact, address) requires auth via backend endpoint
@@ -174,9 +175,8 @@ export async function GET(
         {
           method: 'GET',
           headers: {
+            ...headers,
             'Content-Type': 'application/json',
-            'X-User-ID': userId,
-            ...(authToken && { 'Authorization': authToken }),
           },
         }
       );
@@ -208,9 +208,8 @@ export async function GET(
         {
           method: 'GET',
           headers: {
+            ...headers,
             'Content-Type': 'application/json',
-            'X-User-ID': userId,
-            ...(authToken && { 'Authorization': authToken }),
           },
         }
       );
@@ -305,10 +304,6 @@ export async function GET(
 
     return NextResponse.json({ success: true, data: details });
   } catch (error) {
-    console.error('Error getting tenant details:', error);
-    return NextResponse.json(
-      { success: false, message: 'Failed to get tenant details' },
-      { status: 500 }
-    );
+    return handleApiError(error, 'GET tenants/[id]/details');
   }
 }

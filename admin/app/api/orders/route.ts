@@ -62,7 +62,8 @@ function transformOrder(order: Record<string, unknown>): Record<string, unknown>
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const tenantId = request.headers.get('X-Tenant-ID') || 'default';
+    const headers = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = headers['x-jwt-claim-tenant-id'] || 'default';
 
     // Build cache key from query params
     const paramsString = searchParams.toString();
@@ -123,7 +124,7 @@ export async function GET(request: NextRequest) {
     // Orders are dynamic data - short cache with stale-while-revalidate
     nextResponse.headers.set('X-Cache', 'MISS');
     nextResponse.headers.set('Cache-Control', 'public, max-age=10, stale-while-revalidate=30');
-    nextResponse.headers.set('Vary', 'Accept-Encoding, X-Tenant-ID');
+    nextResponse.headers.set('Vary', 'Accept-Encoding, x-jwt-claim-tenant-id');
 
     return nextResponse;
   } catch (error) {
@@ -166,7 +167,8 @@ export async function POST(request: NextRequest) {
 
     // PERFORMANCE: Invalidate orders cache for this tenant on successful creation
     if (response.ok) {
-      const tenantId = request.headers.get('X-Tenant-ID') || 'default';
+      const postHeaders = await getProxyHeaders(request) as Record<string, string>;
+      const tenantId = postHeaders['x-jwt-claim-tenant-id'] || 'default';
       await cache.delPattern(`orders:${tenantId}:*`);
     }
 
