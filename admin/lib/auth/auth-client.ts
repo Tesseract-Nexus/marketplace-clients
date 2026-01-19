@@ -327,6 +327,9 @@ export async function lookupTenants(email: string): Promise<LookupTenantsRespons
 /**
  * Authenticate directly with email, password, and tenant
  * This is the multi-tenant credential isolation login flow
+ *
+ * For admin portal, uses /auth/direct/admin/login (staff context)
+ * For storefront, uses /auth/direct/login (customer context)
  */
 export async function directLogin(
   email: string,
@@ -337,7 +340,9 @@ export async function directLogin(
   }
 ): Promise<DirectLoginResponse> {
   try {
-    const response = await fetch(`${authConfig.bffBaseUrl}/auth/direct/login`, {
+    // Admin portal uses staff login endpoint (auth_context: 'staff')
+    // This allows staff members to login with their credentials
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/direct/admin/login`, {
       method: 'POST',
       credentials: 'include',
       headers: {
