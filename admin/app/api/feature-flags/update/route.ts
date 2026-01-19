@@ -5,6 +5,7 @@ import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 const GROWTHBOOK_API_HOST = process.env.GROWTHBOOK_API_HOST || 'http://growthbook.growthbook.svc.cluster.local:3100';
 const GROWTHBOOK_ADMIN_EMAIL = process.env.GROWTHBOOK_ADMIN_EMAIL || 'admin@tesserix.app';
 const GROWTHBOOK_ADMIN_PASSWORD = process.env.GROWTHBOOK_ADMIN_PASSWORD;
+const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://tenant-service.marketplace.svc.cluster.local:8080';
 
 // Cache for GrowthBook auth token
 let cachedToken: { token: string; expiry: number } | null = null;
@@ -51,9 +52,9 @@ async function getGrowthBookToken(): Promise<string | null> {
 }
 
 /**
- * Get GrowthBook organization ID
+ * Get GrowthBook organization ID from user's default org
  */
-async function getOrganizationId(token: string): Promise<string | null> {
+async function getDefaultOrganizationId(token: string): Promise<string | null> {
   try {
     const response = await fetch(`${GROWTHBOOK_API_HOST}/user`, {
       headers: { 'Authorization': `Bearer ${token}` },
@@ -63,6 +64,29 @@ async function getOrganizationId(token: string): Promise<string | null> {
     return data.organizations?.[0]?.id || null;
   } catch (error) {
     console.error('[Feature Flags] Failed to get organization:', error);
+    return null;
+  }
+}
+
+/**
+ * Get tenant's GrowthBook organization ID from tenant service
+ */
+async function getTenantGrowthBookOrgId(tenantId: string): Promise<string | null> {
+  try {
+    const response = await fetch(
+      `${TENANT_SERVICE_URL}/api/v1/tenants/${tenantId}/growthbook`,
+      { method: 'GET' }
+    );
+
+    if (!response.ok) {
+      console.log(`[Feature Flags] Tenant ${tenantId} has no GrowthBook org - using default`);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.data?.org_id || null;
+  } catch (error) {
+    console.error('[Feature Flags] Failed to get tenant GrowthBook config:', error);
     return null;
   }
 }
@@ -179,8 +203,23 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get organization ID
-    const orgId = await getOrganizationId(token);
+    // Try to get tenant-specific GrowthBook org, fall back to default
+    let orgId: string | null = null;
+    let usingTenantOrg = false;
+
+    if (tenantId) {
+      orgId = await getTenantGrowthBookOrgId(tenantId);
+      if (orgId) {
+        usingTenantOrg = true;
+        console.log(`[Feature Flags] Using tenant-specific GrowthBook org: ${orgId}`);
+      }
+    }
+
+    // Fall back to default org if no tenant org
+    if (!orgId) {
+      orgId = await getDefaultOrganizationId(token);
+    }
+
     if (!orgId) {
       return NextResponse.json(
         { success: false, message: 'Failed to get GrowthBook organization' },
@@ -191,8 +230,8 @@ export async function POST(request: NextRequest) {
     let updatePayload: Record<string, unknown>;
     let updateMessage: string;
 
-    if (tenantId) {
-      // Multi-tenant: Update using targeting rules for specific tenant
+    if (tenantId && !usingTenantOrg) {
+      // Tenant doesn't have its own org - use targeting rules in default org
       // Get current feature to preserve existing rules
       const currentFeature = await getFeatureFlag(token, orgId, featureId);
 
@@ -233,13 +272,19 @@ export async function POST(request: NextRequest) {
         },
       };
 
-      updateMessage = `Feature flag "${featureId}" has been ${enabled ? 'enabled' : 'disabled'} for tenant "${tenantId}"`;
+      updateMessage = `Feature flag "${featureId}" has been ${enabled ? 'enabled' : 'disabled'} for tenant "${tenantId}" (via targeting rule)`;
     } else {
-      // Global: Update the default value
+      // Either tenant has its own org (update default value in their org)
+      // or no tenant specified (update default value in global org)
       updatePayload = {
         defaultValue: enabled,
       };
-      updateMessage = `Feature flag "${featureId}" has been ${enabled ? 'enabled' : 'disabled'} globally`;
+
+      if (usingTenantOrg) {
+        updateMessage = `Feature flag "${featureId}" has been ${enabled ? 'enabled' : 'disabled'} for tenant "${tenantId}"`;
+      } else {
+        updateMessage = `Feature flag "${featureId}" has been ${enabled ? 'enabled' : 'disabled'} globally`;
+      }
     }
 
     // Update the feature flag in GrowthBook
@@ -268,7 +313,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Log the change for audit
-    console.log(`[Feature Flags] Flag "${featureId}" updated to ${enabled} by user ${userId} (roles: ${userRoles})${tenantId ? ` for tenant ${tenantId}` : ' (global)'}`);
+    console.log(`[Feature Flags] Flag "${featureId}" updated to ${enabled} by user ${userId} (roles: ${userRoles})${tenantId ? ` for tenant ${tenantId}` : ' (global)'} [org: ${orgId}]`);
 
     return NextResponse.json({
       success: true,
@@ -277,7 +322,8 @@ export async function POST(request: NextRequest) {
         featureId,
         enabled,
         tenantId: tenantId || null,
-        scope: tenantId ? 'tenant' : 'global',
+        scope: usingTenantOrg ? 'tenant-org' : (tenantId ? 'tenant-rule' : 'global'),
+        organizationId: orgId,
         updatedBy: userId,
         updatedAt: new Date().toISOString(),
       },
