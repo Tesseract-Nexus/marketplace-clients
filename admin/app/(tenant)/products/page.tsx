@@ -2653,7 +2653,7 @@ export default function ProductsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   {/* Status Change Buttons */}
-                  <PermissionGate permission="products:update">
+                  <PermissionGate permission={Permission.PRODUCTS_UPDATE}>
                     <Button
                       variant="outline"
                       size="sm"
@@ -2701,15 +2701,17 @@ export default function ProductsPage() {
                     </Button>
                   </PermissionGate>
                   <div className="w-px h-6 bg-border mx-2" />
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={handleBulkDelete}
-                    className="bg-red-600 hover:bg-red-700"
-                  >
-                    <Trash2 className="w-4 h-4 mr-2" />
-                    Delete Selected
-                  </Button>
+                  <PermissionGate permission={Permission.PRODUCTS_DELETE}>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleBulkDelete}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      <Trash2 className="w-4 h-4 mr-2" />
+                      Delete Selected
+                    </Button>
+                  </PermissionGate>
                 </div>
               </div>
             </CardContent>
