@@ -2,76 +2,39 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
 // GrowthBook API configuration
+// For self-hosted: use internal cluster URL
+// For GrowthBook Cloud: use https://api.growthbook.io
 const GROWTHBOOK_API_HOST = process.env.GROWTHBOOK_API_HOST || 'http://growthbook.growthbook.svc.cluster.local:3100';
-const GROWTHBOOK_ADMIN_EMAIL = process.env.GROWTHBOOK_ADMIN_EMAIL || 'admin@tesserix.app';
-const GROWTHBOOK_ADMIN_PASSWORD = process.env.GROWTHBOOK_ADMIN_PASSWORD;
+
+// GrowthBook Secret API Key for REST API authentication
+// Create this in GrowthBook: Settings → API Keys → New Secret Key
+// The key should have admin permissions to toggle features
+const GROWTHBOOK_SECRET_KEY = process.env.GROWTHBOOK_SECRET_KEY || process.env.GROWTHBOOK_ADMIN_KEY;
+
+// Default organization ID (used when tenant doesn't have their own org)
+const GROWTHBOOK_DEFAULT_ORG_ID = process.env.GROWTHBOOK_DEFAULT_ORG_ID || '';
+
+// Tenant service for multi-tenant GrowthBook org lookup
 const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://tenant-service.marketplace.svc.cluster.local:8080';
 
-// Cache for GrowthBook auth token
-let cachedToken: { token: string; expiry: number } | null = null;
-
 /**
- * Get GrowthBook authentication token
- * Caches the token for reuse until expiry
+ * Get GrowthBook Secret Key for API authentication
+ * GrowthBook REST API uses secret keys, not session tokens
+ * See: https://docs.growthbook.io/api/
  */
-async function getGrowthBookToken(): Promise<string | null> {
-  // Check if we have a valid cached token
-  if (cachedToken && cachedToken.expiry > Date.now()) {
-    return cachedToken.token;
-  }
-
-  if (!GROWTHBOOK_ADMIN_PASSWORD) {
-    console.error('[Feature Flags] GROWTHBOOK_ADMIN_PASSWORD not configured');
+function getGrowthBookSecretKey(): string | null {
+  if (!GROWTHBOOK_SECRET_KEY) {
+    console.error('[Feature Flags] GROWTHBOOK_SECRET_KEY not configured. Create one in GrowthBook: Settings → API Keys');
     return null;
   }
-
-  try {
-    const response = await fetch(`${GROWTHBOOK_API_HOST}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: GROWTHBOOK_ADMIN_EMAIL,
-        password: GROWTHBOOK_ADMIN_PASSWORD,
-      }),
-    });
-
-    const data = await response.json();
-    if (data.token) {
-      // Cache token for 25 minutes (tokens typically expire in 30 min)
-      cachedToken = {
-        token: data.token,
-        expiry: Date.now() + 25 * 60 * 1000,
-      };
-      return data.token;
-    }
-  } catch (error) {
-    console.error('[Feature Flags] Failed to get GrowthBook token:', error);
-  }
-
-  return null;
+  return GROWTHBOOK_SECRET_KEY;
 }
 
 /**
- * Get GrowthBook organization ID from user's default org
+ * Get tenant's GrowthBook configuration from tenant service
+ * Returns org ID and admin key for the tenant's GrowthBook organization
  */
-async function getDefaultOrganizationId(token: string): Promise<string | null> {
-  try {
-    const response = await fetch(`${GROWTHBOOK_API_HOST}/user`, {
-      headers: { 'Authorization': `Bearer ${token}` },
-    });
-
-    const data = await response.json();
-    return data.organizations?.[0]?.id || null;
-  } catch (error) {
-    console.error('[Feature Flags] Failed to get organization:', error);
-    return null;
-  }
-}
-
-/**
- * Get tenant's GrowthBook organization ID from tenant service
- */
-async function getTenantGrowthBookOrgId(tenantId: string): Promise<string | null> {
+async function getTenantGrowthBookConfig(tenantId: string): Promise<{ orgId: string; adminKey: string | null } | null> {
   try {
     const response = await fetch(
       `${TENANT_SERVICE_URL}/api/v1/tenants/${tenantId}/growthbook`,
@@ -84,7 +47,14 @@ async function getTenantGrowthBookOrgId(tenantId: string): Promise<string | null
     }
 
     const data = await response.json();
-    return data.data?.org_id || null;
+    const orgId = data.data?.org_id;
+    const adminKey = data.data?.admin_key;
+
+    if (!orgId) {
+      return null;
+    }
+
+    return { orgId, adminKey: adminKey || null };
   } catch (error) {
     console.error('[Feature Flags] Failed to get tenant GrowthBook config:', error);
     return null;
@@ -166,22 +136,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get GrowthBook auth token
-    const token = await getGrowthBookToken();
-    if (!token) {
+    // Get GrowthBook Secret Key for API authentication
+    const secretKey = getGrowthBookSecretKey();
+    if (!secretKey) {
       return NextResponse.json(
-        { success: false, message: 'Failed to authenticate with GrowthBook' },
+        {
+          success: false,
+          message: 'GrowthBook API key not configured. Please set GROWTHBOOK_SECRET_KEY environment variable.'
+        },
         { status: 503 }
       );
     }
 
-    // Try to get tenant-specific GrowthBook org, fall back to default
+    // Try to get tenant-specific GrowthBook org and admin key
     let orgId: string | null = null;
+    let tenantAdminKey: string | null = null;
     let usingTenantOrg = false;
 
     if (tenantId) {
-      orgId = await getTenantGrowthBookOrgId(tenantId);
-      if (orgId) {
+      const tenantConfig = await getTenantGrowthBookConfig(tenantId);
+      if (tenantConfig?.orgId) {
+        orgId = tenantConfig.orgId;
+        tenantAdminKey = tenantConfig.adminKey;
         usingTenantOrg = true;
         console.log(`[Feature Flags] Using tenant-specific GrowthBook org: ${orgId}`);
       }
@@ -189,15 +165,11 @@ export async function POST(request: NextRequest) {
 
     // Fall back to default org if no tenant org
     if (!orgId) {
-      orgId = await getDefaultOrganizationId(token);
+      orgId = GROWTHBOOK_DEFAULT_ORG_ID || null;
     }
 
-    if (!orgId) {
-      return NextResponse.json(
-        { success: false, message: 'Failed to get GrowthBook organization' },
-        { status: 503 }
-      );
-    }
+    // Use tenant's admin key if available, otherwise use global secret key
+    const apiKey = (usingTenantOrg && tenantAdminKey) ? tenantAdminKey : secretKey;
 
     let updateMessage: string;
 
@@ -212,15 +184,21 @@ export async function POST(request: NextRequest) {
       reason: `Toggled by ${userId || 'admin'} via admin UI`,
     };
 
-    console.log(`[Feature Flags] Toggling feature "${featureId}" to ${enabled} in environment "${environment}" (org: ${orgId})`);
+    console.log(`[Feature Flags] Toggling feature "${featureId}" to ${enabled} in environment "${environment}" (org: ${orgId || 'default'})`);
+
+    // Build headers for GrowthBook API
+    const headers: Record<string, string> = {
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    };
+    // Only add organization header if we have an org ID
+    if (orgId) {
+      headers['x-organization'] = orgId;
+    }
 
     const updateResponse = await fetch(`${GROWTHBOOK_API_HOST}/api/v1/features/${featureId}/toggle`, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'x-organization': orgId,
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify(togglePayload),
     });
 
