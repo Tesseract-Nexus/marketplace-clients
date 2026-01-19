@@ -142,6 +142,7 @@ export interface StaffActivationResponse {
 export interface InvitationVerifyResponse {
   valid: boolean;
   staff?: StaffWithAuth;
+  activationToken?: string; // Token to use for activation
   authMethodOptions?: StaffAuthMethod[];
   expiresAt?: string;
   message?: string;

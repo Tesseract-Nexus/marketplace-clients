@@ -115,8 +115,10 @@ function ActivatePageContent() {
     setError(null);
 
     try {
+      // Use activationToken from verify response, not the original URL token
+      const activationToken = invitationData?.activationToken || token;
       const activationRequest: StaffActivationRequest = {
-        token: token!,
+        token: activationToken!,
         authMethod: 'password',
         password,
         confirmPassword,
