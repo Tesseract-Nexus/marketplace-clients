@@ -68,33 +68,89 @@ async function getOrganizationId(token: string): Promise<string | null> {
 }
 
 /**
+ * Check if user has required role from JWT claims
+ */
+function hasRequiredRole(proxyHeaders: Record<string, string>): { hasRole: boolean; userRoles: string } {
+  // Check multiple possible role headers (Keycloak uses realm_access.roles)
+  const realmRoles = proxyHeaders['x-jwt-claim-realm-roles'] || '';
+  const roles = proxyHeaders['x-jwt-claim-roles'] || '';
+  const legacyRole = proxyHeaders['x-jwt-claim-role'] || proxyHeaders['x-user-role'] || '';
+
+  // Combine all role sources
+  const allRoles = [realmRoles, roles, legacyRole]
+    .filter(Boolean)
+    .join(',')
+    .toLowerCase();
+
+  // RBAC: Only admin or owner can update feature flags
+  const allowedRoles = ['admin', 'owner', 'super_admin', 'platform_admin', 'tenant_owner', 'tenant_admin'];
+  const hasRole = allowedRoles.some(role => allRoles.includes(role));
+
+  return { hasRole, userRoles: allRoles || 'none' };
+}
+
+/**
+ * Get current feature flag from GrowthBook
+ */
+async function getFeatureFlag(
+  token: string,
+  orgId: string,
+  featureId: string
+): Promise<Record<string, unknown> | null> {
+  try {
+    const response = await fetch(`${GROWTHBOOK_API_HOST}/feature/${featureId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'x-organization': orgId,
+      },
+    });
+
+    if (!response.ok) {
+      return null;
+    }
+
+    const data = await response.json();
+    return data.feature || data;
+  } catch (error) {
+    console.error('[Feature Flags] Failed to get feature:', error);
+    return null;
+  }
+}
+
+/**
  * POST /api/feature-flags/update
- * Update a feature flag's default value in GrowthBook
+ * Update a feature flag for the current tenant in GrowthBook
+ *
+ * Multi-tenant support:
+ * - If tenantId is provided, creates/updates a targeting rule for that tenant
+ * - If no tenantId, updates the global default value
  *
  * Required RBAC: Admin or Owner role
  *
  * Request body:
  * {
  *   featureId: string,    // The feature flag ID
- *   enabled: boolean      // New enabled/disabled state
+ *   enabled: boolean,     // New enabled/disabled state
+ *   tenantId?: string     // Optional: specific tenant to update (for per-tenant overrides)
  * }
  */
 export async function POST(request: NextRequest) {
   try {
     // Get proxy headers for RBAC validation
     const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
-    const userRole = proxyHeaders['x-jwt-claim-role'] || proxyHeaders['x-user-role'];
     const userId = proxyHeaders['x-jwt-claim-sub'] || proxyHeaders['x-user-id'];
+    const headerTenantId = proxyHeaders['x-jwt-claim-tenant-id'];
 
-    // RBAC: Only admin or owner can update feature flags
-    const allowedRoles = ['admin', 'owner', 'super_admin', 'platform_admin'];
-    if (!userRole || !allowedRoles.includes(userRole.toLowerCase())) {
+    // Check RBAC
+    const { hasRole, userRoles } = hasRequiredRole(proxyHeaders);
+    if (!hasRole) {
+      console.log(`[Feature Flags] RBAC denied - user roles: ${userRoles}`);
       return NextResponse.json(
         {
           success: false,
           message: 'Insufficient permissions. Only admins and owners can update feature flags.',
           requiredRole: 'admin or owner',
-          currentRole: userRole || 'none'
+          currentRoles: userRoles
         },
         { status: 403 }
       );
@@ -102,7 +158,10 @@ export async function POST(request: NextRequest) {
 
     // Parse request body
     const body = await request.json();
-    const { featureId, enabled } = body;
+    const { featureId, enabled, tenantId: bodyTenantId } = body;
+
+    // Use tenant ID from body or header
+    const tenantId = bodyTenantId || headerTenantId;
 
     if (!featureId || typeof enabled !== 'boolean') {
       return NextResponse.json(
@@ -129,8 +188,61 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    let updatePayload: Record<string, unknown>;
+    let updateMessage: string;
+
+    if (tenantId) {
+      // Multi-tenant: Update using targeting rules for specific tenant
+      // Get current feature to preserve existing rules
+      const currentFeature = await getFeatureFlag(token, orgId, featureId);
+
+      // Get existing environment settings or create new
+      const envSettings = (currentFeature?.environmentSettings as Record<string, unknown>) || {};
+      const prodSettings = (envSettings.production as Record<string, unknown>) || { enabled: true, rules: [] };
+      const existingRules = (prodSettings.rules as Array<Record<string, unknown>>) || [];
+
+      // Find existing rule for this tenant or create new one
+      const tenantRuleIndex = existingRules.findIndex(
+        (rule) => {
+          const condition = rule.condition as string | undefined;
+          return condition?.includes(`tenantId`) && condition?.includes(tenantId);
+        }
+      );
+
+      // Create the tenant-specific rule
+      const tenantRule = {
+        condition: JSON.stringify({ tenantId: { $eq: tenantId } }),
+        force: enabled,
+        description: `Override for tenant: ${tenantId}`,
+        enabled: true,
+      };
+
+      // Update or add the rule
+      if (tenantRuleIndex >= 0) {
+        existingRules[tenantRuleIndex] = tenantRule;
+      } else {
+        existingRules.unshift(tenantRule); // Add at beginning so it takes precedence
+      }
+
+      updatePayload = {
+        environmentSettings: {
+          production: {
+            enabled: true,
+            rules: existingRules,
+          },
+        },
+      };
+
+      updateMessage = `Feature flag "${featureId}" has been ${enabled ? 'enabled' : 'disabled'} for tenant "${tenantId}"`;
+    } else {
+      // Global: Update the default value
+      updatePayload = {
+        defaultValue: enabled,
+      };
+      updateMessage = `Feature flag "${featureId}" has been ${enabled ? 'enabled' : 'disabled'} globally`;
+    }
+
     // Update the feature flag in GrowthBook
-    // GrowthBook API: POST /feature/{id} to update
     const updateResponse = await fetch(`${GROWTHBOOK_API_HOST}/feature/${featureId}`, {
       method: 'PUT',
       headers: {
@@ -138,9 +250,7 @@ export async function POST(request: NextRequest) {
         'x-organization': orgId,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        defaultValue: enabled,
-      }),
+      body: JSON.stringify(updatePayload),
     });
 
     const updateData = await updateResponse.json();
@@ -158,14 +268,16 @@ export async function POST(request: NextRequest) {
     }
 
     // Log the change for audit
-    console.log(`[Feature Flags] Flag "${featureId}" updated to ${enabled} by user ${userId} (role: ${userRole})`);
+    console.log(`[Feature Flags] Flag "${featureId}" updated to ${enabled} by user ${userId} (roles: ${userRoles})${tenantId ? ` for tenant ${tenantId}` : ' (global)'}`);
 
     return NextResponse.json({
       success: true,
-      message: `Feature flag "${featureId}" has been ${enabled ? 'enabled' : 'disabled'}`,
+      message: updateMessage,
       data: {
         featureId,
         enabled,
+        tenantId: tenantId || null,
+        scope: tenantId ? 'tenant' : 'global',
         updatedBy: userId,
         updatedAt: new Date().toISOString(),
       },

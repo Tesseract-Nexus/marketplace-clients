@@ -363,7 +363,7 @@ export default function FeatureFlagsPage() {
   const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
   const [updateError, setUpdateError] = useState<string | null>(null);
 
-  // Handle feature flag toggle
+  // Handle feature flag toggle (per-tenant)
   const handleToggle = async (featureId: string, enabled: boolean) => {
     // Add to updating set
     setUpdatingFlags(prev => new Set(prev).add(featureId));
@@ -371,12 +371,15 @@ export default function FeatureFlagsPage() {
     setUpdateSuccess(null);
 
     try {
+      // Include tenantId for per-tenant feature flag override
       const response = await fetch('/api/feature-flags/update', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          // Pass tenant context for multi-tenant support
+          ...(tenantId && { 'x-jwt-claim-tenant-id': tenantId }),
         },
-        body: JSON.stringify({ featureId, enabled }),
+        body: JSON.stringify({ featureId, enabled, tenantId }),
       });
 
       const data = await response.json();
@@ -394,7 +397,9 @@ export default function FeatureFlagsPage() {
         },
       }));
 
-      setUpdateSuccess(`"${featureId}" has been ${enabled ? 'enabled' : 'disabled'}`);
+      // Show tenant-specific success message
+      const scopeMsg = tenantId ? ` for this store` : ' globally';
+      setUpdateSuccess(`"${featureId}" has been ${enabled ? 'enabled' : 'disabled'}${scopeMsg}`);
       setTimeout(() => setUpdateSuccess(null), 3000);
 
       // Refresh to get latest from server
