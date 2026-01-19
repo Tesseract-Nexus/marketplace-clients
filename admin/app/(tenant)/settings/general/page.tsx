@@ -720,13 +720,15 @@ export default function GeneralSettingsPage() {
   };
 
   const loadSettings = async (storefrontId: string) => {
+    // Declare tenant at function scope so it's accessible in catch block
+    let tenant: TenantDetails | null = tenantDetails;
+
     try {
       setLoading(true);
       console.log('[Settings] Loading settings for storefront:', storefrontId, 'vendorId:', vendorId, 'userId:', user?.id);
 
       // ALWAYS load tenant details first as the primary data source
       // This ensures onboarding data (address, phone, currency, timezone) is available
-      let tenant = tenantDetails;
       if (!tenant && vendorId) {
         console.log('[Settings] Loading tenant details for vendor:', vendorId);
         tenant = await loadTenantDetails();
