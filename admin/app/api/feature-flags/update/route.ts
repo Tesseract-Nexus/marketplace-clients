@@ -114,40 +114,12 @@ function hasRequiredRole(proxyHeaders: Record<string, string>): { hasRole: boole
 }
 
 /**
- * Get current feature flag from GrowthBook
- */
-async function getFeatureFlag(
-  token: string,
-  orgId: string,
-  featureId: string
-): Promise<Record<string, unknown> | null> {
-  try {
-    const response = await fetch(`${GROWTHBOOK_API_HOST}/feature/${featureId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'x-organization': orgId,
-      },
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-    return data.feature || data;
-  } catch (error) {
-    console.error('[Feature Flags] Failed to get feature:', error);
-    return null;
-  }
-}
-
-/**
  * POST /api/feature-flags/update
- * Update a feature flag for the current tenant in GrowthBook
+ * Toggle a feature flag for the current tenant in GrowthBook
  *
  * Multi-tenant support:
- * - If tenantId is provided, creates/updates a targeting rule for that tenant
- * - If no tenantId, updates the global default value
+ * - If tenant has their own GrowthBook org, toggles in that org
+ * - Otherwise falls back to default/shared org
  *
  * Required RBAC: Admin or Owner role
  *
@@ -155,7 +127,7 @@ async function getFeatureFlag(
  * {
  *   featureId: string,    // The feature flag ID
  *   enabled: boolean,     // New enabled/disabled state
- *   tenantId?: string     // Optional: specific tenant to update (for per-tenant overrides)
+ *   tenantId?: string     // Optional: specific tenant ID (defaults to JWT claim)
  * }
  */
 export async function POST(request: NextRequest) {
@@ -227,89 +199,51 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let updatePayload: Record<string, unknown>;
     let updateMessage: string;
 
-    if (tenantId && !usingTenantOrg) {
-      // Tenant doesn't have its own org - use targeting rules in default org
-      // Get current feature to preserve existing rules
-      const currentFeature = await getFeatureFlag(token, orgId, featureId);
+    // Determine the environment to toggle (default to production)
+    const environment = 'production';
 
-      // Get existing environment settings or create new
-      const envSettings = (currentFeature?.environmentSettings as Record<string, unknown>) || {};
-      const prodSettings = (envSettings.production as Record<string, unknown>) || { enabled: true, rules: [] };
-      const existingRules = (prodSettings.rules as Array<Record<string, unknown>>) || [];
+    // Use the toggle endpoint which is the correct way to enable/disable features
+    // POST /api/v1/features/:id/toggle
+    const togglePayload = {
+      environment,
+      enabled,
+      reason: `Toggled by ${userId || 'admin'} via admin UI`,
+    };
 
-      // Find existing rule for this tenant or create new one
-      const tenantRuleIndex = existingRules.findIndex(
-        (rule) => {
-          const condition = rule.condition as string | undefined;
-          return condition?.includes(`tenantId`) && condition?.includes(tenantId);
-        }
-      );
+    console.log(`[Feature Flags] Toggling feature "${featureId}" to ${enabled} in environment "${environment}" (org: ${orgId})`);
 
-      // Create the tenant-specific rule
-      const tenantRule = {
-        condition: JSON.stringify({ tenantId: { $eq: tenantId } }),
-        force: enabled,
-        description: `Override for tenant: ${tenantId}`,
-        enabled: true,
-      };
-
-      // Update or add the rule
-      if (tenantRuleIndex >= 0) {
-        existingRules[tenantRuleIndex] = tenantRule;
-      } else {
-        existingRules.unshift(tenantRule); // Add at beginning so it takes precedence
-      }
-
-      updatePayload = {
-        environmentSettings: {
-          production: {
-            enabled: true,
-            rules: existingRules,
-          },
-        },
-      };
-
-      updateMessage = `Feature flag "${featureId}" has been ${enabled ? 'enabled' : 'disabled'} for tenant "${tenantId}" (via targeting rule)`;
-    } else {
-      // Either tenant has its own org (update default value in their org)
-      // or no tenant specified (update default value in global org)
-      updatePayload = {
-        defaultValue: enabled,
-      };
-
-      if (usingTenantOrg) {
-        updateMessage = `Feature flag "${featureId}" has been ${enabled ? 'enabled' : 'disabled'} for tenant "${tenantId}"`;
-      } else {
-        updateMessage = `Feature flag "${featureId}" has been ${enabled ? 'enabled' : 'disabled'} globally`;
-      }
-    }
-
-    // Update the feature flag in GrowthBook
-    const updateResponse = await fetch(`${GROWTHBOOK_API_HOST}/feature/${featureId}`, {
-      method: 'PUT',
+    const updateResponse = await fetch(`${GROWTHBOOK_API_HOST}/api/v1/features/${featureId}/toggle`, {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
         'x-organization': orgId,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(updatePayload),
+      body: JSON.stringify(togglePayload),
     });
 
     const updateData = await updateResponse.json();
 
     if (!updateResponse.ok) {
-      console.error('[Feature Flags] Update failed:', updateData);
+      console.error('[Feature Flags] Toggle failed:', updateData);
       return NextResponse.json(
         {
           success: false,
-          message: updateData.message || 'Failed to update feature flag',
+          message: updateData.message || 'Failed to toggle feature flag',
           error: updateData
         },
         { status: updateResponse.status }
       );
+    }
+
+    if (usingTenantOrg) {
+      updateMessage = `Feature flag "${featureId}" has been ${enabled ? 'enabled' : 'disabled'} for tenant "${tenantId}"`;
+    } else if (tenantId) {
+      updateMessage = `Feature flag "${featureId}" has been ${enabled ? 'enabled' : 'disabled'} for tenant "${tenantId}" (shared org)`;
+    } else {
+      updateMessage = `Feature flag "${featureId}" has been ${enabled ? 'enabled' : 'disabled'} globally`;
     }
 
     // Log the change for audit
@@ -322,7 +256,7 @@ export async function POST(request: NextRequest) {
         featureId,
         enabled,
         tenantId: tenantId || null,
-        scope: usingTenantOrg ? 'tenant-org' : (tenantId ? 'tenant-rule' : 'global'),
+        scope: usingTenantOrg ? 'tenant-org' : (tenantId ? 'shared-org' : 'global'),
         organizationId: orgId,
         updatedBy: userId,
         updatedAt: new Date().toISOString(),
