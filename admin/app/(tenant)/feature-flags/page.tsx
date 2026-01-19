@@ -101,15 +101,15 @@ function FeatureFlagCard({
 
   // Handle both boolean and string boolean values from GrowthBook
   const isBooleanValue = typeof flag.defaultValue === 'boolean';
-  const isStringBoolean = typeof flag.defaultValue === 'string' &&
-    (flag.defaultValue.toLowerCase() === 'true' || flag.defaultValue.toLowerCase() === 'false');
+  const stringValue = typeof flag.defaultValue === 'string' ? flag.defaultValue.toLowerCase() : '';
+  const isStringBoolean = stringValue === 'true' || stringValue === 'false';
   const isBoolean = isBooleanValue || isStringBoolean;
 
   // Parse the enabled state
   const isEnabled = isBooleanValue
     ? flag.defaultValue
     : isStringBoolean
-      ? flag.defaultValue.toLowerCase() === 'true'
+      ? stringValue === 'true'
       : null;
   const hasRules = flag.rules && flag.rules.length > 0;
 
