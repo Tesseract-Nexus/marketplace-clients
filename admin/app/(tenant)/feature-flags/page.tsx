@@ -237,11 +237,13 @@ function CategorySection({
   flags,
   onToggle,
   isLoading,
+  updatingFlags,
 }: {
   category: string;
   flags: FeatureFlag[];
   onToggle?: (key: string, value: boolean) => void;
   isLoading?: boolean;
+  updatingFlags?: Set<string>;
 }) {
   const [expanded, setExpanded] = useState(true);
   const categoryInfo = FLAG_CATEGORIES[category] || FLAG_CATEGORIES.other;
@@ -272,7 +274,7 @@ function CategorySection({
               key={flag.key}
               flag={flag}
               onToggle={onToggle}
-              isLoading={isLoading}
+              isLoading={updatingFlags?.has(flag.key) || false}
             />
           ))}
         </div>
@@ -341,6 +343,61 @@ export default function FeatureFlagsPage() {
   const handleRefresh = () => {
     setIsRefreshing(true);
     fetchFeatures();
+  };
+
+  // State for toggle operations
+  const [updatingFlags, setUpdatingFlags] = useState<Set<string>>(new Set());
+  const [updateSuccess, setUpdateSuccess] = useState<string | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+
+  // Handle feature flag toggle
+  const handleToggle = async (featureId: string, enabled: boolean) => {
+    // Add to updating set
+    setUpdatingFlags(prev => new Set(prev).add(featureId));
+    setUpdateError(null);
+    setUpdateSuccess(null);
+
+    try {
+      const response = await fetch('/api/feature-flags/update', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ featureId, enabled }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to update feature flag');
+      }
+
+      // Update local state
+      setFeatures(prev => ({
+        ...prev,
+        [featureId]: {
+          ...prev[featureId],
+          defaultValue: enabled,
+        },
+      }));
+
+      setUpdateSuccess(`"${featureId}" has been ${enabled ? 'enabled' : 'disabled'}`);
+      setTimeout(() => setUpdateSuccess(null), 3000);
+
+      // Refresh to get latest from server
+      setTimeout(() => fetchFeatures(), 1000);
+
+    } catch (err) {
+      console.error('Error updating feature flag:', err);
+      setUpdateError(err instanceof Error ? err.message : 'Failed to update feature flag');
+      setTimeout(() => setUpdateError(null), 5000);
+    } finally {
+      setUpdatingFlags(prev => {
+        const next = new Set(prev);
+        next.delete(featureId);
+        return next;
+      });
+    }
   };
 
   const handleCopyKey = async (key: string) => {
@@ -546,6 +603,27 @@ export default function FeatureFlagsPage() {
           </div>
         </div>
 
+        {/* Success/Error Banners */}
+        {updateSuccess && (
+          <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-3 animate-in slide-in-from-top duration-300">
+            <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-green-800">Success</p>
+              <p className="text-sm text-green-700">{updateSuccess}</p>
+            </div>
+          </div>
+        )}
+
+        {updateError && (
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3 animate-in slide-in-from-top duration-300">
+            <XCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium text-red-800">Error</p>
+              <p className="text-sm text-red-700">{updateError}</p>
+            </div>
+          </div>
+        )}
+
         {/* Feature Flags List */}
         <div className="space-y-6">
           {Object.keys(categorizedFlags).length === 0 ? (
@@ -566,6 +644,9 @@ export default function FeatureFlagsPage() {
                   key={category}
                   category={category}
                   flags={flags}
+                  onToggle={handleToggle}
+                  isLoading={updatingFlags.size > 0}
+                  updatingFlags={updatingFlags}
                 />
               ))
           )}
