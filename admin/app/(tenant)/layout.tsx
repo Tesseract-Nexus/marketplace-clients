@@ -78,6 +78,7 @@ const getRoleLevel = (role: string | undefined): number => {
 
 // Navigation item type with optional minRole
 interface NavItem {
+  key?: string; // Unique key for sidebar visibility configuration
   name: string;
   href?: string;
   icon?: React.ComponentType<{ className?: string }>;
@@ -87,14 +88,45 @@ interface NavItem {
   children?: NavItem[];
 }
 
+// =============================================================================
+// SIDEBAR VISIBILITY CONFIGURATION
+// Configure which sidebar items are visible via environment variables
+// Set NEXT_PUBLIC_SIDEBAR_<KEY>=false to hide an item
+// Default: all items visible except adManager and featureFlags
+// =============================================================================
+const SIDEBAR_VISIBILITY: Record<string, boolean> = {
+  dashboard: process.env.NEXT_PUBLIC_SIDEBAR_DASHBOARD !== 'false',
+  analytics: process.env.NEXT_PUBLIC_SIDEBAR_ANALYTICS !== 'false',
+  catalog: process.env.NEXT_PUBLIC_SIDEBAR_CATALOG !== 'false',
+  orders: process.env.NEXT_PUBLIC_SIDEBAR_ORDERS !== 'false',
+  customers: process.env.NEXT_PUBLIC_SIDEBAR_CUSTOMERS !== 'false',
+  marketing: process.env.NEXT_PUBLIC_SIDEBAR_MARKETING !== 'false',
+  adManager: process.env.NEXT_PUBLIC_SIDEBAR_AD_MANAGER === 'true', // Default: hidden
+  vendors: process.env.NEXT_PUBLIC_SIDEBAR_VENDORS !== 'false',
+  team: process.env.NEXT_PUBLIC_SIDEBAR_TEAM !== 'false',
+  storefronts: process.env.NEXT_PUBLIC_SIDEBAR_STOREFRONTS !== 'false',
+  featureFlags: process.env.NEXT_PUBLIC_SIDEBAR_FEATURE_FLAGS === 'true', // Default: hidden
+  integrations: process.env.NEXT_PUBLIC_SIDEBAR_INTEGRATIONS !== 'false',
+  settings: process.env.NEXT_PUBLIC_SIDEBAR_SETTINGS !== 'false',
+};
+
+// Helper to check if a sidebar item should be hidden
+const isSidebarItemHidden = (key?: string): boolean => {
+  if (!key) return false;
+  return SIDEBAR_VISIBILITY[key] === false;
+};
+
 // Navigation - paths are now root-relative (tenant is in subdomain)
 // minRole: minimum role level required to see this menu item
 // Roles: owner > admin > manager > member > viewer
+// key: used for sidebar visibility configuration via env vars
 const navigation: NavItem[] = [
-  { name: "Dashboard", href: "/", icon: LayoutDashboard }, // All roles
+  { key: "dashboard", name: "Dashboard", href: "/", icon: LayoutDashboard, hidden: false }, // All roles
   {
+    key: "analytics",
     name: "Analytics",
     icon: BarChart3,
+    hidden: false,
     children: [
       { name: "Overview", href: "/analytics" },
       { name: "Sales", href: "/analytics/sales" },
@@ -103,8 +135,10 @@ const navigation: NavItem[] = [
     ],
   }, // All roles (read-only for viewer)
   {
+    key: "catalog",
     name: "Catalog",
     icon: Package,
+    hidden: false,
     children: [
       { name: "Products", href: "/products" },
       { name: "Categories", href: "/categories" },
@@ -112,8 +146,10 @@ const navigation: NavItem[] = [
     ],
   }, // All roles (read-only for viewer)
   {
+    key: "orders",
     name: "Orders",
     icon: ShoppingCart,
+    hidden: false,
     children: [
       { name: "All Orders", href: "/orders" },
       { name: "Returns & Refunds", href: "/returns", minRole: "member" },
@@ -121,8 +157,10 @@ const navigation: NavItem[] = [
     ],
   }, // All roles (read-only for viewer)
   {
+    key: "customers",
     name: "Customers",
     icon: Users,
+    hidden: false,
     children: [
       { name: "All Customers", href: "/customers" },
       { name: "Segments", href: "/customer-segments", minRole: "manager" },
@@ -130,9 +168,11 @@ const navigation: NavItem[] = [
     ],
   }, // All roles (read-only for viewer)
   {
+    key: "marketing",
     name: "Marketing",
     icon: Megaphone,
     minRole: "manager", // Manager+ can manage marketing
+    hidden: false,
     children: [
       { name: "Campaigns", href: "/campaigns" },
       { name: "Coupons", href: "/coupons" },
@@ -141,10 +181,11 @@ const navigation: NavItem[] = [
     ],
   },
   {
+    key: "adManager",
     name: "Ad Manager",
     icon: QrCode,
     minRole: "manager", // Manager+ can manage ads
-    hidden: true, // Hidden until feature is ready for release
+    hidden: true, // Default: hidden until feature is ready for release
     children: [
       { name: "Dashboard", href: "/ad-manager" },
       { name: "Campaigns", href: "/ad-manager/campaigns" },
@@ -156,16 +197,20 @@ const navigation: NavItem[] = [
     ],
   },
   {
+    key: "vendors",
     name: "Vendors",
     icon: Building2,
     href: "/vendors",
     minRole: "manager", // Manager+ for vendor management
     businessModel: "MARKETPLACE", // Only show for marketplace tenants (multi-vendor)
+    hidden: false,
   },
   {
+    key: "team",
     name: "Team",
     icon: UserCog,
     minRole: "admin", // Admin+ for team management
+    hidden: false,
     children: [
       { name: "Staff", href: "/staff" },
       { name: "Departments", href: "/staff/departments" },
@@ -176,22 +221,27 @@ const navigation: NavItem[] = [
     ],
   },
   {
+    key: "storefronts",
     name: "Storefronts",
     icon: Globe,
     href: "/storefronts",
     minRole: "admin", // Admin+ for storefront management
+    hidden: false,
   },
   {
+    key: "featureFlags",
     name: "Feature Flags",
     icon: Flag,
     href: "/feature-flags",
     minRole: "admin", // Admin+ for feature flags
-    hidden: true, // Hidden until feature is ready for release
+    hidden: true, // Default: hidden until feature is ready for release
   },
   {
+    key: "integrations",
     name: "Integrations",
     icon: Plug2,
     minRole: "admin", // Admin+ for integrations
+    hidden: false,
     children: [
       { name: "Overview", href: "/integrations" },
       { name: "Marketplace Connectors", href: "/integrations/marketplaces" },
@@ -203,9 +253,11 @@ const navigation: NavItem[] = [
     ],
   },
   {
+    key: "settings",
     name: "Settings",
     icon: Settings,
     minRole: "admin", // Admin+ for settings
+    hidden: false,
     children: [
       { name: "General", href: "/settings/general" },
       { name: "Storefront Theme", href: "/settings/storefront-theme" },
@@ -221,7 +273,7 @@ const navigation: NavItem[] = [
   },
 ];
 
-// Filter navigation based on user role and business model
+// Filter navigation based on user role, business model, and sidebar visibility config
 const filterNavByRole = (
   items: NavItem[],
   userRole: string | undefined,
@@ -231,8 +283,13 @@ const filterNavByRole = (
 
   return items
     .filter((item) => {
-      // Check if item is hidden (unreleased features)
-      if (item.hidden) return false;
+      // Check sidebar visibility configuration (from env vars)
+      // This takes precedence over the static hidden property
+      if (item.key && SIDEBAR_VISIBILITY[item.key] === false) return false;
+
+      // Check if item is hidden (static default for unreleased features)
+      // Only applies if not overridden by env var
+      if (item.hidden && (!item.key || SIDEBAR_VISIBILITY[item.key] !== true)) return false;
 
       // Check role requirement
       const requiredLevel = getRoleLevel(item.minRole);
