@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceUrl } from '@/lib/config/api';
-import { proxyPost, proxyToBackend, handleApiError } from '@/lib/utils/api-route-handler';
+import { proxyPost, proxyToBackend, handleApiError, getProxyHeaders } from '@/lib/utils/api-route-handler';
 import {
   requireAdminPortalAccess,
-  getAuthorizedHeaders,
   createAuthorizationErrorResponse,
 } from '@/lib/security/authorization';
 
@@ -19,8 +18,8 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
-    // Get properly authorized headers - uses actual user role
-    const headers = getAuthorizedHeaders(request);
+    // Get properly authorized headers with BFF session token support
+    const headers = await getProxyHeaders(request) as Record<string, string>;
 
     const response = await proxyToBackend(TICKETS_SERVICE_URL, 'tickets', {
       method: 'GET',

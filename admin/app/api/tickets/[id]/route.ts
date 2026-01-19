@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceUrl } from '@/lib/config/api';
-import { proxyGet, handleApiError } from '@/lib/utils/api-route-handler';
+import { proxyGet, handleApiError, getProxyHeaders } from '@/lib/utils/api-route-handler';
 import {
   requireAdminPortalAccess,
-  getAuthorizedHeaders,
   createAuthorizationErrorResponse,
 } from '@/lib/security/authorization';
 import { secureLog } from '@/lib/security/pii-masking';
@@ -32,8 +31,8 @@ export async function PUT(
   try {
     const { id } = await params;
 
-    // Get properly authorized headers - uses actual user role
-    const headers = getAuthorizedHeaders(request);
+    // Get properly authorized headers with BFF session token support
+    const headers = await getProxyHeaders(request) as Record<string, string>;
     headers['Content-Type'] = 'application/json';
 
     const body = await request.json();
@@ -73,8 +72,8 @@ export async function DELETE(
   try {
     const { id } = await params;
 
-    // Get properly authorized headers - uses actual user role
-    const headers = getAuthorizedHeaders(request);
+    // Get properly authorized headers with BFF session token support
+    const headers = await getProxyHeaders(request) as Record<string, string>;
     headers['Content-Type'] = 'application/json';
 
     const response = await fetch(`${TICKETS_SERVICE_URL}/tickets/${id}`, {
