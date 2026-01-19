@@ -83,6 +83,7 @@ interface NavItem {
   icon?: React.ComponentType<{ className?: string }>;
   minRole?: string; // Minimum role required to see this item
   businessModel?: 'ONLINE_STORE' | 'MARKETPLACE'; // Only show for specific business model
+  hidden?: boolean; // Hide this item from the sidebar (for unreleased features)
   children?: NavItem[];
 }
 
@@ -143,6 +144,7 @@ const navigation: NavItem[] = [
     name: "Ad Manager",
     icon: QrCode,
     minRole: "manager", // Manager+ can manage ads
+    hidden: true, // Hidden until feature is ready for release
     children: [
       { name: "Dashboard", href: "/ad-manager" },
       { name: "Campaigns", href: "/ad-manager/campaigns" },
@@ -184,6 +186,7 @@ const navigation: NavItem[] = [
     icon: Flag,
     href: "/feature-flags",
     minRole: "admin", // Admin+ for feature flags
+    hidden: true, // Hidden until feature is ready for release
   },
   {
     name: "Integrations",
@@ -228,6 +231,9 @@ const filterNavByRole = (
 
   return items
     .filter((item) => {
+      // Check if item is hidden (unreleased features)
+      if (item.hidden) return false;
+
       // Check role requirement
       const requiredLevel = getRoleLevel(item.minRole);
       if (userLevel < requiredLevel) return false;

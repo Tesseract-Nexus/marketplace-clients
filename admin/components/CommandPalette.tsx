@@ -33,7 +33,6 @@ import {
   History,
   Trash2,
   AlertCircle,
-  Flag,
   QrCode,
 } from 'lucide-react';
 import { useGlobalSearch } from '@/hooks/useSearch';
@@ -152,7 +151,8 @@ const NAVIGATION_ITEMS: SearchResultItem[] = [
   // Other
   { id: 'nav-vendors', type: 'page', title: 'Vendors', subtitle: 'Supplier management', href: '/vendors', icon: Building2, keywords: ['suppliers', 'partners'] },
   { id: 'nav-storefronts', type: 'page', title: 'Storefronts', subtitle: 'Manage stores', href: '/storefronts', icon: Globe, keywords: ['stores', 'shops', 'websites'] },
-  { id: 'nav-feature-flags', type: 'page', title: 'Feature Flags', subtitle: 'Toggle features and A/B tests', href: '/feature-flags', icon: Flag, keywords: ['toggle', 'experiment', 'growthbook', 'ab test', 'flags'] },
+  // Hidden until feature is ready for release:
+  // { id: 'nav-feature-flags', type: 'page', title: 'Feature Flags', subtitle: 'Toggle features and A/B tests', href: '/feature-flags', icon: Flag, keywords: ['toggle', 'experiment', 'growthbook', 'ab test', 'flags'] },
 
   // Integrations
   { id: 'nav-integrations', type: 'page', title: 'Integrations', subtitle: 'Connect services', href: '/integrations', icon: Plug2, keywords: ['apps', 'connections'] },
