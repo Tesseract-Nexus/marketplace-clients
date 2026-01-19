@@ -99,13 +99,26 @@ function FeatureFlagCard({
   const categoryInfo = FLAG_CATEGORIES[category];
   const CategoryIcon = categoryInfo.icon;
 
-  const isBoolean = typeof flag.defaultValue === 'boolean';
-  const isEnabled = isBoolean ? flag.defaultValue : null;
+  // Handle both boolean and string boolean values from GrowthBook
+  const isBooleanValue = typeof flag.defaultValue === 'boolean';
+  const isStringBoolean = typeof flag.defaultValue === 'string' &&
+    (flag.defaultValue.toLowerCase() === 'true' || flag.defaultValue.toLowerCase() === 'false');
+  const isBoolean = isBooleanValue || isStringBoolean;
+
+  // Parse the enabled state
+  const isEnabled = isBooleanValue
+    ? flag.defaultValue
+    : isStringBoolean
+      ? flag.defaultValue.toLowerCase() === 'true'
+      : null;
   const hasRules = flag.rules && flag.rules.length > 0;
 
   const formatValue = (val: unknown): string => {
     if (val === null || val === undefined) return 'null';
     if (typeof val === 'boolean') return val ? 'Enabled' : 'Disabled';
+    if (typeof val === 'string' && (val.toLowerCase() === 'true' || val.toLowerCase() === 'false')) {
+      return val.toLowerCase() === 'true' ? 'Enabled' : 'Disabled';
+    }
     if (typeof val === 'object') return JSON.stringify(val);
     return String(val);
   };
@@ -441,7 +454,8 @@ export default function FeatureFlagsPage() {
 
   const totalFlags = Object.keys(features).length;
   const enabledFlags = Object.values(features).filter(
-    (f) => f.defaultValue === true
+    (f) => f.defaultValue === true ||
+      (typeof f.defaultValue === 'string' && f.defaultValue.toLowerCase() === 'true')
   ).length;
 
   if (loading) {
