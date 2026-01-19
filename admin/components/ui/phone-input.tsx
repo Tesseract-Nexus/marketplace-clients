@@ -66,21 +66,27 @@ export function PhoneInput({
   }, [countryCode]);
 
   // Parse existing value to extract country code and local number
+  // Re-run when value changes externally (e.g., data loaded from API)
   useEffect(() => {
     if (value) {
+      // Normalize the value - replace spaces with hyphens for consistent parsing
+      const normalizedValue = value.replace(/^\+(\d+)\s+/, '+$1-');
+
       // Try to find matching country from the value
       const matchedCountry = COUNTRIES.find((c) =>
-        value.startsWith(c.dialCode)
+        normalizedValue.startsWith(c.dialCode)
       );
       if (matchedCountry) {
         setSelectedCountry(matchedCountry);
-        setLocalNumber(value.slice(matchedCountry.dialCode.length).replace(/^-/, ''));
+        // Extract local number, removing dial code and separator (- or space)
+        const localPart = normalizedValue.slice(matchedCountry.dialCode.length).replace(/^[-\s]/, '');
+        setLocalNumber(localPart);
       } else {
-        // Just set the local number
-        setLocalNumber(value.replace(/^\+\d+-?/, ''));
+        // Just set the local number, removing any country code prefix
+        setLocalNumber(value.replace(/^\+\d+[-\s]?/, ''));
       }
     }
-  }, []);
+  }, [value]);
 
   // Auto-detect country from browser/geolocation (only if no external countryCode provided)
   useEffect(() => {
