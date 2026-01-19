@@ -203,6 +203,11 @@ export async function GET(
     let onboardingData: OnboardingDataResponse | null = null;
 
     try {
+      // Get user ID from JWT claims for the onboarding-data endpoint
+      // The tenant-service expects X-User-ID header for access control
+      const userIdForOnboarding = headers['x-jwt-claim-sub'] || userId;
+      console.log(`[Tenant Details] Fetching onboarding data for tenant ${tenantId}, user: ${userIdForOnboarding}`);
+
       const onboardingResponse = await fetch(
         `${TENANT_SERVICE_URL}/api/v1/tenants/${tenantId}/onboarding-data`,
         {
@@ -210,6 +215,7 @@ export async function GET(
           headers: {
             ...headers,
             'Content-Type': 'application/json',
+            'X-User-ID': userIdForOnboarding, // Explicitly add X-User-ID for tenant-service
           },
         }
       );
@@ -217,6 +223,7 @@ export async function GET(
       if (onboardingResponse.ok) {
         const responseData = await onboardingResponse.json();
         onboardingData = responseData.data || null;
+        console.log(`[Tenant Details] Onboarding data retrieved: address=${!!onboardingData?.address}, contact=${!!onboardingData?.contact}`);
       } else if (onboardingResponse.status === 403) {
         // Access denied - user doesn't have access to this tenant
         console.warn(`[Tenant Details] Access denied for user ${userId} to tenant ${tenantId}`);
@@ -225,8 +232,9 @@ export async function GET(
           { status: 403 }
         );
       } else {
-        // Log but continue - onboarding data might not exist for all tenants
-        console.log(`[Tenant Details] No onboarding data for tenant ${tenantId}: ${onboardingResponse.status}`);
+        // Log the error and continue - onboarding data might not exist for all tenants
+        const errorBody = await onboardingResponse.text().catch(() => 'Unable to read body');
+        console.log(`[Tenant Details] No onboarding data for tenant ${tenantId}: status=${onboardingResponse.status}, body=${errorBody}`);
       }
     } catch (onboardingError) {
       // Log but continue - fallback to basic tenant data
