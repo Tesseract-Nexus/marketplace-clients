@@ -17,20 +17,25 @@ import {
 import { useTenant } from '@/context/TenantContext';
 import { cn } from '@/lib/utils';
 
-const MOCK_CARDS = [
-  { id: '1', type: 'visa', last4: '4242', expiry: '12/25', isDefault: true, name: 'John Doe' },
-  { id: '2', type: 'mastercard', last4: '8888', expiry: '06/26', isDefault: false, name: 'John Doe' },
-];
-
 const cardLogos: Record<string, string> = {
   visa: 'VISA',
   mastercard: 'MC',
   amex: 'AMEX',
 };
 
+interface SavedCard {
+  id: string;
+  type: string;
+  last4: string;
+  expiry: string;
+  isDefault: boolean;
+  name: string;
+}
+
 export default function PaymentMethodsPage() {
   const { settings } = useTenant();
-  const [cards, setCards] = useState(MOCK_CARDS);
+  // TODO: Integrate with payment service to fetch saved cards
+  const [cards, setCards] = useState<SavedCard[]>([]);
   const [isAddingCard, setIsAddingCard] = useState(false);
   const [newCard, setNewCard] = useState({ number: '', name: '', expiry: '', cvv: '' });
 

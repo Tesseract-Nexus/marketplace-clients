@@ -1,21 +1,72 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const TICKETS_SERVICE_URL = (process.env.TICKETS_SERVICE_URL || 'http://localhost:3036').replace(/\/api\/v1\/?$/, '');
+const AUTH_BFF_URL = process.env.AUTH_BFF_INTERNAL_URL || process.env.AUTH_BFF_URL || 'http://localhost:8080';
+
+/**
+ * Get session token from auth-bff using the request cookies.
+ * This supports OAuth/session-based auth where accessToken is not available client-side.
+ */
+async function getSessionToken(request: NextRequest): Promise<{ token?: string; userId?: string } | null> {
+  try {
+    const cookie = request.headers.get('cookie');
+    if (!cookie) return null;
+
+    const response = await fetch(`${AUTH_BFF_URL}/auth/session`, {
+      headers: {
+        'Cookie': cookie,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) return null;
+
+    const session = await response.json();
+    if (session.authenticated && session.user) {
+      // auth-bff may provide access_token in session response for BFF-to-service calls
+      return {
+        token: session.access_token || session.accessToken,
+        userId: session.user.id,
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error('[Tickets API] Failed to get session:', error);
+    return null;
+  }
+}
 
 // GET /api/tickets - List user's tickets
 export async function GET(request: NextRequest) {
   try {
     const tenantId = request.headers.get('X-Tenant-ID');
     const storefrontId = request.headers.get('X-Storefront-ID');
-    const authorization = request.headers.get('Authorization');
-    const userId = request.headers.get('X-User-Id');
+    let authorization = request.headers.get('Authorization');
+    let userId = request.headers.get('X-User-Id');
 
     if (!tenantId) {
       return NextResponse.json({ error: 'Tenant ID required' }, { status: 400 });
     }
 
-    if (!authorization) {
-      return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
+    // Check if authorization is empty or just "Bearer " (OAuth/session-based auth)
+    const hasValidAuth = authorization && authorization !== 'Bearer ' && authorization !== 'Bearer';
+
+    if (!hasValidAuth) {
+      // Try to get auth from session cookie (BFF pattern)
+      const session = await getSessionToken(request);
+      if (session?.token) {
+        authorization = `Bearer ${session.token}`;
+        if (!userId && session.userId) {
+          userId = session.userId;
+        }
+      } else if (session?.userId) {
+        // Session exists but no token - use userId for filtering
+        userId = session.userId;
+        // For now, still require authorization - backend needs to support session-based auth
+        return NextResponse.json({ error: 'Session-based auth not fully supported' }, { status: 401 });
+      } else {
+        return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
+      }
     }
 
     // Get query params
@@ -66,17 +117,29 @@ export async function POST(request: NextRequest) {
   try {
     const tenantId = request.headers.get('X-Tenant-ID');
     const storefrontId = request.headers.get('X-Storefront-ID');
-    const authorization = request.headers.get('Authorization');
+    let authorization = request.headers.get('Authorization');
     const userName = request.headers.get('X-User-Name');
-    const userId = request.headers.get('X-User-Id');
+    let userId = request.headers.get('X-User-Id');
     const userEmail = request.headers.get('X-User-Email');
 
     if (!tenantId) {
       return NextResponse.json({ error: 'Tenant ID required' }, { status: 400 });
     }
 
-    if (!authorization) {
-      return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
+    // Check if authorization is empty or just "Bearer " (OAuth/session-based auth)
+    const hasValidAuth = authorization && authorization !== 'Bearer ' && authorization !== 'Bearer';
+
+    if (!hasValidAuth) {
+      // Try to get auth from session cookie (BFF pattern)
+      const session = await getSessionToken(request);
+      if (session?.token) {
+        authorization = `Bearer ${session.token}`;
+        if (!userId && session.userId) {
+          userId = session.userId;
+        }
+      } else {
+        return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
+      }
     }
 
     const body = await request.json();

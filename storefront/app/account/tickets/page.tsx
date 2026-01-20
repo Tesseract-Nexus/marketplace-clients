@@ -40,7 +40,8 @@ export default function TicketsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const fetchTickets = useCallback(async () => {
-    if (!tenant || !accessToken) return;
+    // With OAuth/session-based auth, accessToken may be empty but user is still authenticated
+    if (!tenant || !customer?.id) return;
 
     setIsLoading(true);
     setError(null);
@@ -49,9 +50,9 @@ export default function TicketsPage() {
       const response = await listTickets(
         tenant.id,
         tenant.storefrontId,
-        accessToken,
+        accessToken || '', // Pass empty string if no token (session auth will be used)
         { page, limit: 10 },
-        customer?.id
+        customer.id
       );
       setTickets(response.data);
       setTotalPages(response.pagination.totalPages);
@@ -64,10 +65,11 @@ export default function TicketsPage() {
   }, [tenant, accessToken, page, customer?.id]);
 
   useEffect(() => {
-    if (tenant && accessToken) {
+    // Check for customer presence (session-based auth) instead of accessToken
+    if (tenant && customer?.id) {
       fetchTickets();
     }
-  }, [tenant, accessToken, page, fetchTickets]);
+  }, [tenant, customer?.id, page, fetchTickets]);
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);

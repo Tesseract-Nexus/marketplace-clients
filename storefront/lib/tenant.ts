@@ -121,6 +121,98 @@ export async function getCustomerIdFromCookie(): Promise<string | null> {
  * Returns null if not authenticated
  */
 export async function getCustomerEmailFromCookie(): Promise<string | null> {
+  // First try JWT-based auth (legacy/direct auth)
   const payload = await getAuthPayloadFromCookie();
-  return payload?.email || null;
+  if (payload?.email) {
+    return payload.email;
+  }
+
+  // Fall back to auth-bff session (OAuth/OIDC flow)
+  const session = await getSessionFromAuthBff();
+  return session?.email || null;
+}
+
+/**
+ * Session info from auth-bff
+ */
+interface AuthBffSession {
+  id?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  name?: string;
+}
+
+/**
+ * Gets user session from auth-bff using the bff_session cookie.
+ * This supports OAuth/OIDC flows where JWT tokens aren't exposed.
+ */
+async function getSessionFromAuthBff(): Promise<AuthBffSession | null> {
+  try {
+    const cookieStore = await cookies();
+    const bffSession = cookieStore.get('bff_session')?.value;
+
+    if (!bffSession) {
+      return null;
+    }
+
+    // Call auth-bff session endpoint with the session cookie
+    const authBffUrl = process.env.AUTH_BFF_INTERNAL_URL || process.env.AUTH_BFF_URL || 'http://localhost:8080';
+
+    const response = await fetch(`${authBffUrl}/auth/session`, {
+      headers: {
+        'Cookie': `bff_session=${bffSession}`,
+        'Accept': 'application/json',
+      },
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      console.log('[tenant] auth-bff session check failed:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+
+    if (data.authenticated && data.user) {
+      return {
+        id: data.user.id,
+        email: data.user.email,
+        firstName: data.user.firstName || data.user.first_name,
+        lastName: data.user.lastName || data.user.last_name,
+        name: data.user.name,
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error('[tenant] Failed to get auth-bff session:', error);
+    return null;
+  }
+}
+
+/**
+ * Gets the current authenticated customer info from cookies (email and ID).
+ * Supports both JWT-based and OAuth/session-based auth.
+ */
+export async function getCustomerInfoFromCookie(): Promise<{ id?: string; email?: string } | null> {
+  // First try JWT-based auth
+  const payload = await getAuthPayloadFromCookie();
+  if (payload?.email || payload?.sub || payload?.user_id) {
+    return {
+      id: payload.sub || payload.user_id,
+      email: payload.email,
+    };
+  }
+
+  // Fall back to auth-bff session
+  const session = await getSessionFromAuthBff();
+  if (session) {
+    return {
+      id: session.id,
+      email: session.email,
+    };
+  }
+
+  return null;
 }
