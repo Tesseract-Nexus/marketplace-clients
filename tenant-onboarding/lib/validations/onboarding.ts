@@ -220,6 +220,28 @@ export const storeSetupSchema = z.object({
     .regex(/^[a-z0-9]/, 'Storefront slug must start with a letter or number')
     .regex(/[a-z0-9]$/, 'Storefront slug must end with a letter or number'),
 
+  // Custom domain configuration (optional)
+  useCustomDomain: z
+    .boolean()
+    .default(false),
+
+  // Custom domain for storefront (e.g., "store.example.com")
+  customDomain: z
+    .string()
+    .min(4, 'Domain must be at least 4 characters')
+    .max(253, 'Domain must be less than 253 characters')
+    .regex(
+      /^(?!:\/\/)([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/,
+      'Please enter a valid domain (e.g., store.example.com)'
+    )
+    .optional()
+    .or(z.literal('')),
+
+  // DNS verification status (set by backend)
+  customDomainVerified: z
+    .boolean()
+    .default(false),
+
   currency: z
     .string()
     .length(3, 'Please select a currency')
@@ -251,6 +273,15 @@ export const storeSetupSchema = z.object({
     .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Please enter a valid hex color')
     .optional()
     .or(z.literal('')),
+}).refine((data) => {
+  // If useCustomDomain is true, customDomain must be provided
+  if (data.useCustomDomain && (!data.customDomain || data.customDomain.trim() === '')) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Please enter a custom domain',
+  path: ['customDomain'],
 });
 
 // Verification Schema

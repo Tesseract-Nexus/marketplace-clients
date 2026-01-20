@@ -8,7 +8,7 @@ import { SearchableSelect, type SelectOption } from '../../components/Searchable
 import { DocumentsSection } from '../../components/DocumentsSection';
 import { VerificationScore, useVerificationScore } from '../../components/VerificationScore';
 import { type UploadedDocument } from '../../components/DocumentUpload';
-import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText } from 'lucide-react';
+import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink } from 'lucide-react';
 import { useOnboardingStore, type DetectedLocation, type PersistedDocument } from '../../lib/store/onboarding-store';
 import { businessInfoSchema, contactDetailsSchema, businessAddressSchema, storeSetupSchema, MARKETPLACE_PLATFORMS, type BusinessInfoForm, type ContactDetailsForm, type BusinessAddressForm, type StoreSetupForm } from '../../lib/validations/onboarding';
 import { onboardingApi, OnboardingAPIError } from '../../lib/api/onboarding';
@@ -150,6 +150,22 @@ export default function OnboardingPage() {
     suggestions: [],
   });
   const storefrontValidationTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Custom domain validation state
+  const [showCustomDomainSection, setShowCustomDomainSection] = useState(false);
+  const [customDomainValidation, setCustomDomainValidation] = useState<{
+    isChecking: boolean;
+    isValid: boolean | null;
+    dnsConfigured: boolean;
+    message: string;
+    verificationRecord?: { type: string; host: string; value: string };
+  }>({
+    isChecking: false,
+    isValid: null,
+    dnsConfigured: false,
+    message: '',
+  });
+  const customDomainValidationTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Document upload state - derives from store but uses local state for UploadedDocument objects
   // The store persists serializable PersistedDocument, but UI needs UploadedDocument with potential File refs
@@ -846,6 +862,60 @@ export default function OnboardingPage() {
     }, 500);
   }, [sessionId]);
 
+  // Real-time custom domain validation with debouncing
+  const validateCustomDomain = useCallback(async (domain: string) => {
+    // Clear any pending validation
+    if (customDomainValidationTimerRef.current) {
+      clearTimeout(customDomainValidationTimerRef.current);
+    }
+
+    // Reset if empty
+    if (!domain || domain.length < 4) {
+      setCustomDomainValidation({
+        isChecking: false,
+        isValid: null,
+        dnsConfigured: false,
+        message: domain.length > 0 && domain.length < 4 ? 'Minimum 4 characters required' : '',
+      });
+      return;
+    }
+
+    // Show checking state immediately
+    setCustomDomainValidation(prev => ({ ...prev, isChecking: true, message: '' }));
+
+    // Debounce the actual API call
+    customDomainValidationTimerRef.current = setTimeout(async () => {
+      try {
+        const response = await fetch('/api/onboarding/validate/custom-domain', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ domain, session_id: sessionId }),
+        });
+        const result = await response.json();
+        const data = result.data;
+
+        setCustomDomainValidation({
+          isChecking: false,
+          isValid: data.valid,
+          dnsConfigured: data.dns_configured || false,
+          message: data.valid
+            ? data.dns_configured
+              ? 'Domain verified and ready!'
+              : 'Domain is valid. Configure DNS to complete setup.'
+            : data.message || 'Invalid domain',
+          verificationRecord: data.verification_record,
+        });
+      } catch (error) {
+        setCustomDomainValidation({
+          isChecking: false,
+          isValid: null,
+          dnsConfigured: false,
+          message: 'Unable to validate domain',
+        });
+      }
+    }, 500);
+  }, [sessionId]);
+
   // Watch subdomain changes and validate, also sync storefrontSlug if not manually edited
   useEffect(() => {
     const subscription = storeSetupForm.watch((value, { name }) => {
@@ -874,9 +944,13 @@ export default function OnboardingPage() {
           validateStorefrontSlug(value.storefrontSlug);
         }
       }
+      // Validate custom domain when it changes
+      if (name === 'customDomain' && value.useCustomDomain) {
+        validateCustomDomain(value.customDomain || '');
+      }
     });
     return () => subscription.unsubscribe();
-  }, [storeSetupForm, validateSlug, validateStorefrontSlug, storefrontSlugManuallyEdited]);
+  }, [storeSetupForm, validateSlug, validateStorefrontSlug, validateCustomDomain, storefrontSlugManuallyEdited]);
 
   // Form handlers
   const handleBusinessSubmit = async (data: BusinessInfoForm) => {
@@ -1132,6 +1206,9 @@ export default function OnboardingPage() {
         logo_url: data.logo,
         primary_color: data.primaryColor,
         secondary_color: data.secondaryColor,
+        // Custom domain fields
+        use_custom_domain: data.useCustomDomain || false,
+        custom_domain: data.useCustomDomain ? data.customDomain : undefined,
       };
 
       const storeSetupResponse = await fetch(`/api/onboarding/${sessionId}/store-setup`, {
@@ -2034,6 +2111,172 @@ export default function OnboardingPage() {
                           </p>
                         )}
                       </div>
+                    </div>
+
+                    {/* Custom Domain Section Toggle */}
+                    <div className="pt-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowCustomDomainSection(!showCustomDomainSection);
+                          if (!showCustomDomainSection) {
+                            storeSetupForm.setValue('useCustomDomain', true);
+                          }
+                        }}
+                        className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all group ${
+                          showCustomDomainSection
+                            ? 'bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-500/10 dark:to-blue-500/10 border-cyan-300 dark:border-cyan-500/30'
+                            : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                            showCustomDomainSection
+                              ? 'bg-gradient-to-br from-cyan-500 to-blue-600'
+                              : 'bg-gradient-to-br from-gray-400 to-gray-500'
+                          }`}>
+                            <Link2 className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="text-left">
+                            <p className="font-semibold text-gray-900 dark:text-white">Have your own domain?</p>
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              Connect a custom domain like store.yourbrand.com
+                            </p>
+                          </div>
+                        </div>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                          showCustomDomainSection
+                            ? 'bg-cyan-500 text-white'
+                            : 'bg-white dark:bg-white/10'
+                        }`}>
+                          {showCustomDomainSection ? (
+                            <Check className="w-4 h-4" />
+                          ) : (
+                            <ArrowRight className="w-4 h-4 text-gray-400" />
+                          )}
+                        </div>
+                      </button>
+
+                      {/* Expandable Custom Domain Section */}
+                      {showCustomDomainSection && (
+                        <div className="mt-4 p-5 bg-gradient-to-br from-cyan-50/50 to-blue-50/50 dark:from-cyan-500/5 dark:to-blue-500/5 rounded-xl border border-cyan-200 dark:border-cyan-500/20 animate-in slide-in-from-top-2 duration-200">
+                          <div className="space-y-4">
+                            {/* Custom Domain Input */}
+                            <div>
+                              <label className={labelClass}>Custom Domain</label>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                                Enter your domain (e.g., store.yourbrand.com)
+                              </p>
+                              <div className="relative">
+                                <input
+                                  {...storeSetupForm.register('customDomain')}
+                                  placeholder="store.yourbrand.com"
+                                  className={`w-full h-14 px-5 pr-12 text-base bg-white dark:bg-white/5 border rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 transition-all ${
+                                    customDomainValidation.isValid === true
+                                      ? 'border-emerald-500 focus:border-emerald-500 focus:ring-emerald-500/20'
+                                      : customDomainValidation.isValid === false
+                                        ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
+                                        : 'border-gray-200 dark:border-white/10 focus:border-cyan-500 focus:ring-cyan-500/20'
+                                  }`}
+                                />
+                                {/* Validation status icon */}
+                                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                                  {customDomainValidation.isChecking ? (
+                                    <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+                                  ) : customDomainValidation.isValid === true ? (
+                                    customDomainValidation.dnsConfigured ? (
+                                      <Check className="w-5 h-5 text-emerald-500" />
+                                    ) : (
+                                      <AlertCircle className="w-5 h-5 text-amber-500" />
+                                    )
+                                  ) : customDomainValidation.isValid === false ? (
+                                    <AlertCircle className="w-5 h-5 text-red-500" />
+                                  ) : null}
+                                </div>
+                              </div>
+
+                              {/* Validation message */}
+                              {customDomainValidation.message && (
+                                <p className={`mt-2 text-sm font-medium flex items-center gap-1.5 ${
+                                  customDomainValidation.isValid === true && customDomainValidation.dnsConfigured
+                                    ? 'text-emerald-600 dark:text-emerald-400'
+                                    : customDomainValidation.isValid === true
+                                      ? 'text-amber-600 dark:text-amber-400'
+                                      : customDomainValidation.isValid === false
+                                        ? 'text-red-500 dark:text-red-400'
+                                        : 'text-gray-500 dark:text-gray-400'
+                                }`}>
+                                  {customDomainValidation.isValid === true && customDomainValidation.dnsConfigured && <Check className="w-4 h-4" />}
+                                  {customDomainValidation.isValid === true && !customDomainValidation.dnsConfigured && <AlertCircle className="w-4 h-4" />}
+                                  {customDomainValidation.isValid === false && <AlertCircle className="w-4 h-4" />}
+                                  {customDomainValidation.message}
+                                </p>
+                              )}
+                            </div>
+
+                            {/* DNS Configuration Instructions */}
+                            {customDomainValidation.isValid === true && customDomainValidation.verificationRecord && (
+                              <div className="p-4 bg-white dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10">
+                                <div className="flex items-center gap-2 mb-3">
+                                  <ExternalLink className="w-4 h-4 text-cyan-500" />
+                                  <p className="text-sm font-semibold text-gray-900 dark:text-white">DNS Configuration Required</p>
+                                </div>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                                  Add this DNS record to your domain provider to verify ownership:
+                                </p>
+                                <div className="space-y-2">
+                                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-white/5 rounded-lg">
+                                    <div>
+                                      <p className="text-xs text-gray-500 dark:text-gray-400">Type</p>
+                                      <p className="text-sm font-mono font-medium text-gray-900 dark:text-white">{customDomainValidation.verificationRecord.type}</p>
+                                    </div>
+                                    <div className="flex-1 mx-4">
+                                      <p className="text-xs text-gray-500 dark:text-gray-400">Host / Name</p>
+                                      <p className="text-sm font-mono font-medium text-gray-900 dark:text-white truncate">{customDomainValidation.verificationRecord.host}</p>
+                                    </div>
+                                    <div className="flex-1">
+                                      <p className="text-xs text-gray-500 dark:text-gray-400">Value / Points to</p>
+                                      <p className="text-sm font-mono font-medium text-gray-900 dark:text-white truncate">{customDomainValidation.verificationRecord.value}</p>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        navigator.clipboard.writeText(customDomainValidation.verificationRecord?.value || '');
+                                      }}
+                                      className="p-2 text-gray-400 hover:text-cyan-500 transition-colors"
+                                      title="Copy value"
+                                    >
+                                      <Copy className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                                <p className="mt-3 text-xs text-gray-400 dark:text-gray-500">
+                                  DNS changes can take up to 48 hours to propagate. You can complete setup now and verify the domain later in Settings.
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Cancel custom domain */}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setShowCustomDomainSection(false);
+                                storeSetupForm.setValue('useCustomDomain', false);
+                                storeSetupForm.setValue('customDomain', '');
+                                setCustomDomainValidation({
+                                  isChecking: false,
+                                  isValid: null,
+                                  dnsConfigured: false,
+                                  message: '',
+                                });
+                              }}
+                              className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 underline"
+                            >
+                              Skip custom domain for now
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">

@@ -21,6 +21,9 @@ interface StoreSetupRequest {
   logo_url?: string;
   primary_color?: string;
   secondary_color?: string;
+  // Custom domain fields
+  use_custom_domain?: boolean;
+  custom_domain?: string;
 }
 
 export async function POST(

@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // Configuration
 const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8086';
 const LOCATION_SERVICE_URL = process.env.LOCATION_SERVICE_URL || 'http://localhost:8087';
+const CUSTOM_DOMAIN_SERVICE_URL = process.env.CUSTOM_DOMAIN_SERVICE_URL || 'http://custom-domain-service.marketplace.svc.cluster.local:8093';
 
 // Request ID generator
 export function generateRequestId(): string {
@@ -159,6 +160,7 @@ export async function proxyDelete(
 export const SERVICES = {
   TENANT: TENANT_SERVICE_URL,
   LOCATION: LOCATION_SERVICE_URL,
+  CUSTOM_DOMAIN: CUSTOM_DOMAIN_SERVICE_URL,
 };
 
 // Middleware: Rate limiting (simple in-memory implementation)
