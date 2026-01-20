@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
 import { getSession } from '@/lib/api/auth';
 
@@ -16,17 +17,17 @@ interface AuthSessionProviderProps {
  * 2. Sync the local auth store with the actual session state
  * 3. Clear stale auth data if the session is no longer valid
  *
- * IMPORTANT: The storefront should remain anonymous by default.
- * Users must explicitly log in to be authenticated on the storefront.
- * Admin/staff sessions should NOT automatically log users into the storefront.
+ * For protected routes (/account/*), it will also populate the auth store
+ * from a valid session cookie (for OAuth callback flows).
  *
  * This ensures:
- * - Storefront is purely anonymous until user chooses to log in
- * - Staff members using admin don't see personal account info on storefront
+ * - Storefront is browsable without being logged in
+ * - OAuth callbacks properly populate auth state
  * - Clear separation between admin (staff) and storefront (customer) contexts
  */
 export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
-  const { logout, isAuthenticated, customer } = useAuthStore();
+  const pathname = usePathname();
+  const { logout, login, setLoading, isAuthenticated, customer } = useAuthStore();
   const hasCheckedSession = useRef(false);
 
   useEffect(() => {
@@ -36,16 +37,8 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
 
     const validateSession = async () => {
       try {
-        // STOREFRONT DESIGN: Anonymous by default
-        // The storefront should NOT auto-login users from shared sessions.
-        // Users must explicitly click "Login" or "Create Account" to authenticate.
-        //
-        // This is intentional because:
-        // 1. Storefronts should be browsable without being logged in
-        // 2. Staff members using admin shouldn't see personal data on storefront
-        // 3. Shared Keycloak sessions (from admin) shouldn't leak to storefront
-        //
-        // We only validate existing auth state to clear stale data:
+        // Check if we're on a protected route that requires auth
+        const isProtectedRoute = pathname?.startsWith('/account');
 
         if (isAuthenticated && customer) {
           // User thinks they're logged in - verify the session is still valid
@@ -68,9 +61,36 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
 
           // Session is valid and matches - keep the auth state
           console.log('[AuthSessionProvider] Session validated, keeping auth state');
+        } else if (isProtectedRoute) {
+          // Not authenticated but on a protected route (e.g., after OAuth callback)
+          // Check if there's a valid session from OAuth
+          setLoading(true);
+          const session = await getSession();
+
+          if (session.authenticated && session.user) {
+            // Valid session exists - populate auth store
+            console.log('[AuthSessionProvider] Found valid session after OAuth, populating auth store');
+            const sessionUser = session.user;
+            login(
+              {
+                id: sessionUser.id,
+                email: sessionUser.email,
+                firstName: sessionUser.firstName || sessionUser.name?.split(' ')[0] || '',
+                lastName: sessionUser.lastName || sessionUser.name?.split(' ').slice(1).join(' ') || '',
+                status: 'ACTIVE',
+                customerType: 'RETAIL',
+                totalOrders: 0,
+                totalSpent: 0,
+                marketingOptIn: false,
+                emailVerified: true,
+                createdAt: new Date().toISOString(),
+              },
+              '' // Token is managed by auth-bff via HttpOnly cookies
+            );
+          }
+          setLoading(false);
         }
-        // If not authenticated, do nothing - stay anonymous
-        // User must explicitly log in to authenticate on storefront
+        // If not authenticated and not on protected route, stay anonymous
 
       } catch (error) {
         console.error('[AuthSessionProvider] Failed to validate session:', error);
@@ -79,11 +99,12 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
           console.log('[AuthSessionProvider] Clearing auth state due to session check error');
           logout();
         }
+        setLoading(false);
       }
     };
 
     validateSession();
-  }, [logout, isAuthenticated, customer]);
+  }, [logout, login, setLoading, isAuthenticated, customer, pathname]);
 
   return <>{children}</>;
 }
