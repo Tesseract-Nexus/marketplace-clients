@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Sparkles, Shield, Loader2, Mail, Lock, ArrowLeft, Building2, AlertCircle, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Sparkles, Shield, Loader2, Mail, Lock, ArrowLeft, Building2, AlertCircle, Eye, EyeOff, CheckCircle2, ShieldX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,9 +19,22 @@ import { SocialLogin } from '@/components/SocialLogin';
 
 type LoginStep = 'email' | 'tenant-select' | 'password' | 'mfa' | 'success';
 
+// Error messages for URL error codes
+const ERROR_MESSAGES: Record<string, { title: string; message: string }> = {
+  unauthorized: {
+    title: 'Access Denied',
+    message: 'You don\'t have permission to access the admin portal. Only store owners, admins, and staff can access this area.',
+  },
+  session_expired: {
+    title: 'Session Expired',
+    message: 'Your session has expired. Please sign in again.',
+  },
+};
+
 export default function LoginPage() {
   const router = useRouter();
-  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+  const searchParams = useSearchParams();
+  const { isAuthenticated, isLoading: authLoading, user, logout } = useAuth();
 
   // Login flow state
   const [step, setStep] = useState<LoginStep>('email');
@@ -37,12 +50,38 @@ export default function LoginPage() {
   // UI state
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [urlError, setUrlError] = useState<{ title: string; message: string } | null>(null);
   const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
   const [lockedUntil, setLockedUntil] = useState<string | null>(null);
 
-  // Redirect authenticated users
+  // Handle URL error parameters (e.g., ?error=unauthorized)
+  useEffect(() => {
+    const errorCode = searchParams.get('error');
+    const shouldLogout = searchParams.get('logout') === 'true';
+
+    if (errorCode && ERROR_MESSAGES[errorCode]) {
+      setUrlError(ERROR_MESSAGES[errorCode]);
+
+      // If logout param is set, log out the user
+      if (shouldLogout && isAuthenticated) {
+        logout();
+      }
+
+      // Clear the URL params after reading them
+      const url = new URL(window.location.href);
+      url.searchParams.delete('error');
+      url.searchParams.delete('logout');
+      window.history.replaceState({}, '', url.pathname);
+    }
+  }, [searchParams, isAuthenticated, logout]);
+
+  // Redirect authenticated users (but not if there's an unauthorized error)
   useEffect(() => {
     if (authLoading) return;
+
+    // Don't redirect if user just got an unauthorized error
+    const errorCode = searchParams.get('error');
+    if (errorCode === 'unauthorized') return;
 
     if (isAuthenticated && user) {
       const currentTenantSlug = getCurrentTenantSlug();
@@ -52,7 +91,7 @@ export default function LoginPage() {
       }
       router.replace('/welcome');
     }
-  }, [isAuthenticated, authLoading, user, router]);
+  }, [isAuthenticated, authLoading, user, router, searchParams]);
 
   // Handle email submission - lookup tenants
   const handleEmailSubmit = async (e: React.FormEvent) => {
@@ -506,6 +545,27 @@ export default function LoginPage() {
       {/* Login card */}
       <div className="w-full max-w-md px-4 py-8 mx-auto">
         <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/20 border border-white/20 p-6 space-y-5 animate-fade-in-up relative">
+          {/* URL Error Banner (e.g., unauthorized access) */}
+          {urlError && (
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-4">
+              <div className="flex items-start gap-3">
+                <ShieldX className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-medium text-destructive">{urlError.title}</p>
+                  <p className="text-sm text-destructive/80">{urlError.message}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setUrlError(null)}
+                className="absolute top-2 right-2 text-destructive/60 hover:text-destructive"
+              >
+                <span className="sr-only">Dismiss</span>
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          )}
           {renderStepContent()}
 
           {/* Sign up link (only on email step) */}

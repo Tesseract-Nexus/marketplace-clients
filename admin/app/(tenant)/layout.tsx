@@ -917,12 +917,12 @@ export default function TenantLayout({
     }
   }, [authLoading, isAuthenticated]);
 
-  // Redirect to unauthorized page if authenticated but not authorized for admin portal
+  // Redirect to login page with error if authenticated but not authorized for admin portal
   // This blocks customers from accessing admin portal even if they're logged in
   useEffect(() => {
     if (!authLoading && isAuthenticated && !isAuthorizedForAdminPortal) {
       console.warn('[TenantLayout] User authenticated but not authorized for admin portal:', user?.email, 'roles:', user?.roles);
-      window.location.href = '/unauthorized';
+      window.location.href = '/login?error=unauthorized&logout=true';
     }
   }, [authLoading, isAuthenticated, isAuthorizedForAdminPortal, user?.email, user?.roles]);
 
@@ -950,13 +950,13 @@ export default function TenantLayout({
     );
   }
 
-  // Show unauthorized message if authenticated but not authorized for admin portal
+  // Show redirecting message if authenticated but not authorized for admin portal
   if (!isAuthorizedForAdminPortal) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <div className="h-8 w-8 border-4 border-destructive border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Access denied. Redirecting...</p>
+          <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Redirecting...</p>
         </div>
       </div>
     );
