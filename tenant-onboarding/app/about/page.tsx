@@ -72,7 +72,7 @@ export default function AboutPage() {
           <div className="grid sm:grid-cols-2 gap-8">
             {[
               { title: 'No Transaction Fees', desc: 'We don\'t take a cut of your sales. Ever. The money you earn is yours to keep.' },
-              { title: 'Free for 12 Months', desc: 'Start selling today, completely free. After a year, it\'s just ₹500/month—no surprises.' },
+              { title: 'Free for 12 Months', desc: 'Start selling today, completely free. After a year, it\'s just ₹299/month—no surprises.' },
               { title: 'No Developer Needed', desc: 'Our platform is designed for real people, not engineers. If you can use email, you can build your store.' },
               { title: '24/7 Human Support', desc: 'Got a question at midnight? We\'re here. Real people, real help, whenever you need it.' },
               { title: 'Global Reach', desc: 'Based in India, built for the world. Sell to customers anywhere, accept payments globally.' },

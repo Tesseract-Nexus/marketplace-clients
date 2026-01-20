@@ -73,7 +73,7 @@ const faqs = [
   },
   {
     question: 'What happens after the 12 months free?',
-    answer: 'After your free year, it\'s just ₹500/month. That\'s it—no hidden fees, no transaction costs from us, no surprises. And you can cancel anytime.',
+    answer: 'After your free year, it\'s just ₹299/month. That\'s it—no hidden fees, no transaction costs from us, no surprises. And you can cancel anytime.',
   },
   {
     question: 'Are there transaction fees or payment processing fees?',
@@ -211,7 +211,7 @@ export default function Home() {
           <div>
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-sage-50 text-sage-700 text-sm font-medium border border-sage-200 mb-6 gap-2">
               <span className="flex h-2 w-2 rounded-full bg-sage-500 animate-pulse" aria-hidden="true" />
-              <span>12 months free, then ₹500/mo</span>
+              <span>12 months free, then ₹299/mo</span>
             </div>
             <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight mb-6 leading-[1.05] text-foreground">
               Your online store,
@@ -387,7 +387,7 @@ export default function Home() {
 
                 <div className="p-4 rounded-lg bg-warm-50 border border-warm-200 mb-8">
                   <p className="text-sm text-foreground-secondary">
-                    Then just <span className="font-semibold text-foreground text-lg">₹500/month</span>
+                    Then just <span className="font-semibold text-foreground text-lg">₹299/month</span>
                     <br />
                     <span className="text-foreground-tertiary">No transaction fees. No hidden costs.</span>
                   </p>
@@ -582,7 +582,7 @@ export default function Home() {
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
           <p className="text-sm text-foreground-tertiary mt-4">
-            12 months free, then ₹500/mo. Cancel anytime.
+            12 months free, then ₹299/mo. Cancel anytime.
           </p>
         </div>
       </section>

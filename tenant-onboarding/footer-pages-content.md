@@ -40,7 +40,7 @@ We believe in:
 We don't take a cut of your sales. Ever. The money you earn is yours to keep.
 
 **Free for 12 Months**
-Start selling today, completely free. After a year, it's just ₹500/month—no surprises.
+Start selling today, completely free. After a year, it's just ₹299/month—no surprises.
 
 **No Developer Needed**
 Our platform is designed for real people, not engineers. If you can use email, you can build your store.
@@ -496,7 +496,7 @@ Your first 12 months are completely free. No credit card required to start.
 
 **Subscription Pricing:**
 After your free period:
-- ₹500 per month, billed monthly
+- ₹299 per month, billed monthly
 - No setup fees
 - No transaction fees
 - Cancel anytime

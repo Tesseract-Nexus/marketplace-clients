@@ -87,7 +87,7 @@ export default function TermsOfServicePage() {
                   <strong>Free Trial:</strong> 12 months completely free. No credit card required.
                 </p>
                 <p className="text-sage-700 mt-2 mb-0">
-                  <strong>After Free Period:</strong> ₹500/month. No transaction fees. Cancel anytime.
+                  <strong>After Free Period:</strong> ₹299/month. No transaction fees. Cancel anytime.
                 </p>
               </div>
 

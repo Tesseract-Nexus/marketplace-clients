@@ -4,7 +4,7 @@
 Tesserix is an e-commerce platform that helps small businesses, creators, and makers launch online stores quickly and affordably. It's designed for people who want to sell online without technical complexity.
 
 ## Key Facts
-- **Pricing**: Free for 12 months, then ₹500/month flat rate
+- **Pricing**: Free for 12 months, then ₹299/month flat rate
 - **No transaction fees**: Unlike competitors, we don't take a cut of your sales
 - **No developer needed**: Save ₹50,000+ on setup costs—do it yourself
 - **No coding required**: Fully visual store builder
@@ -37,7 +37,7 @@ Tesserix is an e-commerce platform that helps small businesses, creators, and ma
 | Feature | Tesserix | Shopify | WooCommerce |
 |---------|---------------|---------|-------------|
 | Free Trial | 12 months | 3 days | N/A (free plugin) |
-| Monthly Cost | ₹500 | $29-299 | Hosting + plugins |
+| Monthly Cost | ₹299 | $29-299 | Hosting + plugins |
 | Transaction Fees | None | 0.5-2% | Depends on gateway |
 | Developer Needed | No | Sometimes | Usually |
 | Ease of Use | Very Easy | Moderate | Technical |
