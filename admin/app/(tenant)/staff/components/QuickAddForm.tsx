@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, ChevronDown, ChevronUp, Shield, Users } from 'lucide-react';
+import { Loader2, Shield, Users, Plus, Building2 } from 'lucide-react';
 import { Select } from '@/components/Select';
 import { useTenant } from '@/contexts/TenantContext';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
-import type { Team, Role } from '@/lib/api/rbacTypes';
+import type { Team, Role, Department } from '@/lib/api/rbacTypes';
+import { CreateDepartmentModal } from './CreateDepartmentModal';
+import { CreateTeamModal } from './CreateTeamModal';
 
 interface QuickAddFormProps {
   onSubmit: (data: QuickAddData) => Promise<void>;
@@ -39,16 +41,21 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
   const [teamId, setTeamId] = useState('');
 
   // Data state
-  const [departments, setDepartments] = useState<Array<{ id: string; name: string }>>([]);
+  const [departments, setDepartments] = useState<Department[]>([]);
   const [teams, setTeams] = useState<TeamWithRole[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<TeamWithRole | null>(null);
 
   // Loading state
   const [loadingDepts, setLoadingDepts] = useState(false);
   const [loadingTeams, setLoadingTeams] = useState(false);
+  const [initialLoadComplete, setInitialLoadComplete] = useState(false);
 
   // Validation state
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Modal state
+  const [showCreateDeptModal, setShowCreateDeptModal] = useState(false);
+  const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
 
   const getHeaders = (): HeadersInit => {
     const headers: Record<string, string> = {
@@ -64,6 +71,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
     if (currentTenant?.id) {
       loadDepartments();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTenant?.id]);
 
   // Load teams when department changes
@@ -75,6 +83,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
       setTeamId('');
       setSelectedTeam(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [departmentId]);
 
   // Update selected team when teamId changes
@@ -100,6 +109,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
       console.error('Failed to load departments:', error);
     } finally {
       setLoadingDepts(false);
+      setInitialLoadComplete(true);
     }
   };
 
@@ -155,6 +165,26 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
     });
   };
 
+  // Handle new department created
+  const handleDepartmentCreated = (newDepartment: Department) => {
+    setDepartments(prev => [...prev, newDepartment]);
+    setDepartmentId(newDepartment.id);
+    setTeamId('');
+    setTeams([]);
+  };
+
+  // Handle new team created
+  const handleTeamCreated = (newTeam: TeamWithRole) => {
+    setTeams(prev => [...prev, newTeam]);
+    setTeamId(newTeam.id);
+    setSelectedTeam(newTeam);
+    if (errors.teamId) {
+      setErrors(prev => ({ ...prev, teamId: '' }));
+    }
+  };
+
+  const selectedDepartment = departments.find(d => d.id === departmentId);
+
   const departmentOptions = [
     { value: '', label: 'Select Department' },
     ...departments.map(d => ({ value: d.id, label: d.name })),
@@ -170,197 +200,300 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
     })),
   ];
 
+  // Check if we need to show empty states
+  const showNoDepartmentsMessage = initialLoadComplete && !loadingDepts && departments.length === 0;
+  const showNoTeamsMessage = departmentId && !loadingTeams && teams.length === 0;
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Quick Add Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
-            Quick Add Staff Member
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Add a new team member with just the essentials
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={onSwitchToFullForm}
-          className="text-sm text-primary hover:underline flex items-center gap-1"
-        >
-          Need more options? Use full form
-        </button>
-      </div>
-
-      {/* Essential Fields */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            First Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={firstName}
-            onChange={(e) => {
-              setFirstName(e.target.value);
-              if (errors.firstName) setErrors(prev => ({ ...prev, firstName: '' }));
-            }}
-            className={cn(
-              "w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
-              errors.firstName ? "border-red-500" : "border-border"
-            )}
-            placeholder="John"
-          />
-          {errors.firstName && (
-            <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
-          )}
+    <>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Quick Add Header */}
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+              Quick Add Staff Member
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Add a new team member with just the essentials
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onSwitchToFullForm}
+            className="text-sm text-primary hover:underline flex items-center gap-1"
+          >
+            Need more options? Use full form
+          </button>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Last Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={lastName}
-            onChange={(e) => {
-              setLastName(e.target.value);
-              if (errors.lastName) setErrors(prev => ({ ...prev, lastName: '' }));
-            }}
-            className={cn(
-              "w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
-              errors.lastName ? "border-red-500" : "border-border"
-            )}
-            placeholder="Doe"
-          />
-          {errors.lastName && (
-            <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
-          )}
-        </div>
-
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-foreground mb-2">
-            Email <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
-            }}
-            className={cn(
-              "w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
-              errors.email ? "border-red-500" : "border-border"
-            )}
-            placeholder="john.doe@company.com"
-          />
-          {errors.email && (
-            <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-          )}
-        </div>
-      </div>
-
-      {/* Team Selection */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-2">
-          <Users className="w-5 h-5 text-primary" />
-          <h3 className="text-lg font-semibold">Team Assignment</h3>
-        </div>
-
+        {/* Essential Fields */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Department <span className="text-red-500">*</span>
-              {loadingDepts && <Loader2 className="inline w-4 h-4 ml-2 animate-spin" />}
+              First Name <span className="text-red-500">*</span>
             </label>
-            <Select
-              value={departmentId}
-              onChange={(value) => {
-                setDepartmentId(value);
-                setTeamId('');
+            <input
+              type="text"
+              value={firstName}
+              onChange={(e) => {
+                setFirstName(e.target.value);
+                if (errors.firstName) setErrors(prev => ({ ...prev, firstName: '' }));
               }}
-              options={departmentOptions}
-              className="w-full"
+              className={cn(
+                "w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
+                errors.firstName ? "border-red-500" : "border-border"
+              )}
+              placeholder="John"
             />
+            {errors.firstName && (
+              <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
+            )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Team <span className="text-red-500">*</span>
-              {loadingTeams && <Loader2 className="inline w-4 h-4 ml-2 animate-spin" />}
+              Last Name <span className="text-red-500">*</span>
             </label>
-            <Select
-              value={teamId}
-              onChange={(value) => {
-                setTeamId(value);
-                if (errors.teamId) setErrors(prev => ({ ...prev, teamId: '' }));
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => {
+                setLastName(e.target.value);
+                if (errors.lastName) setErrors(prev => ({ ...prev, lastName: '' }));
               }}
-              options={teamOptions}
-              className="w-full"
+              className={cn(
+                "w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
+                errors.lastName ? "border-red-500" : "border-border"
+              )}
+              placeholder="Doe"
             />
-            {errors.teamId && (
-              <p className="text-red-500 text-xs mt-1">{errors.teamId}</p>
+            {errors.lastName && (
+              <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
+            )}
+          </div>
+
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-foreground mb-2">
+              Email <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (errors.email) setErrors(prev => ({ ...prev, email: '' }));
+              }}
+              className={cn(
+                "w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
+                errors.email ? "border-red-500" : "border-border"
+              )}
+              placeholder="john.doe@company.com"
+            />
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
             )}
           </div>
         </div>
 
-        {/* Role Inheritance Info */}
-        {selectedTeam?.defaultRole && (
-          <div className="bg-primary/10 border-2 border-primary/30 rounded-xl p-4 flex items-start gap-3">
-            <Shield className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                Role: <span className="text-primary">{selectedTeam.defaultRole.displayName}</span>
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                This role will be automatically assigned based on the team selection.
-                The member will inherit all permissions associated with this role.
-              </p>
-            </div>
+        {/* Team Selection */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Users className="w-5 h-5 text-primary" />
+            <h3 className="text-lg font-semibold">Team Assignment</h3>
           </div>
-        )}
 
-        {selectedTeam && !selectedTeam.defaultRole && (
-          <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4 flex items-start gap-3">
-            <Shield className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="text-sm font-medium text-amber-800">
-                No default role assigned to this team
-              </p>
-              <p className="text-xs text-amber-700 mt-1">
-                You can assign a role later from the staff member's profile, or use the full form to select a role now.
-              </p>
+          {/* No Departments Empty State */}
+          {showNoDepartmentsMessage && (
+            <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                  <Building2 className="w-6 h-6 text-amber-600" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-lg font-semibold text-amber-800">No departments found</h4>
+                  <p className="text-sm text-amber-700 mt-1">
+                    You need to create a department before adding staff members. Departments help organize your team structure.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateDeptModal(true)}
+                    className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all font-medium shadow-md hover:shadow-lg"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Create First Department
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
-
-      {/* Actions */}
-      <div className="flex gap-3 pt-4 border-t border-border">
-        <button
-          type="button"
-          onClick={onCancel}
-          disabled={isSubmitting}
-          className="flex-1 px-6 py-3 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-all font-semibold border-2 border-border disabled:opacity-50"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl hover:from-blue-700 hover:to-violet-700 transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        >
-          {isSubmitting ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Creating...
-            </>
-          ) : (
-            'Add Staff Member'
           )}
-        </button>
-      </div>
-    </form>
+
+          {/* Department and Team Selection (only show if departments exist or loading) */}
+          {(departments.length > 0 || loadingDepts) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Department <span className="text-red-500">*</span>
+                  {loadingDepts && <Loader2 className="inline w-4 h-4 ml-2 animate-spin" />}
+                </label>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <Select
+                      value={departmentId}
+                      onChange={(value) => {
+                        setDepartmentId(value);
+                        setTeamId('');
+                      }}
+                      options={departmentOptions}
+                      className="w-full"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateDeptModal(true)}
+                    className="px-3 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-all"
+                    title="Create new department"
+                  >
+                    <Plus className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Team <span className="text-red-500">*</span>
+                  {loadingTeams && <Loader2 className="inline w-4 h-4 ml-2 animate-spin" />}
+                </label>
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <Select
+                      value={teamId}
+                      onChange={(value) => {
+                        setTeamId(value);
+                        if (errors.teamId) setErrors(prev => ({ ...prev, teamId: '' }));
+                      }}
+                      options={teamOptions}
+                      className="w-full"
+                      disabled={!departmentId}
+                    />
+                  </div>
+                  {departmentId && (
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateTeamModal(true)}
+                      className="px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-all"
+                      title="Create new team"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  )}
+                </div>
+                {errors.teamId && (
+                  <p className="text-red-500 text-xs mt-1">{errors.teamId}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* No Teams Empty State */}
+          {showNoTeamsMessage && (
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
+                  <Users className="w-5 h-5 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="text-sm font-semibold text-blue-800">No teams in this department</h4>
+                  <p className="text-xs text-blue-700 mt-1">
+                    Create a team to assign staff members to.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setShowCreateTeamModal(true)}
+                    className="mt-3 inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium text-sm"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Create Team
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Role Inheritance Info */}
+          {selectedTeam?.defaultRole && (
+            <div className="bg-primary/10 border-2 border-primary/30 rounded-xl p-4 flex items-start gap-3">
+              <Shield className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-foreground">
+                  Role: <span className="text-primary">{selectedTeam.defaultRole.displayName}</span>
+                </p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  This role will be automatically assigned based on the team selection.
+                  The member will inherit all permissions associated with this role.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {selectedTeam && !selectedTeam.defaultRole && (
+            <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4 flex items-start gap-3">
+              <Shield className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-amber-800">
+                  No default role assigned to this team
+                </p>
+                <p className="text-xs text-amber-700 mt-1">
+                  You can assign a role later from the staff member&apos;s profile, or use the full form to select a role now.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3 pt-4 border-t border-border">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isSubmitting}
+            className="flex-1 px-6 py-3 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-all font-semibold border-2 border-border disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-xl hover:from-blue-700 hover:to-violet-700 transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Creating...
+              </>
+            ) : (
+              'Add Staff Member'
+            )}
+          </button>
+        </div>
+      </form>
+
+      {/* Create Department Modal */}
+      <CreateDepartmentModal
+        isOpen={showCreateDeptModal}
+        onClose={() => setShowCreateDeptModal(false)}
+        onSuccess={handleDepartmentCreated}
+        existingDepartments={departments}
+      />
+
+      {/* Create Team Modal */}
+      <CreateTeamModal
+        isOpen={showCreateTeamModal}
+        onClose={() => setShowCreateTeamModal(false)}
+        onSuccess={handleTeamCreated}
+        departmentId={departmentId}
+        departmentName={selectedDepartment?.name}
+      />
+    </>
   );
 }
 

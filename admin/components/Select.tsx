@@ -18,6 +18,7 @@ interface SelectProps {
   leftIcon?: React.ReactNode;
   className?: string;
   variant?: 'default' | 'filter';
+  disabled?: boolean;
 }
 
 export function Select({
@@ -28,6 +29,7 @@ export function Select({
   leftIcon,
   className,
   variant = 'default',
+  disabled = false,
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -65,13 +67,15 @@ export function Select({
       {/* Select Button */}
       <button
         type="button"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
+        disabled={disabled}
         className={cn(
           "w-full flex items-center justify-between gap-2 transition-all text-left",
           variant === 'filter'
             ? "px-4 py-2.5 border-2 border-border rounded-xl text-sm font-semibold bg-white hover:border-border shadow-sm"
             : "pl-12 pr-10 py-3.5 border-2 border-border rounded-xl font-medium bg-white hover:border-border shadow-sm",
           isOpen && "ring-2 ring-blue-500 border-primary",
+          disabled && "opacity-50 cursor-not-allowed bg-muted",
           className
         )}
       >
