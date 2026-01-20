@@ -652,276 +652,127 @@
     outline: none;
   }
 
-  /* Primary Button - Solid with shine effect */
+  /* Primary Button - Editorial: Solid, no gradients */
   .btn-tenant-primary {
     background: var(--tenant-primary);
     color: var(--tenant-primary-foreground);
     border-radius: var(--button-radius);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
-  }
-  .btn-tenant-primary::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 50%, transparent 100%);
-    opacity: 0;
     transition: opacity 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
   .btn-tenant-primary:hover {
-    background: var(--tenant-primary-dark);
-    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.15), 0 2px 4px -1px rgba(0, 0, 0, 0.08);
-    transform: translateY(-1px);
-  }
-  .btn-tenant-primary:hover::before {
-    opacity: 1;
+    opacity: 0.9;
   }
   .btn-tenant-primary:active {
-    transform: translateY(0) scale(0.98);
-    box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    opacity: 0.95;
   }
   .btn-tenant-primary:focus-visible {
-    box-shadow: 0 0 0 3px rgba(var(--tenant-primary-rgb, 59, 130, 246), 0.3), 0 4px 12px -2px rgba(0, 0, 0, 0.15);
+    outline: 2px solid var(--tenant-primary);
+    outline-offset: 2px;
   }
 
-  /* Secondary Button */
+  /* Secondary Button - Editorial: Solid, no gradients */
   .btn-tenant-secondary {
     background: var(--tenant-secondary);
     color: var(--tenant-secondary-foreground);
     border-radius: var(--button-radius);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.1);
-  }
-  .btn-tenant-secondary::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%);
-    opacity: 0;
     transition: opacity 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
   .btn-tenant-secondary:hover {
-    background: var(--tenant-secondary-dark);
-    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.15);
-    transform: translateY(-1px);
-  }
-  .btn-tenant-secondary:hover::before {
-    opacity: 1;
+    opacity: 0.9;
   }
   .btn-tenant-secondary:active {
-    transform: translateY(0) scale(0.98);
+    opacity: 0.95;
   }
 
-  /* Outline Button */
+  /* Outline Button - Editorial: Simple border, no fill animation */
   .btn-tenant-outline {
     background: transparent;
     color: var(--tenant-primary);
-    border: 2px solid var(--tenant-primary);
+    border: 1px solid var(--tenant-primary);
     border-radius: var(--button-radius);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .btn-tenant-outline::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--tenant-primary);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 0;
-  }
-  .btn-tenant-outline > * {
-    position: relative;
-    z-index: 1;
+    transition: all 0.2s ease;
   }
   .btn-tenant-outline:hover {
+    background: var(--tenant-primary);
     color: var(--tenant-primary-foreground);
-    border-color: var(--tenant-primary);
-    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.12);
-  }
-  .btn-tenant-outline:hover::before {
-    transform: scaleX(1);
   }
   .btn-tenant-outline:active {
-    transform: scale(0.98);
+    opacity: 0.9;
   }
 
-  /* Gradient Button - Premium feel */
+  /* Gradient Button - Editorial: Solid color (no gradients) */
   .btn-tenant-gradient {
-    background: linear-gradient(135deg, var(--tenant-primary) 0%, var(--tenant-secondary) 100%);
+    background: var(--tenant-primary);
     color: var(--tenant-primary-foreground);
     border-radius: var(--button-radius);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.2);
-  }
-  .btn-tenant-gradient::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, var(--tenant-secondary) 0%, var(--tenant-primary) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  .btn-tenant-gradient::after {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.3) 50%, transparent 60%);
-    transform: rotate(45deg) translateX(-100%);
-    transition: transform 0.6s ease;
-  }
-  .btn-tenant-gradient > * {
-    position: relative;
-    z-index: 1;
+    transition: opacity 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
   .btn-tenant-gradient:hover {
-    box-shadow: 0 8px 25px -5px rgba(0, 0, 0, 0.25);
-    transform: translateY(-2px);
-  }
-  .btn-tenant-gradient:hover::before {
-    opacity: 1;
-  }
-  .btn-tenant-gradient:hover::after {
-    transform: rotate(45deg) translateX(100%);
+    opacity: 0.9;
   }
   .btn-tenant-gradient:active {
-    transform: translateY(0) scale(0.98);
-    box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.15);
+    opacity: 0.95;
   }
 
-  /* Glow Button - Eye-catching CTA */
+  /* Glow Button - Editorial: Solid color (no glow effects) */
   .btn-tenant-glow {
     background: var(--tenant-primary);
     color: var(--tenant-primary-foreground);
     border-radius: var(--button-radius);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow:
-      0 0 20px -5px var(--tenant-primary),
-      0 4px 12px -2px rgba(0, 0, 0, 0.15);
-  }
-  .btn-tenant-glow::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    background: linear-gradient(135deg, var(--tenant-primary), var(--tenant-secondary), var(--tenant-primary));
-    border-radius: calc(var(--button-radius) + 2px);
-    z-index: -1;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    animation: btn-glow-pulse 2s ease-in-out infinite;
+    transition: opacity 0.2s ease;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   }
   .btn-tenant-glow:hover {
-    box-shadow:
-      0 0 30px -5px var(--tenant-primary),
-      0 0 60px -10px var(--tenant-secondary),
-      0 8px 20px -5px rgba(0, 0, 0, 0.2);
-    transform: translateY(-2px);
-  }
-  .btn-tenant-glow:hover::before {
-    opacity: 0.5;
+    opacity: 0.9;
   }
   .btn-tenant-glow:active {
-    transform: translateY(0) scale(0.98);
+    opacity: 0.95;
   }
 
-  @keyframes btn-glow-pulse {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 0.6; }
-  }
-
-  /* Ghost Button - Subtle, minimal */
+  /* Ghost Button - Editorial: Simple, text-only */
   .btn-tenant-ghost {
     background: transparent;
     color: var(--tenant-primary);
     border-radius: var(--button-radius);
-    position: relative;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .btn-tenant-ghost::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--tenant-primary);
-    opacity: 0;
-    border-radius: var(--button-radius);
-    transition: opacity 0.2s ease;
-  }
-  .btn-tenant-ghost > * {
-    position: relative;
-    z-index: 1;
+    transition: background-color 0.2s ease;
   }
   .btn-tenant-ghost:hover {
-    color: var(--tenant-primary);
-  }
-  .btn-tenant-ghost:hover::before {
-    opacity: 0.1;
+    background: rgba(0, 0, 0, 0.04);
   }
   .btn-tenant-ghost:active {
-    transform: scale(0.98);
-  }
-  .btn-tenant-ghost:active::before {
-    opacity: 0.15;
+    background: rgba(0, 0, 0, 0.06);
   }
 
-  /* Glass Button - For overlays and hero sections */
+  /* Glass Button - Editorial: Simple white background */
   .btn-tenant-glass {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    color: var(--tenant-gradient-text, #ffffff);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--tenant-primary);
+    border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: var(--button-radius);
-    position: relative;
-    overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  .btn-tenant-glass::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 100%);
-    opacity: 0;
-    transition: opacity 0.2s ease;
+    transition: background-color 0.2s ease;
   }
   .btn-tenant-glass:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    transform: translateY(-1px);
-  }
-  .btn-tenant-glass:hover::before {
-    opacity: 1;
+    background: rgba(255, 255, 255, 1);
   }
   .btn-tenant-glass:active {
-    transform: translateY(0) scale(0.98);
+    background: rgba(255, 255, 255, 0.95);
   }
 
-  /* Soft Button - Low contrast, gentle */
+  /* Soft Button - Editorial: Subtle background */
   .btn-tenant-soft {
-    background: rgba(var(--tenant-primary-rgb, 59, 130, 246), 0.1);
+    background: rgba(0, 0, 0, 0.04);
     color: var(--tenant-primary);
     border-radius: var(--button-radius);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.2s ease;
   }
   .btn-tenant-soft:hover {
-    background: rgba(var(--tenant-primary-rgb, 59, 130, 246), 0.2);
-    transform: translateY(-1px);
+    background: rgba(0, 0, 0, 0.06);
   }
   .btn-tenant-soft:active {
-    transform: translateY(0) scale(0.98);
+    background: rgba(0, 0, 0, 0.08);
   }
 
   /* Button size utilities */

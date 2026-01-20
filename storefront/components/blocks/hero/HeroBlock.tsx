@@ -136,8 +136,8 @@ export function HeroBlock({ config }: BlockComponentProps<HeroBlockConfig>) {
       {/* Decorations */}
       {config.showDecorations && <Decorations config={config.decorations} />}
 
-      {/* Bottom fade */}
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+      {/* Bottom fade - editorial: subtle, no gradient */}
+      <div className="absolute bottom-0 left-0 right-0 h-16 bg-white/80 pointer-events-none" />
     </section>
   );
 }

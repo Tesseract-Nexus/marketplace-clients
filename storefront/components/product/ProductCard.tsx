@@ -205,11 +205,12 @@ export function ProductCard({
     landscape: 'aspect-[4/3]',
   }[productConfig.imageAspectRatio];
 
+  // Editorial design: clean, minimal cards with subtle borders
   const cardStyleClass = {
-    default: 'bg-card border shadow-sm',
+    default: 'bg-white',
     minimal: 'bg-transparent',
-    bordered: 'bg-card border-2',
-    elevated: 'bg-card shadow-md hover:shadow-lg',
+    bordered: 'bg-white',
+    elevated: 'bg-white',
   }[productConfig.cardStyle];
 
   const handleAddToCart = (e: React.MouseEvent) => {

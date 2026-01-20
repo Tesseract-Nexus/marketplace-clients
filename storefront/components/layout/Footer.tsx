@@ -146,14 +146,10 @@ export function Footer() {
   return (
     <footer
       className="relative border-t border-stone-200 bg-stone-50"
-      style={{
-        backgroundColor: footerConfig.footerBgColor || undefined,
-        color: footerConfig.footerTextColor || undefined,
-      }}
     >
       {/* Solid accent line at top - editorial style (no gradient) */}
       <div
-        className="absolute top-0 left-0 right-0 h-[1px] bg-tenant-primary"
+        className="absolute top-0 left-0 right-0 h-px bg-stone-300"
       />
 
       <div className="container-tenant py-8 sm:py-12 md:py-16">
