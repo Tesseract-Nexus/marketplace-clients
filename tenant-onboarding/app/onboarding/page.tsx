@@ -2117,7 +2117,7 @@ export default function OnboardingPage() {
                     </div>
 
                     {/* Custom Domain Section Toggle */}
-                    <div className="pt-2">
+                    <div className="pt-4">
                       <button
                         type="button"
                         onClick={() => {
@@ -2126,66 +2126,66 @@ export default function OnboardingPage() {
                             storeSetupForm.setValue('useCustomDomain', true);
                           }
                         }}
-                        className={`w-full flex items-center justify-between p-4 rounded-xl border-2 transition-all group ${
+                        className={`w-full flex items-center justify-between p-5 rounded-2xl border-2 transition-all duration-200 group ${
                           showCustomDomainSection
-                            ? 'bg-gradient-to-r from-cyan-50 to-blue-50 dark:from-cyan-500/10 dark:to-blue-500/10 border-cyan-300 dark:border-cyan-500/30'
-                            : 'bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
+                            ? 'bg-gradient-to-r from-primary/10 to-emerald-50 dark:from-primary/20 dark:to-emerald-500/10 border-primary dark:border-primary/50 shadow-sm'
+                            : 'bg-card hover:bg-warm-50 dark:hover:bg-white/5 border-warm-200 dark:border-white/10 hover:border-primary/50 dark:hover:border-primary/30 hover:shadow-sm'
                         }`}
                       >
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                        <div className="flex items-center gap-4">
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
                             showCustomDomainSection
-                              ? 'bg-gradient-to-br from-cyan-500 to-blue-600'
-                              : 'bg-gradient-to-br from-gray-400 to-gray-500'
+                              ? 'bg-gradient-to-br from-primary to-emerald-600 shadow-md'
+                              : 'bg-gradient-to-br from-warm-300 to-warm-400 group-hover:from-primary/80 group-hover:to-primary'
                           }`}>
-                            <Link2 className="w-5 h-5 text-white" />
+                            <Link2 className="w-6 h-6 text-white" />
                           </div>
                           <div className="text-left">
-                            <p className="font-semibold text-gray-900 dark:text-white">Have your own domain?</p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              Connect a custom domain like store.yourbrand.com
+                            <p className="font-semibold text-foreground text-base">Connect Your Own Domain</p>
+                            <p className="text-sm text-muted-foreground mt-0.5">
+                              Use a custom domain like <span className="font-medium text-primary">store.yourbrand.com</span>
                             </p>
                           </div>
                         </div>
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                           showCustomDomainSection
-                            ? 'bg-cyan-500 text-white'
-                            : 'bg-white dark:bg-white/10'
+                            ? 'bg-primary text-white shadow-md'
+                            : 'bg-warm-100 dark:bg-white/10 group-hover:bg-primary/20'
                         }`}>
                           {showCustomDomainSection ? (
-                            <Check className="w-4 h-4" />
+                            <Check className="w-5 h-5" />
                           ) : (
-                            <ArrowRight className="w-4 h-4 text-gray-400" />
+                            <ArrowRight className="w-5 h-5 text-warm-500 group-hover:text-primary transition-colors" />
                           )}
                         </div>
                       </button>
 
                       {/* Expandable Custom Domain Section */}
                       {showCustomDomainSection && (
-                        <div className="mt-4 p-5 bg-gradient-to-br from-cyan-50/50 to-blue-50/50 dark:from-cyan-500/5 dark:to-blue-500/5 rounded-xl border border-cyan-200 dark:border-cyan-500/20 animate-in slide-in-from-top-2 duration-200">
-                          <div className="space-y-4">
+                        <div className="mt-4 p-6 bg-gradient-to-br from-primary/5 to-emerald-50/50 dark:from-primary/10 dark:to-emerald-500/5 rounded-2xl border-2 border-primary/20 dark:border-primary/30 animate-in slide-in-from-top-2 duration-200 shadow-sm">
+                          <div className="space-y-5">
                             {/* Custom Domain Input */}
                             <div>
                               <label className={labelClass}>Custom Domain</label>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                                Enter your domain (e.g., store.yourbrand.com)
+                              <p className="text-sm text-muted-foreground mb-3">
+                                Enter the domain you want to connect to your store
                               </p>
                               <div className="relative">
                                 <input
                                   {...storeSetupForm.register('customDomain')}
                                   placeholder="store.yourbrand.com"
-                                  className={`w-full h-14 px-5 pr-12 text-base bg-white dark:bg-white/5 border rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 transition-all ${
+                                  className={`w-full h-14 px-5 pr-12 text-base bg-white dark:bg-white/5 border-2 rounded-xl text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 transition-all ${
                                     customDomainValidation.isValid === true
                                       ? 'border-emerald-500 focus:border-emerald-500 focus:ring-emerald-500/20'
                                       : customDomainValidation.isValid === false
                                         ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                                        : 'border-gray-200 dark:border-white/10 focus:border-cyan-500 focus:ring-cyan-500/20'
+                                        : 'border-warm-200 dark:border-white/10 focus:border-primary focus:ring-primary/20'
                                   }`}
                                 />
                                 {/* Validation status icon */}
                                 <div className="absolute right-4 top-1/2 -translate-y-1/2">
                                   {customDomainValidation.isChecking ? (
-                                    <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+                                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
                                   ) : customDomainValidation.isValid === true ? (
                                     customDomainValidation.dnsConfigured ? (
                                       <Check className="w-5 h-5 text-emerald-500" />
@@ -2207,7 +2207,7 @@ export default function OnboardingPage() {
                                       ? 'text-amber-600 dark:text-amber-400'
                                       : customDomainValidation.isValid === false
                                         ? 'text-red-500 dark:text-red-400'
-                                        : 'text-gray-500 dark:text-gray-400'
+                                        : 'text-muted-foreground'
                                 }`}>
                                   {customDomainValidation.isValid === true && customDomainValidation.dnsConfigured && <Check className="w-4 h-4" />}
                                   {customDomainValidation.isValid === true && !customDomainValidation.dnsConfigured && <AlertCircle className="w-4 h-4" />}
@@ -2219,64 +2219,71 @@ export default function OnboardingPage() {
 
                             {/* DNS Configuration Instructions */}
                             {customDomainValidation.isValid === true && customDomainValidation.verificationRecord && (
-                              <div className="p-4 bg-white dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10">
-                                <div className="flex items-center gap-2 mb-3">
-                                  <ExternalLink className="w-4 h-4 text-cyan-500" />
-                                  <p className="text-sm font-semibold text-gray-900 dark:text-white">DNS Configuration Required</p>
-                                </div>
-                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
-                                  Add this DNS record to your domain provider to verify ownership:
-                                </p>
-                                <div className="space-y-2">
-                                  <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-white/5 rounded-lg">
-                                    <div>
-                                      <p className="text-xs text-gray-500 dark:text-gray-400">Type</p>
-                                      <p className="text-sm font-mono font-medium text-gray-900 dark:text-white">{customDomainValidation.verificationRecord.type}</p>
-                                    </div>
-                                    <div className="flex-1 mx-4">
-                                      <p className="text-xs text-gray-500 dark:text-gray-400">Host / Name</p>
-                                      <p className="text-sm font-mono font-medium text-gray-900 dark:text-white truncate">{customDomainValidation.verificationRecord.host}</p>
-                                    </div>
-                                    <div className="flex-1">
-                                      <p className="text-xs text-gray-500 dark:text-gray-400">Value / Points to</p>
-                                      <p className="text-sm font-mono font-medium text-gray-900 dark:text-white truncate">{customDomainValidation.verificationRecord.value}</p>
-                                    </div>
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        navigator.clipboard.writeText(customDomainValidation.verificationRecord?.value || '');
-                                      }}
-                                      className="p-2 text-gray-400 hover:text-cyan-500 transition-colors"
-                                      title="Copy value"
-                                    >
-                                      <Copy className="w-4 h-4" />
-                                    </button>
+                              <div className="p-5 bg-white dark:bg-white/5 rounded-xl border-2 border-warm-200 dark:border-white/10 shadow-sm">
+                                <div className="flex items-center gap-2 mb-4">
+                                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                                    <ExternalLink className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-semibold text-foreground">DNS Configuration Required</p>
+                                    <p className="text-xs text-muted-foreground">Add this record to your domain provider</p>
                                   </div>
                                 </div>
-                                <p className="mt-3 text-xs text-gray-400 dark:text-gray-500">
-                                  DNS changes can take up to 48 hours to propagate. You can complete setup now and verify the domain later in Settings.
+                                <div className="bg-warm-50 dark:bg-white/5 rounded-lg p-4 space-y-3">
+                                  <div className="grid grid-cols-3 gap-4">
+                                    <div>
+                                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Type</p>
+                                      <p className="text-sm font-mono font-semibold text-foreground bg-white dark:bg-white/10 px-3 py-2 rounded-lg">{customDomainValidation.verificationRecord.type}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Host / Name</p>
+                                      <p className="text-sm font-mono font-semibold text-foreground bg-white dark:bg-white/10 px-3 py-2 rounded-lg truncate">{customDomainValidation.verificationRecord.host}</p>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Value</p>
+                                      <div className="flex items-center gap-2">
+                                        <p className="text-sm font-mono font-semibold text-foreground bg-white dark:bg-white/10 px-3 py-2 rounded-lg truncate flex-1">{customDomainValidation.verificationRecord.value}</p>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            navigator.clipboard.writeText(customDomainValidation.verificationRecord?.value || '');
+                                          }}
+                                          className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                                          title="Copy value"
+                                        >
+                                          <Copy className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <p className="mt-4 text-xs text-muted-foreground flex items-start gap-2">
+                                  <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
+                                  <span>DNS changes can take up to 48 hours to propagate. You can complete setup now and verify the domain later in Settings.</span>
                                 </p>
                               </div>
                             )}
 
                             {/* Cancel custom domain */}
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setShowCustomDomainSection(false);
-                                storeSetupForm.setValue('useCustomDomain', false);
-                                storeSetupForm.setValue('customDomain', '');
-                                setCustomDomainValidation({
-                                  isChecking: false,
-                                  isValid: null,
-                                  dnsConfigured: false,
-                                  message: '',
-                                });
-                              }}
-                              className="text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 underline"
-                            >
-                              Skip custom domain for now
-                            </button>
+                            <div className="flex justify-center pt-2">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setShowCustomDomainSection(false);
+                                  storeSetupForm.setValue('useCustomDomain', false);
+                                  storeSetupForm.setValue('customDomain', '');
+                                  setCustomDomainValidation({
+                                    isChecking: false,
+                                    isValid: null,
+                                    dnsConfigured: false,
+                                    message: '',
+                                  });
+                                }}
+                                className="text-sm text-muted-foreground hover:text-foreground transition-colors px-4 py-2 rounded-lg hover:bg-warm-100 dark:hover:bg-white/5"
+                              >
+                                ← Skip custom domain for now
+                              </button>
+                            </div>
                           </div>
                         </div>
                       )}
