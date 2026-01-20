@@ -214,6 +214,7 @@ const navigation: NavItem[] = [
     children: [
       { name: "Staff", href: "/staff" },
       { name: "Departments", href: "/staff/departments" },
+      { name: "Teams", href: "/staff/teams" },
       { name: "Roles", href: "/staff/roles" },
       { name: "Delegations", href: "/staff/delegations" },
       { name: "Tickets", href: "/tickets", minRole: "member" }, // Tickets visible to member+
