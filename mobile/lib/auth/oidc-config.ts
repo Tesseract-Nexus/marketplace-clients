@@ -12,15 +12,15 @@ import Constants from 'expo-constants';
 const KEYCLOAK_CONFIG = {
   development: {
     issuerUrl: 'https://devtest-customer-idp.tesserix.app/realms/tesserix-customer',
-    clientId: 'tesserix-mobile',
+    clientId: 'storefront-mobile',
   },
   staging: {
     issuerUrl: 'https://staging-customer-idp.tesserix.app/realms/tesserix-customer',
-    clientId: 'tesserix-mobile',
+    clientId: 'storefront-mobile',
   },
   production: {
     issuerUrl: 'https://customer-idp.tesserix.app/realms/tesserix-customer',
-    clientId: 'tesserix-mobile',
+    clientId: 'storefront-mobile',
   },
 } as const;
 

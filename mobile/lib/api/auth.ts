@@ -1,6 +1,8 @@
 import { ENDPOINTS } from '../constants';
 
 import { apiGet, apiPost } from './client';
+import oidcClient, { getUserInfo, decodeAccessToken } from '../auth/oidc-client';
+import { secureStorage } from '../utils/secure-storage';
 
 import type {
   LoginRequest,
@@ -16,13 +18,45 @@ import type { User } from '@/types/entities';
 
 export const authApi = {
   /**
-   * Login with email and password
-   * Note: Auth endpoints return data directly, not wrapped in ApiResponse
+   * Login with email and password using Keycloak OIDC
+   * Uses Resource Owner Password Credentials (ROPC) grant for native login form
    */
   login: async (data: LoginRequest): Promise<LoginResponse> => {
-    const response = await apiPost<LoginResponse>(ENDPOINTS.AUTH.LOGIN, data);
-    // Auth API returns data directly, not wrapped in {data: ...}
-    return response as unknown as LoginResponse;
+    console.log('[Auth API] Starting login with OIDC...');
+
+    // Authenticate directly with Keycloak using ROPC grant
+    const tokens = await oidcClient.directLogin(data.email, data.password);
+
+    // Decode access token to get basic user info
+    const claims = decodeAccessToken(tokens.access_token);
+
+    // Get full user info from Keycloak userinfo endpoint
+    const userInfo = await getUserInfo(tokens.access_token);
+
+    console.log('[Auth API] Got user info:', userInfo.email, 'sub:', userInfo.sub);
+
+    // Build user object from Keycloak claims
+    const user: User = {
+      id: userInfo.sub,
+      email: userInfo.email || data.email,
+      first_name: userInfo.given_name || '',
+      last_name: userInfo.family_name || '',
+      role: 'customer',
+      status: 'active',
+      email_verified: userInfo.email_verified || false,
+      phone_verified: false,
+      two_factor_enabled: false,
+      tenant_id: userInfo.tenant_id || claims.tenant_id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    return {
+      user,
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token || '',
+      expires_in: tokens.expires_in,
+    };
   },
 
   /**
@@ -42,14 +76,17 @@ export const authApi = {
   },
 
   /**
-   * Refresh access token
+   * Refresh access token using Keycloak
    */
   refresh: async (refreshToken: string): Promise<RefreshTokenResponse> => {
-    const response = await apiPost<RefreshTokenResponse>(ENDPOINTS.AUTH.REFRESH, {
-      refresh_token: refreshToken,
-    });
-    // Auth API returns data directly, not wrapped in {data: ...}
-    return response as unknown as RefreshTokenResponse;
+    console.log('[Auth API] Refreshing token with OIDC...');
+    const tokens = await oidcClient.refreshTokens(refreshToken);
+
+    return {
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token || refreshToken,
+      expires_in: tokens.expires_in,
+    };
   },
 
   /**
@@ -81,11 +118,39 @@ export const authApi = {
   },
 
   /**
-   * Get current user
+   * Get current user from Keycloak userinfo
    */
   me: async (): Promise<User> => {
-    const response = await apiGet<User>(ENDPOINTS.AUTH.ME);
-    // Auth API returns data directly, not wrapped in {data: ...}
-    return response as unknown as User;
+    console.log('[Auth API] Getting user info from OIDC...');
+
+    // Get the stored access token
+    const accessToken = await secureStorage.getItem('tesseract_access_token');
+    if (!accessToken) {
+      throw new Error('No access token available');
+    }
+
+    // Get user info from Keycloak
+    const userInfo = await getUserInfo(accessToken);
+    const claims = decodeAccessToken(accessToken);
+
+    console.log('[Auth API] Got user info:', userInfo.email);
+
+    // Build user object
+    const user: User = {
+      id: userInfo.sub,
+      email: userInfo.email || '',
+      first_name: userInfo.given_name || '',
+      last_name: userInfo.family_name || '',
+      role: 'customer',
+      status: 'active',
+      email_verified: userInfo.email_verified || false,
+      phone_verified: false,
+      two_factor_enabled: false,
+      tenant_id: userInfo.tenant_id || claims.tenant_id,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    return user;
   },
 };

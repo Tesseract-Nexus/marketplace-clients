@@ -384,6 +384,62 @@ export function getTokenExpiration(token: string): number {
   return claims.exp;
 }
 
+/**
+ * Direct login using Resource Owner Password Credentials (ROPC) grant
+ * This allows native login form without redirecting to Keycloak
+ *
+ * Note: Requires "Direct Access Grants" enabled on the Keycloak client
+ */
+export async function directLogin(
+  email: string,
+  password: string
+): Promise<OIDCTokenResponse> {
+  try {
+    console.log('[OIDC] Starting direct login for:', email);
+
+    const response = await fetch(OIDC_CONFIG.discovery.tokenEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        grant_type: 'password',
+        client_id: OIDC_CONFIG.clientId,
+        username: email,
+        password: password,
+        scope: OIDC_CONFIG.scopes.join(' '),
+      }).toString(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        error: 'invalid_grant',
+        error_description: 'Authentication failed',
+      }));
+
+      console.error('[OIDC] Direct login failed:', error);
+
+      // Map Keycloak errors to user-friendly messages
+      if (error.error === 'invalid_grant') {
+        throw new Error('Invalid email or password');
+      }
+      if (error.error === 'unauthorized_client') {
+        throw new Error('Authentication service unavailable');
+      }
+
+      throw new Error(error.error_description || error.error || 'Login failed');
+    }
+
+    const tokens: OIDCTokenResponse = await response.json();
+    console.log('[OIDC] Direct login successful, got tokens');
+
+    return tokens;
+  } catch (error) {
+    console.error('[OIDC] Direct login error:', error);
+    throw error;
+  }
+}
+
 export default {
   startAuthFlow,
   refreshTokens,
@@ -393,4 +449,5 @@ export default {
   decodeAccessToken,
   isTokenExpired,
   getTokenExpiration,
+  directLogin,
 };
