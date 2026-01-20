@@ -45,15 +45,65 @@ export async function POST(request: NextRequest) {
       return errorResponse('Invalid domain', 400);
     }
 
-    // Clean the domain (remove protocol, trailing slashes)
+    // Clean the domain (remove protocol, trailing slashes, whitespace)
     const cleanDomain = body.domain
       .toLowerCase()
       .replace(/^https?:\/\//, '')
       .replace(/\/$/, '')
+      .replace(/\s/g, '')
       .trim();
 
-    // Basic domain format validation
-    const domainRegex = /^(?!:\/\/)([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+    // RFC 1035: Domain name max length is 253 characters
+    if (cleanDomain.length > 253) {
+      return NextResponse.json({
+        data: {
+          valid: false,
+          available: false,
+          dns_configured: false,
+          message: 'Domain name is too long. Maximum length is 253 characters.',
+        },
+      });
+    }
+
+    // RFC 1123: Each label (part between dots) max 63 characters, cannot start/end with hyphen
+    const labels = cleanDomain.split('.');
+    for (const label of labels) {
+      if (label.length > 63) {
+        return NextResponse.json({
+          data: {
+            valid: false,
+            available: false,
+            dns_configured: false,
+            message: 'Domain label is too long. Each part between dots must be 63 characters or less.',
+          },
+        });
+      }
+      if (label.startsWith('-') || label.endsWith('-')) {
+        return NextResponse.json({
+          data: {
+            valid: false,
+            available: false,
+            dns_configured: false,
+            message: 'Domain labels cannot start or end with a hyphen.',
+          },
+        });
+      }
+    }
+
+    // Check for punycode (internationalized domain names) - block for now to prevent homograph attacks
+    if (cleanDomain.includes('xn--')) {
+      return NextResponse.json({
+        data: {
+          valid: false,
+          available: false,
+          dns_configured: false,
+          message: 'Internationalized domain names (IDN/punycode) are not currently supported.',
+        },
+      });
+    }
+
+    // Basic domain format validation (ASCII only)
+    const domainRegex = /^(?!:\/\/)([a-z0-9-]+\.)+[a-z]{2,}$/;
     if (!domainRegex.test(cleanDomain)) {
       return NextResponse.json({
         data: {
@@ -65,11 +115,45 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Check if domain is a reserved/blocked domain
-    const blockedDomains = ['tesserix.app', 'tesserix.com', 'localhost'];
-    const isBlocked = blockedDomains.some(blocked =>
-      cleanDomain === blocked || cleanDomain.endsWith(`.${blocked}`)
-    );
+    // Expanded blocked domains list for security
+    const blockedDomains = [
+      // Our own domains
+      'tesserix.app',
+      'tesserix.com',
+      'tesserix.io',
+      'tesserix.net',
+      'tesserix.org',
+      // Local/internal domains
+      'localhost',
+      'local',
+      'internal',
+      'intranet',
+      'corp',
+      'home',
+      'lan',
+      // IP-based domains that could bypass restrictions
+      'nip.io',
+      'sslip.io',
+      'xip.io',
+      // Common test/example domains
+      'example.com',
+      'example.org',
+      'example.net',
+      'test.com',
+      'invalid',
+      // Government/sensitive TLDs (shouldn't be used for storefronts)
+      'gov',
+      'mil',
+      'edu',
+    ];
+
+    const isBlocked = blockedDomains.some(blocked => {
+      const lowerBlocked = blocked.toLowerCase();
+      return (
+        cleanDomain === lowerBlocked ||
+        cleanDomain.endsWith(`.${lowerBlocked}`)
+      );
+    });
 
     if (isBlocked) {
       return NextResponse.json({
@@ -77,7 +161,7 @@ export async function POST(request: NextRequest) {
           valid: false,
           available: false,
           dns_configured: false,
-          message: 'This domain is reserved and cannot be used',
+          message: 'This domain is reserved or not allowed for storefront use.',
         },
       });
     }
@@ -102,15 +186,33 @@ export async function POST(request: NextRequest) {
 
       if (response.ok) {
         const data = await response.json();
-        return NextResponse.json({ data });
+        // Sanitize response - only return expected fields
+        const sanitizedData: ValidateCustomDomainResponse = {
+          valid: Boolean(data.valid),
+          available: Boolean(data.available),
+          dns_configured: Boolean(data.dns_configured),
+          message: typeof data.message === 'string' ? data.message : undefined,
+        };
+        if (data.verification_record) {
+          sanitizedData.verification_record = {
+            type: String(data.verification_record.type || 'CNAME'),
+            host: String(data.verification_record.host || ''),
+            value: String(data.verification_record.value || ''),
+            ttl: Number(data.verification_record.ttl) || 3600,
+          };
+        }
+        return NextResponse.json({ data: sanitizedData });
       }
 
       // If service is unavailable, return basic validation result
       // The domain can still be registered and verified later
-      console.warn(`[Custom Domain] Service returned ${response.status}, using basic validation`);
-    } catch (serviceError) {
+      // Note: Logging status code only, no sensitive data
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`[Custom Domain] Service returned status ${response.status}`);
+      }
+    } catch {
       // Service might not be available, continue with basic validation
-      console.warn('[Custom Domain] Service unavailable, using basic validation:', serviceError);
+      // Note: Not logging error details to avoid exposing internal information
     }
 
     // Return basic validation result if service is unavailable
@@ -132,11 +234,11 @@ export async function POST(request: NextRequest) {
       } as ValidateCustomDomainResponse,
     });
   } catch (error) {
-    console.error('[Custom Domain Validation] Error:', error);
-    return errorResponse(
-      'Failed to validate domain',
-      500,
-      process.env.NODE_ENV === 'development' ? { error: String(error) } : undefined
-    );
+    // Log error internally but don't expose details to client
+    if (process.env.NODE_ENV === 'development') {
+      console.error('[Custom Domain Validation] Error:', error instanceof Error ? error.message : 'Unknown error');
+    }
+    // Return generic error message without internal details
+    return errorResponse('Failed to validate domain', 500);
   }
 }

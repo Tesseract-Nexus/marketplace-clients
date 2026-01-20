@@ -92,29 +92,33 @@ export async function proxyRequest(
     const response = await fetch(url, fetchOptions);
     const data = await response.json().catch(() => ({}));
 
-    // Log response status (in development)
+    // Log response status only (no data to avoid PII exposure)
     if (process.env.NODE_ENV === 'development') {
-      console.log(`[API] Response ${response.status} [${requestId}]`, data);
+      console.log(`[API] Response ${response.status} [${requestId}]`);
     }
 
     // If backend returned an error
     if (!response.ok) {
-      return errorResponse(
-        data.error?.message || data.message || 'Backend service error',
-        response.status,
-        data
-      );
+      // Extract safe error message - don't expose internal details
+      const safeMessage = typeof data.error?.message === 'string'
+        ? data.error.message
+        : typeof data.message === 'string'
+          ? data.message
+          : 'Request failed';
+
+      // Don't pass raw backend data to client - could contain sensitive info
+      return errorResponse(safeMessage, response.status);
     }
 
     // Return backend response directly (don't double-wrap)
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    console.error(`[API Error] ${method} ${url}:`, error);
-    return errorResponse(
-      'Failed to communicate with backend service',
-      503,
-      process.env.NODE_ENV === 'development' ? { error: String(error) } : undefined
-    );
+    // Log error message only, not full stack trace or sensitive details
+    if (process.env.NODE_ENV === 'development') {
+      console.error(`[API Error] ${method} [${requestId}]:`, error instanceof Error ? error.message : 'Unknown error');
+    }
+    // Return generic error without exposing internal details
+    return errorResponse('Failed to communicate with backend service', 503);
   }
 }
 
