@@ -13,7 +13,7 @@ export function calculatePasswordStrength(password: string): PasswordStrengthRes
       strength: 'weak',
       score: 0,
       feedback: ['Enter a password'],
-      color: 'text-gray-400',
+      color: 'text-foreground-tertiary',
     };
   }
 
@@ -68,13 +68,13 @@ export function calculatePasswordStrength(password: string): PasswordStrengthRes
     color = 'text-red-500';
   } else if (score <= 3) {
     strength = 'fair';
-    color = 'text-orange-500';
+    color = 'text-warm-600';
   } else if (score <= 4) {
     strength = 'good';
-    color = 'text-yellow-500';
+    color = 'text-terracotta-600';
   } else {
     strength = 'strong';
-    color = 'text-green-500';
+    color = 'text-sage-600';
   }
 
   return {
@@ -90,13 +90,13 @@ export function getPasswordStrengthBarColor(strength: PasswordStrength): string 
     case 'weak':
       return 'bg-red-500';
     case 'fair':
-      return 'bg-orange-500';
+      return 'bg-warm-500';
     case 'good':
-      return 'bg-yellow-500';
+      return 'bg-terracotta-500';
     case 'strong':
-      return 'bg-green-500';
+      return 'bg-sage-500';
     default:
-      return 'bg-gray-300';
+      return 'bg-warm-300';
   }
 }
 

@@ -284,7 +284,7 @@ export function AddressAutocomplete({
           {isLoading || isGettingLocation ? (
             <Loader2 className="w-5 h-5 animate-spin" />
           ) : selectedAddress ? (
-            <CheckCircle className="w-5 h-5 text-green-500" />
+            <CheckCircle className="w-5 h-5 text-sage-600" />
           ) : (
             <Search className="w-5 h-5" />
           )}
@@ -305,7 +305,7 @@ export function AddressAutocomplete({
             border-[var(--border)]
             focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/20
             transition-all duration-200
-            ${selectedAddress ? 'border-green-500 focus:border-green-500 focus:ring-green-500/20' : ''}
+            ${selectedAddress ? 'border-sage-500 focus:border-sage-500 focus:ring-sage-500/20' : ''}
             ${error ? 'border-red-500 focus:border-red-500 focus:ring-red-500/20' : ''}
           `}
         />
@@ -324,14 +324,14 @@ export function AddressAutocomplete({
 
       {/* Selected Address Display */}
       {selectedAddress && (
-        <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+        <div className="mt-2 p-3 bg-sage-50 border border-sage-200 rounded-lg">
           <div className="flex items-start gap-2">
-            <MapPin className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+            <MapPin className="w-4 h-4 text-sage-600 mt-0.5 flex-shrink-0" />
             <div className="flex-1 text-sm">
-              <p className="font-medium text-green-800 dark:text-green-200">
+              <p className="font-medium text-sage-700">
                 {selectedAddress.formattedAddress}
               </p>
-              <p className="text-green-600 dark:text-green-400 text-xs mt-1">
+              <p className="text-sage-600 text-xs mt-1">
                 Address selected - fields will be auto-filled
               </p>
             </div>
@@ -341,8 +341,8 @@ export function AddressAutocomplete({
 
       {/* Error Display */}
       {error && (
-        <div className="mt-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-          <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+        <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-sm text-red-600">{error}</p>
         </div>
       )}
 

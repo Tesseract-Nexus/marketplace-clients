@@ -3,14 +3,39 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const alertVariants = cva(
-  'relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4 [&>svg]:text-current',
+  [
+    "relative w-full rounded-lg border p-4",
+    "[&>svg~*]:pl-8 [&>svg+div]:translate-y-[-2px]",
+    "[&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4",
+    "transition-colors duration-200",
+  ].join(" "),
   {
     variants: {
       variant: {
-        default: 'bg-white text-foreground',
-        destructive: 'border-red-500/50 text-red-600 [&>svg]:text-red-600',
-        warning: 'border-yellow-500/50 bg-yellow-50 text-yellow-700 [&>svg]:text-yellow-600',
-        success: 'border-green-500/50 bg-green-50 text-green-700 [&>svg]:text-green-600',
+        default: [
+          "bg-card text-card-foreground border-border",
+          "[&>svg]:text-muted-foreground",
+        ].join(" "),
+        destructive: [
+          "bg-destructive/5 border-destructive/20",
+          "text-destructive",
+          "[&>svg]:text-destructive",
+        ].join(" "),
+        warning: [
+          "bg-warning/5 border-warning/20",
+          "text-warm-800",
+          "[&>svg]:text-warning",
+        ].join(" "),
+        success: [
+          "bg-success/5 border-success/20",
+          "text-sage-800",
+          "[&>svg]:text-success",
+        ].join(" "),
+        info: [
+          "bg-terracotta-50 border-terracotta-200",
+          "text-terracotta-800",
+          "[&>svg]:text-terracotta-600",
+        ].join(" "),
       },
     },
     defaultVariants: {
@@ -38,7 +63,7 @@ const AlertTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h5
     ref={ref}
-    className={cn('mb-1 font-medium leading-none tracking-tight', className)}
+    className={cn('mb-1.5 font-medium leading-tight', className)}
     {...props}
   />
 ));
@@ -50,7 +75,7 @@ const AlertDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn('text-sm [&_p]:leading-relaxed', className)}
+    className={cn('text-sm leading-relaxed opacity-90 [&_p]:leading-relaxed', className)}
     {...props}
   />
 ));

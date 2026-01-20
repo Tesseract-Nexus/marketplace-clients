@@ -9,7 +9,6 @@ import { DocumentsSection } from '../../components/DocumentsSection';
 import { VerificationScore, useVerificationScore } from '../../components/VerificationScore';
 import { type UploadedDocument } from '../../components/DocumentUpload';
 import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText } from 'lucide-react';
-import { ThemeToggle } from '../../components/theme-toggle';
 import { useOnboardingStore, type DetectedLocation, type PersistedDocument } from '../../lib/store/onboarding-store';
 import { businessInfoSchema, contactDetailsSchema, businessAddressSchema, storeSetupSchema, MARKETPLACE_PLATFORMS, type BusinessInfoForm, type ContactDetailsForm, type BusinessAddressForm, type StoreSetupForm } from '../../lib/validations/onboarding';
 import { onboardingApi, OnboardingAPIError } from '../../lib/api/onboarding';
@@ -20,6 +19,12 @@ import { getBrowserGeolocation, reverseGeocode, checkGeolocationPermission } fro
 import { useAutoSave, useBrowserClose, useDraftRecovery, type DraftFormData } from '../../lib/hooks';
 import { config } from '../../lib/config/app';
 import { getCountryDefaults } from '../../lib/utils/country-defaults';
+
+// Development-only logging utility
+const isDev = process.env.NODE_ENV === 'development';
+const devLog = (...args: unknown[]) => isDev && console.log(...args);
+const devWarn = (...args: unknown[]) => isDev && console.warn(...args);
+const devError = (...args: unknown[]) => isDev && console.error(...args);
 
 // Default base domain for subdomain-based URLs (will be updated from runtime config)
 // URL format: {subdomain}-admin.{baseDomain}
@@ -73,10 +78,10 @@ const JOB_TITLES = [
 ];
 
 const steps = [
-  { id: 0, label: 'Business', icon: Building2, gradient: 'from-blue-500 to-indigo-600' },
-  { id: 1, label: 'Contact', icon: User, gradient: 'from-emerald-500 to-teal-600' },
-  { id: 2, label: 'Address', icon: MapPin, gradient: 'from-purple-500 to-pink-600' },
-  { id: 3, label: 'Launch', icon: Settings, gradient: 'from-amber-500 to-orange-600' },
+  { id: 0, label: 'Your Business', icon: Building2 },
+  { id: 1, label: 'About You', icon: User },
+  { id: 2, label: 'Location', icon: MapPin },
+  { id: 3, label: 'Launch', icon: Settings },
 ];
 
 export default function OnboardingPage() {
@@ -424,7 +429,7 @@ export default function OnboardingPage() {
           }
         }
       } catch (error) {
-        console.warn('[Config] Failed to fetch domain config, using default:', error);
+        devWarn('[Config] Failed to fetch domain config, using default:', error);
       }
     };
     fetchDomainConfig();
@@ -456,7 +461,7 @@ export default function OnboardingPage() {
     if (cleanupInProgressRef.current) return;
     cleanupInProgressRef.current = true;
 
-    console.warn('[Onboarding] Session not found, clearing stale session data');
+    devWarn('[Onboarding] Session not found, clearing stale session data');
     // Clear the stale session from localStorage
     localStorage.removeItem('tenant-onboarding-store');
     // Reset the Zustand store completely (clears in-memory state)
@@ -594,9 +599,9 @@ export default function OnboardingPage() {
         message: '',
         suggestions: [],
       });
-      console.log('[Onboarding] Started fresh - all data cleared');
+      devLog('[Onboarding] Started fresh - all data cleared');
     } catch (error) {
-      console.error('[Onboarding] Failed to start fresh:', error);
+      devError('[Onboarding] Failed to start fresh:', error);
     }
   }, [sessionId, deleteDraft, resetOnboarding, businessForm, contactForm, addressForm, storeSetupForm, setAddressProofType, setAddressProofDocument, setBusinessProofType, setBusinessProofDocument, setLogoDocument]);
 
@@ -649,7 +654,7 @@ export default function OnboardingPage() {
         if (reverseGeocodeData?.countryCode && reverseGeocodeData.countryCode !== location.country) {
           try {
             const countryData = await locationApi.getCountry(reverseGeocodeData.countryCode);
-            if (countryData) browserCountryDetails = { calling_code: countryData.calling_code, currency: countryData.currency, flag_emoji: countryData.flag_emoji };
+            if (countryData) browserCountryDetails = { calling_code: countryData.phone_code, flag_emoji: countryData.flag };
           } catch {}
         }
         const detectedLoc: DetectedLocation = {
@@ -960,7 +965,7 @@ export default function OnboardingPage() {
         email: data.email,
         phone: data.phoneNumber,
         phone_country_code: callingCode,
-        position: data.jobTitle || undefined,
+        job_title: data.jobTitle || undefined,
       });
       analytics.onboarding.contactInfoCompleted({ job_title: data.jobTitle, has_phone: !!data.phoneNumber });
       setContactDetails({
@@ -969,7 +974,7 @@ export default function OnboardingPage() {
         email: data.email,
         phone: data.phoneNumber,
         phone_country_code: callingCode,
-        position: data.jobTitle,
+        job_title: data.jobTitle,
       });
       // Pre-fill address country based on phone country code
       // Always set the country to help users - they can still change it
@@ -1171,63 +1176,72 @@ export default function OnboardingPage() {
   const progress = ((currentSection + 1) / steps.length) * 100;
 
   // Styles
-  const inputClass = "w-full h-14 px-5 text-base bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all";
-  const inputErrorClass = "w-full h-14 px-5 text-base bg-red-50 dark:bg-red-500/10 border border-red-300 dark:border-red-500/50 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20";
-  const selectClass = "w-full h-14 px-5 text-base bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all appearance-none cursor-pointer";
-  const labelClass = "block text-sm font-medium text-gray-600 dark:text-white/70 mb-2";
+  const inputClass = "w-full h-14 px-5 text-base bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-2 focus:ring-ring/20 transition-colors";
+  const inputErrorClass = "w-full h-14 px-5 text-base bg-destructive/5 border border-destructive/50 rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-destructive focus:ring-2 focus:ring-destructive/20";
+  const selectClass = "w-full h-14 px-5 text-base bg-background border border-border rounded-lg text-foreground focus:outline-none focus:border-ring focus:ring-2 focus:ring-ring/20 transition-colors appearance-none cursor-pointer";
+  const labelClass = "block text-sm font-medium text-foreground-secondary mb-2";
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] text-gray-900 dark:text-white transition-colors duration-300">
-      {/* Animated Background */}
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+      {/* Background */}
       <div className="fixed inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-[#0a0a0a] dark:via-[#111] dark:to-[#0a0a0a]" />
-        <div className="absolute top-0 right-1/4 w-[600px] h-[600px] bg-blue-400/5 dark:bg-blue-600/10 rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 left-1/4 w-[500px] h-[500px] bg-purple-400/5 dark:bg-purple-600/10 rounded-full blur-[150px]" />
+        <div className="absolute inset-0 bg-background" />
       </div>
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 bg-white/50 dark:bg-black/50 backdrop-blur-xl border-b border-gray-200 dark:border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <button
             onClick={() => router.push('/')}
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
-            <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold">T</span>
+            <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
+              <span className="text-white font-semibold text-lg">T</span>
             </div>
-            <span className="text-lg font-semibold">Tesseract Hub</span>
+            <span className="text-lg font-serif font-medium text-foreground">Tesseract Hub</span>
           </button>
 
           <div className="flex items-center gap-4">
             {autoSaveState.lastSavedAt && (
-              <div className="flex items-center gap-2 text-sm text-gray-400 dark:text-white/40">
+              <div className="hidden sm:flex items-center gap-2 text-sm text-muted-foreground">
                 {autoSaveState.isSaving ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /><span>Saving...</span></>
                 ) : (
-                  <><Check className="w-4 h-4 text-emerald-500 dark:text-emerald-400" /><span>Progress saved</span></>
+                  <><Check className="w-4 h-4 text-sage-500" /><span>Progress saved</span></>
                 )}
               </div>
             )}
-            <ThemeToggle />
+            <a
+              href="mailto:support@tesseract.com"
+              className="text-sm text-foreground-secondary hover:text-foreground transition-colors"
+            >
+              Need Help?
+            </a>
+            <button
+              onClick={() => router.push('/')}
+              className="text-sm text-foreground-secondary hover:text-foreground transition-colors hidden sm:block"
+            >
+              Exit
+            </button>
           </div>
         </div>
       </header>
 
       {/* Draft Recovery Banner */}
       {draftRecoveryState.hasDraft && (
-        <div className="fixed top-16 left-0 right-0 z-40 bg-gradient-to-r from-blue-600/10 to-purple-600/10 dark:from-blue-600/20 dark:to-purple-600/20 border-b border-gray-200 dark:border-white/10 backdrop-blur-xl py-4 px-6">
+        <div className="fixed top-16 left-0 right-0 z-40 bg-warm-100 border-b border-warm-200 py-4 px-6">
           <div className="max-w-5xl mx-auto flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Sparkles className="w-5 h-5 text-blue-500 dark:text-blue-400" />
-              <p className="text-sm text-gray-700 dark:text-white/80">We found your saved progress!</p>
+              <Sparkles className="w-5 h-5 text-warm-600" />
+              <p className="text-sm text-foreground">We found your saved progress!</p>
             </div>
             <div className="flex items-center gap-3">
-              <button onClick={handleStartFresh} className="text-sm text-gray-500 dark:text-white/50 hover:text-gray-900 dark:hover:text-white transition-colors">
+              <button onClick={handleStartFresh} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                 Start fresh
               </button>
               <button
                 onClick={recoverDraft}
-                className="text-sm bg-gray-900 dark:bg-white text-white dark:text-black px-4 py-1.5 rounded-full font-medium hover:opacity-90 transition-colors"
+                className="text-sm bg-primary text-primary-foreground px-4 py-1.5 rounded-lg font-medium hover:bg-primary-hover transition-colors"
               >
                 Continue
               </button>
@@ -1241,39 +1255,41 @@ export default function OnboardingPage() {
         <div className="max-w-2xl mx-auto">
           {/* Progress Steps */}
           <div className="mb-12">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex items-start justify-center gap-4 sm:gap-6 mb-8">
               {steps.map((step, index) => {
                 const isCompleted = index < currentSection;
                 const isActive = index === currentSection;
                 const Icon = step.icon;
                 return (
-                  <div key={step.id} className="flex items-center">
+                  <div key={step.id} className="flex items-start">
                     <div className="flex flex-col items-center">
-                      <div className={`w-14 h-14 rounded-2xl flex items-center justify-center transition-all duration-500 ${
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
                         isCompleted
-                          ? 'bg-emerald-500 shadow-lg shadow-emerald-500/30'
+                          ? 'bg-sage-500'
                           : isActive
-                            ? `bg-gradient-to-br ${step.gradient} shadow-lg shadow-blue-500/20`
-                            : 'bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10'
+                            ? 'bg-primary'
+                            : 'bg-warm-100 border border-warm-200'
                       }`}>
                         {isCompleted ? (
-                          <Check className="w-6 h-6 text-white" />
+                          <Check className="w-5 h-5 text-white" />
                         ) : (
-                          <Icon className={`w-6 h-6 ${isActive ? 'text-white' : 'text-gray-400 dark:text-white/40'}`} />
+                          <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-warm-500'}`} />
                         )}
                       </div>
-                      <span className={`text-xs font-medium mt-3 ${
-                        isActive || isCompleted ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-white/40'
+                      <span className={`text-xs font-medium mt-2.5 text-center ${
+                        isActive || isCompleted ? 'text-foreground' : 'text-muted-foreground'
                       }`}>
                         {step.label}
                       </span>
                     </div>
                     {index < steps.length - 1 && (
-                      <div className="w-full h-0.5 mx-4 rounded-full overflow-hidden bg-gray-200 dark:bg-white/10">
-                        <div
-                          className="h-full bg-gradient-to-r from-emerald-500 to-blue-500 transition-all duration-500"
-                          style={{ width: index < currentSection ? '100%' : '0%' }}
-                        />
+                      <div className="flex items-center h-12 w-10 sm:w-16 md:w-20 px-2">
+                        <div className="w-full h-0.5 rounded-full overflow-hidden bg-warm-200">
+                          <div
+                            className="h-full bg-sage-500 transition-all duration-500"
+                            style={{ width: index < currentSection ? '100%' : '0%' }}
+                          />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1283,30 +1299,35 @@ export default function OnboardingPage() {
 
             {/* Progress Bar */}
             <div className="relative">
-              <div className="h-1 bg-gray-200 dark:bg-white/5 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-warm-200 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 transition-all duration-700 ease-out"
+                  className="h-full bg-primary transition-all duration-700 ease-out"
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <div className="absolute -top-1 transition-all duration-700" style={{ left: `${progress}%`, transform: 'translateX(-50%)' }}>
-                <div className="w-3 h-3 bg-gray-900 dark:bg-white rounded-full shadow-lg shadow-gray-900/30 dark:shadow-white/50" />
+              <div className="absolute -top-0.5 transition-all duration-700" style={{ left: `${progress}%`, transform: 'translateX(-50%)' }}>
+                <div className="w-2.5 h-2.5 bg-primary rounded-full border-2 border-white shadow-sm" />
               </div>
             </div>
           </div>
 
-          {/* Error Display */}
+          {/* Error Display - Made more visible with stronger background */}
           {Object.keys(validationErrors).length > 0 && (
-            <div className="mb-8 p-5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-2xl backdrop-blur-sm">
+            <div className="mb-8 p-5 bg-red-50 border-2 border-red-200 rounded-xl shadow-sm">
               <div className="flex items-start gap-4">
-                <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                  <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400" />
+                <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0">
+                  <AlertCircle className="w-5 h-5 text-red-600" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-red-600 dark:text-red-400 mb-1">Please fix the following:</h4>
-                  {Object.values(validationErrors).map((error, i) => (
-                    <p key={i} className="text-sm text-gray-600 dark:text-white/60">{error}</p>
-                  ))}
+                  <h4 className="font-medium text-red-700 mb-2">Please fix the following:</h4>
+                  <ul className="space-y-1">
+                    {Object.values(validationErrors).map((error, i) => (
+                      <li key={i} className="text-sm text-red-600 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-400 flex-shrink-0" />
+                        {error}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             </div>
@@ -1314,20 +1335,19 @@ export default function OnboardingPage() {
 
           {/* Form Card */}
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-50 dark:from-white/[0.08] dark:to-white/[0.02] rounded-3xl" />
-            <div className="relative border border-gray-200 dark:border-white/10 rounded-3xl p-8 sm:p-10 backdrop-blur-sm">
+            <div className="bg-card border border-border rounded-2xl p-8 sm:p-10 shadow-card">
 
               {/* Step 1: Business Information */}
               {currentSection === 0 && (
                 <form onSubmit={businessForm.handleSubmit(handleBusinessSubmit)} className="space-y-6" noValidate>
                   <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
-                        <Building2 className="w-6 h-6 text-white" />
+                      <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
+                        <Building2 className="w-6 h-6 text-warm-600" />
                       </div>
                       <div>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Business Information</h1>
-                        <p className="text-gray-500 dark:text-white/50">Tell us about your business</p>
+                        <h1 className="text-2xl font-serif font-medium text-foreground">Tell us about your business</h1>
+                        <p className="text-muted-foreground">We&apos;ll use this to set up your store</p>
                       </div>
                     </div>
                   </div>
@@ -1361,7 +1381,7 @@ export default function OnboardingPage() {
                           enableSearch={false}
                         />
                         {businessForm.formState.errors.businessType && (
-                          <p className="mt-1 text-sm text-red-500">{businessForm.formState.errors.businessType.message}</p>
+                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{businessForm.formState.errors.businessType.message}</p>
                         )}
                       </div>
                       <div>
@@ -1378,7 +1398,7 @@ export default function OnboardingPage() {
                           error={!!businessForm.formState.errors.industryCategory}
                         />
                         {businessForm.formState.errors.industryCategory && (
-                          <p className="mt-1 text-sm text-red-500">{businessForm.formState.errors.industryCategory.message}</p>
+                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{businessForm.formState.errors.industryCategory.message}</p>
                         )}
                       </div>
                     </div>
@@ -1399,27 +1419,27 @@ export default function OnboardingPage() {
                         {...businessForm.register('businessDescription')}
                         placeholder="Tell us what makes your business unique..."
                         rows={3}
-                        className="w-full px-5 py-4 text-base bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all resize-none"
+                        className="w-full px-5 py-4 text-base bg-warm-50 border border-warm-200 rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
                       />
                     </div>
 
                     {/* Existing Store Migration Section */}
-                    <div className="pt-4 border-t border-gray-200 dark:border-white/10">
+                    <div className="pt-4 border-t border-warm-200">
                       <div className="flex items-center gap-3 mb-4">
                         <input
                           type="checkbox"
                           id="hasExistingStore"
                           {...businessForm.register('hasExistingStore')}
-                          className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          className="w-5 h-5 rounded border-warm-300 text-primary focus:ring-primary"
                         />
-                        <label htmlFor="hasExistingStore" className="text-base font-medium text-gray-900 dark:text-white cursor-pointer">
+                        <label htmlFor="hasExistingStore" className="text-base font-medium text-foreground cursor-pointer">
                           I already sell on other platforms
                         </label>
                       </div>
 
                       {businessForm.watch('hasExistingStore') && (
                         <div className="ml-8 space-y-4 animate-in slide-in-from-top-2">
-                          <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                          <p className="text-sm text-muted-foreground mb-3">
                             Select all platforms where you currently sell (we can help migrate your data later)
                           </p>
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -1430,8 +1450,8 @@ export default function OnboardingPage() {
                                   key={platform.id}
                                   className={`flex items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${
                                     isSelected
-                                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10'
-                                      : 'border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
+                                      ? 'border-primary bg-warm-50'
+                                      : 'border-warm-200 hover:border-warm-300'
                                   }`}
                                 >
                                   <input
@@ -1449,11 +1469,11 @@ export default function OnboardingPage() {
                                     className="sr-only"
                                   />
                                   <span className="text-lg">{platform.icon}</span>
-                                  <span className={`text-sm font-medium ${isSelected ? 'text-blue-700 dark:text-blue-300' : 'text-gray-700 dark:text-gray-300'}`}>
+                                  <span className={`text-sm font-medium ${isSelected ? 'text-foreground' : 'text-warm-700'}`}>
                                     {platform.name}
                                   </span>
                                   {isSelected && (
-                                    <Check className="w-4 h-4 text-blue-500 ml-auto" />
+                                    <Check className="w-4 h-4 text-primary ml-auto" />
                                   )}
                                 </label>
                               );
@@ -1461,14 +1481,14 @@ export default function OnboardingPage() {
                           </div>
 
                           {(businessForm.watch('existingStorePlatforms')?.length || 0) > 0 && (
-                            <div className="flex items-center gap-3 mt-4 p-3 bg-amber-50 dark:bg-amber-500/10 rounded-xl border border-amber-200 dark:border-amber-500/20">
+                            <div className="flex items-center gap-3 mt-4 p-3 bg-warm-50 rounded-xl border border-warm-200">
                               <input
                                 type="checkbox"
                                 id="migrationInterest"
                                 {...businessForm.register('migrationInterest')}
-                                className="w-5 h-5 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+                                className="w-5 h-5 rounded border-warm-300 text-primary focus:ring-primary"
                               />
-                              <label htmlFor="migrationInterest" className="text-sm text-amber-800 dark:text-amber-200 cursor-pointer">
+                              <label htmlFor="migrationInterest" className="text-sm text-warm-700 cursor-pointer">
                                 I&apos;m interested in migrating my products & categories to Tesseract Hub
                               </label>
                             </div>
@@ -1482,14 +1502,14 @@ export default function OnboardingPage() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full h-14 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl font-semibold text-white hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2 group"
+                      className="w-full h-14 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
                     >
                       {isLoading ? (
                         <Loader2 className="w-5 h-5 animate-spin" />
                       ) : (
                         <>
                           Continue
-                          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                          <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
                         </>
                       )}
                     </button>
@@ -1502,12 +1522,12 @@ export default function OnboardingPage() {
                 <form onSubmit={contactForm.handleSubmit(handleContactSubmit)} className="space-y-6" noValidate>
                   <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center">
-                        <User className="w-6 h-6 text-white" />
+                      <div className="w-12 h-12 rounded-xl bg-sage-100 flex items-center justify-center">
+                        <User className="w-6 h-6 text-sage-600" />
                       </div>
                       <div>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Contact Information</h1>
-                        <p className="text-gray-500 dark:text-white/50">How can we reach you?</p>
+                        <h1 className="text-2xl font-serif font-medium text-foreground">Now, a bit about you</h1>
+                        <p className="text-muted-foreground">So we know who we're working with</p>
                       </div>
                     </div>
                   </div>
@@ -1522,7 +1542,7 @@ export default function OnboardingPage() {
                           className={contactForm.formState.errors.firstName ? inputErrorClass : inputClass}
                         />
                         {contactForm.formState.errors.firstName && (
-                          <p className="mt-1 text-sm text-red-500">{contactForm.formState.errors.firstName.message}</p>
+                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{contactForm.formState.errors.firstName.message}</p>
                         )}
                       </div>
                       <div>
@@ -1533,7 +1553,7 @@ export default function OnboardingPage() {
                           className={contactForm.formState.errors.lastName ? inputErrorClass : inputClass}
                         />
                         {contactForm.formState.errors.lastName && (
-                          <p className="mt-1 text-sm text-red-500">{contactForm.formState.errors.lastName.message}</p>
+                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{contactForm.formState.errors.lastName.message}</p>
                         )}
                       </div>
                     </div>
@@ -1547,7 +1567,7 @@ export default function OnboardingPage() {
                         className={contactForm.formState.errors.email ? inputErrorClass : inputClass}
                       />
                       {contactForm.formState.errors.email && (
-                        <p className="mt-1 text-sm text-red-500">{contactForm.formState.errors.email.message}</p>
+                        <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{contactForm.formState.errors.email.message}</p>
                       )}
                     </div>
 
@@ -1594,7 +1614,7 @@ export default function OnboardingPage() {
                         enableSearch={false}
                       />
                       {contactForm.formState.errors.jobTitle && (
-                        <p className="mt-1 text-sm text-red-500">{contactForm.formState.errors.jobTitle.message}</p>
+                        <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{contactForm.formState.errors.jobTitle.message}</p>
                       )}
                     </div>
                   </div>
@@ -1603,16 +1623,16 @@ export default function OnboardingPage() {
                     <button
                       type="button"
                       onClick={() => setCurrentSection(0)}
-                      className="flex-1 h-14 border border-gray-300 dark:border-white/20 rounded-xl font-medium text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-all flex items-center justify-center gap-2"
+                      className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                     >
                       <ArrowLeft className="w-5 h-5" /> Back
                     </button>
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="flex-1 h-14 bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl font-semibold text-white hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2 group"
+                      className="flex-1 h-14 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
                     >
-                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>}
+                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" /></>}
                     </button>
                   </div>
                 </form>
@@ -1623,12 +1643,12 @@ export default function OnboardingPage() {
                 <form onSubmit={addressForm.handleSubmit(handleAddressSubmit)} className="space-y-6" noValidate>
                   <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
-                        <MapPin className="w-6 h-6 text-white" />
+                      <div className="w-12 h-12 rounded-xl bg-warm-100 flex items-center justify-center">
+                        <MapPin className="w-6 h-6 text-warm-600" />
                       </div>
                       <div>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Business Address</h1>
-                        <p className="text-gray-500 dark:text-white/50">Where is your business located?</p>
+                        <h1 className="text-2xl font-serif font-medium text-foreground">Where are you based?</h1>
+                        <p className="text-muted-foreground">This helps with taxes and shipping</p>
                       </div>
                     </div>
                   </div>
@@ -1667,7 +1687,7 @@ export default function OnboardingPage() {
                           error={!!addressForm.formState.errors.country}
                         />
                         {addressForm.formState.errors.country && (
-                          <p className="mt-1 text-sm text-red-500">{addressForm.formState.errors.country.message}</p>
+                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{addressForm.formState.errors.country.message}</p>
                         )}
                       </div>
                       <div>
@@ -1688,7 +1708,7 @@ export default function OnboardingPage() {
                           emptyMessage={addressForm.watch('country') ? 'No states found' : 'Select a country first'}
                         />
                         {addressForm.formState.errors.state && (
-                          <p className="mt-1 text-sm text-red-500">{addressForm.formState.errors.state.message}</p>
+                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{addressForm.formState.errors.state.message}</p>
                         )}
                       </div>
                     </div>
@@ -1698,14 +1718,14 @@ export default function OnboardingPage() {
                         <label className={labelClass}>City *</label>
                         <input {...addressForm.register('city')} placeholder="City" className={addressForm.formState.errors.city ? inputErrorClass : inputClass} />
                         {addressForm.formState.errors.city && (
-                          <p className="mt-1 text-sm text-red-500">{addressForm.formState.errors.city.message}</p>
+                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{addressForm.formState.errors.city.message}</p>
                         )}
                       </div>
                       <div>
                         <label className={labelClass}>Postal Code *</label>
                         <input {...addressForm.register('postalCode')} placeholder="12345" className={addressForm.formState.errors.postalCode ? inputErrorClass : inputClass} />
                         {addressForm.formState.errors.postalCode && (
-                          <p className="mt-1 text-sm text-red-500">{addressForm.formState.errors.postalCode.message}</p>
+                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{addressForm.formState.errors.postalCode.message}</p>
                         )}
                       </div>
                     </div>
@@ -1714,18 +1734,18 @@ export default function OnboardingPage() {
                       <label className={labelClass}>Street Address *</label>
                       <input {...addressForm.register('streetAddress')} placeholder="123 Main Street" className={addressForm.formState.errors.streetAddress ? inputErrorClass : inputClass} />
                       {addressForm.formState.errors.streetAddress && (
-                        <p className="mt-1 text-sm text-red-500">{addressForm.formState.errors.streetAddress.message}</p>
+                        <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{addressForm.formState.errors.streetAddress.message}</p>
                       )}
                     </div>
 
-                    <label className="flex items-center gap-3 cursor-pointer p-4 bg-gray-50 dark:bg-white/5 rounded-xl border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 transition-colors">
+                    <label className="flex items-center gap-3 cursor-pointer p-4 bg-muted rounded-lg border border-border hover:border-border-strong transition-colors">
                       <input
                         type="checkbox"
                         checked={addressForm.watch('billingAddressSameAsBusiness') ?? true}
                         onChange={(e) => addressForm.setValue('billingAddressSameAsBusiness', e.target.checked)}
-                        className="w-5 h-5 rounded border-gray-300 dark:border-white/20 text-blue-500 focus:ring-blue-500 bg-white dark:bg-white/10"
+                        className="w-5 h-5 rounded border-border text-primary focus:ring-primary"
                       />
-                      <span className="text-sm text-gray-600 dark:text-white/70">Billing address is the same as business address</span>
+                      <span className="text-sm text-foreground-secondary">Billing address is the same as business address</span>
                     </label>
                   </div>
 
@@ -1733,16 +1753,16 @@ export default function OnboardingPage() {
                     <button
                       type="button"
                       onClick={() => setCurrentSection(1)}
-                      className="flex-1 h-14 border border-gray-300 dark:border-white/20 rounded-xl font-medium text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-all flex items-center justify-center gap-2"
+                      className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                     >
                       <ArrowLeft className="w-5 h-5" /> Back
                     </button>
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="flex-1 h-14 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl font-semibold text-white hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2 group"
+                      className="flex-1 h-14 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
                     >
-                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" /></>}
+                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" /></>}
                     </button>
                   </div>
                 </form>
@@ -1750,15 +1770,15 @@ export default function OnboardingPage() {
 
               {/* Step 4: Store Setup */}
               {currentSection === 3 && (
-                <form onSubmit={storeSetupForm.handleSubmit(handleStoreSetupSubmit, (errors) => console.error('[StoreSetup] Validation errors:', errors))} className="space-y-6" noValidate>
+                <form onSubmit={storeSetupForm.handleSubmit(handleStoreSetupSubmit, (errors) => devError('[StoreSetup] Validation errors:', errors))} className="space-y-6" noValidate>
                   <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-                        <Store className="w-6 h-6 text-white" />
+                      <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
+                        <Store className="w-6 h-6 text-warm-600" />
                       </div>
                       <div>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Store Configuration</h1>
-                        <p className="text-gray-500 dark:text-white/50">Final settings for your store</p>
+                        <h1 className="text-2xl font-serif font-medium text-foreground">Almost there!</h1>
+                        <p className="text-muted-foreground">Just a few more details to get you live</p>
                       </div>
                     </div>
                   </div>
@@ -1767,13 +1787,13 @@ export default function OnboardingPage() {
                     {/* Business Model Selection */}
                     <div>
                       <label className={labelClass}>Business Model *</label>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Choose how you want to sell</p>
+                      <p className="text-xs text-muted-foreground mb-3">Choose how you want to sell</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <label
-                          className={`relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          className={`relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
                             storeSetupForm.watch('businessModel') === 'ONLINE_STORE'
-                              ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10'
-                              : 'border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
+                              ? 'border-primary bg-warm-50'
+                              : 'border-border hover:border-warm-300'
                           }`}
                         >
                           <input
@@ -1782,25 +1802,25 @@ export default function OnboardingPage() {
                             value="ONLINE_STORE"
                             className="sr-only"
                           />
-                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
-                            <Store className="w-5 h-5 text-white" />
+                          <div className="w-10 h-10 rounded-lg bg-warm-100 flex items-center justify-center flex-shrink-0">
+                            <Store className="w-5 h-5 text-warm-600" />
                           </div>
                           <div className="flex-1">
-                            <span className="font-semibold text-gray-900 dark:text-white block">Online Store</span>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">Sell your own products directly to customers (D2C)</span>
+                            <span className="font-medium text-foreground block">Online Store</span>
+                            <span className="text-sm text-muted-foreground">Sell your own products directly to customers (D2C)</span>
                           </div>
                           {storeSetupForm.watch('businessModel') === 'ONLINE_STORE' && (
                             <div className="absolute top-3 right-3">
-                              <Check className="w-5 h-5 text-blue-500" />
+                              <Check className="w-5 h-5 text-primary" />
                             </div>
                           )}
                         </label>
 
                         <label
-                          className={`relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          className={`relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
                             storeSetupForm.watch('businessModel') === 'MARKETPLACE'
-                              ? 'border-purple-500 bg-purple-50 dark:bg-purple-500/10'
-                              : 'border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
+                              ? 'border-primary bg-warm-50'
+                              : 'border-border hover:border-warm-300'
                           }`}
                         >
                           <input
@@ -1809,22 +1829,22 @@ export default function OnboardingPage() {
                             value="MARKETPLACE"
                             className="sr-only"
                           />
-                          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center flex-shrink-0">
-                            <Globe className="w-5 h-5 text-white" />
+                          <div className="w-10 h-10 rounded-lg bg-warm-100 flex items-center justify-center flex-shrink-0">
+                            <Globe className="w-5 h-5 text-warm-600" />
                           </div>
                           <div className="flex-1">
-                            <span className="font-semibold text-gray-900 dark:text-white block">Marketplace</span>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">Multi-vendor platform with commission-based sales</span>
+                            <span className="font-medium text-foreground block">Marketplace</span>
+                            <span className="text-sm text-muted-foreground">Multi-vendor platform with commission-based sales</span>
                           </div>
                           {storeSetupForm.watch('businessModel') === 'MARKETPLACE' && (
                             <div className="absolute top-3 right-3">
-                              <Check className="w-5 h-5 text-purple-500" />
+                              <Check className="w-5 h-5 text-primary" />
                             </div>
                           )}
                         </label>
                       </div>
                       {storeSetupForm.formState.errors.businessModel && (
-                        <p className="mt-2 text-sm text-red-500">{storeSetupForm.formState.errors.businessModel.message}</p>
+                        <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{storeSetupForm.formState.errors.businessModel.message}</p>
                       )}
                     </div>
 
@@ -1839,13 +1859,13 @@ export default function OnboardingPage() {
                               storeSetupForm.setValue('subdomain', slug);
                               setSubdomainManuallyEdited(false);
                             }}
-                            className="text-xs text-blue-500 hover:text-blue-600 font-medium"
+                            className="text-xs text-primary hover:text-foreground font-medium"
                           >
                             Reset to auto-generated
                           </button>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                      <p className="text-xs text-muted-foreground mb-2">
                         Auto-generated from your business name. Edit if you prefer a different URL.
                       </p>
                       <div className="relative">
@@ -1858,26 +1878,26 @@ export default function OnboardingPage() {
                                 storeSetupForm.setValue('subdomain', e.target.value);
                                 setSubdomainManuallyEdited(true);
                               }}
-                              className={`w-full h-14 px-5 pr-12 text-base bg-gray-50 dark:bg-white/5 border rounded-l-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 transition-all ${
+                              className={`w-full h-14 px-5 pr-12 text-base bg-warm-50 border rounded-l-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-all ${
                                 slugValidation.isAvailable === true
-                                  ? 'border-emerald-500 focus:border-emerald-500 focus:ring-emerald-500/20'
+                                  ? 'border-sage-500 focus:border-sage-500 focus:ring-sage-500/20'
                                   : slugValidation.isAvailable === false
                                     ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                                    : 'border-gray-200 dark:border-white/10 focus:border-blue-500 focus:ring-blue-500/20'
+                                    : 'border-warm-200 focus:border-primary focus:ring-primary/20'
                               }`}
                             />
                             {/* Validation status icon */}
                             <div className="absolute right-4 top-1/2 -translate-y-1/2">
                               {slugValidation.isChecking ? (
-                                <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+                                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                               ) : slugValidation.isAvailable === true ? (
-                                <Check className="w-5 h-5 text-emerald-500" />
+                                <Check className="w-5 h-5 text-sage-600" />
                               ) : slugValidation.isAvailable === false ? (
                                 <AlertCircle className="w-5 h-5 text-red-500" />
                               ) : null}
                             </div>
                           </div>
-                          <span className="h-14 px-5 bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10 border-l-0 rounded-r-xl flex items-center text-sm text-gray-500 dark:text-white/50 whitespace-nowrap">
+                          <span className="h-14 px-5 bg-warm-100 border border-warm-200 border-l-0 rounded-r-xl flex items-center text-sm text-muted-foreground whitespace-nowrap">
                             -admin.{baseDomain}
                           </span>
                         </div>
@@ -1886,10 +1906,10 @@ export default function OnboardingPage() {
                         {slugValidation.message && (
                           <p className={`mt-2 text-sm font-medium flex items-center gap-1.5 ${
                             slugValidation.isAvailable === true
-                              ? 'text-emerald-600 dark:text-emerald-400'
+                              ? 'text-emerald-600'
                               : slugValidation.isAvailable === false
-                                ? 'text-red-500 dark:text-red-400'
-                                : 'text-gray-500 dark:text-gray-400'
+                                ? 'text-red-500'
+                                : 'text-muted-foreground'
                           }`}>
                             {slugValidation.isAvailable === true && <Check className="w-4 h-4" />}
                             {slugValidation.isAvailable === false && <AlertCircle className="w-4 h-4" />}
@@ -1899,15 +1919,15 @@ export default function OnboardingPage() {
 
                         {/* Suggestions when not available */}
                         {slugValidation.isAvailable === false && slugValidation.suggestions.length > 0 && (
-                          <div className="mt-3 p-3 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Try one of these available names:</p>
+                          <div className="mt-3 p-3 bg-warm-50 rounded-lg border border-warm-200">
+                            <p className="text-xs text-muted-foreground mb-2">Try one of these available names:</p>
                             <div className="flex flex-wrap gap-2">
                               {slugValidation.suggestions.slice(0, 3).map((suggestion) => (
                                 <button
                                   key={suggestion}
                                   type="button"
                                   onClick={() => storeSetupForm.setValue('subdomain', suggestion)}
-                                  className="px-3 py-1.5 text-sm bg-white dark:bg-white/10 border border-gray-200 dark:border-white/20 rounded-lg hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                  className="px-3 py-1.5 text-sm bg-card border border-warm-200 rounded-lg hover:border-primary hover:bg-warm-50 transition-colors"
                                 >
                                   {suggestion}
                                 </button>
@@ -1930,13 +1950,13 @@ export default function OnboardingPage() {
                               storeSetupForm.setValue('storefrontSlug', slug);
                               setStorefrontSlugManuallyEdited(false);
                             }}
-                            className="text-xs text-blue-500 hover:text-blue-600 font-medium"
+                            className="text-xs text-primary hover:text-foreground font-medium"
                           >
                             Reset to match admin URL
                           </button>
                         )}
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                      <p className="text-xs text-muted-foreground mb-2">
                         Auto-synced with your admin URL. Edit if you prefer a different storefront URL.
                       </p>
                       <div className="relative">
@@ -1949,26 +1969,26 @@ export default function OnboardingPage() {
                                 storeSetupForm.setValue('storefrontSlug', e.target.value);
                                 setStorefrontSlugManuallyEdited(true);
                               }}
-                              className={`w-full h-14 px-5 pr-12 text-base bg-gray-50 dark:bg-white/5 border rounded-l-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 transition-all ${
+                              className={`w-full h-14 px-5 pr-12 text-base bg-warm-50 border rounded-l-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-all ${
                                 storefrontValidation.isAvailable === true
-                                  ? 'border-emerald-500 focus:border-emerald-500 focus:ring-emerald-500/20'
+                                  ? 'border-sage-500 focus:border-sage-500 focus:ring-sage-500/20'
                                   : storefrontValidation.isAvailable === false
                                     ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                                    : 'border-gray-200 dark:border-white/10 focus:border-blue-500 focus:ring-blue-500/20'
+                                    : 'border-warm-200 focus:border-primary focus:ring-primary/20'
                               }`}
                             />
                             {/* Validation status icon */}
                             <div className="absolute right-4 top-1/2 -translate-y-1/2">
                               {storefrontValidation.isChecking ? (
-                                <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+                                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
                               ) : storefrontValidation.isAvailable === true ? (
-                                <Check className="w-5 h-5 text-emerald-500" />
+                                <Check className="w-5 h-5 text-sage-600" />
                               ) : storefrontValidation.isAvailable === false ? (
                                 <AlertCircle className="w-5 h-5 text-red-500" />
                               ) : null}
                             </div>
                           </div>
-                          <span className="h-14 px-5 bg-gray-100 dark:bg-white/10 border border-gray-200 dark:border-white/10 border-l-0 rounded-r-xl flex items-center text-sm text-gray-500 dark:text-white/50 whitespace-nowrap">
+                          <span className="h-14 px-5 bg-warm-100 border border-warm-200 border-l-0 rounded-r-xl flex items-center text-sm text-muted-foreground whitespace-nowrap">
                             .{baseDomain}
                           </span>
                         </div>
@@ -1977,10 +1997,10 @@ export default function OnboardingPage() {
                         {storefrontValidation.message && (
                           <p className={`mt-2 text-sm font-medium flex items-center gap-1.5 ${
                             storefrontValidation.isAvailable === true
-                              ? 'text-emerald-600 dark:text-emerald-400'
+                              ? 'text-emerald-600'
                               : storefrontValidation.isAvailable === false
-                                ? 'text-red-500 dark:text-red-400'
-                                : 'text-gray-500 dark:text-gray-400'
+                                ? 'text-red-500'
+                                : 'text-muted-foreground'
                           }`}>
                             {storefrontValidation.isAvailable === true && <Check className="w-4 h-4" />}
                             {storefrontValidation.isAvailable === false && <AlertCircle className="w-4 h-4" />}
@@ -1990,15 +2010,15 @@ export default function OnboardingPage() {
 
                         {/* Suggestions when not available */}
                         {storefrontValidation.isAvailable === false && storefrontValidation.suggestions.length > 0 && (
-                          <div className="mt-3 p-3 bg-gray-50 dark:bg-white/5 rounded-lg border border-gray-200 dark:border-white/10">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">Try one of these available names:</p>
+                          <div className="mt-3 p-3 bg-warm-50 rounded-lg border border-warm-200">
+                            <p className="text-xs text-muted-foreground mb-2">Try one of these available names:</p>
                             <div className="flex flex-wrap gap-2">
                               {storefrontValidation.suggestions.slice(0, 3).map((suggestion) => (
                                 <button
                                   key={suggestion}
                                   type="button"
                                   onClick={() => storeSetupForm.setValue('storefrontSlug', suggestion)}
-                                  className="px-3 py-1.5 text-sm bg-white dark:bg-white/10 border border-gray-200 dark:border-white/20 rounded-lg hover:border-blue-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                  className="px-3 py-1.5 text-sm bg-card border border-warm-200 rounded-lg hover:border-primary hover:bg-warm-50 transition-colors"
                                 >
                                   {suggestion}
                                 </button>
@@ -2009,7 +2029,7 @@ export default function OnboardingPage() {
 
                         {/* Helper text - only show when no validation message */}
                         {!storefrontValidation.message && (
-                          <p className="mt-2 text-xs text-gray-400 dark:text-gray-500">
+                          <p className="mt-2 text-xs text-muted-foreground">
                             This is your customer-facing store URL. Synced with admin URL by default.
                           </p>
                         )}
@@ -2033,7 +2053,7 @@ export default function OnboardingPage() {
                           error={!!storeSetupForm.formState.errors.currency}
                         />
                         {storeSetupForm.formState.errors.currency && (
-                          <p className="mt-1 text-sm text-red-500">{storeSetupForm.formState.errors.currency.message}</p>
+                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{storeSetupForm.formState.errors.currency.message}</p>
                         )}
                       </div>
                       <div>
@@ -2052,7 +2072,7 @@ export default function OnboardingPage() {
                           error={!!storeSetupForm.formState.errors.timezone}
                         />
                         {storeSetupForm.formState.errors.timezone && (
-                          <p className="mt-1 text-sm text-red-500">{storeSetupForm.formState.errors.timezone.message}</p>
+                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{storeSetupForm.formState.errors.timezone.message}</p>
                         )}
                       </div>
                     </div>
@@ -2079,23 +2099,23 @@ export default function OnboardingPage() {
                         <button
                           type="button"
                           onClick={() => setShowDocumentsSection(!showDocumentsSection)}
-                          className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-500/10 dark:to-purple-500/10 border border-violet-200 dark:border-violet-500/20 rounded-xl hover:border-violet-300 dark:hover:border-violet-500/30 transition-all group"
+                          className="w-full flex items-center justify-between p-4 bg-warm-50 border border-warm-200 rounded-xl hover:border-warm-300 transition-colors group"
                         >
                           <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
                               <FileText className="w-5 h-5 text-white" />
                             </div>
                             <div className="text-left">
-                              <p className="font-semibold text-gray-900 dark:text-white">Documents & Verification</p>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">
+                              <p className="font-semibold text-foreground">Documents & Verification</p>
+                              <p className="text-sm text-muted-foreground">
                                 {config.features.documents.requireAddressProof || config.features.documents.requireBusinessProof
                                   ? 'Required documents for verification'
                                   : 'Optional - increase your trust score'}
                               </p>
                             </div>
                           </div>
-                          <div className={`w-8 h-8 rounded-full bg-white dark:bg-white/10 flex items-center justify-center transition-transform ${showDocumentsSection ? 'rotate-180' : ''}`}>
-                            <ArrowRight className="w-4 h-4 text-gray-400 rotate-90" />
+                          <div className={`w-8 h-8 rounded-full bg-white flex items-center justify-center transition-transform ${showDocumentsSection ? 'rotate-180' : ''}`}>
+                            <ArrowRight className="w-4 h-4 text-muted-foreground rotate-90" />
                           </div>
                         </button>
 
@@ -2133,14 +2153,14 @@ export default function OnboardingPage() {
                     <button
                       type="button"
                       onClick={() => setCurrentSection(2)}
-                      className="flex-1 h-14 border border-gray-300 dark:border-white/20 rounded-xl font-medium text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-white/5 transition-all flex items-center justify-center gap-2"
+                      className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                     >
                       <ArrowLeft className="w-5 h-5" /> Back
                     </button>
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="flex-1 h-14 bg-gradient-to-r from-amber-500 to-orange-600 rounded-xl font-semibold text-white hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2 group"
+                      className="flex-1 h-14 bg-sage-600 hover:bg-sage-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
                     >
                       {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Launch Store <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" /></>}
                     </button>

@@ -77,9 +77,9 @@ const slides = [
     title: 'Everything You Need,',
     titleGradient: 'All-in-One',
     cards: [
-      { icon: Home, title: 'Beautiful Storefront', description: 'Stunning, conversion-optimized stores', features: ['Responsive Design', 'SEO Optimized', 'Fast Loading'], color: 'from-emerald-500 to-teal-600' },
-      { icon: Layers, title: 'Powerful Admin', description: 'Manage your entire business', features: ['92+ Management Pages', 'Real-time Analytics', 'Role-based Access'], color: 'from-purple-500 to-indigo-600' },
-      { icon: Smartphone, title: 'Native Mobile App', description: 'iOS & Android apps', features: ['Push Notifications', 'Biometric Login', 'Offline Support'], color: 'from-blue-500 to-cyan-600' },
+      { icon: Home, title: 'Beautiful Storefront', description: 'Stunning, conversion-optimized stores', features: ['Responsive Design', 'SEO Optimized', 'Fast Loading'], color: 'from-warm-200 to-warm-100' },
+      { icon: Layers, title: 'Powerful Admin', description: 'Manage your entire business', features: ['92+ Management Pages', 'Real-time Analytics', 'Role-based Access'], color: 'from-warm-200 to-warm-100' },
+      { icon: Smartphone, title: 'Native Mobile App', description: 'iOS & Android apps', features: ['Push Notifications', 'Biometric Login', 'Offline Support'], color: 'from-warm-200 to-warm-100' },
     ],
   },
   {
@@ -449,18 +449,18 @@ export default function PresentationPage() {
   const slide = slides[currentSlide];
 
   return (
-    <div className="fixed inset-0 bg-[#0a0a0a] overflow-hidden">
+    <div className="fixed inset-0 bg-background overflow-hidden">
       {/* Background Effects */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[150px] animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[150px] animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-pink-600/5 rounded-full blur-[150px]" />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-warm-200/30 rounded-full blur-[150px]" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-warm-200/25 rounded-full blur-[150px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-warm-200/20 rounded-full blur-[150px]" />
       </div>
 
       {/* Progress Bar */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-white/10 z-50">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-warm-200 z-50">
         <div
-          className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
+          className="h-full bg-primary transition-all duration-500"
           style={{ width: `${progress}%` }}
         />
       </div>
@@ -468,20 +468,20 @@ export default function PresentationPage() {
       {/* Close Button */}
       <button
         onClick={() => router.push('/')}
-        className="absolute top-6 right-6 z-50 p-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+        className="absolute top-6 right-6 z-50 p-3 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 transition-all"
       >
-        <X className="w-5 h-5 text-white/70" />
+        <X className="w-5 h-5 text-warm-700" />
       </button>
 
       {/* Fullscreen Toggle */}
       <button
         onClick={toggleFullscreen}
-        className="absolute top-6 right-20 z-50 p-3 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+        className="absolute top-6 right-20 z-50 p-3 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 transition-all"
       >
         {isFullscreen ? (
-          <Minimize2 className="w-5 h-5 text-white/70" />
+          <Minimize2 className="w-5 h-5 text-warm-700" />
         ) : (
-          <Maximize2 className="w-5 h-5 text-white/70" />
+          <Maximize2 className="w-5 h-5 text-warm-700" />
         )}
       </button>
 
@@ -492,44 +492,44 @@ export default function PresentationPage() {
           <div className={`transition-all duration-500 ${isAnimating ? 'opacity-0 translate-y-8' : 'opacity-100 translate-y-0'}`}>
             {slide.type === 'title' && (
               <div className="text-center">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
-                  <span className="text-sm text-white/70">Now with AI-powered product descriptions</span>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-warm-100 border border-warm-300 mb-8">
+                  <Sparkles className="w-4 h-4 text-foreground-tertiary" />
+                  <span className="text-sm text-warm-700">Now with AI-powered product descriptions</span>
                 </div>
                 <div className="flex items-center justify-center gap-3 mb-8">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
                     <span className="text-white font-bold text-xl">T</span>
                   </div>
-                  <span className="text-xl font-semibold text-white">Tesseract Hub</span>
+                  <span className="text-xl font-serif font-semibold text-foreground">Tesseract Hub</span>
                 </div>
-                <h1 className="text-5xl sm:text-6xl md:text-7xl font-bold mb-6">
-                  <span className="text-white">{slide.title}</span>
+                <h1 className="text-5xl sm:text-6xl md:text-7xl font-serif font-medium mb-6">
+                  <span className="text-foreground">{slide.title}</span>
                   <br />
-                  <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
+                  <span className="text-foreground-secondary">
                     {slide.titleGradient}
                   </span>
                 </h1>
-                <p className="text-lg text-white/50 max-w-2xl mx-auto">{slide.subtitle}</p>
+                <p className="text-lg text-foreground-secondary max-w-2xl mx-auto">{slide.subtitle}</p>
               </div>
             )}
 
             {slide.type === 'problem' && (
               <div>
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
                   {slide.label}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-12">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="text-red-400">{slide.titleHighlight}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-12">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-destructive">{slide.titleHighlight}</span>
                 </h2>
                 <div className="grid grid-cols-2 gap-6">
                   {slide.problems?.map((problem, idx) => (
-                    <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/[0.08] hover:border-red-500/30 transition-all">
-                      <div className="w-14 h-14 rounded-xl bg-red-500/10 flex items-center justify-center mb-4">
-                        <problem.icon className="w-7 h-7 text-red-400" />
+                    <div key={idx} className="bg-card border border-border rounded-2xl p-6 hover:border-destructive/30 transition-all shadow-card">
+                      <div className="w-14 h-14 rounded-xl bg-destructive/10 flex items-center justify-center mb-4">
+                        <problem.icon className="w-7 h-7 text-destructive" />
                       </div>
-                      <h3 className="text-lg font-semibold text-white mb-2">{problem.title}</h3>
-                      <p className="text-sm text-white/50">{problem.description}</p>
+                      <h3 className="text-lg font-semibold text-foreground mb-2">{problem.title}</h3>
+                      <p className="text-sm text-muted-foreground">{problem.description}</p>
                     </div>
                   ))}
                 </div>
@@ -538,42 +538,42 @@ export default function PresentationPage() {
 
             {slide.type === 'solution' && (
               <div className="text-center">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
                   {slide.label}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-12">
-                  <span className="text-white">{slide.title}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-12">
+                  <span className="text-foreground">{slide.title}</span>
                   <br />
-                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  <span className="text-foreground-secondary">
                     {slide.titleGradient}
                   </span>
                 </h2>
                 <div className="relative mx-auto w-64 h-64 mb-12">
-                  <div className="absolute inset-0 border border-dashed border-white/20 rounded-full animate-spin" style={{ animationDuration: '30s' }}>
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center border border-white/20">
-                      <Home className="w-5 h-5 text-purple-400" />
+                  <div className="absolute inset-0 border border-dashed border-warm-300 rounded-full animate-spin" style={{ animationDuration: '30s' }}>
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-warm-100 rounded-xl flex items-center justify-center border border-warm-300">
+                      <Home className="w-5 h-5 text-foreground-tertiary" />
                     </div>
-                    <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center border border-white/20">
-                      <Layers className="w-5 h-5 text-blue-400" />
+                    <div className="absolute right-0 top-1/2 translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-warm-100 rounded-xl flex items-center justify-center border border-warm-300">
+                      <Layers className="w-5 h-5 text-sage-500" />
                     </div>
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center border border-white/20">
-                      <Smartphone className="w-5 h-5 text-emerald-400" />
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-12 h-12 bg-warm-100 rounded-xl flex items-center justify-center border border-warm-300">
+                      <Smartphone className="w-5 h-5 text-foreground-secondary" />
                     </div>
-                    <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center border border-white/20">
-                      <BarChart3 className="w-5 h-5 text-amber-400" />
+                    <div className="absolute left-0 top-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-warm-100 rounded-xl flex items-center justify-center border border-warm-300">
+                      <BarChart3 className="w-5 h-5 text-foreground-tertiary" />
                     </div>
                   </div>
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-primary rounded-2xl flex items-center justify-center shadow-sm">
                     <span className="text-white text-3xl font-bold">T</span>
                   </div>
                 </div>
                 <div className="flex justify-center gap-16">
                   {slide.stats?.map((stat, idx) => (
                     <div key={idx} className="text-center">
-                      <div className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                      <div className="text-4xl font-bold text-foreground-secondary">
                         {stat.value}
                       </div>
-                      <div className="text-sm text-white/50 mt-1">{stat.label}</div>
+                      <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
                     </div>
                   ))}
                 </div>
@@ -582,25 +582,25 @@ export default function PresentationPage() {
 
             {slide.type === 'ecosystem' && (
               <div>
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
                   {slide.label}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-12">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-12">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
                 <div className="grid grid-cols-3 gap-6">
                   {slide.cards?.map((card, idx) => (
-                    <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-6 hover:bg-white/[0.08] transition-all group">
-                      <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${card.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                        <card.icon className="w-7 h-7 text-white" />
+                    <div key={idx} className="bg-card border border-border rounded-2xl p-6 hover:border-warm-300 transition-colors group shadow-card">
+                      <div className="w-14 h-14 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center mb-4">
+                        <card.icon className="w-7 h-7 text-foreground-secondary" />
                       </div>
-                      <h3 className="text-lg font-semibold text-white mb-2">{card.title}</h3>
-                      <p className="text-sm text-white/50 mb-4">{card.description}</p>
+                      <h3 className="text-lg font-semibold text-foreground mb-2">{card.title}</h3>
+                      <p className="text-sm text-muted-foreground mb-4">{card.description}</p>
                       <ul className="space-y-2">
                         {card.features.map((feature, fidx) => (
-                          <li key={fidx} className="text-xs text-white/40 flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 bg-purple-400 rounded-full" />
+                          <li key={fidx} className="text-xs text-foreground-secondary flex items-center gap-2">
+                            <span className="w-1.5 h-1.5 bg-warm-400 rounded-full" />
                             {feature}
                           </li>
                         ))}
@@ -614,41 +614,41 @@ export default function PresentationPage() {
             {slide.type === 'domain' && (
               <div className="grid grid-cols-2 gap-12 items-center">
                 <div>
-                  <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-6">
+                  <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
                     {slide.label}
                   </span>
-                  <h2 className="text-4xl font-bold mb-8">
-                    <span className="text-white">{slide.title} </span>
-                    <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                  <h2 className="text-4xl font-serif font-medium mb-8">
+                    <span className="text-foreground">{slide.title} </span>
+                    <span className="text-foreground-secondary">{slide.titleGradient}</span>
                   </h2>
                   <div className="space-y-6">
                     {slide.benefits?.map((benefit, idx) => (
                       <div key={idx} className="flex gap-4">
-                        <div className="w-8 h-8 bg-emerald-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        <div className="w-8 h-8 bg-warm-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <CheckCircle2 className="w-4 h-4 text-sage-500" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-white">{benefit.title}</h4>
-                          <p className="text-sm text-white/50">{benefit.description}</p>
+                          <h4 className="font-semibold text-foreground">{benefit.title}</h4>
+                          <p className="text-sm text-muted-foreground">{benefit.description}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
-                <div className="bg-white/5 rounded-2xl border border-white/10 overflow-hidden">
-                  <div className="flex items-center gap-3 px-4 py-3 bg-white/5 border-b border-white/10">
+                <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-card">
+                  <div className="flex items-center gap-3 px-4 py-3 bg-warm-100 border-b border-border">
                     <div className="flex gap-1.5">
-                      <span className="w-3 h-3 rounded-full bg-red-400" />
-                      <span className="w-3 h-3 rounded-full bg-yellow-400" />
-                      <span className="w-3 h-3 rounded-full bg-green-400" />
+                      <span className="w-3 h-3 rounded-full bg-destructive" />
+                      <span className="w-3 h-3 rounded-full bg-warning" />
+                      <span className="w-3 h-3 rounded-full bg-sage-500" />
                     </div>
-                    <div className="flex-1 flex items-center gap-2 bg-black/30 rounded-md px-3 py-1.5 text-sm">
-                      <Lock className="w-3 h-3 text-emerald-400" />
-                      <span className="text-white/60"><span className="text-purple-400">yourbrand</span>.tesserix.app</span>
+                    <div className="flex-1 flex items-center gap-2 bg-warm-50 rounded-md px-3 py-1.5 text-sm">
+                      <Lock className="w-3 h-3 text-sage-500" />
+                      <span className="text-foreground-secondary"><span className="text-foreground-secondary">yourbrand</span>.tesserix.app</span>
                     </div>
                   </div>
                   <div className="p-8 text-center">
-                    <div className="border-2 border-dashed border-white/20 rounded-xl p-12 text-white/30 text-lg">
+                    <div className="border-2 border-dashed border-warm-300 rounded-xl p-12 text-warm-400 text-lg">
                       Your Custom Store
                     </div>
                   </div>
@@ -660,33 +660,33 @@ export default function PresentationPage() {
               <div className="grid grid-cols-2 gap-12 items-center">
                 <div className="flex justify-center">
                   <div className="relative w-48 h-48">
-                    <div className="absolute inset-0 border border-purple-500/30 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
-                    <div className="absolute inset-4 border border-purple-500/20 rounded-full animate-ping" style={{ animationDuration: '3s', animationDelay: '1s' }} />
-                    <div className="absolute inset-8 border border-purple-500/10 rounded-full animate-ping" style={{ animationDuration: '3s', animationDelay: '2s' }} />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                    <div className="absolute inset-0 border border-warm-300/50 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
+                    <div className="absolute inset-4 border border-warm-300/30 rounded-full animate-ping" style={{ animationDuration: '3s', animationDelay: '1s' }} />
+                    <div className="absolute inset-8 border border-warm-300/20 rounded-full animate-ping" style={{ animationDuration: '3s', animationDelay: '2s' }} />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-primary rounded-full flex items-center justify-center">
                       <Globe className="w-10 h-10 text-white" />
                     </div>
                   </div>
                 </div>
                 <div>
-                  <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-6">
+                  <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
                     {slide.label}
                   </span>
-                  <h2 className="text-4xl font-bold mb-8">
-                    <span className="text-white">{slide.title} </span>
-                    <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                  <h2 className="text-4xl font-serif font-medium mb-8">
+                    <span className="text-foreground">{slide.title} </span>
+                    <span className="text-foreground-secondary">{slide.titleGradient}</span>
                   </h2>
                   <div className="space-y-6">
                     {slide.globalStats?.map((stat, idx) => (
-                      <div key={idx} className="bg-white/5 border border-white/10 rounded-xl p-5">
+                      <div key={idx} className="bg-card border border-border rounded-xl p-5 shadow-card">
                         <div className="flex items-center gap-4 mb-2">
-                          <span className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+                          <span className="text-4xl font-bold text-foreground-secondary">
                             {stat.value}
                           </span>
-                          <stat.icon className="w-8 h-8 text-purple-400/50" />
+                          <stat.icon className="w-8 h-8 text-foreground-tertiary" />
                         </div>
-                        <div className="text-white font-medium">{stat.label}</div>
-                        <div className="text-sm text-white/40">{stat.detail}</div>
+                        <div className="text-foreground font-medium">{stat.label}</div>
+                        <div className="text-sm text-muted-foreground">{stat.detail}</div>
                       </div>
                     ))}
                   </div>
@@ -696,39 +696,39 @@ export default function PresentationPage() {
 
             {slide.type === 'ai' && (
               <div className="text-center">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
                   {slide.label}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-12">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-12">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
                 <div className="grid grid-cols-2 gap-8 items-start">
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-left">
+                  <div className="bg-card border border-border rounded-2xl p-6 text-left shadow-card">
                     <div className="mb-4">
-                      <div className="text-xs text-white/40 uppercase tracking-wider mb-2">Generate description for:</div>
-                      <div className="text-lg font-medium text-purple-400">&ldquo;Vintage Leather Messenger Bag&rdquo;</div>
+                      <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Generate description for:</div>
+                      <div className="text-lg font-medium text-foreground-secondary">&ldquo;Vintage Leather Messenger Bag&rdquo;</div>
                     </div>
                     <div className="flex gap-1.5 mb-4">
-                      <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      <span className="w-2 h-2 bg-warm-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 bg-warm-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 bg-warm-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
-                    <div className="bg-black/30 rounded-xl p-4 border-l-2 border-purple-400">
-                      <p className="text-sm text-white/60 leading-relaxed">
+                    <div className="bg-warm-50 rounded-xl p-4 border-l-2 border-primary">
+                      <p className="text-sm text-warm-700 leading-relaxed">
                         Crafted from premium full-grain leather, this vintage messenger bag combines timeless style with modern functionality. Features adjustable shoulder strap, multiple compartments, and antique brass hardware.
                       </p>
                     </div>
                   </div>
                   <div className="space-y-4">
                     {slide.aiFeatures?.map((feature, idx) => (
-                      <div key={idx} className="flex gap-4 bg-white/5 border border-white/10 rounded-xl p-5 text-left">
-                        <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <feature.icon className="w-6 h-6 text-purple-400" />
+                      <div key={idx} className="flex gap-4 bg-card border border-border rounded-xl p-5 text-left shadow-card">
+                        <div className="w-12 h-12 bg-warm-100 rounded-xl flex items-center justify-center flex-shrink-0">
+                          <feature.icon className="w-6 h-6 text-foreground-secondary" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-white mb-1">{feature.title}</h4>
-                          <p className="text-sm text-white/50">{feature.description}</p>
+                          <h4 className="font-semibold text-foreground mb-1">{feature.title}</h4>
+                          <p className="text-sm text-muted-foreground">{feature.description}</p>
                         </div>
                       </div>
                     ))}
@@ -739,21 +739,21 @@ export default function PresentationPage() {
 
             {slide.type === 'security' && (
               <div>
-                <span className="inline-block px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
                   {slide.label}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-12">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-12">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
                 <div className="grid grid-cols-3 gap-5">
                   {slide.securityFeatures?.map((feature, idx) => (
-                    <div key={idx} className="bg-white/5 border border-white/10 rounded-xl p-5 text-center hover:border-emerald-500/30 transition-all">
-                      <div className="w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center mx-auto mb-3">
-                        <feature.icon className="w-6 h-6 text-emerald-400" />
+                    <div key={idx} className="bg-card border border-border rounded-xl p-5 text-center hover:border-warm-300 transition-all shadow-card">
+                      <div className="w-12 h-12 bg-warm-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <feature.icon className="w-6 h-6 text-foreground-secondary" />
                       </div>
-                      <h3 className="font-semibold text-white text-sm mb-1">{feature.title}</h3>
-                      <p className="text-xs text-white/50">{feature.description}</p>
+                      <h3 className="font-semibold text-foreground text-sm mb-1">{feature.title}</h3>
+                      <p className="text-xs text-muted-foreground">{feature.description}</p>
                     </div>
                   ))}
                 </div>
@@ -762,20 +762,20 @@ export default function PresentationPage() {
 
             {slide.type === 'tech' && (
               <div>
-                <span className="inline-block px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-300 text-warm-700 text-xs font-semibold tracking-widest mb-6">
                   {slide.label}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-10">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-10">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
                 <div className="space-y-4 mb-10">
                   {slide.techStack?.map((layer, idx) => (
-                    <div key={idx} className="bg-white/5 border border-white/10 rounded-xl p-4 flex items-center gap-6">
-                      <div className="w-24 text-sm font-semibold text-white/50 uppercase tracking-wider">{layer.layer}</div>
+                    <div key={idx} className="bg-card border border-border rounded-xl p-4 flex items-center gap-6 shadow-card">
+                      <div className="w-24 text-sm font-semibold text-muted-foreground uppercase tracking-wider">{layer.layer}</div>
                       <div className="flex gap-3">
                         {layer.items.map((item, iidx) => (
-                          <div key={iidx} className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-purple-400 hover:bg-purple-500/10 hover:border-purple-500/30 transition-all cursor-default">
+                          <div key={iidx} className="px-4 py-2 bg-warm-50 border border-warm-200 rounded-lg text-sm text-foreground-secondary hover:bg-warm-100 hover:border-warm-200 transition-all cursor-default">
                             {item}
                           </div>
                         ))}
@@ -786,8 +786,8 @@ export default function PresentationPage() {
                 <div className="flex justify-center gap-12">
                   {slide.stats?.map((stat, idx) => (
                     <div key={idx} className="text-center">
-                      <div className="text-3xl font-bold text-purple-400">{stat.value}</div>
-                      <div className="text-xs text-white/50 uppercase tracking-wider">{stat.label}</div>
+                      <div className="text-3xl font-bold text-foreground-secondary">{stat.value}</div>
+                      <div className="text-xs text-muted-foreground uppercase tracking-wider">{stat.label}</div>
                     </div>
                   ))}
                 </div>
@@ -796,21 +796,21 @@ export default function PresentationPage() {
 
             {slide.type === 'features' && (
               <div>
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
                   {slide.label}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-10">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-10">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
                 <div className="grid grid-cols-3 gap-5">
                   {slide.featureCategories?.map((cat, idx) => (
-                    <div key={idx} className="bg-white/5 border border-white/10 rounded-xl p-5">
-                      <h4 className="font-semibold text-purple-400 text-sm mb-3 pb-3 border-b border-white/10">{cat.title}</h4>
+                    <div key={idx} className="bg-card border border-border rounded-xl p-5 shadow-card">
+                      <h4 className="font-semibold text-foreground-secondary text-sm mb-3 pb-3 border-b border-border">{cat.title}</h4>
                       <ul className="space-y-2">
                         {cat.features.map((feature, fidx) => (
-                          <li key={fidx} className="text-xs text-white/50 flex items-center gap-2">
-                            <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                          <li key={fidx} className="text-xs text-muted-foreground flex items-center gap-2">
+                            <CheckCircle2 className="w-3 h-3 text-sage-500" />
                             {feature}
                           </li>
                         ))}
@@ -823,33 +823,33 @@ export default function PresentationPage() {
 
             {slide.type === 'onboarding' && (
               <div className="text-center">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
                   {slide.label}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-12">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-12">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
                 <div className="flex items-center justify-center gap-4 mb-10">
                   {slide.steps?.map((step, idx) => (
                     <div key={idx} className="flex items-center gap-4">
                       <div className="relative">
-                        <div className="w-20 h-20 bg-white/5 border border-white/10 rounded-2xl flex flex-col items-center justify-center">
-                          <step.icon className="w-7 h-7 text-emerald-400 mb-1" />
-                          <span className="text-xs text-white/50">{step.title}</span>
+                        <div className="w-20 h-20 bg-card border border-border rounded-2xl flex flex-col items-center justify-center shadow-card">
+                          <step.icon className="w-7 h-7 text-sage-500 mb-1" />
+                          <span className="text-xs text-muted-foreground">{step.title}</span>
                         </div>
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-6 h-6 bg-sage-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
                           {step.number}
                         </div>
                       </div>
                       {idx < (slide.steps?.length || 0) - 1 && (
-                        <ArrowRight className="w-6 h-6 text-white/20" />
+                        <ArrowRight className="w-6 h-6 text-warm-300" />
                       )}
                     </div>
                   ))}
                 </div>
-                <p className="text-lg text-white/50">
-                  Average time to launch: <span className="text-emerald-400 font-semibold">{slide.launchTime}</span>
+                <p className="text-lg text-muted-foreground">
+                  Average time to launch: <span className="text-foreground-secondary font-semibold">{slide.launchTime}</span>
                 </p>
               </div>
             )}
@@ -857,21 +857,21 @@ export default function PresentationPage() {
             {/* VIDEO JOURNEY SLIDES */}
             {slide.type === 'journey-intro' && (
               <div className="text-center">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/15 border border-purple-500/30 text-purple-400 text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
                   {slide.label}
                 </span>
-                <h2 className="text-5xl md:text-6xl font-bold mb-6">
-                  <span className="text-white">{slide.title}</span>
+                <h2 className="text-5xl md:text-6xl font-serif font-medium mb-6">
+                  <span className="text-foreground">{slide.title}</span>
                   <br />
-                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
-                <p className="text-lg text-white/50 whitespace-pre-line mb-12 max-w-xl mx-auto">{slide.subtitle}</p>
+                <p className="text-lg text-muted-foreground whitespace-pre-line mb-12 max-w-xl mx-auto">{slide.subtitle}</p>
                 <div className="flex items-center justify-center gap-2">
                   {slide.journeyIcons?.map((icon: string, idx: number) => (
                     <div key={idx} className="flex items-center gap-2">
                       <span className="text-3xl">{icon}</span>
                       {idx < (slide.journeyIcons?.length || 0) - 1 && (
-                        <span className="text-white/30 text-xl">→</span>
+                        <span className="text-warm-400 text-xl">→</span>
                       )}
                     </div>
                   ))}
@@ -881,26 +881,26 @@ export default function PresentationPage() {
 
             {slide.type === 'journey-step' && (
               <div>
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-4">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-4">
                   STEP {slide.stepNumber} OF {slide.totalSteps}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-4">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
-                <p className="text-lg text-white/50 mb-10">{slide.subtitle}</p>
+                <p className="text-lg text-muted-foreground mb-10">{slide.subtitle}</p>
                 <div className="grid grid-cols-2 gap-8">
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-10 text-center">
+                  <div className="bg-card border border-border rounded-2xl p-10 text-center shadow-card">
                     <span className="text-7xl mb-6 block">{slide.emoji}</span>
-                    <p className="text-lg text-white/60 italic">{slide.quote}</p>
+                    <p className="text-lg text-foreground-secondary italic">{slide.quote}</p>
                   </div>
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
-                    <h3 className="text-lg font-semibold text-white mb-6">But you&apos;re worried about:</h3>
+                  <div className="bg-card border border-border rounded-2xl p-8 shadow-card">
+                    <h3 className="text-lg font-semibold text-foreground mb-6">But you&apos;re worried about:</h3>
                     <div className="space-y-4">
                       {slide.worries?.map((worry: string, idx: number) => (
                         <div key={idx} className="flex items-center gap-3">
-                          <span className="text-red-400 text-lg">❌</span>
-                          <span className="text-white/60">{worry}</span>
+                          <span className="text-destructive text-lg">❌</span>
+                          <span className="text-foreground-secondary">{worry}</span>
                         </div>
                       ))}
                     </div>
@@ -911,138 +911,138 @@ export default function PresentationPage() {
 
             {slide.type === 'journey-signup' && (
               <div className="text-center">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-4">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-4">
                   STEP {slide.stepNumber} OF {slide.totalSteps}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-4">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
-                <p className="text-xl text-emerald-400 mb-10">{slide.highlight}</p>
-                <div className="max-w-md mx-auto bg-white/5 border border-white/10 rounded-2xl p-10">
-                  <h3 className="text-2xl font-semibold text-white mb-8">Create Your Store</h3>
+                <p className="text-xl text-foreground-secondary mb-10">{slide.highlight}</p>
+                <div className="max-w-md mx-auto bg-card border border-border rounded-2xl p-10 shadow-card">
+                  <h3 className="text-2xl font-serif font-medium text-foreground mb-8">Create Your Store</h3>
                   <div className="space-y-4 mb-6">
                     {slide.formFields?.map((field: string, idx: number) => (
-                      <div key={idx} className="bg-black/30 rounded-xl px-5 py-4 text-left text-white/50">{field}</div>
+                      <div key={idx} className="bg-warm-50 rounded-xl px-5 py-4 text-left text-foreground-secondary">{field}</div>
                     ))}
                   </div>
-                  <button className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-white font-semibold">Start Free Trial →</button>
+                  <button className="w-full py-4 bg-primary hover:bg-primary-hover rounded-full text-primary-foreground font-semibold transition-colors">Start Free Trial →</button>
                 </div>
-                <p className="text-lg text-emerald-400 mt-8">{slide.timeIndicator}</p>
+                <p className="text-lg text-foreground-secondary mt-8">{slide.timeIndicator}</p>
               </div>
             )}
 
             {slide.type === 'journey-setup' && (
               <div className="text-center">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-4">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-4">
                   STEP {slide.stepNumber} OF {slide.totalSteps}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-4">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
-                <p className="text-lg text-white/50 mb-10">{slide.subtitle}</p>
+                <p className="text-lg text-muted-foreground mb-10">{slide.subtitle}</p>
                 <div className="grid grid-cols-4 gap-4">
                   {slide.setupSteps?.map((step: { num: string; icon: string; title: string; desc: string; status: string }, idx: number) => (
-                    <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center relative pt-10">
-                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center font-bold text-white text-sm">{step.num}</div>
+                    <div key={idx} className="bg-card border border-border rounded-2xl p-6 text-center relative pt-10 shadow-card">
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-8 h-8 bg-primary rounded-full flex items-center justify-center font-bold text-white text-sm">{step.num}</div>
                       <span className="text-3xl block mb-3">{step.icon}</span>
-                      <div className="font-semibold text-white mb-2">{step.title}</div>
-                      <div className="text-xs text-white/50 mb-3">{step.desc}</div>
+                      <div className="font-semibold text-foreground mb-2">{step.title}</div>
+                      <div className="text-xs text-muted-foreground mb-3">{step.desc}</div>
                       <span className="text-2xl">{step.status}</span>
                     </div>
                   ))}
                 </div>
-                <p className="text-lg text-emerald-400 mt-8">{slide.timeIndicator}</p>
+                <p className="text-lg text-foreground-secondary mt-8">{slide.timeIndicator}</p>
               </div>
             )}
 
             {slide.type === 'journey-products' && (
               <div>
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-4">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-4">
                   STEP {slide.stepNumber} OF {slide.totalSteps}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-4">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
-                <p className="text-lg text-white/50 mb-10">{slide.subtitle}</p>
+                <p className="text-lg text-muted-foreground mb-10">{slide.subtitle}</p>
                 <div className="grid grid-cols-2 gap-8">
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+                  <div className="bg-card border border-border rounded-2xl p-8 shadow-card">
                     <div className="flex gap-5 mb-6">
-                      <div className="w-32 h-28 bg-white/5 rounded-xl flex items-center justify-center text-5xl">📷</div>
+                      <div className="w-32 h-28 bg-warm-100 rounded-xl flex items-center justify-center text-5xl">📷</div>
                       <div>
-                        <div className="font-semibold text-white">{slide.productExample?.name}</div>
-                        <div className="text-emerald-400 font-semibold text-lg">{slide.productExample?.price}</div>
+                        <div className="font-semibold text-foreground">{slide.productExample?.name}</div>
+                        <div className="text-foreground-secondary font-semibold text-lg">{slide.productExample?.price}</div>
                       </div>
                     </div>
-                    <div className="text-xs text-white/50 mb-2">Product Name</div>
-                    <div className="bg-black/30 rounded-xl px-4 py-3 text-white">Vintage Leather Bag</div>
+                    <div className="text-xs text-muted-foreground mb-2">Product Name</div>
+                    <div className="bg-warm-50 rounded-xl px-4 py-3 text-foreground">Vintage Leather Bag</div>
                   </div>
-                  <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
-                    <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/15 text-purple-400 text-xs font-semibold mb-5">✨ AI GENERATED</span>
-                    <p className="text-white/60 leading-relaxed">{slide.aiDescription}</p>
+                  <div className="bg-card border border-border rounded-2xl p-8 shadow-card">
+                    <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 text-foreground-secondary text-xs font-semibold mb-5">✨ AI GENERATED</span>
+                    <p className="text-warm-700 leading-relaxed">{slide.aiDescription}</p>
                   </div>
                 </div>
-                <p className="text-center text-purple-400 mt-6">{slide.tip}</p>
+                <p className="text-center text-foreground-secondary mt-6">{slide.tip}</p>
               </div>
             )}
 
             {slide.type === 'journey-payments' && (
               <div>
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-4">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-4">
                   STEP {slide.stepNumber} OF {slide.totalSteps}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-4">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
-                <p className="text-lg text-white/50 mb-10">{slide.subtitle}</p>
+                <p className="text-lg text-muted-foreground mb-10">{slide.subtitle}</p>
                 <div className="grid grid-cols-2 gap-8 mb-8">
                   {slide.paymentOptions?.map((opt: { name: string; icon: string; desc1: string; desc2: string }, idx: number) => (
-                    <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center">
+                    <div key={idx} className="bg-card border border-border rounded-2xl p-8 text-center shadow-card">
                       <span className="text-5xl mb-4 block">{opt.icon}</span>
-                      <h3 className="text-2xl font-bold text-white mb-2">{opt.name}</h3>
-                      <p className="text-white/60 mb-1">{opt.desc1}</p>
-                      <p className="text-sm text-white/40 mb-5">{opt.desc2}</p>
-                      <button className="w-full py-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full text-white font-semibold">Connect Now</button>
+                      <h3 className="text-2xl font-bold text-foreground mb-2">{opt.name}</h3>
+                      <p className="text-warm-700 mb-1">{opt.desc1}</p>
+                      <p className="text-sm text-muted-foreground mb-5">{opt.desc2}</p>
+                      <button className="w-full py-3 bg-primary hover:bg-primary-hover rounded-full text-primary-foreground font-semibold transition-colors">Connect Now</button>
                     </div>
                   ))}
                 </div>
-                <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-6 text-center">
-                  <p className="text-emerald-400 font-semibold text-lg">{slide.highlight}</p>
-                  <p className="text-white/50 mt-2">{slide.subtext}</p>
+                <div className="bg-warm-100 border border-warm-200 rounded-2xl p-6 text-center">
+                  <p className="text-foreground-secondary font-semibold text-lg">{slide.highlight}</p>
+                  <p className="text-foreground-secondary mt-2">{slide.subtext}</p>
                 </div>
               </div>
             )}
 
             {slide.type === 'journey-live' && (
               <div className="text-center">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-4">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-4">
                   STEP {slide.stepNumber} OF {slide.totalSteps}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="text-emerald-400">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-4">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
-                <p className="text-lg text-white/50 mb-10">{slide.subtitle}</p>
-                <div className="max-w-3xl mx-auto bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
-                  <div className="bg-white/5 px-5 py-3 flex items-center gap-4 border-b border-white/10">
+                <p className="text-lg text-muted-foreground mb-10">{slide.subtitle}</p>
+                <div className="max-w-3xl mx-auto bg-card border border-border rounded-2xl overflow-hidden shadow-card">
+                  <div className="bg-warm-100 px-5 py-3 flex items-center gap-4 border-b border-border">
                     <div className="flex gap-2">
-                      <span className="w-3 h-3 rounded-full bg-red-400"></span>
-                      <span className="w-3 h-3 rounded-full bg-amber-400"></span>
-                      <span className="w-3 h-3 rounded-full bg-emerald-400"></span>
+                      <span className="w-3 h-3 rounded-full bg-destructive"></span>
+                      <span className="w-3 h-3 rounded-full bg-warning"></span>
+                      <span className="w-3 h-3 rounded-full bg-sage-500"></span>
                     </div>
-                    <div className="flex-1 bg-black/30 rounded-lg px-4 py-2 text-sm text-emerald-400">
+                    <div className="flex-1 bg-warm-50 rounded-lg px-4 py-2 text-sm text-foreground-secondary">
                       🔒 {slide.storeUrl}
                     </div>
                   </div>
                   <div className="p-12 text-center">
-                    <div className="text-3xl font-bold text-white mb-3">{slide.storeName}</div>
-                    <div className="text-white/50 mb-8">{slide.storeTagline}</div>
+                    <div className="text-3xl font-bold text-foreground mb-3">{slide.storeName}</div>
+                    <div className="text-muted-foreground mb-8">{slide.storeTagline}</div>
                     <div className="flex justify-center gap-5">
                       {[1, 2, 3].map((i) => (
-                        <div key={i} className="w-32 h-24 bg-white/5 rounded-xl flex items-center justify-center text-4xl">📦</div>
+                        <div key={i} className="w-32 h-24 bg-warm-100 rounded-xl flex items-center justify-center text-4xl">📦</div>
                       ))}
                     </div>
                   </div>
@@ -1052,30 +1052,30 @@ export default function PresentationPage() {
 
             {slide.type === 'journey-sale' && (
               <div className="text-center relative">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-4">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-4">
                   STEP {slide.stepNumber} OF {slide.totalSteps}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-4">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
-                <p className="text-lg text-white/50 mb-10">{slide.subtitle}</p>
-                <div className="max-w-2xl mx-auto bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-12">
+                <p className="text-lg text-muted-foreground mb-10">{slide.subtitle}</p>
+                <div className="max-w-2xl mx-auto bg-warm-100 border border-warm-200 rounded-2xl p-12">
                   <span className="text-7xl block mb-4">{slide.celebration}</span>
-                  <h3 className="text-3xl font-bold text-emerald-400 mb-4">New Order Received!</h3>
-                  <p className="text-lg text-white mb-2">Order {slide.orderDetails?.id} • {slide.orderDetails?.product} • {slide.orderDetails?.price}</p>
-                  <p className="text-white/50 mb-8">Customer: {slide.orderDetails?.customer}</p>
-                  <div className="inline-flex items-center gap-3 bg-white/5 rounded-xl px-6 py-3">
-                    <span>You earned: <strong className="text-emerald-400">{slide.earnings?.youEarned}</strong></span>
-                    <span className="text-white/30">|</span>
-                    <span className="text-white/50">Stripe fee: {slide.earnings?.stripeFee}</span>
-                    <span className="text-white/30">|</span>
-                    <span className="text-emerald-400">Platform fee: {slide.earnings?.platformFee}</span>
+                  <h3 className="text-3xl font-bold text-foreground-secondary mb-4">New Order Received!</h3>
+                  <p className="text-lg text-foreground mb-2">Order {slide.orderDetails?.id} • {slide.orderDetails?.product} • {slide.orderDetails?.price}</p>
+                  <p className="text-muted-foreground mb-8">Customer: {slide.orderDetails?.customer}</p>
+                  <div className="inline-flex items-center gap-3 bg-card rounded-xl px-6 py-3">
+                    <span className="text-foreground">You earned: <strong className="text-foreground-secondary">{slide.earnings?.youEarned}</strong></span>
+                    <span className="text-warm-300">|</span>
+                    <span className="text-muted-foreground">Stripe fee: {slide.earnings?.stripeFee}</span>
+                    <span className="text-warm-300">|</span>
+                    <span className="text-foreground-secondary">Platform fee: {slide.earnings?.platformFee}</span>
                   </div>
                 </div>
-                <div className="absolute top-16 right-20 bg-white/5 border border-white/10 rounded-xl px-5 py-3 text-left">
-                  <div className="font-semibold text-white text-sm">📱 Tesseract Hub</div>
-                  <div className="text-xs text-white/50">🔔 New sale! $49.99</div>
+                <div className="absolute top-16 right-20 bg-card border border-border rounded-xl px-5 py-3 text-left shadow-card">
+                  <div className="font-semibold text-foreground text-sm">📱 Tesseract Hub</div>
+                  <div className="text-xs text-muted-foreground">🔔 New sale! $49.99</div>
                 </div>
               </div>
             )}
@@ -1083,25 +1083,25 @@ export default function PresentationPage() {
             {slide.type === 'transparent-pricing' && (
               <div>
                 <div className="text-center mb-10">
-                  <span className="inline-block px-4 py-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-xs font-semibold tracking-widest mb-6">
+                  <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
                     {slide.label}
                   </span>
-                  <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                    <span className="text-white">{slide.title} </span>
-                    <span className="text-emerald-400">{slide.titleHighlight}</span>
+                  <h2 className="text-4xl md:text-5xl font-serif font-medium mb-4">
+                    <span className="text-foreground">{slide.title} </span>
+                    <span className="text-foreground-secondary">{slide.titleHighlight}</span>
                   </h2>
-                  <p className="text-lg text-white/50">{slide.subtitle}</p>
+                  <p className="text-lg text-muted-foreground">{slide.subtitle}</p>
                 </div>
                 <div className="max-w-3xl mx-auto space-y-3">
                   {slide.costBreakdown?.map((item: { item: string; cost: string; note: string; isGreen: boolean }, idx: number) => (
-                    <div key={idx} className="bg-white/5 border border-white/10 rounded-xl px-8 py-5 flex items-center justify-between">
-                      <span className="font-semibold text-white">{item.item}</span>
-                      <span className={`font-bold text-lg ${item.isGreen ? 'text-emerald-400' : 'text-white/60'}`}>{item.cost}</span>
-                      <span className="text-white/40 text-sm">{item.note}</span>
+                    <div key={idx} className="bg-card border border-border rounded-xl px-8 py-5 flex items-center justify-between shadow-card">
+                      <span className="font-semibold text-foreground">{item.item}</span>
+                      <span className={`font-bold text-lg ${item.isGreen ? 'text-foreground-secondary' : 'text-foreground-secondary'}`}>{item.cost}</span>
+                      <span className="text-muted-foreground text-sm">{item.note}</span>
                     </div>
                   ))}
-                  <div className="bg-red-500/10 border border-red-500/30 rounded-xl px-8 py-4 text-center mt-6">
-                    <span className="text-red-400">{slide.warning}</span>
+                  <div className="bg-destructive/10 border border-destructive/30 rounded-xl px-8 py-4 text-center mt-6">
+                    <span className="text-destructive">{slide.warning}</span>
                   </div>
                 </div>
               </div>
@@ -1109,36 +1109,36 @@ export default function PresentationPage() {
 
             {slide.type === 'pricing' && (
               <div className="text-center">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
                   {slide.label}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-12">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-12">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
                 <div className="flex justify-center gap-6">
                   {slide.plans?.map((plan, idx) => (
-                    <div key={idx} className={`w-64 bg-white/5 border rounded-2xl p-6 text-left relative ${plan.featured ? 'border-purple-500 scale-105' : 'border-white/10'}`}>
+                    <div key={idx} className={`w-64 bg-card border rounded-2xl p-6 text-left relative shadow-card ${plan.featured ? 'border-primary scale-105' : 'border-border'}`}>
                       {plan.featured && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-semibold rounded-full">
+                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full">
                           Most Popular
                         </div>
                       )}
-                      <h3 className="text-xl font-semibold text-white mb-1">{plan.name}</h3>
-                      <p className="text-xs text-white/50 mb-4">{plan.tagline}</p>
-                      <div className="mb-4 pb-4 border-b border-white/10">
-                        <span className="text-4xl font-bold text-white">{plan.price}</span>
-                        <span className="text-white/50">{plan.period}</span>
+                      <h3 className="text-xl font-semibold text-foreground mb-1">{plan.name}</h3>
+                      <p className="text-xs text-muted-foreground mb-4">{plan.tagline}</p>
+                      <div className="mb-4 pb-4 border-b border-border">
+                        <span className="text-4xl font-bold text-foreground">{plan.price}</span>
+                        <span className="text-muted-foreground">{plan.period}</span>
                       </div>
                       <ul className="space-y-2 mb-4">
                         {plan.features.map((feature, fidx) => (
-                          <li key={fidx} className="text-sm text-white/60 flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                          <li key={fidx} className="text-sm text-warm-700 flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-sage-500" />
                             {feature}
                           </li>
                         ))}
                       </ul>
-                      <button className={`w-full py-2 rounded-lg text-sm font-semibold transition-all ${plan.featured ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'}`}>
+                      <button className={`w-full py-2 rounded-lg text-sm font-semibold transition-all ${plan.featured ? 'bg-primary hover:bg-primary-hover text-primary-foreground' : 'bg-warm-100 border border-warm-300 text-foreground hover:bg-warm-200'}`}>
                         {plan.featured ? 'Start Trial' : 'Get Started'}
                       </button>
                     </div>
@@ -1149,29 +1149,29 @@ export default function PresentationPage() {
 
             {slide.type === 'testimonials' && (
               <div className="text-center">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
                   {slide.label}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-12">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-12">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
                 <div className="grid grid-cols-3 gap-6">
                   {slide.testimonials?.map((t, idx) => (
-                    <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-6 text-left">
+                    <div key={idx} className="bg-card border border-border rounded-2xl p-6 text-left shadow-card">
                       <div className="flex gap-1 mb-4">
                         {[...Array(t.rating)].map((_, i) => (
-                          <Star key={i} className="w-4 h-4 text-amber-400 fill-amber-400" />
+                          <Star key={i} className="w-4 h-4 text-foreground-tertiary fill-warm-400" />
                         ))}
                       </div>
-                      <p className="text-sm text-white/70 mb-4 italic">&ldquo;{t.content}&rdquo;</p>
+                      <p className="text-sm text-warm-700 mb-4 italic">&ldquo;{t.content}&rdquo;</p>
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-xs font-bold text-white">
+                        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-white">
                           {t.avatar}
                         </div>
                         <div>
-                          <div className="font-semibold text-white text-sm">{t.name}</div>
-                          <div className="text-xs text-white/50">{t.role}, {t.company}</div>
+                          <div className="font-semibold text-foreground text-sm">{t.name}</div>
+                          <div className="text-xs text-muted-foreground">{t.role}, {t.company}</div>
                         </div>
                       </div>
                     </div>
@@ -1182,35 +1182,35 @@ export default function PresentationPage() {
 
             {slide.type === 'comparison' && (
               <div>
-                <span className="inline-block px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
                   {slide.label}
                 </span>
-                <h2 className="text-4xl md:text-5xl font-bold mb-10">
-                  <span className="text-white">{slide.title} </span>
-                  <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">{slide.titleGradient}</span>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-10">
+                  <span className="text-foreground">{slide.title} </span>
+                  <span className="text-foreground-secondary">{slide.titleGradient}</span>
                 </h2>
-                <div className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-card">
                   <table className="w-full">
                     <thead>
-                      <tr className="bg-white/5">
-                        <th className="p-4 text-left text-sm font-semibold text-white/60">Feature</th>
-                        <th className="p-4 text-left text-sm font-semibold text-purple-400 bg-purple-500/10">Tesseract Hub</th>
-                        <th className="p-4 text-left text-sm font-semibold text-white/60">Shopify</th>
-                        <th className="p-4 text-left text-sm font-semibold text-white/60">WooCommerce</th>
+                      <tr className="bg-warm-100">
+                        <th className="p-4 text-left text-sm font-semibold text-muted-foreground">Feature</th>
+                        <th className="p-4 text-left text-sm font-semibold text-foreground-secondary bg-warm-100">Tesseract Hub</th>
+                        <th className="p-4 text-left text-sm font-semibold text-muted-foreground">Shopify</th>
+                        <th className="p-4 text-left text-sm font-semibold text-muted-foreground">WooCommerce</th>
                       </tr>
                     </thead>
                     <tbody>
                       {slide.comparisons?.map((row, idx) => (
-                        <tr key={idx} className="border-t border-white/10">
-                          <td className="p-4 text-sm text-white/70">{row.feature}</td>
-                          <td className="p-4 text-sm text-white font-medium bg-purple-500/5">
+                        <tr key={idx} className="border-t border-border">
+                          <td className="p-4 text-sm text-warm-700">{row.feature}</td>
+                          <td className="p-4 text-sm text-foreground font-medium bg-warm-100/50">
                             <span className="flex items-center gap-2">
-                              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                              <CheckCircle2 className="w-4 h-4 text-sage-500" />
                               {row.tesseract}
                             </span>
                           </td>
-                          <td className="p-4 text-sm text-white/50">{row.shopify}</td>
-                          <td className="p-4 text-sm text-white/50">{row.woo}</td>
+                          <td className="p-4 text-sm text-muted-foreground">{row.shopify}</td>
+                          <td className="p-4 text-sm text-muted-foreground">{row.woo}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -1222,30 +1222,30 @@ export default function PresentationPage() {
             {slide.type === 'cta' && (
               <div className="text-center">
                 <div className="flex items-center justify-center gap-3 mb-8">
-                  <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                  <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
                     <span className="text-white font-bold text-xl">T</span>
                   </div>
-                  <span className="text-xl font-semibold text-white">Tesseract Hub</span>
+                  <span className="text-xl font-serif font-semibold text-foreground">Tesseract Hub</span>
                 </div>
-                <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">{slide.title}</h2>
-                <p className="text-lg text-white/50 mb-10">{slide.subtitle}</p>
+                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-4 text-foreground">{slide.title}</h2>
+                <p className="text-lg text-muted-foreground mb-10">{slide.subtitle}</p>
                 <div className="flex justify-center gap-4 mb-10">
                   <button
                     onClick={() => router.push('/onboarding')}
-                    className="flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-semibold hover:scale-105 transition-transform"
+                    className="flex items-center gap-2 px-8 py-4 bg-primary hover:bg-primary-hover text-primary-foreground rounded-full font-semibold transition-colors"
                   >
                     Start Free Trial
                     <ArrowRight className="w-5 h-5" />
                   </button>
-                  <button className="flex items-center gap-2 px-8 py-4 bg-white/5 border border-white/10 text-white rounded-full font-semibold hover:bg-white/10 transition-all">
+                  <button className="flex items-center gap-2 px-8 py-4 bg-warm-100 border border-warm-300 text-foreground rounded-full font-semibold hover:bg-warm-200 transition-all">
                     <Play className="w-5 h-5" />
                     Watch Demo
                   </button>
                 </div>
                 <div className="flex justify-center gap-8">
                   {slide.trustItems?.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-white/50">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <div key={idx} className="flex items-center gap-2 text-muted-foreground">
+                      <CheckCircle2 className="w-4 h-4 text-sage-500" />
                       <span className="text-sm">{item}</span>
                     </div>
                   ))}
@@ -1261,21 +1261,21 @@ export default function PresentationPage() {
         <button
           onClick={prevSlide}
           disabled={currentSlide === 0}
-          className="w-12 h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="w-12 h-12 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
-          <ArrowLeft className="w-5 h-5 text-white/70" />
+          <ArrowLeft className="w-5 h-5 text-warm-700" />
         </button>
-        <div className="px-6 py-3 rounded-full bg-white/5 border border-white/10">
-          <span className="text-white/70 text-sm">
+        <div className="px-6 py-3 rounded-full bg-warm-100 border border-warm-300">
+          <span className="text-warm-700 text-sm">
             {currentSlide + 1} / {totalSlides}
           </span>
         </div>
         <button
           onClick={nextSlide}
           disabled={currentSlide === totalSlides - 1}
-          className="w-12 h-12 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+          className="w-12 h-12 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 flex items-center justify-center disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
-          <ArrowRight className="w-5 h-5 text-white/70" />
+          <ArrowRight className="w-5 h-5 text-warm-700" />
         </button>
       </div>
 
@@ -1287,23 +1287,23 @@ export default function PresentationPage() {
             onClick={() => goToSlide(idx)}
             className={`h-1.5 rounded-full transition-all ${
               currentSlide === idx
-                ? 'w-6 bg-purple-500'
-                : 'w-1.5 bg-white/20 hover:bg-white/40'
+                ? 'w-6 bg-primary'
+                : 'w-1.5 bg-warm-300 hover:bg-warm-400'
             }`}
           />
         ))}
       </div>
 
       {/* Keyboard Hints */}
-      <div className="absolute bottom-8 left-8 text-xs text-white/30 hidden md:block">
-        <kbd className="px-1.5 py-0.5 bg-white/5 rounded border border-white/10">←</kbd>
-        <kbd className="px-1.5 py-0.5 bg-white/5 rounded border border-white/10 ml-1">→</kbd>
+      <div className="absolute bottom-8 left-8 text-xs text-warm-500 hidden md:block">
+        <kbd className="px-1.5 py-0.5 bg-warm-100 rounded border border-warm-300">←</kbd>
+        <kbd className="px-1.5 py-0.5 bg-warm-100 rounded border border-warm-300 ml-1">→</kbd>
         <span className="ml-2">Navigate</span>
         <span className="mx-3">|</span>
-        <kbd className="px-1.5 py-0.5 bg-white/5 rounded border border-white/10">F</kbd>
+        <kbd className="px-1.5 py-0.5 bg-warm-100 rounded border border-warm-300">F</kbd>
         <span className="ml-2">Fullscreen</span>
         <span className="mx-3">|</span>
-        <kbd className="px-1.5 py-0.5 bg-white/5 rounded border border-white/10">Esc</kbd>
+        <kbd className="px-1.5 py-0.5 bg-warm-100 rounded border border-warm-300">Esc</kbd>
         <span className="ml-2">Exit</span>
       </div>
     </div>

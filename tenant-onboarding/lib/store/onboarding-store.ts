@@ -202,9 +202,9 @@ export const useOnboardingStore = create<OnboardingState>()(
           // Restore sensitive data from server
           set({
             businessInfo: session.business_info || {},
-            contactDetails: session.contact_details || {},
-            businessAddress: session.business_address || {},
-            storeSetup: session.store_setup || {},
+            contactDetails: session.contact_details || session.contact_info || {},
+            businessAddress: session.business_address || session.address || {},
+            storeSetup: session.store_setup as Partial<StoreSetupRequest> || {},
             emailVerified: session.email_verified || false,
             phoneVerified: session.phone_verified || false,
           });

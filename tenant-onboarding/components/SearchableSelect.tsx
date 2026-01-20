@@ -182,14 +182,14 @@ export function SearchableSelect({
           flex h-14 w-full items-center justify-between rounded-xl border px-4 py-3
           text-base transition-all duration-200 outline-none
           ${disabled
-            ? 'cursor-not-allowed opacity-50 bg-gray-100 dark:bg-white/5'
-            : 'cursor-pointer bg-gray-50 dark:bg-white/5 hover:bg-gray-100 dark:hover:bg-white/10'
+            ? 'cursor-not-allowed opacity-50 bg-warm-100'
+            : 'cursor-pointer bg-warm-50 hover:bg-warm-100'
           }
           ${error
-            ? 'border-red-400 dark:border-red-500/50 focus:ring-2 focus:ring-red-500/20'
+            ? 'border-red-400 focus:ring-2 focus:ring-red-500/20'
             : isOpen
-              ? 'border-blue-500 ring-2 ring-blue-500/20'
-              : 'border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
+              ? 'border-terracotta-500 ring-2 ring-terracotta-500/20'
+              : 'border-warm-200 hover:border-warm-300'
           }
         `}
         aria-haspopup="listbox"
@@ -197,8 +197,8 @@ export function SearchableSelect({
       >
         <span className={`flex items-center gap-3 truncate ${
           selectedOption
-            ? 'text-gray-900 dark:text-white'
-            : 'text-gray-400 dark:text-white/40'
+            ? 'text-foreground'
+            : 'text-foreground-tertiary'
         }`}>
           {selectedOption?.icon && (
             <span className="flex-shrink-0">{selectedOption.icon}</span>
@@ -213,14 +213,14 @@ export function SearchableSelect({
             <button
               type="button"
               onClick={clearSelection}
-              className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-white/10 transition-colors"
+              className="p-1 rounded-full hover:bg-warm-200 transition-colors"
               aria-label="Clear selection"
             >
-              <X className="w-4 h-4 text-gray-400 dark:text-white/40" />
+              <X className="w-4 h-4 text-foreground-tertiary" />
             </button>
           )}
           <ChevronDown
-            className={`w-5 h-5 text-gray-400 dark:text-white/40 transition-transform duration-200 ${
+            className={`w-5 h-5 text-foreground-tertiary transition-transform duration-200 ${
               isOpen ? 'rotate-180' : ''
             }`}
           />
@@ -231,17 +231,17 @@ export function SearchableSelect({
       {isOpen && (
         <div
           className={`
-            absolute z-50 mt-2 w-full rounded-xl border border-gray-200 dark:border-white/10
-            bg-white dark:bg-[#1a1a1a] shadow-xl shadow-black/10 dark:shadow-black/50
+            absolute z-50 mt-2 w-full rounded-xl border border-warm-200
+            bg-white shadow-sm
             animate-in fade-in-0 zoom-in-95 slide-in-from-top-2 duration-150
             overflow-hidden
           `}
         >
           {/* Search Input */}
           {showSearch && (
-            <div className="p-3 border-b border-gray-100 dark:border-white/10">
+            <div className="p-3 border-b border-warm-200">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-white/40" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-tertiary" />
                 <input
                   ref={inputRef}
                   type="text"
@@ -253,11 +253,11 @@ export function SearchableSelect({
                   placeholder={searchPlaceholder}
                   className={`
                     w-full h-10 pl-10 pr-4 text-sm rounded-lg
-                    bg-gray-50 dark:bg-white/5
-                    border border-gray-200 dark:border-white/10
-                    text-gray-900 dark:text-white
-                    placeholder:text-gray-400 dark:placeholder:text-white/40
-                    focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500/20
+                    bg-warm-50
+                    border border-warm-200
+                    text-foreground
+                    placeholder:text-foreground-tertiary
+                    focus:outline-none focus:border-terracotta-500 focus:ring-1 focus:ring-terracotta-500/20
                     transition-all
                   `}
                 />
@@ -268,9 +268,9 @@ export function SearchableSelect({
                       setSearchQuery('');
                       inputRef.current?.focus();
                     }}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-gray-200 dark:hover:bg-white/10"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded hover:bg-warm-200"
                   >
-                    <X className="w-3.5 h-3.5 text-gray-400 dark:text-white/40" />
+                    <X className="w-3.5 h-3.5 text-foreground-tertiary" />
                   </button>
                 )}
               </div>
@@ -286,7 +286,7 @@ export function SearchableSelect({
           >
             {loading ? (
               <div className="flex items-center justify-center py-8">
-                <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                <div className="w-6 h-6 border-2 border-terracotta-500 border-t-transparent rounded-full animate-spin" />
               </div>
             ) : filteredOptions.length > 0 ? (
               filteredOptions.map((option, index) => {
@@ -303,10 +303,10 @@ export function SearchableSelect({
                       relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left
                       transition-colors duration-100
                       ${isSelected
-                        ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400'
+                        ? 'bg-warm-50 text-terracotta-600'
                         : isHighlighted
-                          ? 'bg-gray-100 dark:bg-white/10 text-gray-900 dark:text-white'
-                          : 'text-gray-700 dark:text-white/80 hover:bg-gray-50 dark:hover:bg-white/5'
+                          ? 'bg-warm-100 text-foreground'
+                          : 'text-foreground hover:bg-warm-50'
                       }
                     `}
                     role="option"
@@ -318,33 +318,33 @@ export function SearchableSelect({
 
                     <div className="flex-1 min-w-0">
                       <div className={`text-sm font-medium truncate ${
-                        isSelected ? 'text-blue-600 dark:text-blue-400' : ''
+                        isSelected ? 'text-terracotta-600' : ''
                       }`}>
                         {option.label}
                       </div>
                       {option.description && (
-                        <div className="text-xs text-gray-500 dark:text-white/50 truncate mt-0.5">
+                        <div className="text-xs text-foreground-secondary truncate mt-0.5">
                           {option.description}
                         </div>
                       )}
                     </div>
 
                     {isSelected && (
-                      <Check className="w-4 h-4 flex-shrink-0 text-blue-500 dark:text-blue-400" />
+                      <Check className="w-4 h-4 flex-shrink-0 text-terracotta-500" />
                     )}
                   </button>
                 );
               })
             ) : (
               <div className="py-8 text-center">
-                <div className="text-gray-400 dark:text-white/40 text-sm">
+                <div className="text-foreground-tertiary text-sm">
                   {emptyMessage}
                 </div>
                 {searchQuery && (
                   <button
                     type="button"
                     onClick={() => setSearchQuery('')}
-                    className="mt-2 text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300"
+                    className="mt-2 text-xs text-terracotta-500 hover:text-terracotta-600"
                   >
                     Clear search
                   </button>
@@ -355,8 +355,8 @@ export function SearchableSelect({
 
           {/* Footer with count */}
           {filteredOptions.length > 0 && showSearch && (
-            <div className="px-3 py-2 border-t border-gray-100 dark:border-white/10 bg-gray-50 dark:bg-white/5">
-              <span className="text-xs text-gray-400 dark:text-white/40">
+            <div className="px-3 py-2 border-t border-warm-200 bg-warm-50">
+              <span className="text-xs text-foreground-tertiary">
                 {searchQuery
                   ? `${filteredOptions.length} of ${options.length} options`
                   : `${options.length} options`

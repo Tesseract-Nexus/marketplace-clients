@@ -185,11 +185,11 @@ class LocationAPI {
       console.warn('Using mock countries data - backend not available');
       // Return mock data for development (matching API contract structure)
       return [
-        { id: 'US', name: 'United States', calling_code: '+1', capital: 'Washington', currency: 'USD', native_name: 'United States', region: 'Americas', subregion: 'Northern America', flag_emoji: '🇺🇸', active: true },
-        { id: 'GB', name: 'United Kingdom', calling_code: '+44', capital: 'London', currency: 'GBP', native_name: 'United Kingdom', region: 'Europe', subregion: 'Northern Europe', flag_emoji: '🇬🇧', active: true },
-        { id: 'CA', name: 'Canada', calling_code: '+1', capital: 'Ottawa', currency: 'CAD', native_name: 'Canada', region: 'Americas', subregion: 'Northern America', flag_emoji: '🇨🇦', active: true },
-        { id: 'AU', name: 'Australia', calling_code: '+61', capital: 'Canberra', currency: 'AUD', native_name: 'Australia', region: 'Oceania', subregion: 'Australia and New Zealand', flag_emoji: '🇦🇺', active: true },
-        { id: 'IN', name: 'India', calling_code: '+91', capital: 'New Delhi', currency: 'INR', native_name: 'भारत', region: 'Asia', subregion: 'Southern Asia', flag_emoji: '🇮🇳', active: true },
+        { id: 'US', name: 'United States', phone_code: '+1', calling_code: '+1', capital: 'Washington', currency: 'USD', native_name: 'United States', region: 'Americas', subregion: 'Northern America', flag_emoji: '🇺🇸', active: true },
+        { id: 'GB', name: 'United Kingdom', phone_code: '+44', calling_code: '+44', capital: 'London', currency: 'GBP', native_name: 'United Kingdom', region: 'Europe', subregion: 'Northern Europe', flag_emoji: '🇬🇧', active: true },
+        { id: 'CA', name: 'Canada', phone_code: '+1', calling_code: '+1', capital: 'Ottawa', currency: 'CAD', native_name: 'Canada', region: 'Americas', subregion: 'Northern America', flag_emoji: '🇨🇦', active: true },
+        { id: 'AU', name: 'Australia', phone_code: '+61', calling_code: '+61', capital: 'Canberra', currency: 'AUD', native_name: 'Australia', region: 'Oceania', subregion: 'Australia and New Zealand', flag_emoji: '🇦🇺', active: true },
+        { id: 'IN', name: 'India', phone_code: '+91', calling_code: '+91', capital: 'New Delhi', currency: 'INR', native_name: 'भारत', region: 'Asia', subregion: 'Southern Asia', flag_emoji: '🇮🇳', active: true },
       ];
     }
   }

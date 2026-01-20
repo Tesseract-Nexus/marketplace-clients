@@ -32,9 +32,9 @@ export const businessInfoSchema = z.object({
     .optional(),
 
   // Existing store migration support
-  hasExistingStore: z.boolean().default(false),
-  existingStorePlatforms: z.array(z.string()).default([]),
-  migrationInterest: z.boolean().default(false),
+  hasExistingStore: z.boolean().optional(),
+  existingStorePlatforms: z.array(z.string()).optional(),
+  migrationInterest: z.boolean().optional(),
 });
 
 // Supported marketplace platforms for migration
@@ -200,7 +200,7 @@ export const storeSetupSchema = z.object({
   // Business model: single-vendor store or multi-vendor marketplace
   businessModel: z.enum(BUSINESS_MODELS, {
     message: 'Please select a business model',
-  }).default('ONLINE_STORE'),
+  }).optional(),
 
   // Admin URL slug: {subdomain}-admin.tesserix.app
   subdomain: z

@@ -9,6 +9,7 @@ import { Switch } from '@/components/ui';
 import { Separator } from '@/components/ui';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui';
 import Header from '../../components/Header';
+import { Footer } from '../../components/Footer';
 import { 
   Check, 
   Zap, 
@@ -30,6 +31,10 @@ import {
 } from 'lucide-react';
 import { useOnboardingStore } from '../../lib/store/onboarding-store';
 import { locationApi } from '../../lib/api/location';
+
+// Development-only logging
+const isDev = process.env.NODE_ENV === 'development';
+const devError = (...args: unknown[]) => isDev && console.error(...args);
 
 const COUNTRIES = [
   { code: 'US', name: 'United States', currency: 'USD' },
@@ -59,7 +64,7 @@ export default function PricingPage() {
         setDetectedCountry(location.country);
         setDetectedCurrency(location.currency);
       } catch (error) {
-        console.error('Failed to detect location:', error);
+        devError('[Pricing] Failed to detect location:', error);
         // Fallback to US/USD if detection fails
       } finally {
         setIsLoading(false);
@@ -112,7 +117,7 @@ export default function PricingPage() {
       <Header currentPage="pricing" />
       
       {/* Page Header */}
-      <div className="pt-24 pb-8 px-6">
+      <div className="pt-24 pb-8 px-6 reveal-once">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="display-medium text-[var(--foreground)] mb-4">Simple Revenue Sharing</h1>
           <p className="body-large text-[var(--foreground-secondary)]">Start free, pay only when you sell</p>
@@ -121,24 +126,16 @@ export default function PricingPage() {
 
       <div className="max-w-7xl mx-auto px-6 pb-16">
         {/* Hero Section */}
-        <div className="text-center mb-16 relative">
-          {/* Background elements */}
-          <div className="absolute inset-0 -z-10">
-            <div className="absolute top-10 left-1/4 w-64 h-64 bg-gradient-to-br from-[var(--apple-gray-5)] to-transparent rounded-full blur-3xl opacity-30 animate-float" />
-            <div className="absolute bottom-10 right-1/4 w-80 h-80 bg-gradient-to-br from-[var(--apple-gray-4)] to-transparent rounded-full blur-3xl opacity-20 animate-float" style={{animationDelay: '1s'}} />
-          </div>
-          
-          <div className="animate-fadeInUp">
-            <h2 className="display-large text-[var(--foreground)] mb-6">
-              Start free, pay only when you sell
-            </h2>
-            <p className="body-large text-[var(--foreground-secondary)] max-w-3xl mx-auto mb-8">
-              No setup fees, no monthly charges, no hidden costs. We only succeed when you do.
-            </p>
-          </div>
+        <div className="text-center mb-16">
+          <h2 className="display-large text-[var(--foreground)] mb-6">
+            Start free, pay only when you sell
+          </h2>
+          <p className="body-large text-[var(--foreground-secondary)] max-w-3xl mx-auto mb-8">
+            No setup fees, no monthly charges, no hidden costs. We only succeed when you do.
+          </p>
 
-          <div className="flex items-center justify-center gap-6 mb-8 animate-fadeInUp" style={{animationDelay: '0.2s'}}>
-            <div className="glass-card rounded-xl px-4 py-2 flex items-center gap-2">
+          <div className="flex items-center justify-center gap-6 mb-8">
+            <div className="bg-card border border-border shadow-sm rounded-xl px-4 py-2 flex items-center gap-2">
               <MapPin className="w-4 h-4 text-[var(--primary)]" />
               <span className="text-[var(--foreground)] text-sm">
                 {isLoading ? 'Detecting location...' : COUNTRIES.find(c => c.code === detectedCountry)?.name || 'United States'}
@@ -147,31 +144,37 @@ export default function PricingPage() {
           </div>
         </div>
 
-        <div className="animate-fadeInUp" style={{animationDelay: '0.4s'}}>
+        <div className="reveal-once" style={{ animationDelay: '0.1s' }}>
           {/* Revenue Share Pricing */}
           <div className="w-full">
             {/* Main Revenue Share Hero */}
             <div className="text-center mb-16">
-              <div className="glass-strong rounded-3xl p-12 max-w-4xl mx-auto border border-[var(--border)]/20 hover:scale-105 transition-all duration-500 shadow-2xl">
-                <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-[var(--apple-green)] to-[var(--apple-mint)] flex items-center justify-center mb-8 animate-float shadow-2xl">
-                  <Check className="w-10 h-10 text-white" />
+              <div className="bg-card border border-border shadow-sm rounded-3xl p-12 max-w-4xl mx-auto">
+                <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-8 shadow-sm">
+                  <Check className="w-10 h-10 text-foreground-secondary" />
                 </div>
                 <h3 className="display-medium text-[var(--foreground)] mb-6">Simple Revenue Sharing</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-                  <div className="text-center">
-                    <div className="text-6xl font-bold text-[var(--primary)] mb-4">2.8%</div>
-                    <div className="body font-semibold text-[var(--foreground)] mb-2">Per Transaction</div>
-                    <div className="caption text-[var(--foreground-secondary)]">Industry-leading low rate</div>
+                <div className="space-y-4 mb-8 max-w-2xl mx-auto">
+                  <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3">
+                    <div>
+                      <div className="text-sm font-semibold text-[var(--foreground)]">Per Transaction</div>
+                      <div className="text-xs text-[var(--foreground-secondary)]">Industry-leading low rate</div>
+                    </div>
+                    <div className="text-2xl font-bold text-[var(--primary)]">2.8%</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-6xl font-bold text-[var(--apple-green)] mb-4">{currencySymbol}0</div>
-                    <div className="body font-semibold text-[var(--foreground)] mb-2">Setup Fees</div>
-                    <div className="caption text-[var(--foreground-secondary)]">Get started instantly</div>
+                  <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3">
+                    <div>
+                      <div className="text-sm font-semibold text-[var(--foreground)]">Setup Fees</div>
+                      <div className="text-xs text-[var(--foreground-secondary)]">Get started instantly</div>
+                    </div>
+                    <div className="text-2xl font-semibold text-[var(--foreground-secondary)]">{currencySymbol}0</div>
                   </div>
-                  <div className="text-center">
-                    <div className="text-6xl font-bold text-[var(--apple-blue)] mb-4">{currencySymbol}0</div>
-                    <div className="body font-semibold text-[var(--foreground)] mb-2">Monthly Fees</div>
-                    <div className="caption text-[var(--foreground-secondary)]">No recurring charges</div>
+                  <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3">
+                    <div>
+                      <div className="text-sm font-semibold text-[var(--foreground)]">Monthly Fees</div>
+                      <div className="text-xs text-[var(--foreground-secondary)]">No recurring charges</div>
+                    </div>
+                    <div className="text-2xl font-semibold text-[var(--foreground-secondary)]">{currencySymbol}0</div>
                   </div>
                 </div>
                 <p className="body-large text-[var(--foreground-secondary)] mb-8 max-w-2xl mx-auto">
@@ -179,7 +182,7 @@ export default function PricingPage() {
                 </p>
                 <button 
                   onClick={handleGetStarted}
-                  className="apple-button px-8 py-4 text-lg font-medium transition-all duration-300 hover:scale-105 animate-glow"
+                  className="apple-button px-8 py-4 text-lg font-medium transition-all duration-300  "
                 >
                   Start Selling Now
                 </button>
@@ -187,93 +190,62 @@ export default function PricingPage() {
             </div>
 
             {/* Volume Discounts */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-              <div className="glass-card rounded-3xl p-8 hover:scale-105 transition-all duration-500 animate-scaleIn border border-[var(--border)]/20">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--apple-blue)] to-[var(--apple-indigo)] flex items-center justify-center mb-6 animate-float">
-                  <Zap className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-[var(--foreground)] mb-4">Starter</h3>
-                <div className="text-3xl font-bold text-[var(--primary)] mb-2">2.8%</div>
-                <p className="text-sm text-[var(--foreground-secondary)] mb-6">
-                  Perfect for new businesses
-                </p>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-[var(--apple-green)]" />
-                    <span className="text-sm text-[var(--foreground-secondary)]">Up to {currencySymbol}50K monthly sales</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-[var(--apple-green)]" />
-                    <span className="text-sm text-[var(--foreground-secondary)]">All platform features</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-[var(--apple-green)]" />
-                    <span className="text-sm text-[var(--foreground-secondary)]">24/7 support</span>
-                  </div>
-                </div>
+            <div className="bg-card border border-border rounded-3xl p-6 mb-16">
+              <div className="flex items-center justify-between pb-4 border-b border-warm-200">
+                <h3 className="text-lg font-semibold text-foreground">Volume discounts</h3>
+                <span className="text-sm text-foreground-secondary">Rates decrease as you grow</span>
               </div>
-
-              <div className="glass-card rounded-3xl p-8 hover:scale-105 transition-all duration-500 animate-scaleIn border border-[var(--primary)]/30 shadow-2xl relative">
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <div className="glass-strong rounded-full px-4 py-2 border border-[var(--primary)]/30">
-                    <span className="text-sm font-semibold text-[var(--primary)]">Most Popular</span>
+              <div className="divide-y divide-warm-200">
+                <div className="py-5 flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-warm-100 flex items-center justify-center">
+                    <Zap className="w-5 h-5 text-foreground-secondary" />
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium text-foreground">Starter</h4>
+                      <span className="text-sm font-semibold text-foreground">2.8%</span>
+                    </div>
+                    <p className="text-sm text-foreground-secondary mt-1">
+                      Up to {currencySymbol}50K/month • All features • 24/7 support
+                    </p>
                   </div>
                 </div>
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--apple-green)] to-[var(--apple-mint)] flex items-center justify-center mb-6 animate-float">
-                  <TrendingUp className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-[var(--foreground)] mb-4">Growth</h3>
-                <div className="text-3xl font-bold text-[var(--primary)] mb-2">2.5%</div>
-                <p className="text-sm text-[var(--foreground-secondary)] mb-6">
-                  For growing businesses
-                </p>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-[var(--apple-green)]" />
-                    <span className="text-sm text-[var(--foreground-secondary)]">{currencySymbol}50K - {currencySymbol}250K monthly sales</span>
+                <div className="py-5 flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-warm-100 flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-foreground-secondary" />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-[var(--apple-green)]" />
-                    <span className="text-sm text-[var(--foreground-secondary)]">Priority support</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-[var(--apple-green)]" />
-                    <span className="text-sm text-[var(--foreground-secondary)]">Advanced analytics</span>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium text-foreground">Growth</h4>
+                      <span className="text-sm font-semibold text-foreground">2.5%</span>
+                    </div>
+                    <p className="text-sm text-foreground-secondary mt-1">
+                      {currencySymbol}50K–{currencySymbol}250K/month • Priority support • Advanced analytics
+                    </p>
                   </div>
                 </div>
-              </div>
-
-              <div className="glass-card rounded-3xl p-8 hover:scale-105 transition-all duration-500 animate-scaleIn border border-[var(--border)]/20">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--apple-indigo)] to-[var(--apple-purple)] flex items-center justify-center mb-6 animate-float">
-                  <Award className="w-8 h-8 text-white" />
-                </div>
-                <h3 className="text-xl font-bold text-[var(--foreground)] mb-4">Scale</h3>
-                <div className="text-3xl font-bold text-[var(--primary)] mb-2">2.2%</div>
-                <p className="text-sm text-[var(--foreground-secondary)] mb-6">
-                  For enterprise businesses
-                </p>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-[var(--apple-green)]" />
-                    <span className="text-sm text-[var(--foreground-secondary)]">{currencySymbol}250K+ monthly sales</span>
+                <div className="py-5 flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-warm-100 flex items-center justify-center">
+                    <Award className="w-5 h-5 text-foreground-secondary" />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-[var(--apple-green)]" />
-                    <span className="text-sm text-[var(--foreground-secondary)]">Dedicated account manager</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <Check className="w-4 h-4 text-[var(--apple-green)]" />
-                    <span className="text-sm text-[var(--foreground-secondary)]">Custom integrations</span>
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium text-foreground">Scale</h4>
+                      <span className="text-sm font-semibold text-foreground">2.2%</span>
+                    </div>
+                    <p className="text-sm text-foreground-secondary mt-1">
+                      {currencySymbol}250K+/month • Dedicated manager • Custom integrations
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
 
             {/* Cost Calculator */}
-            <div className="glass-strong rounded-3xl p-8 mb-16 border border-[var(--border)]/20">
+            <div className="bg-card border border-border shadow-sm rounded-3xl p-8 mb-16">
               <div className="flex items-center gap-4 mb-8">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--apple-yellow)] to-[var(--apple-orange)] flex items-center justify-center animate-float">
-                  <Calculator className="w-8 h-8 text-white" />
+                <div className="w-16 h-16 rounded-2xl bg-warm-100 flex items-center justify-center">
+                  <Calculator className="w-8 h-8 text-foreground-secondary" />
                 </div>
                 <div>
                   <h3 className="headline text-[var(--foreground)]">Cost Calculator</h3>
@@ -305,7 +277,7 @@ export default function PricingPage() {
                   </div>
                 </div>
                 
-                <div className="glass-subtle rounded-2xl p-6">
+                <div className="bg-card border border-border shadow-sm rounded-2xl p-6">
                   <h4 className="font-semibold text-[var(--foreground)] mb-4">Your Costs</h4>
                   <div className="space-y-4">
                     <div className="flex justify-between">
@@ -319,7 +291,7 @@ export default function PricingPage() {
                     <Separator />
                     <div className="flex justify-between text-lg">
                       <span className="font-semibold text-[var(--foreground)]">You keep:</span>
-                      <span className="font-bold text-[var(--apple-green)]">{currencySymbol}{(salesAmount - calculateFees(salesAmount).monthlyFee).toLocaleString()}</span>
+                      <span className="font-bold text-[var(--foreground-secondary)]">{currencySymbol}{(salesAmount - calculateFees(salesAmount).monthlyFee).toLocaleString()}</span>
                     </div>
                   </div>
                 </div>
@@ -328,7 +300,7 @@ export default function PricingPage() {
 
             {/* What's Included */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
-              <div className="glass-card rounded-3xl p-8">
+              <div className="bg-card border border-border shadow-sm rounded-3xl p-8">
                 <h3 className="headline text-[var(--foreground)] mb-6">Everything Included</h3>
                 <div className="space-y-4">
                   {[
@@ -344,19 +316,19 @@ export default function PricingPage() {
                     'API access'
                   ].map((feature, index) => (
                     <div key={index} className="flex items-center gap-3">
-                      <Check className="w-5 h-5 text-[var(--apple-green)]" />
+                      <Check className="w-5 h-5 text-[var(--foreground-secondary)]" />
                       <span className="text-[var(--foreground-secondary)]">{feature}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="glass-card rounded-3xl p-8">
+              <div className="bg-card border border-border shadow-sm rounded-3xl p-8">
                 <h3 className="headline text-[var(--foreground)] mb-6">Why Choose Revenue Share?</h3>
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-[var(--apple-green)]/20 flex items-center justify-center flex-shrink-0">
-                      <Shield className="w-5 h-5 text-[var(--apple-green)]" />
+                    <div className="w-10 h-10 rounded-full bg-warm-100 flex items-center justify-center flex-shrink-0">
+                      <Shield className="w-5 h-5 text-[var(--foreground-secondary)]" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-[var(--foreground)] mb-2">Risk-Free</h4>
@@ -364,8 +336,8 @@ export default function PricingPage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-[var(--apple-blue)]/20 flex items-center justify-center flex-shrink-0">
-                      <TrendingUp className="w-5 h-5 text-[var(--apple-blue)]" />
+                    <div className="w-10 h-10 rounded-full bg-warm-100 flex items-center justify-center flex-shrink-0">
+                      <TrendingUp className="w-5 h-5 text-[var(--foreground-secondary)]" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-[var(--foreground)] mb-2">Aligned Success</h4>
@@ -373,8 +345,8 @@ export default function PricingPage() {
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-full bg-[var(--apple-indigo)]/20 flex items-center justify-center flex-shrink-0">
-                      <DollarSign className="w-5 h-5 text-[var(--apple-indigo)]" />
+                    <div className="w-10 h-10 rounded-full bg-warm-100 flex items-center justify-center flex-shrink-0">
+                      <DollarSign className="w-5 h-5 text-foreground-secondary" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-[var(--foreground)] mb-2">Competitive Rates</h4>
@@ -388,23 +360,23 @@ export default function PricingPage() {
         </div>
 
         {/* FAQ Section */}
-        <div className="mt-20 text-center animate-fadeInUp">
-          <div className="glass-strong rounded-3xl p-8 max-w-4xl mx-auto border border-[var(--border)]/20">
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-[var(--apple-gray-2)] to-[var(--primary)] flex items-center justify-center mb-6 animate-float">
-              <HelpCircle className="w-8 h-8 text-white" />
+        <div className="mt-20 text-center">
+          <div className="bg-card border border-border shadow-sm rounded-3xl p-8 max-w-4xl mx-auto">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-warm-100 flex items-center justify-center mb-6">
+              <HelpCircle className="w-8 h-8 text-foreground-secondary" />
             </div>
             <h3 className="headline text-[var(--foreground)] mb-4">Questions?</h3>
             <p className="body text-[var(--foreground-secondary)] mb-8">
               Our team is here to help you understand our pricing and find the perfect solution for your business.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <button className="button-secondary px-6 py-3 font-medium transition-all duration-300 hover:scale-105 flex items-center gap-2">
+              <button className="button-secondary px-6 py-3 font-medium transition-all duration-300  flex items-center gap-2">
                 <MessageCircle className="w-4 h-4" />
                 Chat with Sales
               </button>
               <button 
                 onClick={handleGetStarted}
-                className="apple-button px-6 py-3 font-medium transition-all duration-300 hover:scale-105 flex items-center gap-2"
+                className="apple-button px-6 py-3 font-medium transition-all duration-300  flex items-center gap-2"
               >
                 Get Started Free
                 <ArrowRight className="w-4 h-4" />
@@ -413,6 +385,7 @@ export default function PricingPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

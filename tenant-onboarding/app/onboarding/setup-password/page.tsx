@@ -8,6 +8,13 @@ import { onboardingApi } from '../../../lib/api/onboarding';
 import { useOnboardingStore } from '../../../lib/store/onboarding-store';
 import { analytics } from '../../../lib/analytics/posthog';
 import { authApi } from '../../../lib/api/auth';
+import { safeRedirect, buildAdminUrl, buildDevAdminUrl } from '../../../lib/utils/safe-redirect';
+
+// Development-only logging utility
+const isDev = process.env.NODE_ENV === 'development';
+const devLog = (...args: unknown[]) => isDev && console.log(...args);
+const devWarn = (...args: unknown[]) => isDev && console.warn(...args);
+const devError = (...args: unknown[]) => isDev && console.error(...args);
 
 // Password requirements
 const PASSWORD_REQUIREMENTS = [
@@ -39,7 +46,7 @@ function SetupPasswordContent() {
   const sessionIdParam = searchParams.get('session');
   const emailParam = searchParams.get('email');
 
-  const { setTenantResult, sessionId: storeSessionId, storeSetup, _hasHydrated } = useOnboardingStore();
+  const { setTenantResult, sessionId: storeSessionId, storeSetup, contactDetails, _hasHydrated } = useOnboardingStore();
 
   const [state, setState] = useState<SetupState>('input');
   const [password, setPassword] = useState('');
@@ -76,7 +83,7 @@ function SetupPasswordContent() {
   // Only redirect if no session after hydration is complete
   useEffect(() => {
     if (_hasHydrated && !sessionId) {
-      console.log('[SetupPassword] No session found after hydration, redirecting');
+      devLog('[SetupPassword] No session found after hydration, redirecting');
       router.push('/onboarding');
     }
   }, [_hasHydrated, sessionId, router]);
@@ -101,7 +108,7 @@ function SetupPasswordContent() {
 
         attempts++;
         if (attempts >= maxAttempts) {
-          console.warn('[Provisioning] Max attempts reached, proceeding anyway');
+          devWarn('[Provisioning] Max attempts reached, proceeding anyway');
           return true; // Proceed even if timeout - VS might be ready
         }
 
@@ -109,7 +116,7 @@ function SetupPasswordContent() {
         await new Promise(resolve => setTimeout(resolve, 2000));
         return poll();
       } catch (error) {
-        console.error('[Provisioning] Poll error:', error);
+        devError('[Provisioning] Poll error:', error);
         attempts++;
         if (attempts >= maxAttempts) {
           return true; // Proceed on error after max attempts
@@ -129,7 +136,7 @@ function SetupPasswordContent() {
 
       if (authTokens) {
         try {
-          console.log('[SetupPassword] Creating fresh transfer code for auto-login...');
+          devLog('[SetupPassword] Creating fresh transfer code for auto-login...');
           const autoLoginResponse = await fetch('/api/auth/auto-login', {
             method: 'POST',
             headers: {
@@ -150,18 +157,18 @@ function SetupPasswordContent() {
 
           if (autoLoginData.success && autoLoginData.admin_url) {
             finalRedirectUrl = autoLoginData.admin_url;
-            console.log('[SetupPassword] Auto-login transfer code created, redirecting with session transfer');
+            devLog('[SetupPassword] Auto-login transfer code created, redirecting with session transfer');
           } else {
-            console.warn('[SetupPassword] Auto-login failed, falling back to login page:', autoLoginData.error);
+            devWarn('[SetupPassword] Auto-login failed, falling back to login page:', autoLoginData.error);
           }
         } catch (autoLoginError) {
-          console.error('[SetupPassword] Auto-login error, falling back to login page:', autoLoginError);
+          devError('[SetupPassword] Auto-login error, falling back to login page:', autoLoginError);
         }
       }
 
-      // Redirect to admin after a short delay
+      // Redirect to admin after a short delay (with URL validation)
       setTimeout(() => {
-        window.location.href = finalRedirectUrl;
+        safeRedirect(finalRedirectUrl, '/');
       }, 2000);
     }
   };
@@ -192,7 +199,7 @@ function SetupPasswordContent() {
 
     try {
       // Log store setup values for debugging
-      console.log('[SetupPassword] Store setup values:', {
+      devLog('[SetupPassword] Store setup values:', {
         timezone: storeSetup?.timezone,
         currency: storeSetup?.currency,
         business_model: storeSetup?.business_model,
@@ -208,7 +215,7 @@ function SetupPasswordContent() {
         currency: storeSetup?.currency || 'USD',
         business_model: storeSetup?.business_model || 'ONLINE_STORE',
       };
-      console.log('[SetupPassword] Sending account setup with:', {
+      devLog('[SetupPassword] Sending account setup with:', {
         timezone: accountSetupPayload.timezone,
         currency: accountSetupPayload.currency,
         business_model: accountSetupPayload.business_model,
@@ -235,6 +242,10 @@ function SetupPasswordContent() {
           tenant_id: tenantData.tenant_id,
           tenant_slug: tenantData.tenant_slug,
           business_name: tenantData.business_name,
+          user_id: tenantData.user_id || '',
+          email: tenantData.email || contactDetails.email || '',
+          admin_url: tenantData.admin_url || '',
+          message: data.message || 'Account created successfully',
         });
         setTenantSlug(tenantData.tenant_slug);
       }
@@ -250,7 +261,7 @@ function SetupPasswordContent() {
       try {
         localStorage.removeItem('tenant-onboarding-store');
       } catch (e) {
-        console.error('Failed to clear localStorage:', e);
+        devError('[SetupPassword] Failed to clear localStorage:', e);
       }
 
       // Build fallback admin login URL (used if auto-login fails)
@@ -268,9 +279,9 @@ function SetupPasswordContent() {
           userId: tenantData.user_id,
           tenantId: tenantData.tenant_id,
         });
-        console.log('[SetupPassword] Tokens stored for auto-login after provisioning');
+        devLog('[SetupPassword] Tokens stored for auto-login after provisioning');
       } else {
-        console.log('[SetupPassword] No tokens available, user will need to log in manually');
+        devLog('[SetupPassword] No tokens available, user will need to log in manually');
       }
 
       // Store admin URL for later use (fallback URL with /login)
@@ -288,25 +299,24 @@ function SetupPasswordContent() {
   };
 
   const handleContinueToAdmin = () => {
-    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
     // Redirect to admin login page - user will login with credentials they just created
     const adminUrl = tenantSlug
-      ? `https://${tenantSlug}-admin.${baseDomain}/login`
-      : `https://dev-admin.${baseDomain}/login`;
-    window.location.href = adminUrl;
+      ? buildAdminUrl(tenantSlug, '/login')
+      : buildDevAdminUrl('/login');
+    safeRedirect(adminUrl, '/');
   };
 
   // Show loading while store is hydrating
   if (!_hasHydrated) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <div className="min-h-screen bg-warm-50">
         <Header />
         <div className="pt-24 pb-8 px-6">
           <div className="max-w-md mx-auto">
-            <div className="bg-white dark:bg-white/5 rounded-3xl shadow-xl border border-gray-100 dark:border-white/10 p-8">
+            <div className="bg-white rounded-3xl shadow-sm border border-warm-200 p-8">
               <div className="text-center py-12">
-                <Loader2 className="w-10 h-10 animate-spin mx-auto text-blue-600" />
-                <p className="mt-4 text-gray-500">Loading...</p>
+                <Loader2 className="w-10 h-10 animate-spin mx-auto text-terracotta-600" />
+                <p className="mt-4 text-foreground-tertiary">Loading...</p>
               </div>
             </div>
           </div>
@@ -320,13 +330,13 @@ function SetupPasswordContent() {
       case 'creating':
         return (
           <div className="text-center py-12">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-[var(--apple-blue)] to-[var(--apple-indigo)] flex items-center justify-center mb-6 animate-pulse shadow-2xl">
-              <Loader2 className="w-10 h-10 text-white animate-spin" />
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 animate-pulse shadow-sm">
+              <Loader2 className="w-10 h-10 text-foreground-secondary animate-spin" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-2xl font-bold text-foreground mb-4">
               Creating Your Account
             </h2>
-            <p className="text-gray-500 dark:text-white/60">
+            <p className="text-foreground-tertiary">
               Setting up your store and dashboard...
             </p>
           </div>
@@ -335,26 +345,26 @@ function SetupPasswordContent() {
       case 'provisioning':
         return (
           <div className="text-center py-8">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-6 shadow-2xl">
-              <Loader2 className="w-10 h-10 text-white animate-spin" />
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
+              <Loader2 className="w-10 h-10 text-foreground-secondary animate-spin" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-2xl font-bold text-foreground mb-4">
               Setting Up Your Store
             </h2>
-            <p className="text-gray-500 dark:text-white/60 mb-6">
+            <p className="text-foreground-tertiary mb-6">
               We're configuring your store infrastructure. This usually takes 10-15 minutes.
             </p>
 
             {/* Progress indicator */}
             {provisioningProgress && (
               <div className="max-w-xs mx-auto mb-6">
-                <div className="flex justify-between text-sm text-gray-500 mb-2">
+                <div className="flex justify-between text-sm text-foreground-tertiary mb-2">
                   <span>Progress</span>
                   <span>{provisioningProgress.percentage}%</span>
                 </div>
-                <div className="w-full h-2 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                <div className="w-full h-2 bg-warm-200 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 transition-all duration-500 ease-out"
+                    className="h-full bg-primary transition-all duration-500 ease-out"
                     style={{ width: `${provisioningProgress.percentage}%` }}
                   />
                 </div>
@@ -373,7 +383,7 @@ function SetupPasswordContent() {
                       <div
                         key={step.key}
                         className={`flex items-center gap-2 text-sm ${
-                          isComplete ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'
+                          isComplete ? 'text-sage-600' : 'text-foreground-tertiary'
                         }`}
                       >
                         {isComplete ? (
@@ -389,8 +399,8 @@ function SetupPasswordContent() {
               </div>
             )}
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
-              <p className="text-sm text-blue-600 dark:text-blue-400">
+            <div className="bg-warm-50 rounded-xl p-4">
+              <p className="text-sm text-terracotta-600">
                 Please wait while we finalize your store setup...
               </p>
             </div>
@@ -400,29 +410,29 @@ function SetupPasswordContent() {
       case 'success':
         return (
           <div className="text-center py-8">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center mb-6 shadow-2xl animate-bounce">
-              <CheckCircle className="w-10 h-10 text-white" />
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm animate-bounce">
+              <CheckCircle className="w-10 h-10 text-foreground-secondary" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-2xl font-bold text-foreground mb-4">
               Account Created Successfully!
             </h2>
-            <p className="text-gray-500 dark:text-white/60 mb-2">
+            <p className="text-foreground-tertiary mb-2">
               Your store dashboard is ready at:
             </p>
             {tenantSlug && (
-              <p className="text-lg font-semibold text-blue-600 dark:text-blue-400 mb-6 break-all">
+              <p className="text-lg font-semibold text-terracotta-600 mb-6 break-all">
                 https://{tenantSlug}-admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}
               </p>
             )}
-            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4 mb-6">
-              <p className="text-sm text-blue-600 dark:text-blue-400 flex items-center justify-center">
+            <div className="bg-warm-50 rounded-xl p-4 mb-6">
+              <p className="text-sm text-terracotta-600 flex items-center justify-center">
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
                 Redirecting to your admin dashboard...
               </p>
             </div>
             <button
               onClick={handleContinueToAdmin}
-              className="w-full py-4 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full py-4 px-6 bg-primary hover:bg-primary-hover text-primary-foreground font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
             >
               Go to Dashboard Now
               <ArrowRight className="w-5 h-5" />
@@ -433,16 +443,16 @@ function SetupPasswordContent() {
       case 'error':
         return (
           <div className="text-center py-8">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center mb-6 shadow-2xl">
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-destructive flex items-center justify-center mb-6 shadow-sm">
               <XCircle className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            <h2 className="text-2xl font-bold text-foreground mb-4">
               Setup Failed
             </h2>
             <p className="text-red-500 mb-8">{errorMessage}</p>
             <button
               onClick={() => setState('input')}
-              className="w-full py-4 px-6 bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 text-gray-900 dark:text-white font-semibold rounded-xl transition-all duration-300"
+              className="w-full py-4 px-6 bg-warm-100 hover:bg-warm-200 text-foreground font-semibold rounded-xl transition-colors"
             >
               Try Again
             </button>
@@ -454,17 +464,17 @@ function SetupPasswordContent() {
           <div className="space-y-6">
             {/* Header */}
             <div className="text-center mb-8">
-              <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-4 shadow-xl">
-                <Shield className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 mx-auto rounded-2xl bg-warm-100 flex items-center justify-center mb-4 shadow-sm">
+                <Shield className="w-8 h-8 text-foreground-secondary" />
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+              <h2 className="text-2xl font-bold text-foreground mb-2">
                 Complete Your Account
               </h2>
-              <p className="text-gray-500 dark:text-white/60">
+              <p className="text-foreground-tertiary">
                 Choose how you want to sign in to your store
               </p>
               {email && (
-                <p className="text-sm text-blue-600 dark:text-blue-400 mt-2">{email}</p>
+                <p className="text-sm text-terracotta-600 mt-2">{email}</p>
               )}
             </div>
 
@@ -472,7 +482,7 @@ function SetupPasswordContent() {
             <div className="space-y-3">
               <button
                 onClick={handleGoogleLogin}
-                className="w-full h-14 flex items-center justify-center gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl font-medium text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                className="w-full h-14 flex items-center justify-center gap-3 bg-white border border-warm-200 rounded-xl font-medium text-foreground hover:bg-warm-50 transition-colors"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                   <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -487,10 +497,10 @@ function SetupPasswordContent() {
             {/* Divider */}
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
+                <div className="w-full border-t border-warm-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+                <span className="px-4 bg-white text-foreground-tertiary">
                   or create a password
                 </span>
               </div>
@@ -500,22 +510,22 @@ function SetupPasswordContent() {
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Password Input */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-tertiary" />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Create a strong password"
-                    className="w-full h-14 pl-12 pr-12 text-base bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                    className="w-full h-14 pl-12 pr-12 text-base bg-warm-50 border border-warm-200 rounded-xl text-foreground placeholder:text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-terracotta-500/20 focus:border-terracotta-500 transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-white/60"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground-tertiary hover:text-foreground-secondary"
                   >
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -523,14 +533,14 @@ function SetupPasswordContent() {
               </div>
 
               {/* Password Requirements */}
-              <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4">
-                <p className="text-sm font-medium text-gray-700 dark:text-white/80 mb-3">Password Requirements</p>
+              <div className="bg-warm-50 rounded-xl p-4">
+                <p className="text-sm font-medium text-foreground mb-3">Password Requirements</p>
                 <div className="grid grid-cols-2 gap-2">
                   {passwordChecks.map((req) => (
                     <div
                       key={req.id}
                       className={`flex items-center gap-2 text-sm ${
-                        req.passed ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400'
+                        req.passed ? 'text-sage-600' : 'text-foreground-tertiary'
                       }`}
                     >
                       <Check className={`w-4 h-4 ${req.passed ? 'opacity-100' : 'opacity-30'}`} />
@@ -542,28 +552,28 @@ function SetupPasswordContent() {
 
               {/* Confirm Password */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-white/80 mb-2">
+                <label className="block text-sm font-medium text-foreground mb-2">
                   Confirm Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground-tertiary" />
                   <input
                     type={showConfirmPassword ? 'text' : 'password'}
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     placeholder="Confirm your password"
-                    className={`w-full h-14 pl-12 pr-12 text-base bg-gray-50 dark:bg-white/5 border rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none focus:ring-2 transition-all ${
+                    className={`w-full h-14 pl-12 pr-12 text-base bg-warm-50 border rounded-xl text-foreground placeholder:text-foreground-tertiary focus:outline-none focus:ring-2 transition-all ${
                       confirmPassword.length > 0
                         ? passwordsMatch
-                          ? 'border-emerald-500 focus:ring-emerald-500/20 focus:border-emerald-500'
+                          ? 'border-sage-500 focus:ring-sage-500/20 focus:border-sage-500'
                           : 'border-red-400 focus:ring-red-400/20 focus:border-red-400'
-                        : 'border-gray-200 dark:border-white/10 focus:ring-blue-500/20 focus:border-blue-500'
+                        : 'border-warm-200 focus:ring-terracotta-500/20 focus:border-terracotta-500'
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-white/60"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground-tertiary hover:text-foreground-secondary"
                   >
                     {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
@@ -579,8 +589,8 @@ function SetupPasswordContent() {
                 disabled={!canSubmit}
                 className={`w-full py-4 px-6 font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 ${
                   canSubmit
-                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white'
-                    : 'bg-gray-200 dark:bg-white/10 text-gray-400 dark:text-white/30 cursor-not-allowed'
+                    ? 'bg-primary hover:bg-primary-hover text-primary-foreground'
+                    : 'bg-warm-200 text-foreground-tertiary cursor-not-allowed'
                 }`}
               >
                 Create Account with Password
@@ -593,12 +603,12 @@ function SetupPasswordContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-warm-50">
       <Header />
 
       <div className="pt-24 pb-8 px-6">
         <div className="max-w-md mx-auto">
-          <div className="bg-white dark:bg-white/5 rounded-3xl shadow-xl border border-gray-100 dark:border-white/10 p-8">
+          <div className="bg-white rounded-3xl shadow-sm border border-warm-200 p-8">
             {renderContent()}
           </div>
         </div>
@@ -609,14 +619,14 @@ function SetupPasswordContent() {
 
 function LoadingFallback() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-warm-50">
       <Header />
       <div className="pt-24 pb-8 px-6">
         <div className="max-w-md mx-auto">
-          <div className="bg-white dark:bg-white/5 rounded-3xl shadow-xl border border-gray-100 dark:border-white/10 p-8">
+          <div className="bg-white rounded-3xl shadow-sm border border-warm-200 p-8">
             <div className="text-center py-12">
-              <Loader2 className="w-10 h-10 animate-spin mx-auto text-blue-600" />
-              <p className="mt-4 text-gray-500">Loading...</p>
+              <Loader2 className="w-10 h-10 animate-spin mx-auto text-terracotta-600" />
+              <p className="mt-4 text-foreground-tertiary">Loading...</p>
             </div>
           </div>
         </div>

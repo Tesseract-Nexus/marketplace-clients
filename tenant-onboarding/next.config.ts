@@ -4,9 +4,10 @@ const nextConfig: NextConfig = {
   // Output standalone for Docker deployment
   output: 'standalone',
 
-  // Skip TypeScript errors during build (errors in workspace packages)
+  // TypeScript strict mode - all errors must be fixed before build
+  // If workspace packages have errors, fix them or exclude specific paths
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
 
   // Server external packages (native modules that shouldn't be bundled)

@@ -80,12 +80,12 @@ export function DocumentsSection({
     <div className={`space-y-8 ${className}`}>
       {/* Section Header */}
       <div className="flex items-center gap-4">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-terracotta-500 to-terracotta-600 flex items-center justify-center">
           <FileText className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Documents & Verification</h2>
-          <p className="text-gray-500 dark:text-white/50">Upload documents to verify your business</p>
+          <h2 className="text-2xl font-bold text-foreground">Documents & Verification</h2>
+          <p className="text-foreground-secondary">Upload documents to verify your business</p>
         </div>
       </div>
 
@@ -94,13 +94,13 @@ export function DocumentsSection({
 
       {/* Optional Banner */}
       {!isAddressProofRequired && !isBusinessProofRequired && !isLogoRequired && (
-        <div className="flex items-start gap-3 p-4 bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20 rounded-xl">
-          <Sparkles className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+        <div className="flex items-start gap-3 p-4 bg-warm-50 border border-warm-200 rounded-xl">
+          <Sparkles className="w-5 h-5 text-terracotta-500 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
+            <p className="text-sm font-medium text-foreground">
               These documents are optional but recommended
             </p>
-            <p className="text-sm text-blue-600 dark:text-blue-400 mt-0.5">
+            <p className="text-sm text-terracotta-600 mt-0.5">
               Uploading verification documents increases your trust score and unlocks additional features.
             </p>
           </div>
@@ -110,19 +110,19 @@ export function DocumentsSection({
       {/* Document Upload Cards */}
       <div className="space-y-6">
         {/* Address Proof Section */}
-        <div className="p-6 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl space-y-4">
+        <div className="p-6 bg-white border border-warm-200 rounded-2xl space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center">
-              <MapPin className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+            <div className="w-10 h-10 rounded-xl bg-warm-100 flex items-center justify-center">
+              <MapPin className="w-5 h-5 text-terracotta-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">
+              <h3 className="font-semibold text-foreground">
                 Address Verification
                 {!isAddressProofRequired && (
-                  <span className="ml-2 text-xs font-normal text-gray-400 dark:text-gray-500">(Optional)</span>
+                  <span className="ml-2 text-xs font-normal text-foreground-tertiary">(Optional)</span>
                 )}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-foreground-secondary">
                 Proof of your business address
               </p>
             </div>
@@ -130,7 +130,7 @@ export function DocumentsSection({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Document Type
               </label>
               <SearchableSelect
@@ -160,19 +160,19 @@ export function DocumentsSection({
         </div>
 
         {/* Business Proof Section */}
-        <div className="p-6 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl space-y-4">
+        <div className="p-6 bg-white border border-warm-200 rounded-2xl space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center">
-              <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <div className="w-10 h-10 rounded-xl bg-warm-100 flex items-center justify-center">
+              <Building2 className="w-5 h-5 text-terracotta-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">
+              <h3 className="font-semibold text-foreground">
                 Business Verification
                 {!isBusinessProofRequired && (
-                  <span className="ml-2 text-xs font-normal text-gray-400 dark:text-gray-500">(Optional)</span>
+                  <span className="ml-2 text-xs font-normal text-foreground-tertiary">(Optional)</span>
                 )}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-foreground-secondary">
                 Official business registration or tax document
               </p>
             </div>
@@ -180,9 +180,9 @@ export function DocumentsSection({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Document Type
-                <span className="ml-2 text-xs font-normal text-gray-400">
+                <span className="ml-2 text-xs font-normal text-foreground-tertiary">
                   ({countryCode || 'Select country first'})
                 </span>
               </label>
@@ -215,19 +215,19 @@ export function DocumentsSection({
         </div>
 
         {/* Logo Upload Section */}
-        <div className="p-6 bg-white dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-2xl space-y-4">
+        <div className="p-6 bg-white border border-warm-200 rounded-2xl space-y-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-500/20 flex items-center justify-center">
-              <Palette className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+            <div className="w-10 h-10 rounded-xl bg-warm-100 flex items-center justify-center">
+              <Palette className="w-5 h-5 text-terracotta-600" />
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">
+              <h3 className="font-semibold text-foreground">
                 Company Logo
                 {!isLogoRequired && (
-                  <span className="ml-2 text-xs font-normal text-gray-400 dark:text-gray-500">(Optional)</span>
+                  <span className="ml-2 text-xs font-normal text-foreground-tertiary">(Optional)</span>
                 )}
               </h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-foreground-secondary">
                 Your brand logo for the storefront
               </p>
             </div>
@@ -249,13 +249,13 @@ export function DocumentsSection({
       </div>
 
       {/* Security Note */}
-      <div className="flex items-start gap-3 p-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl">
-        <Shield className="w-5 h-5 text-gray-400 dark:text-gray-500 flex-shrink-0 mt-0.5" />
+      <div className="flex items-start gap-3 p-4 bg-warm-50 border border-warm-200 rounded-xl">
+        <Shield className="w-5 h-5 text-foreground-tertiary flex-shrink-0 mt-0.5" />
         <div>
-          <p className="text-sm text-gray-600 dark:text-gray-300">
+          <p className="text-sm text-foreground-secondary">
             Your documents are encrypted and stored securely. We only use them for verification purposes.
           </p>
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+          <p className="text-xs text-foreground-tertiary mt-1">
             Documents are automatically deleted after verification is complete.
           </p>
         </div>

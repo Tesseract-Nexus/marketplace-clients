@@ -76,7 +76,7 @@ function RequirementItem({ met, text }: RequirementItemProps) {
   return (
     <div className="flex items-center gap-1.5">
       <div className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center ${
-        met ? 'bg-green-500' : 'bg-[var(--surface-tertiary)]'
+        met ? 'bg-sage-500' : 'bg-[var(--surface-tertiary)]'
       }`}>
         {met ? (
           <Check className="w-2.5 h-2.5 text-white" />

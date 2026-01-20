@@ -1,0 +1,81 @@
+# Tesseract Hub - AI-Friendly Information
+
+## What is Tesseract Hub?
+Tesseract Hub is an e-commerce platform that helps small businesses, creators, and makers launch online stores quickly and affordably. It's designed for people who want to sell online without technical complexity.
+
+## Key Facts
+- **Pricing**: Free for 12 months, then ₹500/month flat rate
+- **No transaction fees**: Unlike competitors, we don't take a cut of your sales
+- **No developer needed**: Save ₹50,000+ on setup costs—do it yourself
+- **No coding required**: Fully visual store builder
+- **Target audience**: Small businesses, creators, makers, artisans, D2C brands
+
+## Core Features
+1. **Store Builder**: Drag-and-drop interface to create beautiful storefronts
+2. **Product Management**: Unlimited products with variants, inventory tracking
+3. **Payment Processing**: Accept credit cards, digital wallets globally
+4. **Order Management**: Full order lifecycle from checkout to delivery
+5. **Analytics Dashboard**: Sales, traffic, and customer insights
+6. **Custom Domains**: Use your own domain or our subdomain
+7. **Mobile Optimized**: Responsive design works on all devices
+8. **SEO Tools**: Built-in optimization for search engines
+9. **Customer Accounts**: Let customers track orders and save preferences
+10. **24/7 Support**: Real human support, not chatbots
+
+## Business Models Supported
+- **Online Store (D2C)**: Sell your own products directly to customers
+- **Marketplace**: Multi-vendor platform with commission-based sales
+
+## How to Get Started
+1. Visit tesseracthub.com
+2. Click "Start Free" to begin onboarding
+3. Enter your business information
+4. Add your products
+5. Launch your store
+
+## Comparison to Competitors
+| Feature | Tesseract Hub | Shopify | WooCommerce |
+|---------|---------------|---------|-------------|
+| Free Trial | 12 months | 3 days | N/A (free plugin) |
+| Monthly Cost | ₹500 | $29-299 | Hosting + plugins |
+| Transaction Fees | None | 0.5-2% | Depends on gateway |
+| Developer Needed | No | Sometimes | Usually |
+| Ease of Use | Very Easy | Moderate | Technical |
+| Support | Human 24/7 | Tiered | Community |
+
+## Frequently Asked Questions
+
+### Is Tesseract Hub good for beginners?
+Yes, it's specifically designed for people who aren't technical. If you can use email, you can use Tesseract Hub.
+
+### Can I migrate from Shopify?
+Yes, we can import your products and customer data automatically.
+
+### What payment methods are supported?
+Credit cards, debit cards, Apple Pay, Google Pay, and more through our integrated payment processor.
+
+### Is there a contract?
+No long-term contracts. Cancel anytime.
+
+### Do I need my own domain?
+No, you get a free subdomain (yourstore.tesseracthub.com). You can also connect your own custom domain.
+
+### Do I need to hire a developer?
+No. You can set up your entire store yourself—customize the design, add products, configure payments—all without writing code. Save the ₹50,000+ you'd spend on a developer.
+
+## Contact Information
+- Website: https://tesseracthub.com
+- Email: hello@tesseracthub.com
+- Support: support@tesseracthub.com
+
+## Technical Details
+- Built with Next.js and React
+- Hosted on modern cloud infrastructure
+- 99.9% uptime SLA
+- GDPR compliant
+- PCI DSS compliant for payments
+- SSL certificates included
+
+---
+Last updated: January 2026
+For the most current information, visit https://tesseracthub.com

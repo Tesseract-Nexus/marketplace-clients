@@ -36,12 +36,12 @@ export function OnboardingBranding({ currentStep }: OnboardingBrandingProps) {
   const { icon: Icon, title, description } = steps[safeStep]!;
 
   return (
-    <div className="flex flex-col items-center justify-center text-center text-white p-12">
-        <div className="w-32 h-32 bg-white/20 rounded-3xl flex items-center justify-center shadow-2xl animate-float mb-8">
-            <Icon className="w-16 h-16 text-white" />
-        </div>
+    <div className="flex flex-col items-center justify-center text-center text-foreground p-12">
+      <div className="w-32 h-32 bg-warm-100 rounded-3xl flex items-center justify-center shadow-sm mb-8">
+        <Icon className="w-16 h-16 text-foreground-secondary" />
+      </div>
       <h2 className="display-small mb-4">{title}</h2>
-      <p className="body-large max-w-sm opacity-80">{description}</p>
+      <p className="body-large max-w-sm text-foreground-secondary">{description}</p>
     </div>
   );
 }

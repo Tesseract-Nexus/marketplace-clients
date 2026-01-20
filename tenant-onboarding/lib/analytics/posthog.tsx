@@ -124,6 +124,10 @@ export const analytics = {
     abandoned: (step: string, properties?: Record<string, any>) => {
       analytics.track('onboarding_abandoned', { step, ...properties });
     },
+
+    failed: (error: string, properties?: Record<string, any>) => {
+      analytics.track('onboarding_failed', { error, ...properties });
+    },
   },
 
   // Error tracking

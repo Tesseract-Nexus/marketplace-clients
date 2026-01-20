@@ -117,19 +117,19 @@ export const getTenantUrls = (slug: string) => {
  * Role display names and colors for UI
  */
 export const roleConfig: Record<TenantRole, { label: string; color: string; bgColor: string }> = {
-  owner: { label: 'Owner', color: 'text-purple-700', bgColor: 'bg-purple-100' },
-  admin: { label: 'Admin', color: 'text-blue-700', bgColor: 'bg-blue-100' },
-  manager: { label: 'Manager', color: 'text-green-700', bgColor: 'bg-green-100' },
-  member: { label: 'Member', color: 'text-gray-700', bgColor: 'bg-gray-100' },
-  viewer: { label: 'Viewer', color: 'text-gray-500', bgColor: 'bg-gray-50' },
+  owner: { label: 'Owner', color: 'text-terracotta-700', bgColor: 'bg-terracotta-100' },
+  admin: { label: 'Admin', color: 'text-terracotta-700', bgColor: 'bg-terracotta-100' },
+  manager: { label: 'Manager', color: 'text-sage-700', bgColor: 'bg-sage-100' },
+  member: { label: 'Member', color: 'text-foreground', bgColor: 'bg-warm-100' },
+  viewer: { label: 'Viewer', color: 'text-foreground-tertiary', bgColor: 'bg-warm-50' },
 };
 
 /**
  * Status display configuration
  */
 export const statusConfig: Record<TenantStatus, { label: string; color: string; bgColor: string }> = {
-  active: { label: 'Active', color: 'text-green-700', bgColor: 'bg-green-100' },
-  inactive: { label: 'Inactive', color: 'text-gray-500', bgColor: 'bg-gray-100' },
-  suspended: { label: 'Suspended', color: 'text-red-700', bgColor: 'bg-red-100' },
-  pending: { label: 'Pending', color: 'text-yellow-700', bgColor: 'bg-yellow-100' },
+  active: { label: 'Active', color: 'text-sage-700', bgColor: 'bg-sage-100' },
+  inactive: { label: 'Inactive', color: 'text-foreground-tertiary', bgColor: 'bg-warm-100' },
+  suspended: { label: 'Suspended', color: 'text-terracotta-700', bgColor: 'bg-terracotta-100' },
+  pending: { label: 'Pending', color: 'text-warm-700', bgColor: 'bg-warm-100' },
 };

@@ -65,32 +65,32 @@ export function VerificationScore({
 
   const colorClasses = {
     emerald: {
-      bg: 'bg-emerald-500',
-      bgLight: 'bg-emerald-50 dark:bg-emerald-500/10',
-      text: 'text-emerald-600 dark:text-emerald-400',
-      border: 'border-emerald-200 dark:border-emerald-500/30',
-      ring: 'ring-emerald-500/20',
+      bg: 'bg-sage-500',
+      bgLight: 'bg-sage-50',
+      text: 'text-sage-600',
+      border: 'border-sage-200',
+      ring: 'ring-sage-500/20',
     },
     blue: {
-      bg: 'bg-blue-500',
-      bgLight: 'bg-blue-50 dark:bg-blue-500/10',
-      text: 'text-blue-600 dark:text-blue-400',
-      border: 'border-blue-200 dark:border-blue-500/30',
-      ring: 'ring-blue-500/20',
+      bg: 'bg-terracotta-500',
+      bgLight: 'bg-warm-50',
+      text: 'text-terracotta-600',
+      border: 'border-terracotta-200',
+      ring: 'ring-terracotta-500/20',
     },
     amber: {
-      bg: 'bg-amber-500',
-      bgLight: 'bg-amber-50 dark:bg-amber-500/10',
-      text: 'text-amber-600 dark:text-amber-400',
-      border: 'border-amber-200 dark:border-amber-500/30',
-      ring: 'ring-amber-500/20',
+      bg: 'bg-warm-500',
+      bgLight: 'bg-warm-50',
+      text: 'text-warm-600',
+      border: 'border-warm-200',
+      ring: 'ring-warm-500/20',
     },
     gray: {
-      bg: 'bg-gray-400',
-      bgLight: 'bg-gray-50 dark:bg-white/5',
-      text: 'text-gray-600 dark:text-gray-400',
-      border: 'border-gray-200 dark:border-white/10',
-      ring: 'ring-gray-500/20',
+      bg: 'bg-warm-400',
+      bgLight: 'bg-warm-50',
+      text: 'text-foreground-secondary',
+      border: 'border-warm-200',
+      ring: 'ring-warm-500/20',
     },
   };
 
@@ -103,7 +103,7 @@ export function VerificationScore({
           {getShieldIcon()}
           <span className="text-sm font-semibold">{totalPoints}/{maxPoints}</span>
         </div>
-        <span className="text-sm text-gray-500 dark:text-gray-400">{label}</span>
+        <span className="text-sm text-foreground-secondary">{label}</span>
       </div>
     );
   }
@@ -117,36 +117,36 @@ export function VerificationScore({
             {getShieldIcon()}
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-white">Trust Score</h3>
+            <h3 className="font-semibold text-foreground">Trust Score</h3>
             <p className={`text-sm font-medium ${colors.text}`}>{label}</p>
           </div>
         </div>
         <div className="text-right">
           <div className={`text-2xl font-bold ${colors.text}`}>{totalPoints}</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400">of {maxPoints} points</div>
+          <div className="text-xs text-foreground-secondary">of {maxPoints} points</div>
         </div>
       </div>
 
       {/* Progress bar */}
       <div className="mb-4">
-        <div className="h-2 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+        <div className="h-2 bg-warm-200 rounded-full overflow-hidden">
           <div
             className={`h-full ${colors.bg} transition-all duration-500 ease-out rounded-full`}
             style={{ width: `${percentage}%` }}
           />
         </div>
-        <div className="flex justify-between mt-1.5 text-xs text-gray-400 dark:text-gray-500">
+        <div className="flex justify-between mt-1.5 text-xs text-foreground-tertiary">
           <span>0</span>
           <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+            <span className="w-1.5 h-1.5 rounded-full bg-warm-400" />
             {verificationScore.thresholds.minimum}
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
+            <span className="w-1.5 h-1.5 rounded-full bg-terracotta-400" />
             {verificationScore.thresholds.recommended}
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            <span className="w-1.5 h-1.5 rounded-full bg-sage-400" />
             {verificationScore.thresholds.verified}
           </span>
           <span>{maxPoints}</span>
@@ -156,7 +156,7 @@ export function VerificationScore({
       {/* Details */}
       {showDetails && (
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 mb-2">
+          <div className="flex items-center gap-2 text-xs text-foreground-secondary mb-2">
             <Info className="w-3.5 h-3.5" />
             <span>Complete more items to increase your trust score</span>
           </div>
@@ -167,19 +167,19 @@ export function VerificationScore({
                 className={`
                   flex items-center gap-2 px-3 py-2 rounded-lg text-sm
                   ${item.completed
-                    ? 'bg-white dark:bg-white/5 text-gray-900 dark:text-white'
-                    : 'bg-transparent text-gray-400 dark:text-gray-500'
+                    ? 'bg-white text-foreground'
+                    : 'bg-transparent text-foreground-tertiary'
                   }
                 `}
               >
                 {item.completed ? (
-                  <Check className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <Check className="w-4 h-4 text-sage-600 flex-shrink-0" />
                 ) : (
                   <Circle className="w-4 h-4 flex-shrink-0" />
                 )}
                 <span className="truncate flex-1">{item.label}</span>
                 <span className={`text-xs font-medium ${
-                  item.completed ? 'text-emerald-500' : 'text-gray-400'
+                  item.completed ? 'text-sage-600' : 'text-foreground-tertiary'
                 }`}>
                   +{item.points}
                 </span>

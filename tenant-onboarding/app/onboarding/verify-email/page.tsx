@@ -148,8 +148,8 @@ function VerifyEmailContent() {
       case 'verifying':
         return (
           <div className="text-center">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-[var(--apple-blue)] to-[var(--apple-indigo)] flex items-center justify-center mb-6 animate-pulse shadow-2xl">
-              <Loader2 className="w-10 h-10 text-white animate-spin" />
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 animate-pulse shadow-sm">
+              <Loader2 className="w-10 h-10 text-foreground-secondary animate-spin" />
             </div>
             <h2 className="display-medium text-[var(--foreground)] mb-4">
               {state === 'loading' ? 'Loading...' : 'Verifying Your Email'}
@@ -163,11 +163,11 @@ function VerifyEmailContent() {
       case 'success':
         return (
           <div className="text-center">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-[var(--apple-green)] to-emerald-600 flex items-center justify-center mb-6 animate-scaleIn shadow-2xl">
-              <CheckCircle className="w-10 h-10 text-white" />
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6  shadow-sm">
+              <CheckCircle className="w-10 h-10 text-foreground-secondary" />
             </div>
             <h2 className="display-medium text-[var(--foreground)] mb-4">Email Verified!</h2>
-            <div className="glass-subtle rounded-2xl p-4 mb-6">
+            <div className="bg-card border border-border shadow-sm rounded-2xl p-4 mb-6">
               <p className="body text-[var(--foreground-secondary)] mb-2">
                 Your email has been successfully verified
               </p>
@@ -175,8 +175,8 @@ function VerifyEmailContent() {
                 <p className="font-semibold text-[var(--primary)]">{email}</p>
               )}
             </div>
-            <div className="glass-subtle border border-[var(--apple-green)]/30 rounded-2xl p-4 bg-[var(--apple-green)]/5 mb-8">
-              <div className="flex items-center justify-center gap-2 text-[var(--apple-green)]">
+            <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-8">
+              <div className="flex items-center justify-center gap-2 text-foreground-secondary">
                 <CheckCircle className="w-4 h-4" />
                 <span className="text-sm font-medium">
                   {redirectCountdown > 0
@@ -187,7 +187,7 @@ function VerifyEmailContent() {
             </div>
             <button
               onClick={handleContinue}
-              className="apple-button w-full py-4 text-lg font-medium transition-all duration-300 hover:scale-105 flex items-center justify-center animate-glow"
+              className="apple-button w-full py-4 text-lg font-medium transition-all duration-300  flex items-center justify-center "
             >
               Set Up Your Password
               <ArrowRight className="w-5 h-5 ml-2" />
@@ -198,23 +198,23 @@ function VerifyEmailContent() {
       case 'expired':
         return (
           <div className="text-center">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-[var(--apple-yellow)] to-amber-600 flex items-center justify-center mb-6 animate-scaleIn shadow-2xl">
-              <AlertTriangle className="w-10 h-10 text-white" />
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6  shadow-sm">
+              <AlertTriangle className="w-10 h-10 text-foreground-secondary" />
             </div>
             <h2 className="display-medium text-[var(--foreground)] mb-4">Link Expired</h2>
-            <div className="glass-subtle rounded-2xl p-4 mb-6">
+            <div className="bg-card border border-border shadow-sm rounded-2xl p-4 mb-6">
               <p className="body text-[var(--foreground-secondary)]">
                 This verification link has expired or has already been used.
               </p>
             </div>
-            <div className="glass-subtle border border-[var(--apple-yellow)]/30 rounded-2xl p-4 bg-[var(--apple-yellow)]/5 mb-8">
+            <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-8">
               <p className="text-sm text-[var(--foreground-secondary)]">
                 Please return to the onboarding flow to request a new verification email.
               </p>
             </div>
             <button
               onClick={handleReturnToOnboarding}
-              className="apple-button w-full py-4 text-lg font-medium transition-all duration-300 hover:scale-105 flex items-center justify-center"
+              className="apple-button w-full py-4 text-lg font-medium transition-all duration-300  flex items-center justify-center"
             >
               <Mail className="w-5 h-5 mr-2" />
               Return to Onboarding
@@ -225,30 +225,30 @@ function VerifyEmailContent() {
       case 'error':
         return (
           <div className="text-center">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-[var(--apple-red)] to-red-700 flex items-center justify-center mb-6 animate-scaleIn shadow-2xl">
-              <XCircle className="w-10 h-10 text-white" />
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6  shadow-sm">
+              <XCircle className="w-10 h-10 text-foreground-secondary" />
             </div>
             <h2 className="display-medium text-[var(--foreground)] mb-4">Verification Failed</h2>
-            <div className="glass-subtle rounded-2xl p-4 mb-6">
+            <div className="bg-card border border-border shadow-sm rounded-2xl p-4 mb-6">
               <p className="body text-[var(--foreground-secondary)]">
                 We couldn't verify your email address.
               </p>
             </div>
-            <div className="glass-subtle border border-[var(--apple-red)]/30 rounded-2xl p-4 bg-[var(--apple-red)]/5 mb-8">
-              <p className="text-sm text-[var(--apple-red)]">
+            <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-8">
+              <p className="text-sm text-foreground-secondary">
                 {errorMessage || 'An unexpected error occurred'}
               </p>
             </div>
             <div className="space-y-4">
               <button
                 onClick={verifyToken}
-                className="button-secondary w-full py-3 px-6 rounded-xl font-medium transition-all duration-300 hover:scale-105 flex items-center justify-center"
+                className="button-secondary w-full py-3 px-6 rounded-xl font-medium transition-all duration-300  flex items-center justify-center"
               >
                 Try Again
               </button>
               <button
                 onClick={handleReturnToOnboarding}
-                className="apple-button w-full py-4 text-lg font-medium transition-all duration-300 hover:scale-105 flex items-center justify-center"
+                className="apple-button w-full py-4 text-lg font-medium transition-all duration-300  flex items-center justify-center"
               >
                 <Mail className="w-5 h-5 mr-2" />
                 Return to Onboarding
@@ -272,13 +272,7 @@ function VerifyEmailContent() {
       </div>
 
       <div className="max-w-2xl mx-auto px-6 pb-16">
-        {/* Background elements */}
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-[var(--apple-gray-5)] to-transparent rounded-full blur-3xl opacity-30 animate-float" />
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-gradient-to-br from-[var(--apple-gray-4)] to-transparent rounded-full blur-3xl opacity-20 animate-float" style={{animationDelay: '1s'}} />
-        </div>
-
-        <div className="glass-strong rounded-3xl p-12 border border-[var(--border)]/20 animate-fadeInUp max-w-lg mx-auto">
+        <div className="bg-card border border-border shadow-sm rounded-3xl p-12 max-w-lg mx-auto">
           {renderContent()}
         </div>
       </div>
@@ -298,10 +292,10 @@ function LoadingFallback() {
         </div>
       </div>
       <div className="max-w-2xl mx-auto px-6 pb-16">
-        <div className="glass-strong rounded-3xl p-12 border border-[var(--border)]/20 animate-fadeInUp max-w-lg mx-auto">
+        <div className="bg-card border border-border shadow-sm rounded-3xl p-12 animate-fadeInUp max-w-lg mx-auto">
           <div className="text-center">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-br from-[var(--apple-blue)] to-[var(--apple-indigo)] flex items-center justify-center mb-6 animate-pulse shadow-2xl">
-              <Loader2 className="w-10 h-10 text-white animate-spin" />
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 animate-pulse shadow-sm">
+              <Loader2 className="w-10 h-10 text-foreground-secondary animate-spin" />
             </div>
             <h2 className="display-medium text-[var(--foreground)] mb-4">Loading...</h2>
             <p className="body text-[var(--foreground-secondary)]">Please wait</p>

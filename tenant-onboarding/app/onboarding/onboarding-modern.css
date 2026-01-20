@@ -24,8 +24,8 @@
 /* Focus states for native selects */
 select:focus {
   outline: none;
-  border-color: #000;
-  box-shadow: 0 0 0 1px #000;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 1px var(--ring);
 }
 
 /* Custom select arrow */
@@ -38,7 +38,7 @@ select {
 
 /* Checkbox styling */
 input[type="checkbox"] {
-  accent-color: #000;
+  accent-color: var(--primary);
 }
 
 /* Progress bar animation */

@@ -28,8 +28,12 @@ export interface SessionResponse {
   completed_steps: OnboardingStep[];
   business_info?: BusinessInformation;
   contact_info?: ContactInformation;
+  contact_details?: ContactInformation;
   address?: BusinessAddress;
+  business_address?: BusinessAddress;
   store_setup?: StoreSetup;
+  email_verified?: boolean;
+  phone_verified?: boolean;
   created_at: string;
   updated_at: string;
   expires_at: string;
@@ -43,6 +47,11 @@ export interface BusinessInfoRequest {
   employee_count?: string;
   annual_revenue?: string;
   website?: string;
+  business_description?: string;
+  registration_number?: string;
+  existing_store_platforms?: string[];
+  has_existing_store?: boolean;
+  migration_interest?: boolean;
 }
 
 export interface BusinessInfoResponse {
@@ -58,6 +67,7 @@ export interface ContactDetailsRequest {
   email: string;
   phone: string;
   job_title?: string;
+  phone_country_code?: string;
 }
 
 export interface ContactDetailsResponse {
@@ -99,7 +109,12 @@ export interface OnboardingSession {
   template_id?: string;
   business_info?: BusinessInformation;
   contact_info?: ContactInformation;
+  contact_details?: ContactInformation;
   address?: BusinessAddress;
+  business_address?: BusinessAddress;
+  store_setup?: StoreSetup;
+  email_verified?: boolean;
+  phone_verified?: boolean;
   created_at: string;
   updated_at: string;
   expires_at: string;
@@ -112,6 +127,11 @@ export interface BusinessInformation {
   employee_count?: string;
   annual_revenue?: string;
   website?: string;
+  business_description?: string;
+  registration_number?: string;
+  existing_store_platforms?: string[];
+  has_existing_store?: boolean;
+  migration_interest?: boolean;
 }
 
 export interface ContactInformation {
@@ -120,6 +140,7 @@ export interface ContactInformation {
   email: string;
   phone: string;
   job_title?: string;
+  phone_country_code?: string;
 }
 
 export interface BusinessAddress {
@@ -191,9 +212,18 @@ export interface UpdateBusinessAddressRequest extends Partial<CreateBusinessAddr
 export interface Country {
   id: string;
   name: string;
-  code: string;
+  code?: string;
   phone_code: string;
   flag?: string;
+  // Extended fields from location service
+  calling_code?: string;
+  flag_emoji?: string;
+  capital?: string;
+  currency?: string;
+  native_name?: string;
+  region?: string;
+  subregion?: string;
+  active?: boolean;
 }
 
 export interface State {
@@ -201,6 +231,8 @@ export interface State {
   name: string;
   code: string;
   country_id: string;
+  type?: string;
+  active?: boolean;
 }
 
 export interface Currency {

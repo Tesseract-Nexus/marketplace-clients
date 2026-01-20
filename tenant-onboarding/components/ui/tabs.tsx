@@ -26,7 +26,15 @@ function TabsList({
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "inline-flex h-10 items-center justify-center rounded-lg bg-muted p-1 text-muted-foreground",
+        // Structure
+        "inline-flex h-11 items-center justify-center gap-1 p-1",
+        // Shape
+        "rounded-lg",
+        // Background - warm
+        "bg-muted",
+        "border border-border",
+        // Text
+        "text-muted-foreground",
         className
       )}
       {...props}
@@ -42,7 +50,25 @@ function TabsTrigger({
     <TabsPrimitive.Trigger
       data-slot="tabs-trigger"
       className={cn(
-        "inline-flex items-center justify-center whitespace-nowrap rounded-md px-3 py-1.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm",
+        // Structure
+        "inline-flex items-center justify-center gap-2 whitespace-nowrap",
+        "px-4 py-2",
+        // Shape
+        "rounded-md",
+        // Typography
+        "text-sm font-medium",
+        // Transitions
+        "transition-colors duration-200",
+        // Focus
+        "ring-offset-background outline-none",
+        "focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:ring-offset-2",
+        // Disabled
+        "disabled:pointer-events-none disabled:opacity-50",
+        // Default state
+        "text-muted-foreground hover:text-foreground hover:bg-background/50",
+        // Active state - warm styling
+        "data-[state=active]:bg-background data-[state=active]:text-foreground",
+        "data-[state=active]:shadow-sm data-[state=active]:border data-[state=active]:border-border",
         className
       )}
       {...props}

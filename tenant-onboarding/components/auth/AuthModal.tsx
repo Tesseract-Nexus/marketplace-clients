@@ -174,23 +174,31 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden">
+      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-lg overflow-hidden">
         {/* Header */}
-        <div className="relative px-6 pt-6 pb-4">
+        <div className="relative px-6 pt-6 pb-4 border-b border-warm-200">
           {step !== 'method' && (
             <button
               onClick={() => setStep(step === 'otp' ? 'phone' : 'method')}
-              className="absolute left-6 top-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
+              className="absolute left-6 top-6 w-10 h-10 flex items-center justify-center rounded-full bg-warm-100 hover:bg-warm-200 transition-colors"
             >
-              <ArrowLeft className="w-5 h-5 text-gray-600 dark:text-white" />
+              <ArrowLeft className="w-5 h-5 text-foreground-secondary" />
             </button>
           )}
           <button
             onClick={onClose}
-            className="absolute right-6 top-6 w-10 h-10 flex items-center justify-center rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 transition-colors"
+            className="absolute right-6 top-6 w-10 h-10 flex items-center justify-center rounded-full bg-warm-100 hover:bg-warm-200 transition-colors"
           >
-            <X className="w-5 h-5 text-gray-600 dark:text-white" />
+            <X className="w-5 h-5 text-foreground-secondary" />
           </button>
+          <div className="flex items-center justify-center">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 bg-terracotta-500 rounded-lg flex items-center justify-center">
+                <span className="text-sm font-semibold text-white">T</span>
+              </div>
+              <span className="text-base font-semibold text-foreground">Tesseract Hub</span>
+            </div>
+          </div>
         </div>
 
         {/* Content */}
@@ -199,13 +207,10 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
           {step === 'method' && (
             <div className="space-y-6">
               <div className="text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
-                  <span className="text-2xl font-bold text-white">T</span>
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                <h2 className="text-2xl font-bold text-foreground mb-2">
                   {mode === 'signin' ? 'Welcome Back' : 'Get Started'}
                 </h2>
-                <p className="text-gray-500 dark:text-gray-400">
+                <p className="text-foreground-secondary">
                   {mode === 'signin'
                     ? 'Sign in to your account'
                     : 'Create your account to start selling'}
@@ -217,7 +222,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
                 <button
                   onClick={handleGoogleLogin}
                   disabled={isLoading}
-                  className="w-full h-14 flex items-center justify-center gap-3 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl font-medium text-gray-700 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50"
+                  className="w-full h-14 flex items-center justify-center gap-3 bg-white border border-warm-200 rounded-xl font-medium text-foreground hover:bg-warm-50 transition-colors disabled:opacity-50"
                 >
                   <svg className="w-5 h-5" viewBox="0 0 24 24">
                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -243,10 +248,10 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
               {/* Divider */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
+                  <div className="w-full border-t border-warm-200"></div>
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-4 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+                  <span className="px-4 bg-white text-foreground-secondary">
                     or continue with
                   </span>
                 </div>
@@ -256,7 +261,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => { setOtpMethod('sms'); setStep('phone'); }}
-                  className="h-14 flex items-center justify-center gap-2 bg-gray-100 dark:bg-gray-800 rounded-xl font-medium text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className="h-14 flex items-center justify-center gap-2 bg-warm-100 rounded-xl font-medium text-foreground hover:bg-warm-200 transition-colors"
                 >
                   <Phone className="w-5 h-5" />
                   Phone
@@ -270,11 +275,11 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
                 </button>
               </div>
 
-              <p className="text-xs text-center text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-center text-foreground-secondary">
                 By continuing, you agree to our{' '}
-                <a href="/terms" className="text-blue-500 hover:underline">Terms of Service</a>
+                <a href="/terms" className="text-terracotta-500 hover:underline">Terms of Service</a>
                 {' '}and{' '}
-                <a href="/privacy" className="text-blue-500 hover:underline">Privacy Policy</a>
+                <a href="/privacy" className="text-terracotta-500 hover:underline">Privacy Policy</a>
               </p>
             </div>
           )}
@@ -284,7 +289,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
             <div className="space-y-6">
               <div className="text-center pt-8">
                 <div className={`w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center ${
-                  otpMethod === 'whatsapp' ? 'bg-[#25D366]' : 'bg-blue-500'
+                  otpMethod === 'whatsapp' ? 'bg-[#25D366]' : 'bg-terracotta-500'
                 }`}>
                   {otpMethod === 'whatsapp' ? (
                     <MessageCircle className="w-8 h-8 text-white" />
@@ -292,10 +297,10 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
                     <Phone className="w-8 h-8 text-white" />
                   )}
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                <h2 className="text-2xl font-bold text-foreground mb-2">
                   Enter your phone number
                 </h2>
-                <p className="text-gray-500 dark:text-gray-400">
+                <p className="text-foreground-secondary">
                   We'll send you a verification code via {otpMethod === 'whatsapp' ? 'WhatsApp' : 'SMS'}
                 </p>
               </div>
@@ -305,7 +310,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
                   <select
                     value={countryCode}
                     onChange={handleCountryChange}
-                    className="w-28 h-14 px-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-28 h-14 px-3 bg-warm-50 border border-warm-200 rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-terracotta-500"
                   >
                     {countries.map(c => (
                       <option key={c.id} value={c.id}>
@@ -318,7 +323,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
                     placeholder="Phone number"
-                    className="flex-1 h-14 px-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 h-14 px-4 bg-warm-50 border border-warm-200 rounded-xl text-foreground placeholder:text-foreground-tertiary focus:outline-none focus:ring-2 focus:ring-terracotta-500"
                   />
                 </div>
 
@@ -332,7 +337,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
                   className={`w-full h-14 rounded-xl font-semibold text-white transition-all disabled:opacity-50 flex items-center justify-center gap-2 ${
                     otpMethod === 'whatsapp'
                       ? 'bg-[#25D366] hover:bg-[#20BD5A]'
-                      : 'bg-blue-500 hover:bg-blue-600'
+                      : 'bg-terracotta-500 hover:bg-terracotta-600'
                   }`}
                 >
                   {isLoading ? (
@@ -349,13 +354,13 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
           {step === 'otp' && (
             <div className="space-y-6">
               <div className="text-center pt-8">
-                <div className="w-16 h-16 mx-auto mb-4 bg-emerald-500 rounded-2xl flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-sage-500 rounded-2xl flex items-center justify-center">
                   <CheckCircle2 className="w-8 h-8 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                <h2 className="text-2xl font-bold text-foreground mb-2">
                   Verify your number
                 </h2>
-                <p className="text-gray-500 dark:text-gray-400">
+                <p className="text-foreground-secondary">
                   Enter the 6-digit code sent to {callingCode}{phoneNumber}
                 </p>
               </div>
@@ -372,7 +377,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
                       value={digit}
                       onChange={(e) => handleOtpChange(index, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(index, e)}
-                      className="w-12 h-14 text-center text-xl font-bold bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-12 h-14 text-center text-xl font-bold bg-warm-50 border border-warm-200 rounded-xl text-foreground focus:outline-none focus:ring-2 focus:ring-terracotta-500"
                     />
                   ))}
                 </div>
@@ -384,7 +389,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
                 <button
                   onClick={handleVerifyOtp}
                   disabled={isLoading || otp.join('').length !== 6}
-                  className="w-full h-14 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl font-semibold text-white hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="w-full h-14 bg-gradient-to-r from-terracotta-500 to-terracotta-600 rounded-xl font-semibold text-white hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {isLoading ? (
                     <Loader2 className="w-5 h-5 animate-spin" />
@@ -393,12 +398,12 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
                   )}
                 </button>
 
-                <p className="text-center text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-center text-sm text-foreground-secondary">
                   Didn't receive the code?{' '}
                   <button
                     onClick={handleResendOtp}
                     disabled={countdown > 0}
-                    className="text-blue-500 hover:underline disabled:opacity-50 disabled:no-underline"
+                    className="text-terracotta-500 hover:underline disabled:opacity-50 disabled:no-underline"
                   >
                     {countdown > 0 ? `Resend in ${countdown}s` : 'Resend'}
                   </button>

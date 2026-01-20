@@ -255,7 +255,7 @@ export function DocumentUpload({
   if (value && value.status !== 'error') {
     return (
       <div className={`space-y-2 ${className}`}>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label className="block text-sm font-medium text-foreground">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -263,13 +263,13 @@ export function DocumentUpload({
         <div className={`
           relative rounded-xl border-2 overflow-hidden
           ${value.status === 'success'
-            ? 'border-emerald-300 dark:border-emerald-500/50 bg-emerald-50 dark:bg-emerald-500/10'
-            : 'border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5'
+            ? 'border-sage-300 bg-sage-50'
+            : 'border-warm-200 bg-warm-50'
           }
         `}>
           <div className="flex items-center gap-4 p-4">
             {/* Preview */}
-            <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 flex items-center justify-center overflow-hidden">
+            <div className="flex-shrink-0 w-16 h-16 rounded-lg bg-white border border-warm-200 flex items-center justify-center overflow-hidden">
               {value.preview ? (
                 <img
                   src={value.preview}
@@ -277,7 +277,7 @@ export function DocumentUpload({
                   className="w-full h-full object-cover"
                 />
               ) : (
-                <div className="text-gray-400 dark:text-white/40">
+                <div className="text-foreground-tertiary">
                   {getFileIcon(value.file.type)}
                 </div>
               )}
@@ -285,19 +285,19 @@ export function DocumentUpload({
 
             {/* File info */}
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 dark:text-white truncate">
+              <p className="font-medium text-foreground truncate">
                 {value.file.name}
               </p>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-foreground-secondary">
                 {formatFileSize(value.file.size)}
               </p>
 
               {/* Progress bar */}
               {value.status === 'uploading' && (
                 <div className="mt-2">
-                  <div className="h-1.5 bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-warm-200 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-blue-500 transition-all duration-300"
+                      className="h-full bg-terracotta-500 transition-all duration-300"
                       style={{ width: `${value.progress}%` }}
                     />
                   </div>
@@ -306,7 +306,7 @@ export function DocumentUpload({
 
               {/* Success indicator */}
               {value.status === 'success' && (
-                <div className="mt-1 flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                <div className="mt-1 flex items-center gap-1.5 text-sage-600">
                   <Check className="w-4 h-4" />
                   <span className="text-sm font-medium">Uploaded successfully</span>
                 </div>
@@ -319,7 +319,7 @@ export function DocumentUpload({
                 <button
                   type="button"
                   onClick={() => window.open(value.preview, '_blank')}
-                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 transition-colors"
+                  className="p-2 rounded-lg hover:bg-warm-100 text-foreground-secondary transition-colors"
                   title="Preview"
                 >
                   <Eye className="w-5 h-5" />
@@ -329,7 +329,7 @@ export function DocumentUpload({
                 <button
                   type="button"
                   onClick={handleRemove}
-                  className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
+                  className="p-2 rounded-lg hover:bg-red-50 text-foreground-secondary hover:text-red-500 transition-colors"
                   title="Remove"
                 >
                   <Trash2 className="w-5 h-5" />
@@ -340,7 +340,7 @@ export function DocumentUpload({
         </div>
 
         {hint && (
-          <p className="text-xs text-gray-500 dark:text-gray-400">{hint}</p>
+          <p className="text-xs text-foreground-secondary">{hint}</p>
         )}
       </div>
     );
@@ -349,14 +349,14 @@ export function DocumentUpload({
   // Render upload area
   return (
     <div className={`space-y-2 ${className}`}>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+      <label className="block text-sm font-medium text-foreground">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
-        {!required && <span className="text-gray-400 dark:text-gray-500 ml-2 text-xs font-normal">(Optional)</span>}
+        {!required && <span className="text-foreground-tertiary ml-2 text-xs font-normal">(Optional)</span>}
       </label>
 
       {description && (
-        <p className="text-sm text-gray-500 dark:text-gray-400">{description}</p>
+        <p className="text-sm text-foreground-secondary">{description}</p>
       )}
 
       <div
@@ -368,12 +368,12 @@ export function DocumentUpload({
           relative rounded-xl border-2 border-dashed p-6 cursor-pointer
           transition-all duration-200 text-center
           ${disabled
-            ? 'opacity-50 cursor-not-allowed bg-gray-50 dark:bg-white/5 border-gray-200 dark:border-white/10'
+            ? 'opacity-50 cursor-not-allowed bg-warm-50 border-warm-200'
             : isDragging
-              ? 'border-blue-500 bg-blue-50 dark:bg-blue-500/10 scale-[1.02]'
+              ? 'border-terracotta-500 bg-warm-50 scale-[1.02]'
               : value?.status === 'error'
-                ? 'border-red-300 dark:border-red-500/50 bg-red-50 dark:bg-red-500/10 hover:border-red-400'
-                : 'border-gray-300 dark:border-white/20 hover:border-blue-400 dark:hover:border-blue-500/50 hover:bg-gray-50 dark:hover:bg-white/5'
+                ? 'border-red-300 bg-red-50 hover:border-red-400'
+                : 'border-warm-300 hover:border-terracotta-300 hover:bg-warm-50'
           }
         `}
       >
@@ -392,10 +392,10 @@ export function DocumentUpload({
           <div className={`
             w-14 h-14 mx-auto rounded-full flex items-center justify-center
             ${isDragging
-              ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-500'
+              ? 'bg-terracotta-100 text-terracotta-600'
               : value?.status === 'error'
-                ? 'bg-red-100 dark:bg-red-500/20 text-red-500'
-                : 'bg-gray-100 dark:bg-white/10 text-gray-400 dark:text-white/40'
+                ? 'bg-red-100 text-red-500'
+                : 'bg-warm-100 text-foreground-tertiary'
             }
           `}>
             {isUploading ? (
@@ -411,19 +411,19 @@ export function DocumentUpload({
           <div>
             {value?.status === 'error' ? (
               <>
-                <p className="text-sm font-medium text-red-600 dark:text-red-400">
+                <p className="text-sm font-medium text-red-600">
                   {value.errorMessage}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-sm text-foreground-secondary mt-1">
                   Click to try again
                 </p>
               </>
             ) : (
               <>
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
+                <p className="text-sm font-medium text-foreground">
                   {isDragging ? 'Drop your file here' : 'Drag & drop or click to upload'}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs text-foreground-secondary mt-1">
                   {accept.map(t => t.split('/')[1]?.toUpperCase() || t).join(', ')} up to {maxSizeMB}MB
                 </p>
               </>
@@ -433,7 +433,7 @@ export function DocumentUpload({
       </div>
 
       {hint && !value?.errorMessage && (
-        <p className="text-xs text-gray-500 dark:text-gray-400">{hint}</p>
+        <p className="text-xs text-foreground-secondary">{hint}</p>
       )}
     </div>
   );
