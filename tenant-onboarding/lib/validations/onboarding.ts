@@ -223,7 +223,7 @@ export const storeSetupSchema = z.object({
   // Custom domain configuration (optional)
   useCustomDomain: z
     .boolean()
-    .default(false),
+    .optional(),
 
   // Custom domain for storefront (e.g., "store.example.com")
   customDomain: z
@@ -240,7 +240,7 @@ export const storeSetupSchema = z.object({
   // DNS verification status (set by backend)
   customDomainVerified: z
     .boolean()
-    .default(false),
+    .optional(),
 
   currency: z
     .string()
@@ -275,7 +275,7 @@ export const storeSetupSchema = z.object({
     .or(z.literal('')),
 }).refine((data) => {
   // If useCustomDomain is true, customDomain must be provided
-  if (data.useCustomDomain && (!data.customDomain || data.customDomain.trim() === '')) {
+  if (data.useCustomDomain === true && (!data.customDomain || data.customDomain.trim() === '')) {
     return false;
   }
   return true;
