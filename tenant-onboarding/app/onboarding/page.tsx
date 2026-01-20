@@ -1928,10 +1928,15 @@ export default function OnboardingPage() {
                       )}
                     </div>
 
-                    <div>
+                    <div className={`transition-all duration-200 ${showCustomDomainSection ? 'opacity-50 pointer-events-none' : ''}`}>
                       <div className="flex items-center justify-between mb-1">
-                        <label className={labelClass}>Store Admin URL *</label>
-                        {businessInfo?.business_name && (
+                        <label className={labelClass}>
+                          Store Admin URL *
+                          {showCustomDomainSection && (
+                            <span className="ml-2 text-xs font-normal text-muted-foreground">(Secondary - using custom domain)</span>
+                          )}
+                        </label>
+                        {!showCustomDomainSection && businessInfo?.business_name && (
                           <button
                             type="button"
                             onClick={() => {
@@ -1946,7 +1951,10 @@ export default function OnboardingPage() {
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground mb-2">
-                        Auto-generated from your business name. Edit if you prefer a different URL.
+                        {showCustomDomainSection
+                          ? 'This will be your backup admin URL. Your custom domain will be primary.'
+                          : 'Auto-generated from your business name. Edit if you prefer a different URL.'
+                        }
                       </p>
                       <div className="relative">
                         <div className="flex">
@@ -1954,27 +1962,32 @@ export default function OnboardingPage() {
                             <input
                               {...storeSetupForm.register('subdomain')}
                               placeholder="mystore"
+                              disabled={showCustomDomainSection}
                               onChange={(e) => {
                                 storeSetupForm.setValue('subdomain', e.target.value);
                                 setSubdomainManuallyEdited(true);
                               }}
                               className={`w-full h-14 px-5 pr-12 text-base bg-warm-50 border rounded-l-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-all ${
-                                slugValidation.isAvailable === true
-                                  ? 'border-sage-500 focus:border-sage-500 focus:ring-sage-500/20'
-                                  : slugValidation.isAvailable === false
-                                    ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                                    : 'border-warm-200 focus:border-primary focus:ring-primary/20'
+                                showCustomDomainSection
+                                  ? 'border-warm-200 bg-warm-100 cursor-not-allowed'
+                                  : slugValidation.isAvailable === true
+                                    ? 'border-sage-500 focus:border-sage-500 focus:ring-sage-500/20'
+                                    : slugValidation.isAvailable === false
+                                      ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
+                                      : 'border-warm-200 focus:border-primary focus:ring-primary/20'
                               }`}
                             />
                             {/* Validation status icon */}
                             <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                              {slugValidation.isChecking ? (
-                                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-                              ) : slugValidation.isAvailable === true ? (
-                                <Check className="w-5 h-5 text-sage-600" />
-                              ) : slugValidation.isAvailable === false ? (
-                                <AlertCircle className="w-5 h-5 text-red-500" />
-                              ) : null}
+                              {!showCustomDomainSection && (
+                                slugValidation.isChecking ? (
+                                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                                ) : slugValidation.isAvailable === true ? (
+                                  <Check className="w-5 h-5 text-sage-600" />
+                                ) : slugValidation.isAvailable === false ? (
+                                  <AlertCircle className="w-5 h-5 text-red-500" />
+                                ) : null
+                              )}
                             </div>
                           </div>
                           <span className="h-14 px-5 bg-warm-100 border border-warm-200 border-l-0 rounded-r-xl flex items-center text-sm text-muted-foreground whitespace-nowrap">
@@ -1983,7 +1996,7 @@ export default function OnboardingPage() {
                         </div>
 
                         {/* Validation message */}
-                        {slugValidation.message && (
+                        {!showCustomDomainSection && slugValidation.message && (
                           <p className={`mt-2 text-sm font-medium flex items-center gap-1.5 ${
                             slugValidation.isAvailable === true
                               ? 'text-emerald-600'
@@ -1998,7 +2011,7 @@ export default function OnboardingPage() {
                         )}
 
                         {/* Suggestions when not available */}
-                        {slugValidation.isAvailable === false && slugValidation.suggestions.length > 0 && (
+                        {!showCustomDomainSection && slugValidation.isAvailable === false && slugValidation.suggestions.length > 0 && (
                           <div className="mt-3 p-3 bg-warm-50 rounded-lg border border-warm-200">
                             <p className="text-xs text-muted-foreground mb-2">Try one of these available names:</p>
                             <div className="flex flex-wrap gap-2">
@@ -2019,10 +2032,15 @@ export default function OnboardingPage() {
                     </div>
 
                     {/* Storefront URL */}
-                    <div>
+                    <div className={`transition-all duration-200 ${showCustomDomainSection ? 'opacity-50 pointer-events-none' : ''}`}>
                       <div className="flex items-center justify-between mb-1">
-                        <label className={labelClass}>Storefront URL *</label>
-                        {storefrontSlugManuallyEdited && (
+                        <label className={labelClass}>
+                          Storefront URL *
+                          {showCustomDomainSection && (
+                            <span className="ml-2 text-xs font-normal text-muted-foreground">(Secondary - using custom domain)</span>
+                          )}
+                        </label>
+                        {!showCustomDomainSection && storefrontSlugManuallyEdited && (
                           <button
                             type="button"
                             onClick={() => {
@@ -2037,7 +2055,10 @@ export default function OnboardingPage() {
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground mb-2">
-                        Auto-synced with your admin URL. Edit if you prefer a different storefront URL.
+                        {showCustomDomainSection
+                          ? 'This will be your backup storefront URL. Your custom domain will be primary.'
+                          : 'Auto-synced with your admin URL. Edit if you prefer a different storefront URL.'
+                        }
                       </p>
                       <div className="relative">
                         <div className="flex">
@@ -2045,27 +2066,32 @@ export default function OnboardingPage() {
                             <input
                               {...storeSetupForm.register('storefrontSlug')}
                               placeholder="mystore"
+                              disabled={showCustomDomainSection}
                               onChange={(e) => {
                                 storeSetupForm.setValue('storefrontSlug', e.target.value);
                                 setStorefrontSlugManuallyEdited(true);
                               }}
                               className={`w-full h-14 px-5 pr-12 text-base bg-warm-50 border rounded-l-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-all ${
-                                storefrontValidation.isAvailable === true
-                                  ? 'border-sage-500 focus:border-sage-500 focus:ring-sage-500/20'
-                                  : storefrontValidation.isAvailable === false
-                                    ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                                    : 'border-warm-200 focus:border-primary focus:ring-primary/20'
+                                showCustomDomainSection
+                                  ? 'border-warm-200 bg-warm-100 cursor-not-allowed'
+                                  : storefrontValidation.isAvailable === true
+                                    ? 'border-sage-500 focus:border-sage-500 focus:ring-sage-500/20'
+                                    : storefrontValidation.isAvailable === false
+                                      ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
+                                      : 'border-warm-200 focus:border-primary focus:ring-primary/20'
                               }`}
                             />
                             {/* Validation status icon */}
                             <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                              {storefrontValidation.isChecking ? (
-                                <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-                              ) : storefrontValidation.isAvailable === true ? (
-                                <Check className="w-5 h-5 text-sage-600" />
-                              ) : storefrontValidation.isAvailable === false ? (
-                                <AlertCircle className="w-5 h-5 text-red-500" />
-                              ) : null}
+                              {!showCustomDomainSection && (
+                                storefrontValidation.isChecking ? (
+                                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                                ) : storefrontValidation.isAvailable === true ? (
+                                  <Check className="w-5 h-5 text-sage-600" />
+                                ) : storefrontValidation.isAvailable === false ? (
+                                  <AlertCircle className="w-5 h-5 text-red-500" />
+                                ) : null
+                              )}
                             </div>
                           </div>
                           <span className="h-14 px-5 bg-warm-100 border border-warm-200 border-l-0 rounded-r-xl flex items-center text-sm text-muted-foreground whitespace-nowrap">
@@ -2074,7 +2100,7 @@ export default function OnboardingPage() {
                         </div>
 
                         {/* Validation message */}
-                        {storefrontValidation.message && (
+                        {!showCustomDomainSection && storefrontValidation.message && (
                           <p className={`mt-2 text-sm font-medium flex items-center gap-1.5 ${
                             storefrontValidation.isAvailable === true
                               ? 'text-emerald-600'
@@ -2089,7 +2115,7 @@ export default function OnboardingPage() {
                         )}
 
                         {/* Suggestions when not available */}
-                        {storefrontValidation.isAvailable === false && storefrontValidation.suggestions.length > 0 && (
+                        {!showCustomDomainSection && storefrontValidation.isAvailable === false && storefrontValidation.suggestions.length > 0 && (
                           <div className="mt-3 p-3 bg-warm-50 rounded-lg border border-warm-200">
                             <p className="text-xs text-muted-foreground mb-2">Try one of these available names:</p>
                             <div className="flex flex-wrap gap-2">
@@ -2108,7 +2134,7 @@ export default function OnboardingPage() {
                         )}
 
                         {/* Helper text - only show when no validation message */}
-                        {!storefrontValidation.message && (
+                        {!showCustomDomainSection && !storefrontValidation.message && (
                           <p className="mt-2 text-xs text-muted-foreground">
                             This is your customer-facing store URL. Synced with admin URL by default.
                           </p>
