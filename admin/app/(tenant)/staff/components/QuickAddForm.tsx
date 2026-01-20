@@ -6,6 +6,7 @@ import { Select } from '@/components/Select';
 import { useTenant } from '@/contexts/TenantContext';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
+import { useHasPermission, Permissions } from '@/hooks/usePermission';
 import type { Team, Role, Department } from '@/lib/api/rbacTypes';
 import { CreateDepartmentModal } from './CreateDepartmentModal';
 import { CreateTeamModal } from './CreateTeamModal';
@@ -32,6 +33,10 @@ interface TeamWithRole extends Team {
 export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitting }: QuickAddFormProps) {
   const { currentTenant } = useTenant();
   const { user } = useUser();
+
+  // Permission checks for creating departments and teams
+  const canCreateDepartments = useHasPermission(Permissions.DEPARTMENTS_CREATE);
+  const canCreateTeams = useHasPermission(Permissions.TEAMS_CREATE);
 
   // Form state
   const [firstName, setFirstName] = useState('');
@@ -312,16 +317,20 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
                 <div className="flex-1">
                   <h4 className="text-lg font-semibold text-amber-800">No departments found</h4>
                   <p className="text-sm text-amber-700 mt-1">
-                    You need to create a department before adding staff members. Departments help organize your team structure.
+                    {canCreateDepartments
+                      ? 'You need to create a department before adding staff members. Departments help organize your team structure.'
+                      : 'No departments exist yet. Please contact an administrator to create departments before adding staff members.'}
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => setShowCreateDeptModal(true)}
-                    className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all font-medium shadow-md hover:shadow-lg"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Create First Department
-                  </button>
+                  {canCreateDepartments && (
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateDeptModal(true)}
+                      className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all font-medium shadow-md hover:shadow-lg"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Create First Department
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -347,14 +356,16 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
                       className="w-full"
                     />
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setShowCreateDeptModal(true)}
-                    className="px-3 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-all"
-                    title="Create new department"
-                  >
-                    <Plus className="w-5 h-5" />
-                  </button>
+                  {canCreateDepartments && (
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateDeptModal(true)}
+                      className="px-3 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-all"
+                      title="Create new department"
+                    >
+                      <Plus className="w-5 h-5" />
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -376,7 +387,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
                       disabled={!departmentId}
                     />
                   </div>
-                  {departmentId && (
+                  {departmentId && canCreateTeams && (
                     <button
                       type="button"
                       onClick={() => setShowCreateTeamModal(true)}
@@ -404,16 +415,20 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
                 <div className="flex-1">
                   <h4 className="text-sm font-semibold text-blue-800">No teams in this department</h4>
                   <p className="text-xs text-blue-700 mt-1">
-                    Create a team to assign staff members to.
+                    {canCreateTeams
+                      ? 'Create a team to assign staff members to.'
+                      : 'No teams exist in this department. Please contact an administrator to create teams.'}
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => setShowCreateTeamModal(true)}
-                    className="mt-3 inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium text-sm"
-                  >
-                    <Plus className="w-4 h-4" />
-                    Create Team
-                  </button>
+                  {canCreateTeams && (
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateTeamModal(true)}
+                      className="mt-3 inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium text-sm"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Create Team
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
