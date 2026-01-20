@@ -75,10 +75,14 @@ export async function createTicket(
 ): Promise<Ticket> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${accessToken}`,
     'X-Tenant-ID': tenantId,
     'X-Storefront-ID': storefrontId,
   };
+
+  // Include Authorization if available (legacy auth)
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
 
   if (userId) {
     headers['X-User-Id'] = userId;
@@ -95,6 +99,7 @@ export async function createTicket(
   const response = await fetch(TICKETS_API_URL, {
     method: 'POST',
     headers,
+    credentials: 'include', // Important: send session cookies for OAuth flow
     body: JSON.stringify(data),
   });
 
@@ -124,10 +129,14 @@ export async function listTickets(
   }
 
   const headers: Record<string, string> = {
-    'Authorization': `Bearer ${accessToken}`,
     'X-Tenant-ID': tenantId,
     'X-Storefront-ID': storefrontId,
   };
+
+  // Include Authorization if available (legacy auth)
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
 
   if (userId) {
     headers['X-User-Id'] = userId;
@@ -137,6 +146,7 @@ export async function listTickets(
     `${TICKETS_API_URL}?${params}`,
     {
       headers,
+      credentials: 'include', // Important: send session cookies for OAuth flow
     }
   );
 
@@ -162,10 +172,14 @@ export async function getTicket(
   userId?: string
 ): Promise<Ticket> {
   const headers: Record<string, string> = {
-    'Authorization': `Bearer ${accessToken}`,
     'X-Tenant-ID': tenantId,
     'X-Storefront-ID': storefrontId,
   };
+
+  // Include Authorization if available (legacy auth)
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
 
   if (userId) {
     headers['X-User-Id'] = userId;
@@ -173,7 +187,7 @@ export async function getTicket(
 
   const response = await fetch(
     `${TICKETS_API_URL}/${ticketId}`,
-    { headers }
+    { headers, credentials: 'include' }
   );
 
   if (!response.ok) {
@@ -196,10 +210,14 @@ export async function addTicketComment(
 ): Promise<Ticket> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${accessToken}`,
     'X-Tenant-ID': tenantId,
     'X-Storefront-ID': storefrontId,
   };
+
+  // Include Authorization if available (legacy auth)
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
 
   if (userId) {
     headers['X-User-Id'] = userId;
@@ -214,6 +232,7 @@ export async function addTicketComment(
     {
       method: 'POST',
       headers,
+      credentials: 'include', // Important: send session cookies for OAuth flow
       body: JSON.stringify({ content }),
     }
   );

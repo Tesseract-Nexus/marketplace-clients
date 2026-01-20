@@ -222,7 +222,8 @@ export default function AccountPage() {
     : '?';
 
   const handleSave = async () => {
-    if (!accessToken) return;
+    // Check for customer instead of accessToken (OAuth uses session cookies)
+    if (!customer?.id) return;
 
     setIsSaving(true);
     try {
@@ -230,8 +231,10 @@ export default function AccountPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
+          // Include Authorization if available (legacy auth), otherwise session cookies will be used
+          ...(accessToken && { 'Authorization': `Bearer ${accessToken}` }),
         },
+        credentials: 'include', // Important: send session cookies
         body: JSON.stringify({
           firstName: profile.firstName,
           lastName: profile.lastName,
