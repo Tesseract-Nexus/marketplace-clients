@@ -101,6 +101,10 @@ function LoginPageContent() {
     // Don't redirect if we're handling an error (user was just logged out)
     if (handledUrlError) return;
 
+    // Don't redirect if there are error params - let the error handler process them first
+    const errorCode = searchParams.get('error');
+    if (errorCode) return;
+
     if (isAuthenticated && user) {
       const currentTenantSlug = getCurrentTenantSlug();
       if (currentTenantSlug) {
@@ -109,7 +113,7 @@ function LoginPageContent() {
       }
       router.replace('/welcome');
     }
-  }, [isAuthenticated, authLoading, user, router, handledUrlError]);
+  }, [isAuthenticated, authLoading, user, router, handledUrlError, searchParams]);
 
   // Handle email submission - lookup tenants
   const handleEmailSubmit = async (e: React.FormEvent) => {
@@ -298,8 +302,9 @@ function LoginPageContent() {
     );
   }
 
-  // If authenticated, show loading while redirecting
-  if (isAuthenticated) {
+  // If authenticated and not handling an error, show loading while redirecting
+  // (When handling unauthorized error, we need to show the login form with the error message)
+  if (isAuthenticated && !handledUrlError) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-violet-900">
         <div className="flex flex-col items-center gap-4">
