@@ -594,10 +594,11 @@ function ProductCard({
           )}
         </div>
 
-        {/* Add to Cart (list view) */}
+        {/* Add to Cart (list view) - compact button, not full width */}
         {viewMode === 'list' && (
           <Button
-            className="mt-4 btn-tenant-primary"
+            size="sm"
+            className="mt-4 w-fit btn-tenant-primary"
             onClick={() =>
               addToCart({
                 productId: product.id,
