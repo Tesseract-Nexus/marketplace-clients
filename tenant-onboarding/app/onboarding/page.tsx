@@ -2192,14 +2192,14 @@ export default function OnboardingPage() {
                           <div className="space-y-5">
                             {/* Custom Domain Input */}
                             <div>
-                              <label className={labelClass}>Custom Domain</label>
+                              <label className={labelClass}>Your Domain</label>
                               <p className="text-sm text-muted-foreground mb-3">
-                                Enter the domain you want to connect to your store
+                                Enter your root domain (e.g., yourbrand.com). We'll automatically configure admin and storefront URLs.
                               </p>
                               <div className="relative">
                                 <input
                                   {...storeSetupForm.register('customDomain')}
-                                  placeholder="store.yourbrand.com"
+                                  placeholder="yourbrand.com"
                                   className={`w-full h-14 px-5 pr-12 text-base bg-white dark:bg-white/5 border-2 rounded-xl text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 transition-all ${
                                     customDomainValidation.isValid === true
                                       ? 'border-emerald-500 focus:border-emerald-500 focus:ring-emerald-500/20'
@@ -2242,6 +2242,47 @@ export default function OnboardingPage() {
                                 </p>
                               )}
                             </div>
+
+                            {/* Generated URLs Preview */}
+                            {storeSetupForm.watch('customDomain') && storeSetupForm.watch('customDomain').length >= 4 && (
+                              <div className="p-4 bg-white dark:bg-white/5 rounded-xl border-2 border-warm-200 dark:border-white/10">
+                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Your Store URLs</p>
+                                <div className="space-y-3">
+                                  {/* Admin URL */}
+                                  <div className="flex items-center gap-3 p-3 bg-warm-50 dark:bg-white/5 rounded-lg">
+                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                      <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                      </svg>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs text-muted-foreground">Admin Dashboard</p>
+                                      <p className="text-sm font-semibold text-foreground truncate">
+                                        https://admin.{storeSetupForm.watch('customDomain')?.replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/$/, '')}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  {/* Storefront URLs */}
+                                  <div className="flex items-center gap-3 p-3 bg-warm-50 dark:bg-white/5 rounded-lg">
+                                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                                      <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                      </svg>
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                      <p className="text-xs text-muted-foreground">Storefront (Customer-facing)</p>
+                                      <p className="text-sm font-semibold text-foreground">
+                                        https://{storeSetupForm.watch('customDomain')?.replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/$/, '')}
+                                      </p>
+                                      <p className="text-xs text-muted-foreground mt-0.5">
+                                        Also: https://www.{storeSetupForm.watch('customDomain')?.replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/$/, '')}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
 
                             {/* DNS Configuration Instructions */}
                             {customDomainValidation.isValid === true && customDomainValidation.verificationRecord && (
