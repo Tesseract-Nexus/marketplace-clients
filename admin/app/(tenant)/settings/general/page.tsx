@@ -1420,75 +1420,6 @@ export default function GeneralSettingsPage() {
               </div>
             </div>
 
-            {/* Business Settings */}
-            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-green-600" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-foreground">Regional Settings</h3>
-                  <p className="text-sm text-muted-foreground">Currency, timezone, and date format</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div data-field="business.currency">
-                  <label className="block text-sm font-semibold text-foreground mb-2">
-                    <DollarSign className="h-4 w-4 inline mr-1" />
-                    Currency <span className="text-red-500">*</span>
-                  </label>
-                  <Select
-                    value={settings.business.currency}
-                    onChange={(value) =>
-                      setSettings({
-                        ...settings,
-                        business: { ...settings.business, currency: value },
-                      })
-                    }
-                    options={currencyOptions}
-                  />
-                </div>
-
-                <div data-field="business.timezone">
-                  <label className="block text-sm font-semibold text-foreground mb-2">
-                    <Clock className="h-4 w-4 inline mr-1" />
-                    Timezone
-                  </label>
-                  <Select
-                    value={settings.business.timezone}
-                    onChange={(value) =>
-                      setSettings({
-                        ...settings,
-                        business: { ...settings.business, timezone: value },
-                      })
-                    }
-                    options={timezoneOptions}
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">
-                    Date Format
-                  </label>
-                  <Select
-                    value={settings.business.dateFormat}
-                    onChange={(value) =>
-                      setSettings({
-                        ...settings,
-                        business: { ...settings.business, dateFormat: value },
-                      })
-                    }
-                    options={dateFormatOptions}
-                  />
-                </div>
-              </div>
-
-              <p className="text-xs text-muted-foreground mt-4">
-                These settings are automatically synced when you change your country. You can override them here if needed.
-              </p>
-            </div>
-
             {/* Storefront Visibility Section */}
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
@@ -1597,6 +1528,75 @@ export default function GeneralSettingsPage() {
                     : 'Your store is hidden. Finish setting up your store, then toggle on to make it visible to customers.'}
                 </p>
               </div>
+            </div>
+
+            {/* Business Settings */}
+            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
+                  <DollarSign className="h-6 w-6 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-foreground">Regional Settings</h3>
+                  <p className="text-sm text-muted-foreground">Currency, timezone, and date format</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div data-field="business.currency">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    <DollarSign className="h-4 w-4 inline mr-1" />
+                    Currency <span className="text-red-500">*</span>
+                  </label>
+                  <Select
+                    value={settings.business.currency}
+                    onChange={(value) =>
+                      setSettings({
+                        ...settings,
+                        business: { ...settings.business, currency: value },
+                      })
+                    }
+                    options={currencyOptions}
+                  />
+                </div>
+
+                <div data-field="business.timezone">
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    <Clock className="h-4 w-4 inline mr-1" />
+                    Timezone
+                  </label>
+                  <Select
+                    value={settings.business.timezone}
+                    onChange={(value) =>
+                      setSettings({
+                        ...settings,
+                        business: { ...settings.business, timezone: value },
+                      })
+                    }
+                    options={timezoneOptions}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Date Format
+                  </label>
+                  <Select
+                    value={settings.business.dateFormat}
+                    onChange={(value) =>
+                      setSettings({
+                        ...settings,
+                        business: { ...settings.business, dateFormat: value },
+                      })
+                    }
+                    options={dateFormatOptions}
+                  />
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground mt-4">
+                These settings are automatically synced when you change your country. You can override them here if needed.
+              </p>
             </div>
 
           </div>
