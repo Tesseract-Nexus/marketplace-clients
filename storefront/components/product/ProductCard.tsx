@@ -38,6 +38,9 @@ import { ImageLightbox } from '@/components/ui/ImageLightbox';
 // Low-quality image placeholder for blur effect
 const BLUR_DATA_URL = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMCwsLCgwMDQ4OCwwNDQ4QDw8RDwwQEBEREQ0NDg8QEBEQEP/2wBDAQMEBAUEBQkFBQkRDA0MERAREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREP/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAkH/8QAIhAAAgEEAQUBAAAAAAAAAAAAAQIDAAQFERIGByExQVH/xAAVAQEBAAAAAAAAAAAAAAAAAAAAAf/EABgRAAMBAQAAAAAAAAAAAAAAAAACAwEh/9oADAMBAAIRAxEAPwCwu5nUGZwtpBHh8PKJ5pC3NmQAKAOo8+Ttv7pSlKFYiLP/2Q==';
 
+// Professional placeholder SVG for failed images
+const FALLBACK_PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect fill='%23f8f8f8' width='400' height='400'/%3E%3Cg fill='%23e0e0e0'%3E%3Crect x='170' y='130' width='60' height='80' rx='4'/%3E%3Ccircle cx='200' cy='190' r='35'/%3E%3Cpath d='M145 260h110v10H145z'/%3E%3Cpath d='M165 280h70v6H165z'/%3E%3C/g%3E%3C/svg%3E";
+
 export interface ProductCardProps {
   product: Product;
   className?: string;
@@ -86,6 +89,7 @@ export function ProductCard({
   const [isCreatingList, setIsCreatingList] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const imageIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Detect touch device
@@ -413,7 +417,7 @@ export function ProductCard({
       <Link href={getNavPath(`/products/${product.id}`)}>
         {/* Image Container */}
         <div className={cn(
-          'relative overflow-hidden bg-muted',
+          'relative overflow-hidden bg-stone-50',
           aspectRatioClass,
           isOutOfStock && 'opacity-75'
         )}>
@@ -437,15 +441,19 @@ export function ProductCard({
                   className="absolute inset-0"
                 >
                   <Image
-                    src={allImages[currentImageIndex] || imageUrl}
+                    src={imageError ? FALLBACK_PLACEHOLDER : (allImages[currentImageIndex] || imageUrl)}
                     alt={product.name}
                     fill
-                    className="object-cover pointer-events-none"
+                    className={cn(
+                      "object-cover pointer-events-none",
+                      imageError && "object-contain p-8"
+                    )}
                     draggable={false}
                     placeholder="blur"
                     blurDataURL={BLUR_DATA_URL}
                     loading={loading}
                     priority={priority}
+                    onError={() => setImageError(true)}
                   />
                 </motion.div>
               </AnimatePresence>
@@ -453,18 +461,20 @@ export function ProductCard({
           ) : (
             /* Desktop Image (cycles on hover) */
             <Image
-              src={currentImage}
+              src={imageError ? FALLBACK_PLACEHOLDER : currentImage}
               alt={product.name}
               fill
               className={cn(
                 'object-cover transition-transform duration-300',
                 productConfig.hoverEffect === 'zoom' && imageCount <= 1 && !isTouchDevice && 'group-hover:scale-[1.02]',
-                productConfig.hoverEffect === 'fade' && imageCount <= 1 && !isTouchDevice && 'group-hover:opacity-90'
+                productConfig.hoverEffect === 'fade' && imageCount <= 1 && !isTouchDevice && 'group-hover:opacity-90',
+                imageError && 'object-contain p-8'
               )}
               placeholder="blur"
               blurDataURL={BLUR_DATA_URL}
               loading={loading}
               priority={priority}
+              onError={() => setImageError(true)}
             />
           )}
 
@@ -539,9 +549,9 @@ export function ProductCard({
             </div>
           )}
 
-          {/* Subtle overlay on hover - editorial style (no gradient) */}
+          {/* Subtle overlay on hover */}
           <div
-            className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10"
+            className="absolute inset-0 bg-stone-900/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10"
           />
 
           {/* Badges */}
@@ -568,12 +578,12 @@ export function ProductCard({
                 <button
                   type="button"
                   className={cn(
-                    'absolute top-3 right-3 h-11 w-11 rounded-full transition-all duration-300 z-20',
+                    'absolute top-2.5 right-2.5 h-9 w-9 rounded-full transition-all duration-200 z-20',
                     'flex items-center justify-center',
-                    'hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2',
+                    'focus:outline-none focus:ring-2 focus:ring-offset-1',
                     isInList
-                      ? 'bg-red-500 text-white hover:bg-red-600 shadow-lg shadow-red-500/40 focus:ring-red-500'
-                      : 'bg-white/95 backdrop-blur-sm text-gray-600 hover:bg-red-500 hover:text-white shadow-lg border border-gray-200 focus:ring-red-400'
+                      ? 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-500'
+                      : 'bg-white text-stone-500 hover:text-red-500 shadow-sm border border-stone-200 focus:ring-red-400'
                   )}
                   onClick={(e) => {
                     e.preventDefault();
@@ -670,12 +680,7 @@ export function ProductCard({
               opacity: isTouchDevice ? 1 : (isHovered ? 1 : 0),
               y: isTouchDevice ? 0 : (isHovered ? 0 : 10)
             }}
-            className={cn(
-              "absolute inset-x-0 bottom-0 p-3",
-              isTouchDevice
-                ? "bg-gradient-to-t from-black/60 via-black/30 to-transparent"
-                : "bg-gradient-to-t from-black/70 via-black/40 to-transparent"
-            )}
+            className="absolute inset-x-0 bottom-0 p-3 bg-white/95 backdrop-blur-sm border-t border-stone-100"
           >
             <div className="flex gap-2">
               <Button
@@ -710,15 +715,15 @@ export function ProductCard({
                   variant="secondary"
                   size="sm"
                   className={cn(
-                    "h-10 px-4 gap-2 font-semibold shadow-md",
+                    "h-10 px-3 gap-1.5 font-medium border border-stone-200",
                     isInList
-                      ? "bg-red-500 text-white hover:bg-red-600 border-0"
-                      : "bg-white text-gray-700 hover:bg-red-500 hover:text-white border-0"
+                      ? "bg-red-50 text-red-600 border-red-200"
+                      : "bg-white text-stone-600"
                   )}
                   onClick={handleQuickAddToDefault}
                 >
                   <Heart className={cn(
-                    "h-5 w-5",
+                    "h-4 w-4",
                     isInList && "fill-current",
                     isHeartAnimating && "animate-heart-pop"
                   )} />
@@ -743,13 +748,13 @@ export function ProductCard({
         <div className="p-4">
           {/* Category/Brand */}
           {product.brand && (
-            <p className="text-xs text-tenant-primary/70 uppercase tracking-wider mb-1 font-medium">
+            <p className="text-xs text-stone-500 uppercase tracking-wider mb-1.5 font-medium">
               <TranslatedText text={product.brand} context="brand name" />
             </p>
           )}
 
           {/* Title */}
-          <h3 className="font-semibold text-sm md:text-base line-clamp-2 group-hover:text-tenant-primary transition-colors duration-300">
+          <h3 className="font-medium text-stone-900 text-sm md:text-base line-clamp-2 group-hover:text-stone-700 transition-colors duration-200">
             <TranslatedProductName name={product.name} />
           </h3>
 

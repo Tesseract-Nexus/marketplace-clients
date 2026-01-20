@@ -28,21 +28,23 @@ function SkeletonShimmer({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-// Product card skeleton with shimmer
+// Product card skeleton with shimmer - clean editorial style
 function ProductCardSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn("rounded-xl overflow-hidden bg-card border", className)}>
-      <SkeletonShimmer className="aspect-square w-full" />
-      <div className="p-4 space-y-3">
-        <SkeletonShimmer className="h-3 w-16" />
-        <SkeletonShimmer className="h-4 w-full" />
-        <SkeletonShimmer className="h-4 w-3/4" />
+    <div className={cn("rounded-md overflow-hidden bg-white border border-stone-200", className)}>
+      <div className="aspect-square w-full bg-stone-50">
+        <SkeletonShimmer className="h-full w-full" />
+      </div>
+      <div className="p-4 space-y-2.5">
+        <SkeletonShimmer className="h-3 w-16 rounded" />
+        <SkeletonShimmer className="h-4 w-full rounded" />
+        <SkeletonShimmer className="h-4 w-3/4 rounded" />
         <div className="flex items-center gap-1 pt-1">
           {[...Array(5)].map((_, i) => (
-            <SkeletonShimmer key={i} className="h-3 w-3 rounded-full" />
+            <SkeletonShimmer key={i} className="h-3.5 w-3.5 rounded-sm" />
           ))}
         </div>
-        <SkeletonShimmer className="h-6 w-24" />
+        <SkeletonShimmer className="h-5 w-20 rounded mt-1" />
       </div>
     </div>
   )

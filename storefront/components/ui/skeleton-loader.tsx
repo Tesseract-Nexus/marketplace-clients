@@ -37,12 +37,13 @@ export function SkeletonLoader({
 
 export function ProductCardSkeleton() {
   return (
-    <div className="space-y-3">
-      <div className="aspect-square rounded-xl bg-muted animate-pulse" />
-      <div className="space-y-2">
-        <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
-        <div className="h-4 bg-muted rounded animate-pulse w-1/2" />
-        <div className="h-6 bg-muted rounded animate-pulse w-1/4" />
+    <div className="rounded-md overflow-hidden bg-white border border-stone-200">
+      <div className="aspect-square bg-stone-50 animate-pulse" />
+      <div className="p-4 space-y-2.5">
+        <div className="h-3 bg-stone-100 rounded animate-pulse w-16" />
+        <div className="h-4 bg-stone-100 rounded animate-pulse w-full" />
+        <div className="h-4 bg-stone-100 rounded animate-pulse w-3/4" />
+        <div className="h-5 bg-stone-100 rounded animate-pulse w-20 mt-2" />
       </div>
     </div>
   );
