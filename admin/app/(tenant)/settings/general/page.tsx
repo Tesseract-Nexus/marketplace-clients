@@ -400,7 +400,7 @@ function CreateStorefrontModal({
   const [name, setName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState('');
-  const { showSuccess, showError } = useDialog();
+  const { showSuccess, showError, showConfirm } = useDialog();
 
   // Generate slug from name
   const slug = useMemo(() => {
@@ -572,7 +572,7 @@ function CreateStorefrontModal({
 }
 
 export default function GeneralSettingsPage() {
-  const { showSuccess, showError } = useDialog();
+  const { showSuccess, showError, showConfirm } = useDialog();
   const { currentTenant } = useTenant();
   const { user } = useUser();
   const [settings, setSettings] = useState<GeneralSettings>(defaultSettings);
@@ -920,12 +920,16 @@ export default function GeneralSettingsPage() {
   const handlePublishToggle = async (shouldPublish: boolean) => {
     if (!selectedStorefront) return;
 
-    const action = shouldPublish ? 'publish' : 'unpublish';
-    const confirmMessage = shouldPublish
-      ? 'Are you sure you want to publish this storefront? It will become visible to customers.'
-      : 'Are you sure you want to unpublish this storefront? Customers will see a "Coming Soon" page.';
+    const confirmed = await showConfirm({
+      title: shouldPublish ? 'Publish Storefront' : 'Unpublish Storefront',
+      message: shouldPublish
+        ? 'Are you sure you want to publish this storefront? It will become visible to customers.'
+        : 'Are you sure you want to unpublish this storefront? Customers will see a "Coming Soon" page.',
+      confirmLabel: shouldPublish ? 'Publish' : 'Unpublish',
+      cancelLabel: 'Cancel',
+    });
 
-    if (!confirm(confirmMessage)) return;
+    if (!confirmed) return;
 
     setIsPublishing(true);
 

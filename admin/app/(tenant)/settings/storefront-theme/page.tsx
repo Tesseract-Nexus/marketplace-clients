@@ -347,7 +347,7 @@ function StorefrontThemePageContent() {
             breadcrumbs={[
               { label: 'Home', href: '/' },
               { label: 'Settings', href: '/settings' },
-              { label: 'Storefront Theme' },
+              { label: 'Storefront' },
             ]}
           />
 
@@ -421,7 +421,7 @@ function StorefrontThemePageContent() {
             breadcrumbs={[
               { label: 'Home', href: '/' },
               { label: 'Settings', href: '/settings' },
-              { label: 'Storefront Theme' },
+              { label: 'Storefront' },
             ]}
           />
           <StoreSelector
@@ -456,7 +456,7 @@ function StorefrontThemePageContent() {
             breadcrumbs={[
               { label: 'Home', href: '/' },
               { label: 'Settings', href: '/settings' },
-              { label: 'Storefront Theme' },
+              { label: 'Storefront' },
             ]}
           />
           <StoreSelector
@@ -486,7 +486,7 @@ function StorefrontThemePageContent() {
     <PermissionGate
       permission={Permission.STOREFRONTS_MANAGE}
       fallback="styled"
-      fallbackTitle="Storefront Theme Settings"
+      fallbackTitle="Storefront Settings"
       fallbackDescription="You don't have permission to manage storefront themes."
     >
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20">
@@ -497,7 +497,7 @@ function StorefrontThemePageContent() {
           breadcrumbs={[
             { label: 'Home', href: '/' },
             { label: 'Settings', href: '/settings' },
-            { label: 'Storefront Theme' },
+            { label: 'Storefront' },
           ]}
           badge={{
             label: hasChanges ? 'Unsaved Changes' : 'Saved',

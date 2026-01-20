@@ -104,7 +104,7 @@ const SIDEBAR_VISIBILITY: Record<string, boolean> = {
   adManager: process.env.NEXT_PUBLIC_SIDEBAR_AD_MANAGER === 'true', // Default: hidden
   vendors: process.env.NEXT_PUBLIC_SIDEBAR_VENDORS !== 'false',
   team: process.env.NEXT_PUBLIC_SIDEBAR_TEAM !== 'false',
-  storefronts: process.env.NEXT_PUBLIC_SIDEBAR_STOREFRONTS !== 'false',
+  storefronts: process.env.NEXT_PUBLIC_SIDEBAR_STOREFRONTS === 'true', // Default: hidden (managed via Settings > General)
   featureFlags: process.env.NEXT_PUBLIC_SIDEBAR_FEATURE_FLAGS === 'true', // Default: hidden
   integrations: process.env.NEXT_PUBLIC_SIDEBAR_INTEGRATIONS === 'true', // Default: hidden (not prod ready, enable in v2)
   settings: process.env.NEXT_PUBLIC_SIDEBAR_SETTINGS !== 'false',
@@ -262,7 +262,7 @@ const navigation: NavItem[] = [
     hidden: false,
     children: [
       { name: "General", href: "/settings/general" },
-      { name: "Storefront Theme", href: "/settings/storefront-theme" },
+      { name: "Storefront", href: "/settings/storefront-theme" },
       { name: "Shipping", href: "/settings/shipping-carriers" },
       { name: "Payments", href: "/settings/payments" },
       { name: "Taxes", href: "/settings/taxes" },
