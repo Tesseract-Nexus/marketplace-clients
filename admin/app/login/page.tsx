@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Sparkles, Shield, Loader2, Mail, Lock, ArrowLeft, Building2, AlertCircle, Eye, EyeOff, CheckCircle2, ShieldX } from 'lucide-react';
+import { Sparkles, Shield, Loader2, Mail, Lock, ArrowLeft, Building2, AlertCircle, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -66,38 +66,40 @@ function LoginPageContent() {
   // UI state
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [urlError, setUrlError] = useState<{ title: string; message: string } | null>(null);
   const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
   const [lockedUntil, setLockedUntil] = useState<string | null>(null);
+  const [handledUrlError, setHandledUrlError] = useState(false);
 
-  // Handle URL error parameters (e.g., ?error=unauthorized)
+  // Handle URL error parameters (e.g., ?error=unauthorized) - run once on mount
   useEffect(() => {
+    if (handledUrlError) return;
+
     const errorCode = searchParams.get('error');
     const shouldLogout = searchParams.get('logout') === 'true';
 
     if (errorCode && ERROR_MESSAGES[errorCode]) {
-      setUrlError(ERROR_MESSAGES[errorCode]);
+      // Set the error message using the existing error state
+      setError(ERROR_MESSAGES[errorCode].message);
+      setHandledUrlError(true);
 
-      // If logout param is set, log out the user
-      if (shouldLogout && isAuthenticated) {
-        logout();
-      }
-
-      // Clear the URL params after reading them
+      // Clear the URL params
       const url = new URL(window.location.href);
       url.searchParams.delete('error');
       url.searchParams.delete('logout');
       window.history.replaceState({}, '', url.pathname);
-    }
-  }, [searchParams, isAuthenticated, logout]);
 
-  // Redirect authenticated users (but not if there's an unauthorized error)
+      // Logout if requested (do this after clearing params to prevent loops)
+      if (shouldLogout) {
+        logout();
+      }
+    }
+  }, [searchParams, handledUrlError, logout]);
+
+  // Redirect authenticated users
   useEffect(() => {
     if (authLoading) return;
-
-    // Don't redirect if user just got an unauthorized error
-    const errorCode = searchParams.get('error');
-    if (errorCode === 'unauthorized') return;
+    // Don't redirect if we're handling an error (user was just logged out)
+    if (handledUrlError) return;
 
     if (isAuthenticated && user) {
       const currentTenantSlug = getCurrentTenantSlug();
@@ -107,7 +109,7 @@ function LoginPageContent() {
       }
       router.replace('/welcome');
     }
-  }, [isAuthenticated, authLoading, user, router, searchParams]);
+  }, [isAuthenticated, authLoading, user, router, handledUrlError]);
 
   // Handle email submission - lookup tenants
   const handleEmailSubmit = async (e: React.FormEvent) => {
@@ -561,27 +563,6 @@ function LoginPageContent() {
       {/* Login card */}
       <div className="w-full max-w-md px-4 py-8 mx-auto">
         <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/20 border border-white/20 p-6 space-y-5 animate-fade-in-up relative">
-          {/* URL Error Banner (e.g., unauthorized access) */}
-          {urlError && (
-            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4 mb-4">
-              <div className="flex items-start gap-3">
-                <ShieldX className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
-                <div className="space-y-1">
-                  <p className="font-medium text-destructive">{urlError.title}</p>
-                  <p className="text-sm text-destructive/80">{urlError.message}</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setUrlError(null)}
-                className="absolute top-2 right-2 text-destructive/60 hover:text-destructive"
-              >
-                <span className="sr-only">Dismiss</span>
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          )}
           {renderStepContent()}
 
           {/* Sign up link (only on email step) */}
