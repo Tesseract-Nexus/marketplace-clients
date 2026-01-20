@@ -35,6 +35,9 @@ import { TranslatedProductName, TranslatedText } from '@/components/translation'
 import { PriceDisplay, PriceWithDiscount } from '@/components/currency/PriceDisplay';
 import { ImageLightbox } from '@/components/ui/ImageLightbox';
 
+// Low-quality image placeholder for blur effect
+const BLUR_DATA_URL = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMCwsLCgwMDQ4OCwwNDQ4QDw8RDwwQEBEREQ0NDg8QEBEQEP/2wBDAQMEBAUEBQkFBQkRDA0MERAREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREP/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAkH/8QAIhAAAgEEAQUBAAAAAAAAAAAAAQIDAAQFERIGByExQVH/xAAVAQEBAAAAAAAAAAAAAAAAAAAAAf/EABgRAAMBAQAAAAAAAAAAAAAAAAACAwEh/9oADAMBAAIRAxEAPwCwu5nUGZwtpBHh8PKJ5pC3NmQAKAOo8+Ttv7pSlKFYiLP/2Q==';
+
 export interface ProductCardProps {
   product: Product;
   className?: string;
@@ -43,6 +46,9 @@ export interface ProductCardProps {
   showWishlist?: boolean;
   showRating?: boolean;
   showBadges?: boolean;
+  // Performance optimizations
+  priority?: boolean; // For above-the-fold images
+  loading?: 'lazy' | 'eager';
 }
 
 export function ProductCard({
@@ -52,6 +58,8 @@ export function ProductCard({
   showWishlist,
   showRating,
   showBadges,
+  priority = false,
+  loading = 'lazy',
 }: ProductCardProps) {
   const { tenant } = useTenant();
   const baseProductConfig = useProductConfig();
@@ -434,6 +442,10 @@ export function ProductCard({
                     fill
                     className="object-cover pointer-events-none"
                     draggable={false}
+                    placeholder="blur"
+                    blurDataURL={BLUR_DATA_URL}
+                    loading={loading}
+                    priority={priority}
                   />
                 </motion.div>
               </AnimatePresence>
@@ -449,6 +461,10 @@ export function ProductCard({
                 productConfig.hoverEffect === 'zoom' && imageCount <= 1 && !isTouchDevice && 'group-hover:scale-[1.02]',
                 productConfig.hoverEffect === 'fade' && imageCount <= 1 && !isTouchDevice && 'group-hover:opacity-90'
               )}
+              placeholder="blur"
+              blurDataURL={BLUR_DATA_URL}
+              loading={loading}
+              priority={priority}
             />
           )}
 

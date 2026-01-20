@@ -12,6 +12,7 @@ import { QueryProvider } from '@/components/providers/QueryProvider';
 import { NavigationLayout } from '@/components/layout/NavigationLayout';
 import { PushNotificationProvider } from '@/components/notifications/PushNotificationProvider';
 import { TranslationProviderWrapper } from '@/components/providers/TranslationProviderWrapper';
+import { RoutePrefetcher } from '@/components/providers/RoutePrefetcher';
 import { StorefrontSettings, TenantInfo, DEFAULT_STOREFRONT_SETTINGS, THEME_PRESETS, GOOGLE_FONTS, NavigationStyle } from '@/types/storefront';
 import { generateCssVariables, generateCssString } from '@/lib/theme/theme-utils';
 
@@ -275,6 +276,10 @@ export default async function RootLayout({
         <style dangerouslySetInnerHTML={{ __html: `:root { ${cssString} }` }} />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
+        {/* Skip to main content link for accessibility */}
+        <a href="#main-content" className="skip-to-content">
+          Skip to main content
+        </a>
         <QueryProvider>
           <TenantProvider tenant={tenant} settings={settings} localization={localization}>
             <CurrencyProvider>
@@ -283,8 +288,11 @@ export default async function RootLayout({
                   <AuthSessionProvider>
                     <CartSyncProvider>
                       <PushNotificationProvider>
+                        <RoutePrefetcher />
                         <NavigationLayout navigationStyle={settings.layoutConfig?.navigationStyle || 'header'}>
-                          {children}
+                          <main id="main-content" tabIndex={-1}>
+                            {children}
+                          </main>
                         </NavigationLayout>
                       </PushNotificationProvider>
                     </CartSyncProvider>

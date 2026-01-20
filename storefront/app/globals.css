@@ -2725,6 +2725,7 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 
   .float,
@@ -2741,4 +2742,232 @@
   .marquee-content {
     animation: none !important;
   }
+}
+
+/* ==============================================
+   ACCESSIBILITY ENHANCEMENTS
+   ============================================== */
+
+/* Skip to main content link - Hidden until focused */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  padding: 1rem 2rem;
+  background: var(--tenant-primary);
+  color: var(--tenant-primary-foreground);
+  font-weight: 600;
+  border-radius: 0 0 0.5rem 0.5rem;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-to-content:focus {
+  top: 0;
+  outline: 2px solid var(--tenant-primary);
+  outline-offset: 2px;
+}
+
+/* Focus visible improvements */
+:focus-visible {
+  outline: 2px solid var(--tenant-primary);
+  outline-offset: 2px;
+}
+
+/* Remove default focus ring for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* High contrast mode support */
+@media (forced-colors: active) {
+  .btn-tenant-primary,
+  .btn-tenant-secondary,
+  .btn-tenant-outline {
+    border: 2px solid currentColor;
+  }
+}
+
+/* ==============================================
+   MOBILE TOUCH TARGET ENHANCEMENTS
+   Minimum 44x44px touch targets per WCAG 2.5.5
+   ============================================== */
+
+/* Touch-friendly utility class */
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ensure all interactive elements have adequate touch targets on mobile */
+@media (pointer: coarse) {
+  /* Buttons and links */
+  button,
+  [role="button"],
+  a:not(.prose-editorial a) {
+    min-height: 44px;
+  }
+
+  /* Form inputs */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="number"],
+  textarea,
+  select {
+    min-height: 48px;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+
+  /* Checkboxes and radios - larger click area */
+  input[type="checkbox"],
+  input[type="radio"] {
+    min-width: 24px;
+    min-height: 24px;
+  }
+
+  /* Icon buttons */
+  .icon-btn,
+  button[aria-label] {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 10px;
+  }
+
+  /* Quantity controls */
+  .quantity-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Filter chips */
+  .filter-chip {
+    min-height: 40px;
+    padding: 0.5rem 1rem;
+  }
+}
+
+/* ==============================================
+   MOBILE LAYOUT IMPROVEMENTS
+   ============================================== */
+
+/* Safe area insets for notched devices */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  /* Mobile navigation with safe area */
+  .mobile-nav-safe {
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Prevent content jump when scrollbar appears */
+html {
+  scrollbar-gutter: stable;
+}
+
+/* Smooth scrolling with reduced motion respect */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Mobile card improvements */
+@media (max-width: 640px) {
+  /* Product cards - better touch spacing */
+  .product-card {
+    padding: 0.75rem;
+  }
+
+  /* Better text sizing for mobile */
+  .mobile-text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* ==============================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================== */
+
+/* Content visibility for off-screen content */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 500px;
+}
+
+/* GPU acceleration for animations */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Optimize images */
+img {
+  content-visibility: auto;
+}
+
+/* Lazy sections for better initial load */
+.lazy-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 300px;
+}
+
+/* ==============================================
+   PULL TO REFRESH STYLES
+   ============================================== */
+
+.pull-indicator {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(-100%);
+  z-index: 9998;
+  padding: 0.75rem 1.5rem;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0 0 1rem 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--muted-foreground);
+}
+
+.pull-indicator.visible {
+  transform: translateX(-50%) translateY(0);
+}
+
+.pull-indicator.refreshing {
+  transform: translateX(-50%) translateY(0);
+}
+
+.pull-indicator .spinner {
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--border);
+  border-top-color: var(--tenant-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
