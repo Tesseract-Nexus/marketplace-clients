@@ -889,10 +889,24 @@ const ADMIN_PORTAL_ALLOWED_ROLES = [
   'viewer',
 ];
 
+// Roles that indicate customer-only access (not staff)
+const CUSTOMER_ONLY_ROLES = ['customer', 'user', 'guest'];
+
 // Check if user has any admin portal role
+// IMPORTANT: If roles are unknown, allow access and let backend enforce RBAC
+// Only block if user explicitly has customer-only roles
 function hasAdminPortalRole(roles: string[] | undefined): boolean {
-  if (!roles || roles.length === 0) return false;
-  return roles.some(role => ADMIN_PORTAL_ALLOWED_ROLES.includes(role.toLowerCase()));
+  // If roles are unknown/empty, allow access (backend will enforce RBAC)
+  // This prevents blocking legitimate users when roles aren't populated from JWT
+  if (!roles || roles.length === 0) return true;
+
+  // Check if user has any admin portal role
+  const hasAdminRole = roles.some(role => ADMIN_PORTAL_ALLOWED_ROLES.includes(role.toLowerCase()));
+  if (hasAdminRole) return true;
+
+  // Only block if user explicitly has ONLY customer roles
+  const hasOnlyCustomerRoles = roles.every(role => CUSTOMER_ONLY_ROLES.includes(role.toLowerCase()));
+  return !hasOnlyCustomerRoles;
 }
 
 export default function TenantLayout({
