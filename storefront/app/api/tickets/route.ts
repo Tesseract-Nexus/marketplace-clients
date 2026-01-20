@@ -56,15 +56,12 @@ export async function GET(request: NextRequest) {
       const session = await getSessionToken(request);
       if (session?.token) {
         authorization = `Bearer ${session.token}`;
-        if (!userId && session.userId) {
-          userId = session.userId;
-        }
-      } else if (session?.userId) {
-        // Session exists but no token - use userId for filtering
+      }
+      if (session?.userId) {
         userId = session.userId;
-        // For now, still require authorization - backend needs to support session-based auth
-        return NextResponse.json({ error: 'Session-based auth not fully supported' }, { status: 401 });
-      } else {
+      }
+      // If no session at all, require authorization
+      if (!session?.userId) {
         return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
       }
     }
@@ -73,15 +70,25 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const queryString = searchParams.toString();
 
+    // Build headers - include Authorization only if we have it
+    const headers: Record<string, string> = {
+      'X-Tenant-ID': tenantId,
+    };
+    if (authorization && authorization !== 'Bearer ' && authorization !== 'Bearer') {
+      headers['Authorization'] = authorization;
+    }
+    if (storefrontId) {
+      headers['X-Storefront-ID'] = storefrontId;
+    }
+    if (userId) {
+      headers['X-User-Id'] = userId;
+    }
+    // Add internal service header to indicate this is a trusted internal request
+    headers['X-Internal-Request'] = 'true';
+
     const response = await fetch(`${TICKETS_SERVICE_URL}/api/v1/tickets${queryString ? `?${queryString}` : ''}`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
-        'Authorization': authorization,
-        ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
-        ...(userId && { 'X-User-Id': userId }),
-      },
+      headers,
     });
 
     if (!response.ok) {
@@ -134,27 +141,43 @@ export async function POST(request: NextRequest) {
       const session = await getSessionToken(request);
       if (session?.token) {
         authorization = `Bearer ${session.token}`;
-        if (!userId && session.userId) {
-          userId = session.userId;
-        }
-      } else {
+      }
+      if (session?.userId) {
+        userId = session.userId;
+      }
+      // If no session at all, require authorization
+      if (!session?.userId) {
         return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
       }
     }
 
     const body = await request.json();
 
+    // Build headers - include Authorization only if we have it
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Tenant-ID': tenantId,
+      'X-Internal-Request': 'true',
+    };
+    if (authorization && authorization !== 'Bearer ' && authorization !== 'Bearer') {
+      headers['Authorization'] = authorization;
+    }
+    if (storefrontId) {
+      headers['X-Storefront-ID'] = storefrontId;
+    }
+    if (userName) {
+      headers['X-User-Name'] = userName;
+    }
+    if (userId) {
+      headers['X-User-Id'] = userId;
+    }
+    if (userEmail) {
+      headers['X-User-Email'] = userEmail;
+    }
+
     const response = await fetch(`${TICKETS_SERVICE_URL}/api/v1/tickets`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
-        'Authorization': authorization,
-        ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
-        ...(userName && { 'X-User-Name': userName }),
-        ...(userId && { 'X-User-Id': userId }),
-        ...(userEmail && { 'X-User-Email': userEmail }),
-      },
+      headers,
       body: JSON.stringify(body),
     });
 

@@ -83,20 +83,29 @@ export async function GET(request: NextRequest) {
 
     const customerId = auth.customerId;
 
+    // Build headers for internal service call
+    const headers: Record<string, string> = {
+      'X-Internal-Request': 'true',
+      'X-User-Id': customerId,
+    };
+    if (tenantId) {
+      headers['X-Tenant-ID'] = tenantId;
+    }
+    if (storefrontId) {
+      headers['X-Storefront-ID'] = storefrontId;
+    }
+    if (auth.token) {
+      headers['Authorization'] = auth.token;
+    }
+
     const response = await fetch(
       `${CUSTOMERS_BASE_URL}/api/v1/customers/${customerId}`,
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          ...(tenantId && { 'X-Tenant-ID': tenantId }),
-          ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
-          ...(auth.token && { 'Authorization': auth.token }),
-        },
-      }
+      { headers }
     );
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
+      console.error('[Profile API] GET error from customers-service:', error);
       return NextResponse.json(
         { success: false, error: error.message || 'Failed to fetch profile' },
         { status: response.status }
@@ -158,16 +167,27 @@ export async function PUT(request: NextRequest) {
 
     console.log(`[Profile API] Updating customer ${customerId}:`, updateData);
 
+    // Build headers for internal service call
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Internal-Request': 'true',
+      'X-User-Id': customerId,
+    };
+    if (tenantId) {
+      headers['X-Tenant-ID'] = tenantId;
+    }
+    if (storefrontId) {
+      headers['X-Storefront-ID'] = storefrontId;
+    }
+    if (auth.token) {
+      headers['Authorization'] = auth.token;
+    }
+
     const response = await fetch(
       `${CUSTOMERS_BASE_URL}/api/v1/customers/${customerId}`,
       {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(tenantId && { 'X-Tenant-ID': tenantId }),
-          ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
-          ...(auth.token && { 'Authorization': auth.token }),
-        },
+        headers,
         body: JSON.stringify(updateData),
       }
     );
