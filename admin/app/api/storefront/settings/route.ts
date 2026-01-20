@@ -232,13 +232,14 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
     }
 
     // Fetch from Settings Service - use storefrontId as the key
+    // IMPORTANT: Use cache: 'no-store' to always fetch fresh data
+    // This ensures saved settings are reflected immediately on page refresh
     const response = await fetch(
       `${SETTINGS_SERVICE_URL}/storefront-theme/${storefrontId}`,
       {
         method: 'GET',
         headers: backendHeaders,
-        // Cache for 60 seconds in development, less for preview mode
-        next: { revalidate: 60 },
+        cache: 'no-store', // Disable caching to always get fresh data
       }
     );
 
