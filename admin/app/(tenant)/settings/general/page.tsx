@@ -956,6 +956,7 @@ export default function GeneralSettingsPage() {
           : 'Your storefront is now showing a "Coming Soon" page to visitors.'
       );
     } catch (err) {
+      const action = shouldPublish ? 'publish' : 'unpublish';
       console.error(`Failed to ${action} storefront:`, err);
       showError('Error', `Failed to ${action} storefront. Please try again.`);
     } finally {
