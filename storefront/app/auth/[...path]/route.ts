@@ -109,8 +109,17 @@ async function proxyToAuthBff(
       if (location) {
         console.log(`[Auth Proxy] Redirecting to: ${location}`);
 
+        // Convert relative URLs to absolute (NextResponse.redirect requires absolute URLs)
+        let absoluteLocation = location;
+        if (location.startsWith('/')) {
+          const host = request.headers.get('host') || 'localhost';
+          const protocol = request.headers.get('x-forwarded-proto') || 'https';
+          absoluteLocation = `${protocol}://${host}${location}`;
+          console.log(`[Auth Proxy] Converted to absolute URL: ${absoluteLocation}`);
+        }
+
         // Create redirect response and copy cookies
-        const redirectResponse = NextResponse.redirect(location, response.status);
+        const redirectResponse = NextResponse.redirect(absoluteLocation, response.status);
 
         // Copy Set-Cookie headers (critical for session management)
         const setCookies = response.headers.getSetCookie();
