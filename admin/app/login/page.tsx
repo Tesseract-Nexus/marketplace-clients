@@ -70,6 +70,16 @@ function LoginPageContent() {
   const [lockedUntil, setLockedUntil] = useState<string | null>(null);
   const [handledUrlError, setHandledUrlError] = useState(false);
 
+  // Check for persisted error from sessionStorage (survives logout redirect)
+  useEffect(() => {
+    const persistedError = sessionStorage.getItem('login_error');
+    if (persistedError) {
+      setError(persistedError);
+      setHandledUrlError(true);
+      sessionStorage.removeItem('login_error');
+    }
+  }, []);
+
   // Handle URL error parameters (e.g., ?error=unauthorized) - run once on mount
   useEffect(() => {
     if (handledUrlError) return;
@@ -78,20 +88,25 @@ function LoginPageContent() {
     const shouldLogout = searchParams.get('logout') === 'true';
 
     if (errorCode && ERROR_MESSAGES[errorCode]) {
-      // Set the error message using the existing error state
-      setError(ERROR_MESSAGES[errorCode].message);
-      setHandledUrlError(true);
+      const errorMessage = ERROR_MESSAGES[errorCode].message;
 
-      // Clear the URL params
+      // Clear the URL params first
       const url = new URL(window.location.href);
       url.searchParams.delete('error');
       url.searchParams.delete('logout');
       window.history.replaceState({}, '', url.pathname);
 
-      // Logout if requested (do this after clearing params to prevent loops)
+      // If logout is requested, persist error to sessionStorage before redirecting
+      // because logout causes a full page reload that loses React state
       if (shouldLogout) {
+        sessionStorage.setItem('login_error', errorMessage);
         logout();
+        return; // Don't set local state - page will reload
       }
+
+      // No logout needed - just set the error locally
+      setError(errorMessage);
+      setHandledUrlError(true);
     }
   }, [searchParams, handledUrlError, logout]);
 
