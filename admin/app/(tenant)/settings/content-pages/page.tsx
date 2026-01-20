@@ -119,25 +119,31 @@ export default function ContentPagesSettingsPage() {
   const loadSettings = async (storefrontId: string) => {
     try {
       setLoading(true);
-      const settings = await settingsService.getSettingsByContext({
-        applicationId: 'admin-portal',
-        scope: 'application',
-        tenantId: storefrontId,
+      // Fetch from storefront settings API (storefront_theme_settings table)
+      // This is where the storefront reads content pages from
+      const response = await fetch('/api/storefront/settings', {
+        headers: {
+          'X-Storefront-ID': storefrontId,
+        },
       });
 
-      if (settings?.ecommerce) {
-        setExistingEcommerce(settings.ecommerce);
-      } else {
-        setExistingEcommerce({});
+      if (!response.ok) {
+        throw new Error('Failed to load storefront settings');
       }
 
-      if (settings?.ecommerce?.contentPages) {
-        setPages(settings.ecommerce.contentPages);
+      const result = await response.json();
+      const settings = result.data;
+
+      if (settings?.contentPages && Array.isArray(settings.contentPages)) {
+        setPages(settings.contentPages);
         setSettingsId(settings.id);
       } else {
         setPages([]);
         setSettingsId(settings?.id || null);
       }
+
+      // Store any other ecommerce data for potential future use
+      setExistingEcommerce({});
     } catch (error) {
       console.error('Failed to load content pages:', error);
       setPages([]);
@@ -156,28 +162,30 @@ export default function ContentPagesSettingsPage() {
 
     try {
       setSaving(true);
-      const mergedEcommerce = {
-        ...existingEcommerce,
-        contentPages: updatedPages,
-      };
 
-      const payload = {
-        context: {
-          applicationId: 'admin-portal',
-          scope: 'application',
-          tenantId: selectedStorefront.id,
+      // Save to storefront settings API (storefront_theme_settings table)
+      // This is where the storefront reads content pages from
+      const response = await fetch('/api/storefront/settings', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Storefront-ID': selectedStorefront.id,
         },
-        ecommerce: mergedEcommerce,
-      };
+        body: JSON.stringify({
+          contentPages: updatedPages,
+        }),
+      });
 
-      if (settingsId) {
-        await settingsService.updateSettings(settingsId, payload as any, selectedStorefront.id);
-      } else {
-        const newSettings = await settingsService.createSettings(payload as any, selectedStorefront.id);
-        setSettingsId(newSettings.id);
+      if (!response.ok) {
+        const result = await response.json();
+        throw new Error(result.message || 'Failed to save content pages');
       }
 
-      setExistingEcommerce(mergedEcommerce);
+      const result = await response.json();
+      if (result.data?.id) {
+        setSettingsId(result.data.id);
+      }
+
       setPages(updatedPages);
     } catch (error) {
       console.error('Failed to save content pages:', error);
