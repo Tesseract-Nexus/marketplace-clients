@@ -27,7 +27,7 @@ export async function GET(
 
     const { id } = await params;
 
-    const response = await proxyToBackend(SETTINGS_SERVICE_URL, `api/v1/settings/${id}`, {
+    const response = await proxyToBackend(SETTINGS_SERVICE_URL, `settings/${id}`, {
       method: 'GET',
       headers: proxyHeaders,
       incomingRequest: request,
@@ -69,7 +69,7 @@ export async function PUT(
       );
     }
 
-    const response = await proxyToBackend(SETTINGS_SERVICE_URL, `api/v1/settings/${id}`, {
+    const response = await proxyToBackend(SETTINGS_SERVICE_URL, `settings/${id}`, {
       method: 'PUT',
       body,
       headers: proxyHeaders,
@@ -115,7 +115,7 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const response = await proxyToBackend(SETTINGS_SERVICE_URL, `api/v1/settings/${id}`, {
+    const response = await proxyToBackend(SETTINGS_SERVICE_URL, `settings/${id}`, {
       method: 'DELETE',
       headers: proxyHeaders,
       incomingRequest: request,
