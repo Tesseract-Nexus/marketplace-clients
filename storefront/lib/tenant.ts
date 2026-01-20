@@ -1,5 +1,5 @@
 // Tenant resolution utility for server components
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 
 export interface TenantHostInfo {
   slug: string;
@@ -8,6 +8,41 @@ export interface TenantHostInfo {
   admin_host: string;
   storefront_host: string;
   status: string;
+  is_custom_domain?: boolean;
+  primary_domain?: string;
+}
+
+/**
+ * Resolution source for debugging/logging
+ */
+export type TenantResolutionSource = 'header' | 'subdomain' | 'custom-domain-lookup';
+
+/**
+ * Resolves tenant from request headers (set by Istio VirtualService for custom domains)
+ * Returns null if headers are not present
+ */
+export async function resolveTenantFromHeaders(): Promise<TenantHostInfo | null> {
+  try {
+    const headerStore = await headers();
+    const tenantId = headerStore.get('x-tenant-id');
+    const tenantSlug = headerStore.get('x-tenant-slug');
+    const customDomain = headerStore.get('x-custom-domain');
+
+    if (tenantId && tenantSlug) {
+      return {
+        tenant_id: tenantId,
+        slug: tenantSlug,
+        admin_host: `${tenantSlug}-admin.tesserix.app`,
+        storefront_host: customDomain || `${tenantSlug}.tesserix.app`,
+        status: 'active',
+        is_custom_domain: !!customDomain,
+        primary_domain: customDomain || undefined,
+      };
+    }
+  } catch (error) {
+    // Headers not available (e.g., during build)
+  }
+  return null;
 }
 
 /**
@@ -25,12 +60,80 @@ export async function resolveTenantInfo(slug: string): Promise<TenantHostInfo | 
       }
     );
     if (response.ok) {
-      return await response.json();
+      const data = await response.json();
+      return {
+        ...data,
+        is_custom_domain: false,
+      };
     }
   } catch (error) {
-    console.error('Failed to resolve tenant:', error);
+    console.error('Failed to resolve tenant from router:', error);
   }
   return null;
+}
+
+/**
+ * Resolves tenant from custom domain via custom-domain-service
+ */
+export async function resolveTenantFromCustomDomain(domain: string): Promise<TenantHostInfo | null> {
+  try {
+    const customDomainServiceUrl = process.env.CUSTOM_DOMAIN_SERVICE_URL || 'http://custom-domain-service.marketplace.svc.cluster.local:8093';
+    const response = await fetch(
+      `${customDomainServiceUrl}/api/v1/internal/resolve?domain=${encodeURIComponent(domain)}`,
+      {
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' },
+      }
+    );
+    if (response.ok) {
+      const data = await response.json();
+      return {
+        tenant_id: data.tenant_id,
+        slug: data.tenant_slug,
+        admin_host: `${data.tenant_slug}-admin.tesserix.app`,
+        storefront_host: domain,
+        status: data.is_active ? 'active' : 'inactive',
+        is_custom_domain: true,
+        primary_domain: domain,
+      };
+    }
+  } catch (error) {
+    console.error('Failed to resolve tenant from custom domain:', error);
+  }
+  return null;
+}
+
+/**
+ * Smart tenant resolution that tries multiple methods:
+ * 1. Request headers (for custom domains, set by Istio)
+ * 2. Subdomain extraction (for *.tesserix.app)
+ * 3. Custom domain lookup (fallback)
+ */
+export async function resolveTenantSmart(host: string): Promise<{ info: TenantHostInfo | null; source: TenantResolutionSource | null }> {
+  // Method 1: Check headers (set by VirtualService for custom domains)
+  const fromHeaders = await resolveTenantFromHeaders();
+  if (fromHeaders) {
+    return { info: fromHeaders, source: 'header' };
+  }
+
+  // Method 2: Built-in subdomain (*.tesserix.app)
+  if (host.endsWith('.tesserix.app')) {
+    const slug = host.split('.')[0];
+    if (slug && slug !== 'www') {
+      const fromSubdomain = await resolveTenantInfo(slug);
+      if (fromSubdomain) {
+        return { info: fromSubdomain, source: 'subdomain' };
+      }
+    }
+  }
+
+  // Method 3: Custom domain lookup
+  const fromCustomDomain = await resolveTenantFromCustomDomain(host);
+  if (fromCustomDomain) {
+    return { info: fromCustomDomain, source: 'custom-domain-lookup' };
+  }
+
+  return { info: null, source: null };
 }
 
 /**
