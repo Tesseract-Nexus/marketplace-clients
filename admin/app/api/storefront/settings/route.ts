@@ -218,6 +218,10 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
       );
     }
 
+    // Extract user info from proxy headers (same as POST handler)
+    const userId = headers['x-jwt-claim-sub'];
+    const userEmail = headers['x-jwt-claim-email'];
+
     // Build headers for backend request
     const backendHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
@@ -225,6 +229,14 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
       // Forward Istio JWT claim headers
       'x-jwt-claim-tenant-id': tenantId || storefrontId,
     };
+
+    // Forward user identity headers (required by backend IstioAuth middleware)
+    if (userId) {
+      backendHeaders['x-jwt-claim-sub'] = userId;
+    }
+    if (userEmail) {
+      backendHeaders['x-jwt-claim-email'] = userEmail;
+    }
 
     // Forward Authorization header
     if (headers['Authorization']) {
@@ -243,18 +255,29 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
       }
     );
 
+    // Log the request for debugging
+    console.log(`GET /api/storefront/settings: storefrontId=${storefrontId}, hasAuth=${!!headers['Authorization']}`);
+
     if (response.ok) {
       const result = await response.json();
       if (result.success && result.data) {
+        console.log(`GET /api/storefront/settings: Success - themeTemplate=${result.data.themeTemplate}`);
         const settings = transformResponse(result.data, storefrontId);
         return NextResponse.json({
           success: true,
           data: settings,
         });
       }
+      // Backend returned success=false or no data
+      console.warn(`GET /api/storefront/settings: Backend returned success=false or no data:`, result.message || 'unknown');
+    } else {
+      // Backend returned error status
+      const errorText = await response.text().catch(() => 'Unable to read response');
+      console.error(`GET /api/storefront/settings: Backend error - status=${response.status}, body=${errorText}`);
     }
 
     // Return defaults if Settings Service is unavailable or returns error
+    console.log(`GET /api/storefront/settings: Returning defaults for storefrontId=${storefrontId}`);
     const now = new Date().toISOString();
     const defaultSettings: StorefrontSettings = {
       id: crypto.randomUUID(),
