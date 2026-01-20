@@ -665,17 +665,17 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
   };
 
   return (
-    <header className="sticky top-0 z-[100] backdrop-blur-xl border-b shadow-sm"
+    <header className="sticky top-0 z-[100] backdrop-blur-xl border-b shadow-sm safe-top"
       style={{
         backgroundColor: 'var(--color-header-bg, #ffffff)' + 'f2',
         borderColor: 'var(--color-sidebar-text, #e5e7eb)' + '80',
       }}>
-      <div className="flex items-center justify-between px-6 py-3 gap-4">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-2.5 sm:py-3 gap-2 sm:gap-4">
         {/* Left Section */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <Button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg"
+            className="lg:hidden p-2.5 sm:p-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg min-h-[44px] min-w-[44px] flex items-center justify-center"
             style={{
               background: `linear-gradient(to bottom right, var(--color-primary, #3b82f6), var(--color-secondary, #8b5cf6))`,
             }}
@@ -686,7 +686,7 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           {/* Storefront Switcher (Brand within current business) */}
           <StorefrontSwitcher />
 
@@ -715,11 +715,11 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
           <div className="relative">
             <Button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="relative p-0.5 rounded-lg shadow-md hover:scale-105 transition-all duration-200"
+              className="relative p-0.5 rounded-lg shadow-md hover:scale-105 transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
               style={{
                 background: `linear-gradient(to bottom right, var(--color-primary, #3b82f6), var(--color-secondary, #8b5cf6))`,
               }}>
-              <div className="w-8 h-8 rounded-md flex items-center justify-center"
+              <div className="w-8 h-8 sm:w-8 sm:h-8 rounded-md flex items-center justify-center"
                 style={{ backgroundColor: 'var(--color-header-bg, #ffffff)' }}>
                 <User className="w-4 h-4" style={{ color: 'var(--color-primary, #2563eb)' }} />
               </div>
@@ -865,9 +865,9 @@ function TenantLayoutInner({
   return (
     <div className="flex h-screen overflow-hidden" style={{ backgroundColor: 'var(--color-header-bg, #f8fafc)' }}>
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-      <div className="flex-1 flex flex-col lg:ml-72">
+      <div className="flex-1 flex flex-col lg:ml-72 min-w-0">
         <Header setSidebarOpen={setSidebarOpen} />
-        <main className="flex-1 overflow-auto p-6 relative z-0">
+        <main className="flex-1 overflow-auto p-4 sm:p-6 relative z-0">
           {children}
         </main>
       </div>

@@ -250,68 +250,68 @@ export default function CustomersPage() {
       )}
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground font-medium">Total Customers</p>
-              <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent mt-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+        <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate">Total Customers</p>
+              <p className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent mt-1 sm:mt-2">
                 {totalCustomers}
               </p>
             </div>
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center">
-              <Users className="h-6 w-6 text-primary" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
           </div>
         </div>
 
-        <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground font-medium">Active Customers</p>
-              <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mt-2">
+        <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate">Active Customers</p>
+              <p className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mt-1 sm:mt-2">
                 {activeCustomers}
               </p>
             </div>
-            <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-              <TrendingUp className="h-6 w-6 text-green-600" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground font-medium">Total Revenue</p>
-              <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mt-2">
+        <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate">Total Revenue</p>
+              <p className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mt-1 sm:mt-2">
                 ${totalRevenue.toFixed(2)}
               </p>
             </div>
-            <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-              <DollarSign className="h-6 w-6 text-purple-600" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
             </div>
           </div>
         </div>
 
-        <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground font-medium">Total Orders</p>
-              <p className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mt-2">
+        <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate">Total Orders</p>
+              <p className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mt-1 sm:mt-2">
                 {totalOrders}
               </p>
             </div>
-            <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
-              <ShoppingCart className="h-6 w-6 text-amber-600" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters and Search */}
-      <div className="bg-card rounded-lg border border-border p-6 shadow-sm mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="md:col-span-2">
+      <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+          <div className="sm:col-span-2 md:col-span-2">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -338,20 +338,21 @@ export default function CustomersPage() {
         </div>
       </div>
 
-      {/* Customers Table */}
+      {/* Customers Table - Desktop */}
       <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-border">
               <tr>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Customer</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Contact</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Type</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Status</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Orders</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">Total Spent</th>
-                <th className="px-6 py-4 text-left text-sm font-semibold text-foreground">LTV</th>
-                <th className="px-6 py-4 text-right text-sm font-semibold text-foreground">Actions</th>
+                <th className="px-4 lg:px-6 py-4 text-left text-sm font-semibold text-foreground">Customer</th>
+                <th className="px-4 lg:px-6 py-4 text-left text-sm font-semibold text-foreground">Contact</th>
+                <th className="px-4 lg:px-6 py-4 text-left text-sm font-semibold text-foreground">Type</th>
+                <th className="px-4 lg:px-6 py-4 text-left text-sm font-semibold text-foreground">Status</th>
+                <th className="px-4 lg:px-6 py-4 text-left text-sm font-semibold text-foreground">Orders</th>
+                <th className="px-4 lg:px-6 py-4 text-left text-sm font-semibold text-foreground">Total Spent</th>
+                <th className="px-4 lg:px-6 py-4 text-left text-sm font-semibold text-foreground">LTV</th>
+                <th className="px-4 lg:px-6 py-4 text-right text-sm font-semibold text-foreground">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
@@ -373,44 +374,44 @@ export default function CustomersPage() {
               ) : (
                 paginatedCustomers.map((customer) => (
                   <tr key={customer.id} className="hover:bg-muted transition-colors">
-                    <td className="px-6 py-4">
+                    <td className="px-4 lg:px-6 py-4">
                       <div>
                         <div className="font-semibold text-foreground">
                           {customer.firstName} {customer.lastName}
                         </div>
-                        <div className="text-sm text-muted-foreground">ID: {customer.id}</div>
+                        <div className="text-sm text-muted-foreground truncate max-w-[150px]">ID: {customer.id}</div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 lg:px-6 py-4">
                       <div className="text-sm">
-                        <div className="text-foreground">{customer.email}</div>
+                        <div className="text-foreground truncate max-w-[200px]">{customer.email}</div>
                         {customer.phone && <div className="text-muted-foreground">{customer.phone}</div>}
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 lg:px-6 py-4">
                       <span className={cn(
-                        'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border',
+                        'inline-flex items-center px-2 lg:px-3 py-1 rounded-full text-xs font-semibold border',
                         getTypeBadgeClass(customer.customerType)
                       )}>
                         {customer.customerType}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-4 lg:px-6 py-4">
                       <span className={cn(
-                        'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border',
+                        'inline-flex items-center px-2 lg:px-3 py-1 rounded-full text-xs font-semibold border',
                         getStatusBadgeClass(customer.status)
                       )}>
                         {customer.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-sm text-foreground">{customer.totalOrders}</td>
-                    <td className="px-6 py-4 text-sm font-semibold text-foreground">
+                    <td className="px-4 lg:px-6 py-4 text-sm text-foreground">{customer.totalOrders}</td>
+                    <td className="px-4 lg:px-6 py-4 text-sm font-semibold text-foreground">
                       ${customer.totalSpent.toFixed(2)}
                     </td>
-                    <td className="px-6 py-4 text-sm font-semibold text-purple-600">
+                    <td className="px-4 lg:px-6 py-4 text-sm font-semibold text-purple-600">
                       ${customer.lifetimeValue.toFixed(2)}
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-4 lg:px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Button
                           variant="ghost"
@@ -442,6 +443,99 @@ export default function CustomersPage() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* Mobile Card View */}
+        <div className="md:hidden">
+          {loading ? (
+            <div className="p-6 text-center">
+              <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+              <span className="text-muted-foreground">Loading customers...</span>
+            </div>
+          ) : filteredCustomers.length === 0 ? (
+            <div className="p-6 text-center text-muted-foreground">
+              No customers found
+            </div>
+          ) : (
+            <div className="divide-y divide-border">
+              {paginatedCustomers.map((customer) => (
+                <div
+                  key={customer.id}
+                  className="p-4 hover:bg-muted/50 active:bg-muted transition-colors cursor-pointer"
+                  onClick={() => router.push(`/customers/${customer.id}`)}
+                >
+                  {/* Customer Header */}
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold text-foreground">
+                        {customer.firstName} {customer.lastName}
+                      </div>
+                      <div className="text-sm text-muted-foreground truncate">{customer.email}</div>
+                    </div>
+                    <div className="flex gap-1.5 flex-shrink-0">
+                      <span className={cn(
+                        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border',
+                        getTypeBadgeClass(customer.customerType)
+                      )}>
+                        {customer.customerType}
+                      </span>
+                      <span className={cn(
+                        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border',
+                        getStatusBadgeClass(customer.status)
+                      )}>
+                        {customer.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Customer Stats */}
+                  <div className="grid grid-cols-3 gap-3 text-sm">
+                    <div>
+                      <div className="text-xs text-muted-foreground">Orders</div>
+                      <div className="font-medium text-foreground">{customer.totalOrders}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground">Spent</div>
+                      <div className="font-semibold text-foreground">${customer.totalSpent.toFixed(2)}</div>
+                    </div>
+                    <div>
+                      <div className="text-xs text-muted-foreground">LTV</div>
+                      <div className="font-semibold text-purple-600">${customer.lifetimeValue.toFixed(2)}</div>
+                    </div>
+                  </div>
+
+                  {/* Mobile Actions */}
+                  <div className="flex items-center justify-end gap-2 mt-3 pt-3 border-t border-border">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/customers/${customer.id}`);
+                      }}
+                      className="h-9 px-3 text-xs"
+                    >
+                      <Eye className="w-3.5 h-3.5 mr-1.5" />
+                      View
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCustomerToDelete(customer.id);
+                        setShowDeleteModal(true);
+                      }}
+                      className="h-9 px-3 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                      Delete
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Pagination */}
