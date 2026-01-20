@@ -157,6 +157,46 @@
   /* Gradients */
   --tenant-gradient: linear-gradient(135deg, var(--tenant-primary), var(--tenant-secondary));
   --tenant-gradient-subtle: linear-gradient(135deg, var(--tenant-primary-light), var(--tenant-secondary-light));
+
+  /* ============================================
+     EDITORIAL DESIGN SYSTEM
+     Clean, typography-first aesthetic
+     ============================================ */
+
+  /* Editorial Colors - Warm neutrals, no gradients */
+  --editorial-bg: #FAFAFA;
+  --editorial-bg-alt: #F5F5F4;
+  --editorial-text: #1C1917;
+  --editorial-text-muted: #78716C;
+  --editorial-border: #E7E5E4;
+  --editorial-accent: #292524;
+
+  /* Editorial Typography */
+  --font-display: 'Playfair Display', Georgia, serif;
+  --heading-h1-editorial: clamp(2.5rem, 6vw, 4.5rem);
+  --heading-h2-editorial: clamp(2rem, 5vw, 3.5rem);
+  --heading-h3-editorial: clamp(1.5rem, 4vw, 2.5rem);
+  --tracking-tight: -0.03em;
+  --tracking-editorial: -0.02em;
+
+  /* Editorial Spacing - Generous whitespace */
+  --section-gap: clamp(4rem, 10vw, 8rem);
+  --editorial-padding: clamp(1.5rem, 5vw, 3rem);
+
+  /* Editorial Shadows - Minimal, subtle */
+  --shadow-editorial-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-editorial-md: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-editorial-lg: 0 4px 12px rgba(0, 0, 0, 0.08);
+
+  /* Editorial Radius - Smaller, cleaner */
+  --radius-editorial-sm: 0.25rem;
+  --radius-editorial-md: 0.375rem;
+  --radius-editorial-lg: 0.5rem;
+
+  /* Editorial Animation - Subtle, refined */
+  --ease-editorial: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
 }
 
 .dark {
@@ -253,6 +293,38 @@
       scroll-behavior: auto;
     }
   }
+
+  /* ============================================
+     EDITORIAL MODE OVERRIDES
+     When body.editorial is active, these styles apply
+     ============================================ */
+  body.editorial {
+    --radius: 0.25rem;
+    --card-shadow: var(--shadow-editorial-sm);
+    --shadow: var(--shadow-editorial-sm);
+    background: var(--editorial-bg);
+  }
+
+  body.editorial h1 {
+    font-family: var(--font-display);
+    font-size: var(--heading-h1-editorial);
+    letter-spacing: var(--tracking-tight);
+    font-weight: 400;
+  }
+
+  body.editorial h2 {
+    font-family: var(--font-display);
+    font-size: var(--heading-h2-editorial);
+    letter-spacing: var(--tracking-editorial);
+    font-weight: 400;
+  }
+
+  body.editorial h3 {
+    font-family: var(--font-display);
+    font-size: var(--heading-h3-editorial);
+    letter-spacing: var(--tracking-editorial);
+    font-weight: 400;
+  }
 }
 
 @layer components {
@@ -272,6 +344,141 @@
     padding-bottom: var(--section-spacing);
   }
 
+  /* ============================================
+     EDITORIAL COMPONENT CLASSES
+     Clean, typography-first components
+     ============================================ */
+
+  /* Editorial Container - Generous padding, centered content */
+  .container-editorial {
+    width: 100%;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--editorial-padding);
+    padding-right: var(--editorial-padding);
+  }
+
+  /* Editorial Card - Clean with minimal shadow, subtle border */
+  .card-editorial {
+    background: var(--editorial-bg);
+    border: 1px solid var(--editorial-border);
+    border-radius: var(--radius-editorial-md);
+    box-shadow: var(--shadow-editorial-sm);
+    transition: border-color var(--duration-normal) var(--ease-editorial),
+                box-shadow var(--duration-normal) var(--ease-editorial);
+  }
+
+  .card-editorial:hover {
+    border-color: var(--editorial-text-muted);
+    box-shadow: var(--shadow-editorial-md);
+  }
+
+  /* Editorial Button Primary - Solid, uppercase, letter-spacing */
+  .btn-editorial-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 2rem;
+    background: var(--editorial-accent);
+    color: #FFFFFF;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border-radius: var(--radius-editorial-sm);
+    transition: background var(--duration-normal) var(--ease-editorial);
+  }
+
+  .btn-editorial-primary:hover {
+    background: var(--editorial-text);
+  }
+
+  /* Editorial Button Secondary - Border only */
+  .btn-editorial-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.875rem 2rem;
+    background: transparent;
+    color: var(--editorial-text);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    border: 1px solid var(--editorial-border);
+    border-radius: var(--radius-editorial-sm);
+    transition: border-color var(--duration-normal) var(--ease-editorial),
+                background var(--duration-normal) var(--ease-editorial);
+  }
+
+  .btn-editorial-secondary:hover {
+    border-color: var(--editorial-text);
+    background: var(--editorial-bg-alt);
+  }
+
+  /* Editorial Heading - Serif font, tight tracking */
+  .heading-editorial {
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: var(--tracking-tight);
+    line-height: 1.1;
+    color: var(--editorial-text);
+  }
+
+  /* Editorial Section - Generous spacing */
+  .section-editorial {
+    padding-top: var(--section-gap);
+    padding-bottom: var(--section-gap);
+  }
+
+  /* Editorial Image Container - Subtle hover, minimal scale */
+  .image-editorial {
+    overflow: hidden;
+    border-radius: var(--radius-editorial-md);
+  }
+
+  .image-editorial img {
+    transition: transform var(--duration-slow) var(--ease-editorial);
+  }
+
+  .image-editorial:hover img {
+    transform: scale(1.02);
+  }
+
+  /* Editorial Divider - Simple solid line */
+  .divider-editorial {
+    width: 100%;
+    height: 1px;
+    background: var(--editorial-border);
+    border: none;
+  }
+
+  /* Editorial Grid - Two column asymmetric layout */
+  .grid-editorial {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--editorial-padding);
+  }
+
+  @media (min-width: 768px) {
+    .grid-editorial {
+      grid-template-columns: 1fr 1fr;
+      gap: calc(var(--editorial-padding) * 2);
+    }
+
+    .grid-editorial-asymmetric {
+      grid-template-columns: 5fr 7fr;
+    }
+  }
+
+  /* ============================================
+     DEPRECATED CLASSES (kept for backward compatibility)
+     These gradient/glass effects are being phased out
+     in favor of the editorial design system
+     ============================================ */
+
+  /* @deprecated - Use .card-editorial instead */
   /* Gradient Text */
   .gradient-text {
     background: var(--tenant-gradient);
@@ -302,6 +509,7 @@
     100% { background-position: 0% 50%; }
   }
 
+  /* @deprecated - Use solid colors in editorial mode */
   /* Glass Morphism */
   .glass {
     background: rgba(255, 255, 255, 0.1);
@@ -329,6 +537,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
+  /* @deprecated - Use .image-editorial for subtle scale(1.02) hover instead */
   /* Hover Lift Effect */
   .hover-lift {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -364,6 +573,7 @@
     100% { background-position: 200% 0; }
   }
 
+  /* @deprecated - Editorial mode uses no glow effects */
   /* Pulse Glow Effect */
   .pulse-glow {
     animation: pulse-glow 2s ease-in-out infinite;

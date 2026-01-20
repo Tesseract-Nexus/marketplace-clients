@@ -108,11 +108,11 @@ export function Header() {
       {/* Main Header */}
       <header
         className={cn(
-          'w-full z-50 transition-all duration-300',
+          'w-full z-50 transition-all duration-200',
           headerConfig.stickyHeader && 'sticky top-0',
           isScrolled
-            ? 'bg-background/95 backdrop-blur-md shadow-sm border-b supports-[backdrop-filter]:bg-background/80'
-            : 'bg-background border-b'
+            ? 'bg-background shadow-sm border-b border-stone-200'
+            : 'bg-background border-b border-transparent'
         )}
         style={{ height: 'var(--header-height)' }}
       >

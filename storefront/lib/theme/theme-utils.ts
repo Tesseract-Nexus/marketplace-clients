@@ -215,6 +215,31 @@ const CARD_SHADOW_VALUES: Record<CardStyleType, string> = {
 };
 
 // ========================================
+// Serif Font Detection (for editorial typography)
+// ========================================
+
+/**
+ * List of serif fonts that should use editorial letter-spacing
+ */
+const SERIF_FONTS = [
+  'Playfair Display',
+  'Cormorant Garamond',
+  'Libre Baskerville',
+  'DM Serif Display',
+  'Merriweather',
+  'Lora',
+  'Crimson Pro',
+  'Source Serif Pro',
+];
+
+/**
+ * Checks if a font is a serif font
+ */
+function isSerifFont(fontName: string): boolean {
+  return SERIF_FONTS.some(serif => fontName.toLowerCase().includes(serif.toLowerCase()));
+}
+
+// ========================================
 // CSS Variable Generator
 // ========================================
 
@@ -248,9 +273,9 @@ export function generateCssVariables(settings: StorefrontSettings): Record<strin
     // Text color for use on gradient backgrounds (derived from primary luminance)
     '--tenant-gradient-text': isColorDark(settings.primaryColor || preset.primaryColor) ? '#FFFFFF' : '#18181B',
 
-    // Typography
-    '--font-heading': `'${typography?.headingFont || settings.fontPrimary}', sans-serif`,
-    '--font-body': `'${typography?.bodyFont || settings.fontSecondary}', sans-serif`,
+    // Typography - Detect serif fonts and use appropriate fallback
+    '--font-heading': `'${typography?.headingFont || settings.fontPrimary}', ${isSerifFont(typography?.headingFont || settings.fontPrimary) ? 'Georgia, serif' : 'sans-serif'}`,
+    '--font-body': `'${typography?.bodyFont || settings.fontSecondary}', ${isSerifFont(typography?.bodyFont || settings.fontSecondary) ? 'Georgia, serif' : 'sans-serif'}`,
     '--font-size-base': `${typography?.baseFontSize || 16}px`,
     '--font-weight-heading': String(typography?.headingWeight || 700),
     '--font-weight-body': String(typography?.bodyWeight || 400),
@@ -473,9 +498,17 @@ export function isValidThemeTemplate(template: string): template is ThemeTemplat
     'vibrant', 'minimal', 'dark', 'neon', 'ocean', 'sunset',
     'forest', 'luxury', 'rose', 'corporate', 'earthy', 'arctic',
     'fashion', 'streetwear', 'food', 'bakery', 'cafe', 'electronics',
-    'beauty', 'wellness', 'jewelry', 'kids', 'sports', 'home'
+    'beauty', 'wellness', 'jewelry', 'kids', 'sports', 'home',
+    'editorial'
   ];
   return validTemplates.includes(template as ThemeTemplate);
+}
+
+/**
+ * Checks if the theme template is the editorial design system
+ */
+export function isEditorialTheme(template: ThemeTemplate): boolean {
+  return template === 'editorial';
 }
 
 /**

@@ -389,9 +389,11 @@ export function ProductCard({
         perspective: isTouchDevice ? undefined : 1000,
       }}
       className={cn(
-        'group relative rounded-xl overflow-hidden transition-all duration-300',
-        !isTouchDevice && 'card-shine hover-lift',
-        'shadow-lg hover:shadow-xl hover:shadow-tenant-primary/10',
+        'group relative overflow-hidden transition-all duration-200',
+        'rounded-md',
+        'border border-stone-200',
+        'hover:border-stone-400',
+        'hover:shadow-sm',
         cardStyleClass,
         className
       )}
@@ -442,9 +444,9 @@ export function ProductCard({
               alt={product.name}
               fill
               className={cn(
-                'object-cover transition-all duration-500',
-                productConfig.hoverEffect === 'zoom' && imageCount <= 1 && !isTouchDevice && 'group-hover:scale-110',
-                productConfig.hoverEffect === 'fade' && imageCount <= 1 && !isTouchDevice && 'group-hover:opacity-80'
+                'object-cover transition-transform duration-300',
+                productConfig.hoverEffect === 'zoom' && imageCount <= 1 && !isTouchDevice && 'group-hover:scale-[1.02]',
+                productConfig.hoverEffect === 'fade' && imageCount <= 1 && !isTouchDevice && 'group-hover:opacity-90'
               )}
             />
           )}
@@ -520,20 +522,20 @@ export function ProductCard({
             </div>
           )}
 
-          {/* Gradient overlay on hover */}
+          {/* Subtle overlay on hover - editorial style (no gradient) */}
           <div
-            className="absolute inset-0 bg-gradient-to-t from-[var(--tenant-primary)]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-10"
+            className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10"
           />
 
           {/* Badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1.5">
             {productConfig.showSaleBadge && hasDiscount && (
-              <Badge className="bg-gradient-to-r from-red-500 to-rose-500 text-white border-0 shadow-lg">
+              <Badge className="bg-red-600 text-white border-0 text-xs font-semibold">
                 -{discountPercent}%
               </Badge>
             )}
             {productConfig.showStockStatus && product.inventoryStatus === 'LOW_STOCK' && (
-              <Badge variant="secondary" className="glass-dark text-white border-0">
+              <Badge variant="secondary" className="bg-stone-100 text-stone-500 border border-stone-200">
                 Low Stock
               </Badge>
             )}

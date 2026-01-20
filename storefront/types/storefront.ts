@@ -128,7 +128,9 @@ export type ThemeTemplate =
   // Original themes
   | 'vibrant' | 'minimal' | 'dark' | 'neon' | 'ocean' | 'sunset' | 'forest' | 'luxury' | 'rose' | 'corporate' | 'earthy' | 'arctic'
   // Industry-specific themes
-  | 'fashion' | 'streetwear' | 'food' | 'bakery' | 'cafe' | 'electronics' | 'beauty' | 'wellness' | 'jewelry' | 'kids' | 'sports' | 'home';
+  | 'fashion' | 'streetwear' | 'food' | 'bakery' | 'cafe' | 'electronics' | 'beauty' | 'wellness' | 'jewelry' | 'kids' | 'sports' | 'home'
+  // Editorial theme - clean, typography-first design
+  | 'editorial';
 export type CardStyle = 'default' | 'minimal' | 'bordered' | 'elevated';
 export type GridColumns = 2 | 3 | 4;
 export type ColorMode = 'light' | 'dark' | 'both' | 'system';
@@ -707,6 +709,19 @@ export const THEME_PRESETS: ThemePreset[] = [
     backgroundColor: '#FFFFFF',
     textColor: '#2C3E50',
   },
+  // ========================================
+  // Editorial Theme - Typography-First Design
+  // ========================================
+  {
+    id: 'editorial',
+    name: 'Editorial',
+    description: 'Clean, typography-first design with generous whitespace',
+    primaryColor: '#292524',
+    secondaryColor: '#78716C',
+    accentColor: '#1C1917',
+    backgroundColor: '#FAFAFA',
+    textColor: '#1C1917',
+  },
 ];
 
 // ========================================
@@ -714,6 +729,7 @@ export const THEME_PRESETS: ThemePreset[] = [
 // ========================================
 
 export const GOOGLE_FONTS = [
+  // Sans-serif fonts
   { name: 'Inter', category: 'sans-serif' },
   { name: 'Roboto', category: 'sans-serif' },
   { name: 'Open Sans', category: 'sans-serif' },
@@ -728,10 +744,15 @@ export const GOOGLE_FONTS = [
   { name: 'Outfit', category: 'sans-serif' },
   { name: 'Manrope', category: 'sans-serif' },
   { name: 'Space Grotesk', category: 'sans-serif' },
+  // Serif fonts - Editorial display fonts for typography-first design
   { name: 'Playfair Display', category: 'serif' },
+  { name: 'Cormorant Garamond', category: 'serif' },
+  { name: 'Libre Baskerville', category: 'serif' },
+  { name: 'DM Serif Display', category: 'serif' },
   { name: 'Merriweather', category: 'serif' },
   { name: 'Lora', category: 'serif' },
-  { name: 'DM Serif Display', category: 'serif' },
+  { name: 'Crimson Pro', category: 'serif' },
+  { name: 'Source Serif Pro', category: 'serif' },
 ] as const;
 
 // ========================================

@@ -5,29 +5,31 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[var(--tenant-primary)]/30 focus-visible:ring-offset-2 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded text-sm font-semibold transition-colors disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
   {
     variants: {
       variant: {
-        default: "bg-[var(--tenant-primary)] text-[var(--tenant-primary-foreground)] shadow-sm hover:bg-[var(--tenant-primary-dark)] hover:shadow-md active:scale-[0.98]",
-        destructive:
-          "bg-destructive text-white shadow-sm hover:bg-destructive/90 hover:shadow-md focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60 active:scale-[0.98]",
-        outline:
-          "border-2 border-[var(--tenant-primary)] text-[var(--tenant-primary)] bg-background shadow-xs hover:bg-[var(--tenant-primary)]/10 hover:shadow-md dark:bg-input/30 dark:hover:bg-[var(--tenant-primary)]/20 active:scale-[0.98]",
+        // Core variants (8 total - simplified from 16)
+        default: "bg-tenant-primary text-white shadow-sm hover:opacity-90",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 hover:shadow-md active:scale-[0.98]",
+          "border border-stone-200 text-stone-800 bg-transparent hover:bg-stone-50 hover:border-stone-400",
         ghost:
-          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50 active:scale-[0.98]",
-        link: "text-[var(--tenant-primary)] underline-offset-4 hover:underline",
-        // Tenant-aware variants - these use CSS classes from globals.css
-        "tenant-primary": "btn-tenant-primary",
-        "tenant-secondary": "btn-tenant-secondary",
-        "tenant-outline": "btn-tenant-outline",
-        "tenant-gradient": "btn-tenant-gradient",
-        "tenant-glow": "btn-tenant-glow",
-        "tenant-ghost": "btn-tenant-ghost",
-        "tenant-glass": "btn-tenant-glass",
-        "tenant-soft": "btn-tenant-soft",
+          "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
+        link: "text-tenant-primary underline-offset-4 hover:underline",
+        destructive:
+          "bg-destructive text-white shadow-sm hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+        // Tenant-aware variants (simplified - no heavy transforms)
+        "tenant-primary": "bg-tenant-primary text-white hover:opacity-90 shadow-sm",
+        "tenant-secondary": "border border-tenant-primary text-tenant-primary bg-transparent hover:bg-tenant-primary/10",
+        "tenant-ghost": "text-tenant-primary hover:bg-tenant-primary/10",
+        // Legacy variants kept for backward compatibility
+        outline:
+          "border border-tenant-primary text-tenant-primary bg-background hover:bg-tenant-primary/10 dark:bg-input/30 dark:hover:bg-tenant-primary/20",
+        "tenant-outline": "border border-tenant-primary text-tenant-primary bg-transparent hover:bg-tenant-primary/10",
+        "tenant-gradient": "bg-tenant-primary text-white hover:opacity-90",
+        "tenant-glow": "bg-tenant-primary text-white hover:opacity-90",
+        "tenant-glass": "bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20",
+        "tenant-soft": "bg-tenant-primary/10 text-tenant-primary hover:bg-tenant-primary/20",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

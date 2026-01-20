@@ -145,18 +145,15 @@ export function Footer() {
 
   return (
     <footer
-      className="relative border-t bg-gradient-to-b from-background to-muted/30"
+      className="relative border-t border-stone-200 bg-stone-50"
       style={{
         backgroundColor: footerConfig.footerBgColor || undefined,
         color: footerConfig.footerTextColor || undefined,
       }}
     >
-      {/* Gradient accent line at top */}
+      {/* Solid accent line at top - editorial style (no gradient) */}
       <div
-        className="absolute top-0 left-0 right-0 h-1"
-        style={{
-          background: 'linear-gradient(to right, var(--tenant-primary), var(--tenant-secondary), var(--tenant-accent))',
-        }}
+        className="absolute top-0 left-0 right-0 h-[1px] bg-tenant-primary"
       />
 
       <div className="container-tenant py-8 sm:py-12 md:py-16">

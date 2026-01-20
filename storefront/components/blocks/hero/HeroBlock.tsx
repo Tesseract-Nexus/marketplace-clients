@@ -152,48 +152,44 @@ interface VariantProps {
   getNavPath: (path: string) => string;
 }
 
-// Editorial variant (Myntra-style)
+// Editorial variant - Clean, typography-first design
+// Features: Asymmetrical layout, serif headline, generous whitespace, no gradients
 function EditorialHero({ slide, config, getNavPath }: VariantProps) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.5 }}
-      className="absolute inset-0 flex items-center"
+      transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+      className="absolute inset-0 flex items-center bg-stone-50"
     >
-      {/* Background */}
-      <HeroBackground media={slide.media} overlay />
-
-      {/* Gradient overlay for editorial look */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
-
-      {/* Content */}
-      <div className="container-tenant relative z-10 py-12 sm:py-16 md:py-20">
-        <div className="max-w-2xl">
-          {/* Badge */}
+      {/* Two-column asymmetric layout */}
+      <div className="container mx-auto px-6 md:px-12 relative z-10 grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 py-16 md:py-24">
+        {/* Content Column - Takes 5/12 on desktop */}
+        <div className="md:col-span-5 flex flex-col justify-center">
+          {/* Badge - Editorial style: simple, uppercase, no gradient */}
           {slide.badge && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={cn(
-                'inline-flex items-center gap-2 px-4 py-2 rounded-full mb-4 sm:mb-6',
-                getBadgeStyles(slide.badge.style)
-              )}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="mb-6"
             >
-              {slide.badge.icon && <DynamicIcon name={slide.badge.icon} className="w-4 h-4" />}
-              <span className="text-sm font-medium">{slide.badge.text}</span>
+              <span className="inline-block text-xs font-semibold uppercase tracking-widest text-stone-500 border-b-2 border-stone-800 pb-1">
+                {slide.badge.text}
+              </span>
             </motion.div>
           )}
 
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ delay: 0.15, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
             className={cn(
-              'text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight',
-              slide.textColor === 'dark' ? 'text-gray-900' : 'text-white'
+              'font-serif text-4xl sm:text-5xl md:text-6xl font-normal leading-tight tracking-tight mb-6',
+              slide.textColor === 'dark' ? 'text-stone-900' : 'text-white'
             )}
+            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
           >
             <TranslatedUIText text={slide.headline} />
           </motion.h1>
@@ -202,39 +198,65 @@ function EditorialHero({ slide, config, getNavPath }: VariantProps) {
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.25, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
               className={cn(
-                'text-lg sm:text-xl mb-6 sm:mb-8 leading-relaxed max-w-xl',
-                slide.textColor === 'dark' ? 'text-gray-700' : 'text-white/90'
+                'text-lg leading-relaxed mb-8 max-w-md',
+                slide.textColor === 'dark' ? 'text-stone-500' : 'text-white/80'
               )}
             >
               <TranslatedUIText text={slide.subheadline} />
             </motion.p>
           )}
 
-          {/* CTAs */}
+          {/* CTAs - Editorial style: solid buttons, no gradients */}
           {slide.ctas && slide.ctas.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4"
+              transition={{ delay: 0.35, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+              className="flex flex-col sm:flex-row gap-4"
             >
-              {slide.ctas.map((cta) => (
-                <CTAButtonRenderer key={cta.id} cta={cta} getNavPath={getNavPath} />
+              {slide.ctas.map((cta, index) => (
+                <CTAButtonRenderer
+                  key={cta.id}
+                  cta={cta}
+                  getNavPath={getNavPath}
+                  variant={index === 0 ? 'editorial-primary' : 'editorial-secondary'}
+                />
               ))}
             </motion.div>
           )}
 
-          {/* Countdown */}
+          {/* Countdown - Editorial style */}
           {slide.countdown?.enabled && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="mt-6 sm:mt-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.45 }}
+              className="mt-10 pt-8 border-t border-stone-200"
             >
-              <CountdownTimer config={slide.countdown} />
+              <CountdownTimer config={slide.countdown} variant="editorial" />
+            </motion.div>
+          )}
+        </div>
+
+        {/* Image Column - Takes 7/12 on desktop */}
+        <div className="md:col-span-7 relative min-h-[300px] md:min-h-[500px]">
+          {slide.media?.url && (
+            <motion.div
+              initial={{ opacity: 0, scale: 1.02 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+              className="relative w-full h-full rounded-md overflow-hidden"
+            >
+              <Image
+                src={slide.media.url}
+                alt={slide.media.alt || ''}
+                fill
+                priority
+                className="object-cover"
+                style={{ objectPosition: slide.media.focalPoint ? `${slide.media.focalPoint.x}% ${slide.media.focalPoint.y}%` : 'center' }}
+              />
             </motion.div>
           )}
         </div>
@@ -697,9 +719,16 @@ function CTAButtonRenderer({
 }: {
   cta: CTAButton;
   getNavPath: (path: string) => string;
-  variant?: 'default' | 'promotional' | 'immersive';
+  variant?: 'default' | 'promotional' | 'immersive' | 'editorial-primary' | 'editorial-secondary';
 }) {
   const getButtonVariant = () => {
+    // Editorial variants - solid colors, no gradients
+    if (variant === 'editorial-primary') {
+      return 'default';
+    }
+    if (variant === 'editorial-secondary') {
+      return 'secondary';
+    }
     if (variant === 'promotional') {
       return cta.style === 'primary' ? 'default' : 'outline';
     }
@@ -729,6 +758,8 @@ function CTAButtonRenderer({
 
   const buttonSize = cta.size === 'xl' ? 'xl' : cta.size === 'lg' ? 'lg' : cta.size === 'sm' ? 'sm' : 'default';
 
+  const isEditorial = variant === 'editorial-primary' || variant === 'editorial-secondary';
+
   return (
     <Button
       asChild
@@ -736,7 +767,11 @@ function CTAButtonRenderer({
       size={buttonSize}
       className={cn(
         'group',
-        variant === 'promotional' && cta.style === 'primary' && 'bg-white text-gray-900 hover:bg-gray-100'
+        variant === 'promotional' && cta.style === 'primary' && 'bg-white text-gray-900 hover:bg-gray-100',
+        // Editorial button styles - uppercase, letter-spacing, rounded corners
+        isEditorial && 'uppercase tracking-widest text-xs font-semibold rounded',
+        variant === 'editorial-primary' && 'bg-stone-800 text-white hover:bg-stone-900',
+        variant === 'editorial-secondary' && 'bg-transparent border border-stone-200 text-stone-900 hover:border-stone-900 hover:bg-stone-50'
       )}
     >
       <Link
@@ -759,13 +794,15 @@ function CTAButtonRenderer({
   );
 }
 
-function CountdownTimer({ config, variant = 'default' }: { config: CountdownConfig; variant?: 'default' | 'flip' }) {
+function CountdownTimer({ config, variant = 'default' }: { config: CountdownConfig; variant?: 'default' | 'flip' | 'editorial' }) {
   const { days, hours, minutes, seconds, isExpired } = useCountdown(config.endDate);
 
   if (isExpired) {
     if (config.expiredAction === 'hide') return null;
     if (config.expiredAction === 'show-message' && config.expiredMessage) {
-      return <p className="text-white/80 text-lg">{config.expiredMessage}</p>;
+      return <p className={cn(
+        variant === 'editorial' ? 'text-stone-500 text-base' : 'text-white/80 text-lg'
+      )}>{config.expiredMessage}</p>;
     }
     return null;
   }
@@ -773,17 +810,22 @@ function CountdownTimer({ config, variant = 'default' }: { config: CountdownConf
   const TimeUnit = ({ value, label }: { value: number; label: string }) => (
     <div className={cn(
       'flex flex-col items-center',
-      variant === 'flip' ? 'bg-black/80 rounded px-3 py-2 min-w-[60px]' : ''
+      variant === 'flip' && 'bg-black/80 rounded px-3 py-2 min-w-[60px]',
+      variant === 'editorial' && 'min-w-[60px]'
     )}>
       <span className={cn(
         'font-bold tabular-nums',
-        variant === 'flip' ? 'text-3xl sm:text-4xl text-white' : 'text-2xl sm:text-3xl text-white'
+        variant === 'flip' && 'text-3xl sm:text-4xl text-white',
+        variant === 'editorial' && 'text-3xl sm:text-4xl text-stone-900 font-light',
+        variant === 'default' && 'text-2xl sm:text-3xl text-white'
       )}>
         {String(value).padStart(2, '0')}
       </span>
       <span className={cn(
         'uppercase tracking-wider',
-        variant === 'flip' ? 'text-[10px] text-white/60' : 'text-xs text-white/70'
+        variant === 'flip' && 'text-[10px] text-white/60',
+        variant === 'editorial' && 'text-[10px] text-stone-500 tracking-widest',
+        variant === 'default' && 'text-xs text-white/70'
       )}>
         {label}
       </span>
@@ -793,7 +835,8 @@ function CountdownTimer({ config, variant = 'default' }: { config: CountdownConf
   return (
     <div className={cn(
       'flex gap-2 sm:gap-3',
-      variant === 'flip' && 'bg-black/40 backdrop-blur-sm p-3 rounded-lg inline-flex'
+      variant === 'flip' && 'bg-black/40 backdrop-blur-sm p-3 rounded-lg inline-flex',
+      variant === 'editorial' && 'gap-6'
     )}>
       {config.showDays !== false && <TimeUnit value={days} label="Days" />}
       {variant === 'flip' && <span className="text-white/40 text-2xl self-center">:</span>}
