@@ -254,7 +254,7 @@ const slides = [
       { name: 'Stripe', icon: '🌍', desc1: 'Accept cards globally', desc2: 'Visa, Mastercard, Amex & more' },
       { name: 'Razorpay', icon: '🇮🇳', desc1: 'Popular in India', desc2: 'UPI, Cards, Netbanking' },
     ],
-    highlight: '✓ 0% platform fees from Tesseract Hub',
+    highlight: '✓ 0% platform fees from Tesserix',
     subtext: 'Only standard payment processor fees apply (2.9% + $0.30)',
   },
   {
@@ -315,7 +315,7 @@ const slides = [
     title: 'What Our',
     titleGradient: 'Customers Say',
     testimonials: [
-      { name: 'Sarah Kim', role: 'CEO', company: 'Artisan Goods Co.', avatar: 'SK', content: 'Tesseract Hub transformed our business. We went from a local shop to selling in 15 countries within 6 months.', rating: 5 },
+      { name: 'Sarah Kim', role: 'CEO', company: 'Artisan Goods Co.', avatar: 'SK', content: 'Tesserix transformed our business. We went from a local shop to selling in 15 countries within 6 months.', rating: 5 },
       { name: 'Michael Rodriguez', role: 'CTO', company: 'Brand Collective', avatar: 'MR', content: 'The multi-tenant architecture means we can run 50+ brands from one platform. Incredible efficiency gains.', rating: 5 },
       { name: 'Aisha Patel', role: 'Founder', company: 'Spice Route', avatar: 'AP', content: 'Setup took 10 minutes. Our first sale came within an hour. This is how e-commerce should work.', rating: 5 },
     ],
@@ -340,7 +340,7 @@ const slides = [
     type: 'cta',
     label: '',
     title: 'Ready to Transform Your Business?',
-    subtitle: 'Join 10,000+ brands already growing with Tesseract Hub',
+    subtitle: 'Join 10,000+ brands already growing with Tesserix',
     trustItems: ['Free 14-day trial', 'No credit card required', 'Cancel anytime'],
   },
 ];
@@ -500,7 +500,7 @@ export default function PresentationPage() {
                   <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
                     <span className="text-white font-bold text-xl">T</span>
                   </div>
-                  <span className="text-xl font-serif font-semibold text-foreground">Tesseract Hub</span>
+                  <span className="text-xl font-serif font-semibold text-foreground">Tesserix</span>
                 </div>
                 <h1 className="text-5xl sm:text-6xl md:text-7xl font-serif font-medium mb-6">
                   <span className="text-foreground">{slide.title}</span>
@@ -1074,7 +1074,7 @@ export default function PresentationPage() {
                   </div>
                 </div>
                 <div className="absolute top-16 right-20 bg-card border border-border rounded-xl px-5 py-3 text-left shadow-card">
-                  <div className="font-semibold text-foreground text-sm">📱 Tesseract Hub</div>
+                  <div className="font-semibold text-foreground text-sm">📱 Tesserix</div>
                   <div className="text-xs text-muted-foreground">🔔 New sale! $49.99</div>
                 </div>
               </div>
@@ -1194,7 +1194,7 @@ export default function PresentationPage() {
                     <thead>
                       <tr className="bg-warm-100">
                         <th className="p-4 text-left text-sm font-semibold text-muted-foreground">Feature</th>
-                        <th className="p-4 text-left text-sm font-semibold text-foreground-secondary bg-warm-100">Tesseract Hub</th>
+                        <th className="p-4 text-left text-sm font-semibold text-foreground-secondary bg-warm-100">Tesserix</th>
                         <th className="p-4 text-left text-sm font-semibold text-muted-foreground">Shopify</th>
                         <th className="p-4 text-left text-sm font-semibold text-muted-foreground">WooCommerce</th>
                       </tr>
@@ -1225,7 +1225,7 @@ export default function PresentationPage() {
                   <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
                     <span className="text-white font-bold text-xl">T</span>
                   </div>
-                  <span className="text-xl font-serif font-semibold text-foreground">Tesseract Hub</span>
+                  <span className="text-xl font-serif font-semibold text-foreground">Tesserix</span>
                 </div>
                 <h2 className="text-4xl md:text-5xl font-serif font-medium mb-4 text-foreground">{slide.title}</h2>
                 <p className="text-lg text-muted-foreground mb-10">{slide.subtitle}</p>

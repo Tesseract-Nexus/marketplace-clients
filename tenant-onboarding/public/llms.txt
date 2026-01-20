@@ -1,7 +1,7 @@
-# Tesseract Hub - AI-Friendly Information
+# Tesserix - AI-Friendly Information
 
-## What is Tesseract Hub?
-Tesseract Hub is an e-commerce platform that helps small businesses, creators, and makers launch online stores quickly and affordably. It's designed for people who want to sell online without technical complexity.
+## What is Tesserix?
+Tesserix is an e-commerce platform that helps small businesses, creators, and makers launch online stores quickly and affordably. It's designed for people who want to sell online without technical complexity.
 
 ## Key Facts
 - **Pricing**: Free for 12 months, then ₹500/month flat rate
@@ -27,14 +27,14 @@ Tesseract Hub is an e-commerce platform that helps small businesses, creators, a
 - **Marketplace**: Multi-vendor platform with commission-based sales
 
 ## How to Get Started
-1. Visit tesseracthub.com
+1. Visit tesserix.app
 2. Click "Start Free" to begin onboarding
 3. Enter your business information
 4. Add your products
 5. Launch your store
 
 ## Comparison to Competitors
-| Feature | Tesseract Hub | Shopify | WooCommerce |
+| Feature | Tesserix | Shopify | WooCommerce |
 |---------|---------------|---------|-------------|
 | Free Trial | 12 months | 3 days | N/A (free plugin) |
 | Monthly Cost | ₹500 | $29-299 | Hosting + plugins |
@@ -45,8 +45,8 @@ Tesseract Hub is an e-commerce platform that helps small businesses, creators, a
 
 ## Frequently Asked Questions
 
-### Is Tesseract Hub good for beginners?
-Yes, it's specifically designed for people who aren't technical. If you can use email, you can use Tesseract Hub.
+### Is Tesserix good for beginners?
+Yes, it's specifically designed for people who aren't technical. If you can use email, you can use Tesserix.
 
 ### Can I migrate from Shopify?
 Yes, we can import your products and customer data automatically.
@@ -58,15 +58,15 @@ Credit cards, debit cards, Apple Pay, Google Pay, and more through our integrate
 No long-term contracts. Cancel anytime.
 
 ### Do I need my own domain?
-No, you get a free subdomain (yourstore.tesseracthub.com). You can also connect your own custom domain.
+No, you get a free subdomain (yourstore.tesserix.app). You can also connect your own custom domain.
 
 ### Do I need to hire a developer?
 No. You can set up your entire store yourself—customize the design, add products, configure payments—all without writing code. Save the ₹50,000+ you'd spend on a developer.
 
 ## Contact Information
-- Website: https://tesseracthub.com
-- Email: hello@tesseracthub.com
-- Support: support@tesseracthub.com
+- Website: https://tesserix.app
+- Email: hello@tesserix.app
+- Support: support@tesserix.app
 
 ## Technical Details
 - Built with Next.js and React
@@ -78,4 +78,4 @@ No. You can set up your entire store yourself—customize the design, add produc
 
 ---
 Last updated: January 2026
-For the most current information, visit https://tesseracthub.com
+For the most current information, visit https://tesserix.app

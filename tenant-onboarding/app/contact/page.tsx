@@ -45,8 +45,8 @@ export default function ContactPage() {
                 <Mail className="w-6 h-6 text-warm-600" />
               </div>
               <h3 className="font-medium text-foreground text-lg mb-2">Email Support</h3>
-              <a href="mailto:support@tesseracthub.com" className="text-primary hover:underline font-medium">
-                support@tesseracthub.com
+              <a href="mailto:support@tesserix.app" className="text-primary hover:underline font-medium">
+                support@tesserix.app
               </a>
               <p className="text-foreground-secondary mt-2 text-sm">
                 For general questions, technical help, or account assistance.
@@ -60,11 +60,11 @@ export default function ContactPage() {
                 <Send className="w-6 h-6 text-warm-600" />
               </div>
               <h3 className="font-medium text-foreground text-lg mb-2">Sales Inquiries</h3>
-              <a href="mailto:sales@tesseracthub.com" className="text-primary hover:underline font-medium">
-                sales@tesseracthub.com
+              <a href="mailto:sales@tesserix.app" className="text-primary hover:underline font-medium">
+                sales@tesserix.app
               </a>
               <p className="text-foreground-secondary mt-2 text-sm">
-                Questions about pricing, features, or whether Tesseract Hub is right for you.
+                Questions about pricing, features, or whether Tesserix is right for you.
               </p>
               <p className="text-sm text-sage-600 mt-3">Average response: Under 1 hour</p>
             </div>
@@ -87,8 +87,8 @@ export default function ContactPage() {
                 <HelpCircle className="w-6 h-6 text-warm-600" />
               </div>
               <h3 className="font-medium text-foreground text-lg mb-2">Partnership Opportunities</h3>
-              <a href="mailto:partners@tesseracthub.com" className="text-primary hover:underline font-medium">
-                partners@tesseracthub.com
+              <a href="mailto:partners@tesserix.app" className="text-primary hover:underline font-medium">
+                partners@tesserix.app
               </a>
               <p className="text-foreground-secondary mt-2 text-sm">
                 Interested in partnering with us? We'd love to explore how we can work together.
@@ -105,15 +105,15 @@ export default function ContactPage() {
           <div>
             <h2 className="font-serif text-2xl font-medium text-foreground mb-6">Follow Us</h2>
             <div className="flex gap-4">
-              <a href="https://twitter.com/tesseracthub" target="_blank" rel="noopener noreferrer"
+              <a href="https://twitter.com/tesserix" target="_blank" rel="noopener noreferrer"
                  className="w-12 h-12 rounded-xl bg-white border border-warm-200 flex items-center justify-center hover:border-warm-300 transition-colors">
                 <Twitter className="w-5 h-5 text-foreground-secondary" />
               </a>
-              <a href="https://instagram.com/tesseracthub" target="_blank" rel="noopener noreferrer"
+              <a href="https://instagram.com/tesserix" target="_blank" rel="noopener noreferrer"
                  className="w-12 h-12 rounded-xl bg-white border border-warm-200 flex items-center justify-center hover:border-warm-300 transition-colors">
                 <Instagram className="w-5 h-5 text-foreground-secondary" />
               </a>
-              <a href="https://linkedin.com/company/tesseracthub" target="_blank" rel="noopener noreferrer"
+              <a href="https://linkedin.com/company/tesserix" target="_blank" rel="noopener noreferrer"
                  className="w-12 h-12 rounded-xl bg-white border border-warm-200 flex items-center justify-center hover:border-warm-300 transition-colors">
                 <Linkedin className="w-5 h-5 text-foreground-secondary" />
               </a>
@@ -126,8 +126,8 @@ export default function ContactPage() {
             <div className="flex gap-3">
               <MapPin className="w-5 h-5 text-foreground-tertiary flex-shrink-0 mt-1" />
               <div className="text-foreground-secondary">
-                <p>Tesseract Hub</p>
-                <p>Bangalore, Karnataka</p>
+                <p>Tesserix</p>
+                <p>Mumbai, Maharashtra</p>
                 <p>India</p>
                 <p className="text-sm mt-2 italic">We operate remotely-first, but if you're in the area and want to meet, drop us a note.</p>
               </div>
@@ -143,8 +143,8 @@ export default function ContactPage() {
           <p className="text-foreground-secondary mb-4">
             Building something great? Found a bug? Have an idea for a new feature? We want to hear it all.
           </p>
-          <a href="mailto:feedback@tesseracthub.com" className="text-primary hover:underline font-medium">
-            feedback@tesseracthub.com
+          <a href="mailto:feedback@tesserix.app" className="text-primary hover:underline font-medium">
+            feedback@tesserix.app
           </a>
           <p className="text-sm text-foreground-tertiary mt-2">Your input directly shapes what we build next.</p>
         </div>
@@ -159,7 +159,7 @@ export default function ContactPage() {
             href="/onboarding"
             className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-medium rounded-xl hover:bg-primary-hover transition-colors"
           >
-            Try Tesseract Hub Free
+            Try Tesserix Free
             <ArrowRight className="w-5 h-5" />
           </Link>
         </div>

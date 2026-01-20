@@ -28,7 +28,7 @@ export default function PrivacyPolicyPage() {
             {/* Introduction */}
             <div className="p-6 bg-warm-50 rounded-xl border border-warm-200">
               <p className="text-foreground leading-relaxed m-0">
-                At Tesseract Hub, we believe your data is yours. We only collect what we need to provide you with a great service, and we're transparent about how we use it.
+                At Tesserix, we believe your data is yours. We only collect what we need to provide you with a great service, and we're transparent about how we use it.
               </p>
             </div>
 
@@ -36,10 +36,10 @@ export default function PrivacyPolicyPage() {
             <section>
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">1. Who We Are</h2>
               <p className="leading-relaxed">
-                Tesseract Hub is an e-commerce platform that helps small businesses launch and manage online stores. We're based in India and serve customers globally.
+                Tesserix is an e-commerce platform that helps small businesses launch and manage online stores. We're based in India and serve customers globally.
               </p>
               <p className="leading-relaxed mt-4">
-                <strong>Contact:</strong> privacy@tesseracthub.com
+                <strong>Contact:</strong> privacy@tesserix.app
               </p>
             </section>
 
@@ -162,7 +162,7 @@ export default function PrivacyPolicyPage() {
                 <li><strong>Withdraw Consent:</strong> Withdraw consent anytime</li>
               </ul>
               <p className="leading-relaxed mt-4">
-                To exercise your rights, email <a href="mailto:privacy@tesseracthub.com" className="text-primary hover:underline">privacy@tesseracthub.com</a>. We'll respond within 30 days.
+                To exercise your rights, email <a href="mailto:privacy@tesserix.app" className="text-primary hover:underline">privacy@tesserix.app</a>. We'll respond within 30 days.
               </p>
             </section>
 
@@ -178,7 +178,7 @@ export default function PrivacyPolicyPage() {
             <section>
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">10. Children's Privacy</h2>
               <p className="leading-relaxed">
-                Tesseract Hub is not intended for children under 16. We don't knowingly collect information from children. If you believe your child has provided us with personal data, contact us at privacy@tesseracthub.com.
+                Tesserix is not intended for children under 16. We don't knowingly collect information from children. If you believe your child has provided us with personal data, contact us at privacy@tesserix.app.
               </p>
             </section>
 
@@ -195,8 +195,8 @@ export default function PrivacyPolicyPage() {
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">12. Contact Us</h2>
               <p className="leading-relaxed">Questions about this Privacy Policy?</p>
               <div className="mt-4 p-4 bg-warm-50 border border-warm-200 rounded-lg">
-                <p className="m-0"><strong>Email:</strong> <a href="mailto:privacy@tesseracthub.com" className="text-primary hover:underline">privacy@tesseracthub.com</a></p>
-                <p className="mt-2 mb-0"><strong>Data Protection Officer:</strong> <a href="mailto:dpo@tesseracthub.com" className="text-primary hover:underline">dpo@tesseracthub.com</a></p>
+                <p className="m-0"><strong>Email:</strong> <a href="mailto:privacy@tesserix.app" className="text-primary hover:underline">privacy@tesserix.app</a></p>
+                <p className="mt-2 mb-0"><strong>Data Protection Officer:</strong> <a href="mailto:dpo@tesserix.app" className="text-primary hover:underline">dpo@tesserix.app</a></p>
               </div>
               <p className="leading-relaxed mt-4">
                 We're here to help and will respond to all privacy inquiries within 48 hours.

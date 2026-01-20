@@ -21,7 +21,7 @@ const sourceSans = Source_Sans_3({
   display: 'swap',
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tesseracthub.com';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://tesserix.app';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -33,8 +33,8 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   // Basic metadata
   title: {
-    default: 'Tesseract Hub - Launch Your Online Store in Minutes',
-    template: '%s | Tesseract Hub',
+    default: 'Tesserix - Launch Your Online Store in Minutes',
+    template: '%s | Tesserix',
   },
   description: 'The simplest way to create and launch your online store. Start free for 12 months, then just ₹500/mo. No coding required. Built for creators, makers, and small businesses.',
   keywords: [
@@ -51,9 +51,9 @@ export const metadata: Metadata = {
     'D2C ecommerce',
     'direct to consumer',
   ],
-  authors: [{ name: 'Tesseract Hub' }],
-  creator: 'Tesseract Hub',
-  publisher: 'Tesseract Hub',
+  authors: [{ name: 'Tesserix' }],
+  creator: 'Tesserix',
+  publisher: 'Tesserix',
 
   // Robots
   robots: {
@@ -73,15 +73,15 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: siteUrl,
-    siteName: 'Tesseract Hub',
-    title: 'Tesseract Hub - Launch Your Online Store in Minutes',
+    siteName: 'Tesserix',
+    title: 'Tesserix - Launch Your Online Store in Minutes',
     description: 'The simplest way to create and launch your online store. Start free for 12 months, then ₹500/mo. No coding required. Built for creators and small businesses.',
     images: [
       {
         url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: 'Tesseract Hub - E-commerce Made Simple',
+        alt: 'Tesserix - E-commerce Made Simple',
       },
     ],
   },
@@ -89,10 +89,10 @@ export const metadata: Metadata = {
   // Twitter
   twitter: {
     card: 'summary_large_image',
-    title: 'Tesseract Hub - Launch Your Online Store in Minutes',
+    title: 'Tesserix - Launch Your Online Store in Minutes',
     description: 'The simplest way to create and launch your online store. Start free for 12 months, then ₹500/mo. No coding required.',
     images: [`${siteUrl}/og-image.png`],
-    creator: '@tesseracthub',
+    creator: '@tesserix',
   },
 
   // Icons
@@ -117,7 +117,7 @@ export const metadata: Metadata = {
   category: 'technology',
 
   // Additional
-  applicationName: 'Tesseract Hub',
+  applicationName: 'Tesserix',
   referrer: 'origin-when-cross-origin',
   formatDetection: {
     email: false,
@@ -133,7 +133,7 @@ const jsonLd = {
     {
       '@type': 'Organization',
       '@id': `${siteUrl}/#organization`,
-      name: 'Tesseract Hub',
+      name: 'Tesserix',
       url: siteUrl,
       logo: {
         '@type': 'ImageObject',
@@ -142,13 +142,13 @@ const jsonLd = {
         height: 512,
       },
       sameAs: [
-        'https://twitter.com/tesseracthub',
-        'https://linkedin.com/company/tesseracthub',
+        'https://twitter.com/tesserix',
+        'https://linkedin.com/company/tesserix',
       ],
       contactPoint: {
         '@type': 'ContactPoint',
         contactType: 'customer service',
-        email: 'support@tesseracthub.com',
+        email: 'support@tesserix.app',
         availableLanguage: 'English',
       },
     },
@@ -156,7 +156,7 @@ const jsonLd = {
       '@type': 'WebSite',
       '@id': `${siteUrl}/#website`,
       url: siteUrl,
-      name: 'Tesseract Hub',
+      name: 'Tesserix',
       description: 'The simplest way to create and launch your online store',
       publisher: { '@id': `${siteUrl}/#organization` },
       potentialAction: {
@@ -168,7 +168,7 @@ const jsonLd = {
     {
       '@type': 'SoftwareApplication',
       '@id': `${siteUrl}/#software`,
-      name: 'Tesseract Hub',
+      name: 'Tesserix',
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
       offers: {
@@ -206,7 +206,7 @@ const jsonLd = {
           name: "I'm not very technical. Can I still use this?",
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Absolutely. We built this for people who want to focus on their business, not on learning software. If you can use email, you can use Tesseract Hub.',
+            text: 'Absolutely. We built this for people who want to focus on their business, not on learning software. If you can use email, you can use Tesserix.',
           },
         },
         {
@@ -222,7 +222,7 @@ const jsonLd = {
           name: 'Are there transaction fees or payment processing fees?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: "You'll pay standard payment processing fees (around 2% for UPI, 2-3% for cards). But unlike other platforms, Tesseract Hub doesn't take an extra cut. Your money is your money.",
+            text: "You'll pay standard payment processing fees (around 2% for UPI, 2-3% for cards). But unlike other platforms, Tesserix doesn't take an extra cut. Your money is your money.",
           },
         },
         {

@@ -1,4 +1,4 @@
-# Tesseract Hub - Footer Pages Content
+# Tesserix - Footer Pages Content
 
 ---
 
@@ -7,14 +7,14 @@
 ### Hero Section
 **Heading:** We believe every small business deserves a beautiful online store
 
-**Subheading:** Tesseract Hub makes it simple for creators, makers, and small business owners to sell online—without the technical headaches or hidden fees.
+**Subheading:** Tesserix makes it simple for creators, makers, and small business owners to sell online—without the technical headaches or hidden fees.
 
 ---
 
 ### Our Story Section
 **Heading:** How We Started
 
-We built Tesseract Hub because we saw too many talented people struggling with the same problem: they had amazing products but couldn't afford the expensive platforms, transaction fees, and developers needed to sell online.
+We built Tesserix because we saw too many talented people struggling with the same problem: they had amazing products but couldn't afford the expensive platforms, transaction fees, and developers needed to sell online.
 
 We knew there had to be a better way. So we created a platform that's powerful enough for growth, simple enough to set up in an afternoon, and fair enough that you keep more of what you earn.
 
@@ -96,17 +96,17 @@ We're available around the clock, every day of the year. No bots, no automated r
 **Heading:** Get in Touch
 
 **Email Support**
-support@tesseracthub.com
+support@tesserix.app
 For general questions, technical help, or account assistance.
 Average response time: Under 2 hours
 
 **Sales Inquiries**
-sales@tesseracthub.com
-Questions about pricing, features, or whether Tesseract Hub is right for you.
+sales@tesserix.app
+Questions about pricing, features, or whether Tesserix is right for you.
 Average response time: Under 1 hour
 
 **Partnership Opportunities**
-partners@tesseracthub.com
+partners@tesserix.app
 Interested in partnering with us? We'd love to explore how we can work together.
 
 **Live Chat**
@@ -116,14 +116,14 @@ Available 24/7
 **Social Media**
 Twitter: @TesseractHub
 Instagram: @TesseractHub
-LinkedIn: Tesseract Hub
+LinkedIn: Tesserix
 
 ---
 
 ### Office Location Section
 **Heading:** Where We're Based
 
-Tesseract Hub
+Tesserix
 [Your Office Address]
 [City], [State] [PIN Code]
 India
@@ -153,7 +153,7 @@ Before reaching out, you might find your answer in our Help Center:
 
 Building something great? Found a bug? Have an idea for a new feature? We want to hear it all.
 
-feedback@tesseracthub.com
+feedback@tesserix.app
 
 Your input directly shapes what we build next.
 
@@ -162,7 +162,7 @@ Your input directly shapes what we build next.
 ### Call to Action Section
 **Heading:** Not a Customer Yet?
 
-**Button Text:** Try Tesseract Hub Free
+**Button Text:** Try Tesserix Free
 
 **Supporting Text:** See why thousands of small businesses trust us with their online stores.
 
@@ -179,7 +179,7 @@ Your input directly shapes what we build next.
 
 ### Introduction
 
-At Tesseract Hub, we believe your data is yours. We only collect what we need to provide you with a great service, and we're transparent about how we use it.
+At Tesserix, we believe your data is yours. We only collect what we need to provide you with a great service, and we're transparent about how we use it.
 
 This Privacy Policy explains what information we collect, why we collect it, how we use it, and what rights you have. We've written this in plain language because we respect your time and your intelligence.
 
@@ -187,13 +187,13 @@ This Privacy Policy explains what information we collect, why we collect it, how
 
 ### 1. Who We Are
 
-Tesseract Hub is an e-commerce platform that helps small businesses launch and manage online stores. We're based in India and serve customers globally.
+Tesserix is an e-commerce platform that helps small businesses launch and manage online stores. We're based in India and serve customers globally.
 
 **Data Controller:**
-Tesseract Hub
+Tesserix
 [Company Legal Name]
 [Registered Address]
-Email: privacy@tesseracthub.com
+Email: privacy@tesserix.app
 
 ---
 
@@ -270,7 +270,7 @@ These providers only access the data they need to perform their specific functio
 When someone buys from your store, we share the information necessary to fulfill the order (like shipping address).
 
 **Legal Requirements:**
-We may disclose information if required by law, court order, or government request, or to protect the rights, property, or safety of Tesseract Hub, our users, or the public.
+We may disclose information if required by law, court order, or government request, or to protect the rights, property, or safety of Tesserix, our users, or the public.
 
 **Business Transfers:**
 If we're involved in a merger, acquisition, or sale of assets, your information may be transferred. We'll notify you before your information becomes subject to a different privacy policy.
@@ -321,7 +321,7 @@ We take security seriously. We use industry-standard measures to protect your in
 - **Regular Audits:** We regularly review and update our security practices
 - **Data Backups:** Regular encrypted backups ensure data recovery capability
 
-However, no system is 100% secure. If you believe your account has been compromised, contact us immediately at security@tesseracthub.com.
+However, no system is 100% secure. If you believe your account has been compromised, contact us immediately at security@tesserix.app.
 
 ---
 
@@ -365,7 +365,7 @@ If we process data based on consent, you can withdraw it anytime.
 Lodge a complaint with your local data protection authority.
 
 **How to Exercise Your Rights:**
-Email us at privacy@tesseracthub.com with your request. We'll respond within 30 days.
+Email us at privacy@tesserix.app with your request. We'll respond within 30 days.
 
 ---
 
@@ -382,7 +382,7 @@ When we transfer data internationally, we ensure adequate protection through:
 
 ### 10. Children's Privacy
 
-Tesseract Hub is not intended for children under 16. We don't knowingly collect information from children. If you're a parent and believe your child has provided us with personal data, please contact us at privacy@tesseracthub.com and we'll delete it.
+Tesserix is not intended for children under 16. We don't knowingly collect information from children. If you're a parent and believe your child has provided us with personal data, please contact us at privacy@tesserix.app and we'll delete it.
 
 ---
 
@@ -399,7 +399,7 @@ We may update this Privacy Policy from time to time. When we make significant ch
 - Notify you by email (if you have an account)
 - Display a prominent notice on our platform
 
-Your continued use of Tesseract Hub after changes take effect means you accept the updated policy.
+Your continued use of Tesserix after changes take effect means you accept the updated policy.
 
 ---
 
@@ -407,14 +407,14 @@ Your continued use of Tesseract Hub after changes take effect means you accept t
 
 Questions about this Privacy Policy or how we handle your data?
 
-**Email:** privacy@tesseracthub.com
+**Email:** privacy@tesserix.app
 **Mail:**
-Tesseract Hub - Privacy Team
+Tesserix - Privacy Team
 [Company Address]
 [City, State, PIN]
 India
 
-**Data Protection Officer:** dpo@tesseracthub.com
+**Data Protection Officer:** dpo@tesserix.app
 
 We're here to help and will respond to all privacy inquiries within 48 hours.
 
@@ -431,29 +431,29 @@ We're here to help and will respond to all privacy inquiries within 48 hours.
 
 ### Introduction
 
-Welcome to Tesseract Hub. These Terms of Service ("Terms") govern your use of our platform and services. By using Tesseract Hub, you agree to these Terms.
+Welcome to Tesserix. These Terms of Service ("Terms") govern your use of our platform and services. By using Tesserix, you agree to these Terms.
 
-We've written these Terms in plain language, but they're still a legal agreement. Please read them carefully. If something's unclear, reach out at legal@tesseracthub.com—we're happy to explain.
+We've written these Terms in plain language, but they're still a legal agreement. Please read them carefully. If something's unclear, reach out at legal@tesserix.app—we're happy to explain.
 
 ---
 
 ### 1. Accepting These Terms
 
-By creating a Tesseract Hub account or using our services, you agree to:
+By creating a Tesserix account or using our services, you agree to:
 - These Terms of Service
 - Our Privacy Policy
 - Our Acceptable Use Policy
 
-If you're using Tesseract Hub on behalf of a business, you represent that you have the authority to bind that business to these Terms.
+If you're using Tesserix on behalf of a business, you represent that you have the authority to bind that business to these Terms.
 
-**Age Requirement:** You must be at least 18 years old to use Tesseract Hub. If you're under 18, you may use our service only with the involvement of a parent or guardian.
+**Age Requirement:** You must be at least 18 years old to use Tesserix. If you're under 18, you may use our service only with the involvement of a parent or guardian.
 
 ---
 
 ### 2. Our Service
 
 **What We Provide:**
-Tesseract Hub is a platform that enables you to create, manage, and operate an online store. We provide:
+Tesserix is a platform that enables you to create, manage, and operate an online store. We provide:
 - Store hosting and infrastructure
 - Product management tools
 - Payment processing integration
@@ -473,7 +473,7 @@ Tesseract Hub is a platform that enables you to create, manage, and operate an o
 ### 3. Your Account
 
 **Account Creation:**
-To use Tesseract Hub, you'll create an account with:
+To use Tesserix, you'll create an account with:
 - Accurate and complete information
 - A secure password (you're responsible for keeping it confidential)
 - A valid email address
@@ -482,7 +482,7 @@ To use Tesseract Hub, you'll create an account with:
 You're responsible for:
 - All activity that occurs under your account
 - Maintaining the security of your account credentials
-- Notifying us immediately of any unauthorized access at security@tesseracthub.com
+- Notifying us immediately of any unauthorized access at security@tesserix.app
 
 **One Account Per Business:**
 Each business needs its own account. You can't share accounts or transfer them without our written consent.
@@ -518,7 +518,7 @@ If a payment fails:
 You're responsible for all applicable taxes (GST, sales tax, etc.). If we're required to collect taxes, they'll be added to your bill.
 
 **Refunds:**
-We offer refunds within 14 days of purchase if you're not satisfied. Contact support@tesseracthub.com. After 14 days, charges are non-refundable, but you can cancel anytime to avoid future charges.
+We offer refunds within 14 days of purchase if you're not satisfied. Contact support@tesserix.app. After 14 days, charges are non-refundable, but you can cancel anytime to avoid future charges.
 
 ---
 
@@ -540,14 +540,14 @@ You're responsible for:
 - Handling customer service and returns
 
 **Your Content:**
-You retain all rights to the content you upload (product images, descriptions, branding). By using Tesseract Hub, you grant us a license to host, display, and distribute your content as necessary to provide our service.
+You retain all rights to the content you upload (product images, descriptions, branding). By using Tesserix, you grant us a license to host, display, and distribute your content as necessary to provide our service.
 
 ---
 
 ### 6. Acceptable Use Policy
 
 **Prohibited Activities:**
-You may not use Tesseract Hub to:
+You may not use Tesserix to:
 
 **Sell Illegal or Restricted Items:**
 - Illegal drugs or substances
@@ -612,7 +612,7 @@ We partner with PCI DSS-compliant payment processors to handle transactions. You
 ### 8. Intellectual Property
 
 **Our Property:**
-Tesseract Hub, our logo, and our platform are protected by intellectual property laws. You may not:
+Tesserix, our logo, and our platform are protected by intellectual property laws. You may not:
 - Copy, modify, or distribute our software
 - Use our trademarks without permission
 - Reverse engineer our platform
@@ -719,7 +719,7 @@ We may suspend or terminate your account if you:
 ### 14. Disclaimers
 
 **"As Is" Service:**
-Tesseract Hub is provided "as is" and "as available." We don't warrant that:
+Tesserix is provided "as is" and "as available." We don't warrant that:
 - The service will be uninterrupted or error-free
 - All bugs will be corrected
 - The service will meet your specific requirements
@@ -740,7 +740,7 @@ We integrate with third-party services (payment processors, shipping providers).
 ### 15. Limitation of Liability
 
 **Maximum Liability:**
-To the fullest extent permitted by law, Tesseract Hub's total liability for any claim is limited to the amount you paid us in the 12 months before the claim arose.
+To the fullest extent permitted by law, Tesserix's total liability for any claim is limited to the amount you paid us in the 12 months before the claim arose.
 
 **Excluded Damages:**
 We're not liable for:
@@ -761,7 +761,7 @@ These limitations don't apply to:
 
 ### 16. Indemnification
 
-You agree to indemnify and hold harmless Tesseract Hub from any claims arising from:
+You agree to indemnify and hold harmless Tesserix from any claims arising from:
 - Your use of our service
 - Your violation of these Terms
 - Your violation of any laws or regulations
@@ -774,7 +774,7 @@ You agree to indemnify and hold harmless Tesseract Hub from any claims arising f
 ### 17. Dispute Resolution
 
 **Informal Resolution:**
-If you have a dispute, contact us first at legal@tesseracthub.com. We'll work in good faith to resolve it.
+If you have a dispute, contact us first at legal@tesserix.app. We'll work in good faith to resolve it.
 
 **Governing Law:**
 These Terms are governed by the laws of India, without regard to conflict of law principles.
@@ -790,7 +790,7 @@ For disputes under ₹10,00,000, either party may opt for binding arbitration in
 ### 18. General Terms
 
 **Entire Agreement:**
-These Terms, along with our Privacy Policy, constitute the entire agreement between you and Tesseract Hub.
+These Terms, along with our Privacy Policy, constitute the entire agreement between you and Tesserix.
 
 **Severability:**
 If any provision is found unenforceable, the rest remains in effect.
@@ -805,17 +805,17 @@ You can't transfer your account or these Terms without our consent. We may trans
 We're not liable for delays or failures due to circumstances beyond our control (natural disasters, war, pandemics, etc.).
 
 **Relationship:**
-You and Tesseract Hub are independent contractors. These Terms don't create a partnership, agency, or employment relationship.
+You and Tesserix are independent contractors. These Terms don't create a partnership, agency, or employment relationship.
 
 ---
 
 ### 19. Contact and Legal Information
 
 **Questions About These Terms:**
-Email: legal@tesseracthub.com
+Email: legal@tesserix.app
 
 **General Support:**
-Email: support@tesseracthub.com
+Email: support@tesserix.app
 Live Chat: Available 24/7 on our website
 
 **Company Information:**
@@ -831,7 +831,7 @@ India
 
 ### Thank You
 
-Thank you for choosing Tesseract Hub. We're honored to be part of your business journey. If you have questions about these Terms or anything else, we're here to help.
+Thank you for choosing Tesserix. We're honored to be part of your business journey. If you have questions about these Terms or anything else, we're here to help.
 
 Let's build something great together.
 

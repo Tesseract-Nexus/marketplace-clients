@@ -89,7 +89,7 @@ function WelcomePage({ email, idleCountdown }: { email?: string; idleCountdown: 
           <h1 className="display-large text-[var(--foreground)] mb-6">
             Welcome to{' '}
             <span className="text-foreground">
-              Tesseract Hub
+              Tesserix
             </span>
           </h1>
 

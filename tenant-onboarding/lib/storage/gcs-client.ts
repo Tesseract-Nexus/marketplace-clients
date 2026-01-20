@@ -8,12 +8,12 @@ export type DocumentCategory = 'address_proof' | 'business_proof' | 'logo' | 'ge
 
 // Environment configuration
 const GCS_BUCKET_MAP: Record<string, string> = {
-  development: 'tesseracthub-devtest-assets',
-  devtest: 'tesseracthub-devtest-assets',
-  pilot: 'tesseracthub-pilot-assets',
-  staging: 'tesseracthub-pilot-assets',
-  production: 'tesseracthub-prod-assets',
-  prod: 'tesseracthub-prod-assets',
+  development: 'tesserix-devtest-assets',
+  devtest: 'tesserix-devtest-assets',
+  pilot: 'tesserix-pilot-assets',
+  staging: 'tesserix-pilot-assets',
+  production: 'tesserix-prod-assets',
+  prod: 'tesserix-prod-assets',
 };
 
 // Upload response interface
@@ -64,7 +64,7 @@ class GCSStorageClient {
     // Initialize GCS client
     // In production, credentials come from GOOGLE_APPLICATION_CREDENTIALS env var
     // or from the service account attached to the GKE pod (via Workload Identity)
-    const projectId = process.env.GCP_PROJECT_ID || 'tesseracthub-480811';
+    const projectId = process.env.GCP_PROJECT_ID || 'tesserix-480811';
     this.storage = new Storage({
       projectId,
       // If running locally, use credentials file
@@ -76,7 +76,7 @@ class GCSStorageClient {
     // Determine bucket based on environment
     const env = process.env.NODE_ENV || 'development';
     const customBucket = process.env.GCS_BUCKET_NAME;
-    const defaultBucket = 'tesseracthub-devtest-assets';
+    const defaultBucket = 'tesserix-devtest-assets';
     this.bucketName = customBucket || GCS_BUCKET_MAP[env] || defaultBucket;
     this.bucket = this.storage.bucket(this.bucketName);
   }

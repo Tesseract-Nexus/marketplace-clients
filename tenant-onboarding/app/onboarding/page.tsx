@@ -1275,7 +1275,7 @@ export default function OnboardingPage() {
             <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-semibold text-lg">T</span>
             </div>
-            <span className="text-lg font-serif font-medium text-foreground">Tesseract Hub</span>
+            <span className="text-lg font-serif font-medium text-foreground">Tesserix</span>
           </button>
 
           <div className="flex items-center gap-4">
@@ -1566,7 +1566,7 @@ export default function OnboardingPage() {
                                 className="w-5 h-5 rounded border-warm-300 text-primary focus:ring-primary"
                               />
                               <label htmlFor="migrationInterest" className="text-sm text-warm-700 cursor-pointer">
-                                I&apos;m interested in migrating my products & categories to Tesseract Hub
+                                I&apos;m interested in migrating my products & categories to Tesserix
                               </label>
                             </div>
                           )}
