@@ -12,14 +12,26 @@ import { ShieldX, LogOut, ArrowLeft } from 'lucide-react';
  * This typically happens when a customer (registered via storefront) tries to access the admin portal.
  */
 export default function UnauthorizedPage() {
-  const { user, logout, isAuthenticated } = useAuth();
+  const { user, logout, isAuthenticated, isLoading } = useAuth();
 
-  // If not authenticated, redirect to login
+  // If not authenticated (after loading completes), redirect to login
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!isLoading && !isAuthenticated) {
       window.location.href = '/login';
     }
-  }, [isAuthenticated]);
+  }, [isLoading, isAuthenticated]);
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Checking authentication...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleLogout = () => {
     logout({ returnTo: '/login' });
