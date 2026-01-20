@@ -100,14 +100,15 @@ const SIDEBAR_VISIBILITY: Record<string, boolean> = {
   catalog: process.env.NEXT_PUBLIC_SIDEBAR_CATALOG !== 'false',
   orders: process.env.NEXT_PUBLIC_SIDEBAR_ORDERS !== 'false',
   customers: process.env.NEXT_PUBLIC_SIDEBAR_CUSTOMERS !== 'false',
-  marketing: process.env.NEXT_PUBLIC_SIDEBAR_MARKETING !== 'false',
+  marketing: process.env.NEXT_PUBLIC_SIDEBAR_MARKETING === 'true', // Default: hidden (not prod ready, enable in v2)
   adManager: process.env.NEXT_PUBLIC_SIDEBAR_AD_MANAGER === 'true', // Default: hidden
   vendors: process.env.NEXT_PUBLIC_SIDEBAR_VENDORS !== 'false',
   team: process.env.NEXT_PUBLIC_SIDEBAR_TEAM !== 'false',
   storefronts: process.env.NEXT_PUBLIC_SIDEBAR_STOREFRONTS !== 'false',
   featureFlags: process.env.NEXT_PUBLIC_SIDEBAR_FEATURE_FLAGS === 'true', // Default: hidden
-  integrations: process.env.NEXT_PUBLIC_SIDEBAR_INTEGRATIONS !== 'false',
+  integrations: process.env.NEXT_PUBLIC_SIDEBAR_INTEGRATIONS === 'true', // Default: hidden (not prod ready, enable in v2)
   settings: process.env.NEXT_PUBLIC_SIDEBAR_SETTINGS !== 'false',
+  settingsMarketing: process.env.NEXT_PUBLIC_SIDEBAR_SETTINGS_MARKETING === 'true', // Default: hidden (not prod ready, enable in v2)
 };
 
 // Helper to check if a sidebar item should be hidden
@@ -172,7 +173,7 @@ const navigation: NavItem[] = [
     name: "Marketing",
     icon: Megaphone,
     minRole: "manager", // Manager+ can manage marketing
-    hidden: false,
+    hidden: true, // Default: hidden (not prod ready, enable in v2)
     children: [
       { name: "Campaigns", href: "/campaigns" },
       { name: "Coupons", href: "/coupons" },
@@ -242,7 +243,7 @@ const navigation: NavItem[] = [
     name: "Integrations",
     icon: Plug2,
     minRole: "admin", // Admin+ for integrations
-    hidden: false,
+    hidden: true, // Default: hidden (not prod ready, enable in v2)
     children: [
       { name: "Overview", href: "/integrations" },
       { name: "Marketplace Connectors", href: "/integrations/marketplaces" },
@@ -265,7 +266,7 @@ const navigation: NavItem[] = [
       { name: "Shipping", href: "/settings/shipping-carriers" },
       { name: "Payments", href: "/settings/payments" },
       { name: "Taxes", href: "/settings/taxes" },
-      { name: "Marketing", href: "/settings/marketing" },
+      { key: "settingsMarketing", name: "Marketing", href: "/settings/marketing", hidden: true }, // Hidden (not prod ready, enable in v2)
       { name: "QR Codes", href: "/settings/qr-codes" },
       { name: "Approval Workflows", href: "/settings/approval-workflows", minRole: "owner" },
       { name: "Audit Logs", href: "/settings/audit-logs" },
