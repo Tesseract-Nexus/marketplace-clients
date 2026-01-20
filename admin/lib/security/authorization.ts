@@ -183,9 +183,10 @@ export function extractUserContext(request: NextRequest): UserContext {
   // The actual token and user context is retrieved by getProxyHeadersAsync when proxying
   const isAuthenticated = !!istioUserId || hasValidSession;
 
-  // For admin portal: user needs to be authenticated
-  // Backend handles actual role-based authorization via RBAC
-  const isAdminPortalAuthorized = isAuthenticated;
+  // For admin portal: user needs to be authenticated AND have a valid admin role
+  // This prevents customers (who only have 'user' or 'guest' role) from accessing admin portal
+  // Backend also enforces this via RBAC for defense in depth
+  const isAdminPortalAuthorized = isAuthenticated && ADMIN_PORTAL_ROLES.includes(userRole);
 
   return {
     userId,

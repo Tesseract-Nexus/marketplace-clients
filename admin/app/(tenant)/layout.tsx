@@ -876,13 +876,35 @@ function TenantLayoutInner({
   );
 }
 
+// Roles that are allowed to access the admin portal
+// This must match the backend validation in staff-service
+const ADMIN_PORTAL_ALLOWED_ROLES = [
+  'owner', 'store_owner',
+  'super_admin', 'platform_admin',
+  'admin', 'store_admin',
+  'manager', 'store_manager',
+  'staff', 'employee',
+  'inventory_manager', 'order_manager', 'marketing_manager',
+  'customer_support',
+  'viewer',
+];
+
+// Check if user has any admin portal role
+function hasAdminPortalRole(roles: string[] | undefined): boolean {
+  if (!roles || roles.length === 0) return false;
+  return roles.some(role => ADMIN_PORTAL_ALLOWED_ROLES.includes(role.toLowerCase()));
+}
+
 export default function TenantLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, user } = useAuth();
+
+  // Check if user is authorized for admin portal (must have admin/staff role)
+  const isAuthorizedForAdminPortal = isAuthenticated && hasAdminPortalRole(user?.roles);
 
   // Note: Auth is now handled via BFF session transfer
   // The /auth/accept-transfer endpoint creates a session from the transfer code
@@ -894,6 +916,15 @@ export default function TenantLayout({
       window.location.href = '/login';
     }
   }, [authLoading, isAuthenticated]);
+
+  // Redirect to unauthorized page if authenticated but not authorized for admin portal
+  // This blocks customers from accessing admin portal even if they're logged in
+  useEffect(() => {
+    if (!authLoading && isAuthenticated && !isAuthorizedForAdminPortal) {
+      console.warn('[TenantLayout] User authenticated but not authorized for admin portal:', user?.email, 'roles:', user?.roles);
+      window.location.href = '/unauthorized';
+    }
+  }, [authLoading, isAuthenticated, isAuthorizedForAdminPortal, user?.email, user?.roles]);
 
   // Show loading while checking authentication
   if (authLoading) {
@@ -914,6 +945,18 @@ export default function TenantLayout({
         <div className="text-center">
           <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-muted-foreground">Redirecting to login...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show unauthorized message if authenticated but not authorized for admin portal
+  if (!isAuthorizedForAdminPortal) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="h-8 w-8 border-4 border-destructive border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-muted-foreground">Access denied. Redirecting...</p>
         </div>
       </div>
     );
