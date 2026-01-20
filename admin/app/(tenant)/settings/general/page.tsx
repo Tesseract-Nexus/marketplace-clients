@@ -18,10 +18,14 @@ import {
   AlertCircle,
   X,
   Locate,
+  Eye,
+  EyeOff,
+  Rocket,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Switch } from '@/components/ui/switch';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { PhoneInput } from '@/components/ui/phone-input';
@@ -596,6 +600,9 @@ export default function GeneralSettingsPage() {
   // Tenant onboarding data (for auto-populating empty settings)
   const [tenantDetails, setTenantDetails] = useState<TenantDetails | null>(null);
 
+  // Publish/unpublish state
+  const [isPublishing, setIsPublishing] = useState(false);
+
   // Get vendor ID from tenant context
   const vendorId = currentTenant?.id || '';
 
@@ -907,6 +914,57 @@ export default function GeneralSettingsPage() {
   const handleStorefrontCreated = (newStorefront: Storefront) => {
     setStorefronts((prev) => [...prev, newStorefront]);
     setSelectedStorefront(newStorefront);
+  };
+
+  // Handle publish/unpublish toggle
+  const handlePublishToggle = async (shouldPublish: boolean) => {
+    if (!selectedStorefront) return;
+
+    const action = shouldPublish ? 'publish' : 'unpublish';
+    const confirmMessage = shouldPublish
+      ? 'Are you sure you want to publish this storefront? It will become visible to customers.'
+      : 'Are you sure you want to unpublish this storefront? Customers will see a "Coming Soon" page.';
+
+    if (!confirm(confirmMessage)) return;
+
+    setIsPublishing(true);
+
+    try {
+      await storefrontService.updateStorefront(selectedStorefront.id, {
+        isActive: shouldPublish,
+      });
+
+      // Update local state
+      setSelectedStorefront({
+        ...selectedStorefront,
+        isActive: shouldPublish,
+      });
+      setStorefronts((prev) =>
+        prev.map((sf) =>
+          sf.id === selectedStorefront.id ? { ...sf, isActive: shouldPublish } : sf
+        )
+      );
+
+      showSuccess(
+        shouldPublish ? 'Store Published!' : 'Store Unpublished',
+        shouldPublish
+          ? 'Your storefront is now live and visible to customers.'
+          : 'Your storefront is now showing a "Coming Soon" page to visitors.'
+      );
+    } catch (err) {
+      console.error(`Failed to ${action} storefront:`, err);
+      showError('Error', `Failed to ${action} storefront. Please try again.`);
+    } finally {
+      setIsPublishing(false);
+    }
+  };
+
+  // Handle preview button click
+  const handlePreviewStore = () => {
+    if (!selectedStorefront?.storefrontUrl) return;
+    // Add preview=true parameter to bypass Coming Soon page
+    const previewUrl = selectedStorefront.storefrontUrl + '?preview=true';
+    window.open(previewUrl, '_blank');
   };
 
   // Handle address selection from autocomplete
@@ -1425,6 +1483,116 @@ export default function GeneralSettingsPage() {
               <p className="text-xs text-muted-foreground mt-4">
                 These settings are automatically synced when you change your country. You can override them here if needed.
               </p>
+            </div>
+
+            {/* Storefront Visibility Section */}
+            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
+                  <Rocket className="h-6 w-6 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-foreground">Storefront Visibility</h3>
+                  <p className="text-sm text-muted-foreground">Control whether your store is visible to customers</p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {/* Status Indicator */}
+                <div className={`p-4 rounded-lg border ${
+                  selectedStorefront?.isActive
+                    ? 'bg-green-50 border-green-200'
+                    : 'bg-amber-50 border-amber-200'
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      {selectedStorefront?.isActive ? (
+                        <CheckCircle2 className="h-6 w-6 text-green-600" />
+                      ) : (
+                        <AlertCircle className="h-6 w-6 text-amber-600" />
+                      )}
+                      <div>
+                        <p className={`font-semibold ${
+                          selectedStorefront?.isActive ? 'text-green-800' : 'text-amber-800'
+                        }`}>
+                          {selectedStorefront?.isActive ? 'Published' : 'Unpublished'}
+                        </p>
+                        <p className={`text-sm ${
+                          selectedStorefront?.isActive ? 'text-green-700' : 'text-amber-700'
+                        }`}>
+                          {selectedStorefront?.isActive
+                            ? 'Your store is live and visible to customers'
+                            : 'Customers see a "Coming Soon" page'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Toggle Switch */}
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm text-muted-foreground">
+                        {selectedStorefront?.isActive ? 'Live' : 'Hidden'}
+                      </span>
+                      <Switch
+                        checked={selectedStorefront?.isActive || false}
+                        onCheckedChange={(checked) => handlePublishToggle(checked)}
+                        disabled={isPublishing}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Preview Button (shown when unpublished) */}
+                {!selectedStorefront?.isActive && (
+                  <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Eye className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium text-foreground">Preview Your Store</p>
+                        <p className="text-sm text-muted-foreground">
+                          See how your store looks before publishing
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={handlePreviewStore}
+                      disabled={!selectedStorefront?.storefrontUrl}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                      Preview
+                    </Button>
+                  </div>
+                )}
+
+                {/* Store URL */}
+                {selectedStorefront?.storefrontUrl && (
+                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border border-border">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <Globe className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                      <div className="overflow-hidden">
+                        <p className="text-sm font-medium text-foreground">Store URL</p>
+                        <p className="text-sm text-purple-600 truncate">
+                          {selectedStorefront.storefrontUrl}
+                        </p>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => window.open(selectedStorefront.storefrontUrl, '_blank')}
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                    </Button>
+                  </div>
+                )}
+
+                {/* Publishing Info */}
+                <p className="text-xs text-muted-foreground">
+                  {selectedStorefront?.isActive
+                    ? 'Your store is live. Toggle off to show a "Coming Soon" page while you make changes.'
+                    : 'Your store is hidden. Finish setting up your store, then toggle on to make it visible to customers.'}
+                </p>
+              </div>
             </div>
 
           </div>

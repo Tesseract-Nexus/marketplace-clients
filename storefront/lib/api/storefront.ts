@@ -16,10 +16,23 @@ import {
 // ========================================
 
 /**
+ * Storefront resolution data returned from vendor-service
+ */
+export interface StorefrontResolution {
+  id: string;
+  tenantId: string;
+  isActive: boolean;
+  name?: string;
+  logoUrl?: string;
+  themeConfig?: Record<string, unknown>;
+}
+
+/**
  * Resolve storefront by slug from vendor-service
  * Uses the public endpoint which doesn't require authentication
+ * Returns isActive status for "Coming Soon" page handling
  */
-export async function resolveStorefront(slug: string): Promise<{ id: string; tenantId: string } | null> {
+export async function resolveStorefront(slug: string): Promise<StorefrontResolution | null> {
   try {
     // Use public endpoint for anonymous storefront access
     const response = await apiRequest<ApiResponse<any>>(
@@ -30,7 +43,11 @@ export async function resolveStorefront(slug: string): Promise<{ id: string; ten
     const data = response.data || response;
     return {
       id: data.storefrontId || data.id,
-      tenantId: data.tenantId || data.vendorId
+      tenantId: data.tenantId || data.vendorId,
+      isActive: data.isActive ?? true, // Default to true for backward compatibility
+      name: data.name,
+      logoUrl: data.logoUrl,
+      themeConfig: data.themeConfig,
     };
   } catch (error) {
     console.error('Failed to resolve storefront:', error);

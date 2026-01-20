@@ -18,6 +18,7 @@ import { generateCssVariables, generateCssString } from '@/lib/theme/theme-utils
 
 import { resolveStorefront, getContentPages, getStorefrontTheme, getMarketingSettings, getStoreLocalization } from '@/lib/api/storefront';
 import { resolveTenantInfo } from '@/lib/tenant';
+import { ComingSoonPage } from '@/components/ComingSoonPage';
 
 // Generate Google Fonts URL for preloading
 function getGoogleFontsUrl(fonts: string[]): string | null {
@@ -168,9 +169,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Get tenant slug from headers (set by middleware from hostname)
+  // Get tenant slug and preview mode from headers (set by middleware)
   const headersList = await headers();
   const slug = headersList.get('x-tenant-slug');
+  const isPreviewMode = headersList.get('x-preview-mode') === 'true';
 
   // If no tenant slug, show landing page
   if (!slug) {
@@ -232,14 +234,42 @@ export default async function RootLayout({
   ].filter((f): f is string => Boolean(f));
   const googleFontsUrl = getGoogleFontsUrl(fontsToLoad);
 
+  // Check if storefront is published (isActive)
+  // If not published and not in preview mode, show Coming Soon page
+  const isStorefrontActive = resolution?.isActive ?? true; // Default to true for backward compatibility
+  const storeName = resolution?.name || tenantHost.slug.charAt(0).toUpperCase() + tenantHost.slug.slice(1) + ' Store';
+
+  // Show Coming Soon page for unpublished storefronts (unless in preview mode)
+  if (!isStorefrontActive && !isPreviewMode) {
+    return (
+      <html lang="en" suppressHydrationWarning>
+        <head>
+          <title>{storeName} - Coming Soon</title>
+          <meta name="description" content={`${storeName} is launching soon. Stay tuned for an amazing shopping experience!`} />
+        </head>
+        <body className={`${inter.variable} font-sans antialiased`}>
+          <ComingSoonPage
+            storeName={storeName}
+            logoUrl={resolution?.logoUrl || settings.logoUrl}
+            themeConfig={{
+              primaryColor: settings.primaryColor,
+              secondaryColor: settings.secondaryColor,
+              accentColor: settings.accentColor,
+            }}
+          />
+        </body>
+      </html>
+    );
+  }
+
   // Create tenant info
   const tenant: TenantInfo = {
     id: tenantHost.tenant_id,
     slug: tenantHost.slug,
-    name: tenantHost.slug.charAt(0).toUpperCase() + tenantHost.slug.slice(1) + ' Store',
+    name: storeName,
     storefrontId: storefrontId,
     logoUrl: settings.logoUrl,
-    isActive: tenantHost.status === 'provisioned',
+    isActive: isStorefrontActive,
   };
 
   // Create blocking script that sets CSS variables before any paint
@@ -276,6 +306,15 @@ export default async function RootLayout({
         <style dangerouslySetInnerHTML={{ __html: `:root { ${cssString} }` }} />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
+        {/* Preview Mode Banner for unpublished stores */}
+        {isPreviewMode && !isStorefrontActive && (
+          <div
+            className="fixed top-0 left-0 right-0 py-2 px-4 text-center text-sm font-medium text-white z-50"
+            style={{ backgroundColor: settings.accentColor || '#F59E0B' }}
+          >
+            Preview Mode - This store is not yet published. Only you can see this preview.
+          </div>
+        )}
         {/* Skip to main content link for accessibility */}
         <a href="#main-content" className="skip-to-content">
           Skip to main content

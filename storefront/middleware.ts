@@ -41,7 +41,7 @@ function getTenantFromHost(host: string): string | null {
 }
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, searchParams } = request.nextUrl;
   const host = request.headers.get('host') || '';
 
   // Skip static paths
@@ -53,10 +53,17 @@ export function middleware(request: NextRequest) {
   // e.g., demo-store.tesserix.app -> demo-store
   const tenantSlug = getTenantFromHost(host);
 
-  // Set tenant slug in request headers for layout to read
+  // Check for preview mode via query parameter
+  // This allows store owners to preview unpublished storefronts
+  const isPreviewMode = searchParams.get('preview') === 'true';
+
+  // Set tenant slug and preview mode in request headers for layout to read
   const requestHeaders = new Headers(request.headers);
   if (tenantSlug) {
     requestHeaders.set('x-tenant-slug', tenantSlug);
+  }
+  if (isPreviewMode) {
+    requestHeaders.set('x-preview-mode', 'true');
   }
 
   return NextResponse.next({
