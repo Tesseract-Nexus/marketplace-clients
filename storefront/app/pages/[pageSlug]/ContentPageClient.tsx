@@ -2,7 +2,7 @@
 
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { ContentPage } from '@/types/storefront';
-import { FileText, Scale, HelpCircle, Info, Building2, Mail } from 'lucide-react';
+import { FileText, Scale, HelpCircle, Building2, Mail, Calendar, ArrowLeft, Clock } from 'lucide-react';
 
 interface ContentPageClientProps {
   page: ContentPage;
@@ -44,6 +44,13 @@ function formatDate(dateString: string | undefined): string | null {
   });
 }
 
+// Calculate reading time
+function calculateReadingTime(content: string): number {
+  const text = content.replace(/<[^>]*>/g, ''); // Strip HTML tags
+  const words = text.split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.ceil(words / 200)); // 200 words per minute
+}
+
 export function ContentPageClient({ page }: ContentPageClientProps) {
   const breadcrumbItems = [
     { label: 'Home', href: '/' },
@@ -52,84 +59,98 @@ export function ContentPageClient({ page }: ContentPageClientProps) {
 
   const Icon = getPageIcon(page);
   const formattedDate = formatDate(page.updatedAt);
+  const readingTime = calculateReadingTime(page.content);
   const isPolicyPage = page.type === 'POLICY' || page.slug.includes('policy') || page.slug.includes('terms') || page.slug.includes('privacy');
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
-      {/* Hero Banner */}
-      <div className="relative bg-gradient-to-br from-tenant-primary/5 via-tenant-secondary/5 to-background border-b">
-        <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-        <div className="container-tenant relative py-8 md:py-12">
+    <div className="min-h-screen bg-stone-50 dark:bg-stone-950">
+      {/* Hero Section - Clean Editorial Style */}
+      <header className="relative bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800">
+        <div className="max-w-4xl mx-auto px-6 py-8 md:py-12 lg:py-16">
+          {/* Breadcrumb */}
           <Breadcrumb items={breadcrumbItems} />
 
-          <div className="mt-8 max-w-4xl">
-            <div className="flex items-start gap-4">
-              <div className="hidden md:flex shrink-0 w-14 h-14 rounded-2xl bg-tenant-primary/10 items-center justify-center">
-                <Icon className="w-7 h-7 text-tenant-primary" />
-              </div>
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-3">
-                  {page.type && page.type !== 'CUSTOM' && page.type !== 'STATIC' && (
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-tenant-primary/10 text-tenant-primary text-xs font-medium">
-                      {page.type}
-                    </span>
-                  )}
-                </div>
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
-                  {page.title}
-                </h1>
-                {page.excerpt && (
-                  <p className="mt-4 text-lg text-muted-foreground leading-relaxed max-w-2xl">
-                    {page.excerpt}
-                  </p>
-                )}
-              </div>
+          {/* Page Header */}
+          <div className="mt-8 md:mt-12">
+            {/* Icon Badge */}
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-stone-100 dark:bg-stone-800 mb-6">
+              <Icon className="w-6 h-6 text-tenant-primary" />
+            </div>
+
+            {/* Title */}
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-stone-900 dark:text-stone-50" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+              {page.title}
+            </h1>
+
+            {/* Excerpt/Description */}
+            {page.excerpt && (
+              <p className="mt-6 text-lg md:text-xl text-stone-600 dark:text-stone-400 leading-relaxed max-w-2xl">
+                {page.excerpt}
+              </p>
+            )}
+
+            {/* Meta Info */}
+            <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-stone-500 dark:text-stone-500">
+              {formattedDate && (
+                <span className="inline-flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4" />
+                  Updated {formattedDate}
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1.5">
+                <Clock className="w-4 h-4" />
+                {readingTime} min read
+              </span>
+              {page.type && page.type !== 'CUSTOM' && page.type !== 'STATIC' && (
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full bg-tenant-primary/10 text-tenant-primary text-xs font-medium">
+                  {page.type}
+                </span>
+              )}
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      {/* Page Content */}
-      <div className="container-tenant py-10 md:py-14">
-        <div className="max-w-4xl mx-auto">
-          {/* Content Card */}
-          <div className={`rounded-2xl ${isPolicyPage ? 'bg-card border shadow-sm p-8 md:p-10' : ''}`}>
+      {/* Main Content */}
+      <main className="max-w-4xl mx-auto px-6 py-12 md:py-16 lg:py-20">
+        {/* Content Card for Policy Pages */}
+        {isPolicyPage ? (
+          <div className="bg-white dark:bg-stone-900 rounded-lg border border-stone-200 dark:border-stone-800 shadow-sm p-8 md:p-12">
             <article
-              className="prose prose-lg max-w-none
-                prose-headings:font-bold prose-headings:text-foreground prose-headings:tracking-tight
-                prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h2:pb-2 prose-h2:border-b prose-h2:border-border/50
-                prose-h3:text-lg prose-h3:mt-6 prose-h3:mb-3 prose-h3:text-tenant-primary
-                prose-p:text-muted-foreground prose-p:leading-relaxed
-                prose-a:text-tenant-primary prose-a:font-medium prose-a:no-underline hover:prose-a:underline
-                prose-strong:text-foreground prose-strong:font-semibold
-                prose-ul:my-4 prose-ul:space-y-1
-                prose-li:text-muted-foreground prose-li:marker:text-tenant-primary
-                prose-img:rounded-xl prose-img:shadow-lg
-                dark:prose-invert"
+              className="prose-editorial"
               dangerouslySetInnerHTML={{ __html: page.content }}
             />
           </div>
+        ) : (
+          <article
+            className="prose-editorial"
+            dangerouslySetInnerHTML={{ __html: page.content }}
+          />
+        )}
+      </main>
 
-          {/* Page Footer */}
-          {formattedDate && (
-            <div className="mt-10 pt-6 border-t border-border/40">
-              <p className="text-sm text-muted-foreground">
-                Last updated: {formattedDate}
-              </p>
-            </div>
-          )}
-
-          {/* Back to Home Link */}
-          <div className="mt-8">
+      {/* Footer Section */}
+      <footer className="max-w-4xl mx-auto px-6 pb-16">
+        <div className="pt-8 border-t border-stone-200 dark:border-stone-800">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Back Link */}
             <a
               href="/"
-              className="inline-flex items-center gap-2 text-sm font-medium text-tenant-primary hover:underline"
+              className="inline-flex items-center gap-2 text-sm font-medium text-tenant-primary hover:opacity-80 transition-opacity"
             >
-              ← Back to Home
+              <ArrowLeft className="w-4 h-4" />
+              Back to Home
             </a>
+
+            {/* Last Updated */}
+            {formattedDate && (
+              <p className="text-sm text-stone-500 dark:text-stone-500">
+                Last updated: {formattedDate}
+              </p>
+            )}
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   );
 }
