@@ -509,31 +509,33 @@ function ProductCard({
             <Heart className={cn('h-4 w-4 transition-transform', wishlisted && 'fill-current scale-110')} />
           </Button>
 
-          {/* Quick Add Button */}
-          <motion.div
-            initial={false}
-            className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-          >
-            <Button
-              size="sm"
-              className="w-full btn-tenant-primary shadow-lg"
-              onClick={(e) => {
-                e.preventDefault();
-                const shippingData = getProductShippingData(product);
-                addToCart({
-                  productId: product.id,
-                  name: product.name,
-                  price,
-                  quantity: 1,
-                  image: images[0],
-                  ...shippingData,
-                });
-              }}
+          {/* Quick Add Button - Only show in grid view (list view has its own button) */}
+          {viewMode === 'grid' && (
+            <motion.div
+              initial={false}
+              className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             >
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              <TranslatedUIText text="Add to Cart" />
-            </Button>
-          </motion.div>
+              <Button
+                size="sm"
+                className="w-full btn-tenant-primary shadow-lg"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const shippingData = getProductShippingData(product);
+                  addToCart({
+                    productId: product.id,
+                    name: product.name,
+                    price,
+                    quantity: 1,
+                    image: images[0],
+                    ...shippingData,
+                  });
+                }}
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                <TranslatedUIText text="Add to Cart" />
+              </Button>
+            </motion.div>
+          )}
         </div>
       </Link>
 
