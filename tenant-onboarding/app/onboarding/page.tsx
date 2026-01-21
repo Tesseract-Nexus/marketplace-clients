@@ -1270,9 +1270,12 @@ export default function OnboardingPage() {
     try {
       if (!sessionId) throw new Error('No active session');
 
-      // Ensure slug is validated before proceeding
+      // Skip slug validation if using custom domain (subdomain not required)
+      const skipSlugValidation = data.useCustomDomain && data.customDomain;
+
+      // Ensure slug is validated before proceeding (only if not using custom domain)
       // This also reserves the slug in the database via the validation API
-      if (!slugValidation.isAvailable) {
+      if (!skipSlugValidation && !slugValidation.isAvailable) {
         // If validation is still checking, wait for it
         if (slugValidation.isChecking) {
           setValidationErrors({ storeSetup: 'Please wait for URL validation to complete.' });
