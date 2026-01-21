@@ -11,7 +11,12 @@ const nextConfig: NextConfig = {
   },
 
   // Server external packages (native modules that shouldn't be bundled)
-  serverExternalPackages: ['nats'],
+  serverExternalPackages: [
+    'nats',
+    '@google-cloud/secret-manager',
+    '@google-cloud/storage',
+    'pg',
+  ],
 
   // Security headers configuration
   // SOC2 CC6.7/CC6.8: Security and Confidentiality controls
