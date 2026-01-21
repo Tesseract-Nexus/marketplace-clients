@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/db';
+import { getDb } from '@/db';
 import { trustBadges } from '@/db/schema';
 import { eq, and, asc } from 'drizzle-orm';
 
@@ -8,6 +8,7 @@ export async function GET(request: Request) {
   const pageContext = searchParams.get('page');
 
   try {
+    const db = await getDb();
     const conditions = [eq(trustBadges.active, true)];
 
     if (pageContext) {

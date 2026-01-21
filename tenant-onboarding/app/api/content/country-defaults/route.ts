@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/db';
+import { getDb } from '@/db';
 import { countryDefaults } from '@/db/schema';
 import { eq, asc } from 'drizzle-orm';
 
 export async function GET() {
   try {
+    const db = await getDb();
     const result = await db.query.countryDefaults.findMany({
       where: eq(countryDefaults.active, true),
       orderBy: [asc(countryDefaults.countryName)],

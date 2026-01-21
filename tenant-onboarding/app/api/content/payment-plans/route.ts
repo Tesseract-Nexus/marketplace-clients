@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/db';
+import { getDb } from '@/db';
 import { paymentPlans } from '@/db/schema';
 import { eq, asc } from 'drizzle-orm';
 
@@ -8,6 +8,7 @@ export async function GET(request: Request) {
   const countryCode = searchParams.get('country');
 
   try {
+    const db = await getDb();
     const result = await db.query.paymentPlans.findMany({
       where: eq(paymentPlans.active, true),
       orderBy: [asc(paymentPlans.sortOrder)],

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/db';
+import { getDb } from '@/db';
 import { testimonials } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { validateAdminAuth } from '@/lib/admin-auth';
@@ -15,6 +15,7 @@ export async function GET(
   const { id } = await params;
 
   try {
+    const db = await getDb();
     const result = await db.query.testimonials.findFirst({
       where: eq(testimonials.id, id),
     });
@@ -41,6 +42,7 @@ export async function PUT(
   const { id } = await params;
 
   try {
+    const db = await getDb();
     const body = await request.json();
     const { quote, name, role, company, initials, rating, featured, pageContext, sortOrder, active } = body;
 
@@ -83,6 +85,7 @@ export async function DELETE(
   const { id } = await params;
 
   try {
+    const db = await getDb();
     const [deleted] = await db
       .delete(testimonials)
       .where(eq(testimonials.id, id))

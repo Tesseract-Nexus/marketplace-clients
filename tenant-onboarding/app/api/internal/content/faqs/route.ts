@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/db';
+import { getDb } from '@/db';
 import { faqs } from '@/db/schema';
-import { eq, asc } from 'drizzle-orm';
+import { asc } from 'drizzle-orm';
 import { validateAdminAuth } from '@/lib/admin-auth';
 
 // GET - List all FAQs (for admin)
@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
   if (authError) return authError;
 
   try {
+    const db = await getDb();
     const result = await db.query.faqs.findMany({
       orderBy: [asc(faqs.sortOrder)],
       with: { category: true },
@@ -28,6 +29,7 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   try {
+    const db = await getDb();
     const body = await request.json();
     const { question, answer, categoryId, pageContext, sortOrder } = body;
 

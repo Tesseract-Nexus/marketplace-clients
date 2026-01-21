@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/db';
+import { getDb } from '@/db';
 import { features } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { validateAdminAuth } from '@/lib/admin-auth';
@@ -15,6 +15,7 @@ export async function PUT(
   const { id } = await params;
 
   try {
+    const db = await getDb();
     const body = await request.json();
     const { title, description, iconName, category, pageContext, sortOrder, active } = body;
 
@@ -54,6 +55,7 @@ export async function DELETE(
   const { id } = await params;
 
   try {
+    const db = await getDb();
     const [deleted] = await db
       .delete(features)
       .where(eq(features.id, id))

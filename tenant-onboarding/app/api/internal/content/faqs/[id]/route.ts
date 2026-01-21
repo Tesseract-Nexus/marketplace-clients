@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/db';
+import { getDb } from '@/db';
 import { faqs } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { validateAdminAuth } from '@/lib/admin-auth';
@@ -15,6 +15,7 @@ export async function GET(
   const { id } = await params;
 
   try {
+    const db = await getDb();
     const result = await db.query.faqs.findFirst({
       where: eq(faqs.id, id),
       with: { category: true },
@@ -42,6 +43,7 @@ export async function PUT(
   const { id } = await params;
 
   try {
+    const db = await getDb();
     const body = await request.json();
     const { question, answer, categoryId, pageContext, sortOrder, active } = body;
 
@@ -81,6 +83,7 @@ export async function DELETE(
   const { id } = await params;
 
   try {
+    const db = await getDb();
     const [deleted] = await db
       .delete(faqs)
       .where(eq(faqs.id, id))

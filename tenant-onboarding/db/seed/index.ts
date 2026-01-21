@@ -1,4 +1,4 @@
-import { db } from '../index';
+import { getDb } from '../index';
 import { seedPaymentPlans } from './payment-plans';
 import { seedTestimonials } from './testimonials';
 import { seedFaqs } from './faqs';
@@ -12,6 +12,8 @@ async function main() {
   console.log('🌱 Starting database seed...\n');
 
   try {
+    const db = await getDb();
+
     // Seed in order of dependencies
     console.log('📦 Seeding payment plans...');
     await seedPaymentPlans(db);

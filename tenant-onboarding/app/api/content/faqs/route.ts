@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/db';
-import { faqs, faqCategories } from '@/db/schema';
+import { getDb } from '@/db';
+import { faqs } from '@/db/schema';
 import { eq, asc } from 'drizzle-orm';
 
 export async function GET(request: Request) {
@@ -8,6 +8,7 @@ export async function GET(request: Request) {
   const pageContext = searchParams.get('page');
 
   try {
+    const db = await getDb();
     const result = await db.query.faqs.findMany({
       where: pageContext ? eq(faqs.pageContext, pageContext) : eq(faqs.active, true),
       orderBy: [asc(faqs.sortOrder)],

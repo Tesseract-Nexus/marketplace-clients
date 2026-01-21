@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/db';
+import { getDb } from '@/db';
 import { contacts, socialLinks, companyLocations } from '@/db/schema';
 import { eq, asc } from 'drizzle-orm';
 
 export async function GET() {
   try {
+    const db = await getDb();
     const [contactsResult, socialLinksResult, locationsResult] = await Promise.all([
       db.query.contacts.findMany({
         where: eq(contacts.active, true),

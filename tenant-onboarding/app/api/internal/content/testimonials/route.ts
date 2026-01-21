@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/db';
+import { getDb } from '@/db';
 import { testimonials } from '@/db/schema';
-import { eq, asc } from 'drizzle-orm';
+import { asc } from 'drizzle-orm';
 import { validateAdminAuth } from '@/lib/admin-auth';
 
 // GET - List all testimonials
@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
   if (authError) return authError;
 
   try {
+    const db = await getDb();
     const result = await db.query.testimonials.findMany({
       orderBy: [asc(testimonials.sortOrder)],
     });
@@ -27,6 +28,7 @@ export async function POST(request: NextRequest) {
   if (authError) return authError;
 
   try {
+    const db = await getDb();
     const body = await request.json();
     const { quote, name, role, company, initials, rating, featured, pageContext, sortOrder } = body;
 

@@ -1,17 +1,32 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
+import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from './schema';
+import { getSecretWithFallback } from '@/lib/gcp-secrets';
+
+// Type for our database instance with schema
+type DbType = NodePgDatabase<typeof schema>;
 
 // Singleton pattern for connection pool
 let pool: Pool | null = null;
+let dbInstance: DbType | null = null;
 
-function getPool(): Pool {
+async function getPassword(): Promise<string> {
+  const password = await getSecretWithFallback(
+    'CONTENT_DB_PASSWORD_SECRET_NAME',
+    'CONTENT_DB_PASSWORD'
+  );
+  return password || '';
+}
+
+async function getPool(): Promise<Pool> {
   if (!pool) {
+    const password = await getPassword();
+
     pool = new Pool({
       host: process.env.CONTENT_DB_HOST || 'localhost',
       port: parseInt(process.env.CONTENT_DB_PORT || '5432'),
       user: process.env.CONTENT_DB_USER || 'postgres',
-      password: process.env.CONTENT_DB_PASSWORD || '',
+      password: password,
       database: process.env.CONTENT_DB_NAME || 'onboarding_content_db',
       ssl: process.env.CONTENT_DB_SSLMODE === 'require'
         ? { rejectUnauthorized: false }
@@ -29,6 +44,14 @@ function getPool(): Pool {
   return pool;
 }
 
-export const db = drizzle(getPool(), { schema });
+// Async function to get database instance
+export async function getDb(): Promise<DbType> {
+  if (!dbInstance) {
+    const poolInstance = await getPool();
+    dbInstance = drizzle(poolInstance, { schema });
+  }
+  return dbInstance;
+}
+
 export { schema };
-export type Database = typeof db;
+export type Database = DbType;
