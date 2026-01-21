@@ -2268,16 +2268,13 @@ export default function OnboardingPage() {
                               {/* Validation message */}
                               {customDomainValidation.message && (
                                 <p className={`mt-2 text-sm font-medium flex items-center gap-1.5 ${
-                                  customDomainValidation.isValid === true && customDomainValidation.dnsConfigured
+                                  customDomainValidation.isValid === true
                                     ? 'text-emerald-600 dark:text-emerald-400'
-                                    : customDomainValidation.isValid === true
-                                      ? 'text-amber-600 dark:text-amber-400'
-                                      : customDomainValidation.isValid === false
-                                        ? 'text-red-500 dark:text-red-400'
-                                        : 'text-muted-foreground'
+                                    : customDomainValidation.isValid === false
+                                      ? 'text-red-500 dark:text-red-400'
+                                      : 'text-muted-foreground'
                                 }`}>
-                                  {customDomainValidation.isValid === true && customDomainValidation.dnsConfigured && <Check className="w-4 h-4" />}
-                                  {customDomainValidation.isValid === true && !customDomainValidation.dnsConfigured && <AlertCircle className="w-4 h-4" />}
+                                  {customDomainValidation.isValid === true && <Check className="w-4 h-4" />}
                                   {customDomainValidation.isValid === false && <AlertCircle className="w-4 h-4" />}
                                   {customDomainValidation.message}
                                 </p>
@@ -2366,38 +2363,75 @@ export default function OnboardingPage() {
                                   </div>
                                   <div>
                                     <p className="text-sm font-semibold text-foreground">DNS Configuration Required</p>
-                                    <p className="text-xs text-muted-foreground">Add this record to your domain provider</p>
+                                    <p className="text-xs text-muted-foreground">Add this record to your domain provider (GoDaddy, Cloudflare, Namecheap, etc.)</p>
                                   </div>
                                 </div>
-                                <div className="bg-warm-50 dark:bg-white/5 rounded-lg p-4 space-y-3">
-                                  <div className="grid grid-cols-3 gap-4">
-                                    <div>
-                                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Type</p>
-                                      <p className="text-sm font-mono font-semibold text-foreground bg-white dark:bg-white/10 px-3 py-2 rounded-lg">{customDomainValidation.verificationRecord.type}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Host / Name</p>
-                                      <p className="text-sm font-mono font-semibold text-foreground bg-white dark:bg-white/10 px-3 py-2 rounded-lg truncate">{customDomainValidation.verificationRecord.host}</p>
-                                    </div>
-                                    <div>
-                                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Value</p>
-                                      <div className="flex items-center gap-2">
-                                        <p className="text-sm font-mono font-semibold text-foreground bg-white dark:bg-white/10 px-3 py-2 rounded-lg truncate flex-1">{customDomainValidation.verificationRecord.value}</p>
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            navigator.clipboard.writeText(customDomainValidation.verificationRecord?.value || '');
-                                          }}
-                                          className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                                          title="Copy value"
-                                        >
-                                          <Copy className="w-4 h-4" />
-                                        </button>
-                                      </div>
-                                    </div>
+                                <div className="bg-warm-50 dark:bg-white/5 rounded-lg overflow-hidden">
+                                  {/* DNS Record Table */}
+                                  <div className="overflow-x-auto">
+                                    <table className="w-full text-sm">
+                                      <thead>
+                                        <tr className="border-b border-warm-200 dark:border-white/10">
+                                          <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 w-20">Type</th>
+                                          <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">Host / Name</th>
+                                          <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">Value / Points To</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr>
+                                          <td className="px-4 py-3 align-top">
+                                            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-mono font-semibold text-xs">
+                                              {customDomainValidation.verificationRecord.type}
+                                            </span>
+                                          </td>
+                                          <td className="px-4 py-3 align-top">
+                                            <div className="flex items-start gap-2">
+                                              <code className="flex-1 font-mono text-sm text-foreground bg-white dark:bg-white/10 px-3 py-2 rounded-lg break-all select-all">
+                                                {customDomainValidation.verificationRecord.host}
+                                              </code>
+                                              <button
+                                                type="button"
+                                                onClick={() => {
+                                                  navigator.clipboard.writeText(customDomainValidation.verificationRecord?.host || '');
+                                                }}
+                                                className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                                                title="Copy host"
+                                              >
+                                                <Copy className="w-4 h-4" />
+                                              </button>
+                                            </div>
+                                          </td>
+                                          <td className="px-4 py-3 align-top">
+                                            <div className="flex items-start gap-2">
+                                              <code className="flex-1 font-mono text-sm text-foreground bg-white dark:bg-white/10 px-3 py-2 rounded-lg break-all select-all">
+                                                {customDomainValidation.verificationRecord.value}
+                                              </code>
+                                              <button
+                                                type="button"
+                                                onClick={() => {
+                                                  navigator.clipboard.writeText(customDomainValidation.verificationRecord?.value || '');
+                                                }}
+                                                className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                                                title="Copy value"
+                                              >
+                                                <Copy className="w-4 h-4" />
+                                              </button>
+                                            </div>
+                                          </td>
+                                        </tr>
+                                      </tbody>
+                                    </table>
                                   </div>
                                 </div>
-                                <p className="mt-4 text-xs text-muted-foreground flex items-start gap-2">
+
+                                {/* Quick Help */}
+                                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-200 dark:border-blue-500/20">
+                                  <p className="text-xs text-blue-800 dark:text-blue-200">
+                                    <strong>Where to add this?</strong> Log in to your domain provider and find DNS settings, Zone Editor, or DNS Management. Add a new record with the values above.
+                                  </p>
+                                </div>
+
+                                <p className="mt-3 text-xs text-muted-foreground flex items-start gap-2">
                                   <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
                                   <span>DNS changes can take up to 48 hours to propagate. You can complete setup now and verify the domain later in Settings.</span>
                                 </p>
