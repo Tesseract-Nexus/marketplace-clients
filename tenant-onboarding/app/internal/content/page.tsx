@@ -265,37 +265,90 @@ function ContentAdminContent() {
                     // Edit Form
                     <div className="space-y-4">
                       {Object.entries(editForm)
-                        .filter(([key]) => !['id', 'createdAt', 'updatedAt'].includes(key))
+                        .filter(([key, value]) => {
+                          // Skip system fields
+                          if (['id', 'createdAt', 'updatedAt'].includes(key)) return false;
+                          // Skip nested objects and arrays (relations)
+                          if (value !== null && typeof value === 'object') return false;
+                          // Skip null/undefined foreign keys that reference relations
+                          if (key.endsWith('Id') && value === null) return false;
+                          return true;
+                        })
                         .map(([key, value]) => (
                           <div key={key}>
                             <label className="block text-sm font-medium text-gray-700 mb-1 capitalize">
                               {key.replace(/([A-Z])/g, ' $1').trim()}
                             </label>
                             {typeof value === 'boolean' ? (
-                              <input
-                                type="checkbox"
-                                checked={value as boolean}
-                                onChange={(e) =>
-                                  setEditForm({ ...editForm, [key]: e.target.checked })
-                                }
-                                className="h-4 w-4 rounded border-gray-300"
-                              />
+                              <label className="flex items-center gap-2 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={value as boolean}
+                                  onChange={(e) =>
+                                    setEditForm({ ...editForm, [key]: e.target.checked })
+                                  }
+                                  className="h-4 w-4 rounded border-gray-300"
+                                />
+                                <span className="text-sm text-gray-600">{value ? 'Yes' : 'No'}</span>
+                              </label>
                             ) : typeof value === 'number' ? (
                               <input
                                 type="number"
                                 value={value as number}
                                 onChange={(e) =>
-                                  setEditForm({ ...editForm, [key]: parseInt(e.target.value) || 0 })
+                                  setEditForm({ ...editForm, [key]: parseFloat(e.target.value) || 0 })
                                 }
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                               />
-                            ) : key === 'answer' || key === 'description' || key === 'quote' ? (
+                            ) : key === 'answer' || key === 'description' || key === 'quote' || key === 'tagline' ? (
                               <textarea
                                 value={(value as string) || ''}
                                 onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
                                 rows={3}
                                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                               />
+                            ) : key === 'price' ? (
+                              <div className="flex items-center gap-2">
+                                <span className="text-gray-500">₹</span>
+                                <input
+                                  type="text"
+                                  value={(value as string) || ''}
+                                  onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                                  placeholder="299.00"
+                                />
+                              </div>
+                            ) : key === 'pageContext' ? (
+                              <select
+                                value={(value as string) || 'home'}
+                                onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+                              >
+                                <option value="home">Home</option>
+                                <option value="pricing">Pricing</option>
+                                <option value="onboarding">Onboarding</option>
+                                <option value="all">All Pages</option>
+                              </select>
+                            ) : key === 'billingCycle' ? (
+                              <select
+                                value={(value as string) || 'monthly'}
+                                onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+                              >
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                                <option value="one-time">One-time</option>
+                              </select>
+                            ) : key === 'currency' ? (
+                              <select
+                                value={(value as string) || 'INR'}
+                                onChange={(e) => setEditForm({ ...editForm, [key]: e.target.value })}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white"
+                              >
+                                <option value="INR">INR (₹)</option>
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                              </select>
                             ) : (
                               <input
                                 type="text"
@@ -327,7 +380,7 @@ function ContentAdminContent() {
                     // Display View
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
                           <span
                             className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
                               item.active !== false
@@ -338,24 +391,58 @@ function ContentAdminContent() {
                             {item.active !== false ? 'Active' : 'Inactive'}
                           </span>
                           {typeof item.pageContext === 'string' && item.pageContext && (
-                            <span className="text-xs text-gray-500">
-                              Page: {item.pageContext}
+                            <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                              {item.pageContext}
                             </span>
                           )}
+                          {item.category && typeof item.category === 'object' && 'name' in (item.category as object) ? (
+                            <span className="text-xs text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                              {(item.category as { name: string }).name}
+                            </span>
+                          ) : null}
+                          {Array.isArray(item.features) ? (
+                            <span className="text-xs text-purple-600 bg-purple-50 px-2 py-0.5 rounded">
+                              {item.features.length} features
+                            </span>
+                          ) : null}
+                          {typeof item.price === 'string' && item.price ? (
+                            <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded font-medium">
+                              ₹{item.price}/{String(item.billingCycle || 'month')}
+                            </span>
+                          ) : null}
+                          {typeof item.trialDays === 'number' && item.trialDays > 0 ? (
+                            <span className="text-xs text-orange-600 bg-orange-50 px-2 py-0.5 rounded">
+                              {item.trialDays} days trial
+                            </span>
+                          ) : null}
+                          {typeof item.rating === 'number' ? (
+                            <span className="text-xs text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded">
+                              ★ {item.rating}
+                            </span>
+                          ) : null}
                         </div>
                         <h3 className="font-medium text-gray-900 mb-1">
                           {(item.question as string) ||
                             (item.title as string) ||
                             (item.name as string) ||
                             (item.label as string) ||
+                            (item.slug as string) ||
                             'Untitled'}
                         </h3>
                         <p className="text-sm text-gray-600 line-clamp-2">
                           {(item.answer as string) ||
                             (item.description as string) ||
                             (item.quote as string) ||
+                            (item.tagline as string) ||
                             ''}
                         </p>
+                        {item.author ? (
+                          <p className="text-xs text-gray-500 mt-1">
+                            — {String(item.author)}
+                            {item.role ? `, ${String(item.role)}` : ''}
+                            {item.company ? ` at ${String(item.company)}` : ''}
+                          </p>
+                        ) : null}
                       </div>
                       <div className="flex items-center gap-2">
                         <button

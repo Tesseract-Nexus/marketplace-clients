@@ -1,11 +1,28 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import useSWR from 'swr';
 import Header from '../../components/Header';
 import { Footer } from '../../components/Footer';
 import { Check, ArrowRight, HelpCircle, MessageCircle } from 'lucide-react';
 
-const pricingFeatures = [
+// SWR fetcher
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+// Types for API response
+interface PricingContentResponse {
+  data: {
+    paymentPlans: Array<{
+      slug: string;
+      price: string;
+      tagline?: string;
+      trialDays?: number;
+      features: Array<{ feature: string }>;
+    }>;
+  };
+}
+
+const fallbackPricingFeatures = [
   'Unlimited products',
   'Custom domain support',
   'Mobile-responsive storefront',
@@ -19,33 +36,48 @@ const pricingFeatures = [
   'No transaction fees from us',
 ];
 
-const comparisons = [
-  {
-    platform: 'Shopify',
-    freeTrialDays: '3 days',
-    monthlyPrice: '$29-299',
-    transactionFees: '0.5-2%',
-    support: 'Tiered',
-  },
-  {
-    platform: 'WooCommerce',
-    freeTrialDays: 'N/A',
-    monthlyPrice: 'Hosting + plugins',
-    transactionFees: 'Varies',
-    support: 'Community',
-  },
-  {
-    platform: 'Tesserix',
-    freeTrialDays: '12 months',
-    monthlyPrice: '₹299',
-    transactionFees: 'None',
-    support: 'Human 24/7',
-    highlighted: true,
-  },
-];
-
 export default function PricingPage() {
   const router = useRouter();
+
+  // Fetch content from API
+  const { data: contentData } = useSWR<PricingContentResponse>('/api/content/home', fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000,
+  });
+
+  // Extract pricing info from payment plans
+  const freePlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'free-trial');
+  const proPlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'pro');
+  const monthlyPrice = proPlan?.price ? `₹${Math.round(parseFloat(proPlan.price))}` : '₹299';
+  const trialMonths = freePlan?.trialDays ? Math.round(freePlan.trialDays / 30) : 12;
+  const pricingFeatures = freePlan?.features?.length
+    ? freePlan.features.map((f) => f.feature)
+    : fallbackPricingFeatures;
+
+  const comparisons = [
+    {
+      platform: 'Shopify',
+      freeTrialDays: '3 days',
+      monthlyPrice: '$29-299',
+      transactionFees: '0.5-2%',
+      support: 'Tiered',
+    },
+    {
+      platform: 'WooCommerce',
+      freeTrialDays: 'N/A',
+      monthlyPrice: 'Hosting + plugins',
+      transactionFees: 'Varies',
+      support: 'Community',
+    },
+    {
+      platform: 'Tesserix',
+      freeTrialDays: `${trialMonths} months`,
+      monthlyPrice: monthlyPrice,
+      transactionFees: 'None',
+      support: 'Human 24/7',
+      highlighted: true,
+    },
+  ];
 
   const handleGetStarted = () => {
     router.push('/onboarding');
@@ -62,7 +94,7 @@ export default function PricingPage() {
             Simple, honest pricing
           </h1>
           <p className="text-xl text-foreground-secondary">
-            Start free for 12 months. Then one flat price. No surprises.
+            Start free for {trialMonths} months. Then one flat price. No surprises.
           </p>
         </div>
       </section>
@@ -84,13 +116,13 @@ export default function PricingPage() {
                     <span className="text-foreground-secondary">/month</span>
                   </div>
                   <p className="text-foreground-secondary">
-                    for your first <span className="font-semibold text-foreground">12 months</span>
+                    for your first <span className="font-semibold text-foreground">{trialMonths} months</span>
                   </p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-warm-50 border border-warm-200 mb-8">
                   <p className="text-sm text-foreground-secondary">
-                    Then just <span className="font-semibold text-foreground text-lg">₹299/month</span>
+                    Then just <span className="font-semibold text-foreground text-lg">{monthlyPrice}/month</span>
                     <br />
                     <span className="text-foreground-tertiary">No transaction fees. No hidden costs. Cancel anytime.</span>
                   </p>
@@ -186,9 +218,9 @@ export default function PricingPage() {
 
             <div className="space-y-6">
               <div>
-                <h3 className="font-medium text-foreground mb-2">What happens after the 12 months?</h3>
+                <h3 className="font-medium text-foreground mb-2">What happens after the {trialMonths} months?</h3>
                 <p className="text-foreground-secondary">
-                  After your free year, it's just ₹299/month. That's it—no hidden fees, no transaction costs from us, no surprises. And you can cancel anytime.
+                  After your free year, it&apos;s just {monthlyPrice}/month. That&apos;s it—no hidden fees, no transaction costs from us, no surprises. And you can cancel anytime.
                 </p>
               </div>
 
@@ -209,7 +241,7 @@ export default function PricingPage() {
               <div>
                 <h3 className="font-medium text-foreground mb-2">Do I need a credit card to start?</h3>
                 <p className="text-foreground-secondary">
-                  No. You can start your free 12-month trial without entering any payment information.
+                  No. You can start your free {trialMonths}-month trial without entering any payment information.
                 </p>
               </div>
             </div>
