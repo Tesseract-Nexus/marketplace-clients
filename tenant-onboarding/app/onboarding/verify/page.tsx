@@ -49,6 +49,149 @@ function VerifyEmailLoading() {
   );
 }
 
+// Congratulations page component for when onboarding is complete
+interface CompletionData {
+  tenant_slug?: string;
+  business_name?: string;
+  admin_url?: string;
+  completed_at?: string;
+}
+
+function CongratulationsPage({ completionData, idleCountdown }: { completionData: CompletionData; idleCountdown: number }) {
+  const router = useRouter();
+
+  const handleGoToLogin = () => {
+    // Clear the completion flag
+    localStorage.removeItem('onboarding_completed');
+    if (completionData.admin_url) {
+      window.location.href = `${completionData.admin_url}/login`;
+    } else if (completionData.tenant_slug) {
+      const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+      window.location.href = `https://${completionData.tenant_slug}-admin.${baseDomain}/login`;
+    }
+  };
+
+  const handleStartNew = () => {
+    // Clear the completion flag and go to onboarding
+    localStorage.removeItem('onboarding_completed');
+    router.push('/onboarding');
+  };
+
+  return (
+    <div className="min-h-screen bg-[var(--background)] relative overflow-hidden">
+      <Header />
+
+      {/* Celebration background */}
+      <div className="absolute inset-0 -z-10 bg-warm-50" />
+
+      {/* Main Content */}
+      <div className="pt-24 pb-8 px-6">
+        <div className="max-w-3xl mx-auto text-center">
+          {/* Celebration Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border mb-8 animate-fadeInUp">
+            <Sparkles className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium text-primary">
+              Onboarding Complete!
+            </span>
+          </div>
+
+          {/* Big Checkmark */}
+          <div className="w-24 h-24 mx-auto rounded-full bg-warm-100 flex items-center justify-center mb-8 animate-bounce shadow-lg">
+            <CheckCircle className="w-12 h-12 text-foreground-secondary" />
+          </div>
+
+          <h1 className="display-large text-[var(--foreground)] mb-6 animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
+            Congratulations! 🎉
+          </h1>
+
+          <p className="body-large text-[var(--foreground-secondary)] max-w-xl mx-auto mb-4 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+            Your store has been successfully created and is ready to go!
+          </p>
+
+          {completionData.tenant_slug && (
+            <p className="text-lg font-semibold text-primary mb-8 animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
+              {completionData.tenant_slug}-admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Action Cards */}
+      <div className="max-w-2xl mx-auto px-6 pb-8">
+        <div className="bg-card border border-border rounded-3xl p-8 animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
+          {/* What's Next */}
+          <h3 className="headline text-[var(--foreground)] mb-6 flex items-center justify-center gap-2">
+            <Gift className="w-5 h-5 text-primary" />
+            Your Store is Ready!
+          </h3>
+
+          <div className="space-y-4 mb-8">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-warm-50">
+              <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold">✓</div>
+              <span className="text-[var(--foreground-secondary)]">Store infrastructure provisioned</span>
+            </div>
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-warm-50">
+              <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold">✓</div>
+              <span className="text-[var(--foreground-secondary)]">Admin dashboard configured</span>
+            </div>
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-warm-50">
+              <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm font-bold">✓</div>
+              <span className="text-[var(--foreground-secondary)]">Storefront ready for customization</span>
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <button
+            onClick={handleGoToLogin}
+            className="apple-button w-full py-4 text-lg font-medium transition-all duration-300 flex items-center justify-center mb-4"
+          >
+            Go to Admin Dashboard
+            <ArrowRight className="w-5 h-5 ml-2" />
+          </button>
+
+          <button
+            onClick={handleStartNew}
+            className="button-secondary w-full py-3 text-sm font-medium"
+          >
+            Create Another Store
+          </button>
+        </div>
+      </div>
+
+      {/* Idle Timer Notice */}
+      {idleCountdown > 0 && idleCountdown < 60 && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 bg-card border border-border shadow-sm rounded-full px-6 py-3 animate-fadeInUp flex items-center gap-3">
+          <Clock className="w-4 h-4 text-[var(--foreground-secondary)]" />
+          <span className="text-sm text-[var(--foreground-secondary)]">
+            Redirecting to home in {idleCountdown}s
+          </span>
+        </div>
+      )}
+
+      {/* Auto-redirect progress bar */}
+      <div className="fixed bottom-0 left-0 right-0 h-1 bg-[var(--border)]/20">
+        <div
+          className="h-full bg-primary transition-all duration-1000 ease-linear"
+          style={{ width: `${((IDLE_TIMEOUT_MS / 1000 - idleCountdown) / (IDLE_TIMEOUT_MS / 1000)) * 100}%` }}
+        />
+      </div>
+
+      {/* Quick Action Button */}
+      <div className="fixed bottom-8 right-8 animate-fadeInUp" style={{ animationDelay: '0.6s' }}>
+        <button
+          onClick={() => {
+            localStorage.removeItem('onboarding_completed');
+            router.push('/');
+          }}
+          className="bg-card border border-border shadow-sm rounded-full p-4 hover:border-warm-300 transition-colors group"
+        >
+          <Home className="w-6 h-6 text-[var(--foreground-secondary)] group-hover:text-foreground transition-colors" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 // Welcome page component for when no valid session exists
 function WelcomePage({ email, idleCountdown }: { email?: string; idleCountdown: number }) {
   const router = useRouter();
@@ -227,6 +370,8 @@ function VerifyEmailContent() {
   const [isVerified, setIsVerified] = useState(false);
   const [redirectCountdown, setRedirectCountdown] = useState(5);
   const [showWelcomePage, setShowWelcomePage] = useState(false);
+  const [showCongratulations, setShowCongratulations] = useState(false);
+  const [completionData, setCompletionData] = useState<CompletionData | null>(null);
   const [idleCountdown, setIdleCountdown] = useState(IDLE_TIMEOUT_MS / 1000);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -258,9 +403,9 @@ function VerifyEmailContent() {
     };
   }, [resetIdleTimer]);
 
-  // Idle timer countdown for welcome page
+  // Idle timer countdown for welcome/congratulations pages
   useEffect(() => {
-    if (!showWelcomePage) return;
+    if (!showWelcomePage && !showCongratulations) return;
 
     const interval = setInterval(() => {
       const elapsed = Date.now() - lastActivityRef.current;
@@ -268,12 +413,14 @@ function VerifyEmailContent() {
       setIdleCountdown(remaining);
 
       if (remaining <= 0) {
+        // Clear completion flag before redirect
+        localStorage.removeItem('onboarding_completed');
         router.replace('/');
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [showWelcomePage, router]);
+  }, [showWelcomePage, showCongratulations, router]);
 
   // Wait for rehydration to complete before checking session data
   // Add safety timeout to prevent indefinite loading
@@ -311,10 +458,34 @@ function VerifyEmailContent() {
     return () => clearTimeout(timeoutId);
   }, [_hasHydrated, sessionId, contactDetails.email, emailFromParams, rehydrateSensitiveData, isRehydrating]);
 
-  // Show welcome page only after rehydration completes and no valid session
+  // Show congratulations or welcome page after rehydration completes
   useEffect(() => {
     // Wait for rehydration to complete
     if (isRehydrating) return;
+
+    // Check if onboarding was just completed (show congratulations)
+    try {
+      const completedData = localStorage.getItem('onboarding_completed');
+      if (completedData) {
+        const parsed = JSON.parse(completedData) as CompletionData;
+        // Only show if completed recently (within 30 minutes)
+        if (parsed.completed_at) {
+          const completedAt = new Date(parsed.completed_at);
+          const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+          if (completedAt > thirtyMinutesAgo) {
+            setCompletionData(parsed);
+            setShowCongratulations(true);
+            devLog('[Verify] Showing congratulations page for completed onboarding');
+            return;
+          } else {
+            // Completion data is stale, remove it
+            localStorage.removeItem('onboarding_completed');
+          }
+        }
+      }
+    } catch (e) {
+      devError('[Verify] Failed to check completion data:', e);
+    }
 
     // Use email from URL params as primary source since it's passed during navigation
     const hasValidSession = sessionId && (emailFromParams || contactDetails.email);
@@ -1011,6 +1182,11 @@ function VerifyEmailContent() {
   // Show loading state while rehydrating
   if (isRehydrating) {
     return <VerifyEmailLoading />;
+  }
+
+  // Show congratulations page if onboarding was just completed
+  if (showCongratulations && completionData) {
+    return <CongratulationsPage completionData={completionData} idleCountdown={idleCountdown} />;
   }
 
   // Show welcome page if no valid session/email

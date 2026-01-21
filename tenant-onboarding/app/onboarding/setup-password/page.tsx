@@ -218,11 +218,18 @@ function SetupPasswordContent() {
         tenant_slug: tenantData?.tenant_slug,
       });
 
-      // Clear onboarding session from localStorage since onboarding is complete
+      // Clear onboarding session and set completion flag for verify page
       try {
         localStorage.removeItem('tenant-onboarding-store');
+        // Set flag so verify page can show congratulations instead of welcome
+        localStorage.setItem('onboarding_completed', JSON.stringify({
+          tenant_slug: tenantData?.tenant_slug,
+          business_name: tenantData?.business_name || storeSetup?.business_model,
+          admin_url: tenantData?.admin_url,
+          completed_at: new Date().toISOString(),
+        }));
       } catch (e) {
-        devError('[SetupPassword] Failed to clear localStorage:', e);
+        devError('[SetupPassword] Failed to update localStorage:', e);
       }
 
       // Build admin login URL - user will login with their new credentials
