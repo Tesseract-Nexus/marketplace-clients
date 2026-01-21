@@ -233,7 +233,10 @@ export async function POST(request: NextRequest) {
 
     // Return basic validation result if service is unavailable
     // Domain will be verified during the provisioning phase
-    const verificationToken = `tesserix-verify-${Date.now().toString(36)}`;
+    // Generate a verification token that will be stored in session
+    const crypto = await import('crypto');
+    const verificationToken = crypto.randomBytes(16).toString('hex'); // 32-char hex token
+    const shortToken = verificationToken.substring(0, 8);
 
     return NextResponse.json({
       data: {
@@ -241,16 +244,17 @@ export async function POST(request: NextRequest) {
         available: true,
         domain_exists: true, // Assume exists when service unavailable
         dns_configured: false,
+        verification_token: verificationToken, // Include token so frontend can store it
         verification_record: {
           type: 'CNAME',
-          host: `_tesserix.${cleanDomain}`,
+          host: `_tesserix-${shortToken}.${cleanDomain}`,
           value: 'verify.tesserix.app',
           ttl: 3600,
         },
         verification_records: [
           {
             type: 'CNAME',
-            host: `_tesserix.${cleanDomain}`,
+            host: `_tesserix-${shortToken}.${cleanDomain}`,
             value: 'verify.tesserix.app',
             ttl: 3600,
             purpose: 'verification',
@@ -258,7 +262,7 @@ export async function POST(request: NextRequest) {
           {
             type: 'TXT',
             host: `_tesserix.${cleanDomain}`,
-            value: verificationToken,
+            value: `tesserix-verify=${verificationToken}`,
             ttl: 3600,
             purpose: 'verification',
           },
