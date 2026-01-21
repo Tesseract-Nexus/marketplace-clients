@@ -8,7 +8,7 @@ import { SearchableSelect, type SelectOption } from '../../components/Searchable
 import { DocumentsSection } from '../../components/DocumentsSection';
 import { VerificationScore, useVerificationScore } from '../../components/VerificationScore';
 import { type UploadedDocument } from '../../components/DocumentUpload';
-import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink } from 'lucide-react';
+import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldCheck, ShieldAlert } from 'lucide-react';
 import { useOnboardingStore, type DetectedLocation, type PersistedDocument } from '../../lib/store/onboarding-store';
 import { businessInfoSchema, contactDetailsSchema, businessAddressSchema, storeSetupSchema, MARKETPLACE_PLATFORMS, type BusinessInfoForm, type ContactDetailsForm, type BusinessAddressForm, type StoreSetupForm } from '../../lib/validations/onboarding';
 import { onboardingApi, OnboardingAPIError } from '../../lib/api/onboarding';
@@ -169,6 +169,23 @@ export default function OnboardingPage() {
     message: '',
   });
   const customDomainValidationTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Domain verification state (for checking DNS propagation)
+  const [domainVerification, setDomainVerification] = useState<{
+    isVerifying: boolean;
+    dnsVerified: boolean;
+    dnsRecordFound: boolean;
+    sslStatus: 'pending' | 'provisioning' | 'active' | 'failed';
+    message: string;
+    lastChecked: Date | null;
+  }>({
+    isVerifying: false,
+    dnsVerified: false,
+    dnsRecordFound: false,
+    sslStatus: 'pending',
+    message: '',
+    lastChecked: null,
+  });
 
   // Document upload state - derives from store but uses local state for UploadedDocument objects
   // The store persists serializable PersistedDocument, but UI needs UploadedDocument with potential File refs
@@ -952,6 +969,59 @@ export default function OnboardingPage() {
       }
     }, 500);
   }, [sessionId]);
+
+  // Verify domain DNS propagation
+  const verifyDomainDNS = useCallback(async () => {
+    if (!customDomainValidation.verificationRecord) {
+      return;
+    }
+
+    setDomainVerification(prev => ({
+      ...prev,
+      isVerifying: true,
+      message: 'Checking DNS propagation...',
+    }));
+
+    try {
+      const response = await fetch('/api/onboarding/verify-domain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          domain: storeSetupForm.watch('customDomain'),
+          verification_host: customDomainValidation.verificationRecord.host,
+          verification_value: customDomainValidation.verificationRecord.value,
+        }),
+      });
+
+      const result = await response.json();
+      const data = result.data;
+
+      setDomainVerification({
+        isVerifying: false,
+        dnsVerified: data.dns_verified || false,
+        dnsRecordFound: data.dns_record_found || false,
+        sslStatus: data.ssl_status || 'pending',
+        message: data.message || '',
+        lastChecked: new Date(),
+      });
+
+      // Update the main validation state if DNS is verified
+      if (data.dns_verified) {
+        setCustomDomainValidation(prev => ({
+          ...prev,
+          dnsConfigured: true,
+          message: 'Domain verified! SSL certificate is being provisioned.',
+        }));
+      }
+    } catch (error) {
+      setDomainVerification(prev => ({
+        ...prev,
+        isVerifying: false,
+        message: 'Failed to check DNS. Please try again.',
+        lastChecked: new Date(),
+      }));
+    }
+  }, [customDomainValidation.verificationRecord, storeSetupForm]);
 
   // Watch subdomain changes and validate, also sync storefrontSlug if not manually edited
   useEffect(() => {
@@ -2429,6 +2499,130 @@ export default function OnboardingPage() {
                                   <p className="text-sm text-amber-900 dark:text-amber-100">
                                     <strong className="font-semibold">Where to add this?</strong> Log in to your domain provider and find DNS settings, Zone Editor, or DNS Management. Add a new record with the values above.
                                   </p>
+                                </div>
+
+                                {/* Domain Verification Section */}
+                                <div className="mt-4 p-4 bg-white dark:bg-white/5 rounded-xl border-2 border-warm-200 dark:border-white/10">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <h4 className="text-sm font-semibold text-foreground">Verify DNS Configuration</h4>
+                                    <button
+                                      type="button"
+                                      onClick={verifyDomainDNS}
+                                      disabled={domainVerification.isVerifying}
+                                      className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                                    >
+                                      {domainVerification.isVerifying ? (
+                                        <>
+                                          <Loader2 className="w-4 h-4 animate-spin" />
+                                          Verifying...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <RefreshCw className="w-4 h-4" />
+                                          Verify Now
+                                        </>
+                                      )}
+                                    </button>
+                                  </div>
+
+                                  {/* Verification Status */}
+                                  {domainVerification.lastChecked && (
+                                    <div className="space-y-3">
+                                      {/* DNS Status */}
+                                      <div className={`flex items-center gap-3 p-3 rounded-lg ${
+                                        domainVerification.dnsVerified
+                                          ? 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20'
+                                          : domainVerification.dnsRecordFound
+                                            ? 'bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20'
+                                            : 'bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20'
+                                      }`}>
+                                        {domainVerification.dnsVerified ? (
+                                          <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                                        ) : domainVerification.dnsRecordFound ? (
+                                          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                                        ) : (
+                                          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+                                        )}
+                                        <div className="flex-1">
+                                          <p className={`text-sm font-medium ${
+                                            domainVerification.dnsVerified
+                                              ? 'text-emerald-800 dark:text-emerald-200'
+                                              : domainVerification.dnsRecordFound
+                                                ? 'text-amber-800 dark:text-amber-200'
+                                                : 'text-red-800 dark:text-red-200'
+                                          }`}>
+                                            {domainVerification.dnsVerified ? 'DNS Verified' : domainVerification.dnsRecordFound ? 'DNS Record Found (Incorrect Value)' : 'DNS Record Not Found'}
+                                          </p>
+                                          <p className="text-xs text-muted-foreground mt-0.5">
+                                            {domainVerification.message}
+                                          </p>
+                                        </div>
+                                      </div>
+
+                                      {/* SSL Status */}
+                                      {domainVerification.dnsVerified && (
+                                        <div className={`flex items-center gap-3 p-3 rounded-lg ${
+                                          domainVerification.sslStatus === 'active'
+                                            ? 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20'
+                                            : domainVerification.sslStatus === 'provisioning'
+                                              ? 'bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20'
+                                              : domainVerification.sslStatus === 'failed'
+                                                ? 'bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20'
+                                                : 'bg-warm-50 dark:bg-white/5 border border-warm-200 dark:border-white/10'
+                                        }`}>
+                                          {domainVerification.sslStatus === 'active' ? (
+                                            <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                                          ) : domainVerification.sslStatus === 'provisioning' ? (
+                                            <Loader2 className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 animate-spin" />
+                                          ) : domainVerification.sslStatus === 'failed' ? (
+                                            <ShieldAlert className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+                                          ) : (
+                                            <ShieldAlert className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                                          )}
+                                          <div className="flex-1">
+                                            <p className={`text-sm font-medium ${
+                                              domainVerification.sslStatus === 'active'
+                                                ? 'text-emerald-800 dark:text-emerald-200'
+                                                : domainVerification.sslStatus === 'provisioning'
+                                                  ? 'text-blue-800 dark:text-blue-200'
+                                                  : domainVerification.sslStatus === 'failed'
+                                                    ? 'text-red-800 dark:text-red-200'
+                                                    : 'text-foreground'
+                                            }`}>
+                                              {domainVerification.sslStatus === 'active'
+                                                ? 'SSL Certificate Active'
+                                                : domainVerification.sslStatus === 'provisioning'
+                                                  ? 'SSL Certificate Provisioning...'
+                                                  : domainVerification.sslStatus === 'failed'
+                                                    ? 'SSL Certificate Failed'
+                                                    : 'SSL Certificate Pending'}
+                                            </p>
+                                            <p className="text-xs text-muted-foreground mt-0.5">
+                                              {domainVerification.sslStatus === 'active'
+                                                ? 'Your domain is secured with HTTPS'
+                                                : domainVerification.sslStatus === 'provisioning'
+                                                  ? 'Let\'s Encrypt certificate is being automatically provisioned'
+                                                  : domainVerification.sslStatus === 'failed'
+                                                    ? 'Certificate provisioning failed. Please contact support.'
+                                                    : 'SSL will be provisioned after DNS verification'}
+                                            </p>
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* Last Checked */}
+                                      <p className="text-xs text-muted-foreground text-right">
+                                        Last checked: {domainVerification.lastChecked.toLocaleTimeString()}
+                                      </p>
+                                    </div>
+                                  )}
+
+                                  {/* Initial State - No verification yet */}
+                                  {!domainVerification.lastChecked && !domainVerification.isVerifying && (
+                                    <p className="text-sm text-muted-foreground">
+                                      After adding the DNS record above, click &quot;Verify Now&quot; to check if the changes have propagated.
+                                    </p>
+                                  )}
                                 </div>
 
                                 <p className="mt-3 text-xs text-muted-foreground flex items-start gap-2">
