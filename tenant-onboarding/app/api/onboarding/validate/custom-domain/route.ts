@@ -182,7 +182,7 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           domain: cleanDomain,
           session_id: body.session_id,
-          check_dns: true,
+          check_dns: false, // Don't check DNS during initial validation - user clicks "Verify Now" for that
         }),
       });
 
