@@ -2495,9 +2495,9 @@ export default function OnboardingPage() {
                                 </div>
 
                                 {/* Quick Help */}
-                                <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700/30">
-                                  <p className="text-sm text-amber-900 dark:text-amber-100">
-                                    <strong className="font-semibold">Where to add this?</strong> Log in to your domain provider and find DNS settings, Zone Editor, or DNS Management. Add a new record with the values above.
+                                <div className="mt-4 p-3 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-300 dark:border-slate-600">
+                                  <p className="text-sm text-slate-800 dark:text-slate-100">
+                                    <strong className="font-semibold text-slate-900 dark:text-white">Where to add this?</strong> Log in to your domain provider and find DNS settings, Zone Editor, or DNS Management. Add a new record with the values above.
                                   </p>
                                 </div>
 
@@ -2565,7 +2565,7 @@ export default function OnboardingPage() {
                                           domainVerification.sslStatus === 'active'
                                             ? 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20'
                                             : domainVerification.sslStatus === 'provisioning'
-                                              ? 'bg-blue-50 dark:bg-blue-500/10 border border-blue-200 dark:border-blue-500/20'
+                                              ? 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20'
                                               : domainVerification.sslStatus === 'failed'
                                                 ? 'bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20'
                                                 : 'bg-warm-50 dark:bg-white/5 border border-warm-200 dark:border-white/10'
@@ -2573,7 +2573,7 @@ export default function OnboardingPage() {
                                           {domainVerification.sslStatus === 'active' ? (
                                             <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                                           ) : domainVerification.sslStatus === 'provisioning' ? (
-                                            <Loader2 className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 animate-spin" />
+                                            <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                                           ) : domainVerification.sslStatus === 'failed' ? (
                                             <ShieldAlert className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
                                           ) : (
@@ -2584,7 +2584,7 @@ export default function OnboardingPage() {
                                               domainVerification.sslStatus === 'active'
                                                 ? 'text-emerald-800 dark:text-emerald-200'
                                                 : domainVerification.sslStatus === 'provisioning'
-                                                  ? 'text-blue-800 dark:text-blue-200'
+                                                  ? 'text-emerald-800 dark:text-emerald-200'
                                                   : domainVerification.sslStatus === 'failed'
                                                     ? 'text-red-800 dark:text-red-200'
                                                     : 'text-foreground'
@@ -2592,7 +2592,7 @@ export default function OnboardingPage() {
                                               {domainVerification.sslStatus === 'active'
                                                 ? 'SSL Certificate Active'
                                                 : domainVerification.sslStatus === 'provisioning'
-                                                  ? 'SSL Certificate Provisioning...'
+                                                  ? 'SSL Certificate Ready'
                                                   : domainVerification.sslStatus === 'failed'
                                                     ? 'SSL Certificate Failed'
                                                     : 'SSL Certificate Pending'}
@@ -2601,7 +2601,7 @@ export default function OnboardingPage() {
                                               {domainVerification.sslStatus === 'active'
                                                 ? 'Your domain is secured with HTTPS'
                                                 : domainVerification.sslStatus === 'provisioning'
-                                                  ? 'Let\'s Encrypt certificate is being automatically provisioned'
+                                                  ? 'Let\'s Encrypt certificate will be automatically provisioned within minutes'
                                                   : domainVerification.sslStatus === 'failed'
                                                     ? 'Certificate provisioning failed. Please contact support.'
                                                     : 'SSL will be provisioned after DNS verification'}
