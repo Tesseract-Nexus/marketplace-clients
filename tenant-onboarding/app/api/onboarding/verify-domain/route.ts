@@ -60,9 +60,17 @@ export async function POST(request: NextRequest) {
       can_proceed: false,
     };
 
+    // Debug logging
+    console.log('[verify-domain] Input:', {
+      domain: body.domain,
+      verificationHost,
+      expectedValue
+    });
+
     try {
       // Try CNAME lookup first
       const cnameRecords = await resolveCname(verificationHost);
+      console.log('[verify-domain] CNAME records:', cnameRecords);
 
       if (cnameRecords && cnameRecords.length > 0) {
         status.dns_record_found = true;
@@ -81,7 +89,9 @@ export async function POST(request: NextRequest) {
           status.message = `DNS record found but points to "${status.dns_record_value}" instead of "${expectedValue}". Please update your DNS settings.`;
         }
       }
-    } catch (cnameError) {
+    } catch (cnameError: unknown) {
+      const errCode = (cnameError as NodeJS.ErrnoException)?.code;
+      console.log('[verify-domain] CNAME lookup error:', errCode);
       // CNAME lookup failed, try TXT lookup as fallback
       try {
         const txtRecords = await resolveTxt(verificationHost);
@@ -102,11 +112,15 @@ export async function POST(request: NextRequest) {
             status.message = `TXT record found but has incorrect value. Please verify your DNS configuration.`;
           }
         }
-      } catch {
+      } catch (txtError: unknown) {
         // Both lookups failed
+        const txtErrCode = (txtError as NodeJS.ErrnoException)?.code;
+        console.log('[verify-domain] TXT lookup error:', txtErrCode);
         status.message = 'DNS record not found yet. DNS changes can take up to 48 hours to propagate. Please try again later.';
       }
     }
+
+    console.log('[verify-domain] Result:', status);
 
     // If DNS is verified, simulate SSL provisioning status
     // In production, this would call the custom-domain-service to check actual cert status
