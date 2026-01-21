@@ -177,9 +177,9 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  // Ignore TypeScript errors during build (for development speed)
+  // Strict TypeScript checking - no errors ignored
   typescript: {
-    ignoreBuildErrors: process.env.NODE_ENV === 'development',
+    ignoreBuildErrors: false,
   },
 };
 

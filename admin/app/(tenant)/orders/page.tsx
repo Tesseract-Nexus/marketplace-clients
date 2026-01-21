@@ -42,8 +42,10 @@ import {
   Mail,
   FileText,
   ChevronRight,
+  AlertCircle,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { StatusBadge, StatusType } from '@/components/ui/status-badge';
 
 // Currency formatting helper
 const formatCurrency = (amount: string | number | null | undefined, currencyCode: string = 'INR'): string => {
@@ -206,42 +208,65 @@ export default function OrdersPage() {
     setCurrentPage(1);
   }, [searchQuery, statusFilter, paymentStatusFilter, fulfillmentStatusFilter]);
 
-  const getStatusBadge = (status: OrderStatus) => {
-    const styles: Record<OrderStatus, string> = {
-      PLACED: 'bg-amber-100 text-amber-700 border-amber-200',
-      CONFIRMED: 'bg-primary/20 text-primary border-primary/30',
-      PROCESSING: 'bg-violet-100 text-violet-700 border-violet-200',
-      SHIPPED: 'bg-indigo-100 text-indigo-700 border-indigo-200',
-      DELIVERED: 'bg-teal-100 text-teal-700 border-teal-200',
-      COMPLETED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      CANCELLED: 'bg-red-100 text-red-700 border-red-200',
+  // Order status mapping using semantic tokens
+  const getOrderStatusType = (status: OrderStatus): StatusType => {
+    const mapping: Record<OrderStatus, StatusType> = {
+      PLACED: 'warning',
+      CONFIRMED: 'info',
+      PROCESSING: 'info',
+      SHIPPED: 'info',
+      DELIVERED: 'success',
+      COMPLETED: 'success',
+      CANCELLED: 'error',
     };
-    return <Badge className={styles[status]}>{status}</Badge>;
+    return mapping[status] || 'neutral';
+  };
+
+  const getStatusBadge = (status: OrderStatus) => {
+    return (
+      <StatusBadge status={getOrderStatusType(status)} showIcon={false}>
+        {status}
+      </StatusBadge>
+    );
+  };
+
+  // Payment status mapping using semantic tokens
+  const getPaymentStatusType = (status: PaymentStatus): StatusType => {
+    const mapping: Record<PaymentStatus, StatusType> = {
+      PENDING: 'warning',
+      PAID: 'success',
+      FAILED: 'error',
+      PARTIALLY_REFUNDED: 'warning',
+      REFUNDED: 'error',
+    };
+    return mapping[status] || 'neutral';
   };
 
   const getPaymentBadge = (status: PaymentStatus) => {
-    const styles: Record<PaymentStatus, string> = {
-      PENDING: 'bg-amber-100 text-amber-700 border-amber-200',
-      PAID: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      FAILED: 'bg-red-100 text-red-700 border-red-200',
-      PARTIALLY_REFUNDED: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-      REFUNDED: 'bg-orange-100 text-orange-700 border-orange-200',
+    return (
+      <StatusBadge status={getPaymentStatusType(status)} showIcon={false}>
+        {status.replace('_', ' ')}
+      </StatusBadge>
+    );
+  };
+
+  // Fulfillment status mapping using semantic tokens
+  const getFulfillmentStatusType = (status: FulfillmentStatus): StatusType => {
+    const mapping: Record<FulfillmentStatus, StatusType> = {
+      UNFULFILLED: 'neutral',
+      PROCESSING: 'info',
+      PACKED: 'info',
+      DISPATCHED: 'info',
+      IN_TRANSIT: 'info',
+      OUT_FOR_DELIVERY: 'info',
+      DELIVERED: 'success',
+      FAILED_DELIVERY: 'error',
+      RETURNED: 'warning',
     };
-    return <Badge className={styles[status]}>{status.replace('_', ' ')}</Badge>;
+    return mapping[status] || 'neutral';
   };
 
   const getFulfillmentBadge = (status: FulfillmentStatus) => {
-    const styles: Record<FulfillmentStatus, string> = {
-      UNFULFILLED: 'bg-muted text-foreground border-border',
-      PROCESSING: 'bg-primary/20 text-primary border-primary/30',
-      PACKED: 'bg-indigo-100 text-indigo-700 border-indigo-200',
-      DISPATCHED: 'bg-cyan-100 text-cyan-700 border-cyan-200',
-      IN_TRANSIT: 'bg-sky-100 text-sky-700 border-sky-200',
-      OUT_FOR_DELIVERY: 'bg-teal-100 text-teal-700 border-teal-200',
-      DELIVERED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      FAILED_DELIVERY: 'bg-red-100 text-red-700 border-red-200',
-      RETURNED: 'bg-orange-100 text-orange-700 border-orange-200',
-    };
     const labels: Record<FulfillmentStatus, string> = {
       UNFULFILLED: 'Unfulfilled',
       PROCESSING: 'Processing',
@@ -253,7 +278,11 @@ export default function OrdersPage() {
       FAILED_DELIVERY: 'Failed',
       RETURNED: 'Returned',
     };
-    return <Badge className={styles[status]}>{labels[status]}</Badge>;
+    return (
+      <StatusBadge status={getFulfillmentStatusType(status)} showIcon={false}>
+        {labels[status]}
+      </StatusBadge>
+    );
   };
 
   // NEW: Get fulfillment progress percentage
@@ -377,14 +406,14 @@ export default function OrdersPage() {
 
       {/* Error Alert */}
       {error && (
-        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex items-start gap-3">
-          <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+        <div className="bg-error-muted border-2 border-error/20 rounded-xl p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h3 className="font-semibold text-red-900"><AdminUIText text="Error" /></h3>
-            <p className="text-red-700 text-sm mt-1"><AdminMessage text={error} /></p>
+            <h3 className="font-semibold text-error"><AdminUIText text="Error" /></h3>
+            <p className="text-error-muted-foreground text-sm mt-1"><AdminMessage text={error} /></p>
           </div>
-          <Button onClick={() => setError(null)} className="p-1 rounded-lg hover:bg-red-100 transition-colors" variant="ghost">
-            <X className="w-4 h-4 text-red-600" />
+          <Button onClick={() => setError(null)} className="p-1 rounded-lg hover:bg-error/10 transition-colors" variant="ghost">
+            <X className="w-4 h-4 text-error" />
           </Button>
         </div>
       )}
@@ -462,12 +491,12 @@ export default function OrdersPage() {
                       value={statusFilter}
                       onChange={(value) => setStatusFilter(value as any)}
                       options={[
-                        { value: 'ALL', label: 'All Status', icon: '🔍' },
-                        { value: 'PLACED', label: 'Placed', icon: '📝' },
-                        { value: 'CONFIRMED', label: 'Confirmed', icon: '✓' },
-                        { value: 'PROCESSING', label: 'Processing', icon: '⚙️' },
-                        { value: 'COMPLETED', label: 'Completed', icon: '✅' },
-                        { value: 'CANCELLED', label: 'Cancelled', icon: '❌' },
+                        { value: 'ALL', label: 'All Status' },
+                        { value: 'PLACED', label: 'Placed' },
+                        { value: 'CONFIRMED', label: 'Confirmed' },
+                        { value: 'PROCESSING', label: 'Processing' },
+                        { value: 'COMPLETED', label: 'Completed' },
+                        { value: 'CANCELLED', label: 'Cancelled' },
                       ]}
                       variant="filter"
                     />
@@ -478,12 +507,12 @@ export default function OrdersPage() {
                       value={paymentStatusFilter}
                       onChange={(value) => setPaymentStatusFilter(value as any)}
                       options={[
-                        { value: 'ALL', label: 'All Status', icon: '🔍' },
-                        { value: 'PENDING', label: 'Pending', icon: '⏳' },
-                        { value: 'PAID', label: 'Paid', icon: '💰' },
-                        { value: 'FAILED', label: 'Failed', icon: '❌' },
-                        { value: 'PARTIALLY_REFUNDED', label: 'Partial Refund', icon: '↩️' },
-                        { value: 'REFUNDED', label: 'Refunded', icon: '↩️' },
+                        { value: 'ALL', label: 'All Status' },
+                        { value: 'PENDING', label: 'Pending' },
+                        { value: 'PAID', label: 'Paid' },
+                        { value: 'FAILED', label: 'Failed' },
+                        { value: 'PARTIALLY_REFUNDED', label: 'Partial Refund' },
+                        { value: 'REFUNDED', label: 'Refunded' },
                       ]}
                       variant="filter"
                     />
@@ -494,16 +523,16 @@ export default function OrdersPage() {
                       value={fulfillmentStatusFilter}
                       onChange={(value) => setFulfillmentStatusFilter(value as any)}
                       options={[
-                        { value: 'ALL', label: 'All Status', icon: '🔍' },
-                        { value: 'UNFULFILLED', label: 'Unfulfilled', icon: '📦' },
-                        { value: 'PROCESSING', label: 'Processing', icon: '⚙️' },
-                        { value: 'PACKED', label: 'Packed', icon: '📦' },
-                        { value: 'DISPATCHED', label: 'Dispatched', icon: '🚚' },
-                        { value: 'IN_TRANSIT', label: 'In Transit', icon: '🚛' },
-                        { value: 'OUT_FOR_DELIVERY', label: 'Out for Delivery', icon: '🏃' },
-                        { value: 'DELIVERED', label: 'Delivered', icon: '✅' },
-                        { value: 'FAILED_DELIVERY', label: 'Failed Delivery', icon: '❌' },
-                        { value: 'RETURNED', label: 'Returned', icon: '↩️' },
+                        { value: 'ALL', label: 'All Status' },
+                        { value: 'UNFULFILLED', label: 'Unfulfilled' },
+                        { value: 'PROCESSING', label: 'Processing' },
+                        { value: 'PACKED', label: 'Packed' },
+                        { value: 'DISPATCHED', label: 'Dispatched' },
+                        { value: 'IN_TRANSIT', label: 'In Transit' },
+                        { value: 'OUT_FOR_DELIVERY', label: 'Out for Delivery' },
+                        { value: 'DELIVERED', label: 'Delivered' },
+                        { value: 'FAILED_DELIVERY', label: 'Failed Delivery' },
+                        { value: 'RETURNED', label: 'Returned' },
                       ]}
                       variant="filter"
                     />

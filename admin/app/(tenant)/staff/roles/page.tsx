@@ -452,20 +452,20 @@ export default function RolesPage() {
                 <div className="flex items-center gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Can Manage Staff</p>
-                    <Badge className={selectedRole.canManageStaff ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}>
+                    <Badge className={selectedRole.canManageStaff ? 'bg-success-muted text-success-muted-foreground' : 'bg-muted text-muted-foreground'}>
                       {selectedRole.canManageStaff ? 'Yes' : 'No'}
                     </Badge>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Can Create Roles</p>
-                    <Badge className={selectedRole.canCreateRoles ? 'bg-green-100 text-green-700' : 'bg-muted text-muted-foreground'}>
+                    <Badge className={selectedRole.canCreateRoles ? 'bg-success-muted text-success-muted-foreground' : 'bg-muted text-muted-foreground'}>
                       {selectedRole.canCreateRoles ? 'Yes' : 'No'}
                     </Badge>
                   </div>
                 </div>
                 {selectedRole.isSystem && (
-                  <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <p className="text-sm text-yellow-700 flex items-center gap-2">
+                  <div className="p-3 bg-warning-muted border border-warning/30 rounded-lg">
+                    <p className="text-sm text-warning-muted-foreground flex items-center gap-2">
                       <Lock className="w-4 h-4" />
                       This is a system role and cannot be modified.
                     </p>
@@ -478,7 +478,7 @@ export default function RolesPage() {
             <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <CheckCircle className="w-5 h-5 text-success" />
                   Permissions ({selectedPermissionIds.size})
                 </CardTitle>
               </CardHeader>
@@ -504,7 +504,7 @@ export default function RolesPage() {
                             .filter(p => selectedPermissionIds.has(p.id))
                             .map(perm => (
                               <div key={perm.id} className="flex items-center gap-2 text-sm">
-                                <CheckCircle className="w-4 h-4 text-green-500" />
+                                <CheckCircle className="w-4 h-4 text-success" />
                                 <span>{perm.displayName}</span>
                               </div>
                             ))
@@ -541,7 +541,7 @@ export default function RolesPage() {
           />
 
           {error && (
-            <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 flex items-center gap-2">
+            <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
               <XCircle className="w-5 h-5" />
               {error}
             </div>
@@ -559,7 +559,7 @@ export default function RolesPage() {
               <CardContent className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Role Name <span className="text-red-500">*</span>
+                    Role Name <span className="text-error">*</span>
                   </label>
                   <input
                     type="text"
@@ -574,7 +574,7 @@ export default function RolesPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Display Name <span className="text-red-500">*</span>
+                    Display Name <span className="text-error">*</span>
                   </label>
                   <input
                     type="text"
@@ -669,7 +669,7 @@ export default function RolesPage() {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
+                    <CheckCircle className="w-5 h-5 text-success" />
                     Permissions ({selectedPermissionIds.size} selected)
                   </span>
                 </CardTitle>
@@ -814,7 +814,7 @@ export default function RolesPage() {
                 <Button
                   onClick={handleSeedRoles}
                   disabled={saving}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition-all"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-warning text-warning-foreground rounded-xl hover:bg-warning/90 transition-all"
                 >
                   <Sparkles className="w-5 h-5" />
                   Seed Default Roles
@@ -843,7 +843,7 @@ export default function RolesPage() {
         />
 
         {error && (
-          <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 flex items-center gap-2">
+          <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
             <XCircle className="w-5 h-5" />
             {error}
           </div>
@@ -985,11 +985,11 @@ export default function RolesPage() {
                                   e.stopPropagation();
                                   handleDeleteRole(role);
                                 }}
-                                className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                                className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                                 title="Delete"
                                 aria-label="Delete role"
                               >
-                                <Trash2 className="w-4 h-4 text-red-600" aria-hidden="true" />
+                                <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                               </Button>
                             )}
                           </div>

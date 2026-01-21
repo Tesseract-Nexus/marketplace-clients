@@ -266,12 +266,12 @@ export default function PaymentsSettingsPage() {
                 <div className="p-4 rounded-lg bg-muted border border-border">
                   <div className="flex items-center gap-1">
                     {hasPrimaryGateway ? (
-                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <CheckCircle className="h-5 w-5 text-success" />
                     ) : (
                       <XCircle className="h-5 w-5 text-gray-300" />
                     )}
                     {hasFallbackGateway ? (
-                      <CheckCircle className="h-5 w-5 text-green-500" />
+                      <CheckCircle className="h-5 w-5 text-success" />
                     ) : (
                       <XCircle className="h-5 w-5 text-gray-300" />
                     )}
@@ -315,7 +315,7 @@ export default function PaymentsSettingsPage() {
                       <span className="font-medium">{recommendation.primaryName}</span>
                     </div>
                     {hasPrimaryGateway ? (
-                      <CheckCircle className="h-5 w-5 text-green-300" />
+                      <CheckCircle className="h-5 w-5 text-success/60" />
                     ) : (
                       <span className="text-xs bg-white/20 px-2 py-1 rounded">Primary</span>
                     )}
@@ -335,7 +335,7 @@ export default function PaymentsSettingsPage() {
                         <span className="font-medium">{recommendation.fallbackName}</span>
                       </div>
                       {hasFallbackGateway ? (
-                        <CheckCircle className="h-5 w-5 text-green-300" />
+                        <CheckCircle className="h-5 w-5 text-success/60" />
                       ) : (
                         <span className="text-xs bg-white/20 px-2 py-1 rounded">Fallback</span>
                       )}

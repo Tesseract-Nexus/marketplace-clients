@@ -148,7 +148,7 @@ export default function TaxJurisdictionsPage() {
     const colors = {
       COUNTRY: 'bg-purple-100 text-purple-700 border-purple-200',
       STATE: 'bg-primary/20 text-primary border-primary/30',
-      COUNTY: 'bg-green-100 text-green-700 border-green-200',
+      COUNTY: 'bg-success-muted text-success-muted-foreground border-success/30',
       CITY: 'bg-orange-100 text-orange-700 border-orange-200',
       ZIP: 'bg-pink-100 text-pink-700 border-pink-200',
     };
@@ -179,7 +179,7 @@ export default function TaxJurisdictionsPage() {
     return (
       <div className="min-h-screen bg-background p-8 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center">
-          <AlertCircle className="h-12 w-12 text-red-500" />
+          <AlertCircle className="h-12 w-12 text-error" />
           <h2 className="text-xl font-semibold text-foreground">Failed to load jurisdictions</h2>
           <p className="text-muted-foreground">{error}</p>
           <Button onClick={() => fetchJurisdictions()} className="mt-4">
@@ -310,7 +310,7 @@ export default function TaxJurisdictionsPage() {
                       <td className="px-6 py-4">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
                           jurisdiction.isActive
-                            ? 'bg-green-100 text-green-700 border-green-200'
+                            ? 'bg-success-muted text-success-muted-foreground border-success/30'
                             : 'bg-muted text-foreground border-border'
                         }`}>
                           {jurisdiction.isActive ? 'Active' : 'Inactive'}
@@ -335,11 +335,11 @@ export default function TaxJurisdictionsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(jurisdiction.id)}
-                            className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                             title="Delete"
                             aria-label="Delete jurisdiction"
                           >
-                            <Trash2 className="w-4 h-4 text-red-600" aria-hidden="true" />
+                            <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                           </Button>
                         </div>
                       </td>
@@ -364,7 +364,7 @@ export default function TaxJurisdictionsPage() {
               <div className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-2">
-                    Name <span className="text-red-500">*</span>
+                    Name <span className="text-error">*</span>
                   </label>
                   <Input
                     value={formData.name}
@@ -376,7 +376,7 @@ export default function TaxJurisdictionsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">
-                      Type <span className="text-red-500">*</span>
+                      Type <span className="text-error">*</span>
                     </label>
                     <Select
                       value={formData.type}
@@ -387,7 +387,7 @@ export default function TaxJurisdictionsPage() {
 
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">
-                      Code <span className="text-red-500">*</span>
+                      Code <span className="text-error">*</span>
                     </label>
                     <Input
                       value={formData.code}

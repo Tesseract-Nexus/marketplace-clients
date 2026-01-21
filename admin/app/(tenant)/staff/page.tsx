@@ -375,26 +375,26 @@ export default function StaffPage() {
   const getRoleBadge = (role: StaffRole) => {
     const styles = {
       super_admin: 'bg-purple-100 text-purple-700 border-purple-200',
-      admin: 'bg-red-100 text-red-700 border-red-200',
+      admin: 'bg-error-muted text-error-muted-foreground border-error/30',
       manager: 'bg-primary/20 text-primary border-primary/30',
-      senior_employee: 'bg-green-100 text-green-700 border-green-200',
+      senior_employee: 'bg-success-muted text-success-muted-foreground border-success/30',
       employee: 'bg-muted text-foreground border-border',
-      intern: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+      intern: 'bg-warning-muted text-warning-muted-foreground border-warning/30',
       contractor: 'bg-orange-100 text-orange-700 border-orange-200',
       guest: 'bg-pink-100 text-pink-700 border-pink-200',
-      readonly: 'bg-slate-100 text-slate-700 border-slate-200',
+      readonly: 'bg-neutral-muted text-neutral-muted-foreground border-neutral/30',
     };
     return <Badge className={styles[role]}>{role.replace('_', ' ').toUpperCase()}</Badge>;
   };
 
   const getEmploymentTypeBadge = (type: EmploymentType) => {
     const styles = {
-      full_time: 'bg-green-100 text-green-700 border-green-200',
+      full_time: 'bg-success-muted text-success-muted-foreground border-success/30',
       part_time: 'bg-primary/20 text-primary border-primary/30',
       contract: 'bg-orange-100 text-orange-700 border-orange-200',
-      temporary: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+      temporary: 'bg-warning-muted text-warning-muted-foreground border-warning/30',
       intern: 'bg-purple-100 text-purple-700 border-purple-200',
-      consultant: 'bg-indigo-100 text-indigo-700 border-indigo-200',
+      consultant: 'bg-info-muted text-info-muted-foreground border-info/30',
       volunteer: 'bg-pink-100 text-pink-700 border-pink-200',
     };
     return <Badge className={styles[type]}>{type.replace('_', ' ').toUpperCase()}</Badge>;
@@ -403,11 +403,11 @@ export default function StaffPage() {
   const getAccountStatusBadge = (status?: StaffAccountStatus) => {
     if (!status) return null;
     const styles: Record<StaffAccountStatus, { className: string; icon: React.ReactNode }> = {
-      pending_activation: { className: 'bg-yellow-100 text-yellow-700 border-yellow-200', icon: <Clock className="w-3 h-3" /> },
+      pending_activation: { className: 'bg-warning-muted text-warning-muted-foreground border-warning/30', icon: <Clock className="w-3 h-3" /> },
       pending_password: { className: 'bg-orange-100 text-orange-700 border-orange-200', icon: <Key className="w-3 h-3" /> },
-      active: { className: 'bg-green-100 text-green-700 border-green-200', icon: <CheckCircle className="w-3 h-3" /> },
-      suspended: { className: 'bg-red-100 text-red-700 border-red-200', icon: <AlertCircle className="w-3 h-3" /> },
-      locked: { className: 'bg-red-100 text-red-700 border-red-200', icon: <Lock className="w-3 h-3" /> },
+      active: { className: 'bg-success-muted text-success-muted-foreground border-success/30', icon: <CheckCircle className="w-3 h-3" /> },
+      suspended: { className: 'bg-error-muted text-error-muted-foreground border-error/30', icon: <AlertCircle className="w-3 h-3" /> },
+      locked: { className: 'bg-error-muted text-error-muted-foreground border-error/30', icon: <Lock className="w-3 h-3" /> },
       deactivated: { className: 'bg-muted text-foreground border-border', icon: <UserX className="w-3 h-3" /> },
     };
     const style = styles[status];
@@ -423,9 +423,9 @@ export default function StaffPage() {
     if (!method) return null;
     const icons: Record<StaffAuthMethod, { icon: React.ReactNode; color: string; label: string }> = {
       password: { icon: <Key className="w-4 h-4" />, color: 'text-primary', label: 'Password' },
-      google_sso: { icon: <LogIn className="w-4 h-4" />, color: 'text-red-500', label: 'Google' },
+      google_sso: { icon: <LogIn className="w-4 h-4" />, color: 'text-error', label: 'Google' },
       microsoft_sso: { icon: <LogIn className="w-4 h-4" />, color: 'text-primary', label: 'Microsoft' },
-      invitation_pending: { icon: <Send className="w-4 h-4" />, color: 'text-yellow-600', label: 'Invitation Pending' },
+      invitation_pending: { icon: <Send className="w-4 h-4" />, color: 'text-warning', label: 'Invitation Pending' },
       sso_pending: { icon: <Clock className="w-4 h-4" />, color: 'text-orange-500', label: 'SSO Pending' },
     };
     const authIcon = icons[method];
@@ -526,7 +526,7 @@ export default function StaffPage() {
               )}
               <div>
                 <p className="text-sm text-muted-foreground">Status</p>
-                <Badge className={selectedStaff.isActive ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}>
+                <Badge className={selectedStaff.isActive ? 'bg-success-muted text-success-muted-foreground border-success/30' : 'bg-error-muted text-error-muted-foreground border-error/30'}>
                   {selectedStaff.isActive ? 'ACTIVE' : 'INACTIVE'}
                 </Badge>
               </div>
@@ -603,7 +603,7 @@ export default function StaffPage() {
               {selectedStaff.salary && (
                 <div>
                   <p className="text-sm text-muted-foreground">Salary</p>
-                  <p className="font-semibold text-2xl text-green-600">
+                  <p className="font-semibold text-2xl text-success">
                     {selectedStaff.currencyCode} ${selectedStaff.salary.toLocaleString()}
                   </p>
                 </div>
@@ -614,7 +614,7 @@ export default function StaffPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Building className="w-5 h-5 text-green-600" />
+                <Building className="w-5 h-5 text-success" />
                 Organization
               </CardTitle>
             </CardHeader>
@@ -678,8 +678,8 @@ export default function StaffPage() {
                   <div className="mt-1 flex items-center gap-1">
                     {selectedStaff.isEmailVerified ? (
                       <>
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                        <span className="text-green-600 font-medium">Verified</span>
+                        <CheckCircle className="w-4 h-4 text-success" />
+                        <span className="text-success font-medium">Verified</span>
                       </>
                     ) : (
                       <>
@@ -890,7 +890,7 @@ export default function StaffPage() {
       />
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 flex items-center gap-2">
+        <div className="mb-6 p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
           <XCircle className="w-5 h-5" />
           {error}
         </div>
@@ -953,8 +953,8 @@ export default function StaffPage() {
                     { value: 'super_admin', label: 'Super Admin', icon: <Crown className="w-4 h-4 text-purple-500" /> },
                     { value: 'admin', label: 'Admin', icon: <Shield className="w-4 h-4 text-primary" /> },
                     { value: 'manager', label: 'Manager', icon: <UserCog className="w-4 h-4 text-indigo-500" /> },
-                    { value: 'senior_employee', label: 'Senior Employee', icon: <Star className="w-4 h-4 text-yellow-500" /> },
-                    { value: 'employee', label: 'Employee', icon: <UserCheck className="w-4 h-4 text-green-500" /> },
+                    { value: 'senior_employee', label: 'Senior Employee', icon: <Star className="w-4 h-4 text-warning" /> },
+                    { value: 'employee', label: 'Employee', icon: <UserCheck className="w-4 h-4 text-success" /> },
                     { value: 'intern', label: 'Intern', icon: <GraduationCap className="w-4 h-4 text-cyan-500" /> },
                     { value: 'contractor', label: 'Contractor', icon: <Hammer className="w-4 h-4 text-orange-500" /> },
                   ]}
@@ -970,7 +970,7 @@ export default function StaffPage() {
                   options={[
                     { value: 'ALL', label: 'All Types', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
                     { value: 'full_time', label: 'Full Time', icon: <Briefcase className="w-4 h-4 text-primary" /> },
-                    { value: 'part_time', label: 'Part Time', icon: <Clock className="w-4 h-4 text-yellow-500" /> },
+                    { value: 'part_time', label: 'Part Time', icon: <Clock className="w-4 h-4 text-warning" /> },
                     { value: 'contract', label: 'Contract', icon: <FileText className="w-4 h-4 text-purple-500" /> },
                     { value: 'temporary', label: 'Temporary', icon: <Hourglass className="w-4 h-4 text-orange-500" /> },
                     { value: 'intern', label: 'Intern', icon: <GraduationCap className="w-4 h-4 text-cyan-500" /> },
@@ -987,8 +987,8 @@ export default function StaffPage() {
                   onChange={setStatusFilter}
                   options={[
                     { value: 'ALL', label: 'All Statuses', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'ACTIVE', label: 'Active', icon: <Circle className="w-4 h-4 text-green-500 fill-green-500" /> },
-                    { value: 'INACTIVE', label: 'Inactive', icon: <CircleOff className="w-4 h-4 text-red-500" /> },
+                    { value: 'ACTIVE', label: 'Active', icon: <Circle className="w-4 h-4 text-success fill-success" /> },
+                    { value: 'INACTIVE', label: 'Inactive', icon: <CircleOff className="w-4 h-4 text-error" /> },
                   ]}
                   variant="filter"
                 />
@@ -1068,7 +1068,7 @@ export default function StaffPage() {
                       <td className="p-4">
                         <div className="space-y-1">
                           {getEmploymentTypeBadge(staffMember.employmentType)}
-                          <Badge className={staffMember.isActive ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}>
+                          <Badge className={staffMember.isActive ? 'bg-success-muted text-success-muted-foreground border-success/30' : 'bg-error-muted text-error-muted-foreground border-error/30'}>
                             {staffMember.isActive ? 'ACTIVE' : 'INACTIVE'}
                           </Badge>
                         </div>
@@ -1089,11 +1089,11 @@ export default function StaffPage() {
                                 e.stopPropagation();
                                 handleSendInvitation(staffMember);
                               }}
-                              className="h-8 w-8 p-0 rounded-lg hover:bg-yellow-50 transition-colors"
+                              className="h-8 w-8 p-0 rounded-lg hover:bg-warning-muted transition-colors"
                               title="Send Invitation"
                               aria-label="Send invitation"
                             >
-                              <Send className="w-4 h-4 text-yellow-600" aria-hidden="true" />
+                              <Send className="w-4 h-4 text-warning" aria-hidden="true" />
                             </Button>
                           )}
                           <Button
@@ -1132,11 +1132,11 @@ export default function StaffPage() {
                                 e.stopPropagation();
                                 handleDeleteStaff(staffMember);
                               }}
-                              className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                              className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                               title="Delete"
                               aria-label="Delete staff"
                             >
-                              <Trash2 className="w-4 h-4 text-red-600" aria-hidden="true" />
+                              <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                             </Button>
                           )}
                         </div>

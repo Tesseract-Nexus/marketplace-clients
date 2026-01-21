@@ -70,7 +70,7 @@ export function StaffFormStep2({ formData, setFormData, roles = [] }: StaffFormS
 
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            Role <span className="text-red-500">*</span>
+            Role <span className="text-error">*</span>
           </label>
           <Select
             value={formData.role}
@@ -82,7 +82,7 @@ export function StaffFormStep2({ formData, setFormData, roles = [] }: StaffFormS
 
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            Employment Type <span className="text-red-500">*</span>
+            Employment Type <span className="text-error">*</span>
           </label>
           <Select
             value={formData.employmentType}

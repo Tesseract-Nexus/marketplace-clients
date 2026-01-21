@@ -270,7 +270,7 @@ export default function TeamsPage() {
           />
 
           {error && (
-            <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 flex items-center gap-2">
+            <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
               <XCircle className="w-5 h-5" />
               {error}
             </div>
@@ -279,14 +279,14 @@ export default function TeamsPage() {
           <Card className="max-w-2xl mx-auto">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-green-600" />
+                <Users className="w-5 h-5 text-success" />
                 Team Details
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Team Name <span className="text-red-500">*</span>
+                  Team Name <span className="text-error">*</span>
                 </label>
                 <input
                   type="text"
@@ -312,7 +312,7 @@ export default function TeamsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Department <span className="text-red-500">*</span>
+                  Department <span className="text-error">*</span>
                 </label>
                 <Select
                   value={formData.departmentId}
@@ -419,7 +419,7 @@ export default function TeamsPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-green-600" />
+                  <Users className="w-5 h-5 text-success" />
                   Team Details
                 </CardTitle>
               </CardHeader>
@@ -442,7 +442,7 @@ export default function TeamsPage() {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Status</p>
-                    <Badge className={selectedTeam.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+                    <Badge className={selectedTeam.isActive ? 'bg-success-muted text-success-muted-foreground' : 'bg-error-muted text-error-muted-foreground'}>
                       {selectedTeam.isActive ? 'Active' : 'Inactive'}
                     </Badge>
                   </div>
@@ -565,7 +565,7 @@ export default function TeamsPage() {
           />
 
           {error && (
-            <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 flex items-center gap-2">
+            <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
               <XCircle className="w-5 h-5" />
               {error}
             </div>
@@ -576,8 +576,8 @@ export default function TeamsPage() {
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
-                    <Users className="w-6 h-6 text-green-600" />
+                  <div className="w-12 h-12 rounded-xl bg-success-muted flex items-center justify-center">
+                    <Users className="w-6 h-6 text-success" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Total Teams</p>
@@ -686,12 +686,12 @@ export default function TeamsPage() {
                       {filteredTeams.map((team) => (
                         <tr
                           key={team.id}
-                          className="border-b border-border hover:bg-green-50/50 transition-colors"
+                          className="border-b border-border hover:bg-success-muted/50 transition-colors"
                         >
                           <td className="p-4">
                             <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                                <Users className="w-5 h-5 text-green-600" />
+                              <div className="w-10 h-10 rounded-lg bg-success-muted flex items-center justify-center">
+                                <Users className="w-5 h-5 text-success" />
                               </div>
                               <div>
                                 <p className="font-semibold text-foreground">{team.name}</p>
@@ -724,7 +724,7 @@ export default function TeamsPage() {
                             </Badge>
                           </td>
                           <td className="p-4">
-                            <Badge className={team.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+                            <Badge className={team.isActive ? 'bg-success-muted text-success-muted-foreground' : 'bg-error-muted text-error-muted-foreground'}>
                               {team.isActive ? 'Active' : 'Inactive'}
                             </Badge>
                           </td>
@@ -755,10 +755,10 @@ export default function TeamsPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleDelete(team)}
-                                  className="h-8 w-8 p-0 rounded-lg bg-red-100 hover:bg-red-200 transition-colors"
+                                  className="h-8 w-8 p-0 rounded-lg bg-error-muted hover:bg-error/20 transition-colors"
                                   title="Delete"
                                 >
-                                  <Trash2 className="w-4 h-4 text-red-700" />
+                                  <Trash2 className="w-4 h-4 text-error" />
                                 </Button>
                               )}
                             </div>

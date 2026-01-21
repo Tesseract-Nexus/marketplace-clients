@@ -217,7 +217,7 @@ export default function ContentPagesSettingsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'PUBLISHED':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-success-muted text-success-muted-foreground border-success/30';
       case 'DRAFT':
         return 'bg-yellow-100 text-yellow-700 border-yellow-200';
       case 'ARCHIVED':
@@ -234,7 +234,7 @@ export default function ContentPagesSettingsPage() {
       case 'BLOG':
         return 'bg-purple-100 text-purple-700 border-purple-200';
       case 'FAQ':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-success-muted text-success-muted-foreground border-success/30';
       case 'POLICY':
         return 'bg-yellow-100 text-yellow-700 border-yellow-200';
       case 'LANDING':
@@ -619,7 +619,7 @@ export default function ContentPagesSettingsPage() {
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-sm font-medium text-muted-foreground">Published</p>
                     <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                      <Globe className="h-6 w-6 text-green-600" />
+                      <Globe className="h-6 w-6 text-success" />
                     </div>
                   </div>
                   <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
@@ -746,7 +746,7 @@ export default function ContentPagesSettingsPage() {
                                     </span>
                                   )}
                                   {page.showInFooter && (
-                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
+                                    <span className="text-xs bg-success-muted text-success-muted-foreground px-2 py-0.5 rounded-full font-semibold">
                                       Footer
                                     </span>
                                   )}
@@ -798,7 +798,7 @@ export default function ContentPagesSettingsPage() {
                                     title="Publish"
                                     aria-label="Publish page"
                                   >
-                                    <Globe className="h-4 w-4 text-green-600" aria-hidden="true" />
+                                    <Globe className="h-4 w-4 text-success" aria-hidden="true" />
                                   </Button>
                                 )}
                                 {page.status === 'PUBLISHED' && (
@@ -831,7 +831,7 @@ export default function ContentPagesSettingsPage() {
                                   title="Delete"
                                   aria-label="Delete page"
                                 >
-                                  <Trash2 className="h-4 w-4 text-red-600" aria-hidden="true" />
+                                  <Trash2 className="h-4 w-4 text-error" aria-hidden="true" />
                                 </Button>
                               </div>
                             </td>
@@ -937,7 +937,7 @@ export default function ContentPagesSettingsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1.5">
-                        Page Title <span className="text-red-500">*</span>
+                        Page Title <span className="text-error">*</span>
                       </label>
                       <Input
                         placeholder="About Us"
@@ -951,7 +951,7 @@ export default function ContentPagesSettingsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1.5">
-                        URL Slug <span className="text-red-500">*</span>
+                        URL Slug <span className="text-error">*</span>
                       </label>
                       <Input
                         placeholder="about-us"
@@ -1134,7 +1134,7 @@ export default function ContentPagesSettingsPage() {
                   className={cn(
                     'px-2.5 py-1 rounded-full text-xs font-semibold',
                     editForm.status === 'PUBLISHED'
-                      ? 'bg-green-100 text-green-700'
+                      ? 'bg-success-muted text-success-muted-foreground'
                       : editForm.status === 'DRAFT'
                       ? 'bg-yellow-100 text-yellow-700'
                       : 'bg-muted text-foreground'
@@ -1187,7 +1187,7 @@ export default function ContentPagesSettingsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1.5">
-                        Page Title <span className="text-red-500">*</span>
+                        Page Title <span className="text-error">*</span>
                       </label>
                       <Input
                         value={editForm.title}
@@ -1197,7 +1197,7 @@ export default function ContentPagesSettingsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1.5">
-                        URL Slug <span className="text-red-500">*</span>
+                        URL Slug <span className="text-error">*</span>
                       </label>
                       <Input
                         value={editForm.slug}
@@ -1303,12 +1303,12 @@ export default function ContentPagesSettingsPage() {
                         <p className="text-xs text-primary mt-1">Views</p>
                       </div>
                       <div className="bg-card border border-green-200 rounded-lg p-3 text-center">
-                        <p className="text-xs font-bold text-green-700">
+                        <p className="text-xs font-bold text-success">
                           {editForm.publishedAt
                             ? new Date(editForm.publishedAt).toLocaleDateString()
                             : 'Not Published'}
                         </p>
-                        <p className="text-xs text-green-600 mt-1">Published</p>
+                        <p className="text-xs text-success mt-1">Published</p>
                       </div>
                       <div className="bg-card border border-purple-200 rounded-lg p-3 text-center">
                         <p className="text-xs font-bold text-purple-700">
@@ -1343,7 +1343,7 @@ export default function ContentPagesSettingsPage() {
                     variant="outline"
                     onClick={() => handlePublish(editForm.id)}
                     disabled={saving}
-                    className="text-green-600 border-green-300 hover:bg-green-50"
+                    className="text-success border-success/40 hover:bg-success-muted"
                   >
                     <Globe className="h-4 w-4 mr-2" />
                     Publish

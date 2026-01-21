@@ -25,20 +25,20 @@ import { cn } from '@/lib/utils';
 import { FooterLinkGroupsManager } from './FooterLinkGroupEditor';
 import { SocialLinksManager } from './SocialLinkEditor';
 
-// Payment method icons and labels
-const PAYMENT_METHODS: { id: PaymentMethod; label: string; icon: string }[] = [
-  { id: 'visa', label: 'Visa', icon: '💳' },
-  { id: 'mastercard', label: 'Mastercard', icon: '💳' },
-  { id: 'amex', label: 'American Express', icon: '💳' },
-  { id: 'discover', label: 'Discover', icon: '💳' },
-  { id: 'paypal', label: 'PayPal', icon: '🅿️' },
-  { id: 'apple_pay', label: 'Apple Pay', icon: '🍎' },
-  { id: 'google_pay', label: 'Google Pay', icon: '🔵' },
-  { id: 'stripe', label: 'Stripe', icon: '💜' },
-  { id: 'afterpay', label: 'Afterpay', icon: '🛒' },
-  { id: 'klarna', label: 'Klarna', icon: '🔴' },
-  { id: 'zip', label: 'Zip', icon: '⚡' },
-  { id: 'bank_transfer', label: 'Bank Transfer', icon: '🏦' },
+// Payment method labels (icons rendered via CreditCard component)
+const PAYMENT_METHODS: { id: PaymentMethod; label: string; abbr: string }[] = [
+  { id: 'visa', label: 'Visa', abbr: 'V' },
+  { id: 'mastercard', label: 'Mastercard', abbr: 'MC' },
+  { id: 'amex', label: 'American Express', abbr: 'AX' },
+  { id: 'discover', label: 'Discover', abbr: 'D' },
+  { id: 'paypal', label: 'PayPal', abbr: 'PP' },
+  { id: 'apple_pay', label: 'Apple Pay', abbr: 'AP' },
+  { id: 'google_pay', label: 'Google Pay', abbr: 'GP' },
+  { id: 'stripe', label: 'Stripe', abbr: 'S' },
+  { id: 'afterpay', label: 'Afterpay', abbr: 'AF' },
+  { id: 'klarna', label: 'Klarna', abbr: 'K' },
+  { id: 'zip', label: 'Zip', abbr: 'Z' },
+  { id: 'bank_transfer', label: 'Bank Transfer', abbr: 'BT' },
 ];
 
 // Default trust badge presets
@@ -343,7 +343,9 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                             : 'border-border hover:border-purple-300'
                         )}
                       >
-                        <span className="text-lg block mb-1">{method.icon}</span>
+                        <span className="flex items-center justify-center mb-1">
+                          <CreditCard className="w-5 h-5" aria-hidden="true" />
+                        </span>
                         <span className="text-xs">{method.label}</span>
                       </button>
                     );

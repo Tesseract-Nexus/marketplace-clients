@@ -8,6 +8,8 @@ import {
   TrendingUp,
   TrendingDown,
   DollarSign,
+  Home,
+  BarChart3,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
@@ -219,9 +221,9 @@ export default function InventoryReportsPage() {
           title="Inventory Reports"
           description="Monitor stock levels, turnover rates, and inventory value"
           breadcrumbs={[
-            { label: '🏠 Home', href: '/' },
-            { label: '📦 Inventory' },
-            { label: '📊 Reports' },
+            { label: 'Home', href: '/', icon: Home },
+            { label: 'Inventory', icon: Package },
+            { label: 'Reports', icon: BarChart3 },
           ]}
           actions={
             <div className="flex gap-3">

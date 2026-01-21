@@ -10,6 +10,7 @@ import {
   CreditCard,
   Download,
   BarChart3,
+  Home,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
@@ -353,8 +354,8 @@ export default function SalesDashboardPage() {
               : "View comprehensive sales analytics and performance metrics"
           }
           breadcrumbs={[
-            { label: '🏠 Home', href: '/' },
-            { label: '📊 Sales Dashboard' },
+            { label: 'Home', href: '/', icon: Home },
+            { label: 'Sales Dashboard', icon: BarChart3 },
           ]}
           actions={
             <div className="flex gap-3">

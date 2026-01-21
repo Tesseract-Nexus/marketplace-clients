@@ -34,7 +34,7 @@ export function StaffFormStep1({ formData, setFormData }: StaffFormStepProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            First Name <span className="text-red-500">*</span>
+            First Name <span className="text-error">*</span>
           </label>
           <input
             type="text"
@@ -47,7 +47,7 @@ export function StaffFormStep1({ formData, setFormData }: StaffFormStepProps) {
 
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            Last Name <span className="text-red-500">*</span>
+            Last Name <span className="text-error">*</span>
           </label>
           <input
             type="text"
@@ -86,7 +86,7 @@ export function StaffFormStep1({ formData, setFormData }: StaffFormStepProps) {
 
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            Email <span className="text-red-500">*</span>
+            Email <span className="text-error">*</span>
           </label>
           <input
             type="email"

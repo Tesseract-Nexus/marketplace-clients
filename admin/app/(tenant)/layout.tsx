@@ -517,44 +517,60 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     const itemKey = parentKey ? `${parentKey}-${item.name}` : item.name;
 
     if (item.children) {
+      const isExpanded = expandedItems.includes(itemKey);
+      const menuId = `sidebar-menu-${itemKey.replace(/\s+/g, '-').toLowerCase()}`;
       return (
         <div key={itemKey}>
           <button
             type="button"
             onClick={() => toggleExpanded(itemKey)}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowDown' && isExpanded) {
+                e.preventDefault();
+                const firstChild = document.querySelector(`#${menuId} a, #${menuId} button`) as HTMLElement;
+                firstChild?.focus();
+              }
+            }}
+            aria-expanded={isExpanded}
+            aria-controls={menuId}
             className={cn(
-              "w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group hover:bg-slate-700/50"
+              "w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group hover:bg-slate-700/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             )}
             style={{
-              backgroundColor: expandedItems.includes(itemKey) ? 'var(--color-sidebar-bg, #334155)' + 'cc' : 'transparent',
-              color: expandedItems.includes(itemKey) ? 'var(--color-sidebar-active-text, #60a5fa)' : 'var(--color-sidebar-text, #cbd5e1)',
+              backgroundColor: isExpanded ? 'var(--color-sidebar-bg, #334155)' + 'cc' : 'transparent',
+              color: isExpanded ? 'var(--color-sidebar-active-text, #60a5fa)' : 'var(--color-sidebar-text, #cbd5e1)',
             }}
           >
             <div className="flex items-center gap-3">
               {item.icon && (
                 <item.icon className={cn(
                   "w-5 h-5 transition-colors",
-                  expandedItems.includes(itemKey) ? "text-blue-400" : "text-slate-400 group-hover:text-blue-400"
-                )} />
+                  isExpanded ? "text-blue-400" : "text-slate-400 group-hover:text-blue-400"
+                )} aria-hidden="true" />
               )}
               {!item.icon && (
                 <div className="w-1.5 h-1.5 rounded-full transition-colors"
+                  aria-hidden="true"
                   style={{
-                    backgroundColor: expandedItems.includes(itemKey)
+                    backgroundColor: isExpanded
                       ? 'var(--color-sidebar-active-text, #60a5fa)'
                       : 'var(--color-sidebar-text, #475569)',
                   }}></div>
               )}
               <AdminUIText text={item.name} />
             </div>
-            {expandedItems.includes(itemKey) ? (
-              <ChevronDown className="w-4 h-4 text-blue-400" />
+            {isExpanded ? (
+              <ChevronDown className="w-4 h-4 text-blue-400" aria-hidden="true" />
             ) : (
-              <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-blue-400 transition-colors" />
+              <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-blue-400 transition-colors" aria-hidden="true" />
             )}
           </button>
-          {expandedItems.includes(itemKey) && (
-            <div className="mt-1 ml-4 space-y-1 pl-6 border-l-2 animate-in slide-in-from-top-2 duration-200"
+          {isExpanded && (
+            <div
+              id={menuId}
+              role="region"
+              aria-label={`${item.name} submenu`}
+              className="mt-1 ml-4 space-y-1 pl-6 border-l-2 animate-in slide-in-from-top-2 duration-200"
               style={{ borderColor: 'var(--color-sidebar-text, #475569)' + '80' }}>
               {item.children.map((child) => renderNavItem(child, itemKey))}
             </div>
@@ -566,34 +582,37 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     // Leaf item with href - use Next.js Link for proper SPA navigation
     // onClick handler ensures navigation works even when Link's default behavior fails
     // prefetch={false} prevents prefetch issues with Next.js App Router
+    const active = isActive(item.href);
     return (
       <Link
         key={itemKey}
         href={item.href || '/'}
         prefetch={false}
         onClick={(e) => handleNavClick(e, item.href || '/')}
+        aria-current={active ? 'page' : undefined}
         className={cn(
-          "flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group relative overflow-hidden cursor-pointer"
+          "flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group relative overflow-hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         )}
         style={{
-          background: isActive(item.href)
+          background: active
             ? `linear-gradient(to right, var(--color-primary, #3b82f6), var(--color-secondary, #8b5cf6), var(--color-accent, #a855f7))`
             : 'transparent',
-          color: isActive(item.href) ? '#ffffff' : 'var(--color-sidebar-text, #cbd5e1)',
+          color: active ? '#ffffff' : 'var(--color-sidebar-text, #cbd5e1)',
         }}
       >
-        {isActive(item.href) && (
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-violet-400/20 to-purple-400/20 animate-pulse pointer-events-none"></div>
+        {active && (
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-violet-400/20 to-purple-400/20 animate-pulse pointer-events-none" aria-hidden="true"></div>
         )}
         {item.icon ? (
           <item.icon className={cn(
             "w-5 h-5 relative z-10 transition-colors",
-            isActive(item.href) ? "text-white" : "text-slate-400 group-hover:text-blue-400"
-          )} />
+            active ? "text-white" : "text-slate-400 group-hover:text-blue-400"
+          )} aria-hidden="true" />
         ) : (
           <div className="w-1.5 h-1.5 rounded-full transition-colors relative z-10"
+            aria-hidden="true"
             style={{
-              backgroundColor: isActive(item.href)
+              backgroundColor: active
                 ? '#ffffff'
                 : 'var(--color-sidebar-text, #475569)',
             }}></div>
@@ -866,10 +885,17 @@ function TenantLayoutInner({
 
   return (
     <div className="flex h-screen overflow-hidden" style={{ backgroundColor: 'var(--color-header-bg, #f8fafc)' }}>
+      {/* Skip to main content link for keyboard accessibility */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:z-[200] focus:top-4 focus:left-4 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-md focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
+      >
+        Skip to main content
+      </a>
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <div className="flex-1 flex flex-col lg:ml-72 min-w-0">
         <Header setSidebarOpen={setSidebarOpen} />
-        <main className="flex-1 overflow-auto p-4 sm:p-6 relative z-0">
+        <main id="main-content" className="flex-1 overflow-auto p-4 sm:p-6 relative z-0" tabIndex={-1}>
           {children}
         </main>
       </div>

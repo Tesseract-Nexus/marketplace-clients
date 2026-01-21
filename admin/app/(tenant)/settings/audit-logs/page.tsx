@@ -163,15 +163,15 @@ const RESOURCE_TYPES = [
 
 // Severity colors
 const SEVERITY_COLORS = {
-  LOW: 'bg-green-100 text-green-700 border-green-200',
+  LOW: 'bg-success-muted text-success-muted-foreground border-success/30',
   MEDIUM: 'bg-yellow-100 text-yellow-700 border-yellow-200',
   HIGH: 'bg-orange-100 text-orange-700 border-orange-200',
-  CRITICAL: 'bg-red-100 text-red-700 border-red-200',
+  CRITICAL: 'bg-error-muted text-error-muted-foreground border-error/30',
 };
 
 const STATUS_COLORS = {
-  SUCCESS: 'bg-green-100 text-green-700',
-  FAILURE: 'bg-red-100 text-red-700',
+  SUCCESS: 'bg-success-muted text-success-muted-foreground',
+  FAILURE: 'bg-error-muted text-error-muted-foreground',
   PENDING: 'bg-yellow-100 text-yellow-700',
 };
 
@@ -242,16 +242,16 @@ function DiffViewer({ oldValue, newValue }: { oldValue?: Record<string, unknown>
         <div className="mt-3 grid grid-cols-2 gap-4">
           {oldValue && (
             <div>
-              <div className="text-xs font-semibold text-red-600 mb-1">Before</div>
-              <pre className="bg-red-50 border border-red-200 rounded p-3 text-xs overflow-auto max-h-48">
+              <div className="text-xs font-semibold text-error mb-1">Before</div>
+              <pre className="bg-error-muted border border-error/30 rounded p-3 text-xs overflow-auto max-h-48">
                 {formatJson(oldValue)}
               </pre>
             </div>
           )}
           {newValue && (
             <div>
-              <div className="text-xs font-semibold text-green-600 mb-1">After</div>
-              <pre className="bg-green-50 border border-green-200 rounded p-3 text-xs overflow-auto max-h-48">
+              <div className="text-xs font-semibold text-success mb-1">After</div>
+              <pre className="bg-success-muted border border-success/30 rounded p-3 text-xs overflow-auto max-h-48">
                 {formatJson(newValue)}
               </pre>
             </div>
@@ -291,7 +291,7 @@ function StatCard({
           <p className="text-sm font-medium text-muted-foreground">{title}</p>
           <p className="text-2xl font-bold text-foreground mt-1">{value.toLocaleString()}</p>
           {trend && (
-            <div className={cn('flex items-center gap-1 text-xs mt-1', trend.isPositive ? 'text-green-600' : 'text-red-600')}>
+            <div className={cn('flex items-center gap-1 text-xs mt-1', trend.isPositive ? 'text-success' : 'text-error')}>
               <TrendingUp className={cn('h-3 w-3', !trend.isPositive && 'rotate-180')} />
               <span>{Math.abs(trend.value)}% vs last period</span>
             </div>
@@ -799,12 +799,12 @@ export default function AuditLogsPage() {
                     <div className={cn(
                       'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium',
                       isConnected
-                        ? 'bg-green-100 text-green-700 border border-green-200'
+                        ? 'bg-success-muted text-success-muted-foreground border border-green-200'
                         : 'bg-muted text-muted-foreground border border-border'
                     )}>
                       <div className={cn(
                         'h-2 w-2 rounded-full',
-                        isConnected ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+                        isConnected ? 'bg-success animate-pulse' : 'bg-gray-400'
                       )} />
                       {isConnected ? 'Live' : 'Connecting...'}
                     </div>
@@ -1168,12 +1168,12 @@ export default function AuditLogsPage() {
                                 </div>
                               )}
                               {log.errorMessage && (
-                                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                                  <div className="flex items-center gap-2 text-red-700">
+                                <div className="mt-4 p-3 bg-error-muted border border-error/30 rounded-lg">
+                                  <div className="flex items-center gap-2 text-error">
                                     <AlertCircle className="h-4 w-4" />
                                     <span className="text-xs font-medium">Error Message</span>
                                   </div>
-                                  <div className="mt-1 text-sm text-red-600">{log.errorMessage}</div>
+                                  <div className="mt-1 text-sm text-error">{log.errorMessage}</div>
                                 </div>
                               )}
                               <DiffViewer oldValue={log.oldValue} newValue={log.newValue} />
@@ -1229,7 +1229,7 @@ export default function AuditLogsPage() {
           <p>
             All timestamps are displayed in <span className="font-medium">{TIMEZONES.find(tz => tz.value === timezone)?.label || timezone}</span>.
             {isConnected ? (
-              <span className="text-green-600 font-medium"> Real-time updates connected via NATS.</span>
+              <span className="text-success font-medium"> Real-time updates connected via NATS.</span>
             ) : (
               <span className="text-muted-foreground"> Connecting to real-time updates...</span>
             )}

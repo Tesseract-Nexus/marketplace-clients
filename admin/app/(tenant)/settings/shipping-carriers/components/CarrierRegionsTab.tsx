@@ -214,7 +214,7 @@ export function CarrierRegionsTab() {
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{carrier.displayName}</span>
                   {carrier.isEnabled ? (
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-success" />
                   ) : (
                     <XCircle className="h-4 w-4 text-gray-300" />
                   )}
@@ -292,7 +292,7 @@ export function CarrierRegionsTab() {
                     )}
 
                     {region.enabled ? (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success-muted text-success-muted-foreground">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Active
                       </span>

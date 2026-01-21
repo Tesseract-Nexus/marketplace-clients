@@ -634,7 +634,7 @@ export default function TaxSettingsPage() {
                     Loading...
                   </Badge>
                 ) : taxStatus.hasCountryJurisdiction ? (
-                  <Badge className="gap-1 bg-green-100 text-green-700 hover:bg-green-100">
+                  <Badge className="gap-1 bg-success-muted text-success-muted-foreground hover:bg-success-muted">
                     <CheckCircle2 className="h-3 w-3" />
                     Configured
                   </Badge>
@@ -759,7 +759,7 @@ export default function TaxSettingsPage() {
                     className={`uppercase tracking-wider ${gstinError ? 'border-red-500' : ''}`}
                   />
                   {gstinError ? (
-                    <p className="text-sm text-red-600 mt-1">{gstinError}</p>
+                    <p className="text-sm text-error mt-1">{gstinError}</p>
                   ) : (
                     <p className="text-sm text-muted-foreground mt-1">
                       15-character GST ID. State will be auto-detected.
@@ -828,8 +828,8 @@ export default function TaxSettingsPage() {
 
               {/* Error Message */}
               {setupError && (
-                <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                  <p className="text-sm text-red-700">{setupError}</p>
+                <div className="mt-4 p-4 bg-error-muted rounded-lg border border-error/30">
+                  <p className="text-sm text-error">{setupError}</p>
                 </div>
               )}
 
@@ -929,8 +929,8 @@ export default function TaxSettingsPage() {
               )}
 
               {setupError && (
-                <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                  <p className="text-sm text-red-700">{setupError}</p>
+                <div className="mt-4 p-4 bg-error-muted rounded-lg border border-error/30">
+                  <p className="text-sm text-error">{setupError}</p>
                 </div>
               )}
 
@@ -987,7 +987,7 @@ export default function TaxSettingsPage() {
               {isSettingUp && (
                 <div className="mt-6 p-4 bg-card rounded-lg border border-red-200">
                   <div className="flex items-center gap-3 mb-2">
-                    <Loader2 className="h-5 w-5 animate-spin text-red-600" />
+                    <Loader2 className="h-5 w-5 animate-spin text-error" />
                     <span className="text-sm font-medium text-foreground">{setupStep}</span>
                   </div>
                   <Progress value={setupProgress} className="h-2" />
@@ -995,8 +995,8 @@ export default function TaxSettingsPage() {
               )}
 
               {setupError && (
-                <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                  <p className="text-sm text-red-700">{setupError}</p>
+                <div className="mt-4 p-4 bg-error-muted rounded-lg border border-error/30">
+                  <p className="text-sm text-error">{setupError}</p>
                 </div>
               )}
 
@@ -1053,7 +1053,7 @@ export default function TaxSettingsPage() {
               {isSettingUp && (
                 <div className="mt-6 p-4 bg-card rounded-lg border border-green-200">
                   <div className="flex items-center gap-3 mb-2">
-                    <Loader2 className="h-5 w-5 animate-spin text-green-600" />
+                    <Loader2 className="h-5 w-5 animate-spin text-success" />
                     <span className="text-sm font-medium text-foreground">{setupStep}</span>
                   </div>
                   <Progress value={setupProgress} className="h-2" />
@@ -1061,8 +1061,8 @@ export default function TaxSettingsPage() {
               )}
 
               {setupError && (
-                <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                  <p className="text-sm text-red-700">{setupError}</p>
+                <div className="mt-4 p-4 bg-error-muted rounded-lg border border-error/30">
+                  <p className="text-sm text-error">{setupError}</p>
                 </div>
               )}
 
@@ -1139,7 +1139,7 @@ export default function TaxSettingsPage() {
               {isSettingUp && (
                 <div className="mt-6 p-4 bg-card rounded-lg border border-red-200">
                   <div className="flex items-center gap-3 mb-2">
-                    <Loader2 className="h-5 w-5 animate-spin text-red-600" />
+                    <Loader2 className="h-5 w-5 animate-spin text-error" />
                     <span className="text-sm font-medium text-foreground">{setupStep}</span>
                   </div>
                   <Progress value={setupProgress} className="h-2" />
@@ -1147,8 +1147,8 @@ export default function TaxSettingsPage() {
               )}
 
               {setupError && (
-                <div className="mt-4 p-4 bg-red-50 rounded-lg border border-red-200">
-                  <p className="text-sm text-red-700">{setupError}</p>
+                <div className="mt-4 p-4 bg-error-muted rounded-lg border border-error/30">
+                  <p className="text-sm text-error">{setupError}</p>
                 </div>
               )}
 
@@ -1177,16 +1177,16 @@ export default function TaxSettingsPage() {
 
         {/* Success Message */}
         {setupSuccess && (
-          <div className="bg-green-50 rounded-xl border-2 border-green-200 p-6">
+          <div className="bg-success-muted rounded-xl border-2 border-success/30 p-6">
             <div className="flex items-start gap-4">
-              <div className="p-2 rounded-full bg-green-100">
-                <CheckCircle2 className="h-6 w-6 text-green-600" />
+              <div className="p-2 rounded-full bg-success-muted">
+                <CheckCircle2 className="h-6 w-6 text-success" />
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-green-800">
+                <h3 className="text-lg font-semibold text-success">
                   {countryConfig?.flag} {countryConfig?.taxTypeLabel || 'Tax'} Setup Complete!
                 </h3>
-                <p className="text-green-700 mt-1">
+                <p className="text-success mt-1">
                   Created {setupSuccess.jurisdictions} jurisdictions and {setupSuccess.rates} tax rates.
                 </p>
                 <div className="mt-4 flex gap-3">
@@ -1233,7 +1233,7 @@ export default function TaxSettingsPage() {
                   {taxStatus.loading ? '...' : `${taxStatus.jurisdictionsCount} active`}
                 </Badge>
                 {taxStatus.hasCountryJurisdiction && (
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  <CheckCircle2 className="h-5 w-5 text-success" />
                 )}
               </div>
             </div>
@@ -1259,12 +1259,12 @@ export default function TaxSettingsPage() {
               <div className="flex items-center justify-between">
                 <Badge
                   variant={taxStatus.ratesCount > 0 ? 'default' : 'secondary'}
-                  className={taxStatus.ratesCount > 0 ? 'bg-green-100 text-green-700 hover:bg-green-100' : ''}
+                  className={taxStatus.ratesCount > 0 ? 'bg-success-muted text-success-muted-foreground hover:bg-success-muted' : ''}
                 >
                   {taxStatus.loading ? '...' : `${taxStatus.ratesCount} rates`}
                 </Badge>
                 {taxStatus.ratesCount > 0 && (
-                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  <CheckCircle2 className="h-5 w-5 text-success" />
                 )}
               </div>
             </div>

@@ -14,6 +14,15 @@ import {
   AlertCircle,
   AlertTriangle,
   Info,
+  Package,
+  Folder,
+  Warehouse,
+  Truck,
+  Users,
+  Building2,
+  UsersRound,
+  KeyRound,
+  LucideIcon,
 } from 'lucide-react';
 
 export type EntityType = 'products' | 'categories' | 'warehouses' | 'suppliers' | 'staff' | 'departments' | 'teams' | 'roles';
@@ -47,47 +56,47 @@ interface BulkImportModalProps {
 
 const entityConfig: Record<EntityType, {
   apiBase: string;
-  icon: string;
+  Icon: LucideIcon;
   templateDescription: string;
 }> = {
   products: {
     apiBase: '/api/products',
-    icon: '📦',
+    Icon: Package,
     templateDescription: 'name, sku, price, categoryId, vendorId, description, quantity, tags...',
   },
   categories: {
     apiBase: '/api/categories',
-    icon: '📂',
+    Icon: Folder,
     templateDescription: 'name, slug, description, parentId, position, isActive, tier, tags...',
   },
   warehouses: {
     apiBase: '/api/inventory/warehouses',
-    icon: '🏭',
+    Icon: Warehouse,
     templateDescription: 'code, name, address1, city, state, postalCode, country, phone...',
   },
   suppliers: {
     apiBase: '/api/inventory/suppliers',
-    icon: '🚚',
+    Icon: Truck,
     templateDescription: 'code, name, contactName, email, phone, address, paymentTerms...',
   },
   staff: {
     apiBase: '/api/staff',
-    icon: '👥',
+    Icon: Users,
     templateDescription: 'firstName, lastName, email, phoneNumber, role, employmentType, departmentName, teamName, jobTitle...',
   },
   departments: {
     apiBase: '/api/departments',
-    icon: '🏢',
+    Icon: Building2,
     templateDescription: 'name, code, description, parentDepartmentName',
   },
   teams: {
     apiBase: '/api/teams',
-    icon: '👨‍👩‍👧‍👦',
+    Icon: UsersRound,
     templateDescription: 'name, code, departmentName, maxCapacity',
   },
   roles: {
     apiBase: '/api/roles',
-    icon: '🔐',
+    Icon: KeyRound,
     templateDescription: 'name, displayName, description, priority, permissions',
   },
 };
@@ -271,7 +280,7 @@ export function BulkImportModal({
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border bg-muted">
           <div className="flex items-center gap-3">
-            <span className="text-3xl">{config.icon}</span>
+            <config.Icon className="w-8 h-8 text-primary" aria-hidden="true" />
             <div>
               <h2 className="text-xl font-bold text-foreground">
                 Bulk Import {entityLabel}

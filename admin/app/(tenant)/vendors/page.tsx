@@ -38,6 +38,8 @@ import {
   ShieldAlert,
   ShieldOff,
   Timer,
+  Home,
+  ClipboardList,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PermissionGate, Permission } from '@/components/permission-gate';
@@ -47,6 +49,7 @@ import { Select } from '@/components/Select';
 import { Stepper, StepperNavigation, Step } from '@/components/Stepper';
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatusBadge, StatusType } from '@/components/ui/status-badge';
 import { Badge } from '@/components/ui/badge';
 import { Pagination } from '@/components/Pagination';
 import { vendorService } from '@/lib/services/vendorService';
@@ -78,10 +81,10 @@ export default function VendorsPage() {
   const totalSteps = 4;
 
   const steps: Step[] = [
-    { number: 1, title: 'Basic Info', icon: '📋', description: 'Contact details' },
-    { number: 2, title: 'Business Details', icon: '🏢', description: 'Company info' },
-    { number: 3, title: 'Contract Info', icon: '📄', description: 'Terms & conditions' },
-    { number: 4, title: 'Review', icon: '✅', description: 'Final review' },
+    { number: 1, title: 'Basic Info', description: 'Contact details' },
+    { number: 2, title: 'Business Details', description: 'Company info' },
+    { number: 3, title: 'Contract Info', description: 'Terms & conditions' },
+    { number: 4, title: 'Review', description: 'Final review' },
   ];
 
   // Modal state
@@ -298,26 +301,42 @@ export default function VendorsPage() {
     setCurrentStep(1);
   };
 
-  const getStatusBadge = (status: string) => {
-    const styles = {
-      ACTIVE: 'bg-green-100 text-green-700 border-green-200',
-      PENDING: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-      INACTIVE: 'bg-muted text-foreground border-border',
-      SUSPENDED: 'bg-red-100 text-red-700 border-red-200',
-      TERMINATED: 'bg-red-100 text-red-700 border-red-200',
+  const getVendorStatusType = (status: string): StatusType => {
+    const mapping: Record<string, StatusType> = {
+      ACTIVE: 'success',
+      PENDING: 'warning',
+      INACTIVE: 'neutral',
+      SUSPENDED: 'error',
+      TERMINATED: 'error',
     };
-    return <Badge className={styles[status as keyof typeof styles] || styles.PENDING}>{status}</Badge>;
+    return mapping[status] || 'neutral';
+  };
+
+  const getStatusBadge = (status: string) => {
+    return (
+      <StatusBadge status={getVendorStatusType(status)} showIcon={false}>
+        {status}
+      </StatusBadge>
+    );
+  };
+
+  const getValidationStatusType = (status: string): StatusType => {
+    const mapping: Record<string, StatusType> = {
+      COMPLETED: 'success',
+      IN_PROGRESS: 'info',
+      NOT_STARTED: 'neutral',
+      FAILED: 'error',
+      EXPIRED: 'warning',
+    };
+    return mapping[status] || 'neutral';
   };
 
   const getValidationBadge = (status: string) => {
-    const styles = {
-      COMPLETED: 'bg-green-100 text-green-700 border-green-200',
-      IN_PROGRESS: 'bg-primary/20 text-primary border-primary/30',
-      NOT_STARTED: 'bg-muted text-foreground border-border',
-      FAILED: 'bg-red-100 text-red-700 border-red-200',
-      EXPIRED: 'bg-orange-100 text-orange-700 border-orange-200',
-    };
-    return <Badge className={styles[status as keyof typeof styles] || styles.NOT_STARTED}>{status.replace('_', ' ')}</Badge>;
+    return (
+      <StatusBadge status={getValidationStatusType(status)} showIcon={false}>
+        {status.replace('_', ' ')}
+      </StatusBadge>
+    );
   };
 
   if (viewMode === 'detail' && selectedVendor) {
@@ -327,8 +346,8 @@ export default function VendorsPage() {
           <PageHeader
             title="Vendor Details"
             breadcrumbs={[
-              { label: '🏠 Home', href: '/' },
-              { label: '🏢 Vendors', href: '/vendors' },
+              { label: 'Home', href: '/', icon: Home },
+              { label: 'Vendors', href: '/vendors', icon: Building2 },
               { label: selectedVendor.name },
             ]}
             actions={
@@ -523,8 +542,8 @@ export default function VendorsPage() {
           <PageHeader
             title={viewMode === 'create' ? 'Create New Vendor' : 'Edit Vendor'}
             breadcrumbs={[
-              { label: '🏠 Home', href: '/' },
-              { label: '🏢 Vendors', href: '/vendors' },
+              { label: 'Home', href: '/', icon: Home },
+              { label: 'Vendors', href: '/vendors', icon: Building2 },
               { label: viewMode === 'create' ? 'Create' : 'Edit' },
             ]}
           />
@@ -543,7 +562,7 @@ export default function VendorsPage() {
               {currentStep === 1 && (
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold flex items-center gap-2 bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
-                    📋 Basic Information
+                    <ClipboardList className="w-5 h-5 inline-block mr-1" aria-hidden="true" /> Basic Information
                   </h2>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -632,7 +651,7 @@ export default function VendorsPage() {
               {currentStep === 2 && (
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold flex items-center gap-2 bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
-                    🏢 Business Details
+                    <Building2 className="w-5 h-5 inline-block mr-1" aria-hidden="true" /> Business Details
                   </h2>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -724,7 +743,7 @@ export default function VendorsPage() {
               {currentStep === 3 && (
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold flex items-center gap-2 bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
-                    📄 Contract Information
+                    <FileText className="w-5 h-5 inline-block mr-1" aria-hidden="true" /> Contract Information
                   </h2>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -806,7 +825,7 @@ export default function VendorsPage() {
               {currentStep === 4 && (
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold flex items-center gap-2 bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
-                    ✅ Review & Confirm
+                    <CheckCircle className="w-5 h-5 inline-block mr-1" aria-hidden="true" /> Review & Confirm
                   </h2>
 
                   <div className="bg-muted p-8 rounded-2xl border-2 border-primary/30">
@@ -913,8 +932,8 @@ export default function VendorsPage() {
           title="Vendor Management"
           description="Manage your vendor relationships and contracts"
           breadcrumbs={[
-            { label: '🏠 Home', href: '/' },
-            { label: '🏢 Vendors' },
+            { label: 'Home', href: '/', icon: Home },
+            { label: 'Vendors', icon: Building2 },
           ]}
           actions={
           <div className="flex items-center gap-3">
@@ -940,8 +959,8 @@ export default function VendorsPage() {
       />
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 flex items-center gap-2">
-          <XCircle className="w-5 h-5" />
+        <div className="mb-6 p-4 bg-error-muted border-2 border-error/20 rounded-xl text-error flex items-center gap-2">
+          <AlertCircle className="w-5 h-5" />
           {error}
         </div>
       )}
@@ -1135,7 +1154,7 @@ export default function VendorsPage() {
                               e.stopPropagation();
                               handleDeleteVendor(vendor);
                             }}
-                            className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                             title="Delete"
                             aria-label="Delete vendor"
                           >

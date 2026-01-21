@@ -429,7 +429,7 @@ export default function TranslationSettingsPage() {
                   <div className="text-sm text-muted-foreground">Total Requests</div>
                 </div>
                 <div className="bg-muted rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-green-600">
+                  <div className="text-2xl font-bold text-success">
                     {stats.cacheHitRate.toFixed(1)}%
                   </div>
                   <div className="text-sm text-muted-foreground">Cache Hit Rate</div>
@@ -470,7 +470,7 @@ export default function TranslationSettingsPage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                  <Globe className="h-6 w-6 text-green-600" />
+                  <Globe className="h-6 w-6 text-success" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">Default Languages</h3>
@@ -635,7 +635,7 @@ export default function TranslationSettingsPage() {
                           <div className="text-xs text-muted-foreground">{lang.nativeName}</div>
                         </div>
                         {settings.enabledLanguages.includes(lang.code) && (
-                          <CheckCircle2 className="h-5 w-5 text-green-600" />
+                          <CheckCircle2 className="h-5 w-5 text-success" />
                         )}
                       </div>
                     </button>

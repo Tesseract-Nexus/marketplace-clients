@@ -202,7 +202,7 @@ export function CreateTeamModal({
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-1.5">
-              Team Name <span className="text-red-500">*</span>
+              Team Name <span className="text-error">*</span>
             </label>
             <input
               type="text"
@@ -219,7 +219,7 @@ export function CreateTeamModal({
               disabled={isSubmitting}
             />
             {errors.name && (
-              <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+              <p className="text-error text-xs mt-1">{errors.name}</p>
             )}
           </div>
 
@@ -289,7 +289,7 @@ export function CreateTeamModal({
               disabled={isSubmitting}
             />
             {errors.maxCapacity && (
-              <p className="text-red-500 text-xs mt-1">{errors.maxCapacity}</p>
+              <p className="text-error text-xs mt-1">{errors.maxCapacity}</p>
             )}
             <p className="text-xs text-muted-foreground mt-1">Optional maximum number of team members</p>
           </div>

@@ -206,7 +206,7 @@ export default function TaxRatesPage() {
     const colors: Record<TaxType, string> = {
       SALES: 'bg-primary/20 text-primary border-primary/30',
       VAT: 'bg-purple-100 text-purple-700 border-purple-200',
-      GST: 'bg-green-100 text-green-700 border-green-200',
+      GST: 'bg-success-muted text-success-muted-foreground border-success/30',
       CGST: 'bg-emerald-100 text-emerald-700 border-emerald-200',
       SGST: 'bg-teal-100 text-teal-700 border-teal-200',
       IGST: 'bg-cyan-100 text-cyan-700 border-cyan-200',
@@ -248,7 +248,7 @@ export default function TaxRatesPage() {
     return (
       <div className="min-h-screen bg-background p-8 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center">
-          <AlertCircle className="h-12 w-12 text-red-500" />
+          <AlertCircle className="h-12 w-12 text-error" />
           <h2 className="text-xl font-semibold text-foreground">Failed to load tax rates</h2>
           <p className="text-muted-foreground">{error}</p>
           <Button onClick={() => fetchData()} className="mt-4">
@@ -407,7 +407,7 @@ export default function TaxRatesPage() {
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
                             rate.isActive
-                              ? 'bg-green-100 text-green-700 border-green-200'
+                              ? 'bg-success-muted text-success-muted-foreground border-success/30'
                               : 'bg-muted text-foreground border-border'
                           }`}
                         >
@@ -430,11 +430,11 @@ export default function TaxRatesPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(rate.id)}
-                            className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                             title="Delete"
                             aria-label="Delete tax rate"
                           >
-                            <Trash2 className="w-4 h-4 text-red-600" aria-hidden="true" />
+                            <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                           </Button>
                         </div>
                       </td>
@@ -459,7 +459,7 @@ export default function TaxRatesPage() {
               <div className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-2">
-                    Jurisdiction <span className="text-red-500">*</span>
+                    Jurisdiction <span className="text-error">*</span>
                   </label>
                   <Select
                     value={formData.jurisdictionId}
@@ -470,7 +470,7 @@ export default function TaxRatesPage() {
 
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-2">
-                    Rate Name <span className="text-red-500">*</span>
+                    Rate Name <span className="text-error">*</span>
                   </label>
                   <Input
                     value={formData.name}
@@ -482,7 +482,7 @@ export default function TaxRatesPage() {
                 <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">
-                      Tax Rate (%) <span className="text-red-500">*</span>
+                      Tax Rate (%) <span className="text-error">*</span>
                     </label>
                     <Input
                       type="number"
@@ -497,7 +497,7 @@ export default function TaxRatesPage() {
 
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">
-                      Type <span className="text-red-500">*</span>
+                      Type <span className="text-error">*</span>
                     </label>
                     <Select
                       value={formData.taxType}
@@ -556,7 +556,7 @@ export default function TaxRatesPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">
-                      Effective From <span className="text-red-500">*</span>
+                      Effective From <span className="text-error">*</span>
                     </label>
                     <Input
                       type="date"

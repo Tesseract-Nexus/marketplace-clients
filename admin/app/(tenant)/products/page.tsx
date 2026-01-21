@@ -31,8 +31,10 @@ import {
   Building2, CircleOff,
   Ruler, Clock, CheckCircle2, FileEdit, XCircle, Archive, RotateCcw,
   PackageCheck, PackageX, Timer, Ban, FileUp, ChevronUp, ChevronDown, Star,
+  Home, ChevronLeft, Warehouse, Truck, DollarSign, TrendingUp, ClipboardList, Images,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { Badge } from '@/components/ui/badge';
 import { BulkImportModal } from '@/components/BulkImportModal';
 import { CascadeDeleteModal } from '@/components/CascadeDeleteModal';
 import { ImageUploadProgressModal, UploadingFile, UploadStatus } from '@/components/ImageUploadProgressModal';
@@ -1055,19 +1057,13 @@ export default function ProductsPage() {
   }, [searchQuery, statusFilter, inventoryStatusFilter, brandFilter]);
 
   const getStatusBadge = (status: ProductStatus) => {
-    const styles = {
-      ACTIVE:
-        'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-300',
-      DRAFT:
-        'bg-gradient-to-r from-gray-100 to-slate-100 text-foreground border-border',
-      PENDING:
-        'bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-700 border-yellow-300',
-      INACTIVE:
-        'bg-gradient-to-r from-red-100 to-rose-100 text-red-700 border-red-300',
-      ARCHIVED:
-        'bg-gradient-to-r from-purple-100 to-violet-100 text-purple-700 border-purple-300',
-      REJECTED:
-        'bg-gradient-to-r from-red-100 to-pink-100 text-red-700 border-red-300',
+    const styles: Record<ProductStatus, string> = {
+      ACTIVE: 'bg-success-muted text-success-muted-foreground border-transparent',
+      DRAFT: 'bg-neutral-muted text-neutral-muted-foreground border-transparent',
+      PENDING: 'bg-warning-muted text-warning-muted-foreground border-transparent',
+      INACTIVE: 'bg-error-muted text-error-muted-foreground border-transparent',
+      ARCHIVED: 'bg-neutral-muted text-neutral-muted-foreground border-transparent',
+      REJECTED: 'bg-error-muted text-error-muted-foreground border-transparent',
     };
 
     return (
@@ -1082,17 +1078,12 @@ export default function ProductsPage() {
   const getInventoryBadge = (status?: InventoryStatus) => {
     if (!status) return null;
 
-    const styles = {
-      IN_STOCK:
-        'bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 border-green-300',
-      LOW_STOCK:
-        'bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-700 border-yellow-300',
-      OUT_OF_STOCK:
-        'bg-gradient-to-r from-red-100 to-rose-100 text-red-700 border-red-300',
-      BACK_ORDER:
-        'bg-gradient-to-r from-blue-100 to-cyan-100 text-primary border-primary/50',
-      DISCONTINUED:
-        'bg-gradient-to-r from-gray-100 to-slate-100 text-foreground border-border',
+    const styles: Record<InventoryStatus, string> = {
+      IN_STOCK: 'bg-success-muted text-success-muted-foreground border-transparent',
+      LOW_STOCK: 'bg-warning-muted text-warning-muted-foreground border-transparent',
+      OUT_OF_STOCK: 'bg-error-muted text-error-muted-foreground border-transparent',
+      BACK_ORDER: 'bg-info-muted text-info-muted-foreground border-transparent',
+      DISCONTINUED: 'bg-neutral-muted text-neutral-muted-foreground border-transparent',
     };
 
     const labels = {
@@ -1123,9 +1114,9 @@ export default function ProductsPage() {
         {/* Breadcrumbs */}
         <Breadcrumbs
           items={[
-            { label: 'Dashboard', href: '/', icon: '🏠' },
-            { label: 'Products', href: '/products', icon: '📦' },
-            { label: selectedProduct.name, icon: '👁️' },
+            { label: 'Dashboard', href: '/', icon: Home },
+            { label: 'Products', href: '/products', icon: Package },
+            { label: selectedProduct.name, icon: Eye },
           ]}
         />
 
@@ -1137,7 +1128,7 @@ export default function ProductsPage() {
               className="mb-4 px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl transition-all flex items-center gap-2"
               variant="ghost"
             >
-              ← Back to Products List
+              <ChevronLeft className="w-4 h-4" aria-hidden="true" /> Back to Products List
             </Button>
 
             <div className="flex items-start justify-between">
@@ -1162,7 +1153,7 @@ export default function ProductsPage() {
                 <PermissionGate permission={Permission.PRODUCTS_DELETE}>
                   <Button
                     onClick={() => handleDeleteProduct(selectedProduct.id)}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-all"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-error-muted text-error-muted-foreground rounded-xl hover:bg-error/20 transition-all"
                   >
                     <Trash2 className="w-4 h-4" />
                     Delete
@@ -1259,15 +1250,15 @@ export default function ProductsPage() {
               <Card className="border-border/50">
                 <CardHeader className="border-b border-border bg-gradient-to-r from-green-50 to-emerald-50">
                   <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-                    <span className="w-5 h-5 flex items-center justify-center font-bold text-lg text-green-600">{getCurrencySymbol(storeCurrency)}</span>
+                    <span className="w-5 h-5 flex items-center justify-center font-bold text-lg text-success">{getCurrencySymbol(storeCurrency)}</span>
                     Pricing
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="grid grid-cols-3 gap-6">
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
+                    <div className="bg-success-muted rounded-xl p-4 border border-success/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Selling Price</p>
-                      <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                      <p className="text-2xl font-bold text-success">
                         {formatCurrency(selectedProduct.price, selectedProduct.currencyCode || storeCurrency)}
                       </p>
                     </div>
@@ -1302,7 +1293,7 @@ export default function ProductsPage() {
               <Card className="border-border/50">
                 <CardHeader className="border-b border-border bg-gradient-to-r from-amber-50 to-yellow-50">
                   <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-                    <Package className="w-5 h-5 text-amber-600" />
+                    <Package className="w-5 h-5 text-warning" />
                     Inventory & Shipping
                   </CardTitle>
                 </CardHeader>
@@ -1312,13 +1303,13 @@ export default function ProductsPage() {
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Stock Quantity</p>
                       <p className="text-2xl font-bold text-primary">{selectedProduct.quantity || 0}</p>
                     </div>
-                    <div className="bg-gradient-to-br from-amber-50 to-yellow-50 rounded-xl p-4 border border-amber-100">
+                    <div className="bg-warning-muted rounded-xl p-4 border border-warning/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Low Stock Alert</p>
-                      <p className="text-2xl font-bold text-amber-600">{selectedProduct.lowStockThreshold || 0}</p>
+                      <p className="text-2xl font-bold text-warning">{selectedProduct.lowStockThreshold || 0}</p>
                     </div>
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border border-green-100">
+                    <div className="bg-success-muted rounded-xl p-4 border border-success/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Min Order</p>
-                      <p className="text-2xl font-bold text-green-600">{selectedProduct.minOrderQty || 1}</p>
+                      <p className="text-2xl font-bold text-success">{selectedProduct.minOrderQty || 1}</p>
                     </div>
                     <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-4 border border-violet-100">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Max Order</p>
@@ -1347,12 +1338,12 @@ export default function ProductsPage() {
                       <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                         {selectedProduct.warehouseName && (
                           <span className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-200">
-                            <span>🏭</span> {selectedProduct.warehouseName}
+                            <Warehouse className="w-4 h-4 inline-block" aria-hidden="true" /> {selectedProduct.warehouseName}
                           </span>
                         )}
                         {selectedProduct.supplierName && (
                           <span className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg border border-purple-200">
-                            <span>🚚</span> {selectedProduct.supplierName}
+                            <Truck className="w-4 h-4 inline-block" aria-hidden="true" /> {selectedProduct.supplierName}
                           </span>
                         )}
                       </div>
@@ -1393,8 +1384,8 @@ export default function ProductsPage() {
                   </CardHeader>
                   <CardContent className="p-6">
                     <div className="text-center">
-                      <p className="text-4xl font-bold text-amber-500 mb-2">
-                        ⭐ {selectedProduct.averageRating?.toFixed(1) || '0.0'}
+                      <p className="text-4xl font-bold text-warning mb-2">
+                        <Star className="w-4 h-4 fill-warning text-warning inline-block" aria-hidden="true" /> {selectedProduct.averageRating?.toFixed(1) || '0.0'}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         Based on {selectedProduct.reviewCount || 0} reviews
@@ -1465,9 +1456,9 @@ export default function ProductsPage() {
         {/* Breadcrumbs */}
         <Breadcrumbs
           items={[
-            { label: 'Dashboard', href: '/', icon: '🏠' },
-            { label: 'Products', href: '/products', icon: '📦' },
-            { label: viewMode === 'create' ? 'Create' : 'Edit', icon: '✏️' },
+            { label: 'Dashboard', href: '/', icon: Home },
+            { label: 'Products', href: '/products', icon: Package },
+            { label: viewMode === 'create' ? 'Create' : 'Edit', icon: Edit },
           ]}
         />
 
@@ -1479,7 +1470,7 @@ export default function ProductsPage() {
                 className="mb-4 px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl transition-all flex items-center gap-2"
                 variant="ghost"
               >
-                ← Back to Products List
+                <ChevronLeft className="w-4 h-4" aria-hidden="true" /> Back to Products List
               </Button>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
                 {viewMode === 'create' ? 'Create New Product' : `Edit Product: ${selectedProduct?.name}`}
@@ -1510,7 +1501,7 @@ export default function ProductsPage() {
                   <div className="space-y-6">
                     <div className="mb-6">
                       <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                        <span className="text-3xl">📋</span>
+                        <ClipboardList className="w-8 h-8" aria-hidden="true" />
                         Basic Information
                       </h2>
                       <p className="text-muted-foreground mt-1">Enter the core details about your product</p>
@@ -1519,10 +1510,10 @@ export default function ProductsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-sm font-bold text-foreground mb-3">
-                          Product Name <span className="text-red-500">*</span>
+                          Product Name <span className="text-error">*</span>
                         </label>
                         <div className="relative">
-                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-lg">📦</div>
+                          <Package className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" aria-hidden="true" />
                           <input
                             type="text"
                             value={formData.name}
@@ -1530,14 +1521,14 @@ export default function ProductsPage() {
                             className={cn(
                               "w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium shadow-sm",
                               errors.name
-                                ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                                ? "border-error focus:ring-error focus:border-error"
                                 : "border-border focus:ring-ring focus:border-primary"
                             )}
                             placeholder="e.g., iPhone 15 Pro Max"
                           />
                         </div>
                         {errors.name && (
-                          <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                          <div className="flex items-center gap-1 mt-1 text-error text-sm">
                             <AlertCircle className="h-4 w-4" />
                             <span>{errors.name}</span>
                           </div>
@@ -1546,7 +1537,7 @@ export default function ProductsPage() {
 
                       <div>
                         <label className="block text-sm font-bold text-foreground mb-3">
-                          SKU <span className="text-red-500">*</span>
+                          SKU <span className="text-error">*</span>
                         </label>
                         <div className="relative">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none font-mono text-sm">#</div>
@@ -1557,14 +1548,14 @@ export default function ProductsPage() {
                             className={cn(
                               "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-mono font-medium shadow-sm",
                               errors.sku
-                                ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                                ? "border-error focus:ring-error focus:border-error"
                                 : "border-border focus:ring-violet-500 focus:border-violet-500"
                             )}
                             placeholder="APL-IP15PM-256"
                           />
                         </div>
                         {errors.sku ? (
-                          <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                          <div className="flex items-center gap-1 mt-1 text-error text-sm">
                             <AlertCircle className="h-4 w-4" />
                             <span>{errors.sku}</span>
                           </div>
@@ -1578,7 +1569,7 @@ export default function ProductsPage() {
                       <div>
                         <label className="block text-sm font-bold text-foreground mb-3">Brand</label>
                         <div className="relative">
-                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-lg">🏷️</div>
+                          <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" aria-hidden="true" />
                           <input
                             type="text"
                             value={formData.brand}
@@ -1619,7 +1610,7 @@ export default function ProductsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="relative">
                         <label className="block text-sm font-bold text-foreground mb-3">
-                          Category <span className="text-red-500">*</span>
+                          Category <span className="text-error">*</span>
                         </label>
                         <div className="relative">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
@@ -1707,7 +1698,7 @@ export default function ProductsPage() {
                                     type="button"
                                     onClick={() => handleCreateCategory(categorySearchQuery)}
                                     disabled={creatingCategory}
-                                    className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-green-50 transition-colors border-t border-border text-green-700"
+                                    className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-success-muted transition-colors border-t border-border text-success"
                                   >
                                     {creatingCategory ? (
                                       <Loader2 className="w-4 h-4 animate-spin" />
@@ -1755,7 +1746,7 @@ export default function ProductsPage() {
                     <div>
                       <label className="block text-sm font-bold text-foreground mb-3">Search Keywords</label>
                       <div className="relative">
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-lg">🔍</div>
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" aria-hidden="true" />
                         <input
                           type="text"
                           value={formData.searchKeywords}
@@ -1774,7 +1765,7 @@ export default function ProductsPage() {
                   <div className="space-y-6">
                     <div className="mb-6">
                       <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                        <span className="text-3xl">💰</span>
+                        <DollarSign className="w-8 h-8" aria-hidden="true" />
                         Pricing Information
                       </h2>
                       <p className="text-muted-foreground mt-1">Set your product pricing and calculate margins</p>
@@ -1783,7 +1774,7 @@ export default function ProductsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                       <div>
                         <label className="block text-sm font-bold text-foreground mb-3">
-                          Selling Price <span className="text-red-500">*</span>
+                          Selling Price <span className="text-error">*</span>
                         </label>
                         <div className="relative">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none font-semibold">{getCurrencySymbol(formData.currencyCode || storeCurrency)}</div>
@@ -1795,14 +1786,14 @@ export default function ProductsPage() {
                             className={cn(
                               "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium shadow-sm",
                               errors.price
-                                ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                                : "border-border focus:ring-green-500 focus:border-green-500"
+                                ? "border-error focus:ring-error focus:border-error"
+                                : "border-border focus:ring-success focus:border-success"
                             )}
                             placeholder="0.00"
                           />
                         </div>
                         {errors.price ? (
-                          <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                          <div className="flex items-center gap-1 mt-1 text-error text-sm">
                             <AlertCircle className="h-4 w-4" />
                             <span>{errors.price}</span>
                           </div>
@@ -1823,14 +1814,14 @@ export default function ProductsPage() {
                             className={cn(
                               "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium shadow-sm",
                               errors.comparePrice
-                                ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                                ? "border-error focus:ring-error focus:border-error"
                                 : "border-border focus:ring-ring focus:border-primary"
                             )}
                             placeholder="0.00"
                           />
                         </div>
                         {errors.comparePrice ? (
-                          <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                          <div className="flex items-center gap-1 mt-1 text-error text-sm">
                             <AlertCircle className="h-4 w-4" />
                             <span>{errors.comparePrice}</span>
                           </div>
@@ -1851,14 +1842,14 @@ export default function ProductsPage() {
                             className={cn(
                               "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium shadow-sm",
                               errors.costPrice
-                                ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                                ? "border-error focus:ring-error focus:border-error"
                                 : "border-border focus:ring-orange-500 focus:border-orange-500"
                             )}
                             placeholder="0.00"
                           />
                         </div>
                         {errors.costPrice ? (
-                          <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                          <div className="flex items-center gap-1 mt-1 text-error text-sm">
                             <AlertCircle className="h-4 w-4" />
                             <span>{errors.costPrice}</span>
                           </div>
@@ -1868,9 +1859,9 @@ export default function ProductsPage() {
                       </div>
                     </div>
 
-                    <div className="flex items-center p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border-2 border-green-200">
+                    <div className="flex items-center p-6 bg-success-muted rounded-xl border-2 border-success/30">
                       <div className="text-sm w-full">
-                        <p className="font-bold text-foreground mb-2">💹 Profit Margin</p>
+                        <p className="font-bold text-foreground mb-2 flex items-center gap-1"><TrendingUp className="w-4 h-4" aria-hidden="true" /> Profit Margin</p>
                         <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
                           {formData.price && formData.costPrice
                             ? formatCurrency(parseFloat(formData.price) - parseFloat(formData.costPrice), formData.currencyCode || storeCurrency)
@@ -1891,7 +1882,7 @@ export default function ProductsPage() {
                   <div className="space-y-6">
                     <div className="mb-6">
                       <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                        <span className="text-3xl">📦</span>
+                        <Package className="w-8 h-8" aria-hidden="true" />
                         Inventory & Shipping
                       </h2>
                       <p className="text-muted-foreground mt-1">Manage stock levels and physical properties</p>
@@ -1901,7 +1892,7 @@ export default function ProductsPage() {
                       <div>
                         <label className="block text-sm font-bold text-foreground mb-3">Stock Quantity</label>
                         <div className="relative">
-                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-lg">📦</div>
+                          <Package className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" aria-hidden="true" />
                           <input
                             type="number"
                             value={formData.quantity}
@@ -1909,14 +1900,14 @@ export default function ProductsPage() {
                             className={cn(
                               "w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium shadow-sm",
                               errors.quantity
-                                ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                                ? "border-error focus:ring-error focus:border-error"
                                 : "border-border focus:ring-ring focus:border-primary"
                             )}
                             placeholder="0"
                           />
                         </div>
                         {errors.quantity && (
-                          <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                          <div className="flex items-center gap-1 mt-1 text-error text-sm">
                             <AlertCircle className="h-4 w-4" />
                             <span>{errors.quantity}</span>
                           </div>
@@ -1948,12 +1939,12 @@ export default function ProductsPage() {
                       <div>
                         <label className="block text-sm font-bold text-foreground mb-3">Low Stock Alert</label>
                         <div className="relative">
-                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-lg">⚠️</div>
+                          <AlertTriangle className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" aria-hidden="true" />
                           <input
                             type="number"
                             value={formData.lowStockThreshold}
                             onChange={(e) => setFormData({ ...formData, lowStockThreshold: parseInt(e.target.value) || 10 })}
-                            className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all bg-white hover:border-border font-medium shadow-sm"
+                            className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-warning focus:border-warning transition-all bg-white hover:border-border font-medium shadow-sm"
                             placeholder="10"
                           />
                         </div>
@@ -1964,7 +1955,7 @@ export default function ProductsPage() {
                       <div>
                         <label className="block text-sm font-bold text-foreground mb-3">Weight</label>
                         <div className="relative">
-                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-lg">⚖️</div>
+                          <Scale className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" aria-hidden="true" />
                           <input
                             type="text"
                             value={formData.weight}
@@ -1978,7 +1969,7 @@ export default function ProductsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-bold text-foreground mb-3">📏 Dimensions (L × W × H)</label>
+                      <label className="block text-sm font-bold text-foreground mb-3 flex items-center gap-1"><Ruler className="w-4 h-4" aria-hidden="true" /> Dimensions (L × W × H)</label>
                       <div className="grid grid-cols-4 gap-4">
                         <div>
                           <input
@@ -2035,7 +2026,7 @@ export default function ProductsPage() {
                         <div>
                           <label className="block text-sm font-bold text-foreground mb-3">Warehouse</label>
                           <div className="relative">
-                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-lg">🏭</div>
+                            <Warehouse className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" aria-hidden="true" />
                             <input
                               type="text"
                               value={formData.warehouseName || ''}
@@ -2050,7 +2041,7 @@ export default function ProductsPage() {
                         <div>
                           <label className="block text-sm font-bold text-foreground mb-3">Supplier</label>
                           <div className="relative">
-                            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-lg">🚚</div>
+                            <Truck className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" aria-hidden="true" />
                             <input
                               type="text"
                               value={formData.supplierName || ''}
@@ -2071,7 +2062,7 @@ export default function ProductsPage() {
                   <div className="space-y-6">
                     <div className="mb-6">
                       <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                        <span className="text-3xl">🖼️</span>
+                        <Images className="w-8 h-8" aria-hidden="true" />
                         Media & Tags
                       </h2>
                       <p className="text-muted-foreground mt-1">Add images and tags to make your product discoverable</p>
@@ -2080,12 +2071,12 @@ export default function ProductsPage() {
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <label className="block text-sm font-bold text-foreground">Product Images</label>
-                        <span className="text-xs px-2 py-1 bg-amber-100 text-amber-700 rounded-lg font-medium">
+                        <span className="text-xs px-2 py-1 bg-warning-muted text-warning-muted-foreground rounded-lg font-medium">
                           {primaryImageCount}/{MAX_PRIMARY_IMAGES} Primary Selected
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground mb-3">
-                        Click the <Star className="h-3 w-3 inline text-amber-500" /> star to mark up to 3 primary images. Primary images are featured prominently in the storefront.
+                        Click the <Star className="h-3 w-3 inline text-warning" /> star to mark up to 3 primary images. Primary images are featured prominently in the storefront.
                       </p>
 
                       {/* Uploaded Images Grid */}
@@ -2096,7 +2087,7 @@ export default function ProductsPage() {
                               key={img.id}
                               className={cn(
                                 "relative group aspect-square rounded-xl overflow-hidden border-2 bg-muted",
-                                img.isPrimary ? "border-amber-500 ring-2 ring-amber-100" : "border-border"
+                                img.isPrimary ? "border-warning ring-2 ring-warning/20" : "border-border"
                               )}
                             >
                               <img
@@ -2108,7 +2099,7 @@ export default function ProductsPage() {
                               {/* Primary Badge */}
                               <div className="absolute top-2 left-2 flex items-center gap-1">
                                 {img.isPrimary ? (
-                                  <span className="px-2 py-1 bg-amber-500 text-white text-xs rounded-lg font-semibold flex items-center gap-1">
+                                  <span className="px-2 py-1 bg-warning text-warning-foreground text-xs rounded-lg font-semibold flex items-center gap-1">
                                     <Star className="h-3 w-3 fill-current" /> Primary
                                   </span>
                                 ) : (
@@ -2128,10 +2119,10 @@ export default function ProductsPage() {
                                   className={cn(
                                     "p-1.5 rounded-full shadow-md transition-colors",
                                     img.isPrimary
-                                      ? "bg-amber-500 text-white hover:bg-amber-600"
+                                      ? "bg-warning text-warning-foreground hover:bg-warning/90"
                                       : primaryImageCount >= MAX_PRIMARY_IMAGES
-                                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                                        : "bg-white text-foreground hover:bg-amber-50 hover:text-amber-600"
+                                        ? "bg-neutral-muted text-neutral-muted-foreground cursor-not-allowed"
+                                        : "bg-white text-foreground hover:bg-warning-muted hover:text-warning"
                                   )}
                                   title={img.isPrimary ? "Remove from primary" : primaryImageCount >= MAX_PRIMARY_IMAGES ? "Max 3 primary images" : "Mark as primary"}
                                 >
@@ -2163,7 +2154,7 @@ export default function ProductsPage() {
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveImage(img.id)}
-                                  className="p-1.5 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition-colors"
+                                  className="p-1.5 bg-error text-error-foreground rounded-full shadow-md hover:bg-error/90 transition-colors"
                                   title="Remove image"
                                 >
                                   <X className="h-4 w-4" />
@@ -2182,13 +2173,13 @@ export default function ProductsPage() {
                       {/* Upload Area */}
                       {!selectedProduct ? (
                         // Create mode - show message to save first
-                        <div className="border-2 border-dashed border-yellow-300 rounded-xl p-8 text-center bg-yellow-50/50">
-                          <AlertTriangle className="h-12 w-12 text-yellow-500 mx-auto mb-4" />
-                          <p className="text-lg text-yellow-700 font-bold mb-2">Save Product First</p>
-                          <p className="text-sm text-yellow-600 mb-4">
+                        <div className="border-2 border-dashed border-warning/50 rounded-xl p-8 text-center bg-warning-muted">
+                          <AlertTriangle className="h-12 w-12 text-warning mx-auto mb-4" />
+                          <p className="text-lg text-warning-muted-foreground font-bold mb-2">Save Product First</p>
+                          <p className="text-sm text-warning-muted-foreground mb-4">
                             Please complete the product details and save the product before uploading images.
                           </p>
-                          <p className="text-xs text-yellow-600">
+                          <p className="text-xs text-warning-muted-foreground">
                             This ensures images are properly organized with your product.
                           </p>
                         </div>
@@ -2244,7 +2235,7 @@ export default function ProductsPage() {
                     <div>
                       <label className="block text-sm font-bold text-foreground mb-3">Product Tags</label>
                       <div className="relative">
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none text-lg">🏷️</div>
+                        <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" aria-hidden="true" />
                         <input
                           type="text"
                           value={tagInput}
@@ -2297,11 +2288,11 @@ export default function ProductsPage() {
                         <div className="mt-4 flex flex-wrap gap-2">
                           {formData.tags.map((tag, index) => (
                             <span key={index} className="px-4 py-2 bg-gradient-to-r from-blue-100 to-violet-100 text-primary rounded-full text-sm font-semibold flex items-center gap-2 border border-primary/30 shadow-sm">
-                              🏷️ {tag}
+                              <Tag className="w-3 h-3 inline-block" aria-hidden="true" /> {tag}
                               <button
                                 type="button"
                                 onClick={() => setFormData({ ...formData, tags: (formData.tags as string[]).filter((_, i) => i !== index) })}
-                                className="hover:text-red-600 font-bold text-lg transition-colors ml-1"
+                                className="hover:text-error font-bold text-lg transition-colors ml-1"
                               >
                                 ×
                               </button>
@@ -2318,7 +2309,7 @@ export default function ProductsPage() {
                   <div className="space-y-6">
                     <div className="mb-6">
                       <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                        <span className="text-3xl">✅</span>
+                        <CheckCircle className="w-8 h-8 text-success" aria-hidden="true" />
                         Review & Confirm
                       </h2>
                       <p className="text-muted-foreground mt-1">Review all product details before saving</p>
@@ -2343,7 +2334,7 @@ export default function ProductsPage() {
 
                         <div>
                           <p className="text-sm font-bold text-muted-foreground mb-2">Price</p>
-                          <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                          <p className="text-2xl font-bold text-success">
                             {formatCurrency(formData.price || 0, formData.currencyCode || storeCurrency)}
                           </p>
                           {formData.comparePrice && (
@@ -2365,7 +2356,7 @@ export default function ProductsPage() {
                           <div>
                             <p className="text-sm font-bold text-muted-foreground mb-2">Warehouse</p>
                             <p className="text-lg font-semibold text-foreground flex items-center gap-2">
-                              <span className="text-lg">🏭</span> {formData.warehouseName}
+                              <Warehouse className="w-5 h-5 inline-block" aria-hidden="true" /> {formData.warehouseName}
                             </p>
                           </div>
                         )}
@@ -2374,7 +2365,7 @@ export default function ProductsPage() {
                           <div>
                             <p className="text-sm font-bold text-muted-foreground mb-2">Supplier</p>
                             <p className="text-lg font-semibold text-foreground flex items-center gap-2">
-                              <span className="text-lg">🚚</span> {formData.supplierName}
+                              <Truck className="w-5 h-5 inline-block" aria-hidden="true" /> {formData.supplierName}
                             </p>
                           </div>
                         )}
@@ -2399,9 +2390,9 @@ export default function ProductsPage() {
                       </div>
                     </div>
 
-                    <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-6">
-                      <p className="text-amber-800 font-semibold flex items-center gap-2">
-                        <span className="text-xl">💡</span>
+                    <div className="bg-warning-muted border-2 border-warning/30 rounded-xl p-6">
+                      <p className="text-warning-muted-foreground font-semibold flex items-center gap-2">
+                        <Lightbulb className="w-5 h-5" aria-hidden="true" />
                         You can edit these details anytime after creating the product
                       </p>
                     </div>
@@ -2438,8 +2429,8 @@ export default function ProductsPage() {
         {/* Breadcrumbs */}
         <Breadcrumbs
           items={[
-            { label: 'Dashboard', href: '/', icon: '🏠' },
-            { label: 'Products', icon: '📦' },
+            { label: 'Dashboard', href: '/', icon: Home },
+            { label: 'Products', icon: Package },
           ]}
         />
 
@@ -2486,17 +2477,17 @@ export default function ProductsPage() {
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-6 bg-gradient-to-r from-red-50 to-rose-50 border-2 border-red-200 rounded-xl p-4 flex justify-between items-center">
+          <div className="mb-6 bg-error-muted border-2 border-error/30 rounded-xl p-4 flex justify-between items-center">
             <div className="flex items-center">
-              <span className="text-2xl mr-3">⚠️</span>
-              <p className="text-red-700 font-semibold">{error}</p>
+              <AlertTriangle className="w-6 h-6 mr-3 text-error" aria-hidden="true" />
+              <p className="text-error font-semibold">{error}</p>
             </div>
             <Button
               onClick={() => setError(null)}
-              className="text-red-700 hover:text-red-900 font-bold text-xl"
+              className="text-error hover:text-error/80 font-bold text-xl"
               variant="ghost"
             >
-              ✕
+              <X className="w-5 h-5" aria-hidden="true" />
             </Button>
           </div>
         )}
@@ -2581,12 +2572,12 @@ export default function ProductsPage() {
                   onChange={(value) => setStatusFilter(value as any)}
                   options={[
                     { value: 'ALL', label: 'All Status', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'ACTIVE', label: 'Active', icon: <CheckCircle2 className="w-4 h-4 text-green-500" /> },
+                    { value: 'ACTIVE', label: 'Active', icon: <CheckCircle2 className="w-4 h-4 text-success" /> },
                     { value: 'DRAFT', label: 'Draft', icon: <FileEdit className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-yellow-500" /> },
-                    { value: 'INACTIVE', label: 'Inactive', icon: <CircleOff className="w-4 h-4 text-red-400" /> },
-                    { value: 'ARCHIVED', label: 'Archived', icon: <Archive className="w-4 h-4 text-purple-500" /> },
-                    { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-red-500" /> },
+                    { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-warning" /> },
+                    { value: 'INACTIVE', label: 'Inactive', icon: <CircleOff className="w-4 h-4 text-error" /> },
+                    { value: 'ARCHIVED', label: 'Archived', icon: <Archive className="w-4 h-4 text-neutral" /> },
+                    { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-error" /> },
                   ]}
                   variant="filter"
                 />
@@ -2601,9 +2592,9 @@ export default function ProductsPage() {
                   onChange={(value) => setInventoryStatusFilter(value as any)}
                   options={[
                     { value: 'ALL', label: 'All Inventory', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'IN_STOCK', label: 'In Stock', icon: <PackageCheck className="w-4 h-4 text-green-500" /> },
-                    { value: 'LOW_STOCK', label: 'Low Stock', icon: <AlertTriangle className="w-4 h-4 text-yellow-500" /> },
-                    { value: 'OUT_OF_STOCK', label: 'Out of Stock', icon: <PackageX className="w-4 h-4 text-red-500" /> },
+                    { value: 'IN_STOCK', label: 'In Stock', icon: <PackageCheck className="w-4 h-4 text-success" /> },
+                    { value: 'LOW_STOCK', label: 'Low Stock', icon: <AlertTriangle className="w-4 h-4 text-warning" /> },
+                    { value: 'OUT_OF_STOCK', label: 'Out of Stock', icon: <PackageX className="w-4 h-4 text-error" /> },
                     { value: 'BACK_ORDER', label: 'Back Order', icon: <RotateCcw className="w-4 h-4 text-primary" /> },
                     { value: 'DISCONTINUED', label: 'Discontinued', icon: <Ban className="w-4 h-4 text-muted-foreground" /> },
                   ]}
@@ -2658,7 +2649,7 @@ export default function ProductsPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleBulkStatusChange('ACTIVE')}
-                      className="bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+                      className="bg-success-muted border-success/40 text-success hover:bg-success/20"
                     >
                       <CheckCircle className="w-4 h-4 mr-2" />
                       Approve
@@ -2667,7 +2658,7 @@ export default function ProductsPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleBulkStatusChange('PENDING')}
-                      className="bg-yellow-50 border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+                      className="bg-warning-muted border-warning/40 text-warning hover:bg-warning/20"
                     >
                       <Clock className="w-4 h-4 mr-2" />
                       Pending
@@ -2676,7 +2667,7 @@ export default function ProductsPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleBulkStatusChange('DRAFT')}
-                      className="bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100"
+                      className="bg-neutral-muted border-neutral/40 text-neutral-muted-foreground hover:bg-neutral/20"
                     >
                       <FileEdit className="w-4 h-4 mr-2" />
                       Draft
@@ -2685,7 +2676,7 @@ export default function ProductsPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleBulkStatusChange('ARCHIVED')}
-                      className="bg-slate-50 border-slate-300 text-slate-700 hover:bg-slate-100"
+                      className="bg-neutral-muted border-neutral/40 text-neutral-muted-foreground hover:bg-neutral/20"
                     >
                       <Archive className="w-4 h-4 mr-2" />
                       Archive
@@ -2694,7 +2685,7 @@ export default function ProductsPage() {
                       variant="outline"
                       size="sm"
                       onClick={() => handleBulkStatusChange('REJECTED')}
-                      className="bg-red-50 border-red-300 text-red-600 hover:bg-red-100"
+                      className="bg-error-muted border-error/40 text-error hover:bg-error/20"
                     >
                       <XCircle className="w-4 h-4 mr-2" />
                       Reject
@@ -2706,7 +2697,7 @@ export default function ProductsPage() {
                       variant="destructive"
                       size="sm"
                       onClick={handleBulkDelete}
-                      className="bg-red-600 hover:bg-red-700"
+                      className="bg-error hover:bg-error/90"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Delete Selected
@@ -2827,9 +2818,9 @@ export default function ProductsPage() {
                                 <p className="text-foreground font-semibold text-sm">{product.brand || 'N/A'}</p>
                               </div>
 
-                              <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-3 border border-green-100">
+                              <div className="bg-success-muted rounded-xl p-3 border border-success/20">
                                 <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Price</p>
-                                <p className="text-xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                                <p className="text-xl font-bold text-success">
                                   {formatCurrency(product.price, product.currencyCode || storeCurrency)}
                                 </p>
                                 {product.comparePrice && (
@@ -2842,20 +2833,20 @@ export default function ProductsPage() {
                               <div className={cn(
                                 "rounded-xl p-3 border",
                                 product.lowStockThreshold && (product.quantity || 0) <= product.lowStockThreshold
-                                  ? "bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-200"
-                                  : "bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-100"
+                                  ? "bg-warning-muted border-warning/30"
+                                  : "bg-info-muted border-info/30"
                               )}>
                                 <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Stock</p>
                                 <p className={cn(
                                   "font-bold text-sm",
                                   product.lowStockThreshold && (product.quantity || 0) <= product.lowStockThreshold
-                                    ? "text-amber-700"
-                                    : "text-primary"
+                                    ? "text-warning"
+                                    : "text-info"
                                 )}>
                                   {product.quantity || 0} units
                                 </p>
                                 {product.lowStockThreshold && (product.quantity || 0) <= product.lowStockThreshold && (
-                                  <p className="text-xs text-amber-600 font-medium flex items-center gap-1">
+                                  <p className="text-xs text-warning-muted-foreground font-medium flex items-center gap-1">
                                     <AlertTriangle className="w-3 h-3" /> Low stock
                                   </p>
                                 )}
@@ -2875,13 +2866,13 @@ export default function ProductsPage() {
                                 </span>
                               )}
                               {product.currencyCode && (
-                                <span className="px-2.5 py-1 bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 rounded-lg font-medium border border-green-200">
+                                <span className="px-2.5 py-1 bg-success-muted text-success-muted-foreground rounded-lg font-medium border border-success/30">
                                   {product.currencyCode}
                                 </span>
                               )}
                               {product.averageRating && (
-                                <span className="px-2.5 py-1 bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 rounded-lg font-medium border border-amber-200 flex items-center gap-1">
-                                  ⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})
+                                <span className="px-2.5 py-1 bg-warning-muted text-warning-muted-foreground rounded-lg font-medium border border-warning/30 flex items-center gap-1">
+                                  <Star className="w-3.5 h-3.5 fill-warning text-warning inline-block" aria-hidden="true" /> {product.averageRating.toFixed(1)} ({product.reviewCount})
                                 </span>
                               )}
                             </div>
@@ -2927,11 +2918,11 @@ export default function ProductsPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDeleteProduct(product.id)}
-                                className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                                className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                                 title="Delete"
                                 aria-label="Delete product"
                               >
-                                <Trash2 className="w-4 h-4 text-red-600" aria-hidden="true" />
+                                <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                               </Button>
                             </PermissionGate>
                           </div>

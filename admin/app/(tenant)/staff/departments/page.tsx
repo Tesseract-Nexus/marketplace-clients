@@ -447,11 +447,11 @@ export default function DepartmentsPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => handleCreateTeam(dept.id)}
-                className="h-8 w-8 p-0 rounded-lg bg-green-100 hover:bg-green-200 transition-colors"
+                className="h-8 w-8 p-0 rounded-lg bg-success-muted hover:bg-success/20 transition-colors"
                 title="Add Team"
                 aria-label="Add team"
               >
-                <Plus className="w-4 h-4 text-green-700" aria-hidden="true" />
+                <Plus className="w-4 h-4 text-success" aria-hidden="true" />
               </Button>
             )}
             {canUpdateDepartments && (
@@ -471,11 +471,11 @@ export default function DepartmentsPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => handleDeleteDepartment(dept)}
-                className="h-8 w-8 p-0 rounded-lg bg-red-100 hover:bg-red-200 transition-colors"
+                className="h-8 w-8 p-0 rounded-lg bg-error-muted hover:bg-error/20 transition-colors"
                 title="Delete"
                 aria-label="Delete department"
               >
-                <Trash2 className="w-4 h-4 text-red-700" aria-hidden="true" />
+                <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
               </Button>
             )}
           </div>
@@ -490,8 +490,8 @@ export default function DepartmentsPage() {
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors group ml-6"
               >
                 <div className="w-6" />
-                <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
-                  <Users className="w-4 h-4 text-green-600" />
+                <div className="w-8 h-8 rounded-lg bg-success-muted flex items-center justify-center">
+                  <Users className="w-4 h-4 text-success" />
                 </div>
 
                 <div className="flex-1">
@@ -499,7 +499,7 @@ export default function DepartmentsPage() {
                   {team.code && <p className="text-sm text-muted-foreground">{team.code}</p>}
                 </div>
 
-                <Badge className="bg-green-100 text-green-700">
+                <Badge className="bg-success-muted text-success-muted-foreground">
                   {team.staffCount || 0} members
                 </Badge>
 
@@ -531,11 +531,11 @@ export default function DepartmentsPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDeleteTeam(team)}
-                      className="h-8 w-8 p-0 rounded-lg bg-red-100 hover:bg-red-200 transition-colors"
+                      className="h-8 w-8 p-0 rounded-lg bg-error-muted hover:bg-error/20 transition-colors"
                       title="Delete"
                       aria-label="Delete team"
                     >
-                      <Trash2 className="w-4 h-4 text-red-700" aria-hidden="true" />
+                      <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                     </Button>
                   )}
                 </div>
@@ -611,11 +611,11 @@ export default function DepartmentsPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => handleCreateTeam(dept.id)}
-                className="h-8 w-8 p-0 rounded-lg bg-green-100 hover:bg-green-200 transition-colors"
+                className="h-8 w-8 p-0 rounded-lg bg-success-muted hover:bg-success/20 transition-colors"
                 title="Add Team"
                 aria-label="Add team"
               >
-                <Plus className="w-4 h-4 text-green-700" aria-hidden="true" />
+                <Plus className="w-4 h-4 text-success" aria-hidden="true" />
               </Button>
             )}
             {canUpdateDepartments && (
@@ -635,11 +635,11 @@ export default function DepartmentsPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => handleDeleteDepartment(dept)}
-                className="h-8 w-8 p-0 rounded-lg bg-red-100 hover:bg-red-200 transition-colors"
+                className="h-8 w-8 p-0 rounded-lg bg-error-muted hover:bg-error/20 transition-colors"
                 title="Delete"
                 aria-label="Delete department"
               >
-                <Trash2 className="w-4 h-4 text-red-700" aria-hidden="true" />
+                <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
               </Button>
             )}
           </div>
@@ -654,8 +654,8 @@ export default function DepartmentsPage() {
                 className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors group ml-6"
               >
                 <div className="w-6" />
-                <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
-                  <Users className="w-4 h-4 text-green-600" />
+                <div className="w-8 h-8 rounded-lg bg-success-muted flex items-center justify-center">
+                  <Users className="w-4 h-4 text-success" />
                 </div>
 
                 <div className="flex-1">
@@ -663,7 +663,7 @@ export default function DepartmentsPage() {
                   {team.code && <p className="text-sm text-muted-foreground">{team.code}</p>}
                 </div>
 
-                <Badge className="bg-green-100 text-green-700">
+                <Badge className="bg-success-muted text-success-muted-foreground">
                   {team.staffCount || 0} members
                 </Badge>
 
@@ -695,11 +695,11 @@ export default function DepartmentsPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDeleteTeam(team)}
-                      className="h-8 w-8 p-0 rounded-lg bg-red-100 hover:bg-red-200 transition-colors"
+                      className="h-8 w-8 p-0 rounded-lg bg-error-muted hover:bg-error/20 transition-colors"
                       title="Delete"
                       aria-label="Delete team"
                     >
-                      <Trash2 className="w-4 h-4 text-red-700" aria-hidden="true" />
+                      <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                     </Button>
                   )}
                 </div>
@@ -730,7 +730,7 @@ export default function DepartmentsPage() {
           />
 
           {error && (
-            <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 flex items-center gap-2">
+            <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
               <XCircle className="w-5 h-5" />
               {error}
             </div>
@@ -746,7 +746,7 @@ export default function DepartmentsPage() {
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Department Name <span className="text-red-500">*</span>
+                  Department Name <span className="text-error">*</span>
                 </label>
                 <input
                   type="text"
@@ -841,7 +841,7 @@ export default function DepartmentsPage() {
           />
 
           {error && (
-            <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 flex items-center gap-2">
+            <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
               <XCircle className="w-5 h-5" />
               {error}
             </div>
@@ -850,14 +850,14 @@ export default function DepartmentsPage() {
           <Card className="max-w-2xl mx-auto">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-green-600" />
+                <Users className="w-5 h-5 text-success" />
                 Team Details
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Team Name <span className="text-red-500">*</span>
+                  Team Name <span className="text-error">*</span>
                 </label>
                 <input
                   type="text"
@@ -883,7 +883,7 @@ export default function DepartmentsPage() {
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Department <span className="text-red-500">*</span>
+                  Department <span className="text-error">*</span>
                 </label>
                 <Select
                   value={teamFormData.departmentId}
@@ -992,7 +992,7 @@ export default function DepartmentsPage() {
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Status</p>
-                    <Badge className={selectedDepartment.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+                    <Badge className={selectedDepartment.isActive ? 'bg-success-muted text-success-muted-foreground' : 'bg-error-muted text-error-muted-foreground'}>
                       {selectedDepartment.isActive ? 'Active' : 'Inactive'}
                     </Badge>
                   </div>
@@ -1013,7 +1013,7 @@ export default function DepartmentsPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-green-600" />
+                  <Users className="w-5 h-5 text-success" />
                   Teams ({deptTeams.length})
                 </CardTitle>
               </CardHeader>
@@ -1027,15 +1027,15 @@ export default function DepartmentsPage() {
                         onClick={() => handleViewTeam(team)}
                       >
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
-                            <Users className="w-4 h-4 text-green-600" />
+                          <div className="w-8 h-8 rounded-lg bg-success-muted flex items-center justify-center">
+                            <Users className="w-4 h-4 text-success" />
                           </div>
                           <div>
                             <p className="font-medium">{team.name}</p>
                             {team.code && <p className="text-sm text-muted-foreground">{team.code}</p>}
                           </div>
                         </div>
-                        <Badge className="bg-green-100 text-green-700">
+                        <Badge className="bg-success-muted text-success-muted-foreground">
                           {team.staffCount || 0} members
                         </Badge>
                       </div>
@@ -1091,7 +1091,7 @@ export default function DepartmentsPage() {
           <Card className="max-w-2xl mx-auto">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Users className="w-5 h-5 text-green-600" />
+                <Users className="w-5 h-5 text-success" />
                 Team Details
               </CardTitle>
             </CardHeader>
@@ -1111,7 +1111,7 @@ export default function DepartmentsPage() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Status</p>
-                  <Badge className={selectedTeam.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+                  <Badge className={selectedTeam.isActive ? 'bg-success-muted text-success-muted-foreground' : 'bg-error-muted text-error-muted-foreground'}>
                     {selectedTeam.isActive ? 'Active' : 'Inactive'}
                   </Badge>
                 </div>
@@ -1232,7 +1232,7 @@ export default function DepartmentsPage() {
               {canCreateTeams && (
                 <Button
                   onClick={() => handleOpenImport('teams')}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-green-300 text-green-700 rounded-xl hover:bg-green-50 transition-all"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-success/40 text-success rounded-xl hover:bg-success-muted transition-all"
                 >
                   <Upload className="w-5 h-5" />
                   Import Teams
@@ -1250,7 +1250,7 @@ export default function DepartmentsPage() {
               {canCreateTeams && (
                 <Button
                   onClick={() => handleCreateTeam()}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-all"
                 >
                   <Plus className="w-5 h-5" />
                   Add Team
@@ -1270,7 +1270,7 @@ export default function DepartmentsPage() {
         />
 
         {error && (
-          <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 flex items-center gap-2">
+          <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
             <XCircle className="w-5 h-5" />
             {error}
           </div>
@@ -1294,8 +1294,8 @@ export default function DepartmentsPage() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center">
-                  <Users className="w-6 h-6 text-green-600" />
+                <div className="w-12 h-12 rounded-xl bg-success-muted flex items-center justify-center">
+                  <Users className="w-6 h-6 text-success" />
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Teams</p>
@@ -1412,7 +1412,7 @@ export default function DepartmentsPage() {
                             )}
                           </td>
                           <td className="p-4">
-                            <Badge className="bg-green-100 text-green-700">
+                            <Badge className="bg-success-muted text-success-muted-foreground">
                               {deptTeams.length} teams
                             </Badge>
                           </td>
@@ -1423,7 +1423,7 @@ export default function DepartmentsPage() {
                             </Badge>
                           </td>
                           <td className="p-4">
-                            <Badge className={dept.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+                            <Badge className={dept.isActive ? 'bg-success-muted text-success-muted-foreground' : 'bg-error-muted text-error-muted-foreground'}>
                               {dept.isActive ? 'Active' : 'Inactive'}
                             </Badge>
                           </td>
@@ -1444,11 +1444,11 @@ export default function DepartmentsPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleCreateTeam(dept.id)}
-                                  className="h-8 w-8 p-0 rounded-lg bg-green-100 hover:bg-green-200 transition-colors"
+                                  className="h-8 w-8 p-0 rounded-lg bg-success-muted hover:bg-success/20 transition-colors"
                                   title="Add Team"
                                   aria-label="Add team"
                                 >
-                                  <Plus className="w-4 h-4 text-green-700" aria-hidden="true" />
+                                  <Plus className="w-4 h-4 text-success" aria-hidden="true" />
                                 </Button>
                               )}
                               {canUpdateDepartments && (
@@ -1468,11 +1468,11 @@ export default function DepartmentsPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleDeleteDepartment(dept)}
-                                  className="h-8 w-8 p-0 rounded-lg bg-red-100 hover:bg-red-200 transition-colors"
+                                  className="h-8 w-8 p-0 rounded-lg bg-error-muted hover:bg-error/20 transition-colors"
                                   title="Delete"
                                   aria-label="Delete department"
                                 >
-                                  <Trash2 className="w-4 h-4 text-red-700" aria-hidden="true" />
+                                  <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                                 </Button>
                               )}
                             </div>

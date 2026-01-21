@@ -151,7 +151,7 @@ export function CreateDepartmentModal({
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-1.5">
-              Department Name <span className="text-red-500">*</span>
+              Department Name <span className="text-error">*</span>
             </label>
             <input
               type="text"
@@ -168,7 +168,7 @@ export function CreateDepartmentModal({
               disabled={isSubmitting}
             />
             {errors.name && (
-              <p className="text-red-500 text-xs mt-1">{errors.name}</p>
+              <p className="text-error text-xs mt-1">{errors.name}</p>
             )}
           </div>
 

@@ -57,30 +57,30 @@ export function SecuritySettingsTab() {
     <div className="space-y-6">
       {/* Security Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="bg-success-muted border border-success/30 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
-            <CheckCircle className="h-5 w-5 text-green-600" />
-            <span className="font-semibold text-green-800">PCI Compliant</span>
+            <CheckCircle className="h-5 w-5 text-success" />
+            <span className="font-semibold text-success-muted-foreground">PCI Compliant</span>
           </div>
-          <p className="text-sm text-green-700">
+          <p className="text-sm text-success">
             Card data is handled by certified payment gateways
           </p>
         </div>
 
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="bg-success-muted border border-success/30 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Lock className="h-5 w-5 text-green-600" />
-            <span className="font-semibold text-green-800">TLS Encryption</span>
+            <Lock className="h-5 w-5 text-success" />
+            <span className="font-semibold text-success-muted-foreground">TLS Encryption</span>
           </div>
-          <p className="text-sm text-green-700">All API calls use TLS 1.2+</p>
+          <p className="text-sm text-success">All API calls use TLS 1.2+</p>
         </div>
 
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="bg-success-muted border border-success/30 rounded-lg p-4">
           <div className="flex items-center gap-2 mb-2">
-            <Shield className="h-5 w-5 text-green-600" />
-            <span className="font-semibold text-green-800">Webhook Verification</span>
+            <Shield className="h-5 w-5 text-success" />
+            <span className="font-semibold text-success-muted-foreground">Webhook Verification</span>
           </div>
-          <p className="text-sm text-green-700">All webhooks are signature verified</p>
+          <p className="text-sm text-success">All webhooks are signature verified</p>
         </div>
       </div>
 

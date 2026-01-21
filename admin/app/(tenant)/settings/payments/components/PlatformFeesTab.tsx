@@ -105,7 +105,7 @@ export function PlatformFeesTab() {
           <div className="bg-card rounded-lg border border-border p-4 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-muted-foreground">Total Collected</span>
-              <TrendingUp className="h-4 w-4 text-green-600" />
+              <TrendingUp className="h-4 w-4 text-success" />
             </div>
             <p className="text-2xl font-bold text-foreground">{formatCurrency(summary.totalCollected)}</p>
             <p className="text-xs text-muted-foreground mt-1">{summary.collectionCount} transactions</p>
@@ -114,7 +114,7 @@ export function PlatformFeesTab() {
           <div className="bg-card rounded-lg border border-border p-4 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-muted-foreground">Total Refunded</span>
-              <TrendingDown className="h-4 w-4 text-red-600" />
+              <TrendingDown className="h-4 w-4 text-error" />
             </div>
             <p className="text-2xl font-bold text-foreground">{formatCurrency(summary.totalRefunded)}</p>
             <p className="text-xs text-muted-foreground mt-1">{summary.refundCount} refunds</p>
@@ -134,7 +134,7 @@ export function PlatformFeesTab() {
               <span className="text-sm text-muted-foreground">Net Fees</span>
               <DollarSign className="h-4 w-4 text-primary" />
             </div>
-            <p className="text-2xl font-bold text-green-600">{formatCurrency(summary.netFees)}</p>
+            <p className="text-2xl font-bold text-success">{formatCurrency(summary.netFees)}</p>
             <p className="text-xs text-muted-foreground mt-1">Last 30 days</p>
           </div>
         </div>
@@ -322,12 +322,12 @@ export function PlatformFeesTab() {
                   <div
                     className={`w-2 h-2 rounded-full ${
                       entry.status === 'collected'
-                        ? 'bg-green-500'
+                        ? 'bg-success'
                         : entry.status === 'pending'
-                        ? 'bg-amber-500'
+                        ? 'bg-warning'
                         : entry.status === 'refunded'
                         ? 'bg-primary'
-                        : 'bg-red-500'
+                        : 'bg-error'
                     }`}
                   />
                   <span className="text-sm font-medium text-foreground">
@@ -339,7 +339,7 @@ export function PlatformFeesTab() {
                 </div>
                 <span
                   className={`text-sm font-semibold ${
-                    entry.amount >= 0 ? 'text-green-600' : 'text-red-600'
+                    entry.amount >= 0 ? 'text-success' : 'text-error'
                   }`}
                 >
                   {entry.amount >= 0 ? '+' : ''}
@@ -394,11 +394,11 @@ function FeeCalculator({ platformFeePercent }: { platformFeePercent: number }) {
         </div>
         <div className="border-t pt-2 flex justify-between text-sm">
           <span className="text-muted-foreground">Total Fees</span>
-          <span className="font-medium text-red-600">${totalFees.toFixed(2)}</span>
+          <span className="font-medium text-error">${totalFees.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-sm font-bold">
           <span className="text-foreground">Merchant Receives</span>
-          <span className="text-green-600">${merchantReceives.toFixed(2)}</span>
+          <span className="text-success">${merchantReceives.toFixed(2)}</span>
         </div>
       </div>
     </div>

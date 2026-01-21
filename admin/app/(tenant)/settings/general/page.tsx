@@ -327,20 +327,20 @@ function CompletenessIndicator({
     <div
       className={`rounded-xl border p-4 ${
         isComplete
-          ? 'bg-green-50 border-green-200'
+          ? 'bg-success-muted border-success/30'
           : 'bg-amber-50 border-amber-200'
       }`}
     >
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           {isComplete ? (
-            <CheckCircle2 className="h-5 w-5 text-green-600" />
+            <CheckCircle2 className="h-5 w-5 text-success" />
           ) : (
             <AlertCircle className="h-5 w-5 text-amber-600" />
           )}
           <span
             className={`font-semibold ${
-              isComplete ? 'text-green-800' : 'text-amber-800'
+              isComplete ? 'text-success' : 'text-amber-800'
             }`}
           >
             {isComplete ? 'Setup Complete' : 'Setup Progress'}
@@ -348,7 +348,7 @@ function CompletenessIndicator({
         </div>
         <span
           className={`text-sm font-bold ${
-            isComplete ? 'text-green-700' : 'text-amber-700'
+            isComplete ? 'text-success' : 'text-amber-700'
           }`}
         >
           {percentage}%
@@ -359,7 +359,7 @@ function CompletenessIndicator({
       <div className="h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
         <div
           className={`h-full transition-all duration-500 ${
-            isComplete ? 'bg-green-500' : 'bg-amber-500'
+            isComplete ? 'bg-success' : 'bg-amber-500'
           }`}
           style={{ width: `${percentage}%` }}
         />
@@ -508,7 +508,7 @@ function CreateStorefrontModal({
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-foreground mb-2">
-                Store Name <span className="text-red-500">*</span>
+                Store Name <span className="text-error">*</span>
               </label>
               <Input
                 value={name}
@@ -536,7 +536,7 @@ function CreateStorefrontModal({
 
             {/* Error */}
             {error && (
-              <div className="bg-red-50 text-red-700 text-sm px-3 py-2 rounded-lg border border-red-200">
+              <div className="bg-error-muted text-error text-sm px-3 py-2 rounded-lg border border-error/30">
                 {error}
               </div>
             )}
@@ -1256,24 +1256,24 @@ export default function GeneralSettingsPage() {
                 {/* Status Indicator */}
                 <div className={`p-4 rounded-lg border ${
                   selectedStorefront?.isActive
-                    ? 'bg-green-50 border-green-200'
+                    ? 'bg-success-muted border-success/30'
                     : 'bg-amber-50 border-amber-200'
                 }`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       {selectedStorefront?.isActive ? (
-                        <CheckCircle2 className="h-6 w-6 text-green-600" />
+                        <CheckCircle2 className="h-6 w-6 text-success" />
                       ) : (
                         <AlertCircle className="h-6 w-6 text-amber-600" />
                       )}
                       <div>
                         <p className={`font-semibold ${
-                          selectedStorefront?.isActive ? 'text-green-800' : 'text-amber-800'
+                          selectedStorefront?.isActive ? 'text-success' : 'text-amber-800'
                         }`}>
                           {selectedStorefront?.isActive ? 'Published' : 'Unpublished'}
                         </p>
                         <p className={`text-sm ${
-                          selectedStorefront?.isActive ? 'text-green-700' : 'text-amber-700'
+                          selectedStorefront?.isActive ? 'text-success' : 'text-amber-700'
                         }`}>
                           {selectedStorefront?.isActive
                             ? 'Your store is live and visible to customers'
@@ -1383,7 +1383,7 @@ export default function GeneralSettingsPage() {
                 <div data-field="store.name" className="md:col-span-2">
                   <label className="block text-sm font-semibold text-foreground mb-2">
                     <Store className="h-4 w-4 inline mr-1" />
-                    Store Name <span className="text-red-500">*</span>
+                    Store Name <span className="text-error">*</span>
                   </label>
                   <Input
                     value={settings.store.name}
@@ -1400,7 +1400,7 @@ export default function GeneralSettingsPage() {
                 <div data-field="store.email">
                   <label className="block text-sm font-semibold text-foreground mb-2">
                     <Mail className="h-4 w-4 inline mr-1" />
-                    Email <span className="text-red-500">*</span>
+                    Email <span className="text-error">*</span>
                   </label>
                   <Input
                     type="email"
@@ -1418,7 +1418,7 @@ export default function GeneralSettingsPage() {
                 <div data-field="store.phone">
                   <label className="block text-sm font-semibold text-foreground mb-2">
                     <Phone className="h-4 w-4 inline mr-1" />
-                    Phone <span className="text-red-500">*</span>
+                    Phone <span className="text-error">*</span>
                   </label>
                   <PhoneInput
                     value={settings.store.phone}
@@ -1500,7 +1500,7 @@ export default function GeneralSettingsPage() {
                 <div data-field="store.country">
                   <label className="block text-sm font-semibold text-foreground mb-2">
                     <Globe className="h-4 w-4 inline mr-1" />
-                    Country <span className="text-red-500">*</span>
+                    Country <span className="text-error">*</span>
                   </label>
                   <Select
                     value={settings.store.countryCode}
@@ -1535,7 +1535,7 @@ export default function GeneralSettingsPage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-green-600" />
+                  <DollarSign className="h-6 w-6 text-success" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">Regional Settings</h3>
@@ -1547,7 +1547,7 @@ export default function GeneralSettingsPage() {
                 <div data-field="business.currency">
                   <label className="block text-sm font-semibold text-foreground mb-2">
                     <DollarSign className="h-4 w-4 inline mr-1" />
-                    Currency <span className="text-red-500">*</span>
+                    Currency <span className="text-error">*</span>
                   </label>
                   <Select
                     value={settings.business.currency}

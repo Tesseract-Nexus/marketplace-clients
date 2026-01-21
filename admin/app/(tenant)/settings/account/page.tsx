@@ -151,26 +151,26 @@ export default function AccountSettingsPage() {
           <div className="bg-card rounded-xl border-2 border-red-200 p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-orange-100 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-red-600" />
+                <AlertTriangle className="h-6 w-6 text-error" />
               </div>
               <div>
-                <h3 className="text-xl font-bold text-red-900">Danger Zone</h3>
-                <p className="text-sm text-red-600">Irreversible and destructive actions</p>
+                <h3 className="text-xl font-bold text-error">Danger Zone</h3>
+                <p className="text-sm text-error">Irreversible and destructive actions</p>
               </div>
             </div>
 
-            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="p-4 bg-error-muted border border-error/30 rounded-lg">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h4 className="font-semibold text-red-900">Delete this tenant</h4>
-                  <p className="text-sm text-red-700 mt-1">
+                  <h4 className="font-semibold text-error">Delete this tenant</h4>
+                  <p className="text-sm text-error mt-1">
                     Permanently delete this tenant, all storefronts, team members, and associated data.
                     This action cannot be undone.
                   </p>
                 </div>
                 <Button
                   onClick={() => setShowDeleteModal(true)}
-                  className="bg-red-600 hover:bg-red-700 text-white flex-shrink-0"
+                  className="bg-error hover:bg-error/90 text-white flex-shrink-0"
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete Tenant

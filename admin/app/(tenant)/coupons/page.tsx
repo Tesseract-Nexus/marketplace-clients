@@ -8,7 +8,7 @@ import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { StatusBadge, StatusType } from '@/components/ui/status-badge';
 import { couponService } from '@/lib/services/couponService';
 import {
   Coupon,
@@ -38,6 +38,11 @@ import {
   Gift,
   CalendarClock,
   Loader2,
+  Home,
+  FileEdit,
+  Pause,
+  AlertTriangle,
+  ArrowRight,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 
@@ -128,15 +133,23 @@ export default function CouponsPage() {
     }
   };
 
-  const getStatusBadge = (status: CouponStatus) => {
-    const styles = {
-      DRAFT: 'bg-muted text-foreground border-border',
-      ACTIVE: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      INACTIVE: 'bg-amber-100 text-amber-700 border-amber-200',
-      EXPIRED: 'bg-red-100 text-red-700 border-red-200',
-      DEPLETED: 'bg-orange-100 text-orange-700 border-orange-200',
+  const getCouponStatusType = (status: CouponStatus): StatusType => {
+    const mapping: Record<CouponStatus, StatusType> = {
+      DRAFT: 'neutral',
+      ACTIVE: 'success',
+      INACTIVE: 'warning',
+      EXPIRED: 'error',
+      DEPLETED: 'error',
     };
-    return <Badge className={styles[status]}>{status}</Badge>;
+    return mapping[status] || 'neutral';
+  };
+
+  const getStatusBadge = (status: CouponStatus) => {
+    return (
+      <StatusBadge status={getCouponStatusType(status)} showIcon={false}>
+        {status}
+      </StatusBadge>
+    );
   };
 
   const getDiscountIcon = (type: DiscountType) => {
@@ -236,8 +249,8 @@ export default function CouponsPage() {
         {/* Breadcrumbs */}
         <Breadcrumbs
           items={[
-            { label: 'Dashboard', href: '/', icon: '🏠' },
-            { label: 'Coupons', icon: '🎟️' },
+            { label: 'Dashboard', href: '/', icon: Home },
+            { label: 'Coupons', icon: Ticket },
           ]}
         />
 
@@ -349,12 +362,12 @@ export default function CouponsPage() {
                         value={statusFilter}
                         onChange={(value) => setStatusFilter(value as any)}
                         options={[
-                          { value: 'ALL', label: 'All Status', icon: '🔍' },
-                          { value: 'DRAFT', label: 'Draft', icon: '📝' },
-                          { value: 'ACTIVE', label: 'Active', icon: '✅' },
-                          { value: 'INACTIVE', label: 'Inactive', icon: '⏸️' },
-                          { value: 'EXPIRED', label: 'Expired', icon: '❌' },
-                          { value: 'DEPLETED', label: 'Depleted', icon: '⚠️' },
+                          { value: 'ALL', label: 'All Status' },
+                          { value: 'DRAFT', label: 'Draft' },
+                          { value: 'ACTIVE', label: 'Active' },
+                          { value: 'INACTIVE', label: 'Inactive' },
+                          { value: 'EXPIRED', label: 'Expired' },
+                          { value: 'DEPLETED', label: 'Depleted' },
                         ]}
                         variant="filter"
                       />
@@ -365,11 +378,11 @@ export default function CouponsPage() {
                         value={discountTypeFilter}
                         onChange={(value) => setDiscountTypeFilter(value as any)}
                         options={[
-                          { value: 'ALL', label: 'All Types', icon: '🔍' },
-                          { value: 'PERCENTAGE', label: 'Percentage', icon: '%' },
-                          { value: 'FIXED_AMOUNT', label: 'Fixed Amount', icon: '$' },
-                          { value: 'FREE_SHIPPING', label: 'Free Shipping', icon: '🚚' },
-                          { value: 'BUY_X_GET_Y', label: 'Buy X Get Y', icon: '🎁' },
+                          { value: 'ALL', label: 'All Types' },
+                          { value: 'PERCENTAGE', label: 'Percentage' },
+                          { value: 'FIXED_AMOUNT', label: 'Fixed Amount' },
+                          { value: 'FREE_SHIPPING', label: 'Free Shipping' },
+                          { value: 'BUY_X_GET_Y', label: 'Buy X Get Y' },
                         ]}
                         variant="filter"
                       />
@@ -503,7 +516,7 @@ export default function CouponsPage() {
                         <CalendarClock className="w-3 h-3" />
                         {coupon.startDate ? new Date(coupon.startDate).toLocaleDateString() : 'Now'}
                       </span>
-                      <span>→</span>
+                      <ArrowRight className="w-3 h-3" aria-hidden="true" />
                       <span className="flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {coupon.endDate ? new Date(coupon.endDate).toLocaleDateString() : 'Never'}

@@ -366,7 +366,7 @@ export function CarrierConfigTab() {
                     <p className="text-xs text-muted-foreground">Primary Carrier</p>
                   </div>
                   {hasRecommendedCarrier(recommendation.primary) ? (
-                    <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                    <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success-muted text-success-muted-foreground">
                       <CheckCircle className="h-3 w-3 mr-1" />
                       Configured
                     </span>
@@ -395,7 +395,7 @@ export function CarrierConfigTab() {
                       <p className="text-xs text-muted-foreground">Fallback Carrier</p>
                     </div>
                     {hasRecommendedCarrier(recommendation.fallback) ? (
-                      <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                      <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success-muted text-success-muted-foreground">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Configured
                       </span>
@@ -456,7 +456,7 @@ export function CarrierConfigTab() {
                   </div>
                   <div className="flex gap-2">
                     {carrier.isEnabled ? (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-success-muted text-success-muted-foreground border border-success/30">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Enabled
                       </span>
@@ -495,7 +495,7 @@ export function CarrierConfigTab() {
                     <p className="text-xs text-muted-foreground">Rates</p>
                     <p className="text-sm text-foreground">
                       {carrier.supportsRates ? (
-                        <CheckCircle className="h-4 w-4 text-green-500 inline" />
+                        <CheckCircle className="h-4 w-4 text-success inline" />
                       ) : (
                         <XCircle className="h-4 w-4 text-gray-300 inline" />
                       )}
@@ -505,7 +505,7 @@ export function CarrierConfigTab() {
                     <p className="text-xs text-muted-foreground">Tracking</p>
                     <p className="text-sm text-foreground">
                       {carrier.supportsTracking ? (
-                        <CheckCircle className="h-4 w-4 text-green-500 inline" />
+                        <CheckCircle className="h-4 w-4 text-success inline" />
                       ) : (
                         <XCircle className="h-4 w-4 text-gray-300 inline" />
                       )}
@@ -515,7 +515,7 @@ export function CarrierConfigTab() {
                     <p className="text-xs text-muted-foreground">Labels</p>
                     <p className="text-sm text-foreground">
                       {carrier.supportsLabels ? (
-                        <CheckCircle className="h-4 w-4 text-green-500 inline" />
+                        <CheckCircle className="h-4 w-4 text-success inline" />
                       ) : (
                         <XCircle className="h-4 w-4 text-gray-300 inline" />
                       )}
@@ -628,7 +628,7 @@ export function CarrierConfigTab() {
                             {template.carrierType === 'DELHIVERY' ? 'Primary - Direct carrier' : 'Fallback - 17+ couriers'}
                           </p>
                           {template.carrierType === 'DELHIVERY' && (
-                            <span className="inline-block mt-2 text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                            <span className="inline-block mt-2 text-xs px-2 py-0.5 bg-success-muted text-success-muted-foreground rounded-full">
                               Recommended
                             </span>
                           )}

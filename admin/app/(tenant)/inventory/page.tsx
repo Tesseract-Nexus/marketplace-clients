@@ -29,6 +29,7 @@ import {
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { StatusBadge, StatusType } from '@/components/ui/status-badge';
 import { PageHeader } from '@/components/PageHeader';
 import { cn } from '@/lib/utils';
 import { inventoryService } from '@/lib/services/inventoryService';
@@ -559,21 +560,41 @@ export default function InventoryPage() {
     return { inStock, lowStock, outOfStock, totalQuantity, total: products.length };
   }, [products]);
 
+  const getInventoryStatusType = (status: string): StatusType => {
+    const mapping: Record<string, StatusType> = {
+      ACTIVE: 'success',
+      INACTIVE: 'neutral',
+      CLOSED: 'error',
+      BLACKLISTED: 'error',
+      DRAFT: 'neutral',
+      SUBMITTED: 'info',
+      APPROVED: 'info',
+      ORDERED: 'warning',
+      RECEIVED: 'success',
+      CANCELLED: 'error',
+      PENDING: 'neutral',
+      IN_TRANSIT: 'info',
+      COMPLETED: 'success',
+    };
+    return mapping[status] || 'neutral';
+  };
+
   const getStatusBadgeClass = (status: string) => {
+    // Legacy function - kept for backward compatibility
     const classes: Record<string, string> = {
-      ACTIVE: 'bg-green-100 text-green-700 border-green-200',
-      INACTIVE: 'bg-muted text-foreground border-border',
-      CLOSED: 'bg-red-100 text-red-700 border-red-200',
-      BLACKLISTED: 'bg-red-100 text-red-700 border-red-200',
-      DRAFT: 'bg-muted text-foreground border-border',
-      SUBMITTED: 'bg-primary/20 text-primary border-primary/30',
-      APPROVED: 'bg-purple-100 text-purple-700 border-purple-200',
-      ORDERED: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-      RECEIVED: 'bg-green-100 text-green-700 border-green-200',
-      CANCELLED: 'bg-red-100 text-red-700 border-red-200',
-      PENDING: 'bg-muted text-foreground border-border',
-      IN_TRANSIT: 'bg-primary/20 text-primary border-primary/30',
-      COMPLETED: 'bg-green-100 text-green-700 border-green-200',
+      ACTIVE: 'bg-success-muted text-success-muted-foreground border-transparent',
+      INACTIVE: 'bg-neutral-muted text-neutral-muted-foreground border-transparent',
+      CLOSED: 'bg-error-muted text-error-muted-foreground border-transparent',
+      BLACKLISTED: 'bg-error-muted text-error-muted-foreground border-transparent',
+      DRAFT: 'bg-neutral-muted text-neutral-muted-foreground border-transparent',
+      SUBMITTED: 'bg-info-muted text-info-muted-foreground border-transparent',
+      APPROVED: 'bg-info-muted text-info-muted-foreground border-transparent',
+      ORDERED: 'bg-warning-muted text-warning-muted-foreground border-transparent',
+      RECEIVED: 'bg-success-muted text-success-muted-foreground border-transparent',
+      CANCELLED: 'bg-error-muted text-error-muted-foreground border-transparent',
+      PENDING: 'bg-neutral-muted text-neutral-muted-foreground border-transparent',
+      IN_TRANSIT: 'bg-info-muted text-info-muted-foreground border-transparent',
+      COMPLETED: 'bg-success-muted text-success-muted-foreground border-transparent',
     };
     return classes[status] || classes.ACTIVE;
   };
@@ -630,7 +651,7 @@ export default function InventoryPage() {
     if (qty === 0) {
       return {
         label: 'Out of Stock',
-        color: 'bg-red-100 text-red-700 border-red-200',
+        color: 'bg-error-muted text-error-muted-foreground border-transparent',
         icon: XCircle,
         trend: 'critical',
       };
@@ -638,14 +659,14 @@ export default function InventoryPage() {
     if (qty <= threshold) {
       return {
         label: 'Low Stock',
-        color: 'bg-amber-100 text-amber-700 border-amber-200',
+        color: 'bg-warning-muted text-warning-muted-foreground border-transparent',
         icon: AlertTriangle,
         trend: 'warning',
       };
     }
     return {
       label: 'In Stock',
-      color: 'bg-green-100 text-green-700 border-green-200',
+      color: 'bg-success-muted text-success-muted-foreground border-transparent',
       icon: CheckCircle,
       trend: 'good',
     };
@@ -689,44 +710,44 @@ export default function InventoryPage() {
               </div>
             </div>
             <div
-              className="bg-card rounded-xl border border-border p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-green-300 hover:-translate-y-1 hover:scale-[1.02] group"
+              className="bg-card rounded-xl border border-border p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-success/30 hover:-translate-y-1 hover:scale-[1.02] group"
               onClick={() => setStockFilter('in_stock')}
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground group-hover:text-green-700 transition-colors">In Stock</p>
-                  <p className="text-2xl font-bold text-green-600">{stockStats.inStock}</p>
+                  <p className="text-sm text-muted-foreground group-hover:text-success transition-colors">In Stock</p>
+                  <p className="text-2xl font-bold text-success">{stockStats.inStock}</p>
                 </div>
-                <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <CheckCircle className="h-6 w-6 text-green-600" />
+                <div className="h-12 w-12 bg-success-muted rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                  <CheckCircle className="h-6 w-6 text-success" />
                 </div>
               </div>
             </div>
             <div
-              className="bg-card rounded-xl border border-border p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-amber-300 hover:-translate-y-1 hover:scale-[1.02] group"
+              className="bg-card rounded-xl border border-border p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-warning/30 hover:-translate-y-1 hover:scale-[1.02] group"
               onClick={() => setStockFilter('low_stock')}
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground group-hover:text-amber-700 transition-colors">Low Stock</p>
-                  <p className="text-2xl font-bold text-amber-600">{stockStats.lowStock}</p>
+                  <p className="text-sm text-muted-foreground group-hover:text-warning transition-colors">Low Stock</p>
+                  <p className="text-2xl font-bold text-warning">{stockStats.lowStock}</p>
                 </div>
-                <div className="h-12 w-12 bg-amber-100 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <AlertTriangle className="h-6 w-6 text-amber-600" />
+                <div className="h-12 w-12 bg-warning-muted rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                  <AlertTriangle className="h-6 w-6 text-warning" />
                 </div>
               </div>
             </div>
             <div
-              className="bg-card rounded-xl border border-border p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-red-300 hover:-translate-y-1 hover:scale-[1.02] group"
+              className="bg-card rounded-xl border border-border p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-error/30 hover:-translate-y-1 hover:scale-[1.02] group"
               onClick={() => setStockFilter('out_of_stock')}
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground group-hover:text-red-700 transition-colors">Out of Stock</p>
-                  <p className="text-2xl font-bold text-red-600">{stockStats.outOfStock}</p>
+                  <p className="text-sm text-muted-foreground group-hover:text-error transition-colors">Out of Stock</p>
+                  <p className="text-2xl font-bold text-error">{stockStats.outOfStock}</p>
                 </div>
-                <div className="h-12 w-12 bg-red-100 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <XCircle className="h-6 w-6 text-red-600" />
+                <div className="h-12 w-12 bg-error-muted rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                  <XCircle className="h-6 w-6 text-error" />
                 </div>
               </div>
             </div>
@@ -939,8 +960,8 @@ export default function InventoryPage() {
           {/* Error State */}
           {error && !loading && (
             <div className="p-6 text-center">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-red-600 font-medium">{error}</p>
+              <div className="bg-error-muted border border-error/20 rounded-lg p-4">
+                <p className="text-error font-medium">{error}</p>
                 <Button variant="outline" onClick={fetchData} className="mt-4">
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Try Again
@@ -1009,8 +1030,8 @@ export default function InventoryPage() {
                             key={product.id}
                             className={cn(
                               'hover:bg-muted transition-colors',
-                              statusInfo.trend === 'critical' && 'bg-red-50/50',
-                              statusInfo.trend === 'warning' && 'bg-amber-50/50'
+                              statusInfo.trend === 'critical' && 'bg-error-muted/50',
+                              statusInfo.trend === 'warning' && 'bg-warning-muted/50'
                             )}
                           >
                             <td className="px-6 py-4">
@@ -1054,7 +1075,7 @@ export default function InventoryPage() {
                                     variant="ghost"
                                     onClick={() => handleSaveStock(product.id)}
                                     disabled={savingStock}
-                                    className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                                    className="h-8 w-8 p-0 text-success hover:text-success hover:bg-success-muted"
                                   >
                                     {savingStock ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                                   </Button>
@@ -1071,8 +1092,8 @@ export default function InventoryPage() {
                                 <span
                                   className={cn(
                                     'font-bold text-lg',
-                                    (product.quantity || 0) === 0 && 'text-red-600',
-                                    (product.quantity || 0) > 0 && (product.quantity || 0) <= (product.lowStockThreshold || 10) && 'text-amber-600',
+                                    (product.quantity || 0) === 0 && 'text-error',
+                                    (product.quantity || 0) > 0 && (product.quantity || 0) <= (product.lowStockThreshold || 10) && 'text-warning',
                                     (product.quantity || 0) > (product.lowStockThreshold || 10) && 'text-foreground'
                                   )}
                                 >
@@ -1215,11 +1236,11 @@ export default function InventoryPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => openDeleteModal('warehouse', warehouse.id)}
-                                  className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                                  className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                                   title="Delete"
                                   aria-label="Delete warehouse"
                                 >
-                                  <Trash2 className="w-4 h-4 text-red-600" aria-hidden="true" />
+                                  <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                                 </Button>
                               </PermissionGate>
                             </div>
@@ -1316,11 +1337,11 @@ export default function InventoryPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => openDeleteModal('supplier', supplier.id)}
-                                  className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                                  className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                                   title="Delete"
                                   aria-label="Delete supplier"
                                 >
-                                  <Trash2 className="w-4 h-4 text-red-600" aria-hidden="true" />
+                                  <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                                 </Button>
                               </PermissionGate>
                             </div>
@@ -1893,8 +1914,8 @@ export default function InventoryPage() {
           <div className="bg-card rounded-xl shadow-xl max-w-md w-full mx-4">
             <div className="p-6 border-b border-border">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
-                  <Trash2 className="h-5 w-5 text-red-600" />
+                <div className="h-10 w-10 rounded-full bg-error-muted flex items-center justify-center">
+                  <Trash2 className="h-5 w-5 text-error" />
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-foreground">Delete {modalEntityType}</h2>

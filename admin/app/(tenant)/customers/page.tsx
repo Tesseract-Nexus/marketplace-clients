@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Plus, Eye, Edit, Trash2, Users, TrendingUp, DollarSign, ShoppingCart, AlertCircle, X, Loader2 } from 'lucide-react';
+import { Search, Plus, Eye, Edit, Trash2, Users, TrendingUp, DollarSign, ShoppingCart, AlertCircle, X, Loader2, Home, UserCircle, Sparkles, Crown } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { StatusBadge, getStatusFromMapping } from '@/components/ui/status-badge';
 import { cn } from '@/lib/utils';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
@@ -172,22 +173,23 @@ export default function CustomersPage() {
     });
   };
 
-  const getStatusBadgeClass = (status: CustomerStatus) => {
-    const classes = {
-      ACTIVE: 'bg-green-100 text-green-700 border-green-200',
-      INACTIVE: 'bg-muted text-foreground border-border',
-      BLOCKED: 'bg-red-100 text-red-700 border-red-200',
-    };
-    return classes[status] || classes.ACTIVE;
-  };
-
+  // Customer type badge styling using semantic tokens
   const getTypeBadgeClass = (type: CustomerType) => {
     const classes = {
-      RETAIL: 'bg-primary/20 text-primary border-primary/30',
-      WHOLESALE: 'bg-purple-100 text-purple-700 border-purple-200',
-      VIP: 'bg-amber-100 text-amber-700 border-amber-200',
+      RETAIL: 'bg-info-muted text-info-muted-foreground border-transparent',
+      WHOLESALE: 'bg-primary/20 text-primary border-transparent',
+      VIP: 'bg-warning-muted text-warning-muted-foreground border-transparent',
     };
     return classes[type] || classes.RETAIL;
+  };
+
+  const getTypeIcon = (type: CustomerType) => {
+    const icons = {
+      RETAIL: Users,
+      WHOLESALE: Sparkles,
+      VIP: Crown,
+    };
+    return icons[type] || icons.RETAIL;
   };
 
   // Calculate summary metrics
@@ -217,8 +219,8 @@ export default function CustomersPage() {
           title="Customers"
           description="Manage customer accounts and view customer insights"
           breadcrumbs={[
-            { label: '🏠 Home', href: '/' },
-            { label: '👥 Customers' },
+            { label: 'Home', href: '/', icon: Home },
+            { label: 'Customers', icon: Users },
           ]}
           actions={
           <Button
@@ -232,25 +234,25 @@ export default function CustomersPage() {
 
       {/* Error Alert */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+        <div className="bg-error-muted border border-error/20 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h3 className="font-semibold text-red-900">Error</h3>
-            <p className="text-red-700 text-sm mt-1">{error}</p>
+            <h3 className="font-semibold text-error">Error</h3>
+            <p className="text-error-muted-foreground text-sm mt-1">{error}</p>
           </div>
           <Button
             onClick={() => setError(null)}
-            className="p-1 rounded-lg hover:bg-red-100 transition-colors"
+            className="p-1 rounded-lg hover:bg-error/10 transition-colors"
             aria-label="Dismiss error message"
             variant="ghost"
           >
-            <X className="h-4 w-4 text-red-600" aria-hidden="true" />
+            <X className="h-4 w-4 text-error" aria-hidden="true" />
           </Button>
         </div>
       )}
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
         <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
           <div className="flex items-center justify-between gap-2">
             <div className="min-w-0">
@@ -313,13 +315,16 @@ export default function CustomersPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           <div className="sm:col-span-2 md:col-span-2">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <label htmlFor="customer-search" className="sr-only">Search customers by name or email</label>
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
               <Input
+                id="customer-search"
                 type="text"
                 placeholder="Search by name or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
+                aria-label="Search customers"
               />
             </div>
           </div>
@@ -389,20 +394,23 @@ export default function CustomersPage() {
                       </div>
                     </td>
                     <td className="px-4 lg:px-6 py-4">
-                      <span className={cn(
-                        'inline-flex items-center px-2 lg:px-3 py-1 rounded-full text-xs font-semibold border',
-                        getTypeBadgeClass(customer.customerType)
-                      )}>
-                        {customer.customerType}
-                      </span>
+                      {(() => {
+                        const TypeIcon = getTypeIcon(customer.customerType);
+                        return (
+                          <span className={cn(
+                            'inline-flex items-center gap-1.5 px-2 lg:px-3 py-1 rounded-full text-xs font-semibold border',
+                            getTypeBadgeClass(customer.customerType)
+                          )}>
+                            <TypeIcon className="w-3 h-3" aria-hidden="true" />
+                            {customer.customerType}
+                          </span>
+                        );
+                      })()}
                     </td>
                     <td className="px-4 lg:px-6 py-4">
-                      <span className={cn(
-                        'inline-flex items-center px-2 lg:px-3 py-1 rounded-full text-xs font-semibold border',
-                        getStatusBadgeClass(customer.status)
-                      )}>
+                      <StatusBadge status={getStatusFromMapping('user', customer.status)}>
                         {customer.status}
-                      </span>
+                      </StatusBadge>
                     </td>
                     <td className="px-4 lg:px-6 py-4 text-sm text-foreground">{customer.totalOrders}</td>
                     <td className="px-4 lg:px-6 py-4 text-sm font-semibold text-foreground">
@@ -430,11 +438,11 @@ export default function CustomersPage() {
                             setCustomerToDelete(customer.id);
                             setShowDeleteModal(true);
                           }}
-                          className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                          className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                           title="Delete"
                           aria-label="Delete customer"
                         >
-                          <Trash2 className="w-4 h-4 text-red-600" aria-hidden="true" />
+                          <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                         </Button>
                       </div>
                     </td>
@@ -473,18 +481,24 @@ export default function CustomersPage() {
                       <div className="text-sm text-muted-foreground truncate">{customer.email}</div>
                     </div>
                     <div className="flex gap-1.5 flex-shrink-0">
-                      <span className={cn(
-                        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border',
-                        getTypeBadgeClass(customer.customerType)
-                      )}>
-                        {customer.customerType}
-                      </span>
-                      <span className={cn(
-                        'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border',
-                        getStatusBadgeClass(customer.status)
-                      )}>
+                      {(() => {
+                        const TypeIcon = getTypeIcon(customer.customerType);
+                        return (
+                          <span className={cn(
+                            'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border',
+                            getTypeBadgeClass(customer.customerType)
+                          )}>
+                            <TypeIcon className="w-3 h-3" aria-hidden="true" />
+                            {customer.customerType}
+                          </span>
+                        );
+                      })()}
+                      <StatusBadge
+                        status={getStatusFromMapping('user', customer.status)}
+                        size="sm"
+                      >
                         {customer.status}
-                      </span>
+                      </StatusBadge>
                     </div>
                   </div>
 
@@ -526,7 +540,7 @@ export default function CustomersPage() {
                         setCustomerToDelete(customer.id);
                         setShowDeleteModal(true);
                       }}
-                      className="h-9 px-3 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                      className="h-9 px-3 text-xs text-error border-error/30 hover:bg-error-muted"
                     >
                       <Trash2 className="w-3.5 h-3.5 mr-1.5" />
                       Delete

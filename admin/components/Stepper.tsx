@@ -2,7 +2,7 @@
 
 import React, { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
-import { Check } from 'lucide-react';
+import { Check, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export interface Step {
   number: number;
@@ -148,7 +148,7 @@ export function StepperNavigation({
             onClick={onPrevious}
             className="px-6 py-3 border-2 border-border bg-white text-foreground rounded-xl hover:bg-muted transition-all font-semibold shadow-sm hover:shadow-md flex items-center gap-2"
           >
-            ← {previousLabel}
+            <ChevronLeft className="w-4 h-4" aria-hidden="true" /> {previousLabel}
           </button>
         )}
       </div>
@@ -169,7 +169,7 @@ export function StepperNavigation({
             disabled={nextDisabled}
             className="px-8 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            {nextLabel} →
+            {nextLabel} <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </button>
         ) : (
           onSave && (

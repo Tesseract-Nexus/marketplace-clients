@@ -34,13 +34,13 @@ import {
 // Status badge component
 function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
-    pending: { color: 'bg-yellow-100 text-yellow-800', icon: <Clock className="h-3 w-3" />, label: 'Pending' },
-    verifying: { color: 'bg-blue-100 text-blue-800', icon: <RefreshCw className="h-3 w-3 animate-spin" />, label: 'Verifying' },
+    pending: { color: 'bg-warning-muted text-warning-muted-foreground', icon: <Clock className="h-3 w-3" />, label: 'Pending' },
+    verifying: { color: 'bg-info-muted text-info-muted-foreground', icon: <RefreshCw className="h-3 w-3 animate-spin" />, label: 'Verifying' },
     provisioning: { color: 'bg-purple-100 text-purple-800', icon: <Loader2 className="h-3 w-3 animate-spin" />, label: 'Provisioning SSL' },
-    active: { color: 'bg-green-100 text-green-800', icon: <CheckCircle2 className="h-3 w-3" />, label: 'Active' },
-    inactive: { color: 'bg-gray-100 text-gray-800', icon: <XCircle className="h-3 w-3" />, label: 'Inactive' },
-    failed: { color: 'bg-red-100 text-red-800', icon: <XCircle className="h-3 w-3" />, label: 'Failed' },
-    expired: { color: 'bg-orange-100 text-orange-800', icon: <AlertTriangle className="h-3 w-3" />, label: 'Expired' },
+    active: { color: 'bg-success-muted text-success-muted-foreground', icon: <CheckCircle2 className="h-3 w-3" />, label: 'Active' },
+    inactive: { color: 'bg-neutral-muted text-neutral-muted-foreground', icon: <XCircle className="h-3 w-3" />, label: 'Inactive' },
+    failed: { color: 'bg-error-muted text-error-muted-foreground', icon: <XCircle className="h-3 w-3" />, label: 'Failed' },
+    expired: { color: 'bg-warning-muted text-warning-muted-foreground', icon: <AlertTriangle className="h-3 w-3" />, label: 'Expired' },
   };
 
   const { color, icon, label } = config[status] || config.pending;
@@ -83,7 +83,7 @@ function DNSRecordRow({ record, onCopy }: { record: DNSRecord; onCopy: (text: st
       </div>
       <div className="ml-4">
         {record.isVerified ? (
-          <CheckCircle2 className="h-5 w-5 text-green-500" />
+          <CheckCircle2 className="h-5 w-5 text-success" />
         ) : (
           <Clock className="h-5 w-5 text-yellow-500" />
         )}
@@ -192,7 +192,7 @@ function AddDomainModal({
           </div>
 
           {error && (
-            <div className="bg-red-50 text-red-700 text-sm px-3 py-2 rounded-lg border border-red-200">
+            <div className="bg-error-muted text-error text-sm px-3 py-2 rounded-lg border border-error/30">
               {error}
             </div>
           )}
@@ -315,7 +315,7 @@ function DomainCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             {domain.dnsVerified ? (
-              <CheckCircle2 className="h-4 w-4 text-green-500" />
+              <CheckCircle2 className="h-4 w-4 text-success" />
             ) : (
               <Clock className="h-4 w-4 text-yellow-500" />
             )}
@@ -324,7 +324,7 @@ function DomainCard({
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
           <div className="flex items-center gap-2">
             {domain.sslStatus === 'active' ? (
-              <Shield className="h-4 w-4 text-green-500" />
+              <Shield className="h-4 w-4 text-success" />
             ) : (
               <Clock className="h-4 w-4 text-muted-foreground" />
             )}
@@ -333,7 +333,7 @@ function DomainCard({
           <ChevronRight className="h-4 w-4 text-muted-foreground" />
           <div className="flex items-center gap-2">
             {domain.routingStatus === 'active' ? (
-              <Zap className="h-4 w-4 text-green-500" />
+              <Zap className="h-4 w-4 text-success" />
             ) : (
               <Clock className="h-4 w-4 text-muted-foreground" />
             )}
@@ -345,7 +345,7 @@ function DomainCard({
         {domain.statusMessage && (
           <div className={`text-sm p-3 rounded-lg ${
             domain.status === 'failed'
-              ? 'bg-red-50 text-red-700 border border-red-200'
+              ? 'bg-error-muted text-error border border-error/30'
               : 'bg-muted text-muted-foreground'
           }`}>
             {domain.statusMessage}
@@ -389,7 +389,7 @@ function DomainCard({
         {/* SSL Info */}
         {domain.sslStatus === 'active' && domain.sslExpiresAt && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Shield className="h-4 w-4 text-green-500" />
+            <Shield className="h-4 w-4 text-success" />
             <span>SSL certificate expires {new Date(domain.sslExpiresAt).toLocaleDateString()}</span>
           </div>
         )}
@@ -428,7 +428,7 @@ function DomainCard({
           <Button
             variant="ghost"
             size="sm"
-            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            className="text-error hover:text-error/80 hover:bg-error-muted"
             onClick={onDelete}
           >
             <Trash2 className="h-4 w-4" />
@@ -593,7 +593,7 @@ export default function DomainsSettingsPage() {
                 <div className="text-sm text-muted-foreground">Total Domains</div>
               </div>
               <div className="bg-card rounded-lg border border-border p-4">
-                <div className="text-2xl font-bold text-green-600">{stats.activeDomains}</div>
+                <div className="text-2xl font-bold text-success">{stats.activeDomains}</div>
                 <div className="text-sm text-muted-foreground">Active</div>
               </div>
               <div className="bg-card rounded-lg border border-border p-4">
@@ -645,7 +645,7 @@ export default function DomainsSettingsPage() {
               {/* Benefits */}
               <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-left max-w-2xl mx-auto">
                 <div className="p-4 bg-muted/50 rounded-lg">
-                  <Shield className="h-5 w-5 text-green-600 mb-2" />
+                  <Shield className="h-5 w-5 text-success mb-2" />
                   <h4 className="font-medium text-foreground">Free SSL</h4>
                   <p className="text-xs text-muted-foreground">
                     Automatic HTTPS with Let&apos;s Encrypt

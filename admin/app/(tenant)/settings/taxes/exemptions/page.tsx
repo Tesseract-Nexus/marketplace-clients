@@ -192,9 +192,9 @@ export default function TaxExemptionsPage() {
 
   const getStatusColor = (status: CertificateStatus) => {
     const colors = {
-      ACTIVE: 'bg-green-100 text-green-700 border-green-200',
+      ACTIVE: 'bg-success-muted text-success-muted-foreground border-success/30',
       PENDING: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-      EXPIRED: 'bg-red-100 text-red-700 border-red-200',
+      EXPIRED: 'bg-error-muted text-error-muted-foreground border-error/30',
       REVOKED: 'bg-muted text-foreground border-border',
     };
     return colors[status];
@@ -204,7 +204,7 @@ export default function TaxExemptionsPage() {
     const colors = {
       RESALE: 'bg-primary/20 text-primary border-primary/30',
       GOVERNMENT: 'bg-purple-100 text-purple-700 border-purple-200',
-      NON_PROFIT: 'bg-green-100 text-green-700 border-green-200',
+      NON_PROFIT: 'bg-success-muted text-success-muted-foreground border-success/30',
       DIPLOMATIC: 'bg-orange-100 text-orange-700 border-orange-200',
     };
     return colors[type];
@@ -240,7 +240,7 @@ export default function TaxExemptionsPage() {
     return (
       <div className="min-h-screen bg-background p-8 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center">
-          <AlertCircle className="h-12 w-12 text-red-500" />
+          <AlertCircle className="h-12 w-12 text-error" />
           <h2 className="text-xl font-semibold text-foreground">
             Failed to load exemption certificates
           </h2>
@@ -424,11 +424,11 @@ export default function TaxExemptionsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDelete(cert.id)}
-                            className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                             title="Delete"
                             aria-label="Delete exemption"
                           >
-                            <Trash2 className="w-4 h-4 text-red-600" aria-hidden="true" />
+                            <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                           </Button>
                         </div>
                       </td>
@@ -454,7 +454,7 @@ export default function TaxExemptionsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">
-                      Customer ID <span className="text-red-500">*</span>
+                      Customer ID <span className="text-error">*</span>
                     </label>
                     <Input
                       value={formData.customerId}
@@ -465,7 +465,7 @@ export default function TaxExemptionsPage() {
 
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">
-                      Certificate Number <span className="text-red-500">*</span>
+                      Certificate Number <span className="text-error">*</span>
                     </label>
                     <Input
                       value={formData.certificateNumber}
@@ -479,7 +479,7 @@ export default function TaxExemptionsPage() {
 
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-2">
-                    Certificate Type <span className="text-red-500">*</span>
+                    Certificate Type <span className="text-error">*</span>
                   </label>
                   <Select
                     value={formData.certificateType}
@@ -520,7 +520,7 @@ export default function TaxExemptionsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">
-                      Issued Date <span className="text-red-500">*</span>
+                      Issued Date <span className="text-error">*</span>
                     </label>
                     <Input
                       type="date"
@@ -557,7 +557,7 @@ export default function TaxExemptionsPage() {
 
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-2">
-                    Status <span className="text-red-500">*</span>
+                    Status <span className="text-error">*</span>
                   </label>
                   <Select
                     value={formData.status}

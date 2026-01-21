@@ -304,7 +304,7 @@ function WelcomeContent() {
           </div>
 
           <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">
-            Welcome to Tesserix! 🎉
+            Welcome to Tesserix!
           </h1>
           <p className="text-lg text-muted-foreground mb-2">
             Hi {onboardingData?.firstName || 'there'}, your journey begins now!
@@ -528,7 +528,7 @@ function WelcomeContent() {
           {/* Security notice */}
           <div className="bg-muted rounded-xl px-3 py-2 border border-border mt-4">
             <p className="text-[10px] text-muted-foreground text-center">
-              🔒 We never store your social passwords. OAuth handled securely.
+              <Lock className="w-3 h-3 inline-block mr-1" aria-hidden="true" />We never store your social passwords. OAuth handled securely.
             </p>
           </div>
         </div>

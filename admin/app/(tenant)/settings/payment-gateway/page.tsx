@@ -209,7 +209,7 @@ export default function PaymentGatewayPage() {
                     </div>
                     <div className="flex gap-2">
                       {gateway.isEnabled ? (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-success-muted text-success-muted-foreground border border-success/30">
                           <CheckCircle className="h-3 w-3 mr-1" />
                           Enabled
                         </span>
@@ -267,7 +267,7 @@ export default function PaymentGatewayPage() {
                       </span>
                     )}
                     {gateway.supportsRefunds && (
-                      <span className="text-xs px-2 py-1 rounded bg-green-50 text-green-700 border border-green-200">
+                      <span className="text-xs px-2 py-1 rounded bg-success-muted text-success-muted-foreground border border-success/30">
                         Refunds
                       </span>
                     )}
@@ -296,7 +296,7 @@ export default function PaymentGatewayPage() {
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(gateway.id)}
-                    className="hover:bg-red-50 hover:text-red-600"
+                    className="hover:bg-error-muted hover:text-error"
                     title="Delete Gateway"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -327,7 +327,7 @@ export default function PaymentGatewayPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">
-                      Gateway Type <span className="text-red-500">*</span>
+                      Gateway Type <span className="text-error">*</span>
                     </label>
                     <Select
                       value={formData.gatewayType || 'STRIPE'}
@@ -338,7 +338,7 @@ export default function PaymentGatewayPage() {
 
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">
-                      Display Name <span className="text-red-500">*</span>
+                      Display Name <span className="text-error">*</span>
                     </label>
                     <Input
                       value={formData.displayName || ''}
@@ -362,7 +362,7 @@ export default function PaymentGatewayPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">
-                      Public/API Key <span className="text-red-500">*</span>
+                      Public/API Key <span className="text-error">*</span>
                     </label>
                     <Input
                       value={formData.apiKeyPublic || ''}
@@ -373,7 +373,7 @@ export default function PaymentGatewayPage() {
 
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">
-                      Secret Key <span className="text-red-500">*</span>
+                      Secret Key <span className="text-error">*</span>
                     </label>
                     <Input
                       type="password"

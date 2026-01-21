@@ -1,10 +1,11 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Eye, CheckCircle, XCircle, Flag, Star, MessageSquare, Shield, AlertCircle, X, Loader2 } from 'lucide-react';
+import { Search, Plus, Eye, CheckCircle, XCircle, Flag, Star, MessageSquare, Shield, AlertCircle, X, Loader2, Sparkles, ShieldCheck, Camera, ThumbsUp, Home, MessageCircle } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { StatusBadge, StatusType } from '@/components/ui/status-badge';
 import { cn } from '@/lib/utils';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
@@ -212,14 +213,28 @@ export default function ReviewsPage() {
     }
   };
 
+  const getReviewStatusType = (status: ReviewStatus): StatusType => {
+    const mapping: Record<ReviewStatus, StatusType> = {
+      DRAFT: 'neutral',
+      PENDING: 'warning',
+      APPROVED: 'success',
+      REJECTED: 'error',
+      FLAGGED: 'error',
+      ARCHIVED: 'neutral',
+    };
+    return mapping[status] || 'neutral';
+  };
+
   const getStatusBadgeClass = (status: ReviewStatus) => {
-    const classes = {
-      DRAFT: 'bg-muted text-foreground border-border',
-      PENDING: 'bg-amber-100 text-amber-700 border-amber-200',
-      APPROVED: 'bg-green-100 text-green-700 border-green-200',
-      REJECTED: 'bg-red-100 text-red-700 border-red-200',
-      FLAGGED: 'bg-orange-100 text-orange-700 border-orange-200',
-      ARCHIVED: 'bg-muted text-muted-foreground border-border',
+    // Legacy function - kept for backward compatibility
+    // Use StatusBadge component instead where possible
+    const classes: Record<ReviewStatus, string> = {
+      DRAFT: 'bg-neutral-muted text-neutral-muted-foreground border-transparent',
+      PENDING: 'bg-warning-muted text-warning-muted-foreground border-transparent',
+      APPROVED: 'bg-success-muted text-success-muted-foreground border-transparent',
+      REJECTED: 'bg-error-muted text-error-muted-foreground border-transparent',
+      FLAGGED: 'bg-error-muted text-error-muted-foreground border-transparent',
+      ARCHIVED: 'bg-neutral-muted text-neutral-muted-foreground border-transparent',
     };
     return classes[status] || classes.PENDING;
   };
@@ -285,18 +300,18 @@ export default function ReviewsPage() {
 
       {/* Error Alert */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+        <div className="bg-error-muted border border-error/20 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h3 className="font-semibold text-red-900">Error</h3>
-            <p className="text-red-700 text-sm mt-1">{error}</p>
+            <h3 className="font-semibold text-error">Error</h3>
+            <p className="text-error-muted-foreground text-sm mt-1">{error}</p>
           </div>
           <button
             onClick={() => setError(null)}
-            className="p-1 rounded-lg hover:bg-red-100 transition-colors"
+            className="p-1 rounded-lg hover:bg-error/10 transition-colors"
             aria-label="Dismiss error message"
           >
-            <X className="h-4 w-4 text-red-600" aria-hidden="true" />
+            <X className="h-4 w-4 text-error" aria-hidden="true" />
           </button>
         </div>
       )}
@@ -515,13 +530,13 @@ export default function ReviewsPage() {
                         {review.type}
                       </span>
                       {review.featured && (
-                        <span className="text-xs px-3 py-1 rounded-full bg-amber-100 text-amber-700 border border-amber-200 font-semibold">
-                          ⭐ Featured
+                        <span className="text-xs px-3 py-1 rounded-full bg-warning-muted text-warning-muted-foreground border-transparent font-semibold inline-flex items-center gap-1">
+                          <Sparkles className="w-3 h-3" aria-hidden="true" /> Featured
                         </span>
                       )}
                       {review.verifiedPurchase && (
-                        <span className="text-xs px-3 py-1 rounded-full bg-green-100 text-green-700 border border-green-200 font-semibold">
-                          ✓ Verified Purchase
+                        <span className="text-xs px-3 py-1 rounded-full bg-success-muted text-success-muted-foreground border-transparent font-semibold inline-flex items-center gap-1">
+                          <ShieldCheck className="w-3 h-3" aria-hidden="true" /> Verified Purchase
                         </span>
                       )}
                     </div>
@@ -549,7 +564,7 @@ export default function ReviewsPage() {
                       const images = mediaList.filter((m) => m.type === 'IMAGE');
                       return images.length > 0 ? (
                         <div className="mt-3 mb-4">
-                          <p className="text-sm text-muted-foreground mb-2">📷 {images.length} image{images.length > 1 ? 's' : ''} attached</p>
+                          <p className="text-sm text-muted-foreground mb-2 flex items-center gap-1"><Camera className="w-4 h-4" aria-hidden="true" /> {images.length} image{images.length > 1 ? 's' : ''} attached</p>
                           <div className="flex flex-wrap gap-3">
                             {images.map((img) => (
                               <a
@@ -602,10 +617,10 @@ export default function ReviewsPage() {
                       )}
                       <span>{new Date(review.createdAt).toLocaleDateString()}</span>
                       {review.helpfulCount > 0 && (
-                        <span className="text-primary">👍 {review.helpfulCount} helpful</span>
+                        <span className="text-primary inline-flex items-center gap-1"><ThumbsUp className="w-3.5 h-3.5" aria-hidden="true" /> {review.helpfulCount} helpful</span>
                       )}
                       {review.reportCount > 0 && (
-                        <span className="text-red-600">🚩 {review.reportCount} reports</span>
+                        <span className="text-red-600 inline-flex items-center gap-1"><Flag className="w-3.5 h-3.5" aria-hidden="true" /> {review.reportCount} reports</span>
                       )}
                     </div>
                   </div>
@@ -659,7 +674,7 @@ export default function ReviewsPage() {
                               setError(error instanceof Error ? error.message : 'Failed to approve review. Please try again.');
                             }
                           }}
-                          className="hover:bg-green-50 hover:text-green-600"
+                          className="hover:bg-success-muted hover:text-success"
                           aria-label="Approve review"
                         >
                           <CheckCircle className="h-4 w-4" aria-hidden="true" />
@@ -680,7 +695,7 @@ export default function ReviewsPage() {
                               setError(error instanceof Error ? error.message : 'Failed to reject review. Please try again.');
                             }
                           }}
-                          className="hover:bg-red-50 hover:text-red-600"
+                          className="hover:bg-error-muted hover:text-error"
                           aria-label="Reject review"
                         >
                           <XCircle className="h-4 w-4" aria-hidden="true" />
@@ -703,7 +718,7 @@ export default function ReviewsPage() {
                           setError(error instanceof Error ? error.message : 'Failed to flag review. Please try again.');
                         }
                       }}
-                      className="hover:bg-orange-50 hover:text-orange-600"
+                      className="hover:bg-warning-muted hover:text-warning"
                       aria-label="Flag review for moderation"
                     >
                       <Flag className="h-4 w-4" aria-hidden="true" />
@@ -721,7 +736,7 @@ export default function ReviewsPage() {
                         ? review.comments
                         : Object.entries(review.comments as unknown as Record<string, any>).map(([id, c]) => ({ id, ...c }))
                       ).map((comment: any) => (
-                        <div key={comment.id} className={cn("text-sm p-3 rounded-lg", comment.isInternal ? "bg-yellow-50 border border-yellow-100" : "bg-muted border border-border")}>
+                        <div key={comment.id} className={cn("text-sm p-3 rounded-lg", comment.isInternal ? "bg-warning-muted border border-warning/20" : "bg-muted border border-border")}>
                           <div className="flex justify-between items-start mb-1">
                             <div className="flex items-center gap-2">
                               <span className="font-semibold">{comment.userName}</span>
@@ -896,7 +911,7 @@ export default function ReviewsPage() {
                   const images = mediaList.filter((m) => m.type === 'IMAGE');
                   return images.length > 0 ? (
                     <div className="mt-4 pt-4 border-t border-border">
-                      <p className="text-sm text-muted-foreground mb-3">📷 Attached Images ({images.length}):</p>
+                      <p className="text-sm text-muted-foreground mb-3 flex items-center gap-1"><Camera className="w-4 h-4" aria-hidden="true" /> Attached Images ({images.length}):</p>
                       <div className="flex flex-wrap gap-3">
                         {images.map((img) => (
                           <button

@@ -308,7 +308,7 @@ export function GatewayConfigTab() {
                     <p className="text-xs text-muted-foreground">Primary Gateway</p>
                   </div>
                   {hasRecommendedGateway(recommendation.primary) ? (
-                    <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                    <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success-muted text-success-muted-foreground">
                       <CheckCircle className="h-3 w-3 mr-1" />
                       Configured
                     </span>
@@ -341,7 +341,7 @@ export function GatewayConfigTab() {
                       <p className="text-xs text-muted-foreground">Fallback Gateway</p>
                     </div>
                     {hasRecommendedGateway(recommendation.fallback) ? (
-                      <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                      <span className="ml-2 inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-success-muted text-success-muted-foreground">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Configured
                       </span>
@@ -431,7 +431,7 @@ export function GatewayConfigTab() {
                   </div>
                   <div className="flex gap-2">
                     {gateway.isEnabled ? (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-success-muted text-success-muted-foreground border border-success/30">
                         <CheckCircle className="h-3 w-3 mr-1" />
                         Enabled
                       </span>

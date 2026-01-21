@@ -1213,7 +1213,7 @@ export default function QRCodesPage() {
                     onClick={handleCopyBase64}
                     className={cn(
                       "flex-1 h-9 transition-colors",
-                      copied && "bg-green-50 border-green-200 text-green-600"
+                      copied && "bg-success-muted border-success/30 text-success"
                     )}
                   >
                     {copied ? (
@@ -1248,7 +1248,7 @@ export default function QRCodesPage() {
                             className={cn(
                               "rounded-full border border-border transition-all duration-200",
                               shareSuccess === 'facebook'
-                                ? "bg-green-50 border-green-200 text-green-600"
+                                ? "bg-success-muted border-success/30 text-success"
                                 : "hover:bg-primary/10 hover:border-primary/30 hover:text-[#1877F2]"
                             )}
                           >
@@ -1276,7 +1276,7 @@ export default function QRCodesPage() {
                             className={cn(
                               "rounded-full border border-border transition-all duration-200",
                               shareSuccess === 'twitter'
-                                ? "bg-green-50 border-green-200 text-green-600"
+                                ? "bg-success-muted border-success/30 text-success"
                                 : "hover:bg-muted hover:border-border hover:text-black"
                             )}
                           >
@@ -1303,7 +1303,7 @@ export default function QRCodesPage() {
                             className={cn(
                               "rounded-full border border-border transition-all duration-200",
                               shareSuccess === 'instagram' || shareSuccess === 'instagram-download'
-                                ? "bg-green-50 border-green-200 text-green-600"
+                                ? "bg-success-muted border-success/30 text-success"
                                 : "hover:bg-pink-50 hover:border-pink-200 hover:text-[#E1306C]"
                             )}
                           >

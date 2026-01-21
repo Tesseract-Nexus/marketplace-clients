@@ -47,6 +47,8 @@ import {
   Save,
   AlertCircle,
   ArrowLeft,
+  Home,
+  Edit,
 } from 'lucide-react';
 
 /**
@@ -292,9 +294,9 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
         {/* Breadcrumbs */}
         <Breadcrumbs
           items={[
-            { label: 'Dashboard', href: '/', icon: '🏠' },
-            { label: 'Coupons', href: '/coupons', icon: '🎟️' },
-            { label: mode === 'create' ? 'Create' : 'Edit', icon: '✏️' },
+            { label: 'Dashboard', href: '/', icon: Home },
+            { label: 'Coupons', href: '/coupons', icon: Ticket },
+            { label: mode === 'create' ? 'Create' : 'Edit', icon: Edit },
           ]}
         />
 
@@ -442,10 +444,10 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   value={formData.discountType || 'PERCENTAGE'}
                   onChange={(value) => setFormData({ ...formData, discountType: value as DiscountType })}
                   options={[
-                    { value: 'PERCENTAGE', label: 'Percentage', icon: '%' },
-                    { value: 'FIXED_AMOUNT', label: 'Fixed Amount', icon: '$' },
-                    { value: 'FREE_SHIPPING', label: 'Free Shipping', icon: '🚚' },
-                    { value: 'BUY_X_GET_Y', label: 'Buy X Get Y', icon: '🎁' },
+                    { value: 'PERCENTAGE', label: 'Percentage' },
+                    { value: 'FIXED_AMOUNT', label: 'Fixed Amount' },
+                    { value: 'FREE_SHIPPING', label: 'Free Shipping' },
+                    { value: 'BUY_X_GET_Y', label: 'Buy X Get Y' },
                   ]}
                 />
               </div>

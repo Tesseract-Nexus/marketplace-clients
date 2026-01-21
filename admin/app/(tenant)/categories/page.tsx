@@ -43,6 +43,7 @@ import {
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select, SelectOption } from '@/components/Select';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
@@ -71,12 +72,6 @@ const CardTitle = ({ className, children, ...props }: React.HTMLAttributes<HTMLH
 
 const CardContent = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("p-6 pt-0", className)} {...props}>
-    {children}
-  </div>
-);
-
-const Badge = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors", className)} {...props}>
     {children}
   </div>
 );
@@ -656,20 +651,19 @@ export default function CategoriesPage() {
                   </button>
                   <div className="flex items-center gap-1">
                     {category.isActive ? (
-                      <CheckCircle className="w-3.5 h-3.5 text-emerald-500" />
+                      <CheckCircle className="w-3.5 h-3.5 text-success" />
                     ) : (
-                      <XCircle className="w-3.5 h-3.5 text-red-500" />
+                      <XCircle className="w-3.5 h-3.5 text-error" />
                     )}
-                    <Badge className={cn(
-                      "text-[10px] px-1.5 py-0",
-                      category.status?.toUpperCase() === 'APPROVED'
-                        ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
-                        : category.status?.toUpperCase() === 'PENDING'
-                          ? 'bg-amber-100 text-amber-700 border-amber-200'
-                          : category.status?.toUpperCase() === 'DRAFT'
-                            ? 'bg-gray-100 text-gray-700 border-gray-200'
-                            : 'bg-red-100 text-red-700 border-red-200'
-                    )}>
+                    <Badge
+                      variant={
+                        category.status?.toUpperCase() === 'APPROVED' ? 'success'
+                        : category.status?.toUpperCase() === 'PENDING' ? 'warning'
+                        : category.status?.toUpperCase() === 'DRAFT' ? 'neutral'
+                        : 'error'
+                      }
+                      className="text-[10px] px-1.5 py-0"
+                    >
                       {category.status?.toUpperCase()}
                     </Badge>
                   </div>
@@ -716,11 +710,11 @@ export default function CategoriesPage() {
                     e.stopPropagation();
                     handleDeleteCategory(category.id);
                   }}
-                  className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                  className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                   title="Delete"
                   aria-label="Delete category"
                 >
-                  <Trash2 className="w-4 h-4 text-red-600" aria-hidden="true" />
+                  <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                 </Button>
               </PermissionGate>
             </div>
@@ -774,11 +768,11 @@ export default function CategoriesPage() {
       {/* Breadcrumbs */}
       <Breadcrumbs
         items={[
-          { label: 'Dashboard', href: '/', icon: '🏠' },
-          { label: 'Categories', href: '/categories', icon: '📂' },
-          ...(viewMode === 'create' ? [{ label: 'Create', icon: '➕' }] : []),
-          ...(viewMode === 'edit' && selectedCategory ? [{ label: selectedCategory.name, icon: '✏️' }] : []),
-          ...(viewMode === 'detail' && selectedCategory ? [{ label: selectedCategory.name, icon: '👁️' }] : []),
+          { label: 'Dashboard', href: '/', icon: Home },
+          { label: 'Categories', href: '/categories', icon: Folder },
+          ...(viewMode === 'create' ? [{ label: 'Create', icon: Plus }] : []),
+          ...(viewMode === 'edit' && selectedCategory ? [{ label: selectedCategory.name, icon: Edit }] : []),
+          ...(viewMode === 'detail' && selectedCategory ? [{ label: selectedCategory.name, icon: Eye }] : []),
         ]}
       />
 
@@ -828,20 +822,20 @@ export default function CategoriesPage() {
 
       {/* Error Alert */}
       {error && (
-        <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex items-start gap-3 animate-in slide-in-from-top-2 duration-200">
-          <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+        <div className="bg-error-muted border-2 border-error/20 rounded-xl p-4 flex items-start gap-3 animate-in slide-in-from-top-2 duration-200">
+          <AlertCircle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
           <div className="flex-1">
-            <h3 className="font-semibold text-red-900"><AdminUIText text="Error" /></h3>
-            <p className="text-red-700 text-sm mt-1"><AdminMessage text={error} /></p>
+            <h3 className="font-semibold text-error"><AdminUIText text="Error" /></h3>
+            <p className="text-error-muted-foreground text-sm mt-1"><AdminMessage text={error} /></p>
           </div>
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setError(null)}
-            className="p-1 h-auto rounded-lg hover:bg-red-100 transition-colors"
+            className="p-1 h-auto rounded-lg hover:bg-error/10 transition-colors"
             aria-label="Dismiss error message"
           >
-            <X className="w-4 h-4 text-red-600" aria-hidden="true" />
+            <X className="w-4 h-4 text-error" aria-hidden="true" />
           </Button>
         </div>
       )}
@@ -998,7 +992,7 @@ export default function CategoriesPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleBulkStatusChange('APPROVED')}
-                    className="bg-green-50 border-green-300 text-green-700 hover:bg-green-100"
+                    className="bg-success-muted border-success/30 text-success-muted-foreground hover:bg-success-muted/80"
                   >
                     <CheckCircle2 className="w-4 h-4 mr-2" />
                     <AdminButtonText text="Approve" />
@@ -1007,7 +1001,7 @@ export default function CategoriesPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleBulkStatusChange('PENDING')}
-                    className="bg-yellow-50 border-yellow-300 text-yellow-700 hover:bg-yellow-100"
+                    className="bg-warning-muted border-warning/30 text-warning-muted-foreground hover:bg-warning-muted/80"
                   >
                     <Clock className="w-4 h-4 mr-2" />
                     <AdminButtonText text="Pending" />
@@ -1016,7 +1010,7 @@ export default function CategoriesPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleBulkStatusChange('DRAFT')}
-                    className="bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100"
+                    className="bg-neutral-muted border-neutral/30 text-neutral-muted-foreground hover:bg-neutral-muted/80"
                   >
                     <FileEdit className="w-4 h-4 mr-2" />
                     <AdminButtonText text="Draft" />
@@ -1025,7 +1019,7 @@ export default function CategoriesPage() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleBulkStatusChange('REJECTED')}
-                    className="bg-red-50 border-red-300 text-red-600 hover:bg-red-100"
+                    className="bg-error-muted border-error/30 text-error hover:bg-error-muted/80"
                   >
                     <CircleOff className="w-4 h-4 mr-2" />
                     <AdminButtonText text="Reject" />
@@ -1163,15 +1157,14 @@ export default function CategoriesPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-muted-foreground mb-1"><AdminFormLabel text="Status" as="span" /></p>
-                  <Badge className={cn(
-                    selectedCategory.status?.toUpperCase() === 'APPROVED'
-                      ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
-                      : selectedCategory.status?.toUpperCase() === 'PENDING'
-                        ? 'bg-amber-100 text-amber-700 border-amber-200'
-                        : selectedCategory.status?.toUpperCase() === 'DRAFT'
-                          ? 'bg-gray-100 text-gray-700 border-gray-200'
-                          : 'bg-red-100 text-red-700 border-red-200'
-                  )}>
+                  <Badge
+                    variant={
+                      selectedCategory.status?.toUpperCase() === 'APPROVED' ? 'success'
+                      : selectedCategory.status?.toUpperCase() === 'PENDING' ? 'warning'
+                      : selectedCategory.status?.toUpperCase() === 'DRAFT' ? 'neutral'
+                      : 'error'
+                    }
+                  >
                     {selectedCategory.status?.toUpperCase()}
                   </Badge>
                 </div>
@@ -1215,7 +1208,7 @@ export default function CategoriesPage() {
                   <PermissionGate permission={Permission.CATEGORIES_DELETE}>
                     <Button
                       onClick={() => handleDeleteCategory(selectedCategory.id)}
-                      className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-xl hover:bg-red-200 transition-all"
+                      className="flex items-center gap-2 px-4 py-2 bg-error-muted text-error rounded-xl hover:bg-error-muted/80 transition-all"
                     >
                       <Trash2 className="w-4 h-4" />
                       <AdminButtonText text="Delete" />

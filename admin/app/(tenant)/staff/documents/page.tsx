@@ -214,7 +214,7 @@ export default function DocumentVerificationPage() {
         />
 
         {error && (
-          <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 flex items-center gap-2">
+          <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             {error}
             <Button
@@ -367,7 +367,7 @@ export default function DocumentVerificationPage() {
                                 <span
                                   className={cn(
                                     daysUntilExpiry !== null && daysUntilExpiry <= 7
-                                      ? 'text-red-600 font-medium'
+                                      ? 'text-error font-medium'
                                       : daysUntilExpiry !== null && daysUntilExpiry <= 30
                                       ? 'text-orange-600'
                                       : 'text-muted-foreground'
@@ -478,9 +478,9 @@ export default function DocumentVerificationPage() {
                           'px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all',
                           verifyStatus === status
                             ? status === 'verified'
-                              ? 'border-green-500 bg-green-50 text-green-700'
+                              ? 'border-success/50 bg-success-muted text-success-muted-foreground'
                               : status === 'rejected'
-                              ? 'border-red-500 bg-red-50 text-red-700'
+                              ? 'border-error/50 bg-error-muted text-error-muted-foreground'
                               : 'border-purple-500 bg-purple-50 text-purple-700'
                             : 'border-border hover:border-border'
                         )}
@@ -510,7 +510,7 @@ export default function DocumentVerificationPage() {
                 {verifyStatus === 'rejected' && (
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      Rejection Reason <span className="text-red-500">*</span>
+                      Rejection Reason <span className="text-error">*</span>
                     </label>
                     <textarea
                       value={rejectionReason}
@@ -537,9 +537,9 @@ export default function DocumentVerificationPage() {
                   className={cn(
                     'px-6 py-2.5 rounded-xl text-white transition-all shadow-lg',
                     verifyStatus === 'verified'
-                      ? 'bg-green-600 hover:bg-green-700'
+                      ? 'bg-success hover:bg-success/90'
                       : verifyStatus === 'rejected'
-                      ? 'bg-red-600 hover:bg-red-700'
+                      ? 'bg-error hover:bg-error/90'
                       : 'bg-purple-600 hover:bg-purple-700'
                   )}
                 >

@@ -235,7 +235,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              First Name <span className="text-red-500">*</span>
+              First Name <span className="text-error">*</span>
             </label>
             <input
               type="text"
@@ -251,13 +251,13 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
               placeholder="John"
             />
             {errors.firstName && (
-              <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
+              <p className="text-error text-xs mt-1">{errors.firstName}</p>
             )}
           </div>
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              Last Name <span className="text-red-500">*</span>
+              Last Name <span className="text-error">*</span>
             </label>
             <input
               type="text"
@@ -273,13 +273,13 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
               placeholder="Doe"
             />
             {errors.lastName && (
-              <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
+              <p className="text-error text-xs mt-1">{errors.lastName}</p>
             )}
           </div>
 
           <div className="md:col-span-2">
             <label className="block text-sm font-medium text-foreground mb-2">
-              Email <span className="text-red-500">*</span>
+              Email <span className="text-error">*</span>
             </label>
             <input
               type="email"
@@ -295,7 +295,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
               placeholder="john.doe@company.com"
             />
             {errors.email && (
-              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+              <p className="text-error text-xs mt-1">{errors.email}</p>
             )}
           </div>
         </div>
@@ -341,7 +341,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Department <span className="text-red-500">*</span>
+                  Department <span className="text-error">*</span>
                   {loadingDepts && <Loader2 className="inline w-4 h-4 ml-2 animate-spin" />}
                 </label>
                 <div className="flex gap-2">
@@ -371,7 +371,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
 
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
-                  Team <span className="text-red-500">*</span>
+                  Team <span className="text-error">*</span>
                   {loadingTeams && <Loader2 className="inline w-4 h-4 ml-2 animate-spin" />}
                 </label>
                 <div className="flex gap-2">
@@ -391,7 +391,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
                     <button
                       type="button"
                       onClick={() => setShowCreateTeamModal(true)}
-                      className="px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-all"
+                      className="px-3 py-2 bg-success-muted text-success-muted-foreground rounded-lg hover:bg-success/20 transition-all"
                       title="Create new team"
                     >
                       <Plus className="w-5 h-5" />
@@ -399,7 +399,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
                   )}
                 </div>
                 {errors.teamId && (
-                  <p className="text-red-500 text-xs mt-1">{errors.teamId}</p>
+                  <p className="text-error text-xs mt-1">{errors.teamId}</p>
                 )}
               </div>
             </div>

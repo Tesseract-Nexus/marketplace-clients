@@ -264,7 +264,7 @@ export default function StaffDocumentsPage() {
         />
 
         {error && (
-          <div className="p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 flex items-center gap-2">
+          <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
             <XCircle className="w-5 h-5" />
             {error}
             <Button
@@ -303,11 +303,11 @@ export default function StaffDocumentsPage() {
               </div>
               <div className="bg-card rounded-xl p-4 border border-border shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-green-100 rounded-lg">
-                    <CheckCircle className="w-5 h-5 text-green-600" />
+                  <div className="p-2 bg-success-muted rounded-lg">
+                    <CheckCircle className="w-5 h-5 text-success" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-green-600">{stats.verified}</p>
+                    <p className="text-2xl font-bold text-success">{stats.verified}</p>
                     <p className="text-sm text-muted-foreground">Verified</p>
                   </div>
                 </div>
@@ -336,11 +336,11 @@ export default function StaffDocumentsPage() {
               </div>
               <div className="bg-card rounded-xl p-4 border border-border shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-100 rounded-lg">
-                    <XCircle className="w-5 h-5 text-red-600" />
+                  <div className="p-2 bg-error-muted rounded-lg">
+                    <XCircle className="w-5 h-5 text-error" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
+                    <p className="text-2xl font-bold text-error">{stats.rejected}</p>
                     <p className="text-sm text-muted-foreground">Rejected</p>
                   </div>
                 </div>
@@ -440,9 +440,9 @@ export default function StaffDocumentsPage() {
                           'px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all',
                           verifyStatus === status
                             ? status === 'verified'
-                              ? 'border-green-500 bg-green-50 text-green-700'
+                              ? 'border-success/50 bg-success-muted text-success-muted-foreground'
                               : status === 'rejected'
-                              ? 'border-red-500 bg-red-50 text-red-700'
+                              ? 'border-error/50 bg-error-muted text-error-muted-foreground'
                               : 'border-purple-500 bg-purple-50 text-purple-700'
                             : 'border-border hover:border-border'
                         )}
@@ -472,7 +472,7 @@ export default function StaffDocumentsPage() {
                 {verifyStatus === 'rejected' && (
                   <div>
                     <label className="block text-sm font-medium text-foreground mb-2">
-                      Rejection Reason <span className="text-red-500">*</span>
+                      Rejection Reason <span className="text-error">*</span>
                     </label>
                     <textarea
                       value={rejectionReason}
@@ -499,9 +499,9 @@ export default function StaffDocumentsPage() {
                   className={cn(
                     'px-6 py-2.5 rounded-xl text-white transition-all shadow-lg',
                     verifyStatus === 'verified'
-                      ? 'bg-green-600 hover:bg-green-700'
+                      ? 'bg-success hover:bg-success/90'
                       : verifyStatus === 'rejected'
-                      ? 'bg-red-600 hover:bg-red-700'
+                      ? 'bg-error hover:bg-error/90'
                       : 'bg-purple-600 hover:bg-purple-700'
                   )}
                 >
