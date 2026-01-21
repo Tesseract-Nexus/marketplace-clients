@@ -559,7 +559,7 @@ export default function DomainsSettingsPage() {
 
   return (
     <PermissionGate
-      permission={Permission.SETTINGS_MANAGE}
+      permission={Permission.SETTINGS_EDIT}
       fallback="styled"
       fallbackTitle="Custom Domains"
       fallbackDescription="You don't have permission to manage custom domains."
