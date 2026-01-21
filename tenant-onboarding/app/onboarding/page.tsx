@@ -19,6 +19,7 @@ import { getBrowserGeolocation, reverseGeocode, checkGeolocationPermission } fro
 import { useAutoSave, useBrowserClose, useDraftRecovery, type DraftFormData } from '../../lib/hooks';
 import { config } from '../../lib/config/app';
 import { getCountryDefaults } from '../../lib/utils/country-defaults';
+import { normalizeDomain, validateDomain, generateUrls, type DomainValidationResult } from '../../lib/utils/domain';
 
 // Development-only logging utility
 const isDev = process.env.NODE_ENV === 'development';
@@ -159,6 +160,8 @@ export default function OnboardingPage() {
     dnsConfigured: boolean;
     message: string;
     verificationRecord?: { type: string; host: string; value: string };
+    formatWarning?: string;
+    suggestedDomain?: string;
   }>({
     isChecking: false,
     isValid: null,
@@ -872,19 +875,46 @@ export default function OnboardingPage() {
       clearTimeout(customDomainValidationTimerRef.current);
     }
 
+    // Normalize the domain first
+    const normalized = normalizeDomain(domain);
+
     // Reset if empty
-    if (!domain || domain.length < 4) {
+    if (!normalized || normalized.length < 4) {
       setCustomDomainValidation({
         isChecking: false,
         isValid: null,
         dnsConfigured: false,
-        message: domain.length > 0 && domain.length < 4 ? 'Minimum 4 characters required' : '',
+        message: normalized.length > 0 && normalized.length < 4 ? 'Minimum 4 characters required' : '',
+        formatWarning: undefined,
+        suggestedDomain: undefined,
       });
       return;
     }
 
-    // Show checking state immediately
-    setCustomDomainValidation(prev => ({ ...prev, isChecking: true, message: '' }));
+    // Run client-side format validation first
+    const formatValidation = validateDomain(normalized);
+
+    // If format is invalid, show error immediately without API call
+    if (!formatValidation.isValid) {
+      setCustomDomainValidation({
+        isChecking: false,
+        isValid: false,
+        dnsConfigured: false,
+        message: formatValidation.error || 'Invalid domain format',
+        formatWarning: undefined,
+        suggestedDomain: undefined,
+      });
+      return;
+    }
+
+    // Show checking state with any format warnings
+    setCustomDomainValidation(prev => ({
+      ...prev,
+      isChecking: true,
+      message: '',
+      formatWarning: formatValidation.warning,
+      suggestedDomain: formatValidation.suggestedRootDomain,
+    }));
 
     // Debounce the actual API call
     customDomainValidationTimerRef.current = setTimeout(async () => {
@@ -892,7 +922,7 @@ export default function OnboardingPage() {
         const response = await fetch('/api/onboarding/validate/custom-domain', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ domain, session_id: sessionId }),
+          body: JSON.stringify({ domain: normalized, session_id: sessionId }),
         });
         const result = await response.json();
         const data = result.data;
@@ -907,6 +937,8 @@ export default function OnboardingPage() {
               : 'Domain is valid. Configure DNS to complete setup.'
             : data.message || 'Invalid domain',
           verificationRecord: data.verification_record,
+          formatWarning: formatValidation.warning,
+          suggestedDomain: formatValidation.suggestedRootDomain,
         });
       } catch (error) {
         setCustomDomainValidation({
@@ -914,6 +946,8 @@ export default function OnboardingPage() {
           isValid: null,
           dnsConfigured: false,
           message: 'Unable to validate domain',
+          formatWarning: formatValidation.warning,
+          suggestedDomain: formatValidation.suggestedRootDomain,
         });
       }
     }, 500);
@@ -2200,6 +2234,13 @@ export default function OnboardingPage() {
                                 <input
                                   {...storeSetupForm.register('customDomain')}
                                   placeholder="yourbrand.com"
+                                  onBlur={(e) => {
+                                    // Normalize the domain on blur
+                                    const normalized = normalizeDomain(e.target.value);
+                                    if (normalized !== e.target.value) {
+                                      storeSetupForm.setValue('customDomain', normalized);
+                                    }
+                                  }}
                                   className={`w-full h-14 px-5 pr-12 text-base bg-white dark:bg-white/5 border-2 rounded-xl text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 transition-all ${
                                     customDomainValidation.isValid === true
                                       ? 'border-emerald-500 focus:border-emerald-500 focus:ring-emerald-500/20'
@@ -2241,48 +2282,80 @@ export default function OnboardingPage() {
                                   {customDomainValidation.message}
                                 </p>
                               )}
-                            </div>
 
-                            {/* Generated URLs Preview */}
-                            {storeSetupForm.watch('customDomain') && storeSetupForm.watch('customDomain').length >= 4 && (
-                              <div className="p-4 bg-white dark:bg-white/5 rounded-xl border-2 border-warm-200 dark:border-white/10">
-                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Your Store URLs</p>
-                                <div className="space-y-3">
-                                  {/* Admin URL */}
-                                  <div className="flex items-center gap-3 p-3 bg-warm-50 dark:bg-white/5 rounded-lg">
-                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                      <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                      </svg>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-xs text-muted-foreground">Admin Dashboard</p>
-                                      <p className="text-sm font-semibold text-foreground truncate">
-                                        https://admin.{storeSetupForm.watch('customDomain')?.replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/$/, '')}
+                              {/* Format warning (e.g., subdomain detection) */}
+                              {customDomainValidation.formatWarning && (
+                                <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-500/10 rounded-lg border border-amber-200 dark:border-amber-500/20">
+                                  <div className="flex items-start gap-2">
+                                    <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                                    <div className="flex-1">
+                                      <p className="text-sm text-amber-800 dark:text-amber-200">
+                                        {customDomainValidation.formatWarning}
                                       </p>
-                                    </div>
-                                  </div>
-                                  {/* Storefront URLs */}
-                                  <div className="flex items-center gap-3 p-3 bg-warm-50 dark:bg-white/5 rounded-lg">
-                                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                                      <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                      </svg>
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <p className="text-xs text-muted-foreground">Storefront (Customer-facing)</p>
-                                      <p className="text-sm font-semibold text-foreground">
-                                        https://{storeSetupForm.watch('customDomain')?.replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/$/, '')}
-                                      </p>
-                                      <p className="text-xs text-muted-foreground mt-0.5">
-                                        Also: https://www.{storeSetupForm.watch('customDomain')?.replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/$/, '')}
-                                      </p>
+                                      {customDomainValidation.suggestedDomain && (
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            storeSetupForm.setValue('customDomain', customDomainValidation.suggestedDomain || '');
+                                            validateCustomDomain(customDomainValidation.suggestedDomain || '');
+                                          }}
+                                          className="mt-2 text-sm font-medium text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 underline underline-offset-2"
+                                        >
+                                          Use {customDomainValidation.suggestedDomain} instead
+                                        </button>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
-                              </div>
-                            )}
+                              )}
+                            </div>
+
+                            {/* Generated URLs Preview */}
+                            {(() => {
+                              const domainInput = storeSetupForm.watch('customDomain');
+                              const urls = domainInput ? generateUrls(domainInput) : null;
+                              if (!urls || !domainInput || domainInput.length < 4) return null;
+
+                              return (
+                                <div className="p-4 bg-white dark:bg-white/5 rounded-xl border-2 border-warm-200 dark:border-white/10">
+                                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Your Store URLs</p>
+                                  <div className="space-y-3">
+                                    {/* Admin URL */}
+                                    <div className="flex items-center gap-3 p-3 bg-warm-50 dark:bg-white/5 rounded-lg">
+                                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                        <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-xs text-muted-foreground">Admin Dashboard</p>
+                                        <p className="text-sm font-semibold text-foreground truncate">
+                                          {urls.admin}
+                                        </p>
+                                      </div>
+                                    </div>
+                                    {/* Storefront URLs */}
+                                    <div className="flex items-center gap-3 p-3 bg-warm-50 dark:bg-white/5 rounded-lg">
+                                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                                        <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                        </svg>
+                                      </div>
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-xs text-muted-foreground">Storefront (Customer-facing)</p>
+                                        <p className="text-sm font-semibold text-foreground">
+                                          {urls.storefront}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground mt-0.5">
+                                          Also: {urls.storefrontWww}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                            })()}
 
                             {/* DNS Configuration Instructions */}
                             {customDomainValidation.isValid === true && customDomainValidation.verificationRecord && (
@@ -2344,6 +2417,8 @@ export default function OnboardingPage() {
                                     isValid: null,
                                     dnsConfigured: false,
                                     message: '',
+                                    formatWarning: undefined,
+                                    suggestedDomain: undefined,
                                   });
                                 }}
                                 className="text-sm text-muted-foreground hover:text-foreground transition-colors px-4 py-2 rounded-lg hover:bg-warm-100 dark:hover:bg-white/5"
