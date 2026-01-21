@@ -1377,9 +1377,11 @@ export default function OnboardingPage() {
       nextStep();
       // Pass session and email as URL params for the verify page
       // This ensures the verify page works even before store rehydration completes
+      // Fall back to contactForm values if store value is empty (can happen with custom domain flow)
       const verifyParams = new URLSearchParams();
       if (sessionId) verifyParams.set('session', sessionId);
-      if (contactDetails.email) verifyParams.set('email', contactDetails.email as string);
+      const emailForVerify = contactDetails.email || contactForm.getValues('email');
+      if (emailForVerify) verifyParams.set('email', emailForVerify as string);
       router.push(`/onboarding/verify?${verifyParams.toString()}`);
     } catch (error) {
       // Use OnboardingAPIError for better error handling
