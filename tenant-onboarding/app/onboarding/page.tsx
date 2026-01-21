@@ -2551,9 +2551,9 @@ export default function OnboardingPage() {
                                 </div>
 
                                 {/* Email Setup Info (Optional) */}
-                                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-200 dark:border-blue-500/20">
-                                  <p className="text-sm text-blue-800 dark:text-blue-200">
-                                    <strong className="font-semibold">Email Setup (Optional):</strong> Want to send emails from your custom domain (e.g., contact@{storeSetupForm.watch('customDomain')})? You can configure SPF, DKIM, and MX records later in Admin Settings → Domains.
+                                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700">
+                                  <p className="text-sm text-blue-900 dark:text-blue-100">
+                                    <strong className="font-semibold text-blue-900 dark:text-blue-50">Email Setup (Optional):</strong> Want to send emails from your custom domain (e.g., contact@{storeSetupForm.watch('customDomain')})? You can configure SPF, DKIM, and MX records later in Admin Settings → Domains.
                                   </p>
                                 </div>
 
