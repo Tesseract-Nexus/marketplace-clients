@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 import { workflowService, ApprovalWorkflow, TriggerThreshold, EscalationConfig } from '@/lib/services/approvalService';
 import { PageHeader } from '@/components/PageHeader';
-import { PageLoading } from '@/components/common';
+import { PageLoading, PageError } from '@/components/common';
 import { ErrorState } from '@/components/ui/error-state';
 
 // Icon mapping for workflow types
