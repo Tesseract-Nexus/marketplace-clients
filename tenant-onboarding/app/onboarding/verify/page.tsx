@@ -276,13 +276,30 @@ function VerifyEmailContent() {
   }, [showWelcomePage, router]);
 
   // Wait for rehydration to complete before checking session data
+  // Add safety timeout to prevent indefinite loading
   useEffect(() => {
+    // Safety timeout: if rehydration takes too long, proceed anyway
+    // This prevents the page from being stuck in loading state
+    const timeoutId = setTimeout(() => {
+      if (isRehydrating) {
+        devLog('[Verify] Rehydration timeout - proceeding with available data');
+        setIsRehydrating(false);
+      }
+    }, 3000); // 3 second timeout
+
     if (!_hasHydrated) {
       setIsRehydrating(true);
-      return;
+      return () => clearTimeout(timeoutId);
     }
 
-    // If we have a sessionId but no email from store, trigger rehydration
+    // If we have URL params, we don't need to wait for store rehydration
+    if (emailFromParams && sessionId) {
+      devLog('[Verify] Email available from URL params, skipping store rehydration');
+      setIsRehydrating(false);
+      return () => clearTimeout(timeoutId);
+    }
+
+    // If we have a sessionId but no email from store or URL, trigger rehydration
     if (sessionId && !contactDetails.email && !emailFromParams) {
       rehydrateSensitiveData().finally(() => {
         setIsRehydrating(false);
@@ -290,7 +307,9 @@ function VerifyEmailContent() {
     } else {
       setIsRehydrating(false);
     }
-  }, [_hasHydrated, sessionId, contactDetails.email, emailFromParams, rehydrateSensitiveData]);
+
+    return () => clearTimeout(timeoutId);
+  }, [_hasHydrated, sessionId, contactDetails.email, emailFromParams, rehydrateSensitiveData, isRehydrating]);
 
   // Show welcome page only after rehydration completes and no valid session
   useEffect(() => {
