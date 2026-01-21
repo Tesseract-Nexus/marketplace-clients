@@ -26,6 +26,7 @@ interface DNSRecord {
 interface ValidateCustomDomainResponse {
   valid: boolean;
   available: boolean;
+  domain_exists: boolean;
   dns_configured: boolean;
   dns_records?: DNSRecord[];
   verification_record?: DNSRecord;
@@ -194,6 +195,7 @@ export async function POST(request: NextRequest) {
         const sanitizedData: ValidateCustomDomainResponse = {
           valid: Boolean(responseData.valid),
           available: Boolean(responseData.available),
+          domain_exists: Boolean(responseData.domain_exists),
           dns_configured: Boolean(responseData.dns_configured),
           message: typeof responseData.message === 'string' ? responseData.message : undefined,
         };
@@ -237,6 +239,7 @@ export async function POST(request: NextRequest) {
       data: {
         valid: true,
         available: true,
+        domain_exists: true, // Assume exists when service unavailable
         dns_configured: false,
         verification_record: {
           type: 'CNAME',
