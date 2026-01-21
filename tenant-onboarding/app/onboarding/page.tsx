@@ -154,12 +154,14 @@ export default function OnboardingPage() {
 
   // Custom domain validation state
   const [showCustomDomainSection, setShowCustomDomainSection] = useState(false);
+  const [selectedVerificationMethod, setSelectedVerificationMethod] = useState<'CNAME' | 'TXT'>('CNAME');
   const [customDomainValidation, setCustomDomainValidation] = useState<{
     isChecking: boolean;
     isValid: boolean | null;
     dnsConfigured: boolean;
     message: string;
     verificationRecord?: { type: string; host: string; value: string };
+    verificationRecords?: { type: string; host: string; value: string; purpose?: string }[];
     formatWarning?: string;
     suggestedDomain?: string;
   }>({
@@ -954,6 +956,7 @@ export default function OnboardingPage() {
               : 'Domain is valid. Configure DNS to complete setup.'
             : data.message || 'Invalid domain',
           verificationRecord: data.verification_record,
+          verificationRecords: data.verification_records,
           formatWarning: formatValidation.warning,
           suggestedDomain: formatValidation.suggestedRootDomain,
         });
@@ -2436,68 +2439,116 @@ export default function OnboardingPage() {
                                     <p className="text-xs text-muted-foreground">Add this record to your domain provider (GoDaddy, Cloudflare, Namecheap, etc.)</p>
                                   </div>
                                 </div>
-                                <div className="bg-warm-50 dark:bg-white/5 rounded-lg overflow-hidden">
-                                  {/* DNS Record Table */}
-                                  <div className="overflow-x-auto">
-                                    <table className="w-full text-sm">
-                                      <thead>
-                                        <tr className="border-b border-warm-200 dark:border-white/10">
-                                          <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 w-20">Type</th>
-                                          <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">Host / Name</th>
-                                          <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">Value / Points To</th>
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr>
-                                          <td className="px-4 py-3 align-top">
-                                            <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 font-mono font-semibold text-xs">
-                                              {customDomainValidation.verificationRecord.type}
-                                            </span>
-                                          </td>
-                                          <td className="px-4 py-3 align-top">
-                                            <div className="flex items-start gap-2">
-                                              <code className="flex-1 font-mono text-sm text-foreground bg-white dark:bg-white/10 px-3 py-2 rounded-lg break-all select-all">
-                                                {customDomainValidation.verificationRecord.host}
-                                              </code>
-                                              <button
-                                                type="button"
-                                                onClick={() => {
-                                                  navigator.clipboard.writeText(customDomainValidation.verificationRecord?.host || '');
-                                                }}
-                                                className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                                                title="Copy host"
-                                              >
-                                                <Copy className="w-4 h-4" />
-                                              </button>
-                                            </div>
-                                          </td>
-                                          <td className="px-4 py-3 align-top">
-                                            <div className="flex items-start gap-2">
-                                              <code className="flex-1 font-mono text-sm text-foreground bg-white dark:bg-white/10 px-3 py-2 rounded-lg break-all select-all">
-                                                {customDomainValidation.verificationRecord.value}
-                                              </code>
-                                              <button
-                                                type="button"
-                                                onClick={() => {
-                                                  navigator.clipboard.writeText(customDomainValidation.verificationRecord?.value || '');
-                                                }}
-                                                className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
-                                                title="Copy value"
-                                              >
-                                                <Copy className="w-4 h-4" />
-                                              </button>
-                                            </div>
-                                          </td>
-                                        </tr>
-                                      </tbody>
-                                    </table>
+
+                                {/* Verification Method Selector */}
+                                {customDomainValidation.verificationRecords && customDomainValidation.verificationRecords.length > 1 && (
+                                  <div className="mb-4">
+                                    <p className="text-xs font-medium text-muted-foreground mb-2">Choose verification method:</p>
+                                    <div className="flex gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => setSelectedVerificationMethod('CNAME')}
+                                        className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                          selectedVerificationMethod === 'CNAME'
+                                            ? 'bg-primary text-white'
+                                            : 'bg-warm-100 dark:bg-white/10 text-foreground hover:bg-warm-200 dark:hover:bg-white/20'
+                                        }`}
+                                      >
+                                        CNAME Record
+                                        <span className="block text-xs opacity-75 mt-0.5">Recommended</span>
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => setSelectedVerificationMethod('TXT')}
+                                        className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                          selectedVerificationMethod === 'TXT'
+                                            ? 'bg-primary text-white'
+                                            : 'bg-warm-100 dark:bg-white/10 text-foreground hover:bg-warm-200 dark:hover:bg-white/20'
+                                        }`}
+                                      >
+                                        TXT Record
+                                        <span className="block text-xs opacity-75 mt-0.5">Alternative</span>
+                                      </button>
+                                    </div>
                                   </div>
-                                </div>
+                                )}
+
+                                {/* Get the selected verification record */}
+                                {(() => {
+                                  const selectedRecord = customDomainValidation.verificationRecords?.find(r => r.type === selectedVerificationMethod) || customDomainValidation.verificationRecord;
+                                  if (!selectedRecord) return null;
+                                  return (
+                                    <div className="bg-warm-50 dark:bg-white/5 rounded-lg overflow-hidden">
+                                      {/* DNS Record Table */}
+                                      <div className="overflow-x-auto">
+                                        <table className="w-full text-sm">
+                                          <thead>
+                                            <tr className="border-b border-warm-200 dark:border-white/10">
+                                              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 w-20">Type</th>
+                                              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">Host / Name</th>
+                                              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">Value / Points To</th>
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            <tr>
+                                              <td className="px-4 py-3 align-top">
+                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-md font-mono font-semibold text-xs ${
+                                                  selectedRecord.type === 'CNAME'
+                                                    ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300'
+                                                    : 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300'
+                                                }`}>
+                                                  {selectedRecord.type}
+                                                </span>
+                                              </td>
+                                              <td className="px-4 py-3 align-top">
+                                                <div className="flex items-start gap-2">
+                                                  <code className="flex-1 font-mono text-sm text-foreground bg-white dark:bg-white/10 px-3 py-2 rounded-lg break-all select-all">
+                                                    {selectedRecord.host}
+                                                  </code>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => navigator.clipboard.writeText(selectedRecord.host || '')}
+                                                    className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                                                    title="Copy host"
+                                                  >
+                                                    <Copy className="w-4 h-4" />
+                                                  </button>
+                                                </div>
+                                              </td>
+                                              <td className="px-4 py-3 align-top">
+                                                <div className="flex items-start gap-2">
+                                                  <code className="flex-1 font-mono text-sm text-foreground bg-white dark:bg-white/10 px-3 py-2 rounded-lg break-all select-all">
+                                                    {selectedRecord.value}
+                                                  </code>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => navigator.clipboard.writeText(selectedRecord.value || '')}
+                                                    className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                                                    title="Copy value"
+                                                  >
+                                                    <Copy className="w-4 h-4" />
+                                                  </button>
+                                                </div>
+                                              </td>
+                                            </tr>
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    </div>
+                                  );
+                                })()}
 
                                 {/* Quick Help */}
                                 <div className="mt-4 p-3 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-300 dark:border-slate-600">
                                   <p className="text-sm text-slate-800 dark:text-slate-100">
                                     <strong className="font-semibold text-slate-900 dark:text-white">Where to add this?</strong> Log in to your domain provider and find DNS settings, Zone Editor, or DNS Management. Add a new record with the values above.
+                                  </p>
+                                </div>
+
+                                {/* Email Setup Info (Optional) */}
+                                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-200 dark:border-blue-500/20">
+                                  <p className="text-sm text-blue-800 dark:text-blue-200">
+                                    <strong className="font-semibold">Email Setup (Optional):</strong> Want to send emails from your custom domain (e.g., contact@{storeSetupForm.watch('customDomain')})? You can configure SPF, DKIM, and MX records later in Admin Settings → Domains.
                                   </p>
                                 </div>
 

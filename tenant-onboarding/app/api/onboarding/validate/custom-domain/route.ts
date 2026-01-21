@@ -20,6 +20,7 @@ interface DNSRecord {
   host: string;
   value: string;
   ttl?: number;
+  purpose?: string;
 }
 
 interface ValidateCustomDomainResponse {
@@ -28,6 +29,7 @@ interface ValidateCustomDomainResponse {
   dns_configured: boolean;
   dns_records?: DNSRecord[];
   verification_record?: DNSRecord;
+  verification_records?: DNSRecord[];
   message?: string;
   suggestions?: string[];
 }
@@ -186,20 +188,32 @@ export async function POST(request: NextRequest) {
 
       if (response.ok) {
         const data = await response.json();
+        // Handle wrapped response from custom-domain-service
+        const responseData = data.data || data;
         // Sanitize response - only return expected fields
         const sanitizedData: ValidateCustomDomainResponse = {
-          valid: Boolean(data.valid),
-          available: Boolean(data.available),
-          dns_configured: Boolean(data.dns_configured),
-          message: typeof data.message === 'string' ? data.message : undefined,
+          valid: Boolean(responseData.valid),
+          available: Boolean(responseData.available),
+          dns_configured: Boolean(responseData.dns_configured),
+          message: typeof responseData.message === 'string' ? responseData.message : undefined,
         };
-        if (data.verification_record) {
+        if (responseData.verification_record) {
           sanitizedData.verification_record = {
-            type: String(data.verification_record.type || 'CNAME'),
-            host: String(data.verification_record.host || ''),
-            value: String(data.verification_record.value || ''),
-            ttl: Number(data.verification_record.ttl) || 3600,
+            type: String(responseData.verification_record.record_type || responseData.verification_record.type || 'CNAME'),
+            host: String(responseData.verification_record.host || ''),
+            value: String(responseData.verification_record.value || ''),
+            ttl: Number(responseData.verification_record.ttl) || 3600,
           };
+        }
+        // Include all verification options (CNAME and TXT)
+        if (responseData.verification_records && Array.isArray(responseData.verification_records)) {
+          sanitizedData.verification_records = responseData.verification_records.map((rec: Record<string, unknown>) => ({
+            type: String(rec.record_type || rec.type || 'CNAME'),
+            host: String(rec.host || ''),
+            value: String(rec.value || ''),
+            ttl: Number(rec.ttl) || 3600,
+            purpose: String(rec.purpose || 'verification'),
+          }));
         }
         return NextResponse.json({ data: sanitizedData });
       }
@@ -230,6 +244,22 @@ export async function POST(request: NextRequest) {
           value: 'verify.tesserix.app',
           ttl: 3600,
         },
+        verification_records: [
+          {
+            type: 'CNAME',
+            host: `_tesserix.${cleanDomain}`,
+            value: 'verify.tesserix.app',
+            ttl: 3600,
+            purpose: 'verification',
+          },
+          {
+            type: 'TXT',
+            host: `_tesserix.${cleanDomain}`,
+            value: verificationToken,
+            ttl: 3600,
+            purpose: 'verification',
+          },
+        ],
         message: 'Domain format is valid. DNS verification will be completed during setup.',
       } as ValidateCustomDomainResponse,
     });
