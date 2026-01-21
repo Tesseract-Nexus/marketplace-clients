@@ -754,8 +754,8 @@ export default function OnboardingPage() {
       } catch { setStates([]); }
       if (location.city) addressForm.setValue('city', location.city);
       if (location.postal_code) addressForm.setValue('postalCode', location.postal_code);
-      storeSetupForm.setValue('currency', location.currency);
-      storeSetupForm.setValue('timezone', location.timezone);
+      storeSetupForm.setValue('currency', location.currency, { shouldValidate: true, shouldDirty: true });
+      storeSetupForm.setValue('timezone', location.timezone, { shouldValidate: true, shouldDirty: true });
     };
 
     Promise.all([detectLocation(), loadCountries(), loadCurrencies(), loadTimezones()])
@@ -1242,8 +1242,8 @@ export default function OnboardingPage() {
       // Pre-fill currency and timezone based on address country
       // Always set them to match the selected country - user can still change on next page
       const countryDefaults = getCountryDefaults(data.country);
-      storeSetupForm.setValue('currency', countryDefaults.currency);
-      storeSetupForm.setValue('timezone', countryDefaults.timezone);
+      storeSetupForm.setValue('currency', countryDefaults.currency, { shouldValidate: true, shouldDirty: true });
+      storeSetupForm.setValue('timezone', countryDefaults.timezone, { shouldValidate: true, shouldDirty: true });
       setCurrentSection(3);
     } catch (error) {
       // Use OnboardingAPIError for better error handling
@@ -2766,7 +2766,7 @@ export default function OnboardingPage() {
                             searchTerms: [c.name, c.code, c.symbol],
                           }))}
                           value={storeSetupForm.watch('currency')}
-                          onChange={(value) => storeSetupForm.setValue('currency', value)}
+                          onChange={(value) => storeSetupForm.setValue('currency', value, { shouldValidate: true, shouldDirty: true })}
                           placeholder="Select currency"
                           searchPlaceholder="Search currencies..."
                           error={!!storeSetupForm.formState.errors.currency}
@@ -2785,7 +2785,7 @@ export default function OnboardingPage() {
                             searchTerms: [tz.name, tz.offset, tz.id],
                           }))}
                           value={storeSetupForm.watch('timezone')}
-                          onChange={(value) => storeSetupForm.setValue('timezone', value)}
+                          onChange={(value) => storeSetupForm.setValue('timezone', value, { shouldValidate: true, shouldDirty: true })}
                           placeholder="Select timezone"
                           searchPlaceholder="Search timezones..."
                           error={!!storeSetupForm.formState.errors.timezone}
