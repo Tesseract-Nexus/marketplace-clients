@@ -152,7 +152,12 @@ interface HomeContentResponse {
     features: Array<{ title: string; description: string; iconName: string }>;
     testimonials: Array<{ quote: string; name: string; role: string; company?: string; initials: string }>;
     trustBadges: Array<{ label: string; iconName: string }>;
-    paymentPlans: Array<{ features: Array<{ feature: string }> }>;
+    paymentPlans: Array<{
+      slug: string;
+      price: string;
+      tagline?: string;
+      features: Array<{ feature: string }>;
+    }>;
   };
 }
 
@@ -179,6 +184,12 @@ export default function Home() {
   const pricingFeatures = contentData?.data?.paymentPlans?.[0]?.features?.length
     ? contentData.data.paymentPlans[0].features.map((f) => f.feature)
     : fallbackPricingFeatures;
+
+  // Extract pricing info from payment plans
+  const freePlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'free-trial');
+  const proPlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'pro');
+  const pricingTagline = freePlan?.tagline || '12 months free, then ₹299/mo';
+  const monthlyPrice = proPlan?.price ? `₹${Math.round(parseFloat(proPlan.price))}` : '₹299';
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -281,7 +292,7 @@ export default function Home() {
           <div>
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-sage-50 text-sage-700 text-sm font-medium border border-sage-200 mb-6 gap-2">
               <span className="flex h-2 w-2 rounded-full bg-sage-500 animate-pulse" aria-hidden="true" />
-              <span>12 months free, then ₹299/mo</span>
+              <span>{pricingTagline}</span>
             </div>
             <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight mb-6 leading-[1.05] text-foreground">
               Your online store,
@@ -460,7 +471,7 @@ export default function Home() {
 
                 <div className="p-4 rounded-lg bg-warm-50 border border-warm-200 mb-8">
                   <p className="text-sm text-foreground-secondary">
-                    Then just <span className="font-semibold text-foreground text-lg">₹299/month</span>
+                    Then just <span className="font-semibold text-foreground text-lg">{monthlyPrice}/month</span>
                     <br />
                     <span className="text-foreground-tertiary">No transaction fees. No hidden costs.</span>
                   </p>
@@ -636,7 +647,7 @@ export default function Home() {
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </button>
           <p className="text-sm text-foreground-tertiary mt-4">
-            12 months free, then ₹299/mo. Cancel anytime.
+            {pricingTagline}. Cancel anytime.
           </p>
         </div>
       </section>
