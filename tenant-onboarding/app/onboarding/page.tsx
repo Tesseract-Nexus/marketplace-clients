@@ -1353,7 +1353,12 @@ export default function OnboardingPage() {
         secondary_color: data.secondaryColor,
       });
       nextStep();
-      router.push('/onboarding/verify');
+      // Pass session and email as URL params for the verify page
+      // This ensures the verify page works even before store rehydration completes
+      const verifyParams = new URLSearchParams();
+      if (sessionId) verifyParams.set('session', sessionId);
+      if (contactDetails.email) verifyParams.set('email', contactDetails.email as string);
+      router.push(`/onboarding/verify?${verifyParams.toString()}`);
     } catch (error) {
       // Use OnboardingAPIError for better error handling
       if (error instanceof OnboardingAPIError) {

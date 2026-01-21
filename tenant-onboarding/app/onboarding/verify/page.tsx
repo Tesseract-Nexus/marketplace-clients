@@ -203,11 +203,16 @@ function VerifyEmailContent() {
     contactDetails,
     setEmailVerified,
     nextStep,
+    _hasHydrated,
+    rehydrateSensitiveData,
   } = useOnboardingStore();
 
   // Allow session ID from URL params or store
   const sessionId = searchParams?.get('session') || searchParams?.get('session_id') || storeSessionId;
   const emailFromParams = searchParams?.get('email');
+
+  // Track if we're waiting for rehydration
+  const [isRehydrating, setIsRehydrating] = useState(!_hasHydrated);
 
   const [verificationMethod, setVerificationMethod] = useState<VerificationMethod>(null);
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
@@ -270,15 +275,40 @@ function VerifyEmailContent() {
     return () => clearInterval(interval);
   }, [showWelcomePage, router]);
 
-  // Show welcome page instead of crashing when no valid session
+  // Wait for rehydration to complete before checking session data
   useEffect(() => {
-    if (!email || !sessionId) {
+    if (!_hasHydrated) {
+      setIsRehydrating(true);
+      return;
+    }
+
+    // If we have a sessionId but no email from store, trigger rehydration
+    if (sessionId && !contactDetails.email && !emailFromParams) {
+      rehydrateSensitiveData().finally(() => {
+        setIsRehydrating(false);
+      });
+    } else {
+      setIsRehydrating(false);
+    }
+  }, [_hasHydrated, sessionId, contactDetails.email, emailFromParams, rehydrateSensitiveData]);
+
+  // Show welcome page only after rehydration completes and no valid session
+  useEffect(() => {
+    // Wait for rehydration to complete
+    if (isRehydrating) return;
+
+    // Use email from URL params as primary source since it's passed during navigation
+    const hasValidSession = sessionId && (emailFromParams || contactDetails.email);
+    if (!hasValidSession) {
       setShowWelcomePage(true);
     }
-  }, [email, sessionId]);
+  }, [isRehydrating, sessionId, emailFromParams, contactDetails.email]);
 
   // Check verification method on mount and send verification
   useEffect(() => {
+    // Wait for rehydration to complete
+    if (isRehydrating) return;
+
     // Handle case when page is visited directly without session
     if (!email || !sessionId || showWelcomePage) {
       return; // Will show welcome page via the effect above
@@ -307,17 +337,19 @@ function VerifyEmailContent() {
     };
 
     initializeVerification();
-  }, [contactDetails.email, sessionId, router, showWelcomePage]);
+  }, [isRehydrating, email, sessionId, router, showWelcomePage]);
 
   const sendVerification = async (method: VerificationMethod) => {
-    if (!contactDetails.email || !sessionId) {
+    // Use email from URL params or store
+    const verificationEmail = emailFromParams || contactDetails.email;
+    if (!verificationEmail || !sessionId) {
       setError('Email not found. Please go back and complete the contact details step.');
       return;
     }
 
     setIsSendingInitial(true);
     try {
-      const result = await onboardingApi.sendEmailVerification(sessionId, contactDetails.email);
+      const result = await onboardingApi.sendEmailVerification(sessionId, verificationEmail);
 
       if (method === 'link') {
         setLinkSent(true);
@@ -956,6 +988,11 @@ function VerifyEmailContent() {
       </div>
     </>
   );
+
+  // Show loading state while rehydrating
+  if (isRehydrating) {
+    return <VerifyEmailLoading />;
+  }
 
   // Show welcome page if no valid session/email
   if (showWelcomePage) {
