@@ -36,6 +36,10 @@ const ROOT_PREFIXES = ['dev', 'staging', 'prod'];
 // Tenant service URL for validation
 const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://tenant-service.devtest.svc.cluster.local:8082';
 
+// DEV MODE: Skip tenant validation when running locally without services
+// Set NEXT_PUBLIC_DEV_AUTH_BYPASS=true in .env.local to enable
+const DEV_AUTH_BYPASS = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true';
+
 // Simple cache for tenant validation (Edge Runtime compatible)
 // PERFORMANCE: Extended cache with stale-while-revalidate pattern
 const validatedTenants = new Map<string, { exists: boolean; timestamp: number; validatedAt: number }>();
@@ -153,6 +157,13 @@ async function fetchTenantValidation(slug: string): Promise<boolean> {
  * - Background refresh for stale cache entries
  */
 async function validateTenantExists(slug: string): Promise<boolean> {
+  // DEV MODE: Skip tenant validation entirely
+  // This allows running locally without tenant-service
+  if (DEV_AUTH_BYPASS) {
+    console.log('[Middleware] 🔓 DEV AUTH BYPASS - skipping tenant validation for:', slug);
+    return true;
+  }
+
   const now = Date.now();
   const cached = validatedTenants.get(slug);
 
@@ -203,7 +214,13 @@ export async function middleware(request: NextRequest) {
   }
 
   // Extract tenant from subdomain
-  const tenantSlug = extractTenantFromHost(host);
+  let tenantSlug = extractTenantFromHost(host);
+
+  // DEV MODE: Use mock tenant when no tenant in subdomain
+  if (!tenantSlug && DEV_AUTH_BYPASS) {
+    tenantSlug = 'dev-tenant';
+    console.log('[Middleware] 🔓 DEV AUTH BYPASS - using mock tenant: dev-tenant');
+  }
 
   // If on root domain without tenant, let the app handle it
   // (will show tenant selector or redirect to default tenant)

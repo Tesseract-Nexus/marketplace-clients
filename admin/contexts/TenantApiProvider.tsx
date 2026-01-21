@@ -7,6 +7,19 @@ import { apiClient } from '@/lib/api/client';
 import { enhancedApiClient } from '@/lib/api/enhanced-client';
 import { Loader2, AlertCircle } from 'lucide-react';
 
+// DEV AUTH BYPASS - Skip tenant checks when enabled
+const DEV_AUTH_BYPASS = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true';
+
+// Mock tenant for dev mode
+const DEV_MOCK_TENANT = {
+  id: 'dev-tenant-001',
+  slug: 'dev-tenant',
+  name: 'Dev Tenant',
+  businessModel: 'ONLINE_STORE' as const,
+  status: 'active' as const,
+  role: 'owner',
+};
+
 /**
  * Store Not Found page component
  * Extracted to handle client-side window access properly and avoid hydration errors
@@ -87,8 +100,22 @@ interface TenantApiProviderProps {
  * - Shows loading/error states for better UX
  */
 export function TenantApiProvider({ children, requireTenant = true }: TenantApiProviderProps) {
-  const { currentTenant, isLoading, error } = useTenant();
-  const { user, isLoading: userLoading } = useUser();
+  const { currentTenant: realTenant, isLoading: realLoading, error: realError } = useTenant();
+  const { user: realUser, isLoading: realUserLoading } = useUser();
+
+  // DEV MODE: Use mock tenant and user, skip loading states
+  const currentTenant = DEV_AUTH_BYPASS ? DEV_MOCK_TENANT : realTenant;
+  const isLoading = DEV_AUTH_BYPASS ? false : realLoading;
+  const error = DEV_AUTH_BYPASS ? null : realError;
+  const user = DEV_AUTH_BYPASS ? { id: 'dev-user-001', email: 'dev@tesserix.local', displayName: 'Dev User' } : realUser;
+  const userLoading = DEV_AUTH_BYPASS ? false : realUserLoading;
+
+  // Log dev bypass status
+  useEffect(() => {
+    if (DEV_AUTH_BYPASS) {
+      console.log('[TenantApiProvider] 🔓 DEV AUTH BYPASS - using mock tenant:', DEV_MOCK_TENANT.slug);
+    }
+  }, []);
 
   // Track the last tenant ID, vendor ID, and user info we set on the API client
   const lastSetTenantId = useRef<string | null>(null);

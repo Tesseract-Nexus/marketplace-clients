@@ -33,7 +33,8 @@ import {
 } from 'lucide-react';
 import { workflowService, ApprovalWorkflow, TriggerThreshold, EscalationConfig } from '@/lib/services/approvalService';
 import { PageHeader } from '@/components/PageHeader';
-import { PageLoading, PageError } from '@/components/common';
+import { PageLoading } from '@/components/common';
+import { ErrorState } from '@/components/ui/error-state';
 
 // Icon mapping for workflow types
 const workflowIcons: Record<string, React.ElementType> = {
@@ -273,24 +274,14 @@ export default function ApprovalWorkflowsPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background p-8">
-        <div className="max-w-6xl mx-auto space-y-6">
-          <PageHeader
-            title="Approval Workflows"
-            description="Configure approval workflows for sensitive operations like refunds, cancellations, and gateway changes."
-            breadcrumbs={[
-              { label: 'Home', href: '/' },
-              { label: 'Settings', href: '/settings' },
-              { label: 'Approval Workflows' },
-            ]}
-          />
-          <PageError
-            title="Failed to load workflows"
-            message={error}
-            onRetry={loadWorkflows}
-          />
-        </div>
-      </div>
+      <ErrorState
+        type="server_error"
+        title="Failed to load workflows"
+        description={error}
+        showRetryButton
+        showHomeButton
+        onRetry={loadWorkflows}
+      />
     );
   }
 

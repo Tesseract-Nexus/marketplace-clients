@@ -812,16 +812,25 @@ function TenantLayoutInner({
 }) {
   const router = useRouter();
   const { user } = useAuth();
-  const [isChecking, setIsChecking] = useState(true);
-  const [hasAccess, setHasAccess] = useState(false);
+
+  // DEV MODE: Skip all tenant checks
+  const devBypass = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true';
+  const [isChecking, setIsChecking] = useState(!devBypass);
+  const [hasAccess, setHasAccess] = useState(devBypass);
 
   // Track if we've already completed the check to prevent re-runs
-  const hasCheckedRef = useRef(false);
+  const hasCheckedRef = useRef(devBypass);
 
   // Extract stable values from user to avoid re-running effect on every auth state change
   const userTenantSlug = user?.tenantSlug;
 
   useEffect(() => {
+    // DEV MODE: Skip tenant check entirely
+    if (devBypass) {
+      console.log('[TenantLayoutInner] 🔓 DEV AUTH BYPASS - skipping tenant check');
+      return;
+    }
+
     // Skip if we've already completed the check successfully
     if (hasCheckedRef.current && hasAccess) {
       return;
@@ -865,7 +874,7 @@ function TenantLayoutInner({
     }
 
     checkTenantAccess();
-  }, [router, userTenantSlug, hasAccess]);
+  }, [router, userTenantSlug, hasAccess, devBypass]);
 
   // Show loading while checking access
   if (isChecking) {
@@ -903,6 +912,26 @@ function TenantLayoutInner({
   );
 }
 
+// =============================================================================
+// DEV AUTH BYPASS
+// Set NEXT_PUBLIC_DEV_AUTH_BYPASS=true in .env.local to bypass authentication
+// This allows local development without running the auth service
+// Login page remains accessible for testing at /login
+// =============================================================================
+const DEV_AUTH_BYPASS = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true';
+
+// Mock user for dev auth bypass mode
+const DEV_MOCK_USER = {
+  id: 'dev-user-001',
+  email: 'dev@tesserix.local',
+  firstName: 'Dev',
+  lastName: 'User',
+  displayName: 'Dev User',
+  roles: ['owner', 'admin'],
+  tenantSlug: 'dev-tenant',
+  tenantId: 'dev-tenant-001',
+};
+
 // Roles that are allowed to access the admin portal
 // This must match the backend validation in staff-service
 const ADMIN_PORTAL_ALLOWED_ROLES = [
@@ -935,31 +964,49 @@ export default function TenantLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isAuthenticated, isLoading: authLoading, user } = useAuth();
 
+  // DEV MODE: Bypass all auth checks when DEV_AUTH_BYPASS is enabled
+  // This allows running the admin portal locally without auth services
+  // Login page at /login is still accessible for testing
+  const effectiveIsAuthenticated = DEV_AUTH_BYPASS ? true : isAuthenticated;
+  const effectiveAuthLoading = DEV_AUTH_BYPASS ? false : authLoading;
+  const effectiveUser = DEV_AUTH_BYPASS ? DEV_MOCK_USER : user;
+
   // Check if user is authorized for admin portal (must have admin/staff role)
-  const isAuthorizedForAdminPortal = isAuthenticated && hasAdminPortalRole(user?.roles);
+  const isAuthorizedForAdminPortal = effectiveIsAuthenticated && hasAdminPortalRole(effectiveUser?.roles);
 
   // Note: Auth is now handled via BFF session transfer
   // The /auth/accept-transfer endpoint creates a session from the transfer code
   // No more URL params with tokens - this is more secure
 
-  // Redirect to login if not authenticated (after auth check completes)
+  // Log dev mode status on mount
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
+    if (DEV_AUTH_BYPASS) {
+      console.log('[TenantLayout] 🔓 DEV AUTH BYPASS ENABLED - Authentication disabled for local development');
+      console.log('[TenantLayout] Mock user:', DEV_MOCK_USER.email, 'roles:', DEV_MOCK_USER.roles);
+      console.log('[TenantLayout] Login page still accessible at /login for testing');
+    }
+  }, []);
+
+  // Redirect to login if not authenticated (after auth check completes)
+  // Skip this check in dev bypass mode
+  useEffect(() => {
+    if (!DEV_AUTH_BYPASS && !effectiveAuthLoading && !effectiveIsAuthenticated) {
       window.location.href = '/login';
     }
-  }, [authLoading, isAuthenticated]);
+  }, [effectiveAuthLoading, effectiveIsAuthenticated]);
 
   // Redirect to login page with error if authenticated but not authorized for admin portal
   // This blocks customers from accessing admin portal even if they're logged in
+  // Skip this check in dev bypass mode
   useEffect(() => {
-    if (!authLoading && isAuthenticated && !isAuthorizedForAdminPortal) {
-      console.warn('[TenantLayout] User authenticated but not authorized for admin portal:', user?.email, 'roles:', user?.roles);
+    if (!DEV_AUTH_BYPASS && !effectiveAuthLoading && effectiveIsAuthenticated && !isAuthorizedForAdminPortal) {
+      console.warn('[TenantLayout] User authenticated but not authorized for admin portal:', effectiveUser?.email, 'roles:', effectiveUser?.roles);
       window.location.href = '/login?error=unauthorized&logout=true';
     }
-  }, [authLoading, isAuthenticated, isAuthorizedForAdminPortal, user?.email, user?.roles]);
+  }, [effectiveAuthLoading, effectiveIsAuthenticated, isAuthorizedForAdminPortal, effectiveUser?.email, effectiveUser?.roles]);
 
-  // Show loading while checking authentication
-  if (authLoading) {
+  // Show loading while checking authentication (skip in dev bypass mode)
+  if (effectiveAuthLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
@@ -970,8 +1017,8 @@ export default function TenantLayout({
     );
   }
 
-  // Show redirecting message if not authenticated
-  if (!isAuthenticated) {
+  // Show redirecting message if not authenticated (skip in dev bypass mode)
+  if (!effectiveIsAuthenticated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">

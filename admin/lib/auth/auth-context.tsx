@@ -29,6 +29,30 @@ import {
 import { authConfig } from './config';
 import { SESSION_CONFIG, IDLE_CONFIG } from '../polling/config';
 
+// =============================================================================
+// DEV AUTH BYPASS
+// Set NEXT_PUBLIC_DEV_AUTH_BYPASS=true in .env.local to bypass authentication
+// This allows local development without running the auth BFF service
+// =============================================================================
+const DEV_AUTH_BYPASS = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true';
+
+// Mock session for dev auth bypass mode
+const DEV_MOCK_SESSION: SessionResponse = {
+  authenticated: true,
+  user: {
+    id: 'dev-user-001',
+    email: 'dev@tesserix.local',
+    firstName: 'Dev',
+    lastName: 'User',
+    displayName: 'Dev User',
+    roles: ['owner', 'admin'],
+    tenantSlug: 'dev-tenant',
+    tenantId: 'dev-tenant-001',
+  },
+  csrfToken: 'dev-csrf-token',
+  expiresAt: Math.floor(Date.now() / 1000) + 86400, // 24 hours from now
+};
+
 /**
  * Auth context state
  */
@@ -65,12 +89,23 @@ interface AuthProviderProps {
  * Authentication Provider Component
  */
 export function AuthProvider({ children, initialSession }: AuthProviderProps) {
-  const [user, setUser] = useState<SessionUser | null>(initialSession?.user || null);
-  const [isAuthenticated, setIsAuthenticated] = useState(initialSession?.authenticated || false);
-  const [isLoading, setIsLoading] = useState(!initialSession);
+  // DEV MODE: Use mock session when auth bypass is enabled
+  const effectiveInitialSession = DEV_AUTH_BYPASS ? DEV_MOCK_SESSION : initialSession;
+
+  const [user, setUser] = useState<SessionUser | null>(effectiveInitialSession?.user || null);
+  const [isAuthenticated, setIsAuthenticated] = useState(effectiveInitialSession?.authenticated || false);
+  const [isLoading, setIsLoading] = useState(!effectiveInitialSession);
   const [error, setError] = useState<string | null>(null);
-  const [csrfToken, setCsrfToken] = useState<string | null>(initialSession?.csrfToken || null);
-  const [expiresAt, setExpiresAt] = useState<number | null>(initialSession?.expiresAt || null);
+  const [csrfToken, setCsrfToken] = useState<string | null>(effectiveInitialSession?.csrfToken || null);
+  const [expiresAt, setExpiresAt] = useState<number | null>(effectiveInitialSession?.expiresAt || null);
+
+  // Log dev bypass mode on first render
+  useEffect(() => {
+    if (DEV_AUTH_BYPASS) {
+      console.log('[Auth] 🔓 DEV AUTH BYPASS ENABLED - Using mock session');
+      console.log('[Auth] Mock user:', DEV_MOCK_SESSION.user?.email);
+    }
+  }, []);
 
   // ENTERPRISE: Track state for smart scheduling
   const lastSessionCheckRef = useRef<number>(Date.now());
@@ -91,6 +126,11 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
    * ENTERPRISE: Includes request deduplication
    */
   const checkSession = useCallback(async () => {
+    // DEV MODE: Skip network call, return mock session
+    if (DEV_AUTH_BYPASS) {
+      return DEV_MOCK_SESSION;
+    }
+
     // Request deduplication
     if (isRefreshingRef.current) {
       console.log('[Auth] Skipping check - refresh in progress');
@@ -132,6 +172,11 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
    * ENTERPRISE: Includes backoff and deduplication
    */
   const handleRefresh = useCallback(async (): Promise<boolean> => {
+    // DEV MODE: Skip refresh, always return success
+    if (DEV_AUTH_BYPASS) {
+      return true;
+    }
+
     // Request deduplication
     if (isRefreshingRef.current) {
       console.log('[Auth] Skipping refresh - already in progress');
@@ -318,6 +363,10 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
    * Initial session check
    */
   useEffect(() => {
+    // DEV MODE: Skip initial session check - we already have mock session
+    if (DEV_AUTH_BYPASS) {
+      return;
+    }
     if (!initialSession) {
       setIsLoading(true);
       checkSession().finally(() => setIsLoading(false));
