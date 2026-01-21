@@ -946,17 +946,22 @@ export default function OnboardingPage() {
         const result = await response.json();
         const data = result.data;
 
+        // Domain is only valid if format is valid AND domain exists (is registered)
+        const domainIsValid = data.valid && (data.domain_exists !== false);
+
         setCustomDomainValidation({
           isChecking: false,
-          isValid: data.valid,
+          isValid: domainIsValid,
           dnsConfigured: data.dns_configured || false,
-          message: data.valid
-            ? data.dns_configured
-              ? 'Domain verified and ready!'
-              : 'Domain is valid. Configure DNS to complete setup.'
-            : data.message || 'Invalid domain',
-          verificationRecord: data.verification_record,
-          verificationRecords: data.verification_records,
+          message: !data.valid
+            ? data.message || 'Invalid domain format'
+            : data.domain_exists === false
+              ? data.message || 'This domain does not appear to be registered.'
+              : data.dns_configured
+                ? 'Domain verified and ready!'
+                : 'Domain is valid. Configure DNS to complete setup.',
+          verificationRecord: domainIsValid ? data.verification_record : undefined,
+          verificationRecords: domainIsValid ? data.verification_records : undefined,
           formatWarning: formatValidation.warning,
           suggestedDomain: formatValidation.suggestedRootDomain,
         });
