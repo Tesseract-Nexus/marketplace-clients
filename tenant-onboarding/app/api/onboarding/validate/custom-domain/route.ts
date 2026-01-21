@@ -13,6 +13,7 @@ import { SERVICES, validateRequest, errorResponse, generateRequestId } from '../
 interface ValidateCustomDomainRequest {
   domain: string;
   session_id?: string;
+  verification_token?: string; // Pass stored token to reuse
 }
 
 interface DNSRecord {
@@ -31,6 +32,7 @@ interface ValidateCustomDomainResponse {
   dns_records?: DNSRecord[];
   verification_record?: DNSRecord;
   verification_records?: DNSRecord[];
+  verification_token?: string; // Token for verifying ownership
   message?: string;
   suggestions?: string[];
 }
@@ -183,6 +185,7 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           domain: cleanDomain,
           session_id: body.session_id,
+          verification_token: body.verification_token, // Pass stored token to reuse
           check_dns: false, // Don't check DNS during initial validation - user clicks "Verify Now" for that
         }),
       });
@@ -198,6 +201,7 @@ export async function POST(request: NextRequest) {
           domain_exists: Boolean(responseData.domain_exists),
           dns_configured: Boolean(responseData.dns_configured),
           message: typeof responseData.message === 'string' ? responseData.message : undefined,
+          verification_token: typeof responseData.verification_token === 'string' ? responseData.verification_token : undefined,
         };
         if (responseData.verification_record) {
           sanitizedData.verification_record = {

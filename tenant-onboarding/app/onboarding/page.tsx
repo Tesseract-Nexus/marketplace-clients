@@ -938,16 +938,38 @@ export default function OnboardingPage() {
     // Debounce the actual API call
     customDomainValidationTimerRef.current = setTimeout(async () => {
       try {
+        // Check if we have a stored verification token for this domain
+        const storageKey = `domain_verification_${normalized}`;
+        let storedToken = '';
+        try {
+          storedToken = localStorage.getItem(storageKey) || '';
+        } catch (e) {
+          // localStorage not available
+        }
+
         const response = await fetch('/api/onboarding/validate/custom-domain', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ domain: normalized, session_id: sessionId }),
+          body: JSON.stringify({
+            domain: normalized,
+            session_id: sessionId,
+            verification_token: storedToken, // Pass stored token so backend can reuse it
+          }),
         });
         const result = await response.json();
         const data = result.data;
 
         // Domain is only valid if format is valid AND domain exists (is registered)
         const domainIsValid = data.valid && (data.domain_exists !== false);
+
+        // Store the verification token for future use
+        if (domainIsValid && data.verification_token) {
+          try {
+            localStorage.setItem(storageKey, data.verification_token);
+          } catch (e) {
+            // localStorage not available
+          }
+        }
 
         setCustomDomainValidation({
           isChecking: false,
