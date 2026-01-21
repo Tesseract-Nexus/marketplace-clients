@@ -1,9 +1,11 @@
 'use client';
 
+import { useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, ShoppingCart, Sparkles, Truck, AlertTriangle, TrendingUp, TrendingDown, XCircle, AlertCircle, RefreshCw } from 'lucide-react';
+import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, ShoppingCart, Sparkles, Truck, AlertTriangle, TrendingUp, TrendingDown, XCircle, AlertCircle, RefreshCw, Undo2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +14,8 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useNavPath } from '@/context/TenantContext';
 import { useCartStore } from '@/store/cart';
 import { CouponInput } from '@/components/checkout/CouponInput';
+import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
+import { RecentlyViewedProducts } from '@/components/product/RecentlyViewedProducts';
 import { usePriceFormatting } from '@/context/CurrencyContext';
 import { useCartValidation, getStatusBadgeInfo, formatPriceChange } from '@/hooks/useCartValidation';
 import type { CartItemStatus } from '@/types/storefront';
@@ -85,6 +89,7 @@ export default function CartPage() {
   const { formatDisplayPrice } = usePriceFormatting();
   const {
     items,
+    addItem,
     removeItem,
     updateQuantity,
     clearCart,
@@ -99,6 +104,37 @@ export default function CartPage() {
     setAppliedCoupon,
     clearAppliedCoupon,
   } = useCartStore();
+
+  // Handler for removing item with undo option
+  const handleRemoveItem = useCallback((item: typeof items[0]) => {
+    // Store the item data before removing
+    const removedItem = { ...item };
+
+    // Remove the item
+    removeItem(item.id);
+
+    // Show toast with undo option
+    toast('Item removed from cart', {
+      description: removedItem.name,
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          // Restore the item
+          addItem({
+            productId: removedItem.productId,
+            name: removedItem.name,
+            price: removedItem.price,
+            quantity: removedItem.quantity,
+            image: removedItem.image,
+            variant: removedItem.variant,
+            selected: removedItem.selected,
+          });
+          toast.success('Item restored to cart');
+        },
+      },
+      duration: 5000,
+    });
+  }, [removeItem, addItem]);
 
   const {
     isValidating,
@@ -158,6 +194,17 @@ export default function CartPage() {
                 </Link>
               </Button>
             </motion.div>
+          </div>
+        </section>
+
+        {/* Recently Viewed Products */}
+        <section className="py-12 bg-muted/30">
+          <div className="container-tenant">
+            <RecentlyViewedProducts
+              maxItems={4}
+              title="Continue where you left off"
+              showViewAll
+            />
           </div>
         </section>
       </div>
@@ -436,7 +483,7 @@ export default function CartPage() {
                           variant="ghost"
                           size="sm"
                           className="text-muted-foreground hover:text-red-500 hover:bg-red-50 h-9 px-2 sm:px-3"
-                          onClick={() => removeItem(item.id)}
+                          onClick={() => handleRemoveItem(item)}
                         >
                           <Trash2 className="h-4 w-4 sm:mr-1" />
                           <span className="hidden sm:inline"><TranslatedUIText text="Remove" /></span>
@@ -478,7 +525,7 @@ export default function CartPage() {
               transition={{ delay: 0.1 }}
               className="lg:col-span-1"
             >
-              <div className="bg-card rounded-2xl border p-6 sticky top-24 shadow-sm">
+              <div className="bg-card rounded-2xl border p-6 lg:sticky lg:top-24 shadow-sm">
                 <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
                   <span className="w-1 h-6 bg-tenant-primary rounded-full" />
                   <TranslatedUIText text="Order Summary" />
@@ -506,6 +553,12 @@ export default function CartPage() {
                   </div>
                 </div>
 
+                {/* Free Shipping Progress - shows progress towards free shipping threshold */}
+                <FreeShippingProgress
+                  subtotal={selectedSubtotal}
+                  threshold={50}
+                  className="my-4 bg-muted/30"
+                />
 
                 <Separator className="my-5" />
 

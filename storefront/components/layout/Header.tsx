@@ -176,70 +176,110 @@ export function Header() {
                   </div>
                 )}
 
-                {/* Navigation Links */}
-                <nav className="flex flex-col p-2">
-                  {allNavLinks.map((link) => (
+                {/* Shop Section - Navigation Links */}
+                <div className="p-2">
+                  <p className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    <TranslatedUIText text="Shop" />
+                  </p>
+                  <nav className="flex flex-col" role="navigation" aria-label="Shop navigation">
+                    {allNavLinks.map((link) => (
+                      <Link
+                        key={link.id}
+                        href={link.isExternal ? link.href : getNavPath(link.href)}
+                        target={link.isExternal ? '_blank' : undefined}
+                        rel={link.isExternal ? 'noopener noreferrer' : undefined}
+                        className="flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium hover:bg-muted active:bg-muted transition-colors"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Grid3X3 className="h-5 w-5 text-muted-foreground" />
+                        <TranslatedUIText text={link.label} />
+                        <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground" />
+                      </Link>
+                    ))}
                     <Link
-                      key={link.id}
-                      href={link.isExternal ? link.href : getNavPath(link.href)}
-                      target={link.isExternal ? '_blank' : undefined}
-                      rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                      className="flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium hover:bg-muted active:bg-muted transition-colors"
+                      href={getNavPath('/gift-cards')}
+                      className="flex items-center gap-3 px-3 py-3 rounded-lg text-base hover:bg-muted active:bg-muted transition-colors"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      <TranslatedUIText text={link.label} />
+                      <Gift className="h-5 w-5 text-muted-foreground" />
+                      <TranslatedUIText text="Gift Cards" />
                       <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground" />
                     </Link>
-                  ))}
-                </nav>
+                  </nav>
+                </div>
 
                 <Separator />
 
-                {/* Quick Links */}
-                <div className="p-2">
-                  <p className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    <TranslatedUIText text="Quick Links" />
-                  </p>
-                  <Link
-                    href={getNavPath('/gift-cards')}
-                    className="flex items-center gap-3 px-3 py-3 rounded-lg text-base hover:bg-muted active:bg-muted transition-colors"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    <Gift className="h-5 w-5 text-muted-foreground" />
-                    <TranslatedUIText text="Gift Cards" />
-                  </Link>
-                  {isAuthenticated && (
-                    <>
-                      <Link
-                        href={getNavPath('/account/orders')}
-                        className="flex items-center gap-3 px-3 py-3 rounded-lg text-base hover:bg-muted active:bg-muted transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Package className="h-5 w-5 text-muted-foreground" />
-                        <TranslatedUIText text="My Orders" />
-                      </Link>
-                      <Link
-                        href={getNavPath('/account/lists')}
-                        className="flex items-center gap-3 px-3 py-3 rounded-lg text-base hover:bg-muted active:bg-muted transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Heart className="h-5 w-5 text-muted-foreground" />
-                        <TranslatedUIText text="My Lists" />
-                        {listsCount > 0 && (
-                          <Badge variant="secondary" className="ml-auto">{listsCount}</Badge>
-                        )}
-                      </Link>
-                      <Link
-                        href={getNavPath('/account/tickets')}
-                        className="flex items-center gap-3 px-3 py-3 rounded-lg text-base hover:bg-muted active:bg-muted transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Ticket className="h-5 w-5 text-muted-foreground" />
+                {/* Account Section - Only for authenticated users */}
+                {isAuthenticated && (
+                  <>
+                    <div className="p-2">
+                      <p className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                        <TranslatedUIText text="Account" />
+                      </p>
+                      <nav className="flex flex-col" role="navigation" aria-label="Account navigation">
+                        <Link
+                          href={getNavPath('/account')}
+                          className="flex items-center gap-3 px-3 py-3 rounded-lg text-base hover:bg-muted active:bg-muted transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <User className="h-5 w-5 text-muted-foreground" />
+                          <TranslatedUIText text="My Account" />
+                          <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground" />
+                        </Link>
+                        <Link
+                          href={getNavPath('/account/orders')}
+                          className="flex items-center gap-3 px-3 py-3 rounded-lg text-base hover:bg-muted active:bg-muted transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Package className="h-5 w-5 text-muted-foreground" />
+                          <TranslatedUIText text="My Orders" />
+                          <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground" />
+                        </Link>
+                        <Link
+                          href={getNavPath('/account/lists')}
+                          className="flex items-center gap-3 px-3 py-3 rounded-lg text-base hover:bg-muted active:bg-muted transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Heart className="h-5 w-5 text-muted-foreground" />
+                          <TranslatedUIText text="My Lists" />
+                          {listsCount > 0 && (
+                            <Badge variant="secondary" className="ml-auto">{listsCount}</Badge>
+                          )}
+                        </Link>
+                      </nav>
+                    </div>
+
+                    <Separator />
+
+                    {/* Support Section */}
+                    <div className="p-2">
+                      <p className="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                         <TranslatedUIText text="Support" />
-                      </Link>
-                    </>
-                  )}
-                </div>
+                      </p>
+                      <nav className="flex flex-col" role="navigation" aria-label="Support navigation">
+                        <Link
+                          href={getNavPath('/account/tickets')}
+                          className="flex items-center gap-3 px-3 py-3 rounded-lg text-base hover:bg-muted active:bg-muted transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Ticket className="h-5 w-5 text-muted-foreground" />
+                          <TranslatedUIText text="Help & Support" />
+                          <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground" />
+                        </Link>
+                        <Link
+                          href={getNavPath('/track')}
+                          className="flex items-center gap-3 px-3 py-3 rounded-lg text-base hover:bg-muted active:bg-muted transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Package className="h-5 w-5 text-muted-foreground" />
+                          <TranslatedUIText text="Track Order" />
+                          <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground" />
+                        </Link>
+                      </nav>
+                    </div>
+                  </>
+                )}
 
                 <Separator />
 

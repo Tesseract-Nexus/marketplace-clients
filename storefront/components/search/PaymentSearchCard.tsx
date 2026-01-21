@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { CreditCard, CheckCircle2, Clock, XCircle, RefreshCw, ChevronRight } from 'lucide-react';
+import { CreditCard, CheckCircle2, Clock, XCircle, RefreshCw, ChevronRight, Smartphone, Wallet, Building2, Banknote, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface PaymentSearchCardProps {
@@ -27,14 +27,15 @@ const statusConfig: Record<string, { icon: typeof CreditCard; color: string; bg:
   REFUNDED: { icon: RefreshCw, color: 'text-gray-600', bg: 'bg-gray-100', label: 'Refunded' },
 };
 
-const methodIcons: Record<string, string> = {
-  card: '💳',
-  stripe: '💳',
-  razorpay: '💳',
-  upi: '📱',
-  wallet: '👛',
-  bank: '🏦',
-  cod: '💵',
+// Payment method icons using Lucide icons instead of emojis
+const methodIcons: Record<string, LucideIcon> = {
+  card: CreditCard,
+  stripe: CreditCard,
+  razorpay: CreditCard,
+  upi: Smartphone,
+  wallet: Wallet,
+  bank: Building2,
+  cod: Banknote,
 };
 
 export function PaymentSearchCard({
@@ -52,7 +53,7 @@ export function PaymentSearchCard({
 }: PaymentSearchCardProps) {
   const statusInfo = statusConfig[status] || statusConfig.PENDING;
   const StatusIcon = statusInfo.icon;
-  const methodIcon = methodIcons[paymentMethod?.toLowerCase()] || '💳';
+  const MethodIcon = methodIcons[paymentMethod?.toLowerCase()] || CreditCard;
 
   const formattedDate = new Date(createdAt).toLocaleDateString('en-US', {
     month: 'short',
@@ -87,7 +88,7 @@ export function PaymentSearchCard({
       {/* Payment Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="text-lg">{methodIcon}</span>
+          <MethodIcon className="w-4 h-4 text-gray-500" aria-hidden="true" />
           <p className="text-sm font-medium text-gray-900 truncate group-hover:text-emerald-600 transition-colors">
             {maskedTxnId}
           </p>

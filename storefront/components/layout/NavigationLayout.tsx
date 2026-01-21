@@ -40,6 +40,7 @@ export function NavigationLayout({ children, navigationStyle }: NavigationLayout
           <main className="flex-1">{children}</main>
           <Footer />
         </div>
+        <BackToTop />
       </div>
     );
   }
@@ -53,6 +54,7 @@ export function NavigationLayout({ children, navigationStyle }: NavigationLayout
           <Footer />
         </div>
         <SidebarNav position="right" />
+        <BackToTop />
       </div>
     );
   }
@@ -64,6 +66,7 @@ export function NavigationLayout({ children, navigationStyle }: NavigationLayout
         <main className="flex-1">{children}</main>
         <Footer />
         <MinimalNav />
+        <BackToTop />
       </div>
     );
   }

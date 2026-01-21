@@ -1,0 +1,404 @@
+'use client';
+
+import Image from 'next/image';
+import { Check, Truck, CreditCard, User, Edit2, ChevronLeft, Loader2, AlertCircle, Globe, Lock } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { useCheckout } from '@/context/CheckoutContext';
+import { useLocalization, useFormatPrice } from '@/context/TenantContext';
+import { usePriceFormatting } from '@/context/CurrencyContext';
+import { CartItem } from '@/types/storefront';
+import { ShippingMethod, ShippingRate } from '@/lib/api/shipping';
+import { TranslatedUIText } from '@/components/translation/TranslatedText';
+import { cn } from '@/lib/utils';
+
+interface CheckoutReviewStepProps {
+  selectedItems: CartItem[];
+  gatewayType: 'stripe' | 'razorpay';
+  subtotal: number;
+  shipping: number;
+  tax: number;
+  discount: number;
+  loyaltyDiscount: number;
+  giftCardDiscount: number;
+  total: number;
+  onPlaceOrder: () => void;
+  onRetryPayment?: () => void;
+}
+
+export function CheckoutReviewStep({
+  selectedItems,
+  gatewayType,
+  subtotal,
+  shipping,
+  tax,
+  discount,
+  loyaltyDiscount,
+  giftCardDiscount,
+  total,
+  onPlaceOrder,
+  onRetryPayment,
+}: CheckoutReviewStepProps) {
+  const {
+    contactInfo,
+    shippingAddress,
+    selectedShippingMethod,
+    termsAccepted,
+    setTermsAccepted,
+    goToStep,
+    prevStep,
+    isProcessing,
+    error,
+    pendingOrder,
+  } = useCheckout();
+
+  const localization = useLocalization();
+  const formatPrice = useFormatPrice();
+  const { formatDisplayPrice, formatStorePrice, isConverted, displayCurrency, storeCurrency } = usePriceFormatting();
+
+  // Get shipping method name
+  const getShippingMethodName = (method: ShippingMethod | ShippingRate | null): string => {
+    if (!method) return '';
+    if ('name' in method) return method.name;
+    if ('serviceDisplayName' in method) return `${method.carrierDisplayName} - ${method.serviceDisplayName}`;
+    return '';
+  };
+
+  const handlePlaceOrder = () => {
+    if (!termsAccepted) return;
+    onPlaceOrder();
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -20 }}
+      className="bg-card rounded-xl border p-6"
+    >
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+          <Check className="h-5 w-5 text-green-600" />
+        </div>
+        <div>
+          <h2 className="text-xl font-bold">
+            <TranslatedUIText text="Review Your Order" />
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            <TranslatedUIText text="Please review and confirm your order details" />
+          </p>
+        </div>
+      </div>
+
+      {/* Order Items */}
+      <div className="mb-6">
+        <h3 className="font-semibold mb-3">
+          <TranslatedUIText text="Order Items" /> ({selectedItems.length})
+        </h3>
+        <div className="space-y-3">
+          {selectedItems.map((item, index) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className="flex gap-4 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+            >
+              <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-muted flex-shrink-0 border">
+                <Image
+                  src={item.image || '/placeholder.svg'}
+                  alt={item.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium truncate">{item.name}</p>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-xs px-2 py-0.5 bg-background rounded border">
+                    <TranslatedUIText text="Qty:" /> {item.quantity}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {formatPrice(item.price)} <TranslatedUIText text="each" />
+                  </span>
+                </div>
+              </div>
+              <p className="font-semibold text-tenant-primary">
+                {formatPrice(item.price * item.quantity)}
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="grid sm:grid-cols-3 gap-4 mb-6">
+        {/* Contact Card */}
+        <div className="relative rounded-xl border bg-gradient-to-br from-muted/50 to-transparent p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-tenant-primary/10 flex items-center justify-center">
+                <User className="h-4 w-4 text-tenant-primary" />
+              </div>
+              <span className="font-medium text-sm">
+                <TranslatedUIText text="Contact" />
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => goToStep('contact')}
+              className="h-7 text-xs text-tenant-primary hover:text-tenant-primary hover:bg-tenant-primary/10"
+            >
+              <Edit2 className="h-3 w-3 mr-1" />
+              <TranslatedUIText text="Edit" />
+            </Button>
+          </div>
+          <div className="space-y-1 text-sm pl-10">
+            <p className="font-medium">{contactInfo.firstName} {contactInfo.lastName}</p>
+            <p className="text-muted-foreground truncate">{contactInfo.email}</p>
+            {contactInfo.phone && (
+              <p className="text-muted-foreground">{contactInfo.phone}</p>
+            )}
+          </div>
+        </div>
+
+        {/* Shipping Card */}
+        <div className="relative rounded-xl border bg-gradient-to-br from-muted/50 to-transparent p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-tenant-primary/10 flex items-center justify-center">
+                <Truck className="h-4 w-4 text-tenant-primary" />
+              </div>
+              <span className="font-medium text-sm">
+                <TranslatedUIText text="Ship to" />
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => goToStep('shipping')}
+              className="h-7 text-xs text-tenant-primary hover:text-tenant-primary hover:bg-tenant-primary/10"
+            >
+              <Edit2 className="h-3 w-3 mr-1" />
+              <TranslatedUIText text="Edit" />
+            </Button>
+          </div>
+          <div className="space-y-1 text-sm pl-10">
+            <p className="text-muted-foreground truncate">{shippingAddress.addressLine1}</p>
+            <p className="text-muted-foreground">
+              {shippingAddress.city}, {shippingAddress.state} {shippingAddress.zip}
+            </p>
+            {selectedShippingMethod && (
+              <p className="text-xs text-tenant-primary font-medium mt-2">
+                {getShippingMethodName(selectedShippingMethod)}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Payment Card */}
+        <div className="relative rounded-xl border bg-gradient-to-br from-muted/50 to-transparent p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-tenant-primary/10 flex items-center justify-center">
+                <CreditCard className="h-4 w-4 text-tenant-primary" />
+              </div>
+              <span className="font-medium text-sm">
+                <TranslatedUIText text="Payment" />
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => goToStep('payment')}
+              className="h-7 text-xs text-tenant-primary hover:text-tenant-primary hover:bg-tenant-primary/10"
+            >
+              <Edit2 className="h-3 w-3 mr-1" />
+              <TranslatedUIText text="Edit" />
+            </Button>
+          </div>
+          <div className="space-y-2 text-sm pl-10">
+            <div className="flex items-center gap-2">
+              <div className={cn(
+                "w-6 h-6 rounded flex items-center justify-center text-white text-xs font-bold",
+                gatewayType === 'razorpay' ? "bg-blue-600" : "bg-indigo-600"
+              )}>
+                {gatewayType === 'razorpay' ? 'R' : 'S'}
+              </div>
+              <span className="font-medium">
+                {gatewayType === 'razorpay' ? 'Razorpay' : 'Stripe'}
+              </span>
+            </div>
+            <p className="text-muted-foreground flex items-center gap-1">
+              <Globe className="h-3 w-3" />
+              {localization.currency}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Order Summary */}
+      <div className="rounded-xl border p-4 mb-6">
+        <h3 className="font-semibold mb-3">
+          <TranslatedUIText text="Order Summary" />
+        </h3>
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground"><TranslatedUIText text="Subtotal" /></span>
+            <span>{formatPrice(subtotal)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">
+              <TranslatedUIText text="Shipping" />
+              {selectedShippingMethod && (
+                <span className="text-xs ml-1">({getShippingMethodName(selectedShippingMethod)})</span>
+              )}
+            </span>
+            <span>{shipping === 0 ? <TranslatedUIText text="FREE" /> : formatPrice(shipping)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground"><TranslatedUIText text="Tax" /></span>
+            <span>{formatPrice(tax)}</span>
+          </div>
+          {discount > 0 && (
+            <div className="flex justify-between text-green-600">
+              <span><TranslatedUIText text="Coupon Discount" /></span>
+              <span>-{formatPrice(discount)}</span>
+            </div>
+          )}
+          {loyaltyDiscount > 0 && (
+            <div className="flex justify-between text-yellow-600">
+              <span><TranslatedUIText text="Loyalty Points" /></span>
+              <span>-{formatPrice(loyaltyDiscount)}</span>
+            </div>
+          )}
+          {giftCardDiscount > 0 && (
+            <div className="flex justify-between text-purple-600">
+              <span><TranslatedUIText text="Gift Card" /></span>
+              <span>-{formatPrice(giftCardDiscount)}</span>
+            </div>
+          )}
+          <div className="pt-3 mt-3 border-t flex justify-between font-bold text-lg">
+            <span><TranslatedUIText text="Total" /></span>
+            <div className="text-right">
+              {isConverted ? (
+                <>
+                  <span className="block">{formatDisplayPrice(total)}</span>
+                  <span className="block text-sm font-normal text-muted-foreground">
+                    ({formatStorePrice(total)} {storeCurrency})
+                  </span>
+                </>
+              ) : (
+                <span>{formatPrice(total)}</span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Terms and Conditions */}
+      <div className="flex items-start gap-3 p-4 rounded-lg border mb-6">
+        <Checkbox
+          id="terms"
+          checked={termsAccepted}
+          onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+          required
+        />
+        <Label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
+          <TranslatedUIText text="I agree to the terms and conditions and understand that all sales are final." />
+          <span className="text-red-500 ml-1">*</span>
+        </Label>
+      </div>
+
+      {/* Error message */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 p-4 bg-red-50 dark:bg-red-950/30 text-red-600 dark:text-red-400 text-sm rounded-lg border border-red-200 dark:border-red-800"
+        >
+          <div className="flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <p className="font-medium"><TranslatedUIText text="Payment Issue" /></p>
+              <p className="mt-1">{error}</p>
+            </div>
+          </div>
+          {pendingOrder && onRetryPayment && (
+            <div className="mt-4 pt-4 border-t border-red-200 dark:border-red-800">
+              <p className="text-sm text-muted-foreground mb-3">
+                <TranslatedUIText text="Your order" /> #{pendingOrder.orderNumber} <TranslatedUIText text="has been created. You can retry payment." />
+              </p>
+              <Button
+                onClick={onRetryPayment}
+                disabled={isProcessing}
+                className="btn-tenant-primary"
+              >
+                {isProcessing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <TranslatedUIText text="Processing..." />
+                  </>
+                ) : (
+                  <>
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    <TranslatedUIText text="Retry Payment" />
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+        </motion.div>
+      )}
+
+      {/* Navigation buttons */}
+      <div className="flex justify-between pt-6 border-t">
+        <Button
+          variant="ghost"
+          size="lg"
+          onClick={prevStep}
+          disabled={isProcessing}
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          <TranslatedUIText text="Back" />
+        </Button>
+        <Button
+          variant="tenant-glow"
+          size="lg"
+          className="min-w-[200px]"
+          onClick={handlePlaceOrder}
+          disabled={isProcessing || !termsAccepted}
+        >
+          {isProcessing ? (
+            <div className="flex items-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <TranslatedUIText text="Processing..." />
+            </div>
+          ) : (
+            <span className="flex items-center gap-2">
+              <Lock className="h-4 w-4" />
+              <TranslatedUIText text="Pay" /> {formatStorePrice(total)}
+              {isConverted && (
+                <span className="text-xs font-normal opacity-75">
+                  ({formatDisplayPrice(total)})
+                </span>
+              )}
+            </span>
+          )}
+        </Button>
+      </div>
+
+      {/* Security note */}
+      <p className="text-center text-xs text-muted-foreground mt-4">
+        <Lock className="h-3 w-3 inline mr-1" />
+        <TranslatedUIText text="Your payment information is encrypted and secure" />
+      </p>
+    </motion.div>
+  );
+}
+
+export default CheckoutReviewStep;

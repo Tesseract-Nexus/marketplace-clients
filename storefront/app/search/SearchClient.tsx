@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Search, X, ShoppingCart } from 'lucide-react';
+import { Search, ShoppingCart } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import {
   Select,
@@ -21,11 +20,20 @@ import { useCartStore } from '@/store/cart';
 import { Product } from '@/types/storefront';
 import { getProductShippingData } from '@/lib/utils/product-shipping';
 import { TranslatedProductName, TranslatedUIText } from '@/components/translation/TranslatedText';
+import { SearchFilters, type SearchFiltersState } from '@/components/search/SearchFilters';
+import { SearchSuggestions } from '@/components/search/SearchSuggestions';
 
 interface SearchClientProps {
   initialResults: Product[];
   initialQuery: string;
 }
+
+const DEFAULT_FILTERS: SearchFiltersState = {
+  priceRange: [0, 1000],
+  inStockOnly: false,
+  onSaleOnly: false,
+  categories: [],
+};
 
 export function SearchClient({ initialResults, initialQuery }: SearchClientProps) {
   const router = useRouter();
@@ -33,111 +41,154 @@ export function SearchClient({ initialResults, initialQuery }: SearchClientProps
   const getNavPath = useNavPath();
   const addToCart = useCartStore((state) => state.addItem);
 
-  const [query, setQuery] = useState(initialQuery);
   const [sortBy, setSortBy] = useState('relevance');
   const [isPending, startTransition] = useTransition();
-  const [recentSearches] = useState(['headphones', 'watch', 'laptop']);
+  const [filters, setFilters] = useState<SearchFiltersState>(DEFAULT_FILTERS);
 
-  const searchResults = initialResults;
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (query.trim()) {
-      startTransition(() => {
-        router.push(`?q=${encodeURIComponent(query)}`);
+  // Extract unique categories from results
+  const availableCategories = useMemo(() => {
+    const categories = new Set<string>();
+    initialResults.forEach((product) => {
+      (product.categories || []).forEach((cat) => {
+        if (typeof cat === 'string') categories.add(cat);
       });
-    }
-  };
+    });
+    return Array.from(categories).sort();
+  }, [initialResults]);
 
-  const handleClear = () => {
-    setQuery('');
+  // Calculate price range from results
+  const priceRange = useMemo(() => {
+    if (initialResults.length === 0) return { min: 0, max: 1000 };
+    const prices = initialResults.map((p) => parseFloat(p.price) || 0);
+    return {
+      min: Math.floor(Math.min(...prices)),
+      max: Math.ceil(Math.max(...prices)),
+    };
+  }, [initialResults]);
+
+  // Apply filters to results
+  const filteredResults = useMemo(() => {
+    return initialResults.filter((product) => {
+      const price = parseFloat(product.price) || 0;
+
+      // Price filter
+      if (price < filters.priceRange[0] || price > filters.priceRange[1]) {
+        return false;
+      }
+
+      // In stock filter
+      if (filters.inStockOnly && product.inventoryStatus !== 'IN_STOCK') {
+        return false;
+      }
+
+      // On sale filter
+      if (filters.onSaleOnly) {
+        const comparePrice = product.comparePrice ? parseFloat(product.comparePrice) : null;
+        if (!comparePrice || comparePrice <= price) {
+          return false;
+        }
+      }
+
+      // Category filter
+      if (filters.categories.length > 0) {
+        const productCategories = (product.categories || []).map((c) =>
+          typeof c === 'string' ? c : ''
+        );
+        if (!filters.categories.some((cat) => productCategories.includes(cat))) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  }, [initialResults, filters]);
+
+  // Sort filtered results
+  const searchResults = useMemo(() => {
+    const sorted = [...filteredResults];
+    switch (sortBy) {
+      case 'price-asc':
+        sorted.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        break;
+      case 'price-desc':
+        sorted.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+        break;
+      case 'newest':
+        sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        break;
+      // relevance - keep original order
+    }
+    return sorted;
+  }, [filteredResults, sortBy]);
+
+  const handleSearch = (searchQuery: string) => {
     startTransition(() => {
-      router.push('?');
+      router.push(`?q=${encodeURIComponent(searchQuery)}`);
     });
   };
 
   return (
     <div className="min-h-screen py-8">
       <div className="container-tenant">
+        {/* Search Input with Suggestions */}
         <div className="max-w-2xl mx-auto mb-8">
-          <form onSubmit={handleSearch} className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search products..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              className="pl-12 pr-12 h-14 text-lg rounded-full border-2 focus:border-tenant-primary"
-            />
-            {query && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-full"
-                onClick={handleClear}
-              >
-                <X className="h-5 w-5" />
-              </Button>
-            )}
-          </form>
-
-          {!initialQuery && recentSearches.length > 0 && (
-            <div className="mt-4">
-              <p className="text-sm text-muted-foreground mb-2"><TranslatedUIText text="Recent searches" /></p>
-              <div className="flex flex-wrap gap-2">
-                {recentSearches.map((search) => (
-                  <Button
-                    key={search}
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full"
-                    onClick={() => {
-                      setQuery(search);
-                      startTransition(() => {
-                        router.push(`?q=${encodeURIComponent(search)}`);
-                      });
-                    }}
-                  >
-                    {search}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
+          <SearchSuggestions
+            initialQuery={initialQuery}
+            onSearch={handleSearch}
+            autoFocus={!initialQuery}
+          />
         </div>
 
         {initialQuery && (
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-2xl font-bold">
-                {isPending ? <TranslatedUIText text="Searching..." /> : (
-                  <><TranslatedUIText text="Results for" /> &quot;{initialQuery}&quot;</>
+          <>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+              <div>
+                <h1 className="text-2xl font-bold">
+                  {isPending ? <TranslatedUIText text="Searching..." /> : (
+                    <><TranslatedUIText text="Results for" /> &quot;{initialQuery}&quot;</>
+                  )}
+                </h1>
+                {!isPending && (
+                  <p className="text-muted-foreground">
+                    {searchResults.length} <TranslatedUIText text={searchResults.length === 1 ? 'product found' : 'products found'} />
+                    {filteredResults.length !== initialResults.length && (
+                      <span className="text-xs ml-1">
+                        (<TranslatedUIText text="filtered from" /> {initialResults.length})
+                      </span>
+                    )}
+                  </p>
                 )}
-              </h1>
-              {!isPending && (
-                <p className="text-muted-foreground">
-                  {searchResults.length} <TranslatedUIText text={searchResults.length === 1 ? 'product found' : 'products found'} />
-                </p>
-              )}
+              </div>
+
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="relevance"><TranslatedUIText text="Relevance" /></SelectItem>
+                  <SelectItem value="newest"><TranslatedUIText text="Newest" /></SelectItem>
+                  <SelectItem value="price-asc"><TranslatedUIText text="Price: Low to High" /></SelectItem>
+                  <SelectItem value="price-desc"><TranslatedUIText text="Price: High to Low" /></SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="relevance"><TranslatedUIText text="Relevance" /></SelectItem>
-                <SelectItem value="newest"><TranslatedUIText text="Newest" /></SelectItem>
-                <SelectItem value="price-asc"><TranslatedUIText text="Price: Low to High" /></SelectItem>
-                <SelectItem value="price-desc"><TranslatedUIText text="Price: High to Low" /></SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            {/* Search Filters */}
+            <div className="mb-6">
+              <SearchFilters
+                filters={filters}
+                onFiltersChange={setFilters}
+                availableCategories={availableCategories}
+                priceMin={priceRange.min}
+                priceMax={priceRange.max}
+                resultCount={filteredResults.length}
+              />
+            </div>
+          </>
         )}
 
         {initialQuery && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mt-6">
             <AnimatePresence>
               {searchResults.map((product, index) => {
                 const price = parseFloat(product.price);

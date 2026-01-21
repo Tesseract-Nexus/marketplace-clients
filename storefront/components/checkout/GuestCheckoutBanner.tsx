@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { User, LogIn, Gift } from 'lucide-react';
+import { User, LogIn, Gift, Package, Home, type LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavPath } from '@/context/TenantContext';
 
@@ -64,21 +64,24 @@ export function GuestCheckoutBanner({ onContinueAsGuest }: GuestCheckoutBannerPr
       <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-700">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {[
-            { icon: '📦', text: 'Track orders easily' },
-            { icon: '🏠', text: 'Save addresses' },
-            { icon: '🎁', text: 'Earn rewards' },
-          ].map((benefit, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 * index }}
-              className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
-            >
-              <span>{benefit.icon}</span>
-              <span>{benefit.text}</span>
-            </motion.div>
-          ))}
+            { icon: Package, text: 'Track orders easily' },
+            { icon: Home, text: 'Save addresses' },
+            { icon: Gift, text: 'Earn rewards' },
+          ].map((benefit, index) => {
+            const BenefitIcon = benefit.icon;
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 * index }}
+                className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
+              >
+                <BenefitIcon className="h-4 w-4 text-blue-500" aria-hidden="true" />
+                <span>{benefit.text}</span>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </motion.div>

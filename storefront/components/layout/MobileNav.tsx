@@ -1,5 +1,6 @@
 'use client';
 
+import { useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Search, Grid3X3, ShoppingCart, User } from 'lucide-react';
@@ -9,6 +10,27 @@ import { useMobileConfig, useNavPath } from '@/context/TenantContext';
 import { useCartStore } from '@/store/cart';
 import { cn } from '@/lib/utils';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
+
+/**
+ * Trigger haptic feedback on supported devices
+ * Uses the Web Vibration API with graceful degradation
+ */
+function triggerHapticFeedback(intensity: 'light' | 'medium' | 'heavy' = 'light') {
+  if (typeof navigator === 'undefined' || !navigator.vibrate) return;
+
+  // Different vibration patterns for different intensities
+  const patterns = {
+    light: 10,    // Quick tap
+    medium: 20,   // Standard tap
+    heavy: [10, 5, 20], // Double tap for emphasis
+  };
+
+  try {
+    navigator.vibrate(patterns[intensity]);
+  } catch {
+    // Silently fail - haptic feedback is enhancement only
+  }
+}
 
 const NAV_ICONS = {
   home: Home,
@@ -73,6 +95,10 @@ export function MobileNav() {
               <Link
                 key={item}
                 href={path}
+                onClick={() => {
+                  // Trigger haptic feedback on tap
+                  triggerHapticFeedback(isActive ? 'light' : 'medium');
+                }}
                 className={cn(
                   'flex flex-col items-center justify-center gap-0.5 flex-1 relative',
                   'min-h-[44px] min-w-[44px]', // iOS minimum touch target
