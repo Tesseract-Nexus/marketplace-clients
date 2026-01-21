@@ -1377,10 +1377,23 @@ export default function OnboardingPage() {
       nextStep();
       // Pass session and email as URL params for the verify page
       // This ensures the verify page works even before store rehydration completes
-      // Fall back to contactForm values if store value is empty (can happen with custom domain flow)
+      // Priority: store > form values > fetch from session API (most reliable fallback)
       const verifyParams = new URLSearchParams();
       if (sessionId) verifyParams.set('session', sessionId);
-      const emailForVerify = contactDetails.email || contactForm.getValues('email');
+
+      let emailForVerify = contactDetails.email || contactForm.getValues('email');
+
+      // If email is still not available, fetch from session API as final fallback
+      // This handles cases where store rehydration hasn't completed after page refresh
+      if (!emailForVerify && sessionId) {
+        try {
+          const session = await onboardingApi.getOnboardingSession(sessionId);
+          emailForVerify = session.contact_details?.email || session.contact_info?.email || '';
+        } catch (fetchError) {
+          console.error('Failed to fetch email from session:', fetchError);
+        }
+      }
+
       if (emailForVerify) verifyParams.set('email', emailForVerify as string);
       router.push(`/onboarding/verify?${verifyParams.toString()}`);
     } catch (error) {
