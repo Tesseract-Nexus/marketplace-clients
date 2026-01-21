@@ -2425,9 +2425,9 @@ export default function OnboardingPage() {
                                 </div>
 
                                 {/* Quick Help */}
-                                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-200 dark:border-blue-500/20">
-                                  <p className="text-xs text-blue-800 dark:text-blue-200">
-                                    <strong>Where to add this?</strong> Log in to your domain provider and find DNS settings, Zone Editor, or DNS Management. Add a new record with the values above.
+                                <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-700/30">
+                                  <p className="text-sm text-amber-900 dark:text-amber-100">
+                                    <strong className="font-semibold">Where to add this?</strong> Log in to your domain provider and find DNS settings, Zone Editor, or DNS Management. Add a new record with the values above.
                                   </p>
                                 </div>
 
