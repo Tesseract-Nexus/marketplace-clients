@@ -203,22 +203,22 @@ export const storeSetupSchema = z.object({
   }).optional(),
 
   // Admin URL slug: {subdomain}-admin.tesserix.app
+  // Optional when using custom domain
   subdomain: z
     .string()
-    .min(3, 'Subdomain must be at least 3 characters')
     .max(50, 'Subdomain must be less than 50 characters')
-    .regex(/^[a-z0-9-]+$/, 'Subdomain can only contain lowercase letters, numbers, and hyphens')
-    .regex(/^[a-z0-9]/, 'Subdomain must start with a letter or number')
-    .regex(/[a-z0-9]$/, 'Subdomain must end with a letter or number'),
+    .regex(/^[a-z0-9-]*$/, 'Subdomain can only contain lowercase letters, numbers, and hyphens')
+    .optional()
+    .or(z.literal('')),
 
   // Storefront URL slug: {storefrontSlug}.tesserix.app
+  // Optional when using custom domain
   storefrontSlug: z
     .string()
-    .min(3, 'Storefront slug must be at least 3 characters')
     .max(50, 'Storefront slug must be less than 50 characters')
-    .regex(/^[a-z0-9-]+$/, 'Storefront slug can only contain lowercase letters, numbers, and hyphens')
-    .regex(/^[a-z0-9]/, 'Storefront slug must start with a letter or number')
-    .regex(/[a-z0-9]$/, 'Storefront slug must end with a letter or number'),
+    .regex(/^[a-z0-9-]*$/, 'Storefront slug can only contain lowercase letters, numbers, and hyphens')
+    .optional()
+    .or(z.literal('')),
 
   // Custom domain configuration (optional)
   useCustomDomain: z
@@ -282,6 +282,24 @@ export const storeSetupSchema = z.object({
 }, {
   message: 'Please enter a custom domain',
   path: ['customDomain'],
+}).refine((data) => {
+  // If NOT using custom domain, subdomain must be at least 3 characters
+  if (!data.useCustomDomain && (!data.subdomain || data.subdomain.length < 3)) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Subdomain must be at least 3 characters',
+  path: ['subdomain'],
+}).refine((data) => {
+  // If NOT using custom domain, storefrontSlug must be at least 3 characters
+  if (!data.useCustomDomain && (!data.storefrontSlug || data.storefrontSlug.length < 3)) {
+    return false;
+  }
+  return true;
+}, {
+  message: 'Storefront slug must be at least 3 characters',
+  path: ['storefrontSlug'],
 });
 
 // Verification Schema

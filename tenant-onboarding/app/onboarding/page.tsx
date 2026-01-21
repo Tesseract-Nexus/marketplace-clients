@@ -2262,9 +2262,23 @@ export default function OnboardingPage() {
                       <button
                         type="button"
                         onClick={() => {
+                          const wasOpen = showCustomDomainSection;
                           setShowCustomDomainSection(!showCustomDomainSection);
-                          if (!showCustomDomainSection) {
+                          if (!wasOpen) {
+                            // Opening the section - set useCustomDomain to true
                             storeSetupForm.setValue('useCustomDomain', true);
+                          } else {
+                            // Closing the section - reset custom domain state
+                            storeSetupForm.setValue('useCustomDomain', false);
+                            storeSetupForm.setValue('customDomain', '');
+                            setCustomDomainValidation({
+                              isChecking: false,
+                              isValid: null,
+                              dnsConfigured: false,
+                              message: '',
+                              formatWarning: undefined,
+                              suggestedDomain: undefined,
+                            });
                           }
                         }}
                         className={`w-full flex items-center justify-between p-5 rounded-2xl border-2 transition-all duration-200 group ${
