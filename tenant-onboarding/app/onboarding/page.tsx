@@ -2529,31 +2529,43 @@ export default function OnboardingPage() {
                                   {domainVerification.lastChecked && (
                                     <div className="space-y-3">
                                       {/* DNS Status */}
-                                      <div className={`flex items-center gap-3 p-3 rounded-lg ${
+                                      <div className={`flex items-center gap-3 p-4 rounded-lg ${
                                         domainVerification.dnsVerified
-                                          ? 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20'
+                                          ? 'bg-emerald-50 dark:bg-emerald-500/10 border-2 border-emerald-300 dark:border-emerald-500/30'
                                           : domainVerification.dnsRecordFound
-                                            ? 'bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20'
-                                            : 'bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20'
+                                            ? 'bg-amber-50 dark:bg-amber-500/10 border-2 border-amber-300 dark:border-amber-500/30'
+                                            : 'bg-red-50 dark:bg-red-500/10 border-2 border-red-300 dark:border-red-500/30'
                                       }`}>
                                         {domainVerification.dnsVerified ? (
-                                          <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                                          <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                                            <Check className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                                          </div>
                                         ) : domainVerification.dnsRecordFound ? (
-                                          <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+                                          <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                                            <AlertCircle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                                          </div>
                                         ) : (
-                                          <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+                                          <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                                            <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                                          </div>
                                         )}
                                         <div className="flex-1">
-                                          <p className={`text-sm font-medium ${
+                                          <p className={`text-base font-semibold ${
                                             domainVerification.dnsVerified
                                               ? 'text-emerald-800 dark:text-emerald-200'
                                               : domainVerification.dnsRecordFound
                                                 ? 'text-amber-800 dark:text-amber-200'
                                                 : 'text-red-800 dark:text-red-200'
                                           }`}>
-                                            {domainVerification.dnsVerified ? 'DNS Verified' : domainVerification.dnsRecordFound ? 'DNS Record Found (Incorrect Value)' : 'DNS Record Not Found'}
+                                            {domainVerification.dnsVerified ? 'DNS Ownership Verified' : domainVerification.dnsRecordFound ? 'DNS Record Found (Incorrect Value)' : 'DNS Record Not Found'}
                                           </p>
-                                          <p className="text-xs text-muted-foreground mt-0.5">
+                                          <p className={`text-sm mt-1 ${
+                                            domainVerification.dnsVerified
+                                              ? 'text-emerald-700 dark:text-emerald-300'
+                                              : domainVerification.dnsRecordFound
+                                                ? 'text-amber-700 dark:text-amber-300'
+                                                : 'text-red-700 dark:text-red-300'
+                                          }`}>
                                             {domainVerification.message}
                                           </p>
                                         </div>
@@ -2561,58 +2573,69 @@ export default function OnboardingPage() {
 
                                       {/* SSL Status */}
                                       {domainVerification.dnsVerified && (
-                                        <div className={`flex items-center gap-3 p-3 rounded-lg ${
+                                        <div className={`flex items-center gap-3 p-4 rounded-lg ${
                                           domainVerification.sslStatus === 'active'
-                                            ? 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20'
-                                            : domainVerification.sslStatus === 'provisioning'
-                                              ? 'bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20'
-                                              : domainVerification.sslStatus === 'failed'
-                                                ? 'bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20'
-                                                : 'bg-warm-50 dark:bg-white/5 border border-warm-200 dark:border-white/10'
+                                            ? 'bg-emerald-50 dark:bg-emerald-500/10 border-2 border-emerald-300 dark:border-emerald-500/30'
+                                            : domainVerification.sslStatus === 'failed'
+                                              ? 'bg-red-50 dark:bg-red-500/10 border-2 border-red-300 dark:border-red-500/30'
+                                              : 'bg-blue-50 dark:bg-blue-500/10 border-2 border-blue-300 dark:border-blue-500/30'
                                         }`}>
                                           {domainVerification.sslStatus === 'active' ? (
-                                            <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
-                                          ) : domainVerification.sslStatus === 'provisioning' ? (
-                                            <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                                            <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                                              <ShieldCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                                            </div>
                                           ) : domainVerification.sslStatus === 'failed' ? (
-                                            <ShieldAlert className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+                                            <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center flex-shrink-0">
+                                              <ShieldAlert className="w-6 h-6 text-red-600 dark:text-red-400" />
+                                            </div>
                                           ) : (
-                                            <ShieldAlert className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                                            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                                              <ShieldCheck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                                            </div>
                                           )}
                                           <div className="flex-1">
-                                            <p className={`text-sm font-medium ${
+                                            <p className={`text-base font-semibold ${
                                               domainVerification.sslStatus === 'active'
                                                 ? 'text-emerald-800 dark:text-emerald-200'
-                                                : domainVerification.sslStatus === 'provisioning'
-                                                  ? 'text-emerald-800 dark:text-emerald-200'
-                                                  : domainVerification.sslStatus === 'failed'
-                                                    ? 'text-red-800 dark:text-red-200'
-                                                    : 'text-foreground'
+                                                : domainVerification.sslStatus === 'failed'
+                                                  ? 'text-red-800 dark:text-red-200'
+                                                  : 'text-blue-800 dark:text-blue-200'
                                             }`}>
                                               {domainVerification.sslStatus === 'active'
                                                 ? 'SSL Certificate Active'
-                                                : domainVerification.sslStatus === 'provisioning'
-                                                  ? 'SSL Certificate Ready'
-                                                  : domainVerification.sslStatus === 'failed'
-                                                    ? 'SSL Certificate Failed'
-                                                    : 'SSL Certificate Pending'}
+                                                : domainVerification.sslStatus === 'failed'
+                                                  ? 'SSL Certificate Failed'
+                                                  : 'SSL Certificate Will Be Provisioned'}
                                             </p>
-                                            <p className="text-xs text-muted-foreground mt-0.5">
+                                            <p className={`text-sm mt-1 ${
+                                              domainVerification.sslStatus === 'active'
+                                                ? 'text-emerald-700 dark:text-emerald-300'
+                                                : domainVerification.sslStatus === 'failed'
+                                                  ? 'text-red-700 dark:text-red-300'
+                                                  : 'text-blue-700 dark:text-blue-300'
+                                            }`}>
                                               {domainVerification.sslStatus === 'active'
                                                 ? 'Your domain is secured with HTTPS'
-                                                : domainVerification.sslStatus === 'provisioning'
-                                                  ? 'Let\'s Encrypt certificate will be automatically provisioned within minutes'
-                                                  : domainVerification.sslStatus === 'failed'
-                                                    ? 'Certificate provisioning failed. Please contact support.'
-                                                    : 'SSL will be provisioned after DNS verification'}
+                                                : domainVerification.sslStatus === 'failed'
+                                                  ? 'Certificate provisioning failed. Please contact support.'
+                                                  : 'A free Let\'s Encrypt SSL certificate will be automatically provisioned after you complete setup (usually within 2-5 minutes)'}
                                             </p>
                                           </div>
                                         </div>
                                       )}
 
+                                      {/* Security Note */}
+                                      {domainVerification.dnsVerified && (
+                                        <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                          <p className="text-xs text-slate-600 dark:text-slate-400">
+                                            <strong className="font-semibold text-slate-700 dark:text-slate-300">Security Note:</strong> DNS verification proves you own this domain. Only you can add DNS records at your domain provider, preventing unauthorized claims.
+                                          </p>
+                                        </div>
+                                      )}
+
                                       {/* Last Checked */}
                                       <p className="text-xs text-muted-foreground text-right">
-                                        Last checked: {domainVerification.lastChecked.toLocaleTimeString()}
+                                        Verified at: {domainVerification.lastChecked.toLocaleTimeString()}
                                       </p>
                                     </div>
                                   )}
