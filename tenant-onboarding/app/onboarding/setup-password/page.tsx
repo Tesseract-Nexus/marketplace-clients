@@ -57,14 +57,6 @@ function SetupPasswordContent() {
   const [tenantSlug, setTenantSlug] = useState('');
   const [provisioningProgress, setProvisioningProgress] = useState<ProvisioningProgress | null>(null);
   const [adminUrl, setAdminUrl] = useState('');
-  // Store tokens for auto-login (created right before redirect to avoid expiration)
-  const [authTokens, setAuthTokens] = useState<{
-    accessToken: string;
-    refreshToken?: string;
-    expiresIn?: number;
-    userId: string;
-    tenantId: string;
-  } | null>(null);
 
   // Use session from URL param or store
   const sessionId = sessionIdParam || storeSessionId;
@@ -89,7 +81,7 @@ function SetupPasswordContent() {
   }, [_hasHydrated, sessionId, router]);
 
   // Poll for provisioning status
-  const pollProvisioningStatus = async (slug: string, fallbackAdminUrl: string) => {
+  const pollProvisioningStatus = async (slug: string, adminLoginUrl: string) => {
     const maxAttempts = 60; // Poll for up to 2 minutes (60 * 2 seconds)
     let attempts = 0;
 
@@ -130,45 +122,14 @@ function SetupPasswordContent() {
     if (isReady) {
       setState('success');
 
-      // Create transfer code RIGHT BEFORE redirect to avoid expiration
-      // The transfer code only lives for 60 seconds, so we create it fresh here
-      let finalRedirectUrl = fallbackAdminUrl;
+      // Always redirect to login page instead of attempting auto-login
+      // This ensures user enters fresh credentials and avoids session conflicts
+      // when user already has an existing session from a different tenant/account
+      devLog('[SetupPassword] Provisioning complete, redirecting to login page');
 
-      if (authTokens) {
-        try {
-          devLog('[SetupPassword] Creating fresh transfer code for auto-login...');
-          const autoLoginResponse = await fetch('/api/auth/auto-login', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              access_token: authTokens.accessToken,
-              refresh_token: authTokens.refreshToken,
-              expires_in: authTokens.expiresIn,
-              user_id: authTokens.userId,
-              email: email,
-              tenant_id: authTokens.tenantId,
-              tenant_slug: slug,
-            }),
-          });
-
-          const autoLoginData = await autoLoginResponse.json();
-
-          if (autoLoginData.success && autoLoginData.admin_url) {
-            finalRedirectUrl = autoLoginData.admin_url;
-            devLog('[SetupPassword] Auto-login transfer code created, redirecting with session transfer');
-          } else {
-            devWarn('[SetupPassword] Auto-login failed, falling back to login page:', autoLoginData.error);
-          }
-        } catch (autoLoginError) {
-          devError('[SetupPassword] Auto-login error, falling back to login page:', autoLoginError);
-        }
-      }
-
-      // Redirect to admin after a short delay (with URL validation)
+      // Redirect to admin login after a short delay (with URL validation)
       setTimeout(() => {
-        safeRedirect(finalRedirectUrl, '/');
+        safeRedirect(adminLoginUrl, '/');
       }, 2000);
     }
   };
@@ -264,32 +225,17 @@ function SetupPasswordContent() {
         devError('[SetupPassword] Failed to clear localStorage:', e);
       }
 
-      // Build fallback admin login URL (used if auto-login fails)
+      // Build admin login URL - user will login with their new credentials
+      // This avoids session conflicts when user already has an existing session
       const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
-      const fallbackAdminUrl = `${tenantData?.admin_url || `https://${tenantData?.tenant_slug}-admin.${baseDomain}`}/login`;
+      const adminLoginUrl = `${tenantData?.admin_url || `https://${tenantData?.tenant_slug}-admin.${baseDomain}`}/login`;
 
-      // Store tokens for auto-login (will be used right before redirect to avoid expiration)
-      // Transfer codes only live for 60 seconds, but provisioning can take up to 2 minutes,
-      // so we store the tokens and create the transfer code fresh when provisioning completes
-      if (tenantData?.access_token && tenantData?.user_id) {
-        setAuthTokens({
-          accessToken: tenantData.access_token,
-          refreshToken: tenantData.refresh_token,
-          expiresIn: tenantData.expires_in,
-          userId: tenantData.user_id,
-          tenantId: tenantData.tenant_id,
-        });
-        devLog('[SetupPassword] Tokens stored for auto-login after provisioning');
-      } else {
-        devLog('[SetupPassword] No tokens available, user will need to log in manually');
-      }
-
-      // Store admin URL for later use (fallback URL with /login)
-      setAdminUrl(fallbackAdminUrl);
+      // Store admin URL for later use
+      setAdminUrl(adminLoginUrl);
 
       // Transition to provisioning state and poll for infrastructure readiness
       setState('provisioning');
-      pollProvisioningStatus(tenantData?.tenant_slug, fallbackAdminUrl);
+      pollProvisioningStatus(tenantData?.tenant_slug, adminLoginUrl);
 
     } catch (error) {
       setState('error');
@@ -427,14 +373,14 @@ function SetupPasswordContent() {
             <div className="bg-warm-50 rounded-xl p-4 mb-6">
               <p className="text-sm text-terracotta-600 flex items-center justify-center">
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                Redirecting to your admin dashboard...
+                Redirecting to login page...
               </p>
             </div>
             <button
               onClick={handleContinueToAdmin}
               className="w-full py-4 px-6 bg-primary hover:bg-primary-hover text-primary-foreground font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"
             >
-              Go to Dashboard Now
+              Go to Login Now
               <ArrowRight className="w-5 h-5" />
             </button>
           </div>
