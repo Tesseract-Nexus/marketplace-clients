@@ -379,8 +379,11 @@ function VerifyEmailContent() {
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
 
-  // Get email from store or URL params
-  const email = contactDetails.email || emailFromParams || '';
+  // State for email fetched directly from session API (more reliable than store)
+  const [fetchedEmail, setFetchedEmail] = useState<string>('');
+
+  // Get email from URL params first (most reliable), then store, then fetched
+  const email = emailFromParams || contactDetails.email || fetchedEmail || '';
 
   // Reset idle timer on user activity
   const resetIdleTimer = useCallback(() => {
@@ -458,10 +461,58 @@ function VerifyEmailContent() {
     return () => clearTimeout(timeoutId);
   }, [_hasHydrated, sessionId, contactDetails.email, emailFromParams, rehydrateSensitiveData, isRehydrating]);
 
-  // Show congratulations or welcome page after rehydration completes
+  // Track if email fetch has been attempted (to avoid showing welcome page prematurely)
+  const [emailFetchAttempted, setEmailFetchAttempted] = useState(false);
+
+  // Robust email fetching: directly fetch from session API if email is not available
+  // This is more reliable than depending on store rehydration
+  useEffect(() => {
+    // Skip if we already have email from URL params or store
+    if (emailFromParams || contactDetails.email || fetchedEmail) {
+      setEmailFetchAttempted(true);
+      return;
+    }
+
+    // Skip if no session ID
+    if (!sessionId) {
+      setEmailFetchAttempted(true);
+      return;
+    }
+
+    // Skip if still rehydrating (give store a chance first)
+    if (isRehydrating) {
+      return;
+    }
+
+    devLog('[Verify] Email not found in URL or store, fetching from session API');
+
+    const fetchEmailFromSession = async () => {
+      try {
+        const session = await onboardingApi.getOnboardingSession(sessionId);
+        const sessionEmail = session.contact_details?.email || session.contact_info?.email;
+        if (sessionEmail) {
+          devLog('[Verify] Email fetched from session API:', sessionEmail);
+          setFetchedEmail(sessionEmail);
+        } else {
+          devLog('[Verify] No email found in session API response');
+        }
+      } catch (error) {
+        devError('[Verify] Failed to fetch email from session API:', error);
+      } finally {
+        setEmailFetchAttempted(true);
+      }
+    };
+
+    fetchEmailFromSession();
+  }, [sessionId, emailFromParams, contactDetails.email, fetchedEmail, isRehydrating]);
+
+  // Show congratulations or welcome page after rehydration and email fetch complete
   useEffect(() => {
     // Wait for rehydration to complete
     if (isRehydrating) return;
+
+    // Wait for email fetch attempt to complete (gives session API a chance)
+    if (!emailFetchAttempted) return;
 
     // Check if onboarding was just completed (show congratulations)
     try {
@@ -487,12 +538,18 @@ function VerifyEmailContent() {
       devError('[Verify] Failed to check completion data:', e);
     }
 
-    // Use email from URL params as primary source since it's passed during navigation
-    const hasValidSession = sessionId && (emailFromParams || contactDetails.email);
+    // Check for valid session: need sessionId AND email from any source
+    // Include fetchedEmail which may be populated from direct session API call
+    const hasValidSession = sessionId && (emailFromParams || contactDetails.email || fetchedEmail);
     if (!hasValidSession) {
+      devLog('[Verify] No valid session, showing welcome page');
       setShowWelcomePage(true);
+    } else if (showWelcomePage) {
+      // If we now have a valid session (e.g., email was fetched), hide welcome page
+      devLog('[Verify] Valid session found, hiding welcome page');
+      setShowWelcomePage(false);
     }
-  }, [isRehydrating, sessionId, emailFromParams, contactDetails.email]);
+  }, [isRehydrating, emailFetchAttempted, sessionId, emailFromParams, contactDetails.email, fetchedEmail, showWelcomePage]);
 
   // Check verification method on mount and send verification
   useEffect(() => {
