@@ -242,6 +242,22 @@ export const storeSetupSchema = z.object({
     .boolean()
     .optional(),
 
+  // Custom admin subdomain for custom domain (default: "admin")
+  customAdminSubdomain: z
+    .string()
+    .max(50, 'Admin subdomain must be less than 50 characters')
+    .regex(/^[a-z0-9-]*$/, 'Admin subdomain can only contain lowercase letters, numbers, and hyphens')
+    .optional()
+    .or(z.literal('')),
+
+  // Custom storefront subdomain for custom domain (default: "" for root, or "www")
+  customStorefrontSubdomain: z
+    .string()
+    .max(50, 'Storefront subdomain must be less than 50 characters')
+    .regex(/^[a-z0-9-]*$/, 'Storefront subdomain can only contain lowercase letters, numbers, and hyphens')
+    .optional()
+    .or(z.literal('')),
+
   currency: z
     .string()
     .length(3, 'Please select a currency')

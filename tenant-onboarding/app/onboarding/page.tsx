@@ -8,7 +8,7 @@ import { SearchableSelect, type SelectOption } from '../../components/Searchable
 import { DocumentsSection } from '../../components/DocumentsSection';
 import { VerificationScore, useVerificationScore } from '../../components/VerificationScore';
 import { type UploadedDocument } from '../../components/DocumentUpload';
-import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldCheck, ShieldAlert } from 'lucide-react';
+import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldCheck, ShieldAlert, Pencil, X } from 'lucide-react';
 import { useOnboardingStore, type DetectedLocation, type PersistedDocument } from '../../lib/store/onboarding-store';
 import { businessInfoSchema, contactDetailsSchema, businessAddressSchema, storeSetupSchema, MARKETPLACE_PLATFORMS, type BusinessInfoForm, type ContactDetailsForm, type BusinessAddressForm, type StoreSetupForm } from '../../lib/validations/onboarding';
 import { onboardingApi, OnboardingAPIError } from '../../lib/api/onboarding';
@@ -332,6 +332,8 @@ export default function OnboardingPage() {
       useCustomDomain: false,
       customDomain: '',
       customDomainVerified: false,
+      customAdminSubdomain: 'admin',
+      customStorefrontSubdomain: '',
       currency: '',
       timezone: '',
       language: 'en',
@@ -341,6 +343,9 @@ export default function OnboardingPage() {
       ...storeSetup,
     },
   });
+
+  // Track if custom domain URLs are being edited
+  const [isEditingCustomUrls, setIsEditingCustomUrls] = useState(false);
 
   // Track if storefrontSlug was manually edited
   const [storefrontSlugManuallyEdited, setStorefrontSlugManuallyEdited] = useState(false);
@@ -1349,6 +1354,8 @@ export default function OnboardingPage() {
         // Custom domain fields
         use_custom_domain: data.useCustomDomain || false,
         custom_domain: data.useCustomDomain ? data.customDomain : undefined,
+        custom_admin_subdomain: data.useCustomDomain ? (data.customAdminSubdomain || 'admin') : undefined,
+        custom_storefront_subdomain: data.useCustomDomain ? (data.customStorefrontSubdomain || '') : undefined,
       };
 
       const storeSetupResponse = await fetch(`/api/onboarding/${sessionId}/store-setup`, {
@@ -2447,46 +2454,112 @@ export default function OnboardingPage() {
                             {/* Generated URLs Preview */}
                             {(() => {
                               const domainInput = storeSetupForm.watch('customDomain');
-                              const urls = domainInput ? generateUrls(domainInput) : null;
+                              const customAdminSubdomain = storeSetupForm.watch('customAdminSubdomain') || 'admin';
+                              const customStorefrontSubdomain = storeSetupForm.watch('customStorefrontSubdomain') || '';
+                              const urls = domainInput ? generateUrls(domainInput, {
+                                adminSubdomain: customAdminSubdomain,
+                                storefrontSubdomain: customStorefrontSubdomain,
+                              }) : null;
                               if (!urls || !domainInput || domainInput.length < 4) return null;
 
                               return (
                                 <div className="p-4 bg-white dark:bg-white/5 rounded-xl border-2 border-warm-200 dark:border-white/10">
-                                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Your Store URLs</p>
+                                  <div className="flex items-center justify-between mb-3">
+                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Your Store URLs</p>
+                                    <button
+                                      type="button"
+                                      onClick={() => setIsEditingCustomUrls(!isEditingCustomUrls)}
+                                      className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                                    >
+                                      {isEditingCustomUrls ? (
+                                        <>
+                                          <X className="w-3.5 h-3.5" />
+                                          Done
+                                        </>
+                                      ) : (
+                                        <>
+                                          <Pencil className="w-3.5 h-3.5" />
+                                          Customize
+                                        </>
+                                      )}
+                                    </button>
+                                  </div>
                                   <div className="space-y-3">
                                     {/* Admin URL */}
-                                    <div className="flex items-center gap-3 p-3 bg-warm-50 dark:bg-white/5 rounded-lg">
-                                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                        <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                      </div>
-                                      <div className="flex-1 min-w-0">
-                                        <p className="text-xs text-muted-foreground">Admin Dashboard</p>
-                                        <p className="text-sm font-semibold text-foreground truncate">
-                                          {urls.admin}
-                                        </p>
+                                    <div className="p-3 bg-warm-50 dark:bg-white/5 rounded-lg">
+                                      <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                          <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                          </svg>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-xs text-muted-foreground">Admin Dashboard</p>
+                                          {isEditingCustomUrls ? (
+                                            <div className="flex items-center gap-1 mt-1">
+                                              <span className="text-sm text-muted-foreground">https://</span>
+                                              <input
+                                                type="text"
+                                                {...storeSetupForm.register('customAdminSubdomain')}
+                                                placeholder="admin"
+                                                className="w-24 px-2 py-1 text-sm font-semibold bg-white dark:bg-white/10 border border-warm-300 dark:border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                              />
+                                              <span className="text-sm text-muted-foreground">.{urls.baseDomain}</span>
+                                            </div>
+                                          ) : (
+                                            <p className="text-sm font-semibold text-foreground truncate">
+                                              {urls.admin}
+                                            </p>
+                                          )}
+                                        </div>
                                       </div>
                                     </div>
                                     {/* Storefront URLs */}
-                                    <div className="flex items-center gap-3 p-3 bg-warm-50 dark:bg-white/5 rounded-lg">
-                                      <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                                        <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                        </svg>
-                                      </div>
-                                      <div className="flex-1 min-w-0">
-                                        <p className="text-xs text-muted-foreground">Storefront (Customer-facing)</p>
-                                        <p className="text-sm font-semibold text-foreground">
-                                          {urls.storefront}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground mt-0.5">
-                                          Also: {urls.storefrontWww}
-                                        </p>
+                                    <div className="p-3 bg-warm-50 dark:bg-white/5 rounded-lg">
+                                      <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                                          <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                          </svg>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                          <p className="text-xs text-muted-foreground">Storefront (Customer-facing)</p>
+                                          {isEditingCustomUrls ? (
+                                            <div className="mt-1 space-y-2">
+                                              <div className="flex items-center gap-1">
+                                                <span className="text-sm text-muted-foreground">https://</span>
+                                                <input
+                                                  type="text"
+                                                  {...storeSetupForm.register('customStorefrontSubdomain')}
+                                                  placeholder="www or leave empty"
+                                                  className="w-32 px-2 py-1 text-sm font-semibold bg-white dark:bg-white/10 border border-warm-300 dark:border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                                />
+                                                <span className="text-sm text-muted-foreground">.{urls.baseDomain}</span>
+                                              </div>
+                                              <p className="text-xs text-muted-foreground">
+                                                Leave empty for root domain ({urls.baseDomain}), or enter &quot;www&quot;
+                                              </p>
+                                            </div>
+                                          ) : (
+                                            <>
+                                              <p className="text-sm font-semibold text-foreground">
+                                                {urls.storefront}
+                                              </p>
+                                              <p className="text-xs text-muted-foreground mt-0.5">
+                                                Also: {urls.storefrontWww}
+                                              </p>
+                                            </>
+                                          )}
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
+                                  {!isEditingCustomUrls && (
+                                    <p className="mt-3 text-xs text-muted-foreground text-center">
+                                      Click &quot;Customize&quot; to change URL subdomains
+                                    </p>
+                                  )}
                                 </div>
                               );
                             })()}

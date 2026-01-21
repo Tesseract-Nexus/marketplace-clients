@@ -161,6 +161,9 @@ export interface GeneratedUrls {
   admin: string;
   storefront: string;
   storefrontWww: string;
+  adminSubdomain: string;
+  storefrontSubdomain: string;
+  baseDomain: string;
 }
 
 /**
@@ -424,13 +427,19 @@ export function validateDomain(input: string): DomainValidationResult {
   };
 }
 
+export interface GenerateUrlsOptions {
+  adminSubdomain?: string;
+  storefrontSubdomain?: string;
+}
+
 /**
  * Generates admin and storefront URLs from a root domain
  *
  * @param domain - Root domain (should be normalized first)
+ * @param options - Optional custom subdomains
  * @returns Generated URLs for admin and storefront
  */
-export function generateUrls(domain: string): GeneratedUrls | null {
+export function generateUrls(domain: string, options?: GenerateUrlsOptions): GeneratedUrls | null {
   const normalized = normalizeDomain(domain);
   if (!normalized) return null;
 
@@ -440,10 +449,24 @@ export function generateUrls(domain: string): GeneratedUrls | null {
     ? reservedCheck.rootDomain!
     : normalized;
 
+  // Use custom subdomains if provided, otherwise defaults
+  const adminSubdomain = options?.adminSubdomain || 'admin';
+  const storefrontSubdomain = options?.storefrontSubdomain || '';
+
+  // Build URLs
+  const adminUrl = `https://${adminSubdomain}.${baseDomain}`;
+  const storefrontUrl = storefrontSubdomain
+    ? `https://${storefrontSubdomain}.${baseDomain}`
+    : `https://${baseDomain}`;
+  const storefrontWwwUrl = `https://www.${baseDomain}`;
+
   return {
-    admin: `https://admin.${baseDomain}`,
-    storefront: `https://${baseDomain}`,
-    storefrontWww: `https://www.${baseDomain}`,
+    admin: adminUrl,
+    storefront: storefrontUrl,
+    storefrontWww: storefrontWwwUrl,
+    adminSubdomain,
+    storefrontSubdomain,
+    baseDomain,
   };
 }
 
