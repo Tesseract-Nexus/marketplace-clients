@@ -358,7 +358,10 @@ class OnboardingAPI {
   }
 
   async getOnboardingSession(sessionId: string): Promise<OnboardingSession> {
-    const response = await this.makeRequest<OnboardingSession>(`/onboarding/${sessionId}`);
+    // Include contact_information and business_information to ensure all required data is loaded
+    const response = await this.makeRequest<OnboardingSession>(
+      `/onboarding/${sessionId}?include=contact_information&include=business_information`
+    );
     return response;
   }
 

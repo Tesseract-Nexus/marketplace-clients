@@ -10,5 +10,10 @@ export async function GET(
   if (validationError) return validationError;
 
   const params = await context.params;
-  return proxyGet(SERVICES.TENANT, `/api/v1/onboarding/sessions/${params.sessionId}`, request);
+
+  // Forward query parameters (e.g., ?include=contact_information) to backend
+  const url = new URL(request.url);
+  const queryString = url.search;
+
+  return proxyGet(SERVICES.TENANT, `/api/v1/onboarding/sessions/${params.sessionId}${queryString}`, request);
 }
