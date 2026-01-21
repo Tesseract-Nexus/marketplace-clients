@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import useSWR from 'swr';
 import {
   ArrowRight,
   ChevronDown,
@@ -17,42 +18,58 @@ import {
   BarChart3,
   Users,
   Headphones,
+  LucideIcon,
 } from 'lucide-react';
 import { AuthModal } from '../components/auth';
 import { Footer } from '../components/Footer';
 import { useAuthStore } from '../lib/store/auth-store';
 
-const features = [
+// Icon mapping for dynamic icons from database
+const iconMap: Record<string, LucideIcon> = {
+  Package,
+  CreditCard,
+  BarChart3,
+  Headphones,
+  Users,
+  Shield,
+  Zap,
+  Clock,
+  Star,
+  Check,
+};
+
+// Fallback content (used if API fails)
+const fallbackFeatures = [
   {
     title: 'Make It Yours',
     description: 'Beautiful themes you can customize to match your brand. No design skills needed.',
-    icon: Package,
+    iconName: 'Package',
   },
   {
     title: 'Sell Everywhere',
     description: 'Accept payments from customers around the world in their preferred currency.',
-    icon: CreditCard,
+    iconName: 'CreditCard',
   },
   {
     title: 'Know Your Numbers',
     description: 'Simple analytics that help you understand what\'s working and what\'s not.',
-    icon: BarChart3,
+    iconName: 'BarChart3',
   },
   {
     title: 'We\'ve Got Your Back',
     description: 'Real humans ready to help when you need it. No chatbots, just friendly support.',
-    icon: Headphones,
+    iconName: 'Headphones',
   },
 ];
 
-const trustBadges = [
-  { icon: Users, label: 'No Developer Needed' },
-  { icon: Shield, label: 'SSL Secured' },
-  { icon: Zap, label: '99.9% Uptime' },
-  { icon: Clock, label: '24/7 Support' },
+const fallbackTrustBadges = [
+  { iconName: 'Users', label: 'No Developer Needed' },
+  { iconName: 'Shield', label: 'SSL Secured' },
+  { iconName: 'Zap', label: '99.9% Uptime' },
+  { iconName: 'Clock', label: '24/7 Support' },
 ];
 
-const pricingFeatures = [
+const fallbackPricingFeatures = [
   'Sell as many products as you want',
   'Use your own domain name',
   'Looks great on phones',
@@ -66,7 +83,7 @@ const pricingFeatures = [
   'Real humans ready to help, 24/7',
 ];
 
-const faqs = [
+const fallbackFaqs = [
   {
     question: 'I\'m not very technical. Can I still use this?',
     answer: 'Absolutely. We built this for people who want to focus on their business, not on learning software. If you can use email, you can use Tesserix. And if you get stuck, we\'re here to help—no judgment, just friendly guidance.',
@@ -101,6 +118,44 @@ const faqs = [
   },
 ];
 
+const fallbackTestimonials: Array<{ quote: string; name: string; role: string; company?: string; initials: string }> = [
+  {
+    quote: "I spent months trying to figure out Shopify. With Tesserix, I had my store up in an afternoon. It just... works.",
+    name: "Sarah Chen",
+    role: "Founder",
+    company: "BloomBox",
+    initials: "SC",
+  },
+  {
+    quote: "The onboarding was so smooth I thought I must be missing something. Nope—it really is that simple. My store was live the same day.",
+    name: "Marcus Rivera",
+    role: "Owner",
+    company: "Craft & Co",
+    initials: "MR",
+  },
+  {
+    quote: "Finally, an e-commerce platform that doesn't make me feel stupid. Clean, fast, and the support team actually responds.",
+    name: "Emily Tran",
+    role: "Founder",
+    company: "Luna Candles",
+    initials: "ET",
+  },
+];
+
+// SWR fetcher
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
+// Types for API response
+interface HomeContentResponse {
+  data: {
+    faqs: Array<{ question: string; answer: string }>;
+    features: Array<{ title: string; description: string; iconName: string }>;
+    testimonials: Array<{ quote: string; name: string; role: string; company?: string; initials: string }>;
+    trustBadges: Array<{ label: string; iconName: string }>;
+    paymentPlans: Array<{ features: Array<{ feature: string }> }>;
+  };
+}
+
 export default function Home() {
   const router = useRouter();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -109,6 +164,21 @@ export default function Home() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { isAuthenticated, user } = useAuthStore();
+
+  // Fetch content from API
+  const { data: contentData } = useSWR<HomeContentResponse>('/api/content/home', fetcher, {
+    revalidateOnFocus: false,
+    dedupingInterval: 60000, // Cache for 1 minute
+  });
+
+  // Use API data with fallback to hardcoded content
+  const features = contentData?.data?.features?.length ? contentData.data.features : fallbackFeatures;
+  const trustBadges = contentData?.data?.trustBadges?.length ? contentData.data.trustBadges : fallbackTrustBadges;
+  const faqs = contentData?.data?.faqs?.length ? contentData.data.faqs : fallbackFaqs;
+  const testimonials = contentData?.data?.testimonials?.length ? contentData.data.testimonials : fallbackTestimonials;
+  const pricingFeatures = contentData?.data?.paymentPlans?.[0]?.features?.length
+    ? contentData.data.paymentPlans[0].features.map((f) => f.feature)
+    : fallbackPricingFeatures;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -241,12 +311,15 @@ export default function Home() {
             </p>
             {/* Trust badges */}
             <div className="flex flex-wrap items-center gap-6 text-sm text-foreground-tertiary">
-              {trustBadges.map((badge, i) => (
-                <div key={i} className="flex items-center gap-2">
-                  <badge.icon className="w-4 h-4" />
-                  <span>{badge.label}</span>
-                </div>
-              ))}
+              {trustBadges.map((badge, i) => {
+                const BadgeIcon = iconMap[badge.iconName] || Shield;
+                return (
+                  <div key={i} className="flex items-center gap-2">
+                    <BadgeIcon className="w-4 h-4" />
+                    <span>{badge.label}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
           <div className="relative" role="img" aria-label="Preview of Tesserix admin dashboard showing revenue of ₹1,03,750, 284 orders, 3.2K visitors, and a sales growth chart">
@@ -340,7 +413,7 @@ export default function Home() {
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => {
-              const Icon = feature.icon;
+              const Icon = iconMap[feature.iconName] || Package;
               return (
                 <div
                   key={index}
@@ -431,26 +504,7 @@ export default function Home() {
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {
-                quote: "I spent months trying to figure out Shopify. With Tesserix, I had my store up in an afternoon. It just... works.",
-                name: "Sarah Chen",
-                role: "Founder, BloomBox",
-                initials: "SC",
-              },
-              {
-                quote: "The onboarding was so smooth I thought I must be missing something. Nope—it really is that simple. My store was live the same day.",
-                name: "Marcus Rivera",
-                role: "Owner, Craft & Co",
-                initials: "MR",
-              },
-              {
-                quote: "Finally, an e-commerce platform that doesn&apos;t make me feel stupid. Clean, fast, and the support team actually responds.",
-                name: "Emily Tran",
-                role: "Founder, Luna Candles",
-                initials: "ET",
-              },
-            ].map((testimonial, i) => (
+            {testimonials.slice(0, 3).map((testimonial, i) => (
               <div key={i} className="p-6 rounded-xl bg-white border border-warm-200 shadow-sm">
                 <div className="flex gap-1 mb-4">
                   {[1, 2, 3, 4, 5].map((star) => (
@@ -466,7 +520,7 @@ export default function Home() {
                   </div>
                   <div>
                     <div className="font-medium text-foreground">{testimonial.name}</div>
-                    <div className="text-sm text-foreground-tertiary">{testimonial.role}</div>
+                    <div className="text-sm text-foreground-tertiary">{testimonial.role}{testimonial.company ? `, ${testimonial.company}` : ''}</div>
                   </div>
                 </div>
               </div>
