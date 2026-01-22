@@ -1,20 +1,22 @@
 'use client';
 
 import React from 'react';
-import { AlertCircle, X, RefreshCw } from 'lucide-react';
+import { AlertCircle, AlertTriangle, X, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ErrorState } from '@/components/ui/error-state';
 import { cn } from '@/lib/utils';
 
 interface PageErrorProps {
-  /** Error message to display */
+  /** Error message to display (supports null for conditional rendering) */
   error: string | null;
-  /** Optional title (defaults to "Error") */
+  /** Optional title */
   title?: string;
   /** Callback to dismiss the error */
   onDismiss?: () => void;
   /** Callback for retry action */
   onRetry?: () => void;
+  /** Variant: 'error' (red) or 'warning' (yellow) */
+  variant?: 'error' | 'warning';
   /** Additional CSS classes */
   className?: string;
 }
@@ -40,7 +42,10 @@ function isPermissionError(error: string): boolean {
 /**
  * Standardized page-level error component for consistent error display across all pages.
  *
- * Automatically detects permission errors and displays a full styled error state.
+ * Features:
+ * - Automatically detects permission errors and displays full styled error state
+ * - Supports error and warning variants
+ * - Handles null internally (no need for conditional rendering)
  *
  * Usage:
  * ```tsx
@@ -48,6 +53,13 @@ function isPermissionError(error: string): boolean {
  *   error={error}
  *   onDismiss={() => setError(null)}
  *   onRetry={loadData}
+ * />
+ *
+ * // Warning variant
+ * <PageError
+ *   error="Some data may be outdated"
+ *   variant="warning"
+ *   onRetry={refresh}
  * />
  * ```
  *
@@ -57,15 +69,19 @@ function isPermissionError(error: string): boolean {
  */
 export function PageError({
   error,
-  title = 'Error',
+  title,
   onDismiss,
   onRetry,
+  variant = 'error',
   className,
 }: PageErrorProps) {
   if (!error) return null;
 
-  // For permission errors, show the full styled error state
-  if (isPermissionError(error)) {
+  const isWarning = variant === 'warning';
+  const Icon = isWarning ? AlertTriangle : AlertCircle;
+
+  // For permission errors (non-warning), show the full styled error state
+  if (!isWarning && isPermissionError(error)) {
     return (
       <ErrorState
         type="permission_denied"
@@ -79,20 +95,42 @@ export function PageError({
     );
   }
 
-  // For regular errors, show the inline error banner
+  // For regular errors/warnings, show the inline banner
   return (
     <div
       className={cn(
-        'bg-error-muted border border-error/20 rounded-lg p-4 flex items-start gap-3',
+        'rounded-lg p-4 flex items-start gap-3 border',
+        isWarning
+          ? 'bg-warning-muted border-warning/30'
+          : 'bg-error-muted border-error/20',
         className
       )}
       role="alert"
       aria-live="polite"
     >
-      <AlertCircle className="h-5 w-5 text-error flex-shrink-0 mt-0.5" aria-hidden="true" />
+      <Icon
+        className={cn(
+          'h-5 w-5 flex-shrink-0 mt-0.5',
+          isWarning ? 'text-warning' : 'text-error'
+        )}
+        aria-hidden="true"
+      />
       <div className="flex-1 min-w-0">
-        <h3 className="font-semibold text-error">{title}</h3>
-        <p className="text-error-muted-foreground text-sm mt-1">{error}</p>
+        {title && (
+          <h3 className={cn(
+            'font-semibold text-sm',
+            isWarning ? 'text-warning' : 'text-error'
+          )}>
+            {title}
+          </h3>
+        )}
+        <p className={cn(
+          'text-sm',
+          title ? 'mt-1' : '',
+          isWarning ? 'text-warning-foreground' : 'text-error-muted-foreground'
+        )}>
+          {error}
+        </p>
       </div>
       <div className="flex items-center gap-1 flex-shrink-0">
         {onRetry && (
@@ -100,7 +138,12 @@ export function PageError({
             variant="ghost"
             size="sm"
             onClick={onRetry}
-            className="p-1.5 h-auto rounded-lg hover:bg-error/10 text-error transition-colors"
+            className={cn(
+              'p-1.5 h-auto rounded-lg transition-colors',
+              isWarning
+                ? 'hover:bg-warning/10 text-warning'
+                : 'hover:bg-error/10 text-error'
+            )}
             aria-label="Retry"
           >
             <RefreshCw className="h-4 w-4" />
@@ -111,8 +154,13 @@ export function PageError({
             variant="ghost"
             size="sm"
             onClick={onDismiss}
-            className="p-1.5 h-auto rounded-lg hover:bg-error/10 text-error transition-colors"
-            aria-label="Dismiss error"
+            className={cn(
+              'p-1.5 h-auto rounded-lg transition-colors',
+              isWarning
+                ? 'hover:bg-warning/10 text-warning'
+                : 'hover:bg-error/10 text-error'
+            )}
+            aria-label="Dismiss"
           >
             <X className="h-4 w-4" />
           </Button>

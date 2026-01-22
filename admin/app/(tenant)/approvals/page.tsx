@@ -270,13 +270,11 @@ export default function ApprovalsPage() {
           </Card>
 
           {/* Error State */}
-          {error && (
-            <PageError
-              message={error}
-              onRetry={loadApprovals}
-              onDismiss={() => setError(null)}
-            />
-          )}
+          <PageError
+            error={error}
+            onRetry={loadApprovals}
+            onDismiss={() => setError(null)}
+          />
 
           {/* Loading State */}
           {loading && (

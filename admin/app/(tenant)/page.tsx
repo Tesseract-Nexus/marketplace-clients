@@ -11,7 +11,7 @@ import { useDashboardData, useRefreshDashboard } from '@/hooks/useDashboardData'
 import { DashboardData } from '@/lib/types/dashboard';
 
 function DashboardContent({ data, loading }: { data: DashboardData; loading: boolean }) {
-  const { widgets, isLoaded, isEditMode } = useDashboardLayoutContext();
+  const { widgets, isLoaded } = useDashboardLayoutContext();
 
   if (loading || !isLoaded) {
     return (
@@ -35,7 +35,6 @@ function DashboardContent({ data, loading }: { data: DashboardData; loading: boo
             key={widget.id}
             id={widget.id}
             gridSpan={widget.gridSpan}
-            isEditMode={isEditMode}
           >
             <RenderWidget type={widget.type} data={data} />
           </DraggableWidget>

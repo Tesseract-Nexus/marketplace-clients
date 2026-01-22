@@ -311,12 +311,10 @@ export default function ApprovalWorkflowsPage() {
         />
 
         {/* Action error display */}
-        {actionError && (
-          <PageError
-            message={actionError}
-            onDismiss={() => setActionError(null)}
-          />
-        )}
+        <PageError
+          error={actionError}
+          onDismiss={() => setActionError(null)}
+        />
 
         {workflows.length === 0 ? (
           <Card>
