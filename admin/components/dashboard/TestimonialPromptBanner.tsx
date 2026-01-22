@@ -45,23 +45,11 @@ export function TestimonialPromptBanner({ className }: TestimonialPromptBannerPr
       }
     }
 
-    // Check tenant age (show after 30 days)
-    // For now, we'll show the prompt if tenant was created more than 30 days ago
-    // In production, this would use the actual tenant createdAt date
-    const tenantCreatedAt = currentTenant.createdAt ? new Date(currentTenant.createdAt) : null;
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-    const isOldEnough = tenantCreatedAt ? tenantCreatedAt < thirtyDaysAgo : true; // Default to showing
-
-    if (!isOldEnough) {
-      setIsLoading(false);
-      return;
-    }
-
     // Check if tenant already has a testimonial
+    // Note: In the future, we can add a check for tenant age (e.g., show after 30 days)
+    // when createdAt is available in the Tenant type
     checkExistingTestimonial();
-  }, [currentTenant?.id, currentTenant?.createdAt]);
+  }, [currentTenant?.id]);
 
   const checkExistingTestimonial = async () => {
     if (!currentTenant?.id) return;
