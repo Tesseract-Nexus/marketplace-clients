@@ -434,20 +434,19 @@ export interface GenerateUrlsOptions {
 
 /**
  * Default subdomain for storefront when using custom domains
- * We don't support apex domains because:
- * 1. Apex domains can't use CNAME records (not all DNS providers support CNAME flattening)
- * 2. Subdomains are more reliable for pointing to Cloudflare Tunnel
+ * Users can also use apex domains (empty subdomain) which will use A records
  */
 export const DEFAULT_STOREFRONT_SUBDOMAIN = 'www';
 
 /**
- * Validates that a storefront subdomain is not empty (apex domain)
+ * Validates a storefront subdomain format
  * Returns error message if invalid, undefined if valid
+ * Note: Empty string is allowed (apex domain)
  */
 export function validateStorefrontSubdomain(subdomain: string | undefined): string | undefined {
-  // Apex domain (empty subdomain) is not allowed
+  // Empty subdomain (apex domain) is now allowed - we use A records for apex
   if (!subdomain || subdomain.trim() === '') {
-    return 'Apex domains are not supported. Please use a subdomain like "www" or "store".';
+    return undefined; // Apex domains are now supported
   }
 
   // Check for valid subdomain characters
@@ -467,13 +466,11 @@ export function validateStorefrontSubdomain(subdomain: string | undefined): stri
 /**
  * Generates admin and storefront URLs from a root domain
  *
- * IMPORTANT: Apex domains are NOT supported for storefront.
- * We always require a subdomain (default: www) because:
- * 1. Apex domains can't use CNAME records (not all DNS providers support CNAME flattening)
- * 2. Subdomains are more reliable for pointing to Cloudflare Tunnel
+ * Apex domains are supported using A records pointing to gateway IP.
+ * Subdomains use CNAME records.
  *
  * @param domain - Root domain (should be normalized first)
- * @param options - Optional custom subdomains
+ * @param options - Optional custom subdomains (empty string for apex)
  * @returns Generated URLs for admin and storefront
  */
 export function generateUrls(domain: string, options?: GenerateUrlsOptions): GeneratedUrls | null {
@@ -488,12 +485,14 @@ export function generateUrls(domain: string, options?: GenerateUrlsOptions): Gen
 
   // Use custom subdomains if provided, otherwise defaults
   const adminSubdomain = options?.adminSubdomain || 'admin';
-  // IMPORTANT: Default to 'www' - apex domains are NOT supported
-  const storefrontSubdomain = options?.storefrontSubdomain || DEFAULT_STOREFRONT_SUBDOMAIN;
+  // Default to 'www' but empty string is allowed for apex domain
+  const storefrontSubdomain = options?.storefrontSubdomain ?? DEFAULT_STOREFRONT_SUBDOMAIN;
 
-  // Build URLs - storefront ALWAYS uses a subdomain (no apex support)
+  // Build URLs - storefront can use subdomain or apex
   const adminUrl = `https://${adminSubdomain}.${baseDomain}`;
-  const storefrontUrl = `https://${storefrontSubdomain}.${baseDomain}`;
+  const storefrontUrl = storefrontSubdomain
+    ? `https://${storefrontSubdomain}.${baseDomain}`
+    : `https://${baseDomain}`; // Apex domain
   const storefrontWwwUrl = `https://www.${baseDomain}`;
 
   return {

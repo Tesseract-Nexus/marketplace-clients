@@ -2545,14 +2545,19 @@ export default function OnboardingPage() {
                                                 </p>
                                               ) : (
                                                 <p className="text-xs text-muted-foreground">
-                                                  Enter a subdomain like &quot;www&quot; or &quot;store&quot;. Apex domains are not supported.
+                                                  Enter a subdomain like &quot;www&quot; or &quot;store&quot;, or leave empty for apex domain.
                                                 </p>
                                               )}
                                             </div>
                                           ) : (
-                                            <p className="text-sm font-semibold text-foreground">
-                                              {urls.storefront}
-                                            </p>
+                                            <div className="space-y-1">
+                                              <p className="text-sm font-semibold text-foreground">
+                                                https://{urls.baseDomain}
+                                              </p>
+                                              <p className="text-sm font-semibold text-foreground">
+                                                https://www.{urls.baseDomain}
+                                              </p>
+                                            </div>
                                           )}
                                         </div>
                                       </div>
