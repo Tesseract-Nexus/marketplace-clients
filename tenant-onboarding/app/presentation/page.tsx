@@ -369,10 +369,12 @@ export default function PresentationPage() {
 
   return (
     <div className="fixed inset-0 bg-background overflow-hidden">
-      {/* Background Effects */}
+      {/* Background Effects - simplified on mobile for performance */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-warm-200/30 rounded-full blur-[150px]" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-warm-200/25 rounded-full blur-[150px]" />
+        <div className="hidden sm:block absolute top-0 left-1/4 w-[400px] h-[400px] bg-warm-200/20 rounded-full blur-[100px]" />
+        <div className="hidden sm:block absolute bottom-0 right-1/4 w-[350px] h-[350px] bg-warm-200/15 rounded-full blur-[100px]" />
+        {/* Mobile: simple gradient background instead of heavy blur */}
+        <div className="sm:hidden absolute inset-0 bg-gradient-to-br from-warm-100/50 to-transparent" />
       </div>
 
       {/* Progress Bar */}
@@ -508,8 +510,12 @@ export default function PresentationPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
                 <div className="flex justify-center order-2 md:order-1">
                   <div className="relative w-32 h-32 sm:w-48 sm:h-48">
-                    <div className="absolute inset-0 border border-warm-300/50 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
-                    <div className="absolute inset-4 border border-warm-300/30 rounded-full animate-ping" style={{ animationDuration: '3s', animationDelay: '1s' }} />
+                    {/* Animations hidden on mobile for performance */}
+                    <div className="hidden sm:block absolute inset-0 border border-warm-300/50 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
+                    <div className="hidden sm:block absolute inset-4 border border-warm-300/30 rounded-full animate-ping" style={{ animationDuration: '3s', animationDelay: '1s' }} />
+                    {/* Static rings on mobile */}
+                    <div className="sm:hidden absolute inset-0 border border-warm-300/30 rounded-full" />
+                    <div className="sm:hidden absolute inset-3 border border-warm-300/20 rounded-full" />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 sm:w-20 sm:h-20 bg-primary rounded-full flex items-center justify-center">
                       <Globe className="w-7 h-7 sm:w-10 sm:h-10 text-white" />
                     </div>
@@ -556,9 +562,10 @@ export default function PresentationPage() {
                       <div className="text-base sm:text-lg font-medium text-foreground-secondary">&ldquo;Vintage Leather Messenger Bag&rdquo;</div>
                     </div>
                     <div className="flex gap-1.5 mb-3 sm:mb-4">
-                      <span className="w-2 h-2 bg-warm-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <span className="w-2 h-2 bg-warm-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <span className="w-2 h-2 bg-warm-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                      {/* Animations only on desktop for performance */}
+                      <span className="w-2 h-2 bg-warm-400 rounded-full sm:animate-bounce" style={{ animationDelay: '0ms' }} />
+                      <span className="w-2 h-2 bg-warm-400 rounded-full sm:animate-bounce" style={{ animationDelay: '150ms' }} />
+                      <span className="w-2 h-2 bg-warm-400 rounded-full sm:animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                     <div className="bg-warm-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border-l-2 border-primary">
                       <p className="text-xs sm:text-sm text-foreground-secondary leading-relaxed">
