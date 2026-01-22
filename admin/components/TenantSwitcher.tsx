@@ -8,7 +8,7 @@ import { buildAdminUrl } from '@/lib/utils/tenant';
 
 interface TenantSwitcherProps {
   className?: string;
-  variant?: 'sidebar' | 'header';
+  variant?: 'sidebar' | 'header' | 'compact';
 }
 
 export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitcherProps) {
@@ -106,30 +106,30 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
     }
   };
 
-  // Sidebar variant styles
-  const isSidebar = variant === 'sidebar';
+  const isCompact = variant === 'compact';
+  const isSidebar = variant === 'sidebar' || isCompact;
 
   // Show loading state
   if (isLoading) {
     return (
       <div className={cn(
-        'flex items-center gap-3 px-3 py-3',
+        'flex items-center gap-2',
+        isCompact ? 'h-9 px-2' : 'gap-3 px-3 py-3',
         isSidebar && 'w-full',
         className
       )}>
-        <div className="w-10 h-10 rounded-xl bg-sidebar-accent/50 flex items-center justify-center">
-          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+        <div className={cn(
+          "rounded-lg bg-sidebar-accent/50 flex items-center justify-center",
+          isCompact ? "w-6 h-6" : "w-10 h-10 rounded-xl"
+        )}>
+          <Loader2 className={cn("animate-spin text-sidebar-text", isCompact ? "w-3.5 h-3.5" : "w-5 h-5")} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="h-4 w-24 bg-sidebar-accent/50 rounded animate-pulse" />
-          <div className="h-3 w-16 bg-sidebar-accent/30 rounded mt-1 animate-pulse" />
+          <div className={cn("bg-sidebar-accent/50 rounded animate-pulse", isCompact ? "h-3 w-16" : "h-4 w-24")} />
         </div>
       </div>
     );
   }
-
-  // Note: We no longer skip dropdown for single tenant
-  // Users should always have access to "Create New Business" option
 
   // No tenant selected
   if (!currentTenant) {
@@ -137,67 +137,78 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'flex items-center gap-3 px-3 py-3 w-full rounded-xl transition-all duration-200',
-          'hover:bg-sidebar-accent/50 border border-transparent hover:border-sidebar-border',
+          'flex items-center w-full rounded-lg transition-all duration-200',
+          'hover:bg-sidebar-accent border border-transparent hover:border-sidebar-border',
+          isCompact ? 'h-9 gap-2 px-2' : 'gap-3 px-3 py-3 rounded-xl',
           className
         )}
       >
-        <div className="w-10 h-10 rounded-xl bg-sidebar-accent flex items-center justify-center">
-          <Building2 className="w-5 h-5 text-muted-foreground" />
+        <div className={cn(
+          "bg-sidebar-accent flex items-center justify-center",
+          isCompact ? "w-6 h-6 rounded-lg" : "w-10 h-10 rounded-xl"
+        )}>
+          <Building2 className={cn("text-sidebar-text", isCompact ? "w-3.5 h-3.5" : "w-5 h-5")} />
         </div>
         <div className="flex-1 min-w-0 text-left">
-          <p className="text-sm font-medium text-muted-foreground">Select Business</p>
-          <p className="text-xs text-muted-foreground">Choose a store to manage</p>
+          <p className={cn("font-medium text-sidebar-text truncate", isCompact ? "text-xs" : "text-sm")}>
+            Select Business
+          </p>
         </div>
-        <ChevronsUpDown className="w-4 h-4 text-muted-foreground" />
+        <ChevronDown className={cn("text-sidebar-text flex-shrink-0", isCompact ? "w-3.5 h-3.5" : "w-4 h-4")} />
       </button>
     );
   }
 
   return (
     <div className={cn('relative', isSidebar && 'w-full', className)} ref={dropdownRef}>
-      {/* Trigger Button - Sidebar Style */}
+      {/* Trigger Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'flex items-center gap-3 px-3 py-3 w-full rounded-xl transition-all duration-200',
+          'flex items-center w-full rounded-lg transition-all duration-200 border',
+          isCompact ? 'h-9 gap-2 px-2' : 'gap-3 px-3 py-3 rounded-xl',
           isOpen
-            ? 'bg-sidebar-accent/80 border-border'
-            : 'hover:bg-sidebar-accent/50 border-transparent hover:border-sidebar-border',
-          'border'
+            ? 'bg-sidebar-accent border-sidebar-border'
+            : 'hover:bg-sidebar-accent border-transparent hover:border-sidebar-border'
         )}
       >
         {/* Business Logo/Avatar */}
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg transition-transform group-hover:scale-105"
-          style={{
-            backgroundColor: currentTenant.primaryColor || '#6366f1',
-            boxShadow: `0 4px 14px ${currentTenant.primaryColor || '#6366f1'}40`
-          }}
+          className={cn(
+            "flex items-center justify-center text-white font-bold flex-shrink-0",
+            isCompact ? "w-6 h-6 rounded-md text-xs" : "w-10 h-10 rounded-xl text-sm shadow-lg"
+          )}
+          style={{ backgroundColor: currentTenant.primaryColor || '#6366f1' }}
         >
           {currentTenant.logoUrl ? (
             <img
               src={currentTenant.logoUrl}
               alt={currentTenant.name}
-              className="w-full h-full object-cover rounded-xl"
+              className={cn("w-full h-full object-cover", isCompact ? "rounded-md" : "rounded-xl")}
             />
           ) : (
             currentTenant.name.charAt(0).toUpperCase()
           )}
         </div>
 
-        {/* Business Name & Role */}
+        {/* Business Name */}
         <div className="flex-1 min-w-0 text-left">
-          <p className="text-sm font-semibold text-sidebar-active-text truncate">
+          <p className={cn(
+            "font-medium text-sidebar-active-text truncate",
+            isCompact ? "text-xs" : "text-sm font-semibold"
+          )}>
             {currentTenant.name}
           </p>
-          <p className="text-xs text-sidebar-text-muted capitalize">{currentTenant.role}</p>
+          {!isCompact && (
+            <p className="text-xs text-sidebar-text-muted capitalize">{currentTenant.role}</p>
+          )}
         </div>
 
         {/* Dropdown Indicator */}
-        <ChevronsUpDown
+        <ChevronDown
           className={cn(
-            'w-4 h-4 text-muted-foreground transition-transform duration-200 flex-shrink-0',
+            'text-sidebar-text transition-transform duration-200 flex-shrink-0',
+            isCompact ? 'w-3.5 h-3.5' : 'w-4 h-4',
             isOpen && 'rotate-180'
           )}
         />
@@ -206,8 +217,11 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
       {/* Dropdown Menu */}
       {isOpen && (
         <div className={cn(
-          'absolute left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-2xl z-[9999] overflow-hidden',
-          'animate-in fade-in slide-in-from-top-2 duration-200'
+          'absolute left-0 right-0 bg-card border border-border rounded-xl shadow-2xl z-[9999] overflow-hidden',
+          'animate-in fade-in duration-200',
+          isCompact
+            ? 'bottom-full mb-2 slide-in-from-bottom-2'
+            : 'top-full mt-2 slide-in-from-top-2'
         )}>
           {/* Header */}
           <div className="px-4 py-3 border-b border-border bg-muted">

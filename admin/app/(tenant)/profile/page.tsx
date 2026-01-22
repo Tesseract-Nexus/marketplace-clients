@@ -179,7 +179,7 @@ export default function ProfilePage() {
       fallbackDescription="You don't have the required permissions to view profile. Please contact your administrator to request access."
     >
     <div className="min-h-screen bg-background">
-      <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in duration-500">
+      <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="My Profile"
           description="Manage your profile information and settings"

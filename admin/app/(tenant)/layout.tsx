@@ -496,7 +496,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               {item.icon && (
                 <span className={cn(
                   "w-5 h-5 transition-colors flex items-center justify-center",
-                  isExpanded ? "text-primary" : "text-sidebar-text group-hover:text-sidebar-active-text"
+                  isExpanded ? "text-sidebar-primary" : "text-sidebar-text group-hover:text-sidebar-active-text"
                 )}>
                   <item.icon className="w-5 h-5" aria-hidden="true" />
                 </span>
@@ -504,14 +504,14 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               {!item.icon && (
                 <div className={cn(
                   "w-1.5 h-1.5 rounded-full transition-colors",
-                  isExpanded ? "bg-primary" : "bg-sidebar-text/60 group-hover:bg-sidebar-active-text"
+                  isExpanded ? "bg-sidebar-primary" : "bg-sidebar-text/60 group-hover:bg-sidebar-active-text"
                 )} aria-hidden="true" />
               )}
               <AdminUIText text={item.name} />
             </div>
             <ChevronDown className={cn(
               "w-4 h-4 transition-transform duration-200",
-              isExpanded ? "text-primary rotate-0" : "text-sidebar-text -rotate-90"
+              isExpanded ? "text-sidebar-primary rotate-0" : "text-sidebar-text -rotate-90"
             )} aria-hidden="true" />
           </button>
           {isExpanded && (
@@ -542,21 +542,21 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         className={cn(
           "flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group relative cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
           active
-            ? "bg-primary/15 text-primary border-l-3 border-primary"
+            ? "bg-sidebar-primary/20 text-sidebar-active-text border-l-3 border-sidebar-primary"
             : "text-sidebar-text hover:bg-sidebar-accent hover:text-sidebar-active-text"
         )}
       >
         {item.icon ? (
           <span className={cn(
             "w-5 h-5 relative z-10 transition-colors flex items-center justify-center",
-            active ? "text-primary" : "text-sidebar-text group-hover:text-sidebar-active-text"
+            active ? "text-sidebar-primary" : "text-sidebar-text group-hover:text-sidebar-active-text"
           )}>
             <item.icon className="w-5 h-5" aria-hidden="true" />
           </span>
         ) : (
           <div className={cn(
             "w-1.5 h-1.5 rounded-full transition-colors relative z-10",
-            active ? "bg-primary" : "bg-sidebar-text/60 group-hover:bg-sidebar-active-text"
+            active ? "bg-sidebar-primary" : "bg-sidebar-text/60 group-hover:bg-sidebar-active-text"
           )} aria-hidden="true" />
         )}
         <span className="relative z-10"><AdminUIText text={item.name} /></span>
@@ -582,15 +582,16 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Header - Business Switcher */}
-          <div className="flex items-center justify-between p-4 border-b border-sidebar-border"
-          >
-            <TenantSwitcher variant="sidebar" className="flex-1" />
+          {/* Header - Mobile close button only */}
+          <div className="flex items-center justify-between p-4 border-b border-sidebar-border lg:hidden">
+            <span className="text-sm font-semibold text-sidebar-active-text">Menu</span>
             <Button
+              variant="ghost"
+              size="sm"
               onClick={() => setIsOpen(false)}
-              className="lg:hidden p-2 rounded-lg transition-colors ml-2 hover:bg-sidebar-accent"
+              className="p-2 rounded-lg hover:bg-sidebar-accent"
             >
-              <X className="w-5 h-5" style={{ color: 'var(--color-sidebar-text, #cbd5e1)' }} />
+              <X className="w-5 h-5 text-sidebar-text" />
             </Button>
           </div>
 
@@ -601,6 +602,22 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-sidebar-border scrollbar-track-transparent">
             {filteredNavigation.map((item) => renderNavItem(item))}
           </nav>
+
+          {/* Bottom: Tenant Switcher + Sign Out */}
+          <div className="p-3 border-t border-sidebar-border">
+            <div className="flex items-center gap-2">
+              <TenantSwitcher variant="compact" className="flex-1 min-w-0" />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="h-9 w-9 p-0 rounded-lg text-sidebar-text hover:text-error hover:bg-error/10 flex-shrink-0"
+                title="Sign Out"
+              >
+                <LogOut className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
         </div>
       </aside>
     </>
@@ -670,7 +687,7 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
                   className="fixed inset-0 z-[9998]"
                   onClick={() => setShowUserMenu(false)}
                 />
-                <div className="absolute right-0 mt-2 w-64 bg-card rounded-xl shadow-lg border border-border z-[9999] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 mt-2 w-64 bg-card rounded-xl shadow-lg border border-border z-[9999] animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="px-4 py-3 border-b border-border">
                     <p className="text-sm font-semibold text-foreground">{displayName}</p>
                     <p className="text-xs text-muted-foreground">{email}</p>
