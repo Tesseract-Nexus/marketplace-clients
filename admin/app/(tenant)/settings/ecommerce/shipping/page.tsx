@@ -429,7 +429,7 @@ export default function ShippingSettingsPage() {
 
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
                   <Truck className="h-6 w-6 text-success" />
                 </div>
                 <div>
@@ -456,7 +456,7 @@ export default function ShippingSettingsPage() {
 
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                   <Truck className="h-6 w-6 text-primary" />
                 </div>
                 <div>
@@ -481,7 +481,7 @@ export default function ShippingSettingsPage() {
 
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-red-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
                   <Truck className="h-6 w-6 text-warning" />
                 </div>
                 <div>
@@ -507,7 +507,7 @@ export default function ShippingSettingsPage() {
 
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                   <Building className="h-6 w-6 text-primary" />
                 </div>
                 <div>
@@ -613,7 +613,7 @@ export default function ShippingSettingsPage() {
             {/* Shipping Carriers Configuration */}
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
                   <Key className="h-6 w-6 text-emerald-600" />
                 </div>
                 <div>

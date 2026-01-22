@@ -469,7 +469,7 @@ export default function TranslationSettingsPage() {
             {/* Default Language Settings */}
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
                   <Globe className="h-6 w-6 text-success" />
                 </div>
                 <div>
@@ -539,7 +539,7 @@ export default function TranslationSettingsPage() {
             {/* Enabled Languages */}
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                   <Languages className="h-6 w-6 text-primary" />
                 </div>
                 <div>

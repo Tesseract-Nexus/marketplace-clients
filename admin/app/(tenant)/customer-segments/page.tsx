@@ -351,7 +351,7 @@ export default function CustomerSegmentsPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Active Segments</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
                 <TrendingUp className="h-6 w-6 text-success" />
               </div>
             </div>
@@ -363,7 +363,7 @@ export default function CustomerSegmentsPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Total Members</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                 <Users className="h-6 w-6 text-primary" />
               </div>
             </div>

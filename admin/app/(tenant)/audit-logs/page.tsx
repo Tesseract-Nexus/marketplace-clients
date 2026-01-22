@@ -317,7 +317,7 @@ export default function AuditLogsPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Success Rate</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
                 <Clock className="h-6 w-6 text-success" />
               </div>
             </div>
@@ -329,7 +329,7 @@ export default function AuditLogsPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">High Severity</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-red-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
                 <AlertTriangle className="h-6 w-6 text-warning" />
               </div>
             </div>

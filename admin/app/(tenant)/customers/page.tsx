@@ -275,7 +275,7 @@ export default function CustomersPage() {
                 {activeCustomers}
               </p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-success/10 rounded-lg flex items-center justify-center flex-shrink-0">
               <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-success" />
             </div>
           </div>
@@ -289,7 +289,7 @@ export default function CustomersPage() {
                 ${totalRevenue.toFixed(2)}
               </p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
               <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
           </div>

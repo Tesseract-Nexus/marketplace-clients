@@ -406,7 +406,7 @@ export default function TicketsPage() {
                   {resolvedTickets}
                 </p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-success/10 rounded-lg flex items-center justify-center">
                 <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-success" />
               </div>
             </div>

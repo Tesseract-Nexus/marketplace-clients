@@ -193,9 +193,9 @@ export default function ShippingCarriersSettingsPage() {
         />
 
         {/* Shipping Status Dashboard */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className={`grid grid-cols-1 gap-6 ${recommendation ? 'lg:grid-cols-3' : ''}`}>
           {/* Main Status Card */}
-          <div className="lg:col-span-2 bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+          <div className={`bg-card rounded-xl border border-border shadow-sm overflow-hidden ${recommendation ? 'lg:col-span-2' : ''}`}
             <div className="p-6">
               <div className="flex items-start justify-between mb-6">
                 <div className="flex items-center gap-4">
@@ -239,7 +239,7 @@ export default function ShippingCarriersSettingsPage() {
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-blue-500 via-violet-500 to-purple-500 transition-all duration-500"
+                    className="h-full bg-primary transition-all duration-500"
                     style={{ width: `${getSetupProgress()}%` }}
                   />
                 </div>
@@ -364,7 +364,7 @@ export default function ShippingCarriersSettingsPage() {
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:via-violet-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
                 >
                   <Icon className="h-4 w-4 mr-2" />
                   {tab.label}

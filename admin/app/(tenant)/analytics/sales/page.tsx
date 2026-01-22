@@ -280,7 +280,7 @@ export default function SalesAnalyticsPage() {
           <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-xl hover:border-primary/30/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">Avg Order Value</p>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                 <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
             </div>

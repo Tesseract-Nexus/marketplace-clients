@@ -164,7 +164,7 @@ export default function MauticIntegrationPage() {
               <div className={cn(
                 "w-16 h-16 rounded-lg flex items-center justify-center",
                 status?.connected
-                  ? "bg-gradient-to-br from-green-100 to-emerald-100"
+                  ? "bg-success/10"
                   : "bg-gradient-to-br from-red-100 to-orange-100"
               )}>
                 <Mail className={cn(
@@ -232,7 +232,7 @@ export default function MauticIntegrationPage() {
           </div>
 
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-lg bg-success/10 flex items-center justify-center mb-4">
               <Users className="h-6 w-6 text-success" />
             </div>
             <h4 className="text-lg font-bold text-foreground">Customer Segments</h4>
@@ -248,7 +248,7 @@ export default function MauticIntegrationPage() {
           </div>
 
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
               <BarChart3 className="h-6 w-6 text-primary" />
             </div>
             <h4 className="text-lg font-bold text-foreground">Campaign Analytics</h4>

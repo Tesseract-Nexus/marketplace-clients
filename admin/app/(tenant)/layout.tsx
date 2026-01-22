@@ -534,7 +534,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             aria-expanded={isExpanded}
             aria-controls={menuId}
             className={cn(
-              "w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group hover:bg-slate-700/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              "w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             )}
             style={{
               backgroundColor: isExpanded ? 'var(--color-sidebar-bg, #334155)' + 'cc' : 'transparent',
@@ -543,10 +543,15 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           >
             <div className="flex items-center gap-3">
               {item.icon && (
-                <item.icon className={cn(
-                  "w-5 h-5 transition-colors",
-                  isExpanded ? "text-primary" : "text-sidebar-foreground/70 group-hover:text-primary"
-                )} aria-hidden="true" />
+                <item.icon
+                  className="w-5 h-5 transition-colors"
+                  style={{
+                    color: isExpanded
+                      ? 'var(--color-primary, #3b82f6)'
+                      : 'var(--color-sidebar-text, #cbd5e1)'
+                  }}
+                  aria-hidden="true"
+                />
               )}
               {!item.icon && (
                 <div className="w-1.5 h-1.5 rounded-full transition-colors"
@@ -562,7 +567,11 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             {isExpanded ? (
               <ChevronDown className="w-4 h-4 text-primary" aria-hidden="true" />
             ) : (
-              <ChevronRight className="w-4 h-4 text-sidebar-foreground/60 group-hover:text-primary transition-colors" aria-hidden="true" />
+              <ChevronRight
+                className="w-4 h-4 transition-colors"
+                style={{ color: 'var(--color-sidebar-text, #cbd5e1)' }}
+                aria-hidden="true"
+              />
             )}
           </button>
           {isExpanded && (
@@ -602,10 +611,15 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         }}
       >
         {item.icon ? (
-          <item.icon className={cn(
-            "w-5 h-5 relative z-10 transition-colors",
-            active ? "text-primary-foreground" : "text-sidebar-foreground/70 group-hover:text-primary"
-          )} aria-hidden="true" />
+          <item.icon
+            className="w-5 h-5 relative z-10 transition-colors"
+            style={{
+              color: active
+                ? '#ffffff'
+                : 'var(--color-sidebar-text, #cbd5e1)'
+            }}
+            aria-hidden="true"
+          />
         ) : (
           <div className="w-1.5 h-1.5 rounded-full transition-colors relative z-10"
             aria-hidden="true"
@@ -643,13 +657,16 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       >
         <div className="flex flex-col h-full">
           {/* Header - Business Switcher */}
-          <div className="flex items-center justify-between p-4 border-b border-slate-700/50">
+          <div
+            className="flex items-center justify-between p-4 border-b"
+            style={{ borderColor: 'var(--color-sidebar-border, #334155)' }}
+          >
             <TenantSwitcher variant="sidebar" className="flex-1" />
             <Button
               onClick={() => setIsOpen(false)}
-              className="lg:hidden p-2 rounded-lg hover:bg-slate-800 transition-colors ml-2"
+              className="lg:hidden p-2 rounded-lg transition-colors ml-2 hover:bg-sidebar-accent"
             >
-              <X className="w-5 h-5 text-slate-400" />
+              <X className="w-5 h-5" style={{ color: 'var(--color-sidebar-text, #cbd5e1)' }} />
             </Button>
           </div>
 
@@ -657,7 +674,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           <SidebarMenuSearch navigation={filteredNavigation} />
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+          <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-sidebar-border scrollbar-track-transparent">
             {filteredNavigation.map((item) => renderNavItem(item))}
           </nav>
 
