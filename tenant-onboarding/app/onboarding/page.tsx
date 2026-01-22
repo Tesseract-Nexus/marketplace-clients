@@ -1355,7 +1355,7 @@ export default function OnboardingPage() {
         use_custom_domain: data.useCustomDomain || false,
         custom_domain: data.useCustomDomain ? data.customDomain : undefined,
         custom_admin_subdomain: data.useCustomDomain ? (data.customAdminSubdomain || 'admin') : undefined,
-        custom_storefront_subdomain: data.useCustomDomain ? (data.customStorefrontSubdomain || '') : undefined,
+        custom_storefront_subdomain: data.useCustomDomain ? (data.customStorefrontSubdomain || DEFAULT_STOREFRONT_SUBDOMAIN) : undefined,
       };
 
       const storeSetupResponse = await fetch(`/api/onboarding/${sessionId}/store-setup`, {
