@@ -30,7 +30,7 @@ const STATIC_PATHS = [
  * Check if a hostname is a custom domain (not tesserix.app or localhost)
  */
 function isCustomDomain(host: string): boolean {
-  const hostname = host.split(':')[0].toLowerCase();
+  const hostname = (host.split(':')[0] || '').toLowerCase();
 
   // Not custom if it's tesserix.app
   if (hostname.endsWith(`.${BASE_DOMAIN}`) || hostname === BASE_DOMAIN) {
@@ -55,7 +55,7 @@ function isCustomDomain(host: string): boolean {
  * e.g., www.yahvismartfarm.com -> yahvismartfarm.com
  */
 function extractBaseDomain(host: string): string {
-  const hostname = host.split(':')[0].toLowerCase();
+  const hostname = (host.split(':')[0] || '').toLowerCase();
 
   // If it starts with 'www.', remove it
   if (hostname.startsWith('www.')) {
