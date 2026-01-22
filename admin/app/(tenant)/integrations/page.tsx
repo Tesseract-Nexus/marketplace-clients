@@ -183,7 +183,7 @@ export default function IntegrationsOverviewPage() {
                       <category.icon className="w-6 h-6 text-white" />
                     </div>
                     {category.featured && (
-                      <Badge variant="secondary" className="bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-700 border-amber-200">
+                      <Badge variant="secondary" className="bg-gradient-to-r from-amber-100 to-yellow-100 text-warning-foreground border-warning/30">
                         <Sparkles className="w-3 h-3 mr-1" />
                         Featured
                       </Badge>
@@ -238,7 +238,7 @@ export default function IntegrationsOverviewPage() {
                     variant="outline"
                     className={connector.status === "available"
                       ? "mt-2 text-emerald-600 border-emerald-200 bg-emerald-50"
-                      : "mt-2 text-amber-600 border-amber-200 bg-amber-50"
+                      : "mt-2 text-warning border-warning/30 bg-warning-muted"
                     }
                   >
                     {connector.status === "available" ? "Available" : "Coming Soon"}

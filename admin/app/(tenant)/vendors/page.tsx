@@ -483,14 +483,14 @@ export default function VendorsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-green-600" />
+                <DollarSign className="w-5 h-5 text-success" />
                 Contract Information
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
                 <p className="text-sm text-muted-foreground">Commission Rate</p>
-                <p className="font-semibold text-2xl text-green-600">{selectedVendor.commissionRate}%</p>
+                <p className="font-semibold text-2xl text-success">{selectedVendor.commissionRate}%</p>
               </div>
               {selectedVendor.paymentTerms && (
                 <div>
@@ -864,7 +864,7 @@ export default function VendorsPage() {
 
                       <div>
                         <p className="text-sm text-muted-foreground">Commission Rate</p>
-                        <p className="font-semibold text-green-600 text-xl">{formData.commissionRate ? `${formData.commissionRate}%` : '-'}</p>
+                        <p className="font-semibold text-success text-xl">{formData.commissionRate ? `${formData.commissionRate}%` : '-'}</p>
                       </div>
 
                       <div>
@@ -1019,7 +1019,7 @@ export default function VendorsPage() {
                   onChange={setStatusFilter}
                   options={[
                     { value: 'ALL', label: 'All Statuses', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'ACTIVE', label: 'Active', icon: <Circle className="w-4 h-4 text-green-500 fill-green-500" /> },
+                    { value: 'ACTIVE', label: 'Active', icon: <Circle className="w-4 h-4 text-success fill-green-500" /> },
                     { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-yellow-500" /> },
                     { value: 'INACTIVE', label: 'Inactive', icon: <CircleOff className="w-4 h-4 text-muted-foreground" /> },
                     { value: 'SUSPENDED', label: 'Suspended', icon: <Pause className="w-4 h-4 text-orange-500" /> },
@@ -1036,7 +1036,7 @@ export default function VendorsPage() {
                   onChange={setValidationFilter}
                   options={[
                     { value: 'ALL', label: 'All Validation Statuses', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'COMPLETED', label: 'Completed', icon: <ShieldCheck className="w-4 h-4 text-green-500" /> },
+                    { value: 'COMPLETED', label: 'Completed', icon: <ShieldCheck className="w-4 h-4 text-success" /> },
                     { value: 'IN_PROGRESS', label: 'In Progress', icon: <PlayCircle className="w-4 h-4 text-primary" /> },
                     { value: 'NOT_STARTED', label: 'Not Started', icon: <Hourglass className="w-4 h-4 text-muted-foreground" /> },
                     { value: 'FAILED', label: 'Failed', icon: <ShieldAlert className="w-4 h-4 text-red-500" /> },
@@ -1117,7 +1117,7 @@ export default function VendorsPage() {
                         {getValidationBadge(vendor.validationStatus)}
                       </td>
                       <td className="p-4">
-                        <p className="text-sm font-semibold text-green-600">{vendor.commissionRate}%</p>
+                        <p className="text-sm font-semibold text-success">{vendor.commissionRate}%</p>
                       </td>
                       <td className="p-4">
                         <div className="flex items-center justify-end gap-1">

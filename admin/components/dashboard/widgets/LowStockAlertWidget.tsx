@@ -23,7 +23,7 @@ export function LowStockAlertWidget({ data }: LowStockAlertWidgetProps) {
   const { lowStockProducts } = data;
 
   return (
-    <DashboardCard className="border-border/50 hover:border-amber-300/50 transition-all duration-300 group">
+    <DashboardCard className="border-border/50 hover:border-warning/40/50 transition-all duration-300 group">
       <DashboardCardHeader className="pb-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -38,7 +38,7 @@ export function LowStockAlertWidget({ data }: LowStockAlertWidgetProps) {
             </div>
           </div>
           <Link href="/products?status=LOW_STOCK">
-            <Button variant="outline" className="text-foreground hover:text-amber-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 text-xs h-8 bg-card border border-border hover:border-amber-300 shadow-sm hover:shadow transition-all">
+            <Button variant="outline" className="text-foreground hover:text-warning-foreground hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 text-xs h-8 bg-card border border-border hover:border-warning/40 shadow-sm hover:shadow transition-all">
               <Package className="h-3 w-3 mr-1" />
               <AdminUIText text="Manage" />
             </Button>
@@ -52,11 +52,11 @@ export function LowStockAlertWidget({ data }: LowStockAlertWidgetProps) {
           lowStockProducts.map((product) => (
             <div
               key={product.id}
-              className="group flex items-center justify-between p-2.5 rounded-lg bg-amber-50/50 hover:bg-amber-50 transition-all duration-200 cursor-pointer border border-amber-100 hover:border-amber-300"
+              className="group flex items-center justify-between p-2.5 rounded-lg bg-warning-muted/50 hover:bg-warning-muted transition-all duration-200 cursor-pointer border border-amber-100 hover:border-warning/40"
             >
               <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className="p-1.5 rounded-md bg-amber-100">
-                  <Package className="h-3 w-3 text-amber-600" />
+                <div className="p-1.5 rounded-md bg-warning-muted">
+                  <Package className="h-3 w-3 text-warning" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-xs text-foreground truncate mb-0.5">
@@ -68,7 +68,7 @@ export function LowStockAlertWidget({ data }: LowStockAlertWidgetProps) {
                 </div>
               </div>
               <div className="text-right flex-shrink-0 ml-2">
-                <DashboardBadge className="bg-amber-100 text-amber-700 border-amber-300 text-[10px] px-2 py-0.5 h-5 font-semibold">
+                <DashboardBadge className="bg-warning-muted text-warning-foreground border-warning/40 text-[10px] px-2 py-0.5 h-5 font-semibold">
                   {product.quantity} left
                 </DashboardBadge>
                 <p className="text-[10px] text-muted-foreground mt-0.5">

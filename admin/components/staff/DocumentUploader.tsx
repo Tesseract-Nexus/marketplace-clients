@@ -226,7 +226,7 @@ export function DocumentUploader({
           dragActive
             ? 'border-primary bg-primary/10'
             : file
-            ? 'border-green-300 bg-green-50'
+            ? 'border-success/40 bg-success-muted'
             : 'border-border hover:border-gray-400 bg-muted'
         )}
       >
@@ -240,8 +240,8 @@ export function DocumentUploader({
 
         {file ? (
           <div className="flex items-center justify-center gap-4">
-            <div className="p-3 bg-green-100 rounded-lg">
-              <FileText className="w-8 h-8 text-green-600" />
+            <div className="p-3 bg-success-muted rounded-lg">
+              <FileText className="w-8 h-8 text-success" />
             </div>
             <div className="text-left">
               <p className="font-semibold text-foreground">{file.name}</p>

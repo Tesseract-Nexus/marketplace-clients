@@ -388,7 +388,7 @@ export default function EnterpriseSSOPage() {
             <div className="bg-card rounded-lg border border-border p-4 shadow-sm">
               <div className="flex items-center gap-3">
                 {ssoStatus?.microsoftConfigured || ssoStatus?.oktaConfigured ? (
-                  <CheckCircle2 className="h-8 w-8 text-green-500" />
+                  <CheckCircle2 className="h-8 w-8 text-success" />
                 ) : (
                   <XCircle className="h-8 w-8 text-gray-300" />
                 )}
@@ -416,7 +416,7 @@ export default function EnterpriseSSOPage() {
             <div className="bg-card rounded-lg border border-border p-4 shadow-sm">
               <div className="flex items-center gap-3">
                 {ssoStatus?.scimEnabled ? (
-                  <CheckCircle2 className="h-8 w-8 text-green-500" />
+                  <CheckCircle2 className="h-8 w-8 text-success" />
                 ) : (
                   <Users className="h-8 w-8 text-gray-300" />
                 )}
@@ -499,7 +499,7 @@ export default function EnterpriseSSOPage() {
                         </div>
                       </div>
                       {ssoStatus?.microsoftConfigured && (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success-muted text-success-foreground">
                           <CheckCircle2 className="h-4 w-4 mr-1" /> Connected
                         </span>
                       )}
@@ -592,7 +592,7 @@ export default function EnterpriseSSOPage() {
                         </div>
                       </div>
                       {ssoStatus?.oktaConfigured && (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-700">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-success-muted text-success-foreground">
                           <CheckCircle2 className="h-4 w-4 mr-1" /> Connected
                         </span>
                       )}
@@ -732,8 +732,8 @@ export default function EnterpriseSSOPage() {
                 <div className="space-y-6">
                   <div className="border border-border rounded-lg p-6">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                        <Users className="h-5 w-5 text-green-600" />
+                      <div className="w-10 h-10 bg-success-muted rounded-lg flex items-center justify-center">
+                        <Users className="h-5 w-5 text-success" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground">SCIM 2.0 Provisioning</h3>
@@ -743,12 +743,12 @@ export default function EnterpriseSSOPage() {
 
                     {ssoStatus?.scimEnabled ? (
                       <div className="space-y-4">
-                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                          <div className="flex items-center gap-2 text-green-700 mb-2">
+                        <div className="bg-success-muted border border-success/30 rounded-lg p-4">
+                          <div className="flex items-center gap-2 text-success-foreground mb-2">
                             <CheckCircle2 className="h-5 w-5" />
                             <span className="font-medium">SCIM Provisioning is Enabled</span>
                           </div>
-                          <p className="text-sm text-green-600">
+                          <p className="text-sm text-success">
                             Configure your identity provider to use the endpoint and token below.
                           </p>
                         </div>
@@ -833,7 +833,7 @@ export default function EnterpriseSSOPage() {
                         <Button
                           onClick={handleEnableSCIM}
                           disabled={saving}
-                          className="bg-green-600 hover:bg-green-700 text-white"
+                          className="bg-success hover:bg-success text-white"
                         >
                           {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Zap className="h-4 w-4 mr-2" />}
                           Enable SCIM Provisioning

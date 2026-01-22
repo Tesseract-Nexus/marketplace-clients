@@ -132,7 +132,7 @@ export default function StorefrontsPage() {
 
   const getStatusBadge = (isActive: boolean) => {
     if (isActive) {
-      return <Badge className="bg-green-100 text-green-700 border-green-200">Active</Badge>;
+      return <Badge className="bg-success-muted text-success-foreground border-success/30">Active</Badge>;
     }
     return <Badge className="bg-muted text-foreground border-border">Inactive</Badge>;
   };
@@ -293,7 +293,7 @@ export default function StorefrontsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+                <CheckCircle className="w-5 h-5 text-success" />
                 Timestamps
               </CardTitle>
             </CardHeader>

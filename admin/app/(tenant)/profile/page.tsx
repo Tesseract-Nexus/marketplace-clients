@@ -231,7 +231,7 @@ export default function ProfilePage() {
                   <span className="text-white font-bold text-2xl">{userInitial}</span>
                 </div>
               )}
-              <div className="absolute -bottom-1 -right-1 h-7 w-7 bg-green-500 rounded-full border-4 border-white flex items-center justify-center">
+              <div className="absolute -bottom-1 -right-1 h-7 w-7 bg-success rounded-full border-4 border-white flex items-center justify-center">
                 <div className="h-2 w-2 bg-card rounded-full" />
               </div>
               {isEditing && (
@@ -270,7 +270,7 @@ export default function ProfilePage() {
                     onClick={() => copyToClipboard(profile.email, 'email')}
                   >
                     {copiedField === 'email' ? (
-                      <Check className="h-3 w-3 text-green-500" />
+                      <Check className="h-3 w-3 text-success" />
                     ) : (
                       <Copy className="h-3 w-3" />
                     )}
@@ -303,7 +303,7 @@ export default function ProfilePage() {
                     {profile.department}
                   </span>
                 )}
-                <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                <span className="px-2 py-1 bg-success-muted text-success-foreground rounded-full text-xs font-semibold">
                   {profile.accountEnabled ? 'Active' : 'Disabled'}
                 </span>
                 <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
@@ -319,7 +319,7 @@ export default function ProfilePage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                <Phone className="h-6 w-6 text-green-600" />
+                <Phone className="h-6 w-6 text-success" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-foreground">Contact Information</h3>
@@ -352,7 +352,7 @@ export default function ProfilePage() {
                     onClick={() => copyToClipboard(profile.businessPhone, 'businessPhone')}
                   >
                     {copiedField === 'businessPhone' ? (
-                      <Check className="h-4 w-4 text-green-500" />
+                      <Check className="h-4 w-4 text-success" />
                     ) : (
                       <Copy className="h-4 w-4" />
                     )}

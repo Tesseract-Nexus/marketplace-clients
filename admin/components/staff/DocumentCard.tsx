@@ -239,7 +239,7 @@ export function DocumentCard({
               variant="ghost"
               size="sm"
               onClick={() => onDownload(document)}
-              className="p-2 text-green-600 hover:bg-green-50"
+              className="p-2 text-success hover:bg-success-muted"
               title="Download"
             >
               <Download className="w-4 h-4" />

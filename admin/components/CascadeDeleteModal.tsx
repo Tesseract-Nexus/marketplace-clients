@@ -222,7 +222,7 @@ export function CascadeDeleteModal({
 
               {/* Warehouse Option */}
               <CascadeOption
-                icon={<Building2 className="w-4 h-4 text-amber-500" />}
+                icon={<Building2 className="w-4 h-4 text-warning" />}
                 label="Delete Warehouse"
                 description={
                   validation?.affectedSummary?.warehouseNames?.length
@@ -237,7 +237,7 @@ export function CascadeDeleteModal({
 
               {/* Supplier Option */}
               <CascadeOption
-                icon={<Truck className="w-4 h-4 text-green-500" />}
+                icon={<Truck className="w-4 h-4 text-success" />}
                 label="Delete Supplier"
                 description={
                   validation?.affectedSummary?.supplierNames?.length
@@ -345,7 +345,7 @@ function CascadeOption({
       className={cn(
         "p-4 rounded-xl border-2 transition-all",
         isBlocked
-          ? "bg-amber-50 border-amber-200"
+          ? "bg-warning-muted border-warning/30"
           : checked
             ? "bg-primary/10 border-primary/30"
             : "bg-muted border-border hover:border-border"
@@ -369,11 +369,11 @@ function CascadeOption({
 
           {/* Blocked warning */}
           {isCheckedButBlocked && (
-            <div className="mt-2 p-2 bg-amber-100 rounded-lg flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div className="mt-2 p-2 bg-warning-muted rounded-lg flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 text-warning flex-shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-medium text-amber-800">Cannot delete</p>
-                <p className="text-xs text-amber-700">{blocked.reason}</p>
+                <p className="text-xs text-warning-foreground">{blocked.reason}</p>
               </div>
             </div>
           )}
@@ -397,12 +397,12 @@ function DeleteSummary({ summary, canDelete, blockedEntities }: DeleteSummaryPro
     <div className={cn(
       "p-4 rounded-xl border-2",
       canDelete
-        ? "bg-green-50 border-green-200"
+        ? "bg-success-muted border-success/30"
         : "bg-red-50 border-red-200"
     )}>
       <div className="flex items-start gap-2">
         {canDelete ? (
-          <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+          <CheckCircle className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
         ) : (
           <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
         )}

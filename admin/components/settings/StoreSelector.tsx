@@ -159,7 +159,7 @@ export function StoreSelector({
               ) : selectedStorefront ? (
                 <div className="flex items-center gap-3">
                   {isFavorite(selectedStorefront.id) && (
-                    <Star className="h-4 w-4 text-amber-500 fill-amber-500 flex-shrink-0" />
+                    <Star className="h-4 w-4 text-warning fill-amber-500 flex-shrink-0" />
                   )}
                   <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-sm">
                     {selectedStorefront.name.charAt(0).toUpperCase()}
@@ -168,7 +168,7 @@ export function StoreSelector({
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-foreground">{selectedStorefront.name}</p>
                       {isFavorite(selectedStorefront.id) && (
-                        <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">
+                        <span className="text-[10px] bg-warning-muted text-warning-foreground px-1.5 py-0.5 rounded font-medium">
                           Favorite
                         </span>
                       )}
@@ -212,9 +212,9 @@ export function StoreSelector({
                   <div className="max-h-64 overflow-y-auto">
                     {/* Favorites count indicator */}
                     {favorites.length > 0 && (
-                      <div className="px-4 py-2 bg-amber-50 border-b border-amber-100 flex items-center gap-2">
-                        <Star className="h-3.5 w-3.5 text-amber-500 fill-amber-500" />
-                        <span className="text-xs font-medium text-amber-700">
+                      <div className="px-4 py-2 bg-warning-muted border-b border-amber-100 flex items-center gap-2">
+                        <Star className="h-3.5 w-3.5 text-warning fill-amber-500" />
+                        <span className="text-xs font-medium text-warning-foreground">
                           {favorites.length} of {maxFavorites} favorites
                         </span>
                       </div>
@@ -247,7 +247,7 @@ export function StoreSelector({
                                 sf.id === selectedStorefront?.id
                                   ? 'bg-purple-50 border-l-4 border-l-purple-500'
                                   : 'border-l-4 border-l-transparent'
-                              } ${isStarred ? 'bg-amber-50/50' : ''}`}
+                              } ${isStarred ? 'bg-warning-muted/50' : ''}`}
                             >
                               {/* Favorite Star Toggle */}
                               <button
@@ -255,9 +255,9 @@ export function StoreSelector({
                                 onClick={(e) => handleToggleFavorite(e, sf.id)}
                                 className={`p-1 rounded-full transition-colors flex-shrink-0 ${
                                   isStarred
-                                    ? 'text-amber-500 hover:bg-amber-100'
+                                    ? 'text-warning hover:bg-warning-muted'
                                     : canAddMore
-                                    ? 'text-gray-300 hover:text-amber-400 hover:bg-amber-50'
+                                    ? 'text-gray-300 hover:text-amber-400 hover:bg-warning-muted'
                                     : 'text-gray-200 cursor-not-allowed'
                                 }`}
                                 title={
@@ -285,7 +285,7 @@ export function StoreSelector({
                                 <div className="flex items-center gap-2">
                                   <p className="font-medium text-foreground truncate">{sf.name}</p>
                                   {isStarred && (
-                                    <span className="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-medium">
+                                    <span className="text-[10px] bg-warning-muted text-warning-foreground px-1.5 py-0.5 rounded font-medium">
                                       Favorite
                                     </span>
                                   )}

@@ -61,8 +61,8 @@ export class ErrorBoundary extends Component<Props, State> {
       // Default fallback UI
       return (
         <div className="flex flex-col items-center justify-center p-8 text-center bg-muted rounded-lg border border-border">
-          <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center mb-4">
-            <AlertTriangle className="h-6 w-6 text-amber-600" />
+          <div className="w-12 h-12 bg-warning-muted rounded-full flex items-center justify-center mb-4">
+            <AlertTriangle className="h-6 w-6 text-warning" />
           </div>
           <h3 className="text-lg font-semibold text-foreground mb-2">
             Something went wrong
@@ -112,7 +112,7 @@ export function WidgetErrorBoundary({
     <ErrorBoundary
       fallback={
         <div className="flex flex-col items-center justify-center p-4 text-center h-full min-h-[200px]">
-          <AlertTriangle className="h-8 w-8 text-amber-500 mb-2" />
+          <AlertTriangle className="h-8 w-8 text-warning mb-2" />
           <p className="text-sm text-muted-foreground">{title}</p>
           <p className="text-xs text-muted-foreground mt-1">
             Unable to load this component

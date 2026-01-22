@@ -42,14 +42,14 @@ export function CustomerSatisfactionWidget({ data }: CustomerSatisfactionWidgetP
     }
     if (satisfaction.avgRating >= 4.5) return { text: excellentText, color: 'text-emerald-600' };
     if (satisfaction.avgRating >= 4) return { text: greatText, color: 'text-primary' };
-    if (satisfaction.avgRating >= 3) return { text: goodText, color: 'text-amber-600' };
+    if (satisfaction.avgRating >= 3) return { text: goodText, color: 'text-warning' };
     return { text: needsWorkText, color: 'text-orange-600' };
   };
 
   const status = getStatus();
 
   return (
-    <DashboardCard className="border-border/50 hover:border-amber-300/50 transition-all duration-300">
+    <DashboardCard className="border-border/50 hover:border-warning/40/50 transition-all duration-300">
       <DashboardCardHeader className="pb-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -64,7 +64,7 @@ export function CustomerSatisfactionWidget({ data }: CustomerSatisfactionWidgetP
             </div>
           </div>
           <Link href="/reviews">
-            <Button variant="outline" className="text-foreground hover:text-amber-700 hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 text-xs h-8 bg-card border border-border hover:border-amber-300 shadow-sm hover:shadow transition-all">
+            <Button variant="outline" className="text-foreground hover:text-warning-foreground hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 text-xs h-8 bg-card border border-border hover:border-warning/40 shadow-sm hover:shadow transition-all">
               <Eye className="h-3 w-3 mr-1" />
               <AdminUIText text="View All" />
             </Button>
@@ -101,7 +101,7 @@ export function CustomerSatisfactionWidget({ data }: CustomerSatisfactionWidgetP
 
           <div className="grid grid-cols-3 gap-6 w-full pt-4 border-t border-border mt-4">
             <div className="text-center">
-              <p className="text-2xl font-bold text-amber-600">{satisfaction.totalReviews}</p>
+              <p className="text-2xl font-bold text-warning">{satisfaction.totalReviews}</p>
               <p className="text-xs text-muted-foreground"><AdminUIText text="Total Reviews" /></p>
             </div>
             <div className="text-center">

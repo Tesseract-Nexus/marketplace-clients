@@ -687,7 +687,7 @@ export function LivePreview({ settings, tenantSlug, className, contentPages = []
           {previewMode === 'quick' && (
             <span className={cn(
               "text-xs px-2 py-0.5 rounded-full",
-              isDarkMode ? "bg-slate-800 text-slate-200" : "bg-amber-100 text-amber-700"
+              isDarkMode ? "bg-slate-800 text-slate-200" : "bg-warning-muted text-warning-foreground"
             )}>
               {isDarkMode ? 'Dark' : 'Light'}
             </span>
@@ -801,7 +801,7 @@ export function LivePreview({ settings, tenantSlug, className, contentPages = []
               </span>
               <span className={cn(
                 "text-xs px-2 py-0.5 rounded-full",
-                isDarkMode ? "bg-slate-700 text-slate-200" : "bg-amber-100 text-amber-700"
+                isDarkMode ? "bg-slate-700 text-slate-200" : "bg-warning-muted text-warning-foreground"
               )}>
                 {isDarkMode ? 'Dark' : 'Light'}
               </span>

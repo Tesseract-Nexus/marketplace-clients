@@ -123,7 +123,7 @@ export function PlatformFeesTab() {
           <div className="bg-card rounded-lg border border-border p-4 shadow-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm text-muted-foreground">Pending</span>
-              <Clock className="h-4 w-4 text-amber-600" />
+              <Clock className="h-4 w-4 text-warning" />
             </div>
             <p className="text-2xl font-bold text-foreground">{formatCurrency(summary.totalPending)}</p>
             <p className="text-xs text-muted-foreground mt-1">{summary.pendingCount} pending</p>

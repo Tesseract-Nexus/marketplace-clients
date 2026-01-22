@@ -117,12 +117,12 @@ function StatCard({
         {change !== undefined && (
           <div className="flex items-center gap-1 mt-1">
             {change >= 0 ? (
-              <ArrowUp className="h-3 w-3 text-green-600" />
+              <ArrowUp className="h-3 w-3 text-success" />
             ) : (
               <ArrowDown className="h-3 w-3 text-red-600" />
             )}
             <span
-              className={cn('text-xs font-medium', change >= 0 ? 'text-green-600' : 'text-red-600')}
+              className={cn('text-xs font-medium', change >= 0 ? 'text-success' : 'text-red-600')}
             >
               {Math.abs(change).toFixed(1)}%
             </span>
@@ -470,7 +470,7 @@ export default function AnalyticsPage() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Total Revenue</span>
-                  <span className="font-semibold text-green-600">
+                  <span className="font-semibold text-success">
                     {formatCurrency(summary?.revenue || 0)}
                   </span>
                 </div>
@@ -495,7 +495,7 @@ export default function AnalyticsPage() {
                   <span
                     className={cn(
                       'font-semibold',
-                      calculatedRoas >= 3 ? 'text-green-600' : calculatedRoas >= 1 ? 'text-amber-600' : 'text-red-600'
+                      calculatedRoas >= 3 ? 'text-success' : calculatedRoas >= 1 ? 'text-warning' : 'text-red-600'
                     )}
                   >
                     {calculatedRoas.toFixed(2)}x
@@ -507,7 +507,7 @@ export default function AnalyticsPage() {
                     className={cn(
                       'font-semibold',
                       (summary?.revenue || 0) - (summary?.spend || 0) >= 0
-                        ? 'text-green-600'
+                        ? 'text-success'
                         : 'text-red-600'
                     )}
                   >

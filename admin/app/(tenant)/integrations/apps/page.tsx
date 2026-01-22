@@ -360,7 +360,7 @@ export default function AppsPluginsPage() {
           {selectedCategory === "all" && featuredApps.length > 0 && (
             <div>
               <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                <Star className="w-5 h-5 text-amber-500" />
+                <Star className="w-5 h-5 text-warning" />
                 Featured Apps
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -377,7 +377,7 @@ export default function AppsPluginsPage() {
                         >
                           <app.icon className="w-7 h-7 text-white" />
                         </div>
-                        <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                        <Badge variant="outline" className="bg-warning-muted text-warning-foreground border-warning/30">
                           <Star className="w-3 h-3 mr-1 fill-amber-500" />
                           Featured
                         </Badge>

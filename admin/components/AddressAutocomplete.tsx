@@ -260,7 +260,7 @@ export function AddressAutocomplete({
           {isLoading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
 
           {selectedAddress && !isLoading && (
-            <Check className="h-4 w-4 text-green-500" />
+            <Check className="h-4 w-4 text-success" />
           )}
 
           {inputValue && !isLoading && (
@@ -322,12 +322,12 @@ export function AddressAutocomplete({
 
       {/* Selected address confirmation */}
       {selectedAddress && (
-        <div className="mt-2 p-3 bg-green-50 border border-green-200 rounded-lg">
+        <div className="mt-2 p-3 bg-success-muted border border-success/30 rounded-lg">
           <div className="flex items-start gap-2">
-            <Check className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
+            <Check className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
             <div className="text-sm">
               <div className="font-medium text-green-800">Address Selected</div>
-              <div className="text-green-700">{selectedAddress.formattedAddress}</div>
+              <div className="text-success-foreground">{selectedAddress.formattedAddress}</div>
             </div>
           </div>
         </div>

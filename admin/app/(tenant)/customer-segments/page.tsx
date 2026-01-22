@@ -352,7 +352,7 @@ export default function CustomerSegmentsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Active Segments</p>
               <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-green-600" />
+                <TrendingUp className="h-6 w-6 text-success" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
@@ -447,7 +447,7 @@ export default function CustomerSegmentsPage() {
                         <span className={cn(
                           'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border',
                           segment.isActive
-                            ? 'bg-green-100 text-green-700 border-green-200'
+                            ? 'bg-success-muted text-success-foreground border-success/30'
                             : 'bg-muted text-foreground border-border'
                         )}>
                           {segment.isActive ? 'Active' : 'Inactive'}
@@ -735,7 +735,7 @@ export default function CustomerSegmentsPage() {
                       <span className={cn(
                         'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border',
                         selectedSegment.isActive
-                          ? 'bg-green-100 text-green-700 border-green-200'
+                          ? 'bg-success-muted text-success-foreground border-success/30'
                           : 'bg-muted text-foreground border-border'
                       )}>
                         {selectedSegment.isActive ? 'Active' : 'Inactive'}

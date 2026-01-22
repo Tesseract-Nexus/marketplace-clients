@@ -197,7 +197,7 @@ export function BlockItem({
             {hasSchedule && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="p-0.5 rounded text-amber-500">
+                  <div className="p-0.5 rounded text-warning">
                     <Calendar className="w-3 h-3" />
                   </div>
                 </TooltipTrigger>

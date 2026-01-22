@@ -231,7 +231,7 @@ export function RefreshSelector({ compact = false }: RefreshSelectorProps) {
               <div className={cn(
                 "px-2 py-0.5 text-xs font-medium rounded-full",
                 isAutoRefreshActive
-                  ? "bg-green-100 text-green-700"
+                  ? "bg-success-muted text-success-foreground"
                   : isAutoRefreshEnabled
                     ? "bg-yellow-100 text-yellow-700"
                     : "bg-muted text-muted-foreground"

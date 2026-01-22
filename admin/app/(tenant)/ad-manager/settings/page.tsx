@@ -216,8 +216,8 @@ export default function AdSettingsPage() {
           <Card className="mb-6">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-amber-100 flex items-center justify-center">
-                  <Shield className="h-5 w-5 text-amber-600" />
+                <div className="h-10 w-10 rounded-lg bg-warning-muted flex items-center justify-center">
+                  <Shield className="h-5 w-5 text-warning" />
                 </div>
                 <div>
                   <CardTitle>Content Policies</CardTitle>
@@ -297,8 +297,8 @@ export default function AdSettingsPage() {
           <Card className="mb-6">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
-                  <DollarSign className="h-5 w-5 text-green-600" />
+                <div className="h-10 w-10 rounded-lg bg-success-muted flex items-center justify-center">
+                  <DollarSign className="h-5 w-5 text-success" />
                 </div>
                 <div>
                   <CardTitle>Financial Settings</CardTitle>

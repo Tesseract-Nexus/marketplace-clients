@@ -527,12 +527,12 @@ export default function CreateShipmentPage() {
                     </div>
                   </div>
                 ) : !fromAddress.street && !fromAddress.name ? (
-                  <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl">
+                  <div className="p-4 bg-warning-muted border border-warning/30 rounded-xl">
                     <div className="flex items-start gap-3">
-                      <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5" />
+                      <AlertCircle className="w-5 h-5 text-warning mt-0.5" />
                       <div>
                         <p className="font-medium text-amber-800">No warehouse configured</p>
-                        <p className="text-sm text-amber-700 mt-1">
+                        <p className="text-sm text-warning-foreground mt-1">
                           Please fill in your warehouse address below, or configure it in{' '}
                           <a href="/settings/shipping-carriers" className="underline hover:no-underline">
                             Shipping Settings

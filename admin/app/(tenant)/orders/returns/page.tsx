@@ -197,7 +197,7 @@ export default function ReturnsPage() {
 
   const getStatusBadge = (status: ReturnStatus) => {
     const styles: Record<ReturnStatus, string> = {
-      PENDING: 'bg-amber-100 text-amber-700 border-amber-200',
+      PENDING: 'bg-warning-muted text-warning-foreground border-warning/30',
       APPROVED: 'bg-primary/20 text-primary border-primary/30',
       REJECTED: 'bg-red-100 text-red-700 border-red-200',
       PROCESSING: 'bg-violet-100 text-violet-700 border-violet-200',
@@ -209,7 +209,7 @@ export default function ReturnsPage() {
 
   const getRefundBadge = (status: RefundStatus) => {
     const styles: Record<RefundStatus, string> = {
-      PENDING: 'bg-amber-100 text-amber-700 border-amber-200',
+      PENDING: 'bg-warning-muted text-warning-foreground border-warning/30',
       PROCESSING: 'bg-primary/20 text-primary border-primary/30',
       COMPLETED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
       FAILED: 'bg-red-100 text-red-700 border-red-200',
@@ -529,11 +529,11 @@ export default function ReturnsPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleApprove(ret.id)}
-                                className="h-8 w-8 p-0 rounded-lg hover:bg-green-50 transition-colors"
+                                className="h-8 w-8 p-0 rounded-lg hover:bg-success-muted transition-colors"
                                 title="Approve"
                                 aria-label="Approve return"
                               >
-                                <Check className="w-4 h-4 text-green-600" aria-hidden="true" />
+                                <Check className="w-4 h-4 text-success" aria-hidden="true" />
                               </Button>
                               <Button
                                 variant="ghost"
@@ -628,7 +628,7 @@ export default function ReturnsPage() {
                 <div className="pt-4 border-t border-border">
                   <div className="flex justify-between items-center">
                     <span className="font-semibold">Total Refund Amount:</span>
-                    <span className="text-2xl font-bold text-green-600">${parseFloat(selectedReturn.refundAmount).toFixed(2)}</span>
+                    <span className="text-2xl font-bold text-success">${parseFloat(selectedReturn.refundAmount).toFixed(2)}</span>
                   </div>
                 </div>
               </div>

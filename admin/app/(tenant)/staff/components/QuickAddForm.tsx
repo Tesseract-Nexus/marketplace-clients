@@ -309,14 +309,14 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
 
           {/* No Departments Empty State */}
           {showNoDepartmentsMessage && (
-            <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-6">
+            <div className="bg-warning-muted border-2 border-warning/30 rounded-xl p-6">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
-                  <Building2 className="w-6 h-6 text-amber-600" />
+                <div className="w-12 h-12 rounded-xl bg-warning-muted flex items-center justify-center flex-shrink-0">
+                  <Building2 className="w-6 h-6 text-warning" />
                 </div>
                 <div className="flex-1">
                   <h4 className="text-lg font-semibold text-amber-800">No departments found</h4>
-                  <p className="text-sm text-amber-700 mt-1">
+                  <p className="text-sm text-warning-foreground mt-1">
                     {canCreateDepartments
                       ? 'You need to create a department before adding staff members. Departments help organize your team structure.'
                       : 'No departments exist yet. Please contact an administrator to create departments before adding staff members.'}
@@ -325,7 +325,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
                     <button
                       type="button"
                       onClick={() => setShowCreateDeptModal(true)}
-                      className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-all font-medium shadow-md hover:shadow-lg"
+                      className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-warning text-white rounded-lg hover:bg-warning transition-all font-medium shadow-md hover:shadow-lg"
                     >
                       <Plus className="w-4 h-4" />
                       Create First Department
@@ -451,13 +451,13 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
           )}
 
           {selectedTeam && !selectedTeam.defaultRole && (
-            <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4 flex items-start gap-3">
-              <Shield className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+            <div className="bg-warning-muted border-2 border-warning/30 rounded-xl p-4 flex items-start gap-3">
+              <Shield className="w-5 h-5 text-warning mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium text-amber-800">
                   No default role assigned to this team
                 </p>
-                <p className="text-xs text-amber-700 mt-1">
+                <p className="text-xs text-warning-foreground mt-1">
                   You can assign a role later from the staff member&apos;s profile, or use the full form to select a role now.
                 </p>
               </div>

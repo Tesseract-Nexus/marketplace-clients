@@ -228,7 +228,7 @@ export default function AuditLogsPage() {
       case 'MEDIUM':
         return 'bg-yellow-100 text-yellow-700 border-yellow-200';
       case 'LOW':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-success-muted text-success-foreground border-success/30';
       default:
         return 'bg-muted text-foreground border-border';
     }
@@ -237,7 +237,7 @@ export default function AuditLogsPage() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'SUCCESS':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-success-muted text-success-foreground border-success/30';
       case 'FAILURE':
         return 'bg-red-100 text-red-700 border-red-200';
       case 'PENDING':
@@ -318,7 +318,7 @@ export default function AuditLogsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Success Rate</p>
               <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                <Clock className="h-6 w-6 text-green-600" />
+                <Clock className="h-6 w-6 text-success" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">

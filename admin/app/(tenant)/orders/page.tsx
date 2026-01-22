@@ -660,7 +660,7 @@ export default function OrdersPage() {
                             order.status === 'CANCELLED' && "bg-red-100 text-red-600",
                             order.status === 'PROCESSING' && "bg-violet-100 text-violet-600",
                             order.status === 'CONFIRMED' && "bg-primary/20 text-primary",
-                            order.status === 'PLACED' && "bg-amber-100 text-amber-600"
+                            order.status === 'PLACED' && "bg-warning-muted text-warning"
                           )}>
                             {getStatusIcon(order.status)}
                           </div>

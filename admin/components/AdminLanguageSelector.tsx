@@ -180,7 +180,7 @@ export function AdminLanguageSelector({ compact = false }: AdminLanguageSelector
                             <div className="flex items-center gap-2">
                               <span className="font-semibold">{lang.name}</span>
                               {lang.rtl && (
-                                <span className="text-[10px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded font-medium">
+                                <span className="text-[10px] px-1.5 py-0.5 bg-warning-muted text-warning-foreground rounded font-medium">
                                   RTL
                                 </span>
                               )}

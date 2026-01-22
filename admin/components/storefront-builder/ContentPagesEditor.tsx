@@ -242,9 +242,9 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
           <p className="text-2xl font-bold text-purple-700">{stats.total}</p>
           <p className="text-sm text-purple-600">Total Pages</p>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-green-200">
-          <p className="text-2xl font-bold text-green-700">{stats.published}</p>
-          <p className="text-sm text-green-600">Published</p>
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-success/30">
+          <p className="text-2xl font-bold text-success-foreground">{stats.published}</p>
+          <p className="text-sm text-success">Published</p>
         </div>
         <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-yellow-200">
           <p className="text-2xl font-bold text-yellow-700">{stats.draft}</p>
@@ -298,7 +298,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
                       className={cn(
                         'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border shrink-0',
                         page.status === 'PUBLISHED'
-                          ? 'bg-green-50 text-green-700 border-green-200'
+                          ? 'bg-success-muted text-success-foreground border-success/30'
                           : 'bg-yellow-50 text-yellow-700 border-yellow-200'
                       )}
                     >
@@ -328,7 +328,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
                       size="sm"
                       onClick={() => handlePublish(page)}
                       disabled={saving}
-                      className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                      className="text-success hover:text-success-foreground hover:bg-success-muted"
                     >
                       Publish
                     </Button>

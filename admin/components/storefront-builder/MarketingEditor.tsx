@@ -84,7 +84,7 @@ function FeatureCard({
         <div className="flex items-center gap-2">
           <Label className="font-medium">{title}</Label>
           {badge && (
-            <span className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded">
+            <span className="text-xs px-1.5 py-0.5 bg-warning-muted text-warning-foreground rounded">
               {badge}
             </span>
           )}

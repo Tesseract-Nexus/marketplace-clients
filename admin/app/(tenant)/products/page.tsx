@@ -207,11 +207,11 @@ export default function ProductsPage() {
   const defaultCategoryOptions = [
     { name: 'Electronics', icon: <Smartphone className="w-4 h-4 text-primary" /> },
     { name: 'Computers', icon: <Monitor className="w-4 h-4 text-purple-500" /> },
-    { name: 'Audio', icon: <Headphones className="w-4 h-4 text-green-500" /> },
+    { name: 'Audio', icon: <Headphones className="w-4 h-4 text-success" /> },
     { name: 'TV & Video', icon: <Tv className="w-4 h-4 text-red-500" /> },
     { name: 'Gaming', icon: <Gamepad2 className="w-4 h-4 text-orange-500" /> },
     { name: 'Clothing', icon: <Folder className="w-4 h-4 text-pink-500" /> },
-    { name: 'Home & Kitchen', icon: <Folder className="w-4 h-4 text-amber-500" /> },
+    { name: 'Home & Kitchen', icon: <Folder className="w-4 h-4 text-warning" /> },
     { name: 'Sports & Outdoors', icon: <Folder className="w-4 h-4 text-teal-500" /> },
     { name: 'Accessories', icon: <Mouse className="w-4 h-4 text-muted-foreground" /> },
   ];

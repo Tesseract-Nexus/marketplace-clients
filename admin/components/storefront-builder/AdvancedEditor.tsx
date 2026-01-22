@@ -142,10 +142,10 @@ export function AdvancedEditor({ config, onChange, disabled = false }: AdvancedE
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Alert variant="default" className="bg-amber-50 border-amber-200">
-            <Shield className="w-4 h-4 text-amber-600" />
+          <Alert variant="default" className="bg-warning-muted border-warning/30">
+            <Shield className="w-4 h-4 text-warning" />
             <AlertTitle className="text-amber-800">Security Notice</AlertTitle>
-            <AlertDescription className="text-amber-700">
+            <AlertDescription className="text-warning-foreground">
               Custom CSS is sanitized to prevent security issues. Some patterns like
               @import, JavaScript URLs, and targeting html/body are restricted.
             </AlertDescription>
@@ -162,12 +162,12 @@ export function AdvancedEditor({ config, onChange, disabled = false }: AdvancedE
                       {cssValidation.errors.length} errors
                     </Badge>
                   ) : cssValidation.warnings.length > 0 ? (
-                    <Badge variant="secondary" className="gap-1 bg-amber-100 text-amber-700">
+                    <Badge variant="secondary" className="gap-1 bg-warning-muted text-warning-foreground">
                       <AlertTriangle className="w-3 h-3" />
                       {cssValidation.warnings.length} warnings
                     </Badge>
                   ) : (
-                    <Badge variant="secondary" className="gap-1 bg-green-100 text-green-700">
+                    <Badge variant="secondary" className="gap-1 bg-success-muted text-success-foreground">
                       <CheckCircle className="w-3 h-3" />
                       Valid
                     </Badge>
@@ -202,9 +202,9 @@ export function AdvancedEditor({ config, onChange, disabled = false }: AdvancedE
                 </Alert>
               ))}
               {cssValidation.warnings.map((warning, i) => (
-                <Alert key={`warning-${i}`} className="bg-amber-50 border-amber-200">
-                  <AlertTriangle className="w-4 h-4 text-amber-600" />
-                  <AlertDescription className="text-amber-700">{warning}</AlertDescription>
+                <Alert key={`warning-${i}`} className="bg-warning-muted border-warning/30">
+                  <AlertTriangle className="w-4 h-4 text-warning" />
+                  <AlertDescription className="text-warning-foreground">{warning}</AlertDescription>
                 </Alert>
               ))}
             </div>

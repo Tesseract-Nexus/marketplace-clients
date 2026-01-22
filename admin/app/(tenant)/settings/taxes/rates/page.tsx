@@ -211,7 +211,7 @@ export default function TaxRatesPage() {
       SGST: 'bg-teal-100 text-teal-700 border-teal-200',
       IGST: 'bg-cyan-100 text-cyan-700 border-cyan-200',
       UTGST: 'bg-sky-100 text-sky-700 border-sky-200',
-      CESS: 'bg-amber-100 text-amber-700 border-amber-200',
+      CESS: 'bg-warning-muted text-warning-foreground border-warning/30',
       HST: 'bg-rose-100 text-rose-700 border-rose-200',
       PST: 'bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200',
       QST: 'bg-violet-100 text-violet-700 border-violet-200',
@@ -387,7 +387,7 @@ export default function TaxRatesPage() {
                             <span className="text-xs text-muted-foreground">Shipping</span>
                           )}
                           {rate.isCompound && (
-                            <span className="text-xs text-amber-600 font-medium">Compound</span>
+                            <span className="text-xs text-warning font-medium">Compound</span>
                           )}
                         </div>
                       </td>

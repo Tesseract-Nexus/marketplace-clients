@@ -75,7 +75,7 @@ export function Stepper({ steps, currentStep, onStepClick, allowSkip = false }: 
                       step.number === currentStep
                         ? "text-primary text-base"
                         : step.number < currentStep
-                        ? "text-green-700"
+                        ? "text-success-foreground"
                         : "text-muted-foreground"
                     )}
                   >

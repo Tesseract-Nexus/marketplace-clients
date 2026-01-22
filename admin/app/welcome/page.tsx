@@ -246,7 +246,7 @@ function WelcomeContent() {
     switch (passwordStrength) {
       case 'weak': return 'bg-red-500';
       case 'medium': return 'bg-yellow-500';
-      case 'strong': return 'bg-green-500';
+      case 'strong': return 'bg-success';
     }
   };
 
@@ -283,7 +283,7 @@ function WelcomeContent() {
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-blob" />
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-violet-500/5 rounded-full blur-3xl animate-blob animation-delay-2000" />
-        <div className="absolute top-1/3 right-1/3 w-64 h-64 bg-green-500/5 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-1/3 right-1/3 w-64 h-64 bg-success/5 rounded-full blur-3xl animate-pulse" />
       </div>
 
       <div className="container mx-auto px-4 max-w-4xl w-full">
@@ -297,7 +297,7 @@ function WelcomeContent() {
 
           {/* Success icon with glow */}
           <div className="relative inline-block mb-4">
-            <div className="absolute inset-0 w-20 h-20 mx-auto rounded-full bg-green-500 blur-xl opacity-30 animate-pulse" />
+            <div className="absolute inset-0 w-20 h-20 mx-auto rounded-full bg-success blur-xl opacity-30 animate-pulse" />
             <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 shadow-lg shadow-green-500/30">
               <CheckCircle className="w-10 h-10 text-white" />
             </div>
@@ -382,7 +382,7 @@ function WelcomeContent() {
         <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-border/50 p-5">
           <div className="flex items-center gap-3 mb-5">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
-              <Key className="w-5 h-5 text-green-600" />
+              <Key className="w-5 h-5 text-success" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-foreground">Complete Account Setup</h2>
@@ -426,7 +426,7 @@ function WelcomeContent() {
                     <span className={`font-medium ${
                       passwordStrength === 'weak' ? 'text-red-600' :
                       passwordStrength === 'medium' ? 'text-yellow-600' :
-                      'text-green-600'
+                      'text-success'
                     }`}>
                       {passwordStrength.charAt(0).toUpperCase() + passwordStrength.slice(1)}
                     </span>
@@ -471,19 +471,19 @@ function WelcomeContent() {
               <p className="text-xs font-medium text-foreground mb-1.5">Requirements:</p>
               <ul className="text-[10px] text-muted-foreground space-y-0.5">
                 <li className="flex items-center gap-1.5">
-                  <div className={`w-1 h-1 rounded-full ${password.length >= 8 ? 'bg-green-500' : 'bg-gray-400'}`} />
+                  <div className={`w-1 h-1 rounded-full ${password.length >= 8 ? 'bg-success' : 'bg-gray-400'}`} />
                   8+ characters
                 </li>
                 <li className="flex items-center gap-1.5">
-                  <div className={`w-1 h-1 rounded-full ${/[A-Z]/.test(password) ? 'bg-green-500' : 'bg-gray-400'}`} />
+                  <div className={`w-1 h-1 rounded-full ${/[A-Z]/.test(password) ? 'bg-success' : 'bg-gray-400'}`} />
                   Uppercase letter
                 </li>
                 <li className="flex items-center gap-1.5">
-                  <div className={`w-1 h-1 rounded-full ${/[a-z]/.test(password) ? 'bg-green-500' : 'bg-gray-400'}`} />
+                  <div className={`w-1 h-1 rounded-full ${/[a-z]/.test(password) ? 'bg-success' : 'bg-gray-400'}`} />
                   Lowercase letter
                 </li>
                 <li className="flex items-center gap-1.5">
-                  <div className={`w-1 h-1 rounded-full ${/[0-9]/.test(password) ? 'bg-green-500' : 'bg-gray-400'}`} />
+                  <div className={`w-1 h-1 rounded-full ${/[0-9]/.test(password) ? 'bg-success' : 'bg-gray-400'}`} />
                   Number
                 </li>
               </ul>

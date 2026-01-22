@@ -134,8 +134,8 @@ export default function InventoryAnalyticsPage() {
 
   const getStockLevelBadge = (stock: number, reorder: number) => {
     if (stock === 0) return { className: 'bg-red-100 text-red-700 border-red-200', label: 'Out of Stock' };
-    if (stock <= reorder) return { className: 'bg-amber-100 text-amber-700 border-amber-200', label: 'Low Stock' };
-    return { className: 'bg-green-100 text-green-700 border-green-200', label: 'In Stock' };
+    if (stock <= reorder) return { className: 'bg-warning-muted text-warning-foreground border-warning/30', label: 'Low Stock' };
+    return { className: 'bg-success-muted text-success-foreground border-success/30', label: 'In Stock' };
   };
 
   if (isLoading) {
@@ -192,8 +192,8 @@ export default function InventoryAnalyticsPage() {
         />
 
         {error && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center gap-3">
-            <AlertTriangle className="h-5 w-5 text-amber-600" />
+          <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-warning" />
             <p className="text-amber-800">{error instanceof Error ? error.message : 'Failed to load inventory analytics'}</p>
           </div>
         )}
@@ -236,17 +236,17 @@ export default function InventoryAnalyticsPage() {
             </p>
           </div>
 
-          <div className="group bg-card rounded-xl border border-amber-200/60 p-6 shadow-sm bg-gradient-to-br from-amber-50 to-white hover:shadow-xl hover:border-amber-300/50 hover:-translate-y-1 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-warning/30/60 p-6 shadow-sm bg-gradient-to-br from-amber-50 to-white hover:shadow-xl hover:border-warning/40/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-amber-700">Low Stock</p>
-              <div className="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <AlertTriangle className="h-5 w-5 text-amber-600" />
+              <p className="text-sm font-medium text-warning-foreground">Low Stock</p>
+              <div className="w-10 h-10 bg-warning-muted rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <AlertTriangle className="h-5 w-5 text-warning" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-amber-700">
+            <p className="text-2xl font-bold text-warning-foreground">
               {formatNumber(data?.lowStockCount || 0)}
             </p>
-            <p className="text-xs text-amber-600 mt-1">Needs reorder</p>
+            <p className="text-xs text-warning mt-1">Needs reorder</p>
           </div>
 
           <div className="group bg-card rounded-xl border border-red-200/60 p-6 shadow-sm bg-gradient-to-br from-red-50 to-white hover:shadow-xl hover:border-red-300/50 hover:-translate-y-1 transition-all duration-300">
@@ -334,7 +334,7 @@ export default function InventoryAnalyticsPage() {
                   <tab.icon className={cn('h-4 w-4', activeTab === tab.id ? `text-${tab.color}-600` : '')} />
                   {tab.label}
                   {tab.id === 'low-stock' && data?.lowStockCount ? (
-                    <span className="ml-1 px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 rounded-full">
+                    <span className="ml-1 px-2 py-0.5 text-xs font-medium bg-warning-muted text-warning-foreground rounded-full">
                       {data.lowStockCount}
                     </span>
                   ) : null}
@@ -369,7 +369,7 @@ export default function InventoryAnalyticsPage() {
                         <td className="px-6 py-4 font-medium text-foreground">{product.productName}</td>
                         <td className="px-6 py-4 text-sm text-muted-foreground font-mono">{product.sku}</td>
                         <td className="px-6 py-4 text-right">
-                          <span className={cn('font-semibold', product.stockLevel === 0 ? 'text-red-600' : 'text-amber-600')}>
+                          <span className={cn('font-semibold', product.stockLevel === 0 ? 'text-red-600' : 'text-warning')}>
                             {formatNumber(product.stockLevel)}
                           </span>
                         </td>
@@ -410,7 +410,7 @@ export default function InventoryAnalyticsPage() {
                       <td className="px-6 py-4 text-right">
                         <span className={cn(
                           'inline-flex px-2 py-1 text-xs font-medium rounded-full',
-                          product.turnoverRate >= 2 ? 'bg-green-100 text-green-700' :
+                          product.turnoverRate >= 2 ? 'bg-success-muted text-success-foreground' :
                           product.turnoverRate >= 1 ? 'bg-yellow-100 text-yellow-700' :
                           'bg-red-100 text-red-700'
                         )}>
@@ -451,7 +451,7 @@ export default function InventoryAnalyticsPage() {
                     <td className="px-6 py-4 text-right font-semibold text-foreground">{formatCurrency(category.totalValue)}</td>
                     <td className="px-6 py-4 text-right">
                       {category.lowStockCount > 0 ? (
-                        <span className="inline-flex px-2 py-1 text-xs font-medium bg-amber-100 text-amber-700 rounded-full">
+                        <span className="inline-flex px-2 py-1 text-xs font-medium bg-warning-muted text-warning-foreground rounded-full">
                           {category.lowStockCount}
                         </span>
                       ) : (

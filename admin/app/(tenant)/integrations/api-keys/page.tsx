@@ -133,7 +133,7 @@ const getStatusBadge = (status: string, expiresAt: string | null) => {
   }
   if (status === "expiring" || (expiresAt && new Date(expiresAt) < new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))) {
     return (
-      <Badge className="bg-amber-100 text-amber-700 border-amber-200">
+      <Badge className="bg-warning-muted text-warning-foreground border-warning/30">
         <AlertTriangle className="w-3 h-3 mr-1" />
         Expiring Soon
       </Badge>
@@ -571,7 +571,7 @@ export default function ApiKeysPage() {
           </DialogHeader>
 
           <div className="space-y-4 py-4">
-            <Alert variant="destructive" className="border-amber-200 bg-amber-50 text-amber-800">
+            <Alert variant="destructive" className="border-warning/30 bg-warning-muted text-amber-800">
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Important</AlertTitle>
               <AlertDescription>

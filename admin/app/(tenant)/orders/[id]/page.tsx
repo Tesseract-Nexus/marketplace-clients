@@ -161,7 +161,7 @@ export default function OrderDetailsPage() {
 
   const getStatusBadge = (status: OrderStatus) => {
     const styles: Record<OrderStatus, string> = {
-      PLACED: 'bg-amber-100 text-amber-700 border-amber-200',
+      PLACED: 'bg-warning-muted text-warning-foreground border-warning/30',
       CONFIRMED: 'bg-primary/20 text-primary border-primary/30',
       PROCESSING: 'bg-violet-100 text-violet-700 border-violet-200',
       SHIPPED: 'bg-indigo-100 text-indigo-700 border-indigo-200',
@@ -174,7 +174,7 @@ export default function OrderDetailsPage() {
 
   const getPaymentBadge = (status: PaymentStatus) => {
     const styles: Record<PaymentStatus, string> = {
-      PENDING: 'bg-amber-100 text-amber-700 border-amber-200',
+      PENDING: 'bg-warning-muted text-warning-foreground border-warning/30',
       PAID: 'bg-emerald-100 text-emerald-700 border-emerald-200',
       FAILED: 'bg-red-100 text-red-700 border-red-200',
       PARTIALLY_REFUNDED: 'bg-yellow-100 text-yellow-700 border-yellow-200',
@@ -440,21 +440,21 @@ export default function OrderDetailsPage() {
                 order.paymentStatus === 'PAID' ? "bg-emerald-50 border-emerald-200" :
                 order.paymentStatus === 'FAILED' ? "bg-red-50 border-red-200" :
                 order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "bg-orange-50 border-orange-200" :
-                "bg-amber-50 border-amber-200"
+                "bg-warning-muted border-warning/30"
               )}>
                 <CreditCard className={cn(
                   "w-4 h-4",
                   order.paymentStatus === 'PAID' ? "text-emerald-600" :
                   order.paymentStatus === 'FAILED' ? "text-red-600" :
                   order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "text-orange-600" :
-                  "text-amber-600"
+                  "text-warning"
                 )} />
                 <span className={cn(
                   "text-sm font-semibold",
                   order.paymentStatus === 'PAID' ? "text-emerald-700" :
                   order.paymentStatus === 'FAILED' ? "text-red-700" :
                   order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "text-orange-700" :
-                  "text-amber-700"
+                  "text-warning-foreground"
                 )}>
                   {order.paymentStatus === 'PAID' ? 'Paid' :
                    order.paymentStatus === 'PENDING' ? 'Payment Pending' :
@@ -723,8 +723,8 @@ export default function OrderDetailsPage() {
                   </div>
                   {(order.customer?.phone || order.shippingAddress?.phone) && (
                     <div className="flex items-center gap-3 p-3 bg-muted rounded-xl">
-                      <div className="p-2 bg-green-100 rounded-lg">
-                        <Phone className="w-4 h-4 text-green-600" />
+                      <div className="p-2 bg-success-muted rounded-lg">
+                        <Phone className="w-4 h-4 text-success" />
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground font-semibold">Phone</p>

@@ -354,7 +354,7 @@ export default function MarketingSettingsPage() {
                     />
                   </div>
                   <div className="flex items-center gap-3 p-4 rounded-lg border border-border bg-muted">
-                    <MessageSquare className="h-5 w-5 text-green-600" />
+                    <MessageSquare className="h-5 w-5 text-success" />
                     <Checkbox
                       checked={marketingData.features.enableSmsCampaigns}
                       onChange={(e) => updateField(['features', 'enableSmsCampaigns'], e.target.checked)}
@@ -520,7 +520,7 @@ export default function MarketingSettingsPage() {
                 <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                      <Clock className="h-6 w-6 text-green-600" />
+                      <Clock className="h-6 w-6 text-success" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-foreground">Campaign Settings</h3>

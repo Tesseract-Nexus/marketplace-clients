@@ -130,7 +130,7 @@ export function SecuritySettingsTab() {
       {/* Fraud Detection */}
       <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
         <div className="flex items-center gap-2 mb-4">
-          <AlertTriangle className="h-5 w-5 text-amber-600" />
+          <AlertTriangle className="h-5 w-5 text-warning" />
           <h3 className="text-lg font-bold text-foreground">Fraud Detection</h3>
         </div>
 
@@ -294,11 +294,11 @@ export function SecuritySettingsTab() {
           <h3 className="text-lg font-bold text-foreground">Webhook Security</h3>
         </div>
 
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 flex items-start gap-3">
-          <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+        <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 mb-4 flex items-start gap-3">
+          <AlertTriangle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-amber-900">Webhook Signature Verification</p>
-            <p className="text-sm text-amber-700 mt-1">
+            <p className="text-sm text-warning-foreground mt-1">
               All webhook events are verified using signatures from each payment gateway. Make sure
               you've configured the webhook secret for each gateway in the Payment Gateways tab.
             </p>

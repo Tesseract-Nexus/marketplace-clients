@@ -32,18 +32,18 @@ const notificationColors: Record<string, { bg: string; icon: string; border: str
   'order.status_changed': { bg: 'bg-primary/10', icon: 'text-primary', border: 'border-l-blue-500' },
   'order.cancelled': { bg: 'bg-red-50', icon: 'text-red-600', border: 'border-l-red-500' },
   'order.shipped': { bg: 'bg-indigo-50', icon: 'text-indigo-600', border: 'border-l-indigo-500' },
-  'order.delivered': { bg: 'bg-green-50', icon: 'text-green-600', border: 'border-l-green-500' },
+  'order.delivered': { bg: 'bg-success-muted', icon: 'text-success', border: 'border-l-green-500' },
   'payment.captured': { bg: 'bg-emerald-50', icon: 'text-emerald-600', border: 'border-l-emerald-500' },
   'payment.failed': { bg: 'bg-red-50', icon: 'text-red-600', border: 'border-l-red-500' },
-  'payment.refunded': { bg: 'bg-amber-50', icon: 'text-amber-600', border: 'border-l-amber-500' },
+  'payment.refunded': { bg: 'bg-warning-muted', icon: 'text-warning', border: 'border-l-amber-500' },
   'inventory.low_stock': { bg: 'bg-orange-50', icon: 'text-orange-600', border: 'border-l-orange-500' },
   'inventory.out_of_stock': { bg: 'bg-red-50', icon: 'text-red-600', border: 'border-l-red-500' },
   'customer.registered': { bg: 'bg-purple-50', icon: 'text-purple-600', border: 'border-l-purple-500' },
-  'return.requested': { bg: 'bg-amber-50', icon: 'text-amber-600', border: 'border-l-amber-500' },
-  'return.approved': { bg: 'bg-green-50', icon: 'text-green-600', border: 'border-l-green-500' },
+  'return.requested': { bg: 'bg-warning-muted', icon: 'text-warning', border: 'border-l-amber-500' },
+  'return.approved': { bg: 'bg-success-muted', icon: 'text-success', border: 'border-l-green-500' },
   'return.rejected': { bg: 'bg-red-50', icon: 'text-red-600', border: 'border-l-red-500' },
   'review.submitted': { bg: 'bg-yellow-50', icon: 'text-yellow-600', border: 'border-l-yellow-500' },
-  'review.approved': { bg: 'bg-green-50', icon: 'text-green-600', border: 'border-l-green-500' },
+  'review.approved': { bg: 'bg-success-muted', icon: 'text-success', border: 'border-l-green-500' },
 };
 
 const priorityColors: Record<string, string> = {

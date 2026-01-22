@@ -32,8 +32,8 @@ import type { AdSubmission } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
 
 const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ElementType; className: string }> = {
-  PENDING: { variant: 'outline', icon: Clock, className: 'bg-amber-50 text-amber-700 border-amber-200' },
-  APPROVED: { variant: 'default', icon: CheckCircle, className: 'bg-green-100 text-green-700' },
+  PENDING: { variant: 'outline', icon: Clock, className: 'bg-warning-muted text-warning-foreground border-warning/30' },
+  APPROVED: { variant: 'default', icon: CheckCircle, className: 'bg-success-muted text-success-foreground' },
   REJECTED: { variant: 'destructive', icon: XCircle, className: 'bg-red-100 text-red-700' },
   REVISION_REQUESTED: { variant: 'secondary', icon: MessageSquare, className: 'bg-blue-100 text-blue-700' },
 };
@@ -144,7 +144,7 @@ function SubmissionCard({
                   <Button
                     onClick={() => setShowApproveForm(true)}
                     disabled={isProcessing === submission.id}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-success hover:bg-success"
                   >
                     {isProcessing === submission.id ? (
                       <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -186,7 +186,7 @@ function SubmissionCard({
                       size="sm"
                       onClick={handleApprove}
                       disabled={isProcessing === submission.id}
-                      className="flex-1 bg-green-600 hover:bg-green-700"
+                      className="flex-1 bg-success hover:bg-success"
                     >
                       {isProcessing === submission.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -342,7 +342,7 @@ export default function IncomingApprovalsPage() {
               </div>
               <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 {pendingCount > 0 && (
-                  <Badge className="bg-amber-100 text-amber-700 border-amber-200">
+                  <Badge className="bg-warning-muted text-warning-foreground border-warning/30">
                     {pendingCount} Pending
                   </Badge>
                 )}
@@ -402,8 +402,8 @@ export default function IncomingApprovalsPage() {
             </div>
           ) : submissions.length === 0 ? (
             <div className="text-center py-16">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-green-100 flex items-center justify-center">
-                <CheckCircle className="h-10 w-10 text-green-600" />
+              <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-success-muted flex items-center justify-center">
+                <CheckCircle className="h-10 w-10 text-success" />
               </div>
               <h3 className="text-xl font-bold text-foreground mb-2">All caught up!</h3>
               <p className="text-muted-foreground max-w-md mx-auto">

@@ -304,14 +304,14 @@ export default function LoyaltyProgramPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Program Status</p>
               <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                <Award className="h-6 w-6 text-green-600" />
+                <Award className="h-6 w-6 text-success" />
               </div>
             </div>
             <span
               className={cn(
                 'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border',
                 formData.isActive
-                  ? 'bg-green-100 text-green-700 border-green-200'
+                  ? 'bg-success-muted text-success-foreground border-success/30'
                   : 'bg-muted text-foreground border-border'
               )}
             >
@@ -348,7 +348,7 @@ export default function LoyaltyProgramPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Loyalty Tiers</p>
               <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
-                <Users className="h-6 w-6 text-amber-600" />
+                <Users className="h-6 w-6 text-warning" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
@@ -572,7 +572,7 @@ export default function LoyaltyProgramPage() {
                       <p className="text-xs text-muted-foreground">Points Required</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-2xl font-bold text-green-600">{tier.discountPercent}%</p>
+                      <p className="text-2xl font-bold text-success">{tier.discountPercent}%</p>
                       <p className="text-xs text-muted-foreground">Discount</p>
                     </div>
                   </div>
@@ -655,7 +655,7 @@ export default function LoyaltyProgramPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {/* Signup Bonus Card */}
-                  <div className="p-5 rounded-xl border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 hover:shadow-lg transition-all">
+                  <div className="p-5 rounded-xl border-2 border-success/30 bg-gradient-to-br from-green-50 to-emerald-50 hover:shadow-lg transition-all">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white shadow-md">
                         <UserPlus className="h-6 w-6" />

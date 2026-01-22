@@ -467,7 +467,7 @@ export function CarrierConfigTab() {
                       </span>
                     )}
                     {carrier.isTestMode && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-warning-muted text-warning-foreground border border-warning/30">
                         Test Mode
                       </span>
                     )}
@@ -548,7 +548,7 @@ export function CarrierConfigTab() {
                   size="sm"
                   onClick={() => handleTestConnection(carrier)}
                   disabled={testingConnectionId === carrier.id}
-                  className="hover:bg-green-50 hover:text-green-600"
+                  className="hover:bg-success-muted hover:text-success"
                   title="Test Connection"
                 >
                   {testingConnectionId === carrier.id ? (

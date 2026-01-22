@@ -178,8 +178,8 @@ export function CreateTeamModal({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
-              <Users className="w-5 h-5 text-green-600" />
+            <div className="w-10 h-10 rounded-xl bg-success-muted flex items-center justify-center">
+              <Users className="w-5 h-5 text-success" />
             </div>
             <div>
               <DialogTitle className="text-lg font-bold">Create Team</DialogTitle>

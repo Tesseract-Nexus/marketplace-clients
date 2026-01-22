@@ -82,7 +82,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
                           {item.name}
                         </span>
                         {isLowStock && (
-                          <span className="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-semibold bg-amber-100 text-amber-700 rounded">
+                          <span className="flex-shrink-0 px-1.5 py-0.5 text-[10px] font-semibold bg-warning-muted text-warning-foreground rounded">
                             Low
                           </span>
                         )}
@@ -90,7 +90,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
                       <div className="flex items-center gap-3 text-xs">
                         <span className={cn(
                           "font-semibold",
-                          isLowStock ? "text-amber-600" : "text-violet-600"
+                          isLowStock ? "text-warning" : "text-violet-600"
                         )}>
                           {item.quantity}
                         </span>
@@ -137,7 +137,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
                 <p className="text-xs text-muted-foreground"><AdminUIText text="Healthy Stock" /></p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-amber-600">
+                <p className="text-2xl font-bold text-warning">
                   {inventorySummary.lowStockCount}
                 </p>
                 <p className="text-xs text-muted-foreground"><AdminUIText text="Low Stock" /></p>

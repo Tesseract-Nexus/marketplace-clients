@@ -1302,7 +1302,7 @@ export default function ContentPagesSettingsPage() {
                         </p>
                         <p className="text-xs text-primary mt-1">Views</p>
                       </div>
-                      <div className="bg-card border border-green-200 rounded-lg p-3 text-center">
+                      <div className="bg-card border border-success/30 rounded-lg p-3 text-center">
                         <p className="text-xs font-bold text-success">
                           {editForm.publishedAt
                             ? new Date(editForm.publishedAt).toLocaleDateString()

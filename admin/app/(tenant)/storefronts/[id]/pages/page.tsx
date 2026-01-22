@@ -325,7 +325,7 @@ export default function StorefrontPagesPage() {
                         className={cn(
                           'px-2 py-0.5 rounded-full text-xs font-medium',
                           page.isPublished
-                            ? 'bg-green-100 text-green-700'
+                            ? 'bg-success-muted text-success-foreground'
                             : 'bg-muted text-muted-foreground'
                         )}
                       >
@@ -356,7 +356,7 @@ export default function StorefrontPagesPage() {
                         'p-2 rounded-lg',
                         page.isPublished
                           ? 'hover:bg-orange-50 text-orange-600'
-                          : 'hover:bg-green-50 text-green-600'
+                          : 'hover:bg-success-muted text-success'
                       )}
                     >
                       {page.isPublished ? (

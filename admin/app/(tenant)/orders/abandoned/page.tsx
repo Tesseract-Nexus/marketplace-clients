@@ -175,7 +175,7 @@ export default function AbandonedCartsPage() {
 
   const getStatusBadge = (status: CartStatus) => {
     const styles: Record<CartStatus, string> = {
-      ABANDONED: 'bg-amber-100 text-amber-700 border-amber-200',
+      ABANDONED: 'bg-warning-muted text-warning-foreground border-warning/30',
       CONTACTED: 'bg-primary/20 text-primary border-primary/30',
       RECOVERED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
       EXPIRED: 'bg-muted text-foreground border-border',
@@ -483,11 +483,11 @@ export default function AbandonedCartsPage() {
                               variant="ghost"
                               size="sm"
                               onClick={() => handleSendRecoveryEmail(cart.id)}
-                              className="h-8 w-8 p-0 rounded-lg hover:bg-green-50 transition-colors"
+                              className="h-8 w-8 p-0 rounded-lg hover:bg-success-muted transition-colors"
                               title="Send Recovery Email"
                               aria-label="Send recovery email"
                             >
-                              <Send className="w-4 h-4 text-green-600" aria-hidden="true" />
+                              <Send className="w-4 h-4 text-success" aria-hidden="true" />
                             </Button>
                           )}
                           <Button

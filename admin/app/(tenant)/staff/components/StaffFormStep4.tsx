@@ -97,7 +97,7 @@ export function StaffFormStep4({ formData }: StaffFormStepProps) {
             {formData.salary && (
               <div>
                 <p className="text-sm text-muted-foreground">Salary</p>
-                <p className="font-semibold text-green-600 text-xl">
+                <p className="font-semibold text-success text-xl">
                   {formatCurrency(formData.salary, formData.currencyCode)}
                 </p>
               </div>

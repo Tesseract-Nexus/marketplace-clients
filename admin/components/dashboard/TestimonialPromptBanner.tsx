@@ -117,7 +117,7 @@ export function TestimonialPromptBanner({ className }: TestimonialPromptBannerPr
 
   return (
     <div className={cn(
-      "relative overflow-hidden rounded-xl border bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50 border-amber-200/50",
+      "relative overflow-hidden rounded-xl border bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50 border-warning/30/50",
       className
     )}>
       {/* Background decoration */}
@@ -152,7 +152,7 @@ export function TestimonialPromptBanner({ className }: TestimonialPromptBannerPr
               {/* Close button */}
               <button
                 onClick={() => handleDismiss(false)}
-                className="p-1.5 rounded-lg hover:bg-amber-100 transition-colors text-muted-foreground hover:text-foreground flex-shrink-0"
+                className="p-1.5 rounded-lg hover:bg-warning-muted transition-colors text-muted-foreground hover:text-foreground flex-shrink-0"
                 aria-label="Dismiss for now"
               >
                 <X className="h-5 w-5" />

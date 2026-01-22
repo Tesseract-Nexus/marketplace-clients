@@ -365,7 +365,7 @@ function DomainCard({
 
             {showDNS && (
               <div className="space-y-3 animate-in slide-in-from-top-2 duration-200">
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                <div className="bg-warning-muted border border-warning/30 rounded-lg p-3">
                   <p className="text-sm text-amber-800">
                     <strong>Action Required:</strong> Add the following DNS records at your domain registrar
                     (e.g., GoDaddy, Cloudflare, Namecheap).

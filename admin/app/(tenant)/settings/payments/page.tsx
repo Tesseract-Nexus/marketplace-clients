@@ -224,7 +224,7 @@ export default function PaymentsSettingsPage() {
                 </div>
 
                 {hasTestModeOnly && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-warning-muted text-warning-foreground border border-warning/30">
                     <AlertCircle className="h-3 w-3 mr-1" />
                     Test Mode
                   </span>

@@ -169,7 +169,7 @@ export default function MauticIntegrationPage() {
               )}>
                 <Mail className={cn(
                   "h-8 w-8",
-                  status?.connected ? "text-green-600" : "text-red-600"
+                  status?.connected ? "text-success" : "text-red-600"
                 )} />
               </div>
               <div>
@@ -188,7 +188,7 @@ export default function MauticIntegrationPage() {
                   <span className="text-sm font-medium">Checking...</span>
                 </div>
               ) : status?.connected ? (
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-100 text-green-700">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-success-muted text-success-foreground">
                   <CheckCircle2 className="h-4 w-4" />
                   <span className="text-sm font-medium">Connected</span>
                 </div>
@@ -233,7 +233,7 @@ export default function MauticIntegrationPage() {
 
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center mb-4">
-              <Users className="h-6 w-6 text-green-600" />
+              <Users className="h-6 w-6 text-success" />
             </div>
             <h4 className="text-lg font-bold text-foreground">Customer Segments</h4>
             <p className="text-muted-foreground text-sm mt-2">

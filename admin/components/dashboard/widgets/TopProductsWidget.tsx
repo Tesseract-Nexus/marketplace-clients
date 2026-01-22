@@ -60,7 +60,7 @@ export function TopProductsWidget({ data }: TopProductsWidgetProps) {
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     "w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm",
-                    index === 0 ? "bg-amber-100 text-amber-700" :
+                    index === 0 ? "bg-warning-muted text-warning-foreground" :
                     index === 1 ? "bg-gray-200 text-foreground" :
                     index === 2 ? "bg-orange-100 text-orange-700" :
                     "bg-muted text-muted-foreground"

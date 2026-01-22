@@ -195,7 +195,7 @@ export default function InventoryReportsPage() {
   const getStockStatusColor = (stockLevel: number, reorderLevel: number) => {
     if (stockLevel === 0) return 'bg-red-100 text-red-700 border-red-200';
     if (stockLevel <= reorderLevel) return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-    return 'bg-green-100 text-green-700 border-green-200';
+    return 'bg-success-muted text-success-foreground border-success/30';
   };
 
   const getStockStatusLabel = (stockLevel: number, reorderLevel: number) => {
@@ -258,7 +258,7 @@ export default function InventoryReportsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Inventory Value</p>
               <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-green-600" />
+                <DollarSign className="h-6 w-6 text-success" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
@@ -459,7 +459,7 @@ export default function InventoryReportsPage() {
                 {/* Top Moving Products */}
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <TrendingUp className="h-5 w-5 text-green-600" />
+                    <TrendingUp className="h-5 w-5 text-success" />
                     <h3 className="text-lg font-bold text-foreground">Top Moving Products</h3>
                   </div>
                   <div className="overflow-x-auto">
@@ -490,7 +490,7 @@ export default function InventoryReportsPage() {
                               <p className="font-semibold text-foreground">{product.productName}</p>
                               <p className="text-sm text-muted-foreground">{product.sku}</p>
                             </td>
-                            <td className="px-6 py-4 text-right font-semibold text-green-600">
+                            <td className="px-6 py-4 text-right font-semibold text-success">
                               {formatNumber(product.unitsSold)}
                             </td>
                             <td className="px-6 py-4 text-right text-sm text-foreground">

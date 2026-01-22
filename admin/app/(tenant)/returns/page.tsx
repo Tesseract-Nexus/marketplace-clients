@@ -57,8 +57,8 @@ interface Return {
 }
 
 const statusConfig: Record<string, { label: string; color: string; bgColor: string; icon: React.ElementType }> = {
-  PENDING: { label: 'Pending Review', color: 'text-amber-700', bgColor: 'bg-amber-50 border-amber-200', icon: Clock },
-  APPROVED: { label: 'Approved', color: 'text-green-700', bgColor: 'bg-green-50 border-green-200', icon: CheckCircle },
+  PENDING: { label: 'Pending Review', color: 'text-warning-foreground', bgColor: 'bg-warning-muted border-warning/30', icon: Clock },
+  APPROVED: { label: 'Approved', color: 'text-success-foreground', bgColor: 'bg-success-muted border-success/30', icon: CheckCircle },
   REJECTED: { label: 'Rejected', color: 'text-red-700', bgColor: 'bg-red-50 border-red-200', icon: XCircle },
   IN_TRANSIT: { label: 'In Transit', color: 'text-primary', bgColor: 'bg-primary/10 border-primary/30', icon: Truck },
   RECEIVED: { label: 'Received', color: 'text-indigo-700', bgColor: 'bg-indigo-50 border-indigo-200', icon: Package },
@@ -253,25 +253,25 @@ export default function ReturnsPage() {
               </div>
             </div>
           </div>
-          <div className="bg-card rounded-xl border border-amber-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="bg-card rounded-xl border border-warning/30 p-4 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-amber-100 rounded-lg">
-                <Clock className="h-5 w-5 text-amber-600" />
+              <div className="p-2 bg-warning-muted rounded-lg">
+                <Clock className="h-5 w-5 text-warning" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Pending</p>
-                <p className="text-2xl font-bold text-amber-600">{stats.pending}</p>
+                <p className="text-2xl font-bold text-warning">{stats.pending}</p>
               </div>
             </div>
           </div>
-          <div className="bg-card rounded-xl border border-green-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="bg-card rounded-xl border border-success/30 p-4 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <CheckCircle className="h-5 w-5 text-green-600" />
+              <div className="p-2 bg-success-muted rounded-lg">
+                <CheckCircle className="h-5 w-5 text-success" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Approved</p>
-                <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
+                <p className="text-2xl font-bold text-success">{stats.approved}</p>
               </div>
             </div>
           </div>
@@ -391,7 +391,7 @@ export default function ReturnsPage() {
                                   setActionType('approve');
                                   setIsActionDialogOpen(true);
                                 }}
-                                className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                className="text-success hover:text-success-foreground hover:bg-success-muted"
                               >
                                 <Check className="h-4 w-4" />
                               </Button>
@@ -587,7 +587,7 @@ export default function ReturnsPage() {
                         setIsDetailsOpen(false);
                         setIsActionDialogOpen(true);
                       }}
-                      className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                      className="flex-1 bg-success hover:bg-success text-white"
                     >
                       <Check className="h-4 w-4 mr-2" />
                       Approve Return
@@ -616,7 +616,7 @@ export default function ReturnsPage() {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setIsActionDialogOpen(false)}>
             <div className="bg-card rounded-2xl max-w-md w-full shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
               <div className={`px-6 py-4 ${
-                actionType === 'approve' ? 'bg-green-600' :
+                actionType === 'approve' ? 'bg-success' :
                 actionType === 'reject' ? 'bg-red-600' :
                 'bg-primary'
               }`}>
@@ -657,7 +657,7 @@ export default function ReturnsPage() {
                 <Button
                   onClick={handleAction}
                   className={
-                    actionType === 'approve' ? 'bg-green-600 hover:bg-green-700 text-white' :
+                    actionType === 'approve' ? 'bg-success hover:bg-success text-white' :
                     actionType === 'reject' ? 'bg-red-600 hover:bg-red-700 text-white' :
                     'bg-primary hover:bg-primary text-white'
                   }

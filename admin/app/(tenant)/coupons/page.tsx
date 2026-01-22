@@ -186,7 +186,7 @@ export default function CouponsPage() {
     } else if (days === 1) {
       return { text: 'Expires tomorrow', color: 'text-orange-600 bg-orange-50', urgent: true };
     } else if (days <= 7) {
-      return { text: `${days} days left`, color: 'text-amber-600 bg-amber-50', urgent: true };
+      return { text: `${days} days left`, color: 'text-warning bg-warning-muted', urgent: true };
     } else if (days <= 30) {
       return { text: `${days} days left`, color: 'text-primary bg-primary/10', urgent: false };
     }
@@ -201,7 +201,7 @@ export default function CouponsPage() {
   const getUsageColor = (percentage: number): string => {
     if (percentage >= 90) return 'bg-red-500';
     if (percentage >= 75) return 'bg-orange-500';
-    if (percentage >= 50) return 'bg-amber-500';
+    if (percentage >= 50) return 'bg-warning';
     return 'bg-emerald-500';
   };
 
@@ -439,7 +439,7 @@ export default function CouponsPage() {
                         <div className={cn(
                           "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
                           coupon.discountType === 'PERCENTAGE' && "bg-primary/20 text-primary",
-                          coupon.discountType === 'FIXED_AMOUNT' && "bg-green-100 text-green-600",
+                          coupon.discountType === 'FIXED_AMOUNT' && "bg-success-muted text-success",
                           coupon.discountType === 'FREE_SHIPPING' && "bg-purple-100 text-purple-600",
                           coupon.discountType === 'BUY_X_GET_Y' && "bg-pink-100 text-pink-600"
                         )}>
@@ -455,7 +455,7 @@ export default function CouponsPage() {
                               {coupon.code}
                             </h3>
                             {isCopied ? (
-                              <CheckCircle className="w-3.5 h-3.5 text-green-500 shrink-0" />
+                              <CheckCircle className="w-3.5 h-3.5 text-success shrink-0" />
                             ) : (
                               <Copy className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover/copy:opacity-100 transition-opacity shrink-0" />
                             )}
@@ -465,7 +465,7 @@ export default function CouponsPage() {
                       <span className={cn(
                         "text-lg font-bold shrink-0",
                         coupon.discountType === 'PERCENTAGE' && "text-primary",
-                        coupon.discountType === 'FIXED_AMOUNT' && "text-green-600",
+                        coupon.discountType === 'FIXED_AMOUNT' && "text-success",
                         coupon.discountType === 'FREE_SHIPPING' && "text-purple-600",
                         coupon.discountType === 'BUY_X_GET_Y' && "text-pink-600"
                       )}>
@@ -538,7 +538,7 @@ export default function CouponsPage() {
                         className={cn(
                           "h-7 w-7 p-0 rounded-md transition-colors",
                           copiedCode === coupon.code
-                            ? "bg-green-50 text-green-600"
+                            ? "bg-success-muted text-success"
                             : "bg-muted hover:bg-violet-50 text-muted-foreground hover:text-violet-600"
                         )}
                         variant="ghost"

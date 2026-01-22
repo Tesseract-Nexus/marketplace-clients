@@ -62,8 +62,8 @@ const statusOptions = [
 // Status badge styling
 const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ElementType; className?: string }> = {
   DRAFT: { variant: 'secondary', icon: Clock, className: 'bg-slate-100 text-slate-700' },
-  PENDING_APPROVAL: { variant: 'outline', icon: Send, className: 'bg-amber-50 text-amber-700 border-amber-200' },
-  APPROVED: { variant: 'default', icon: CheckCircle2, className: 'bg-green-100 text-green-700' },
+  PENDING_APPROVAL: { variant: 'outline', icon: Send, className: 'bg-warning-muted text-warning-foreground border-warning/30' },
+  APPROVED: { variant: 'default', icon: CheckCircle2, className: 'bg-success-muted text-success-foreground' },
   ACTIVE: { variant: 'default', icon: Play, className: 'bg-emerald-100 text-emerald-700' },
   PAUSED: { variant: 'secondary', icon: PauseCircle, className: 'bg-yellow-100 text-yellow-700' },
   COMPLETED: { variant: 'secondary', icon: CheckCircle2, className: 'bg-blue-100 text-blue-700' },
@@ -145,7 +145,7 @@ function StatCard({
         </div>
         <p className="text-2xl font-bold">{value}</p>
         {trend && (
-          <p className={cn('text-xs mt-1', trend.value >= 0 ? 'text-green-600' : 'text-red-600')}>
+          <p className={cn('text-xs mt-1', trend.value >= 0 ? 'text-success' : 'text-red-600')}>
             {trend.value >= 0 ? '+' : ''}
             {trend.value}% {trend.label}
           </p>
@@ -252,7 +252,7 @@ function CampaignCard({
             <div
               className={cn(
                 'h-full rounded-full transition-all',
-                budgetProgress > 90 ? 'bg-red-500' : budgetProgress > 70 ? 'bg-amber-500' : 'bg-primary'
+                budgetProgress > 90 ? 'bg-red-500' : budgetProgress > 70 ? 'bg-warning' : 'bg-primary'
               )}
               style={{ width: `${Math.min(budgetProgress, 100)}%` }}
             />
@@ -337,7 +337,7 @@ function CampaignRow({
             <div
               className={cn(
                 'h-full rounded-full transition-all',
-                budgetProgress > 90 ? 'bg-red-500' : budgetProgress > 70 ? 'bg-amber-500' : 'bg-primary'
+                budgetProgress > 90 ? 'bg-red-500' : budgetProgress > 70 ? 'bg-warning' : 'bg-primary'
               )}
               style={{ width: `${Math.min(budgetProgress, 100)}%` }}
             />
@@ -357,12 +357,12 @@ function CampaignRow({
         </div>
       </td>
       <td className="px-6 py-4 text-right">
-        <span className={cn('font-semibold', campaign.ctr > 2 ? 'text-green-600' : campaign.ctr > 1 ? 'text-amber-600' : '')}>
+        <span className={cn('font-semibold', campaign.ctr > 2 ? 'text-success' : campaign.ctr > 1 ? 'text-warning' : '')}>
           {campaign.ctr.toFixed(2)}%
         </span>
       </td>
       <td className="px-6 py-4 text-right">
-        <span className={cn('font-semibold', campaign.roas > 3 ? 'text-green-600' : campaign.roas > 1 ? 'text-amber-600' : '')}>
+        <span className={cn('font-semibold', campaign.roas > 3 ? 'text-success' : campaign.roas > 1 ? 'text-warning' : '')}>
           {campaign.roas.toFixed(2)}x
         </span>
       </td>

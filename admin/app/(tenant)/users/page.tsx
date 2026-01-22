@@ -262,9 +262,9 @@ export default function UsersHubPage() {
     const classes: Record<string, string> = {
       'Super Administrator': 'bg-purple-100 text-purple-700 border-purple-200',
       Administrator: 'bg-primary/20 text-primary border-primary/30',
-      Manager: 'bg-green-100 text-green-700 border-green-200',
+      Manager: 'bg-success-muted text-success-foreground border-success/30',
       Staff: 'bg-muted text-foreground border-border',
-      Viewer: 'bg-amber-100 text-amber-700 border-amber-200',
+      Viewer: 'bg-warning-muted text-warning-foreground border-warning/30',
     };
     return classes[role] || classes.Staff;
   };
@@ -350,7 +350,7 @@ export default function UsersHubPage() {
                 </p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                <CheckCircle className="h-6 w-6 text-green-600" />
+                <CheckCircle className="h-6 w-6 text-success" />
               </div>
             </div>
           </div>
@@ -512,7 +512,7 @@ export default function UsersHubPage() {
                             className={cn(
                               'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border cursor-pointer transition-colors',
                               user.accountEnabled
-                                ? 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200'
+                                ? 'bg-success-muted text-success-foreground border-success/30 hover:bg-green-200'
                                 : 'bg-red-100 text-red-700 border-red-200 hover:bg-red-200'
                             )}
                           >

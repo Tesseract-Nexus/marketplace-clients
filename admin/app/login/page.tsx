@@ -547,8 +547,8 @@ function LoginPageContent() {
       case 'success':
         return (
           <div className="text-center py-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
-              <CheckCircle2 className="w-8 h-8 text-green-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success-muted mb-4">
+              <CheckCircle2 className="w-8 h-8 text-success" />
             </div>
             <h2 className="text-xl font-semibold text-foreground mb-2">Welcome back!</h2>
             <p className="text-sm text-muted-foreground">Redirecting to your dashboard...</p>

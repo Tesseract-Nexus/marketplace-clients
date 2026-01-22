@@ -241,7 +241,7 @@ export default function OnboardingPage() {
                       placeholder="acme-electronics"
                       className={cn(
                         "flex-1 px-4 py-3 border-2 rounded-l-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all bg-white",
-                        slugAvailable === true && "border-green-300 bg-green-50",
+                        slugAvailable === true && "border-success/40 bg-success-muted",
                         slugAvailable === false && "border-red-300 bg-red-50",
                         slugAvailable === null && "border-border"
                       )}
@@ -257,7 +257,7 @@ export default function OnboardingPage() {
                   )}
                 </div>
                 {slugAvailable === true && (
-                  <p className="mt-2 text-sm text-green-600 flex items-center gap-1">
+                  <p className="mt-2 text-sm text-success flex items-center gap-1">
                     <Check className="w-4 h-4" />
                     This URL is available
                   </p>
@@ -269,7 +269,7 @@ export default function OnboardingPage() {
                   </p>
                 )}
                 {formData.slug.length > 0 && formData.slug.length < 3 && (
-                  <p className="mt-2 text-sm text-amber-600">
+                  <p className="mt-2 text-sm text-warning">
                     Slug must be at least 3 characters
                   </p>
                 )}

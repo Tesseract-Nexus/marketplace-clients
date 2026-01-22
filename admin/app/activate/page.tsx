@@ -400,8 +400,8 @@ function ActivatePageContent() {
       case 'success':
         return (
           <div className="text-center py-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
-              <CheckCircle2 className="w-8 h-8 text-green-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success-muted mb-4">
+              <CheckCircle2 className="w-8 h-8 text-success" />
             </div>
             <h2 className="text-xl font-semibold text-foreground mb-2">Account Activated!</h2>
             <p className="text-sm text-muted-foreground">Your account is ready. Redirecting to login...</p>
@@ -475,11 +475,11 @@ function RequirementItem({ met, text }: { met: boolean; text: string }) {
   return (
     <div className="flex items-center gap-1.5">
       {met ? (
-        <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+        <CheckCircle2 className="h-3.5 w-3.5 text-success" />
       ) : (
         <div className="h-3.5 w-3.5 rounded-full border border-gray-300" />
       )}
-      <span className={`text-xs ${met ? 'text-green-600' : 'text-muted-foreground'}`}>{text}</span>
+      <span className={`text-xs ${met ? 'text-success' : 'text-muted-foreground'}`}>{text}</span>
     </div>
   );
 }

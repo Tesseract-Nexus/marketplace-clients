@@ -163,7 +163,7 @@ export default function GiftCardsPage() {
 
   const getStatusBadgeClass = (status: string) => {
     const classes: Record<string, string> = {
-      ACTIVE: 'bg-green-100 text-green-700 border-green-200',
+      ACTIVE: 'bg-success-muted text-success-foreground border-success/30',
       REDEEMED: 'bg-primary/20 text-primary border-primary/30',
       EXPIRED: 'bg-red-100 text-red-700 border-red-200',
       CANCELLED: 'bg-muted text-foreground border-border',
@@ -177,8 +177,8 @@ export default function GiftCardsPage() {
   };
 
   const getBalanceColor = (percentage: number) => {
-    if (percentage >= 75) return 'bg-green-500';
-    if (percentage >= 50) return 'bg-amber-500';
+    if (percentage >= 75) return 'bg-success';
+    if (percentage >= 50) return 'bg-warning';
     if (percentage >= 25) return 'bg-orange-500';
     return 'bg-red-500';
   };
@@ -202,7 +202,7 @@ export default function GiftCardsPage() {
     } else if (days <= 7) {
       return { text: `${days} days left`, color: 'text-orange-600 bg-orange-50', urgent: true };
     } else if (days <= 30) {
-      return { text: `${days} days left`, color: 'text-amber-600 bg-amber-50', urgent: false };
+      return { text: `${days} days left`, color: 'text-warning bg-warning-muted', urgent: false };
     }
     return null;
   };
@@ -323,7 +323,7 @@ export default function GiftCardsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Active Cards</p>
               <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                <CreditCard className="h-6 w-6 text-green-600" />
+                <CreditCard className="h-6 w-6 text-success" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
@@ -353,7 +353,7 @@ export default function GiftCardsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Redeemed Value</p>
               <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-amber-600" />
+                <DollarSign className="h-6 w-6 text-warning" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
@@ -508,7 +508,7 @@ export default function GiftCardsPage() {
                         <div className="text-right">
                           <span className={cn(
                             "font-bold text-lg",
-                            balancePercentage >= 50 ? "text-green-600" : balancePercentage >= 25 ? "text-amber-600" : "text-red-600"
+                            balancePercentage >= 50 ? "text-success" : balancePercentage >= 25 ? "text-warning" : "text-red-600"
                           )}>
                             {formatCurrency(card.currentBalance)}
                           </span>

@@ -83,7 +83,7 @@ function StepIndicator({ steps, currentStep }: { steps: typeof STEPS; currentSte
             className={cn(
               'w-2 h-2 rounded-full transition-all',
               index === currentStep && 'w-6 bg-primary',
-              index < currentStep && 'bg-green-500',
+              index < currentStep && 'bg-success',
               index > currentStep && 'bg-muted'
             )}
           />
@@ -103,7 +103,7 @@ function StepIndicator({ steps, currentStep }: { steps: typeof STEPS; currentSte
                 className={cn(
                   'flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all',
                   isActive && 'border-primary bg-primary text-primary-foreground',
-                  isCompleted && 'border-green-500 bg-green-500 text-white',
+                  isCompleted && 'border-green-500 bg-success text-white',
                   !isActive && !isCompleted && 'border-muted-foreground/30 text-muted-foreground'
                 )}
               >
@@ -118,7 +118,7 @@ function StepIndicator({ steps, currentStep }: { steps: typeof STEPS; currentSte
                   className={cn(
                     'text-sm font-medium',
                     isActive && 'text-primary',
-                    isCompleted && 'text-green-600',
+                    isCompleted && 'text-success',
                     !isActive && !isCompleted && 'text-muted-foreground'
                   )}
                 >
@@ -129,7 +129,7 @@ function StepIndicator({ steps, currentStep }: { steps: typeof STEPS; currentSte
                 <div
                   className={cn(
                     'w-12 h-0.5 mx-2',
-                    index < currentStep ? 'bg-green-500' : 'bg-muted'
+                    index < currentStep ? 'bg-success' : 'bg-muted'
                   )}
                 />
               )}
@@ -641,11 +641,11 @@ function ReviewStep({
         </CardContent>
       </Card>
 
-      <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-        <Info className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+      <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-start gap-3">
+        <Info className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
         <div>
           <p className="font-medium text-amber-800">Campaign will be saved as Draft</p>
-          <p className="text-sm text-amber-700">
+          <p className="text-sm text-warning-foreground">
             After saving, you can submit it for approval or launch it directly if you have
             permissions.
           </p>

@@ -182,7 +182,7 @@ export function VersionHistory({
                   key={entry.id}
                   className={cn(
                     'px-6 py-4 hover:bg-muted transition-colors',
-                    confirmRestore === entry.version && 'bg-amber-50'
+                    confirmRestore === entry.version && 'bg-warning-muted'
                   )}
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -192,7 +192,7 @@ export function VersionHistory({
                           Version {entry.version}
                         </span>
                         {index === 0 && (
-                          <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+                          <span className="px-2 py-0.5 text-xs font-medium bg-success-muted text-success-foreground rounded-full">
                             Current
                           </span>
                         )}
@@ -224,7 +224,7 @@ export function VersionHistory({
                                 onClick={() => handleRestore(entry.version)}
                                 disabled={isRestoring}
                                 className={cn(
-                                  'p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors',
+                                  'p-2 text-success hover:bg-success-muted rounded-lg transition-colors',
                                   isRestoring && 'opacity-50 cursor-not-allowed'
                                 )}
                                 title="Confirm restore"
@@ -247,7 +247,7 @@ export function VersionHistory({
                           ) : (
                             <button
                               onClick={() => setConfirmRestore(entry.version)}
-                              className="p-2 text-muted-foreground hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                              className="p-2 text-muted-foreground hover:text-warning hover:bg-warning-muted rounded-lg transition-colors"
                               title="Restore this version"
                             >
                               <RotateCcw className="h-4 w-4" />
@@ -260,7 +260,7 @@ export function VersionHistory({
 
                   {/* Confirm restore message */}
                   {confirmRestore === entry.version && (
-                    <div className="mt-3 p-3 bg-amber-100 rounded-lg border border-amber-200">
+                    <div className="mt-3 p-3 bg-warning-muted rounded-lg border border-warning/30">
                       <p className="text-xs text-amber-800">
                         <strong>Restore this version?</strong> This will replace your current
                         settings. A backup of your current settings will be saved to history.

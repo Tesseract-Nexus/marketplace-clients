@@ -32,7 +32,7 @@ const variantStyles = {
     iconColor: 'text-white',
     headerGradient: 'from-amber-50 to-orange-50',
     confirmButton: 'from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700',
-    borderColor: 'border-amber-200',
+    borderColor: 'border-warning/30',
   },
   info: {
     icon: Info,

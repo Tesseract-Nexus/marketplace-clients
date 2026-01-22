@@ -341,7 +341,7 @@ export default function ReviewsPage() {
               </p>
             </div>
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
-              <Star className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
+              <Star className="h-5 w-5 sm:h-6 sm:w-6 text-warning" />
             </div>
           </div>
         </div>
@@ -355,7 +355,7 @@ export default function ReviewsPage() {
               </p>
             </div>
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-              <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
+              <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-success" />
             </div>
           </div>
         </div>
@@ -417,7 +417,7 @@ export default function ReviewsPage() {
             <div className="flex flex-wrap gap-2 sm:gap-3">
               <Button
                 onClick={() => handleBulkAction('approve')}
-                className="bg-green-600 hover:bg-green-700 text-white flex-1 sm:flex-none"
+                className="bg-success hover:bg-success text-white flex-1 sm:flex-none"
                 size="sm"
               >
                 <CheckCircle className="h-4 w-4 mr-1 sm:mr-2" />
@@ -444,7 +444,7 @@ export default function ReviewsPage() {
               </Button>
               <Button
                 onClick={() => handleBulkAction('feature')}
-                className="bg-amber-600 hover:bg-amber-700 text-white flex-1 sm:flex-none"
+                className="bg-warning hover:bg-warning text-white flex-1 sm:flex-none"
                 size="sm"
               >
                 <Star className="h-4 w-4 mr-1 sm:mr-2" />

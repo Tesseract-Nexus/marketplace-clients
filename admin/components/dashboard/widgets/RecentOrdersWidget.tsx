@@ -34,7 +34,7 @@ export function RecentOrdersWidget({ data }: RecentOrdersWidgetProps) {
       case 'processing':
         return <Activity className="h-4 w-4 text-primary animate-pulse" />;
       case 'pending':
-        return <Clock className="h-4 w-4 text-amber-600" />;
+        return <Clock className="h-4 w-4 text-warning" />;
       case 'shipped':
         return <Package className="h-4 w-4 text-violet-600" />;
       default:
@@ -51,7 +51,7 @@ export function RecentOrdersWidget({ data }: RecentOrdersWidgetProps) {
       case 'processing':
         return 'bg-primary/10 text-primary border-primary/30';
       case 'pending':
-        return 'bg-amber-50 text-amber-700 border-amber-200';
+        return 'bg-warning-muted text-warning-foreground border-warning/30';
       case 'shipped':
         return 'bg-violet-50 text-violet-700 border-violet-200';
       default:

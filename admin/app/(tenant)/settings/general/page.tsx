@@ -328,7 +328,7 @@ function CompletenessIndicator({
       className={`rounded-xl border p-4 ${
         isComplete
           ? 'bg-success-muted border-success/30'
-          : 'bg-amber-50 border-amber-200'
+          : 'bg-warning-muted border-warning/30'
       }`}
     >
       <div className="flex items-center justify-between mb-3">
@@ -336,7 +336,7 @@ function CompletenessIndicator({
           {isComplete ? (
             <CheckCircle2 className="h-5 w-5 text-success" />
           ) : (
-            <AlertCircle className="h-5 w-5 text-amber-600" />
+            <AlertCircle className="h-5 w-5 text-warning" />
           )}
           <span
             className={`font-semibold ${
@@ -348,7 +348,7 @@ function CompletenessIndicator({
         </div>
         <span
           className={`text-sm font-bold ${
-            isComplete ? 'text-success' : 'text-amber-700'
+            isComplete ? 'text-success' : 'text-warning-foreground'
           }`}
         >
           {percentage}%
@@ -359,7 +359,7 @@ function CompletenessIndicator({
       <div className="h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
         <div
           className={`h-full transition-all duration-500 ${
-            isComplete ? 'bg-success' : 'bg-amber-500'
+            isComplete ? 'bg-success' : 'bg-warning'
           }`}
           style={{ width: `${percentage}%` }}
         />
@@ -367,7 +367,7 @@ function CompletenessIndicator({
 
       {/* Missing fields */}
       {missingFields.length > 0 && (
-        <div className="text-sm text-amber-700">
+        <div className="text-sm text-warning-foreground">
           <span className="font-medium">Missing: </span>
           {missingFields.map((field, idx) => (
             <button
@@ -1257,14 +1257,14 @@ export default function GeneralSettingsPage() {
                 <div className={`p-4 rounded-lg border ${
                   selectedStorefront?.isActive
                     ? 'bg-success-muted border-success/30'
-                    : 'bg-amber-50 border-amber-200'
+                    : 'bg-warning-muted border-warning/30'
                 }`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       {selectedStorefront?.isActive ? (
                         <CheckCircle2 className="h-6 w-6 text-success" />
                       ) : (
-                        <AlertCircle className="h-6 w-6 text-amber-600" />
+                        <AlertCircle className="h-6 w-6 text-warning" />
                       )}
                       <div>
                         <p className={`font-semibold ${
@@ -1273,7 +1273,7 @@ export default function GeneralSettingsPage() {
                           {selectedStorefront?.isActive ? 'Published' : 'Unpublished'}
                         </p>
                         <p className={`text-sm ${
-                          selectedStorefront?.isActive ? 'text-success' : 'text-amber-700'
+                          selectedStorefront?.isActive ? 'text-success' : 'text-warning-foreground'
                         }`}>
                           {selectedStorefront?.isActive
                             ? 'Your store is live and visible to customers'
@@ -1613,7 +1613,7 @@ export default function GeneralSettingsPage() {
               and can be customized independently.
             </p>
             {!vendorId && (
-              <p className="text-amber-600 text-sm mb-4">
+              <p className="text-warning text-sm mb-4">
                 Please wait while we load your tenant information...
               </p>
             )}

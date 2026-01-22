@@ -98,7 +98,7 @@ export function DeleteTenantModal({
       {/* Modal */}
       <div className="relative bg-card rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className={`px-6 py-4 ${step === 'success' ? 'bg-green-600' : 'bg-red-600'}`}>
+        <div className={`px-6 py-4 ${step === 'success' ? 'bg-success' : 'bg-red-600'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg">
@@ -158,7 +158,7 @@ export function DeleteTenantModal({
                 </li>
               </ul>
 
-              <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <div className="p-3 bg-warning-muted border border-warning/30 rounded-lg">
                 <p className="text-sm text-amber-800">
                   <strong>Note:</strong> Your data will be archived for audit purposes but cannot be restored.
                 </p>
@@ -187,7 +187,7 @@ export function DeleteTenantModal({
                     confirmationText && !isConfirmationValid
                       ? 'border-red-300 focus:ring-red-500'
                       : isConfirmationValid
-                      ? 'border-green-300 focus:ring-green-500'
+                      ? 'border-success/40 focus:ring-green-500'
                       : ''
                   }`}
                   autoFocus
@@ -230,7 +230,7 @@ export function DeleteTenantModal({
 
           {step === 'success' && (
             <div className="py-8 text-center">
-              <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
+              <CheckCircle className="h-12 w-12 text-success mx-auto mb-4" />
               <p className="text-foreground font-medium">
                 Tenant deleted successfully
               </p>

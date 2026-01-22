@@ -81,7 +81,7 @@ export function StatsGridWidget({ data }: StatsGridWidgetProps) {
     blue: { gradient: 'from-blue-500 to-cyan-500', light: 'bg-primary/10', ring: 'ring-primary/20', text: 'text-primary' },
     cyan: { gradient: 'from-cyan-500 to-blue-500', light: 'bg-cyan-50', ring: 'ring-cyan-500/20', text: 'text-cyan-600' },
     violet: { gradient: 'from-violet-500 to-purple-500', light: 'bg-violet-50', ring: 'ring-violet-500/20', text: 'text-violet-600' },
-    amber: { gradient: 'from-amber-500 to-orange-500', light: 'bg-amber-50', ring: 'ring-amber-500/20', text: 'text-amber-600' },
+    amber: { gradient: 'from-amber-500 to-orange-500', light: 'bg-warning-muted', ring: 'ring-amber-500/20', text: 'text-warning' },
   };
 
   return (

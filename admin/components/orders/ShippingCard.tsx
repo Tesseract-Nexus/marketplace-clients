@@ -148,7 +148,7 @@ export function ShippingCard({ order, onShipmentCreated }: ShippingCardProps) {
 
   const getStatusBadge = (status: ShipmentStatus) => {
     const styles: Record<ShipmentStatus, string> = {
-      PENDING: 'bg-amber-100 text-amber-700 border-amber-200',
+      PENDING: 'bg-warning-muted text-warning-foreground border-warning/30',
       CREATED: 'bg-primary/20 text-primary border-primary/30',
       PICKED_UP: 'bg-indigo-100 text-indigo-700 border-indigo-200',
       IN_TRANSIT: 'bg-cyan-100 text-cyan-700 border-cyan-200',

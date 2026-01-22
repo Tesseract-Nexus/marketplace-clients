@@ -275,9 +275,9 @@ export default function TicketsPage() {
   const getStatusBadgeClass = (status: TicketStatus) => {
     const classes: Record<TicketStatus, string> = {
       OPEN: 'bg-primary/20 text-primary border-primary/30',
-      IN_PROGRESS: 'bg-amber-100 text-amber-700 border-amber-200',
+      IN_PROGRESS: 'bg-warning-muted text-warning-foreground border-warning/30',
       ON_HOLD: 'bg-purple-100 text-purple-700 border-purple-200',
-      RESOLVED: 'bg-green-100 text-green-700 border-green-200',
+      RESOLVED: 'bg-success-muted text-success-foreground border-success/30',
       CLOSED: 'bg-muted text-foreground border-border',
       REOPENED: 'bg-orange-100 text-orange-700 border-orange-200',
       CANCELLED: 'bg-red-100 text-red-700 border-red-200',
@@ -393,7 +393,7 @@ export default function TicketsPage() {
                 </p>
               </div>
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
-                <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
+                <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-warning" />
               </div>
             </div>
           </div>
@@ -407,7 +407,7 @@ export default function TicketsPage() {
                 </p>
               </div>
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600" />
+                <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-success" />
               </div>
             </div>
           </div>
@@ -549,7 +549,7 @@ export default function TicketsPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleUpdateStatus(ticket.id, 'IN_PROGRESS')}
-                          className="hover:bg-amber-50 hover:text-amber-600"
+                          className="hover:bg-warning-muted hover:text-warning"
                           title="Start Progress"
                         >
                           <Clock className="h-4 w-4" />
@@ -560,7 +560,7 @@ export default function TicketsPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleUpdateStatus(ticket.id, 'RESOLVED')}
-                          className="hover:bg-green-50 hover:text-green-600"
+                          className="hover:bg-success-muted hover:text-success"
                           title="Mark Resolved"
                         >
                           <CheckCircle className="h-4 w-4" />
@@ -889,7 +889,7 @@ export default function TicketsPage() {
                       <Button
                         onClick={() => handleUpdateStatus(selectedTicket.id, 'IN_PROGRESS')}
                         size="sm"
-                        className="bg-amber-600 text-white hover:bg-amber-700"
+                        className="bg-warning text-white hover:bg-warning"
                       >
                         <Clock className="h-4 w-4 mr-2" />
                         Start Progress
@@ -899,7 +899,7 @@ export default function TicketsPage() {
                       <Button
                         onClick={() => handleUpdateStatus(selectedTicket.id, 'RESOLVED')}
                         size="sm"
-                        className="bg-green-600 text-white hover:bg-green-700"
+                        className="bg-success text-white hover:bg-success"
                       >
                         <CheckCircle className="h-4 w-4 mr-2" />
                         Mark Resolved

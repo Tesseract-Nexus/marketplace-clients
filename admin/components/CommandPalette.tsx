@@ -637,7 +637,7 @@ function renderResultItem(
 
   const typeColors: Record<string, string> = {
     product: 'text-primary bg-primary/10',
-    customer: 'text-green-600 bg-green-50',
+    customer: 'text-success bg-success-muted',
     order: 'text-orange-600 bg-orange-50',
     category: 'text-purple-600 bg-purple-50',
     page: 'text-muted-foreground bg-muted',

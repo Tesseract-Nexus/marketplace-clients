@@ -102,7 +102,7 @@ export default function AbandonedCartsPage() {
     const classes: Record<string, string> = {
       PENDING: 'bg-yellow-100 text-yellow-700 border-yellow-200',
       REMINDED: 'bg-primary/20 text-primary border-primary/30',
-      RECOVERED: 'bg-green-100 text-green-700 border-green-200',
+      RECOVERED: 'bg-success-muted text-success-foreground border-success/30',
       EXPIRED: 'bg-muted text-foreground border-border',
     };
     return classes[status] || classes.PENDING;
@@ -266,7 +266,7 @@ export default function AbandonedCartsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Recovered</p>
               <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-green-600" />
+                <TrendingUp className="h-6 w-6 text-success" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
@@ -594,16 +594,16 @@ export default function AbandonedCartsPage() {
 
                 {/* Recovery Info */}
                 {selectedCart.status === 'RECOVERED' && selectedCart.recoveredValue && (
-                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="bg-success-muted border border-success/30 rounded-lg p-4">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-semibold text-green-900">Cart Recovered!</p>
-                        <p className="text-xs text-green-700">
+                        <p className="text-xs text-success-foreground">
                           Recovered on{' '}
                           {new Date(selectedCart.recoveredAt || '').toLocaleString()}
                         </p>
                         {selectedCart.recoverySource && (
-                          <p className="text-xs text-green-700">
+                          <p className="text-xs text-success-foreground">
                             Source: {selectedCart.recoverySource}
                           </p>
                         )}
@@ -612,7 +612,7 @@ export default function AbandonedCartsPage() {
                         <p className="text-2xl font-bold text-green-900">
                           {formatCurrency(selectedCart.recoveredValue)}
                         </p>
-                        <p className="text-xs text-green-700">Revenue recovered</p>
+                        <p className="text-xs text-success-foreground">Revenue recovered</p>
                       </div>
                     </div>
                   </div>

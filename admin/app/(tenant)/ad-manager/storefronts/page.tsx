@@ -58,7 +58,7 @@ function StorefrontCard({ storefront }: { storefront: StorefrontWithPlacements }
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Badge variant="secondary" className="bg-green-100 text-green-700">
+            <Badge variant="secondary" className="bg-success-muted text-success-foreground">
               <CheckCircle className="w-3 h-3 mr-1" />
               Active
             </Badge>

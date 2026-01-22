@@ -28,8 +28,8 @@ import type { AdSubmission } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
 
 const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ElementType; className: string; label: string }> = {
-  PENDING: { variant: 'outline', icon: Clock, className: 'bg-amber-50 text-amber-700 border-amber-200', label: 'Pending Review' },
-  APPROVED: { variant: 'default', icon: CheckCircle, className: 'bg-green-100 text-green-700', label: 'Approved' },
+  PENDING: { variant: 'outline', icon: Clock, className: 'bg-warning-muted text-warning-foreground border-warning/30', label: 'Pending Review' },
+  APPROVED: { variant: 'default', icon: CheckCircle, className: 'bg-success-muted text-success-foreground', label: 'Approved' },
   REJECTED: { variant: 'destructive', icon: XCircle, className: 'bg-red-100 text-red-700', label: 'Rejected' },
   REVISION_REQUESTED: { variant: 'secondary', icon: MessageSquare, className: 'bg-blue-100 text-blue-700', label: 'Revision Requested' },
 };
@@ -57,14 +57,14 @@ function SubmissionCard({ submission }: { submission: AdSubmission }) {
             <div className="flex items-start gap-4">
               <div className={cn(
                 'h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0',
-                submission.status === 'PENDING' ? 'bg-amber-100' :
-                submission.status === 'APPROVED' ? 'bg-green-100' :
+                submission.status === 'PENDING' ? 'bg-warning-muted' :
+                submission.status === 'APPROVED' ? 'bg-success-muted' :
                 submission.status === 'REJECTED' ? 'bg-red-100' : 'bg-blue-100'
               )}>
                 <StatusIcon className={cn(
                   'h-6 w-6',
-                  submission.status === 'PENDING' ? 'text-amber-600' :
-                  submission.status === 'APPROVED' ? 'text-green-600' :
+                  submission.status === 'PENDING' ? 'text-warning' :
+                  submission.status === 'APPROVED' ? 'text-success' :
                   submission.status === 'REJECTED' ? 'text-red-600' : 'text-blue-600'
                 )} />
               </div>
@@ -123,9 +123,9 @@ function SubmissionCard({ submission }: { submission: AdSubmission }) {
             )}
 
             {submission.status === 'APPROVED' && submission.conditions && (
-              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-sm font-medium mb-1 text-green-700">Approval conditions:</p>
-                <p className="text-sm text-green-600">{submission.conditions}</p>
+              <div className="bg-success-muted border border-success/30 rounded-lg p-4">
+                <p className="text-sm font-medium mb-1 text-success-foreground">Approval conditions:</p>
+                <p className="text-sm text-success">{submission.conditions}</p>
               </div>
             )}
 
@@ -248,8 +248,8 @@ export default function OutgoingApprovalsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
             <Card>
               <CardContent className="p-4 flex items-center gap-4">
-                <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
-                  <Clock className="h-5 w-5 text-amber-600" />
+                <div className="h-10 w-10 rounded-full bg-warning-muted flex items-center justify-center">
+                  <Clock className="h-5 w-5 text-warning" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{pendingCount}</p>
@@ -259,8 +259,8 @@ export default function OutgoingApprovalsPage() {
             </Card>
             <Card>
               <CardContent className="p-4 flex items-center gap-4">
-                <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
+                <div className="h-10 w-10 rounded-full bg-success-muted flex items-center justify-center">
+                  <CheckCircle className="h-5 w-5 text-success" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{approvedCount}</p>

@@ -799,7 +799,7 @@ export default function AuditLogsPage() {
                     <div className={cn(
                       'flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium',
                       isConnected
-                        ? 'bg-success-muted text-success-muted-foreground border border-green-200'
+                        ? 'bg-success-muted text-success-muted-foreground border border-success/30'
                         : 'bg-muted text-muted-foreground border border-border'
                     )}>
                       <div className={cn(

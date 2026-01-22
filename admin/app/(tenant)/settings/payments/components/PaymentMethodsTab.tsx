@@ -165,7 +165,7 @@ export function PaymentMethodsTab() {
                           </span>
                         )}
                         {gateway.isTestMode && (
-                          <span className="text-xs px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">
+                          <span className="text-xs px-2 py-0.5 bg-warning-muted text-warning-foreground rounded-full">
                             Test
                           </span>
                         )}

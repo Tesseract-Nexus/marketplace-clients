@@ -607,7 +607,7 @@ export default function TaxSettingsPage() {
                       {countryConfig?.flag} {storeSettings.country}
                     </p>
                   ) : (
-                    <p className="text-sm text-amber-600 flex items-center gap-1">
+                    <p className="text-sm text-warning flex items-center gap-1">
                       <AlertCircle className="h-4 w-4" />
                       No country configured
                     </p>
@@ -651,7 +651,7 @@ export default function TaxSettingsPage() {
 
         {/* No Country Configured Banner */}
         {!storeSettings.loading && !storeSettings.country && (
-          <div className="bg-amber-50 rounded-xl border-2 border-amber-200 p-6">
+          <div className="bg-warning-muted rounded-xl border-2 border-warning/30 p-6">
             <div className="flex items-start gap-4">
               <div className="p-3 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 text-white">
                 <MapPin className="h-6 w-6" />
@@ -688,7 +688,7 @@ export default function TaxSettingsPage() {
                   <Button
                     onClick={handleSaveCountry}
                     disabled={!selectedCountry || isSavingCountry}
-                    className="bg-amber-500 hover:bg-amber-600"
+                    className="bg-warning hover:bg-warning"
                   >
                     {isSavingCountry ? (
                       <>
@@ -705,17 +705,17 @@ export default function TaxSettingsPage() {
                 </div>
 
                 {selectedCountry && (
-                  <div className="mt-3 text-sm text-amber-700">
+                  <div className="mt-3 text-sm text-warning-foreground">
                     <Info className="h-4 w-4 inline mr-1" />
                     Currency will be set to <strong>{countryCurrencyMap[selectedCountry] || 'USD'}</strong> and
                     timezone to <strong>{countryTimezoneMap[selectedCountry] || 'UTC'}</strong>
                   </div>
                 )}
 
-                <div className="mt-4 pt-4 border-t border-amber-200">
+                <div className="mt-4 pt-4 border-t border-warning/30">
                   <p className="text-xs text-muted-foreground">
                     Or configure full address in{' '}
-                    <Link href="/settings/general" className="text-amber-600 hover:text-amber-700 underline">
+                    <Link href="/settings/general" className="text-warning hover:text-warning-foreground underline">
                       General Settings
                     </Link>
                   </p>
@@ -1025,7 +1025,7 @@ export default function TaxSettingsPage() {
 
         {/* Quick Setup Card - Australia GST */}
         {isAustraliaStore && needsSetup && !setupSuccess && !storeSettings.loading && (
-          <div className="bg-gradient-to-r from-green-50 to-yellow-50 rounded-xl border-2 border-green-200 shadow-sm overflow-hidden">
+          <div className="bg-gradient-to-r from-green-50 to-yellow-50 rounded-xl border-2 border-success/30 shadow-sm overflow-hidden">
             <div className="p-6">
               <div className="flex items-start gap-4 mb-6">
                 <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-yellow-500 text-white">
@@ -1051,7 +1051,7 @@ export default function TaxSettingsPage() {
               </div>
 
               {isSettingUp && (
-                <div className="mt-6 p-4 bg-card rounded-lg border border-green-200">
+                <div className="mt-6 p-4 bg-card rounded-lg border border-success/30">
                   <div className="flex items-center gap-3 mb-2">
                     <Loader2 className="h-5 w-5 animate-spin text-success" />
                     <span className="text-sm font-medium text-foreground">{setupStep}</span>

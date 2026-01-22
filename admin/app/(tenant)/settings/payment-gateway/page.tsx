@@ -180,11 +180,11 @@ export default function PaymentGatewayPage() {
         />
 
         {/* Warning Banner */}
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+        <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-semibold text-amber-900">Test Mode Enabled</p>
-            <p className="text-sm text-amber-700 mt-1">
+            <p className="text-sm text-warning-foreground mt-1">
               Currently displaying mock data. Connect to payment service microservice for live configuration.
             </p>
           </div>
@@ -220,7 +220,7 @@ export default function PaymentGatewayPage() {
                         </span>
                       )}
                       {gateway.isTestMode && (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-warning-muted text-warning-foreground border border-warning/30">
                           Test Mode
                         </span>
                       )}

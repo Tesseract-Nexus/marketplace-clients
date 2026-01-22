@@ -261,7 +261,7 @@ export default function CampaignsPage() {
       case 'SENDING':
         return 'bg-purple-100 text-purple-700 border-purple-200';
       case 'SENT':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-success-muted text-success-foreground border-success/30';
       case 'COMPLETED':
         return 'bg-emerald-100 text-emerald-700 border-emerald-200';
       case 'PAUSED':
@@ -299,9 +299,9 @@ export default function CampaignsPage() {
       case 'PROMOTION':
         return { icon: Megaphone, color: 'from-orange-500 to-red-500', bg: 'from-orange-100 to-red-100', text: 'text-orange-600' };
       case 'ABANDONED_CART':
-        return { icon: ShoppingCart, color: 'from-amber-500 to-orange-500', bg: 'from-amber-100 to-orange-100', text: 'text-amber-600' };
+        return { icon: ShoppingCart, color: 'from-amber-500 to-orange-500', bg: 'from-amber-100 to-orange-100', text: 'text-warning' };
       case 'WELCOME':
-        return { icon: UserPlus, color: 'from-green-500 to-emerald-500', bg: 'from-green-100 to-emerald-100', text: 'text-green-600' };
+        return { icon: UserPlus, color: 'from-green-500 to-emerald-500', bg: 'from-green-100 to-emerald-100', text: 'text-success' };
       case 'WINBACK':
         return { icon: Heart, color: 'from-pink-500 to-rose-500', bg: 'from-pink-100 to-rose-100', text: 'text-pink-600' };
       case 'PRODUCT_LAUNCH':
@@ -318,7 +318,7 @@ export default function CampaignsPage() {
       case 'EMAIL':
         return { icon: Mail, color: 'text-primary', bg: 'bg-primary/20' };
       case 'SMS':
-        return { icon: MessageSquare, color: 'text-green-600', bg: 'bg-green-100' };
+        return { icon: MessageSquare, color: 'text-success', bg: 'bg-success-muted' };
       case 'MULTI':
         return { icon: Layers, color: 'text-purple-600', bg: 'bg-purple-100' };
       default:
@@ -597,7 +597,7 @@ export default function CampaignsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Total Sent</p>
               <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                <Send className="h-6 w-6 text-green-600" />
+                <Send className="h-6 w-6 text-success" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
@@ -621,7 +621,7 @@ export default function CampaignsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
               <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-amber-600" />
+                <TrendingUp className="h-6 w-6 text-warning" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
@@ -797,7 +797,7 @@ export default function CampaignsPage() {
                         <div className="space-y-1">
                           <span className={cn(
                             "font-semibold",
-                            openRate > 30 ? "text-green-600" : openRate > 15 ? "text-amber-600" : "text-foreground"
+                            openRate > 30 ? "text-success" : openRate > 15 ? "text-warning" : "text-foreground"
                           )}>
                             {calculateOpenRate(campaign)}
                           </span>
@@ -806,7 +806,7 @@ export default function CampaignsPage() {
                               <div
                                 className={cn(
                                   "h-full rounded-full transition-all",
-                                  openRate > 30 ? "bg-green-500" : openRate > 15 ? "bg-amber-500" : "bg-gray-400"
+                                  openRate > 30 ? "bg-success" : openRate > 15 ? "bg-warning" : "bg-gray-400"
                                 )}
                                 style={{ width: `${Math.min(openRate, 100)}%` }}
                               />
@@ -818,7 +818,7 @@ export default function CampaignsPage() {
                         <div className="space-y-1">
                           <span className={cn(
                             "font-semibold",
-                            clickRate > 10 ? "text-green-600" : clickRate > 5 ? "text-amber-600" : "text-foreground"
+                            clickRate > 10 ? "text-success" : clickRate > 5 ? "text-warning" : "text-foreground"
                           )}>
                             {calculateClickRate(campaign)}
                           </span>
@@ -827,7 +827,7 @@ export default function CampaignsPage() {
                               <div
                                 className={cn(
                                   "h-full rounded-full transition-all",
-                                  clickRate > 10 ? "bg-green-500" : clickRate > 5 ? "bg-amber-500" : "bg-gray-400"
+                                  clickRate > 10 ? "bg-success" : clickRate > 5 ? "bg-warning" : "bg-gray-400"
                                 )}
                                 style={{ width: `${Math.min(clickRate * 3, 100)}%` }}
                               />
@@ -838,7 +838,7 @@ export default function CampaignsPage() {
                       <td className="px-6 py-4 text-right">
                         <span className={cn(
                           "font-bold",
-                          campaign.revenue > 0 ? "text-green-600" : "text-muted-foreground"
+                          campaign.revenue > 0 ? "text-success" : "text-muted-foreground"
                         )}>
                           {formatCurrency(campaign.revenue)}
                         </span>
@@ -873,14 +873,14 @@ export default function CampaignsPage() {
                               size="sm"
                               onClick={() => handleSendCampaign(campaign.id)}
                               disabled={sending === campaign.id}
-                              className="h-8 w-8 p-0 rounded-lg hover:bg-green-50 transition-colors"
+                              className="h-8 w-8 p-0 rounded-lg hover:bg-success-muted transition-colors"
                               title="Send campaign"
                               aria-label="Send campaign"
                             >
                               {sending === campaign.id ? (
-                                <Loader2 className="w-4 h-4 text-green-600 animate-spin" />
+                                <Loader2 className="w-4 h-4 text-success animate-spin" />
                               ) : (
-                                <Send className="w-4 h-4 text-green-600" aria-hidden="true" />
+                                <Send className="w-4 h-4 text-success" aria-hidden="true" />
                               )}
                             </Button>
                           )}
@@ -907,14 +907,14 @@ export default function CampaignsPage() {
                               size="sm"
                               onClick={() => handleResumeCampaign(campaign.id)}
                               disabled={pausingResuming === campaign.id}
-                              className="h-8 w-8 p-0 rounded-lg hover:bg-green-50 transition-colors"
+                              className="h-8 w-8 p-0 rounded-lg hover:bg-success-muted transition-colors"
                               title="Resume campaign"
                               aria-label="Resume campaign"
                             >
                               {pausingResuming === campaign.id ? (
-                                <Loader2 className="w-4 h-4 text-green-600 animate-spin" />
+                                <Loader2 className="w-4 h-4 text-success animate-spin" />
                               ) : (
-                                <Play className="w-4 h-4 text-green-600" aria-hidden="true" />
+                                <Play className="w-4 h-4 text-success" aria-hidden="true" />
                               )}
                             </Button>
                           )}
@@ -1196,11 +1196,11 @@ export default function CampaignsPage() {
                       </p>
                       <p className="text-xs text-primary mt-1">Delivered</p>
                     </div>
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4 text-center">
-                      <p className="text-2xl font-bold text-green-700">
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-success/30 rounded-lg p-4 text-center">
+                      <p className="text-2xl font-bold text-success-foreground">
                         {formatNumber(selectedCampaign.opened)}
                       </p>
-                      <p className="text-xs text-green-600 mt-1">
+                      <p className="text-xs text-success mt-1">
                         Opened ({calculateOpenRate(selectedCampaign)})
                       </p>
                     </div>
@@ -1212,11 +1212,11 @@ export default function CampaignsPage() {
                         Clicked ({calculateClickRate(selectedCampaign)})
                       </p>
                     </div>
-                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 rounded-lg p-4 text-center">
-                      <p className="text-2xl font-bold text-amber-700">
+                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-warning/30 rounded-lg p-4 text-center">
+                      <p className="text-2xl font-bold text-warning-foreground">
                         {formatNumber(selectedCampaign.converted)}
                       </p>
-                      <p className="text-xs text-amber-600 mt-1">
+                      <p className="text-xs text-warning mt-1">
                         Converted ({calculateConversionRate(selectedCampaign)})
                       </p>
                     </div>

@@ -409,7 +409,7 @@ export default function CustomerDetailPage() {
 
   const getStatusBadge = (status: CustomerStatus) => {
     const styles = {
-      ACTIVE: 'bg-green-100 text-green-700 border-green-200',
+      ACTIVE: 'bg-success-muted text-success-foreground border-success/30',
       INACTIVE: 'bg-muted text-foreground border-border',
       BLOCKED: 'bg-red-100 text-red-700 border-red-200',
     };
@@ -420,7 +420,7 @@ export default function CustomerDetailPage() {
     const styles = {
       RETAIL: 'bg-primary/20 text-primary border-primary/30',
       WHOLESALE: 'bg-purple-100 text-purple-700 border-purple-200',
-      VIP: 'bg-amber-100 text-amber-700 border-amber-200',
+      VIP: 'bg-warning-muted text-warning-foreground border-warning/30',
     };
     return styles[type] || styles.RETAIL;
   };
@@ -431,7 +431,7 @@ export default function CustomerDetailPage() {
       CONFIRMED: 'bg-indigo-100 text-indigo-700',
       PROCESSING: 'bg-yellow-100 text-yellow-700',
       SHIPPED: 'bg-purple-100 text-purple-700',
-      DELIVERED: 'bg-green-100 text-green-700',
+      DELIVERED: 'bg-success-muted text-success-foreground',
       COMPLETED: 'bg-emerald-100 text-emerald-700',
       CANCELLED: 'bg-red-100 text-red-700',
     };
@@ -572,8 +572,8 @@ export default function CustomerDetailPage() {
                 <p className="text-sm text-muted-foreground font-medium">Total Spent</p>
                 <p className="text-3xl font-bold text-foreground mt-2">${customer.totalSpent.toFixed(2)}</p>
               </div>
-              <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-green-600" />
+              <div className="w-12 h-12 bg-success-muted rounded-lg flex items-center justify-center">
+                <DollarSign className="h-6 w-6 text-success" />
               </div>
             </div>
           </div>
@@ -744,7 +744,7 @@ export default function CustomerDetailPage() {
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
                           {customer.marketingOptIn ? (
-                            <Check className="h-4 w-4 text-green-600" />
+                            <Check className="h-4 w-4 text-success" />
                           ) : (
                             <X className="h-4 w-4 text-muted-foreground" />
                           )}

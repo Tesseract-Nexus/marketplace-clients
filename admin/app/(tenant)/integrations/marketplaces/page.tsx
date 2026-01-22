@@ -228,8 +228,8 @@ export default function MarketplaceConnectorsPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                <Clock className="w-5 h-5 text-amber-600" />
+              <div className="w-10 h-10 rounded-lg bg-warning-muted dark:bg-amber-900/30 flex items-center justify-center">
+                <Clock className="w-5 h-5 text-warning" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{comingSoonCount}</p>
@@ -291,7 +291,7 @@ export default function MarketplaceConnectorsPage() {
                   variant="outline"
                   className={connector.status === "available"
                     ? "text-emerald-600 border-emerald-200 bg-emerald-50 dark:bg-emerald-900/20"
-                    : "text-amber-600 border-amber-200 bg-amber-50 dark:bg-amber-900/20"
+                    : "text-warning border-warning/30 bg-warning-muted dark:bg-amber-900/20"
                   }
                 >
                   {connector.status === "available" ? "Available" : "Coming Soon"}

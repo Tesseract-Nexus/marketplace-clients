@@ -442,7 +442,7 @@ export function GatewayConfigTab() {
                       </span>
                     )}
                     {gateway.isTestMode && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-warning-muted text-warning-foreground border border-warning/30">
                         Test Mode
                       </span>
                     )}

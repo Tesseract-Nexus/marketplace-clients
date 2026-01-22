@@ -930,7 +930,7 @@ export default function CategoriesPage() {
                       { value: 'ALL', label: 'All Status', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
                       { value: 'DRAFT', label: 'Draft', icon: <FileEdit className="w-4 h-4 text-muted-foreground" /> },
                       { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-yellow-500" /> },
-                      { value: 'APPROVED', label: 'Approved', icon: <CheckCircle2 className="w-4 h-4 text-green-500" /> },
+                      { value: 'APPROVED', label: 'Approved', icon: <CheckCircle2 className="w-4 h-4 text-success" /> },
                       { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-red-500" /> },
                     ]}
                     variant="filter"
@@ -943,7 +943,7 @@ export default function CategoriesPage() {
                     onChange={(value) => setActiveFilter(value as any)}
                     options={[
                       { value: 'ALL', label: 'All States', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                      { value: 'ACTIVE', label: 'Active Only', icon: <Circle className="w-4 h-4 text-green-500 fill-green-500" /> },
+                      { value: 'ACTIVE', label: 'Active Only', icon: <Circle className="w-4 h-4 text-success fill-green-500" /> },
                       { value: 'INACTIVE', label: 'Inactive Only', icon: <CircleOff className="w-4 h-4 text-red-500" /> },
                     ]}
                     variant="filter"
@@ -1337,7 +1337,7 @@ export default function CategoriesPage() {
                       options={[
                         { value: 'DRAFT', label: 'Draft', icon: <FileEdit className="w-4 h-4 text-muted-foreground" /> },
                         { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-yellow-500" /> },
-                        { value: 'APPROVED', label: 'Approved', icon: <CheckCircle2 className="w-4 h-4 text-green-500" /> },
+                        { value: 'APPROVED', label: 'Approved', icon: <CheckCircle2 className="w-4 h-4 text-success" /> },
                         { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-red-500" /> },
                       ]}
                       leftIcon={<CheckCircle className="w-5 h-5 text-muted-foreground" />}

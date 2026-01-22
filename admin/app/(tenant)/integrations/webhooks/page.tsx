@@ -166,7 +166,7 @@ const getDeliveryStatusBadge = (status: string) => {
       );
     case "pending":
       return (
-        <Badge className="bg-amber-100 text-amber-700 border-amber-200">
+        <Badge className="bg-warning-muted text-warning-foreground border-warning/30">
           <Clock className="w-3 h-3 mr-1" />
           Pending
         </Badge>

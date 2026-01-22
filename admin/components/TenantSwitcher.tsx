@@ -95,7 +95,7 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
       case 'platform_admin':
         return 'bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 border-indigo-200';
       case 'manager':
-        return 'bg-green-100 text-green-700 border-green-200';
+        return 'bg-success-muted text-success-foreground border-success/30';
       case 'staff':
       case 'member':
         return 'bg-muted text-foreground border-border';
@@ -368,7 +368,7 @@ function TenantItem({ tenant, isSelected, onSelect, onSetDefault, isSettingDefau
             {tenant.name}
           </span>
           {tenant.isDefault && (
-            <span className="text-[10px] bg-amber-100 text-amber-700 border border-amber-200 px-1.5 py-0.5 rounded font-semibold flex-shrink-0">
+            <span className="text-[10px] bg-warning-muted text-warning-foreground border border-warning/30 px-1.5 py-0.5 rounded font-semibold flex-shrink-0">
               DEFAULT
             </span>
           )}
@@ -396,7 +396,7 @@ function TenantItem({ tenant, isSelected, onSelect, onSetDefault, isSettingDefau
             disabled={isSettingDefault}
             className={cn(
               'p-1.5 rounded-md transition-all duration-150',
-              'text-muted-foreground hover:text-amber-600 hover:bg-amber-50',
+              'text-muted-foreground hover:text-warning hover:bg-warning-muted',
               'opacity-0 group-hover:opacity-100',
               isSettingDefault && 'opacity-100'
             )}
@@ -412,7 +412,7 @@ function TenantItem({ tenant, isSelected, onSelect, onSetDefault, isSettingDefau
 
         {/* Filled star for default tenant */}
         {tenant.isDefault && (
-          <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+          <Star className="w-4 h-4 text-warning fill-amber-500" />
         )}
 
         {/* Check mark for selected */}

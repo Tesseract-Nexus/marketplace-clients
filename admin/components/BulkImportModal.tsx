@@ -318,7 +318,7 @@ export function BulkImportModal({
                 {isDownloading === 'csv' ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <FileText className="w-4 h-4 text-green-600" />
+                  <FileText className="w-4 h-4 text-success" />
                 )}
                 CSV Template
                 <Download className="w-4 h-4 text-muted-foreground" />
@@ -331,7 +331,7 @@ export function BulkImportModal({
                 {isDownloading === 'xlsx' ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
-                  <FileSpreadsheet className="w-4 h-4 text-green-600" />
+                  <FileSpreadsheet className="w-4 h-4 text-success" />
                 )}
                 Excel Template
                 <Download className="w-4 h-4 text-muted-foreground" />
@@ -359,7 +359,7 @@ export function BulkImportModal({
                 isDragging
                   ? "border-primary/70 bg-primary/10"
                   : file
-                    ? "border-green-400 bg-green-50"
+                    ? "border-green-400 bg-success-muted"
                     : "border-border hover:border-primary/70 hover:bg-primary/10/50"
               )}
             >
@@ -373,7 +373,7 @@ export function BulkImportModal({
 
               {file ? (
                 <div className="flex items-center justify-center gap-3">
-                  <FileSpreadsheet className="w-10 h-10 text-green-600" />
+                  <FileSpreadsheet className="w-10 h-10 text-success" />
                   <div className="text-left">
                     <p className="font-semibold text-foreground">{file.name}</p>
                     <p className="text-sm text-muted-foreground">
@@ -420,7 +420,7 @@ export function BulkImportModal({
                     setUpdateExisting(e.target.checked);
                     if (e.target.checked) setSkipDuplicates(false);
                   }}
-                  className="w-4 h-4 rounded border-border text-green-600 focus:ring-green-500"
+                  className="w-4 h-4 rounded border-border text-success focus:ring-green-500"
                 />
                 <div>
                   <span className="text-sm font-medium text-foreground">Update existing items</span>
@@ -471,16 +471,16 @@ export function BulkImportModal({
             <div className={cn(
               "mb-4 p-4 rounded-xl border",
               result.success && result.successCount > 0
-                ? "bg-green-50 border-green-200"
+                ? "bg-success-muted border-success/30"
                 : result.failedCount > 0
-                  ? "bg-amber-50 border-amber-200"
+                  ? "bg-warning-muted border-warning/30"
                   : "bg-red-50 border-red-200"
             )}>
               <div className="flex items-start gap-3">
                 {result.success && result.successCount > 0 ? (
-                  <CheckCircle className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <CheckCircle className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
                 ) : result.failedCount > 0 && result.successCount > 0 ? (
-                  <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+                  <AlertTriangle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
                 ) : (
                   <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                 )}
@@ -496,7 +496,7 @@ export function BulkImportModal({
                     {(result.createdCount !== undefined && result.updatedCount !== undefined) ? (
                       <>
                         <div className="text-center p-2 bg-card rounded-lg">
-                          <p className="text-2xl font-bold text-green-600">{result.createdCount}</p>
+                          <p className="text-2xl font-bold text-success">{result.createdCount}</p>
                           <p className="text-muted-foreground">Created</p>
                         </div>
                         <div className="text-center p-2 bg-card rounded-lg">
@@ -506,7 +506,7 @@ export function BulkImportModal({
                       </>
                     ) : (
                       <div className="text-center p-2 bg-card rounded-lg">
-                        <p className="text-2xl font-bold text-green-600">{result.successCount}</p>
+                        <p className="text-2xl font-bold text-success">{result.successCount}</p>
                         <p className="text-muted-foreground">{wasValidationOnly ? 'Valid' : 'Imported'}</p>
                       </div>
                     )}
@@ -516,7 +516,7 @@ export function BulkImportModal({
                     </div>
                     {result.skippedCount && result.skippedCount > 0 && (
                       <div className="text-center p-2 bg-card rounded-lg">
-                        <p className="text-2xl font-bold text-amber-600">{result.skippedCount}</p>
+                        <p className="text-2xl font-bold text-warning">{result.skippedCount}</p>
                         <p className="text-muted-foreground">Skipped</p>
                       </div>
                     )}
@@ -599,7 +599,7 @@ export function BulkImportModal({
                   fileInputRef.current.value = '';
                 }
               }}
-              className="px-6 py-2.5 bg-card border-2 border-amber-300 text-amber-700 rounded-xl hover:bg-amber-50 transition-all flex items-center gap-2"
+              className="px-6 py-2.5 bg-card border-2 border-warning/40 text-warning-foreground rounded-xl hover:bg-warning-muted transition-all flex items-center gap-2"
             >
               <Upload className="w-4 h-4" />
               Re-upload File

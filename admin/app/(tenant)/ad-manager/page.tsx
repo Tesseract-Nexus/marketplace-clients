@@ -110,7 +110,7 @@ function StatCard({
         </div>
         <p className="text-2xl font-bold mt-2">{value}</p>
         {change !== undefined && (
-          <p className={`text-xs mt-1 ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+          <p className={`text-xs mt-1 ${change >= 0 ? 'text-success' : 'text-red-600'}`}>
             {change >= 0 ? '+' : ''}
             {change}% {changeLabel}
           </p>
@@ -197,8 +197,8 @@ function SubmissionRow({ submission }: { submission: AdSubmission }) {
     <Link href={`/ad-manager/approvals/${submission.id}`}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between py-3 px-4 hover:bg-muted/50 rounded-lg transition-colors cursor-pointer gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="h-10 w-10 rounded-lg bg-amber-100 flex items-center justify-center shrink-0">
-            <Clock className="h-5 w-5 text-amber-600" />
+          <div className="h-10 w-10 rounded-lg bg-warning-muted flex items-center justify-center shrink-0">
+            <Clock className="h-5 w-5 text-warning" />
           </div>
           <div className="min-w-0">
             <p className="font-medium truncate">{submission.vendorName}</p>
@@ -208,7 +208,7 @@ function SubmissionRow({ submission }: { submission: AdSubmission }) {
           </div>
         </div>
         <div className="flex items-center justify-between sm:justify-end gap-3 pl-13 sm:pl-0">
-          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 shrink-0">
+          <Badge variant="outline" className="bg-warning-muted text-warning-foreground border-warning/30 shrink-0">
             Pending Review
           </Badge>
           <p className="text-xs text-muted-foreground whitespace-nowrap">
@@ -444,7 +444,7 @@ export default function AdManagerDashboard() {
                   </div>
                 ) : submissions.length === 0 ? (
                   <div className="text-center py-8">
-                    <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                    <CheckCircle className="h-12 w-12 text-success mx-auto mb-4" />
                     <p className="text-muted-foreground">
                       {isStoreOwner ? 'No pending approvals' : 'No submissions yet'}
                     </p>

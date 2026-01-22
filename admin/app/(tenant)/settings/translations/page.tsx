@@ -441,7 +441,7 @@ export default function TranslationSettingsPage() {
                   <div className="text-sm text-muted-foreground">Characters Translated</div>
                 </div>
                 <div className="bg-muted rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-amber-600">
+                  <div className="text-2xl font-bold text-warning">
                     {settings.enabledLanguages.length}
                   </div>
                   <div className="text-sm text-muted-foreground">Languages Enabled</div>
@@ -615,7 +615,7 @@ export default function TranslationSettingsPage() {
               {/* Asian Languages */}
               <div className="mb-6">
                 <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                  <span className="w-2 h-2 bg-success rounded-full"></span>
                   Asian Languages
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -625,7 +625,7 @@ export default function TranslationSettingsPage() {
                       onClick={() => toggleLanguage(lang.code)}
                       className={`p-3 rounded-lg border-2 transition-all ${
                         settings.enabledLanguages.includes(lang.code)
-                          ? 'border-green-500 bg-green-50'
+                          ? 'border-green-500 bg-success-muted'
                           : 'border-border hover:border-border'
                       }`}
                     >
@@ -646,7 +646,7 @@ export default function TranslationSettingsPage() {
               {/* Middle East Languages */}
               <div>
                 <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
+                  <span className="w-2 h-2 bg-warning rounded-full"></span>
                   Middle East Languages
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -656,7 +656,7 @@ export default function TranslationSettingsPage() {
                       onClick={() => toggleLanguage(lang.code)}
                       className={`p-3 rounded-lg border-2 transition-all ${
                         settings.enabledLanguages.includes(lang.code)
-                          ? 'border-amber-500 bg-amber-50'
+                          ? 'border-amber-500 bg-warning-muted'
                           : 'border-border hover:border-border'
                       }`}
                     >
@@ -666,7 +666,7 @@ export default function TranslationSettingsPage() {
                           <div className="text-xs text-muted-foreground">{lang.nativeName}</div>
                         </div>
                         {settings.enabledLanguages.includes(lang.code) && (
-                          <CheckCircle2 className="h-5 w-5 text-amber-600" />
+                          <CheckCircle2 className="h-5 w-5 text-warning" />
                         )}
                         {lang.rtl && (
                           <span className="text-xs bg-gray-200 px-1.5 py-0.5 rounded ml-1">
@@ -684,7 +684,7 @@ export default function TranslationSettingsPage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
-                  <Zap className="h-6 w-6 text-amber-600" />
+                  <Zap className="h-6 w-6 text-warning" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">Auto-Translation</h3>

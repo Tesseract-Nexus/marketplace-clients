@@ -244,7 +244,7 @@ export default function EditStorefrontPage({ params }: Props) {
                       value={formData.slug}
                       onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
                       className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all ${
-                        slugAvailable === true ? 'border-green-300' :
+                        slugAvailable === true ? 'border-success/40' :
                         slugAvailable === false ? 'border-red-300' : 'border-border'
                       }`}
                       placeholder="my-awesome-store"
@@ -252,7 +252,7 @@ export default function EditStorefrontPage({ params }: Props) {
                     <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                       {checkingSlug && <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />}
                       {!checkingSlug && slugAvailable === true && (
-                        <CheckCircle className="w-5 h-5 text-green-500" />
+                        <CheckCircle className="w-5 h-5 text-success" />
                       )}
                       {!checkingSlug && slugAvailable === false && (
                         <AlertCircle className="w-5 h-5 text-red-500" />

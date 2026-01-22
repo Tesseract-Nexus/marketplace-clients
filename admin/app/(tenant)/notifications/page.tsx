@@ -265,7 +265,7 @@ export default function NotificationsPage() {
         </div>
         <div className="flex items-center gap-2">
           <Badge variant={isConnected ? 'default' : 'secondary'} className="gap-1">
-            <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`} />
+            <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-success' : 'bg-gray-400'}`} />
             {isConnected ? 'Live' : 'Offline'}
           </Badge>
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>

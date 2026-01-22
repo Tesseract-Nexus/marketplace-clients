@@ -26,7 +26,7 @@ export function ActivityFeedWidget({ data }: ActivityFeedWidgetProps) {
     switch (type) {
       case 'order': return <ShoppingCart className="h-4 w-4 text-primary" />;
       case 'customer': return <UserPlus className="h-4 w-4 text-emerald-600" />;
-      case 'review': return <MessageCircle className="h-4 w-4 text-amber-600" />;
+      case 'review': return <MessageCircle className="h-4 w-4 text-warning" />;
       case 'product': return <Package className="h-4 w-4 text-violet-600" />;
       case 'payment': return <CreditCard className="h-4 w-4 text-emerald-600" />;
       default: return <Activity className="h-4 w-4 text-muted-foreground" />;
@@ -37,7 +37,7 @@ export function ActivityFeedWidget({ data }: ActivityFeedWidgetProps) {
     switch (type) {
       case 'order': return 'border-primary/30 bg-primary/10/50';
       case 'customer': return 'border-emerald-200 bg-emerald-50/50';
-      case 'review': return 'border-amber-200 bg-amber-50/50';
+      case 'review': return 'border-warning/30 bg-warning-muted/50';
       case 'product': return 'border-violet-200 bg-violet-50/50';
       case 'payment': return 'border-emerald-200 bg-emerald-50/50';
       default: return 'border-border bg-muted/50';
@@ -92,8 +92,8 @@ export function ActivityFeedWidget({ data }: ActivityFeedWidgetProps) {
                     )}
                     {typeof activity.metadata.rating === 'number' && (
                       <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 text-amber-500 fill-current" />
-                        <span className="text-amber-600">{activity.metadata.rating}/5</span>
+                        <Star className="h-3 w-3 text-warning fill-current" />
+                        <span className="text-warning">{activity.metadata.rating}/5</span>
                       </div>
                     )}
                   </div>

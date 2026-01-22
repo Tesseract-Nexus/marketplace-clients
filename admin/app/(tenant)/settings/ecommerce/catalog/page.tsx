@@ -317,7 +317,7 @@ export default function CatalogSettingsPage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                  <Package className="h-6 w-6 text-green-600" />
+                  <Package className="h-6 w-6 text-success" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">Product Settings</h3>

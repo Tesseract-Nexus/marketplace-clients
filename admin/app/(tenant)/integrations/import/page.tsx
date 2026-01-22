@@ -177,7 +177,7 @@ const getStatusBadge = (status: string) => {
       );
     case "pending":
       return (
-        <Badge className="bg-amber-100 text-amber-700 border-amber-200">
+        <Badge className="bg-warning-muted text-warning-foreground border-warning/30">
           <Clock className="w-3 h-3 mr-1" />
           Pending
         </Badge>
@@ -311,8 +311,8 @@ export default function DataImportPage() {
                   {importHistory.filter((i) => i.status === "processing").length}
                 </p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                <RefreshCw className="w-5 h-5 text-amber-600" />
+              <div className="w-10 h-10 rounded-lg bg-warning-muted dark:bg-amber-900/30 flex items-center justify-center">
+                <RefreshCw className="w-5 h-5 text-warning" />
               </div>
             </div>
           </CardContent>

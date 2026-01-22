@@ -253,7 +253,7 @@ function NavItemEditor({
             disabled={disabled}
             title="Add sub-item"
             className={cn(
-              'p-1.5 rounded-lg hover:bg-green-50 hover:text-green-600 transition-colors text-muted-foreground',
+              'p-1.5 rounded-lg hover:bg-success-muted hover:text-success transition-colors text-muted-foreground',
               disabled && 'opacity-50 cursor-not-allowed'
             )}
           >

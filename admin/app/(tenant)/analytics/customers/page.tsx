@@ -116,7 +116,7 @@ export default function CustomerAnalyticsPage() {
   };
 
   const getRecencyBadgeClass = (days: number) => {
-    if (days <= 30) return 'bg-green-100 text-green-700 border-green-200';
+    if (days <= 30) return 'bg-success-muted text-success-foreground border-success/30';
     if (days <= 90) return 'bg-yellow-100 text-yellow-700 border-yellow-200';
     return 'bg-red-100 text-red-700 border-red-200';
   };
@@ -200,8 +200,8 @@ export default function CustomerAnalyticsPage() {
         />
 
         {error && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center gap-3">
-            <AlertTriangle className="h-5 w-5 text-amber-600" />
+          <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-warning" />
             <p className="text-amber-800">{error instanceof Error ? error.message : 'Failed to load customer analytics'}</p>
           </div>
         )}
@@ -224,7 +224,7 @@ export default function CustomerAnalyticsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">New Customers</p>
               <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <UserPlus className="h-6 w-6 text-green-600" />
+                <UserPlus className="h-6 w-6 text-success" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
@@ -247,11 +247,11 @@ export default function CustomerAnalyticsPage() {
             </p>
           </div>
 
-          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-amber-300/50 hover:-translate-y-1 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-warning/40/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Retention Rate</p>
               <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <TrendingUp className="h-6 w-6 text-amber-600" />
+                <TrendingUp className="h-6 w-6 text-warning" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
@@ -527,7 +527,7 @@ export default function CustomerAnalyticsPage() {
                               <td key={i} className="px-6 py-4 text-right">
                                 <span className={cn(
                                   'inline-flex px-2 py-1 text-xs font-medium rounded',
-                                  rate >= 50 ? 'bg-green-100 text-green-700' :
+                                  rate >= 50 ? 'bg-success-muted text-success-foreground' :
                                   rate >= 25 ? 'bg-yellow-100 text-yellow-700' :
                                   'bg-red-100 text-red-700'
                                 )}>

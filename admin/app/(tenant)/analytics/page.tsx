@@ -188,8 +188,8 @@ export default function AnalyticsOverviewPage() {
         />
 
         {error && (
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center gap-3">
-            <AlertTriangle className="h-5 w-5 text-amber-600" />
+          <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-warning" />
             <p className="text-amber-800">{error instanceof Error ? error.message : 'Failed to load analytics data'}</p>
           </div>
         )}
@@ -261,18 +261,18 @@ export default function AnalyticsOverviewPage() {
           </div>
 
           {/* Products Card */}
-          <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-xl hover:border-amber-300/50 hover:-translate-y-1 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-xl hover:border-warning/40/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <p className="text-xs sm:text-sm font-medium text-muted-foreground">Active Products</p>
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                <Package className="h-5 w-5 sm:h-6 sm:w-6 text-amber-600" />
+                <Package className="h-5 w-5 sm:h-6 sm:w-6 text-warning" />
               </div>
             </div>
             <p className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
               {formatNumber(data?.inventory?.totalProducts || 0)}
             </p>
             {(data?.inventory?.lowStockCount || 0) > 0 && (
-              <p className="text-[10px] sm:text-xs text-amber-600 mt-2 flex items-center gap-1">
+              <p className="text-[10px] sm:text-xs text-warning mt-2 flex items-center gap-1">
                 <AlertTriangle className="h-3 w-3 flex-shrink-0" />
                 <span className="truncate">{data?.inventory?.lowStockCount} low stock</span>
               </p>
@@ -453,13 +453,13 @@ export default function AnalyticsOverviewPage() {
           </Link>
 
           <Link href="/analytics/inventory" className="group sm:col-span-2 lg:col-span-1">
-            <div className="bg-card rounded-xl border border-border p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-md hover:border-amber-200 transition-all">
+            <div className="bg-card rounded-xl border border-border p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-md hover:border-warning/30 transition-all">
               <div className="flex items-center gap-3 sm:gap-4">
                 <div className="w-11 h-11 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
-                  <Package className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-amber-600" />
+                  <Package className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-warning" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-semibold text-sm sm:text-base text-foreground group-hover:text-amber-600 transition-colors">Inventory Analytics</h3>
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground group-hover:text-warning transition-colors">Inventory Analytics</h3>
                   <p className="text-xs sm:text-sm text-muted-foreground truncate">Stock levels and movement</p>
                 </div>
               </div>

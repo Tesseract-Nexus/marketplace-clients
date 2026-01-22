@@ -55,7 +55,7 @@ interface FeaturesResponse {
 // Predefined feature flag categories for organization
 const FLAG_CATEGORIES: Record<string, { label: string; icon: React.ElementType; color: string }> = {
   search: { label: 'Search', icon: Search, color: 'bg-primary/20 text-primary' },
-  ecommerce: { label: 'E-Commerce', icon: Zap, color: 'bg-green-100 text-green-700' },
+  ecommerce: { label: 'E-Commerce', icon: Zap, color: 'bg-success-muted text-success-foreground' },
   payment: { label: 'Payments', icon: Shield, color: 'bg-purple-100 text-purple-700' },
   ui: { label: 'UI/UX', icon: Settings2, color: 'bg-pink-100 text-pink-700' },
   admin: { label: 'Admin', icon: Users, color: 'bg-orange-100 text-orange-700' },
@@ -141,7 +141,7 @@ function FeatureFlagCard({
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-foreground truncate">{flag.key}</h3>
                 {hasRules && (
-                  <span className="px-2 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 rounded-full">
+                  <span className="px-2 py-0.5 text-xs font-medium bg-warning-muted text-warning-foreground rounded-full">
                     Rules
                   </span>
                 )}
@@ -162,7 +162,7 @@ function FeatureFlagCard({
                 disabled={isLoading}
                 className={cn(
                   'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
-                  isEnabled ? 'bg-green-500' : 'bg-gray-300',
+                  isEnabled ? 'bg-success' : 'bg-gray-300',
                   isLoading && 'opacity-50 cursor-not-allowed'
                 )}
               >
@@ -527,8 +527,8 @@ export default function FeatureFlagsPage() {
 
           <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <CheckCircle className="w-5 h-5 text-green-600" />
+              <div className="p-2 bg-success-muted rounded-lg">
+                <CheckCircle className="w-5 h-5 text-success" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-foreground">{enabledFlags}</p>
@@ -566,11 +566,11 @@ export default function FeatureFlagsPage() {
 
         {/* Error Banner */}
         {error && (
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+          <div className="bg-warning-muted border border-warning/30 rounded-xl p-4 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
             <div>
               <p className="font-medium text-amber-800">Notice</p>
-              <p className="text-sm text-amber-700">{error}</p>
+              <p className="text-sm text-warning-foreground">{error}</p>
             </div>
           </div>
         )}
@@ -624,11 +624,11 @@ export default function FeatureFlagsPage() {
 
         {/* Success/Error Banners */}
         {updateSuccess && (
-          <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-3 animate-in slide-in-from-top duration-300">
-            <CheckCircle className="w-5 h-5 text-green-600 shrink-0 mt-0.5" />
+          <div className="bg-success-muted border border-success/30 rounded-xl p-4 flex items-start gap-3 animate-in slide-in-from-top duration-300">
+            <CheckCircle className="w-5 h-5 text-success shrink-0 mt-0.5" />
             <div>
               <p className="font-medium text-green-800">Success</p>
-              <p className="text-sm text-green-700">{updateSuccess}</p>
+              <p className="text-sm text-success-foreground">{updateSuccess}</p>
             </div>
           </div>
         )}

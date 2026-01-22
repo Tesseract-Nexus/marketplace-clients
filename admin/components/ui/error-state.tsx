@@ -31,8 +31,8 @@ const ERROR_CONFIGS: Record<Exclude<ErrorType, 'custom'>, ErrorStateConfig> = {
   },
   permission_denied: {
     icon: Lock,
-    iconBgColor: 'bg-amber-100 dark:bg-amber-900/20',
-    iconColor: 'text-amber-500',
+    iconBgColor: 'bg-warning-muted dark:bg-amber-900/20',
+    iconColor: 'text-warning',
     title: 'Permission Required',
     description: 'You need additional permissions to view this content.',
   },

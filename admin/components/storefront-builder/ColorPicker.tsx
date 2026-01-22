@@ -150,7 +150,7 @@ export function ColorPicker({
             />
             {isValid && value && (
               <div className="absolute right-3 top-1/2 -translate-y-1/2">
-                <Check className="h-4 w-4 text-green-500" />
+                <Check className="h-4 w-4 text-success" />
               </div>
             )}
           </div>
@@ -183,7 +183,7 @@ export function ColorPicker({
 
       {/* Contrast warning */}
       {showWarning && (
-        <div className="flex items-center gap-2 text-xs text-amber-600 bg-amber-50 px-3 py-2 rounded-lg">
+        <div className="flex items-center gap-2 text-xs text-warning bg-warning-muted px-3 py-2 rounded-lg">
           <AlertCircle className="h-4 w-4 flex-shrink-0" />
           <span>Low contrast with background. Text may be hard to read.</span>
         </div>

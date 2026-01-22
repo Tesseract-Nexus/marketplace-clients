@@ -249,8 +249,8 @@ export function PaymentStep({
           <CardDescription>Choose how you want to pay for this campaign</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-amber-600 flex-shrink-0" />
+          <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-warning flex-shrink-0" />
             <p className="text-amber-800">
               Please set a campaign budget in the previous step to see payment options.
             </p>
@@ -297,7 +297,7 @@ export function PaymentStep({
               onClick={() => setPaymentType('DIRECT')}
               recommended
             >
-              <div className="mt-4 flex items-center gap-2 text-sm text-green-600">
+              <div className="mt-4 flex items-center gap-2 text-sm text-success">
                 <Check className="w-4 h-4" />
                 <span>No commission fees</span>
               </div>
