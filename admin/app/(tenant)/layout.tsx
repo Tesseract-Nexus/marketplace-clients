@@ -263,7 +263,7 @@ const navigation: NavItem[] = [
     children: [
       { name: "General", href: "/settings/general" },
       { name: "Storefront", href: "/settings/storefront-theme" },
-      { name: "Admin Branding", href: "/settings/admin-branding" },
+      // { name: "Admin Branding", href: "/settings/admin-branding" },
       { name: "Domains", href: "/settings/domains" },
       { name: "Shipping", href: "/settings/shipping-carriers" },
       { name: "Payments", href: "/settings/payments" },
@@ -645,13 +645,13 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             </div>
           </div>
 
-          {/* Branding Footer - commented out for now */}
-          {/* <div className="px-4 py-3 border-t border-sidebar-border/50">
+          {/* Branding Footer */}
+          <div className="px-4 py-3 border-t border-sidebar-border/50">
             <div className="text-center">
               <p className="text-xs text-sidebar-text-muted">Powered by Tesserix</p>
               <p className="text-[10px] text-sidebar-text-muted/60">v1.0.0</p>
             </div>
-          </div> */}
+          </div>
         </div>
       </aside>
     </>
