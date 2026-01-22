@@ -89,21 +89,28 @@ export default function TestimonialSettingsPage() {
   }, [currentTenant?.id, currentTenant?.name]);
 
   // Pre-fill form from user and tenant context (only if no existing testimonial)
+  // Note: jobTitle is not available from auth system, so role field is left for manual entry
   useEffect(() => {
     if (!testimonial) {
       setFormData(prev => ({
         ...prev,
         name: user?.displayName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || prev.name,
-        role: user?.jobTitle || prev.role,
         company: currentTenant?.name || prev.company,
       }));
     }
-  }, [currentTenant?.name, user?.displayName, user?.firstName, user?.lastName, user?.jobTitle, testimonial]);
+  }, [currentTenant?.name, user?.displayName, user?.firstName, user?.lastName, testimonial]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccessMessage(null);
+
+    // Validate tenant ID is available
+    if (!currentTenant?.id) {
+      setError('Unable to submit: Tenant information not loaded. Please refresh the page.');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -112,9 +119,9 @@ export default function TestimonialSettingsPage() {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'x-jwt-claim-tenant-id': currentTenant?.id || '',
-          'x-tenant-name': currentTenant?.name || '',
-          'x-tenant-company': currentTenant?.name || '',
+          'x-jwt-claim-tenant-id': currentTenant.id,
+          'x-tenant-name': currentTenant.name || '',
+          'x-tenant-company': currentTenant.name || '',
         },
         body: JSON.stringify(formData),
       });
@@ -350,7 +357,7 @@ export default function TestimonialSettingsPage() {
               </div>
 
               <div className="flex items-center gap-3 pt-4">
-                <Button type="submit" disabled={isSubmitting} className="gap-2">
+                <Button type="submit" disabled={isSubmitting || !currentTenant?.id} className="gap-2">
                   {isSubmitting ? (
                     <>
                       <RefreshCw className="h-4 w-4 animate-spin" />
