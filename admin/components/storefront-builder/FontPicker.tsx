@@ -77,7 +77,7 @@ export function FontPicker({ label, value, onChange, description }: FontPickerPr
         className={cn(
           'w-full flex items-center justify-between px-4 py-3 rounded-lg border transition-all text-left',
           isOpen
-            ? 'border-purple-500 ring-2 ring-purple-500/20'
+            ? 'border-primary ring-2 ring-purple-500/20'
             : 'border-border hover:border-border'
         )}
       >
@@ -111,7 +111,7 @@ export function FontPicker({ label, value, onChange, description }: FontPickerPr
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search fonts..."
-                  className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  className="w-full pl-9 pr-4 py-2 text-sm rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                 />
               </div>
               <div className="flex gap-1 flex-wrap">
@@ -123,7 +123,7 @@ export function FontPicker({ label, value, onChange, description }: FontPickerPr
                     className={cn(
                       'px-3 py-1 text-xs rounded-full transition-colors',
                       category === cat.id
-                        ? 'bg-purple-600 text-white'
+                        ? 'bg-primary text-white'
                         : 'bg-muted text-muted-foreground hover:bg-muted'
                     )}
                   >
@@ -149,7 +149,7 @@ export function FontPicker({ label, value, onChange, description }: FontPickerPr
                     }}
                     className={cn(
                       'w-full flex items-center justify-between px-4 py-3 text-left transition-colors',
-                      value === font.name ? 'bg-purple-50' : 'hover:bg-muted'
+                      value === font.name ? 'bg-primary/10' : 'hover:bg-muted'
                     )}
                   >
                     <div>
@@ -161,7 +161,7 @@ export function FontPicker({ label, value, onChange, description }: FontPickerPr
                       </span>
                       <span className="text-xs text-muted-foreground ml-2 capitalize">{font.category}</span>
                     </div>
-                    {value === font.name && <Check className="h-5 w-5 text-purple-600" />}
+                    {value === font.name && <Check className="h-5 w-5 text-primary" />}
                   </button>
                 ))
               )}

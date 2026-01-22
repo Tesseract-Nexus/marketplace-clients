@@ -404,7 +404,7 @@ export default function ShippingSettingsPage() {
         {selectedStorefront ? (
           loading ? (
             <div className="bg-card rounded-xl border border-border p-12 text-center">
-              <Loader2 className="h-8 w-8 text-purple-500 animate-spin mx-auto mb-4" />
+              <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
               <p className="text-muted-foreground">Loading settings...</p>
             </div>
           ) : (
@@ -457,7 +457,7 @@ export default function ShippingSettingsPage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                  <Truck className="h-6 w-6 text-purple-600" />
+                  <Truck className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">Free Shipping</h3>
@@ -482,7 +482,7 @@ export default function ShippingSettingsPage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-red-100 rounded-lg flex items-center justify-center">
-                  <Truck className="h-6 w-6 text-orange-600" />
+                  <Truck className="h-6 w-6 text-warning" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">Tracking</h3>
@@ -508,7 +508,7 @@ export default function ShippingSettingsPage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-lg flex items-center justify-center">
-                  <Building className="h-6 w-6 text-indigo-600" />
+                  <Building className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">Warehouse / Ship From Address</h3>
@@ -633,8 +633,8 @@ export default function ShippingSettingsPage() {
                   <div className="border border-border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
-                          <Truck className="h-5 w-5 text-red-600" />
+                        <div className="w-10 h-10 bg-destructive/10 rounded-lg flex items-center justify-center">
+                          <Truck className="h-5 w-5 text-destructive" />
                         </div>
                         <div>
                           <h4 className="font-semibold text-foreground">Delhivery</h4>
@@ -678,7 +678,7 @@ export default function ShippingSettingsPage() {
                         <Button
                           onClick={() => saveCarrierCredentials('DELHIVERY')}
                           disabled={!delhiveryToken || savingCarrier === 'DELHIVERY'}
-                          className="bg-red-600 hover:bg-red-700 text-white"
+                          className="bg-destructive hover:bg-destructive text-white"
                         >
                           {savingCarrier === 'DELHIVERY' ? (
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -709,8 +709,8 @@ export default function ShippingSettingsPage() {
                   <div className="border border-border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                          <Truck className="h-5 w-5 text-purple-600" />
+                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <Truck className="h-5 w-5 text-primary" />
                         </div>
                         <div>
                           <h4 className="font-semibold text-foreground">Shiprocket</h4>
@@ -755,7 +755,7 @@ export default function ShippingSettingsPage() {
                         <Button
                           onClick={() => saveCarrierCredentials('SHIPROCKET')}
                           disabled={!shiprocketEmail || !shiprocketPassword || savingCarrier === 'SHIPROCKET'}
-                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                          className="bg-primary hover:bg-primary text-white"
                         >
                           {savingCarrier === 'SHIPROCKET' ? (
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -843,7 +843,7 @@ export default function ShippingSettingsPage() {
           )
         ) : (
           <div className="bg-card rounded-xl border border-border p-12 text-center">
-            <Truck className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <Truck className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-foreground mb-2">
               Create Your First Storefront
             </h3>

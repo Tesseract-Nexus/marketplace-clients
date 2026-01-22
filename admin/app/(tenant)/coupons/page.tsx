@@ -180,11 +180,11 @@ export default function CouponsPage() {
     if (days === null) return null;
 
     if (days < 0) {
-      return { text: 'Expired', color: 'text-red-600 bg-red-50', urgent: true };
+      return { text: 'Expired', color: 'text-destructive bg-destructive/10', urgent: true };
     } else if (days === 0) {
-      return { text: 'Expires today!', color: 'text-red-600 bg-red-50', urgent: true };
+      return { text: 'Expires today!', color: 'text-destructive bg-destructive/10', urgent: true };
     } else if (days === 1) {
-      return { text: 'Expires tomorrow', color: 'text-orange-600 bg-orange-50', urgent: true };
+      return { text: 'Expires tomorrow', color: 'text-warning bg-warning-muted', urgent: true };
     } else if (days <= 7) {
       return { text: `${days} days left`, color: 'text-warning bg-warning-muted', urgent: true };
     } else if (days <= 30) {
@@ -199,8 +199,8 @@ export default function CouponsPage() {
   };
 
   const getUsageColor = (percentage: number): string => {
-    if (percentage >= 90) return 'bg-red-500';
-    if (percentage >= 75) return 'bg-orange-500';
+    if (percentage >= 90) return 'bg-destructive/100';
+    if (percentage >= 75) return 'bg-warning';
     if (percentage >= 50) return 'bg-warning';
     return 'bg-emerald-500';
   };
@@ -286,14 +286,14 @@ export default function CouponsPage() {
 
         {/* Error Alert */}
         {error && (
-          <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex items-start gap-3">
-            <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="bg-destructive/10 border-2 border-destructive/30 rounded-xl p-4 flex items-start gap-3">
+            <XCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-semibold text-red-900">Error</h3>
-              <p className="text-red-700 text-sm mt-1">{error}</p>
+              <h3 className="font-semibold text-destructive">Error</h3>
+              <p className="text-destructive text-sm mt-1">{error}</p>
             </div>
-            <Button onClick={() => setError(null)} variant="ghost" className="p-1 rounded-lg hover:bg-red-100" aria-label="Dismiss error message">
-              <X className="w-4 h-4 text-red-600" aria-hidden="true" />
+            <Button onClick={() => setError(null)} variant="ghost" className="p-1 rounded-lg hover:bg-destructive/10" aria-label="Dismiss error message">
+              <X className="w-4 h-4 text-destructive" aria-hidden="true" />
             </Button>
           </div>
         )}
@@ -394,7 +394,7 @@ export default function CouponsPage() {
                         setSearchQuery('');
                       }}
                       variant="outline"
-                      className="px-5 py-2.5 border-2 border-border rounded-xl text-sm font-semibold text-foreground hover:bg-muted hover:border-gray-400 transition-all self-end"
+                      className="px-5 py-2.5 border-2 border-border rounded-xl text-sm font-semibold text-foreground hover:bg-muted hover:border-border transition-all self-end"
                     >
                       Clear All
                     </Button>
@@ -440,8 +440,8 @@ export default function CouponsPage() {
                           "w-8 h-8 rounded-lg flex items-center justify-center shrink-0",
                           coupon.discountType === 'PERCENTAGE' && "bg-primary/20 text-primary",
                           coupon.discountType === 'FIXED_AMOUNT' && "bg-success-muted text-success",
-                          coupon.discountType === 'FREE_SHIPPING' && "bg-purple-100 text-purple-600",
-                          coupon.discountType === 'BUY_X_GET_Y' && "bg-pink-100 text-pink-600"
+                          coupon.discountType === 'FREE_SHIPPING' && "bg-primary/10 text-primary",
+                          coupon.discountType === 'BUY_X_GET_Y' && "bg-primary/10 text-primary"
                         )}>
                           {getDiscountIcon(coupon.discountType)}
                         </div>
@@ -466,8 +466,8 @@ export default function CouponsPage() {
                         "text-lg font-bold shrink-0",
                         coupon.discountType === 'PERCENTAGE' && "text-primary",
                         coupon.discountType === 'FIXED_AMOUNT' && "text-success",
-                        coupon.discountType === 'FREE_SHIPPING' && "text-purple-600",
-                        coupon.discountType === 'BUY_X_GET_Y' && "text-pink-600"
+                        coupon.discountType === 'FREE_SHIPPING' && "text-primary",
+                        coupon.discountType === 'BUY_X_GET_Y' && "text-primary"
                       )}>
                         {coupon.discountType === 'PERCENTAGE' ? `${coupon.discountValue}%` :
                          coupon.discountType === 'FIXED_AMOUNT' ? `$${coupon.discountValue}` :
@@ -539,7 +539,7 @@ export default function CouponsPage() {
                           "h-7 w-7 p-0 rounded-md transition-colors",
                           copiedCode === coupon.code
                             ? "bg-success-muted text-success"
-                            : "bg-muted hover:bg-violet-50 text-muted-foreground hover:text-violet-600"
+                            : "bg-muted hover:bg-primary/10 text-muted-foreground hover:text-primary"
                         )}
                         variant="ghost"
                         title="Copy coupon code"
@@ -552,7 +552,7 @@ export default function CouponsPage() {
                       </Button>
                       <Button
                         onClick={() => handleDeleteCoupon(coupon.id)}
-                        className="h-7 w-7 p-0 rounded-md bg-muted hover:bg-red-50 text-muted-foreground hover:text-red-600 transition-colors"
+                        className="h-7 w-7 p-0 rounded-md bg-muted hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
                         variant="ghost"
                         title="Delete coupon"
                       >

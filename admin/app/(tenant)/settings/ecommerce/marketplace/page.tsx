@@ -108,7 +108,7 @@ export default function MarketplaceSettingsPage() {
               <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                    <Store className="h-6 w-6 text-purple-600" />
+                    <Store className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-foreground">Commission Structure</h3>
@@ -149,7 +149,7 @@ export default function MarketplaceSettingsPage() {
               <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-red-100 rounded-lg flex items-center justify-center">
-                    <Store className="h-6 w-6 text-orange-600" />
+                    <Store className="h-6 w-6 text-warning" />
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-foreground">Vendor Fees</h3>

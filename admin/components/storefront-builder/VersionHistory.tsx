@@ -129,8 +129,8 @@ export function VersionHistory({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <History className="h-5 w-5 text-purple-600" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+              <History className="h-5 w-5 text-primary" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-foreground">Version History</h2>
@@ -154,13 +154,13 @@ export function VersionHistory({
             </div>
           ) : error ? (
             <div className="flex flex-col items-center justify-center py-12 px-6">
-              <div className="p-3 bg-red-100 rounded-full mb-3">
-                <AlertCircle className="h-6 w-6 text-red-500" />
+              <div className="p-3 bg-destructive/10 rounded-full mb-3">
+                <AlertCircle className="h-6 w-6 text-destructive" />
               </div>
-              <p className="text-sm text-red-600 text-center">{error}</p>
+              <p className="text-sm text-destructive text-center">{error}</p>
               <button
                 onClick={fetchHistory}
-                className="mt-4 text-sm text-purple-600 hover:text-purple-700 font-medium"
+                className="mt-4 text-sm text-primary hover:text-primary font-medium"
               >
                 Try again
               </button>
@@ -209,7 +209,7 @@ export function VersionHistory({
                       {/* Preview button */}
                       <button
                         onClick={() => setPreviewVersion(entry)}
-                        className="p-2 text-muted-foreground hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                        className="p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
                         title="Preview this version"
                       >
                         <Eye className="h-4 w-4" />
@@ -261,7 +261,7 @@ export function VersionHistory({
                   {/* Confirm restore message */}
                   {confirmRestore === entry.version && (
                     <div className="mt-3 p-3 bg-warning-muted rounded-lg border border-warning/30">
-                      <p className="text-xs text-amber-800">
+                      <p className="text-xs text-warning">
                         <strong>Restore this version?</strong> This will replace your current
                         settings. A backup of your current settings will be saved to history.
                       </p>
@@ -323,7 +323,7 @@ function VersionPreviewModal({
             {!isCurrentVersion && (
               <button
                 onClick={onRestore}
-                className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg transition-colors flex items-center gap-2"
+                className="px-4 py-2 text-sm font-medium text-white bg-primary hover:bg-primary rounded-lg transition-colors flex items-center gap-2"
               >
                 <RotateCcw className="h-4 w-4" />
                 Restore this version

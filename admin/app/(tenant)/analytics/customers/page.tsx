@@ -117,8 +117,8 @@ export default function CustomerAnalyticsPage() {
 
   const getRecencyBadgeClass = (days: number) => {
     if (days <= 30) return 'bg-success-muted text-success-foreground border-success/30';
-    if (days <= 90) return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-    return 'bg-red-100 text-red-700 border-red-200';
+    if (days <= 90) return 'bg-warning-muted text-warning border-warning/30';
+    return 'bg-destructive/10 text-destructive border-destructive/30';
   };
 
   const getRecencyLabel = (days: number) => {
@@ -143,7 +143,7 @@ export default function CustomerAnalyticsPage() {
     return (
       <div className="min-h-screen bg-background p-8">
         <div className="flex items-center justify-center h-64">
-          <RefreshCw className="h-8 w-8 animate-spin text-indigo-600" />
+          <RefreshCw className="h-8 w-8 animate-spin text-primary" />
         </div>
       </div>
     );
@@ -176,7 +176,7 @@ export default function CustomerAnalyticsPage() {
                 variant="filter"
                 className="min-w-[140px] border-0 shadow-none hover:bg-muted rounded-lg"
               />
-              <div className="w-px h-6 bg-gray-200" />
+              <div className="w-px h-6 bg-muted" />
               <Button
                 variant="ghost"
                 size="sm"
@@ -202,7 +202,7 @@ export default function CustomerAnalyticsPage() {
         {error && (
           <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-center gap-3">
             <AlertTriangle className="h-5 w-5 text-warning" />
-            <p className="text-amber-800">{error instanceof Error ? error.message : 'Failed to load customer analytics'}</p>
+            <p className="text-warning">{error instanceof Error ? error.message : 'Failed to load customer analytics'}</p>
           </div>
         )}
 
@@ -235,11 +235,11 @@ export default function CustomerAnalyticsPage() {
             </p>
           </div>
 
-          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-purple-300/50 hover:-translate-y-1 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-primary/30/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Avg Lifetime Value</p>
               <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <DollarSign className="h-6 w-6 text-purple-600" />
+                <DollarSign className="h-6 w-6 text-primary" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -266,7 +266,7 @@ export default function CustomerAnalyticsPage() {
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Customer Growth Chart */}
-          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-indigo-300/50 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
             <h3 className="text-lg font-semibold text-foreground mb-6">Customer Growth</h3>
             <SafeChartContainer height={256} minHeight={200}>
               <AreaChart data={growthChartData}>
@@ -295,7 +295,7 @@ export default function CustomerAnalyticsPage() {
           </div>
 
           {/* Customer Segments */}
-          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-purple-300/50 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
             <h3 className="text-lg font-semibold text-foreground mb-6">Customer Segments</h3>
             <SafeChartContainer height={256} minHeight={200}>
               <BarChart data={segmentChartData} layout="vertical">
@@ -316,7 +316,7 @@ export default function CustomerAnalyticsPage() {
         </div>
 
         {/* Tabs */}
-        <div className="bg-card rounded-xl border border-border/60 shadow-sm hover:shadow-xl hover:border-indigo-300/50 transition-all duration-300">
+        <div className="bg-card rounded-xl border border-border/60 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
           <div className="border-b border-border">
             <nav className="flex overflow-x-auto">
               {[
@@ -331,7 +331,7 @@ export default function CustomerAnalyticsPage() {
                   className={cn(
                     'flex-1 py-4 px-6 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap',
                     activeTab === tab.id
-                      ? 'border-indigo-600 text-indigo-600'
+                      ? 'border-primary text-primary'
                       : 'border-transparent text-muted-foreground hover:text-foreground'
                   )}
                 >
@@ -422,7 +422,7 @@ export default function CustomerAnalyticsPage() {
                           {formatNumber(segment.customerCount)} customers
                         </span>
                       </div>
-                      <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+                      <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
                         <div
                           className="bg-gradient-to-r from-blue-600 to-violet-600 h-full"
                           style={{ width: `${segment.percentage}%` }}
@@ -528,8 +528,8 @@ export default function CustomerAnalyticsPage() {
                                 <span className={cn(
                                   'inline-flex px-2 py-1 text-xs font-medium rounded',
                                   rate >= 50 ? 'bg-success-muted text-success-foreground' :
-                                  rate >= 25 ? 'bg-yellow-100 text-yellow-700' :
-                                  'bg-red-100 text-red-700'
+                                  rate >= 25 ? 'bg-warning-muted text-warning' :
+                                  'bg-destructive/10 text-destructive'
                                 )}>
                                   {rate.toFixed(1)}%
                                 </span>

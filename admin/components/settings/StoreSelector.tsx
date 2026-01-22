@@ -132,7 +132,7 @@ export function StoreSelector({
       <div className={`bg-card rounded-xl border border-border p-6 shadow-sm ${className}`}>
         <div className="flex items-center gap-3 mb-4">
           <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-blue-100 rounded-lg flex items-center justify-center">
-            <Store className="h-6 w-6 text-purple-600" />
+            <Store className="h-6 w-6 text-primary" />
           </div>
           <div>
             <h3 className="text-xl font-bold text-foreground">Store Details</h3>
@@ -144,12 +144,12 @@ export function StoreSelector({
           {/* Store Selector Dropdown */}
           <div className="flex-1 relative">
             <label className="block text-sm font-semibold text-foreground mb-2">
-              Select Store <span className="text-red-500">*</span>
+              Select Store <span className="text-destructive">*</span>
             </label>
             <button
               onClick={() => setIsOpen(!isOpen)}
               disabled={loading}
-              className="w-full flex items-center justify-between px-4 py-3 bg-card border border-border rounded-lg hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:opacity-50"
+              className="w-full flex items-center justify-between px-4 py-3 bg-card border border-border rounded-lg hover:border-primary/60 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all disabled:opacity-50"
             >
               {loading ? (
                 <div className="flex items-center gap-2 text-muted-foreground">
@@ -212,7 +212,7 @@ export function StoreSelector({
                   <div className="max-h-64 overflow-y-auto">
                     {/* Favorites count indicator */}
                     {favorites.length > 0 && (
-                      <div className="px-4 py-2 bg-warning-muted border-b border-amber-100 flex items-center gap-2">
+                      <div className="px-4 py-2 bg-warning-muted border-b border-warning/20 flex items-center gap-2">
                         <Star className="h-3.5 w-3.5 text-warning fill-amber-500" />
                         <span className="text-xs font-medium text-warning-foreground">
                           {favorites.length} of {maxFavorites} favorites
@@ -221,7 +221,7 @@ export function StoreSelector({
                     )}
                     {filteredStorefronts.length === 0 ? (
                       <div className="px-4 py-8 text-center text-muted-foreground">
-                        <Store className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                        <Store className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
                         <p className="text-sm">No stores found</p>
                       </div>
                     ) : (
@@ -243,9 +243,9 @@ export function StoreSelector({
                                 setIsOpen(false);
                                 setSearchQuery('');
                               }}
-                              className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-purple-50 transition-colors ${
+                              className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-primary/10 transition-colors ${
                                 sf.id === selectedStorefront?.id
-                                  ? 'bg-purple-50 border-l-4 border-l-purple-500'
+                                  ? 'bg-primary/10 border-l-4 border-l-purple-500'
                                   : 'border-l-4 border-l-transparent'
                               } ${isStarred ? 'bg-warning-muted/50' : ''}`}
                             >
@@ -257,8 +257,8 @@ export function StoreSelector({
                                   isStarred
                                     ? 'text-warning hover:bg-warning-muted'
                                     : canAddMore
-                                    ? 'text-gray-300 hover:text-amber-400 hover:bg-warning-muted'
-                                    : 'text-gray-200 cursor-not-allowed'
+                                    ? 'text-muted-foreground hover:text-warning hover:bg-warning-muted'
+                                    : 'text-muted cursor-not-allowed'
                                 }`}
                                 title={
                                   isStarred
@@ -277,7 +277,7 @@ export function StoreSelector({
                               <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold ${
                                 sf.id === selectedStorefront?.id
                                   ? 'bg-primary'
-                                  : 'bg-gray-400'
+                                  : 'bg-border'
                               }`}>
                                 {sf.name.charAt(0).toUpperCase()}
                               </div>
@@ -293,7 +293,7 @@ export function StoreSelector({
                                 <p className="text-xs text-muted-foreground truncate">{getStorefrontUrl(sf)}</p>
                               </div>
                               {sf.id === selectedStorefront?.id && (
-                                <CheckCircle2 className="h-5 w-5 text-purple-500 flex-shrink-0" />
+                                <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
                               )}
                             </button>
                           </React.Fragment>
@@ -326,7 +326,7 @@ export function StoreSelector({
                 href={getStorefrontUrl(selectedStorefront)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-primary bg-primary/10 hover:bg-primary/10 rounded-lg transition-colors"
               >
                 <ExternalLink className="h-4 w-4" />
                 Visit Store
@@ -336,7 +336,7 @@ export function StoreSelector({
                   onClick={handleCreateNew}
                   variant="outline"
                   size="sm"
-                  className="border-purple-200 text-purple-700 hover:bg-purple-50"
+                  className="border-primary/30 text-primary hover:bg-primary/10"
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   New Store
@@ -348,15 +348,15 @@ export function StoreSelector({
 
         {/* Store URL Info */}
         {showUrlInfo && selectedStorefront && (
-          <div className="mt-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-purple-100">
+          <div className="mt-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-primary/20">
             <div className="flex items-center gap-2 text-sm">
-              <Globe className="h-4 w-4 text-purple-500" />
+              <Globe className="h-4 w-4 text-primary" />
               <span className="text-muted-foreground">Your store is live at:</span>
               <a
                 href={getStorefrontUrl(selectedStorefront)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-mono text-purple-600 hover:text-purple-700 hover:underline"
+                className="font-mono text-primary hover:text-primary hover:underline"
               >
                 {getStorefrontUrl(selectedStorefront)}
               </a>
@@ -495,7 +495,7 @@ function CreateStorefrontModal({
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-foreground mb-2">
-                Store Name <span className="text-red-500">*</span>
+                Store Name <span className="text-destructive">*</span>
               </label>
               <Input
                 value={name}
@@ -515,7 +515,7 @@ function CreateStorefrontModal({
                 <p className="text-xs font-medium text-muted-foreground mb-1">
                   Your storefront URL will be:
                 </p>
-                <p className="text-sm font-mono text-purple-600 break-all">
+                <p className="text-sm font-mono text-primary break-all">
                   {storefrontUrl}
                 </p>
               </div>
@@ -523,7 +523,7 @@ function CreateStorefrontModal({
 
             {/* Error */}
             {error && (
-              <div className="bg-red-50 text-red-700 text-sm px-3 py-2 rounded-lg border border-red-200">
+              <div className="bg-destructive/10 text-destructive text-sm px-3 py-2 rounded-lg border border-destructive/30">
                 {error}
               </div>
             )}

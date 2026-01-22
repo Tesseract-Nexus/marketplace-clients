@@ -153,10 +153,10 @@ export function AlertDialogLegacy({
 
   const iconConfig = {
     success: { Icon: CheckCircle, color: 'text-success', bgColor: 'bg-success-muted' },
-    error: { Icon: XCircle, color: 'text-red-600', bgColor: 'bg-red-100' },
-    warning: { Icon: AlertTriangle, color: 'text-yellow-600', bgColor: 'bg-yellow-100' },
+    error: { Icon: XCircle, color: 'text-destructive', bgColor: 'bg-destructive/10' },
+    warning: { Icon: AlertTriangle, color: 'text-warning', bgColor: 'bg-warning-muted' },
     info: { Icon: Info, color: 'text-primary', bgColor: 'bg-primary/20' },
-    confirm: { Icon: AlertTriangle, color: 'text-orange-600', bgColor: 'bg-orange-100' },
+    confirm: { Icon: AlertTriangle, color: 'text-warning', bgColor: 'bg-warning-muted' },
   };
 
   const { Icon, color, bgColor } = iconConfig[type];

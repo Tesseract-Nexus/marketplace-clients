@@ -30,27 +30,27 @@ const notificationIcons: Record<string, React.ElementType> = {
 const notificationColors: Record<string, { bg: string; icon: string; border: string }> = {
   'order.created': { bg: 'bg-emerald-50', icon: 'text-emerald-600', border: 'border-l-emerald-500' },
   'order.status_changed': { bg: 'bg-primary/10', icon: 'text-primary', border: 'border-l-blue-500' },
-  'order.cancelled': { bg: 'bg-red-50', icon: 'text-red-600', border: 'border-l-red-500' },
-  'order.shipped': { bg: 'bg-indigo-50', icon: 'text-indigo-600', border: 'border-l-indigo-500' },
+  'order.cancelled': { bg: 'bg-destructive/10', icon: 'text-destructive', border: 'border-l-red-500' },
+  'order.shipped': { bg: 'bg-primary/10', icon: 'text-primary', border: 'border-l-indigo-500' },
   'order.delivered': { bg: 'bg-success-muted', icon: 'text-success', border: 'border-l-green-500' },
   'payment.captured': { bg: 'bg-emerald-50', icon: 'text-emerald-600', border: 'border-l-emerald-500' },
-  'payment.failed': { bg: 'bg-red-50', icon: 'text-red-600', border: 'border-l-red-500' },
+  'payment.failed': { bg: 'bg-destructive/10', icon: 'text-destructive', border: 'border-l-red-500' },
   'payment.refunded': { bg: 'bg-warning-muted', icon: 'text-warning', border: 'border-l-amber-500' },
-  'inventory.low_stock': { bg: 'bg-orange-50', icon: 'text-orange-600', border: 'border-l-orange-500' },
-  'inventory.out_of_stock': { bg: 'bg-red-50', icon: 'text-red-600', border: 'border-l-red-500' },
-  'customer.registered': { bg: 'bg-purple-50', icon: 'text-purple-600', border: 'border-l-purple-500' },
+  'inventory.low_stock': { bg: 'bg-warning-muted', icon: 'text-warning', border: 'border-l-orange-500' },
+  'inventory.out_of_stock': { bg: 'bg-destructive/10', icon: 'text-destructive', border: 'border-l-red-500' },
+  'customer.registered': { bg: 'bg-primary/10', icon: 'text-primary', border: 'border-l-purple-500' },
   'return.requested': { bg: 'bg-warning-muted', icon: 'text-warning', border: 'border-l-amber-500' },
   'return.approved': { bg: 'bg-success-muted', icon: 'text-success', border: 'border-l-green-500' },
-  'return.rejected': { bg: 'bg-red-50', icon: 'text-red-600', border: 'border-l-red-500' },
-  'review.submitted': { bg: 'bg-yellow-50', icon: 'text-yellow-600', border: 'border-l-yellow-500' },
+  'return.rejected': { bg: 'bg-destructive/10', icon: 'text-destructive', border: 'border-l-red-500' },
+  'review.submitted': { bg: 'bg-warning-muted', icon: 'text-warning', border: 'border-l-yellow-500' },
   'review.approved': { bg: 'bg-success-muted', icon: 'text-success', border: 'border-l-green-500' },
 };
 
 const priorityColors: Record<string, string> = {
   low: 'bg-muted text-muted-foreground',
   normal: 'bg-primary/20 text-primary',
-  high: 'bg-orange-100 text-orange-600',
-  urgent: 'bg-red-100 text-red-600',
+  high: 'bg-warning-muted text-warning',
+  urgent: 'bg-destructive/10 text-destructive',
 };
 
 // Generate navigation URL based on notification type and entity
@@ -231,7 +231,7 @@ function NotificationItem({
           <span className="text-xs text-muted-foreground font-medium">
             {formatTimeAgo(notification.createdAt)}
           </span>
-          <span className="w-1 h-1 bg-gray-300 rounded-full" />
+          <span className="w-1 h-1 bg-border rounded-full" />
           <span className={cn(
             "text-xs px-1.5 py-0.5 rounded font-medium capitalize",
             colors.bg,
@@ -241,7 +241,7 @@ function NotificationItem({
           </span>
           {orderNumber && (
             <>
-              <span className="w-1 h-1 bg-gray-300 rounded-full" />
+              <span className="w-1 h-1 bg-border rounded-full" />
               <span className="text-xs text-muted-foreground font-mono">
                 #{orderNumber}
               </span>
@@ -269,14 +269,14 @@ function NotificationItem({
         <Button
           variant="ghost"
           size="sm"
-          className="h-7 w-7 p-0 hover:bg-red-100 rounded-full"
+          className="h-7 w-7 p-0 hover:bg-destructive/10 rounded-full"
           onClick={(e) => {
             e.stopPropagation();
             onDelete(notification.id);
           }}
           title="Delete"
         >
-          <Trash2 className="w-3.5 h-3.5 text-red-600" />
+          <Trash2 className="w-3.5 h-3.5 text-destructive" />
         </Button>
       </div>
     </div>
@@ -345,7 +345,7 @@ export function NotificationBell() {
             <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center px-1 text-[10px] font-bold text-white bg-gradient-to-br from-red-500 to-pink-500 rounded-full shadow-lg shadow-red-500/30">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
-            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full animate-ping opacity-75" />
+            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-destructive/100 rounded-full animate-ping opacity-75" />
           </>
         )}
 
@@ -353,7 +353,7 @@ export function NotificationBell() {
         <span
           className={cn(
             "absolute bottom-0.5 right-0.5 w-2 h-2 rounded-full border border-white",
-            isConnected ? "bg-emerald-500" : "bg-gray-400"
+            isConnected ? "bg-emerald-500" : "bg-border"
           )}
           title={isConnected ? "Real-time updates active" : "Connecting..."}
         />
@@ -389,7 +389,7 @@ export function NotificationBell() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 px-2 text-xs text-red-600 hover:bg-red-50"
+                  className="h-8 px-2 text-xs text-destructive hover:bg-destructive/10"
                   onClick={deleteAllNotifications}
                   title="Clear all notifications"
                 >

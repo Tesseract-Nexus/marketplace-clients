@@ -326,7 +326,7 @@ export function AddressAutocomplete({
           <div className="flex items-start gap-2">
             <Check className="h-4 w-4 text-success mt-0.5 flex-shrink-0" />
             <div className="text-sm">
-              <div className="font-medium text-green-800">Address Selected</div>
+              <div className="font-medium text-success">Address Selected</div>
               <div className="text-success-foreground">{selectedAddress.formattedAddress}</div>
             </div>
           </div>

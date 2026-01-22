@@ -356,12 +356,12 @@ export const ACCOUNT_STATUS_LABELS: Record<StaffAccountStatus, string> = {
 };
 
 export const ACCOUNT_STATUS_COLORS: Record<StaffAccountStatus, string> = {
-  pending_activation: 'bg-yellow-100 text-yellow-800',
-  pending_password: 'bg-orange-100 text-orange-800',
-  active: 'bg-green-100 text-green-800',
-  suspended: 'bg-red-100 text-red-800',
-  locked: 'bg-red-100 text-red-800',
-  deactivated: 'bg-gray-100 text-gray-800',
+  pending_activation: 'bg-warning-muted text-warning',
+  pending_password: 'bg-warning-muted text-warning',
+  active: 'bg-success-muted text-success',
+  suspended: 'bg-destructive/10 text-destructive',
+  locked: 'bg-destructive/10 text-destructive',
+  deactivated: 'bg-muted text-foreground',
 };
 
 export const INVITATION_STATUS_LABELS: Record<InvitationStatus, string> = {
@@ -374,12 +374,12 @@ export const INVITATION_STATUS_LABELS: Record<InvitationStatus, string> = {
 };
 
 export const INVITATION_STATUS_COLORS: Record<InvitationStatus, string> = {
-  pending: 'bg-gray-100 text-gray-800',
-  sent: 'bg-blue-100 text-blue-800',
-  opened: 'bg-purple-100 text-purple-800',
-  accepted: 'bg-green-100 text-green-800',
-  expired: 'bg-orange-100 text-orange-800',
-  revoked: 'bg-red-100 text-red-800',
+  pending: 'bg-muted text-foreground',
+  sent: 'bg-accent text-primary',
+  opened: 'bg-primary/10 text-primary',
+  accepted: 'bg-success-muted text-success',
+  expired: 'bg-warning-muted text-warning',
+  revoked: 'bg-destructive/10 text-destructive',
 };
 
 export function getDeviceIcon(deviceType?: string): string {

@@ -260,7 +260,7 @@ export default function UsersHubPage() {
 
   const getRoleBadgeClass = (role: string) => {
     const classes: Record<string, string> = {
-      'Super Administrator': 'bg-purple-100 text-purple-700 border-purple-200',
+      'Super Administrator': 'bg-primary/10 text-primary border-primary/30',
       Administrator: 'bg-primary/20 text-primary border-primary/30',
       Manager: 'bg-success-muted text-success-foreground border-success/30',
       Staff: 'bg-muted text-foreground border-border',
@@ -364,7 +364,7 @@ export default function UsersHubPage() {
                 </p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-rose-100 rounded-lg flex items-center justify-center">
-                <XCircle className="h-6 w-6 text-red-600" />
+                <XCircle className="h-6 w-6 text-destructive" />
               </div>
             </div>
           </div>
@@ -378,7 +378,7 @@ export default function UsersHubPage() {
                 </p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                <Shield className="h-6 w-6 text-purple-600" />
+                <Shield className="h-6 w-6 text-primary" />
               </div>
             </div>
           </div>
@@ -446,12 +446,12 @@ export default function UsersHubPage() {
                               <img
                                 src={user.photo}
                                 alt={user.displayName}
-                                className="h-10 w-10 rounded-full object-cover border-2 border-blue-100"
+                                className="h-10 w-10 rounded-full object-cover border-2 border-primary/20"
                               />
                             ) : (
                               <div
                                 className={cn(
-                                  'h-10 w-10 rounded-full bg-gradient-to-br flex items-center justify-center border-2 border-blue-100',
+                                  'h-10 w-10 rounded-full bg-gradient-to-br flex items-center justify-center border-2 border-primary/20',
                                   getInitialsGradient(user.displayName)
                                 )}
                               >
@@ -512,8 +512,8 @@ export default function UsersHubPage() {
                             className={cn(
                               'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border cursor-pointer transition-colors',
                               user.accountEnabled
-                                ? 'bg-success-muted text-success-foreground border-success/30 hover:bg-green-200'
-                                : 'bg-red-100 text-red-700 border-red-200 hover:bg-red-200'
+                                ? 'bg-success-muted text-success-foreground border-success/30 hover:bg-success/20'
+                                : 'bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive/20'
                             )}
                           >
                             {user.accountEnabled ? (
@@ -539,11 +539,11 @@ export default function UsersHubPage() {
                                 setFormData({ ...user });
                                 setShowEditModal(true);
                               }}
-                              className="h-8 w-8 p-0 rounded-lg hover:bg-violet-50 transition-colors"
+                              className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                               title="Edit"
                               aria-label="Edit user"
                             >
-                              <Edit className="w-4 h-4 text-violet-600" aria-hidden="true" />
+                              <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                             </Button>
                             <Button
                               variant="ghost"
@@ -552,11 +552,11 @@ export default function UsersHubPage() {
                                 setSelectedUser(user);
                                 setShowDeleteModal(true);
                               }}
-                              className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                              className="h-8 w-8 p-0 rounded-lg hover:bg-destructive/10 transition-colors"
                               title="Delete"
                               aria-label="Delete user"
                             >
-                              <Trash2 className="w-4 h-4 text-red-600" aria-hidden="true" />
+                              <Trash2 className="w-4 h-4 text-destructive" aria-hidden="true" />
                             </Button>
                           </div>
                         </td>

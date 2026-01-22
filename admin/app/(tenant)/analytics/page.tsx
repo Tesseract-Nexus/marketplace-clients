@@ -139,7 +139,7 @@ export default function AnalyticsOverviewPage() {
     return (
       <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
         <div className="flex items-center justify-center h-64">
-          <RefreshCw className="h-8 w-8 animate-spin text-indigo-600" />
+          <RefreshCw className="h-8 w-8 animate-spin text-primary" />
         </div>
       </div>
     );
@@ -172,7 +172,7 @@ export default function AnalyticsOverviewPage() {
                 variant="filter"
                 className="min-w-[140px] border-0 shadow-none hover:bg-muted rounded-lg"
               />
-              <div className="w-px h-6 bg-gray-200" />
+              <div className="w-px h-6 bg-muted" />
               <Button
                 variant="ghost"
                 size="sm"
@@ -190,7 +190,7 @@ export default function AnalyticsOverviewPage() {
         {error && (
           <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-center gap-3">
             <AlertTriangle className="h-5 w-5 text-warning" />
-            <p className="text-amber-800">{error instanceof Error ? error.message : 'Failed to load analytics data'}</p>
+            <p className="text-warning">{error instanceof Error ? error.message : 'Failed to load analytics data'}</p>
           </div>
         )}
 
@@ -211,9 +211,9 @@ export default function AnalyticsOverviewPage() {
               {(data?.sales?.revenueChange || 0) >= 0 ? (
                 <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 flex-shrink-0" />
               ) : (
-                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 flex-shrink-0" />
+                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
               )}
-              <span className={`text-xs sm:text-sm font-medium ${(data?.sales?.revenueChange || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+              <span className={`text-xs sm:text-sm font-medium ${(data?.sales?.revenueChange || 0) >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
                 {formatPercent(data?.sales?.revenueChange || 0)}
               </span>
               <span className="text-[10px] sm:text-xs text-muted-foreground hidden sm:inline">vs previous period</span>
@@ -235,9 +235,9 @@ export default function AnalyticsOverviewPage() {
               {(data?.sales?.ordersChange || 0) >= 0 ? (
                 <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 flex-shrink-0" />
               ) : (
-                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 flex-shrink-0" />
+                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
               )}
-              <span className={`text-xs sm:text-sm font-medium ${(data?.sales?.ordersChange || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+              <span className={`text-xs sm:text-sm font-medium ${(data?.sales?.ordersChange || 0) >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
                 {formatPercent(data?.sales?.ordersChange || 0)}
               </span>
               <span className="text-[10px] sm:text-xs text-muted-foreground hidden sm:inline">vs previous period</span>
@@ -245,11 +245,11 @@ export default function AnalyticsOverviewPage() {
           </div>
 
           {/* Customers Card */}
-          <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-xl hover:border-purple-300/50 hover:-translate-y-1 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-xl hover:border-primary/30/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Customers</p>
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
+                <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
             </div>
             <p className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -283,14 +283,14 @@ export default function AnalyticsOverviewPage() {
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Revenue Trend Chart */}
-          <div className="bg-card rounded-xl border border-border/60 p-4 sm:p-6 shadow-sm hover:shadow-xl hover:border-indigo-300/50 transition-all duration-300">
+          <div className="bg-card rounded-xl border border-border/60 p-4 sm:p-6 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
             <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div className="min-w-0 flex-1">
                 <h3 className="text-base sm:text-lg font-semibold text-foreground">Revenue Trend</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">Daily revenue over the selected period</p>
               </div>
               <Link href="/analytics/sales" className="flex-shrink-0 ml-2">
-                <Button variant="ghost" size="sm" className="text-indigo-600 text-xs sm:text-sm px-2 sm:px-3">
+                <Button variant="ghost" size="sm" className="text-primary text-xs sm:text-sm px-2 sm:px-3">
                   <span className="hidden sm:inline">View Details</span>
                   <span className="sm:hidden">Details</span>
                   <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />
@@ -358,14 +358,14 @@ export default function AnalyticsOverviewPage() {
           </div>
 
           {/* Category Performance */}
-          <div className="bg-card rounded-xl border border-border/60 p-4 sm:p-6 shadow-sm hover:shadow-xl hover:border-indigo-300/50 transition-all duration-300">
+          <div className="bg-card rounded-xl border border-border/60 p-4 sm:p-6 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
             <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div className="min-w-0 flex-1">
                 <h3 className="text-base sm:text-lg font-semibold text-foreground">Top Categories</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">Revenue by product category</p>
               </div>
               <Link href="/analytics/sales" className="flex-shrink-0 ml-2">
-                <Button variant="ghost" size="sm" className="text-indigo-600 text-xs sm:text-sm px-2 sm:px-3">
+                <Button variant="ghost" size="sm" className="text-primary text-xs sm:text-sm px-2 sm:px-3">
                   <span className="hidden sm:inline">View All</span>
                   <span className="sm:hidden">All</span>
                   <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />
@@ -425,13 +425,13 @@ export default function AnalyticsOverviewPage() {
         {/* Quick Links */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
           <Link href="/analytics/sales" className="group">
-            <div className="bg-card rounded-xl border border-border p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all">
+            <div className="bg-card rounded-xl border border-border p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-md hover:border-primary/30 transition-all">
               <div className="flex items-center gap-3 sm:gap-4">
                 <div className="w-11 h-11 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
-                  <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-indigo-600" />
+                  <BarChart3 className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-primary" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-semibold text-sm sm:text-base text-foreground group-hover:text-indigo-600 transition-colors">Sales Analytics</h3>
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground group-hover:text-primary transition-colors">Sales Analytics</h3>
                   <p className="text-xs sm:text-sm text-muted-foreground truncate">Revenue, orders, and performance</p>
                 </div>
               </div>
@@ -439,13 +439,13 @@ export default function AnalyticsOverviewPage() {
           </Link>
 
           <Link href="/analytics/customers" className="group">
-            <div className="bg-card rounded-xl border border-border p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-md hover:border-purple-200 transition-all">
+            <div className="bg-card rounded-xl border border-border p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-md hover:border-primary/30 transition-all">
               <div className="flex items-center gap-3 sm:gap-4">
                 <div className="w-11 h-11 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
-                  <Users className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-purple-600" />
+                  <Users className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-primary" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-semibold text-sm sm:text-base text-foreground group-hover:text-purple-600 transition-colors">Customer Analytics</h3>
+                  <h3 className="font-semibold text-sm sm:text-base text-foreground group-hover:text-primary transition-colors">Customer Analytics</h3>
                   <p className="text-xs sm:text-sm text-muted-foreground truncate">Behavior and segmentation</p>
                 </div>
               </div>
@@ -469,14 +469,14 @@ export default function AnalyticsOverviewPage() {
 
         {/* Top Products Table */}
         {data?.sales?.topProducts && data.sales.topProducts.length > 0 && (
-          <div className="bg-card rounded-xl border border-border/60 shadow-sm overflow-hidden hover:shadow-xl hover:border-indigo-300/50 transition-all duration-300">
+          <div className="bg-card rounded-xl border border-border/60 shadow-sm overflow-hidden hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
             <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border">
               <div className="min-w-0 flex-1">
                 <h3 className="text-base sm:text-lg font-semibold text-foreground">Top Selling Products</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground">Best performers this period</p>
               </div>
               <Link href="/analytics/sales" className="flex-shrink-0 ml-2">
-                <Button variant="ghost" size="sm" className="text-indigo-600 text-xs sm:text-sm px-2 sm:px-3">
+                <Button variant="ghost" size="sm" className="text-primary text-xs sm:text-sm px-2 sm:px-3">
                   <span className="hidden sm:inline">View All</span>
                   <span className="sm:hidden">All</span>
                   <ArrowRight className="h-3 w-3 sm:h-4 sm:w-4 ml-1" />
@@ -490,7 +490,7 @@ export default function AnalyticsOverviewPage() {
                 <div key={index} className="p-4 hover:bg-muted transition-colors">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs font-medium text-muted-foreground">#{index + 1}</span>
-                    <span className="font-semibold text-indigo-600">{formatAmount(product.revenue)}</span>
+                    <span className="font-semibold text-primary">{formatAmount(product.revenue)}</span>
                   </div>
                   <p className="font-medium text-foreground text-sm truncate mb-1">{product.productName}</p>
                   <p className="text-xs text-muted-foreground">{formatNumber(product.unitsSold)} units sold</p>

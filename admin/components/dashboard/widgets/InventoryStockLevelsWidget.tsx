@@ -29,7 +29,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
   }), [inventoryData]);
 
   return (
-    <DashboardCard className="border-border/50 hover:border-violet-300/50 transition-all duration-300">
+    <DashboardCard className="border-border/50 hover:border-primary/30/50 transition-all duration-300">
       <DashboardCardHeader className="pb-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -44,7 +44,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
             </div>
           </div>
           <Link href="/inventory">
-            <Button variant="outline" className="text-foreground hover:text-violet-700 hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 text-xs h-8 bg-card border border-border hover:border-violet-300 shadow-sm hover:shadow transition-all">
+            <Button variant="outline" className="text-foreground hover:text-primary hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 text-xs h-8 bg-card border border-border hover:border-primary/30 shadow-sm hover:shadow transition-all">
               <Package className="h-3 w-3 mr-1" />
               <AdminUIText text="View All" />
             </Button>
@@ -62,7 +62,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
                 <span className="text-muted-foreground"><AdminUIText text="Current Stock" /></span>
               </div>
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-sm bg-amber-400" />
+                <div className="w-3 h-3 rounded-sm bg-warning" />
                 <span className="text-muted-foreground"><AdminUIText text="Low Stock Threshold" /></span>
               </div>
             </div>
@@ -90,7 +90,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
                       <div className="flex items-center gap-3 text-xs">
                         <span className={cn(
                           "font-semibold",
-                          isLowStock ? "text-warning" : "text-violet-600"
+                          isLowStock ? "text-warning" : "text-primary"
                         )}>
                           {item.quantity}
                         </span>
@@ -100,7 +100,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
                     </div>
                     <div className="relative h-6 bg-muted rounded-lg overflow-hidden">
                       <div
-                        className="absolute top-0 bottom-0 w-0.5 bg-amber-400 z-10"
+                        className="absolute top-0 bottom-0 w-0.5 bg-warning z-10"
                         style={{ left: `${thresholdPercent}%` }}
                       />
                       <div
@@ -125,7 +125,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
 
             <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-border">
               <div className="text-center">
-                <p className="text-2xl font-bold text-violet-600">
+                <p className="text-2xl font-bold text-primary">
                   {inventorySummary.totalUnits}
                 </p>
                 <p className="text-xs text-muted-foreground"><AdminUIText text="Total Units" /></p>

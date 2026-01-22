@@ -435,7 +435,7 @@ export default function TranslationSettingsPage() {
                   <div className="text-sm text-muted-foreground">Cache Hit Rate</div>
                 </div>
                 <div className="bg-muted rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold text-purple-600">
+                  <div className="text-2xl font-bold text-primary">
                     {formatNumber(stats.totalCharacters)}
                   </div>
                   <div className="text-sm text-muted-foreground">Characters Translated</div>
@@ -454,7 +454,7 @@ export default function TranslationSettingsPage() {
                   size="sm"
                   onClick={handleClearCache}
                   disabled={clearingCache}
-                  className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:border-red-300"
+                  className="flex items-center gap-2 text-destructive hover:text-destructive hover:border-destructive/30"
                 >
                   {clearingCache ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -540,7 +540,7 @@ export default function TranslationSettingsPage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                  <Languages className="h-6 w-6 text-purple-600" />
+                  <Languages className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">Enabled Languages</h3>
@@ -553,7 +553,7 @@ export default function TranslationSettingsPage() {
               {/* Indian Regional Languages */}
               <div className="mb-6">
                 <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                  <span className="w-2 h-2 bg-warning rounded-full"></span>
                   Indian Regional Languages
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
@@ -563,7 +563,7 @@ export default function TranslationSettingsPage() {
                       onClick={() => toggleLanguage(lang.code)}
                       className={`p-3 rounded-lg border-2 transition-all ${
                         settings.enabledLanguages.includes(lang.code)
-                          ? 'border-purple-500 bg-purple-50'
+                          ? 'border-primary bg-primary/10'
                           : 'border-border hover:border-border'
                       }`}
                     >
@@ -573,7 +573,7 @@ export default function TranslationSettingsPage() {
                           <div className="text-xs text-muted-foreground">{lang.nativeName}</div>
                         </div>
                         {settings.enabledLanguages.includes(lang.code) && (
-                          <CheckCircle2 className="h-5 w-5 text-purple-600" />
+                          <CheckCircle2 className="h-5 w-5 text-primary" />
                         )}
                       </div>
                     </button>
@@ -625,7 +625,7 @@ export default function TranslationSettingsPage() {
                       onClick={() => toggleLanguage(lang.code)}
                       className={`p-3 rounded-lg border-2 transition-all ${
                         settings.enabledLanguages.includes(lang.code)
-                          ? 'border-green-500 bg-success-muted'
+                          ? 'border-success bg-success-muted'
                           : 'border-border hover:border-border'
                       }`}
                     >
@@ -656,7 +656,7 @@ export default function TranslationSettingsPage() {
                       onClick={() => toggleLanguage(lang.code)}
                       className={`p-3 rounded-lg border-2 transition-all ${
                         settings.enabledLanguages.includes(lang.code)
-                          ? 'border-amber-500 bg-warning-muted'
+                          ? 'border-warning bg-warning-muted'
                           : 'border-border hover:border-border'
                       }`}
                     >
@@ -669,7 +669,7 @@ export default function TranslationSettingsPage() {
                           <CheckCircle2 className="h-5 w-5 text-warning" />
                         )}
                         {lang.rtl && (
-                          <span className="text-xs bg-gray-200 px-1.5 py-0.5 rounded ml-1">
+                          <span className="text-xs bg-muted px-1.5 py-0.5 rounded ml-1">
                             RTL
                           </span>
                         )}
@@ -742,7 +742,7 @@ export default function TranslationSettingsPage() {
                 <div className="flex gap-3">
                   <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm text-blue-800 font-medium">
+                    <p className="text-sm text-primary font-medium">
                       How auto-translation works
                     </p>
                     <p className="text-sm text-primary mt-1">

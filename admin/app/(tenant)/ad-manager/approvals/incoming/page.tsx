@@ -34,8 +34,8 @@ import { cn } from '@/lib/utils';
 const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ElementType; className: string }> = {
   PENDING: { variant: 'outline', icon: Clock, className: 'bg-warning-muted text-warning-foreground border-warning/30' },
   APPROVED: { variant: 'default', icon: CheckCircle, className: 'bg-success-muted text-success-foreground' },
-  REJECTED: { variant: 'destructive', icon: XCircle, className: 'bg-red-100 text-red-700' },
-  REVISION_REQUESTED: { variant: 'secondary', icon: MessageSquare, className: 'bg-blue-100 text-blue-700' },
+  REJECTED: { variant: 'destructive', icon: XCircle, className: 'bg-destructive/10 text-destructive' },
+  REVISION_REQUESTED: { variant: 'secondary', icon: MessageSquare, className: 'bg-accent text-primary' },
 };
 
 function formatDate(dateString: string): string {
@@ -157,7 +157,7 @@ function SubmissionCard({
                     variant="outline"
                     onClick={() => setShowRejectForm(true)}
                     disabled={isProcessing === submission.id}
-                    className="border-red-200 text-red-600 hover:bg-red-50"
+                    className="border-destructive/30 text-destructive hover:bg-destructive/10"
                   >
                     <X className="w-4 h-4 mr-2" />
                     Reject
@@ -223,7 +223,7 @@ function SubmissionCard({
                       size="sm"
                       onClick={handleReject}
                       disabled={!rejectReason.trim() || isProcessing === submission.id}
-                      className="flex-1 bg-red-600 hover:bg-red-700"
+                      className="flex-1 bg-destructive hover:bg-destructive"
                     >
                       {isProcessing === submission.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -374,9 +374,9 @@ export default function IncomingApprovalsPage() {
         <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Error Banner */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3 mb-6">
-              <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
-              <p className="text-red-800">{error}</p>
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-center gap-3 mb-6">
+              <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+              <p className="text-destructive">{error}</p>
               <Button variant="outline" size="sm" onClick={fetchSubmissions} className="ml-auto">
                 Retry
               </Button>

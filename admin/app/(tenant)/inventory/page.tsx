@@ -752,16 +752,16 @@ export default function InventoryPage() {
               </div>
             </div>
             <div
-              className="bg-card rounded-xl border border-border p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-violet-300 hover:-translate-y-1 hover:scale-[1.02] group"
+              className="bg-card rounded-xl border border-border p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-primary/30 hover:-translate-y-1 hover:scale-[1.02] group"
               onClick={() => setStockFilter('all')}
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-muted-foreground group-hover:text-violet-700 transition-colors">Total Quantity</p>
-                  <p className="text-2xl font-bold text-violet-600">{stockStats.totalQuantity.toLocaleString()}</p>
+                  <p className="text-sm text-muted-foreground group-hover:text-primary transition-colors">Total Quantity</p>
+                  <p className="text-2xl font-bold text-primary">{stockStats.totalQuantity.toLocaleString()}</p>
                 </div>
-                <div className="h-12 w-12 bg-violet-100 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <BarChart3 className="h-6 w-6 text-violet-600" />
+                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
+                  <BarChart3 className="h-6 w-6 text-primary" />
                 </div>
               </div>
             </div>
@@ -778,7 +778,7 @@ export default function InventoryPage() {
                 className={cn(
                   'flex-1 py-4 px-6 text-sm font-semibold border-b-2 rounded-none transition-colors',
                   activeTab === 'stock-levels'
-                    ? 'border-violet-600 text-violet-600'
+                    ? 'border-primary text-primary'
                     : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                 )}
               >
@@ -874,7 +874,7 @@ export default function InventoryPage() {
                         type="checkbox"
                         checked={autoRefreshEnabled}
                         onChange={(e) => setAutoRefreshEnabled(e.target.checked)}
-                        className="h-4 w-4 rounded border-border text-violet-600 focus:ring-violet-500"
+                        className="h-4 w-4 rounded border-border text-primary focus:ring-violet-500"
                       />
                       Auto-refresh
                     </label>
@@ -907,7 +907,7 @@ export default function InventoryPage() {
                   <Button
                     variant="outline"
                     onClick={() => setShowBulkImport(true)}
-                    className="border-violet-200 text-violet-700 hover:bg-violet-50"
+                    className="border-primary/30 text-primary hover:bg-primary/10"
                   >
                     <FileUp className="h-4 w-4 mr-2" />
                     Bulk Import
@@ -1138,11 +1138,11 @@ export default function InventoryPage() {
                                       setEditingProductId(product.id);
                                       setEditQuantity(product.quantity || 0);
                                     }}
-                                    className="h-8 w-8 p-0 rounded-lg hover:bg-violet-50 transition-colors"
+                                    className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                                     title="Quick Edit Stock"
                                     aria-label="Edit stock"
                                   >
-                                    <Edit className="w-4 h-4 text-violet-600" aria-hidden="true" />
+                                    <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                                   </Button>
                                 </PermissionGate>
                               </div>
@@ -1226,11 +1226,11 @@ export default function InventoryPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => openEditModal('warehouse', warehouse.id)}
-                                  className="h-8 w-8 p-0 rounded-lg hover:bg-violet-50 transition-colors"
+                                  className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                                   title="Edit"
                                   aria-label="Edit warehouse"
                                 >
-                                  <Edit className="w-4 h-4 text-violet-600" aria-hidden="true" />
+                                  <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                                 </Button>
                                 <Button
                                   variant="ghost"
@@ -1327,11 +1327,11 @@ export default function InventoryPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => openEditModal('supplier', supplier.id)}
-                                  className="h-8 w-8 p-0 rounded-lg hover:bg-violet-50 transition-colors"
+                                  className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                                   title="Edit"
                                   aria-label="Edit supplier"
                                 >
-                                  <Edit className="w-4 h-4 text-violet-600" aria-hidden="true" />
+                                  <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                                 </Button>
                                 <Button
                                   variant="ghost"
@@ -1705,7 +1705,7 @@ export default function InventoryPage() {
                   id="isDefault"
                   checked={warehouseForm.isDefault}
                   onChange={(e) => setWarehouseForm({ ...warehouseForm, isDefault: e.target.checked })}
-                  className="h-4 w-4 rounded border-border text-violet-600 focus:ring-violet-500"
+                  className="h-4 w-4 rounded border-border text-primary focus:ring-violet-500"
                 />
                 <label htmlFor="isDefault" className="text-sm font-medium text-foreground">
                   Set as default warehouse
@@ -1945,7 +1945,7 @@ export default function InventoryPage() {
                 variant="destructive"
                 onClick={handleDelete}
                 disabled={savingEntity || deleteConfirmName !== getEntityName(modalEntityType, selectedEntityId)}
-                className="bg-red-600 text-white hover:bg-red-700"
+                className="bg-destructive text-white hover:bg-destructive"
               >
                 {savingEntity ? (
                   <>

@@ -36,7 +36,7 @@ export function RecentOrdersWidget({ data }: RecentOrdersWidgetProps) {
       case 'pending':
         return <Clock className="h-4 w-4 text-warning" />;
       case 'shipped':
-        return <Package className="h-4 w-4 text-violet-600" />;
+        return <Package className="h-4 w-4 text-primary" />;
       default:
         return <AlertCircle className="h-4 w-4 text-muted-foreground" />;
     }
@@ -53,7 +53,7 @@ export function RecentOrdersWidget({ data }: RecentOrdersWidgetProps) {
       case 'pending':
         return 'bg-warning-muted text-warning-foreground border-warning/30';
       case 'shipped':
-        return 'bg-violet-50 text-violet-700 border-violet-200';
+        return 'bg-primary/10 text-primary border-primary/30';
       default:
         return 'bg-muted text-muted-foreground border-border';
     }

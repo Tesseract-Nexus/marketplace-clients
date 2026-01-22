@@ -174,10 +174,10 @@ export function AssetUploader({
           aspectRatioClasses[aspectRatio],
           sizeClasses[size],
           isDragging
-            ? 'border-purple-500 bg-purple-50'
+            ? 'border-primary bg-primary/10'
             : currentUrl
             ? 'border-border bg-muted'
-            : 'border-border hover:border-gray-400',
+            : 'border-border hover:border-border',
           disabled && 'opacity-50 cursor-not-allowed',
           !currentUrl && !disabled && 'cursor-pointer'
         )}
@@ -225,9 +225,9 @@ export function AssetUploader({
                     handleRemove();
                   }}
                   disabled={disabled}
-                  className="p-1.5 bg-card rounded-lg hover:bg-red-50 transition-colors"
+                  className="p-1.5 bg-card rounded-lg hover:bg-destructive/10 transition-colors"
                 >
-                  <X className="h-4 w-4 text-red-500" />
+                  <X className="h-4 w-4 text-destructive" />
                 </button>
               )}
             </div>
@@ -235,10 +235,10 @@ export function AssetUploader({
         ) : isUploading ? (
           /* Upload progress */
           <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
-            <Loader2 className="h-8 w-8 text-purple-500 animate-spin mb-2" />
-            <div className="w-full max-w-[200px] h-2 bg-gray-200 rounded-full overflow-hidden">
+            <Loader2 className="h-8 w-8 text-primary animate-spin mb-2" />
+            <div className="w-full max-w-[200px] h-2 bg-muted rounded-full overflow-hidden">
               <div
-                className="h-full bg-purple-500 transition-all duration-300"
+                className="h-full bg-primary/100 transition-all duration-300"
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
@@ -250,11 +250,11 @@ export function AssetUploader({
             <div
               className={cn(
                 'p-3 rounded-full mb-3',
-                isDragging ? 'bg-purple-100' : 'bg-muted'
+                isDragging ? 'bg-primary/10' : 'bg-muted'
               )}
             >
               {isDragging ? (
-                <Upload className="h-6 w-6 text-purple-500" />
+                <Upload className="h-6 w-6 text-primary" />
               ) : (
                 <ImageIcon className="h-6 w-6 text-muted-foreground" />
               )}
@@ -271,7 +271,7 @@ export function AssetUploader({
 
       {/* Error message */}
       {error && (
-        <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg">
+        <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-lg">
           <AlertCircle className="h-4 w-4 flex-shrink-0" />
           <span>{error}</span>
         </div>

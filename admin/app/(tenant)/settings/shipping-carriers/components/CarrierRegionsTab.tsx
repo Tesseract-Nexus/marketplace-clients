@@ -196,7 +196,7 @@ export function CarrierRegionsTab() {
 
         {carriers.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            <Globe className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <Globe className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
             <p>No carriers configured. Add a carrier first to manage regions.</p>
           </div>
         ) : (
@@ -207,7 +207,7 @@ export function CarrierRegionsTab() {
                 onClick={() => setSelectedCarrier(carrier)}
                 className={`px-4 py-2 rounded-lg border-2 transition-all ${
                   selectedCarrier?.id === carrier.id
-                    ? 'border-violet-500 bg-violet-50 text-violet-700'
+                    ? 'border-primary bg-primary/10 text-primary'
                     : 'border-border hover:border-border text-foreground'
                 }`}
               >
@@ -216,7 +216,7 @@ export function CarrierRegionsTab() {
                   {carrier.isEnabled ? (
                     <CheckCircle className="h-4 w-4 text-success" />
                   ) : (
-                    <XCircle className="h-4 w-4 text-gray-300" />
+                    <XCircle className="h-4 w-4 text-muted-foreground" />
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -254,11 +254,11 @@ export function CarrierRegionsTab() {
 
           {loadingRegions ? (
             <div className="flex items-center justify-center h-32">
-              <Loader2 className="h-6 w-6 text-violet-600 animate-spin" />
+              <Loader2 className="h-6 w-6 text-primary animate-spin" />
             </div>
           ) : regions.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
-              <MapPin className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <MapPin className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
               <p>No regions configured for this carrier.</p>
               <p className="text-sm mt-2">Add regions to specify where this carrier can ship.</p>
             </div>
@@ -269,7 +269,7 @@ export function CarrierRegionsTab() {
                   key={region.id}
                   className={`flex items-center justify-between p-4 rounded-lg border ${
                     region.isPrimary
-                      ? 'border-yellow-300 bg-yellow-50'
+                      ? 'border-warning/30 bg-warning-muted'
                       : 'border-border bg-muted'
                   }`}
                 >
@@ -285,7 +285,7 @@ export function CarrierRegionsTab() {
                     </div>
 
                     {region.isPrimary && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-warning-muted text-warning">
                         <Star className="h-3 w-3 mr-1" />
                         Primary
                       </span>
@@ -325,7 +325,7 @@ export function CarrierRegionsTab() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleSetPrimary(region.id, region.countryCode)}
-                          className="hover:bg-yellow-50 hover:text-yellow-600"
+                          className="hover:bg-warning-muted hover:text-warning"
                           title="Set as Primary"
                         >
                           <Star className="h-4 w-4" />
@@ -344,7 +344,7 @@ export function CarrierRegionsTab() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(region.id)}
-                        className="hover:bg-red-50 hover:text-red-600"
+                        className="hover:bg-destructive/10 hover:text-destructive"
                         title="Delete Region"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -371,7 +371,7 @@ export function CarrierRegionsTab() {
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-2">
-                  Country <span className="text-red-500">*</span>
+                  Country <span className="text-destructive">*</span>
                 </label>
                 {editingRegion ? (
                   <div className="px-4 py-3 border-2 border-border rounded-xl bg-muted text-foreground font-medium">

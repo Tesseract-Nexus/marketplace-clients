@@ -100,7 +100,7 @@ export default function AbandonedCartsPage() {
 
   const getStatusBadgeClass = (status: string) => {
     const classes: Record<string, string> = {
-      PENDING: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+      PENDING: 'bg-warning-muted text-warning border-warning/30',
       REMINDED: 'bg-primary/20 text-primary border-primary/30',
       RECOVERED: 'bg-success-muted text-success-foreground border-success/30',
       EXPIRED: 'bg-muted text-foreground border-border',
@@ -253,7 +253,7 @@ export default function AbandonedCartsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Pending Recovery</p>
               <div className="w-12 h-12 bg-gradient-to-br from-yellow-100 to-amber-100 rounded-lg flex items-center justify-center">
-                <Mail className="h-6 w-6 text-yellow-600" />
+                <Mail className="h-6 w-6 text-warning" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-amber-600 bg-clip-text text-transparent">
@@ -281,7 +281,7 @@ export default function AbandonedCartsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Recovered Value</p>
               <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-purple-600" />
+                <DollarSign className="h-6 w-6 text-primary" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -416,7 +416,7 @@ export default function AbandonedCartsPage() {
                               )}
                             </button>
                           ) : (
-                            <span className="text-gray-300">—</span>
+                            <span className="text-muted-foreground">—</span>
                           )}
                         </td>
                         <td className="px-6 py-4">
@@ -597,7 +597,7 @@ export default function AbandonedCartsPage() {
                   <div className="bg-success-muted border border-success/30 rounded-lg p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-semibold text-green-900">Cart Recovered!</p>
+                        <p className="text-sm font-semibold text-success">Cart Recovered!</p>
                         <p className="text-xs text-success-foreground">
                           Recovered on{' '}
                           {new Date(selectedCart.recoveredAt || '').toLocaleString()}
@@ -609,7 +609,7 @@ export default function AbandonedCartsPage() {
                         )}
                       </div>
                       <div className="text-right">
-                        <p className="text-2xl font-bold text-green-900">
+                        <p className="text-2xl font-bold text-success">
                           {formatCurrency(selectedCart.recoveredValue)}
                         </p>
                         <p className="text-xs text-success-foreground">Revenue recovered</p>

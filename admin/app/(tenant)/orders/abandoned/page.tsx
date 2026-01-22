@@ -259,7 +259,7 @@ export default function AbandonedCartsPage() {
     return (
       <div className="min-h-screen bg-background p-8 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center">
-          <AlertCircle className="h-12 w-12 text-red-500" />
+          <AlertCircle className="h-12 w-12 text-destructive" />
           <h2 className="text-xl font-semibold text-foreground">Failed to load abandoned carts</h2>
           <p className="text-muted-foreground">{error}</p>
           <Button onClick={() => loadCarts()} className="mt-4">
@@ -436,7 +436,7 @@ export default function AbandonedCartsPage() {
                 {paginatedCarts.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
-                      <ShoppingCart className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+                      <ShoppingCart className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                       <p>No abandoned carts found</p>
                     </td>
                   </tr>
@@ -494,11 +494,11 @@ export default function AbandonedCartsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDeleteCart(cart.id)}
-                            className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-destructive/10 transition-colors"
                             title="Delete"
                             aria-label="Delete cart"
                           >
-                            <Trash2 className="w-4 h-4 text-red-600" aria-hidden="true" />
+                            <Trash2 className="w-4 h-4 text-destructive" aria-hidden="true" />
                           </Button>
                         </div>
                       </td>

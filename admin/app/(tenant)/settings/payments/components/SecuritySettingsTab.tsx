@@ -110,14 +110,14 @@ export function SecuritySettingsTab() {
           <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 flex items-start gap-3">
             <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-primary">
                 Enabling 3D Secure shifts liability for fraud-related chargebacks to the card
                 issuer, protecting your business.{' '}
                 <a
                   href="https://stripe.com/docs/payments/3d-secure"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary underline hover:text-blue-800 inline-flex items-center gap-1"
+                  className="text-primary underline hover:text-primary inline-flex items-center gap-1"
                 >
                   Learn more <ExternalLink className="h-3 w-3" />
                 </a>
@@ -297,7 +297,7 @@ export function SecuritySettingsTab() {
         <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 mb-4 flex items-start gap-3">
           <AlertTriangle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-amber-900">Webhook Signature Verification</p>
+            <p className="text-sm font-semibold text-warning">Webhook Signature Verification</p>
             <p className="text-sm text-warning-foreground mt-1">
               All webhook events are verified using signatures from each payment gateway. Make sure
               you've configured the webhook secret for each gateway in the Payment Gateways tab.

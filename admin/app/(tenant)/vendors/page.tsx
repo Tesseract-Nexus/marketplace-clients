@@ -403,7 +403,7 @@ export default function VendorsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Mail className="w-5 h-5 text-violet-600" />
+                <Mail className="w-5 h-5 text-primary" />
                 Contact Information
               </CardTitle>
             </CardHeader>
@@ -434,7 +434,7 @@ export default function VendorsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileText className="w-5 h-5 text-purple-600" />
+                <FileText className="w-5 h-5 text-primary" />
                 Business Details
               </CardTitle>
             </CardHeader>
@@ -568,7 +568,7 @@ export default function VendorsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">
-                        Vendor Name <span className="text-red-500">*</span>
+                        Vendor Name <span className="text-destructive">*</span>
                       </label>
                       <input
                         type="text"
@@ -581,7 +581,7 @@ export default function VendorsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">
-                        Email <span className="text-red-500">*</span>
+                        Email <span className="text-destructive">*</span>
                       </label>
                       <input
                         type="email"
@@ -594,7 +594,7 @@ export default function VendorsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">
-                        Primary Contact <span className="text-red-500">*</span>
+                        Primary Contact <span className="text-destructive">*</span>
                       </label>
                       <input
                         type="tel"
@@ -1020,10 +1020,10 @@ export default function VendorsPage() {
                   options={[
                     { value: 'ALL', label: 'All Statuses', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
                     { value: 'ACTIVE', label: 'Active', icon: <Circle className="w-4 h-4 text-success fill-green-500" /> },
-                    { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-yellow-500" /> },
+                    { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-warning" /> },
                     { value: 'INACTIVE', label: 'Inactive', icon: <CircleOff className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'SUSPENDED', label: 'Suspended', icon: <Pause className="w-4 h-4 text-orange-500" /> },
-                    { value: 'TERMINATED', label: 'Terminated', icon: <Ban className="w-4 h-4 text-red-500" /> },
+                    { value: 'SUSPENDED', label: 'Suspended', icon: <Pause className="w-4 h-4 text-warning" /> },
+                    { value: 'TERMINATED', label: 'Terminated', icon: <Ban className="w-4 h-4 text-destructive" /> },
                   ]}
                   variant="filter"
                 />
@@ -1039,8 +1039,8 @@ export default function VendorsPage() {
                     { value: 'COMPLETED', label: 'Completed', icon: <ShieldCheck className="w-4 h-4 text-success" /> },
                     { value: 'IN_PROGRESS', label: 'In Progress', icon: <PlayCircle className="w-4 h-4 text-primary" /> },
                     { value: 'NOT_STARTED', label: 'Not Started', icon: <Hourglass className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'FAILED', label: 'Failed', icon: <ShieldAlert className="w-4 h-4 text-red-500" /> },
-                    { value: 'EXPIRED', label: 'Expired', icon: <Timer className="w-4 h-4 text-orange-500" /> },
+                    { value: 'FAILED', label: 'Failed', icon: <ShieldAlert className="w-4 h-4 text-destructive" /> },
+                    { value: 'EXPIRED', label: 'Expired', icon: <Timer className="w-4 h-4 text-warning" /> },
                   ]}
                   variant="filter"
                 />
@@ -1141,11 +1141,11 @@ export default function VendorsPage() {
                               e.stopPropagation();
                               handleEditVendor(vendor);
                             }}
-                            className="h-8 w-8 p-0 rounded-lg hover:bg-violet-50 transition-colors"
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                             title="Edit"
                             aria-label="Edit vendor"
                           >
-                            <Edit className="w-4 h-4 text-violet-600" aria-hidden="true" />
+                            <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                           </Button>
                           <Button
                             variant="ghost"
@@ -1158,7 +1158,7 @@ export default function VendorsPage() {
                             title="Delete"
                             aria-label="Delete vendor"
                           >
-                            <Trash2 className="w-4 h-4 text-red-600" aria-hidden="true" />
+                            <Trash2 className="w-4 h-4 text-destructive" aria-hidden="true" />
                           </Button>
                         </div>
                       </td>

@@ -153,7 +153,7 @@ export function CascadeDeleteModal({
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex flex-col items-center p-6 border-b bg-gradient-to-br from-red-50 to-pink-50 border-red-200">
+          <div className="flex flex-col items-center p-6 border-b bg-gradient-to-br from-red-50 to-pink-50 border-destructive/30">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center shadow-lg mb-4">
               <Trash2 className="w-8 h-8 text-white" />
             </div>
@@ -169,17 +169,17 @@ export function CascadeDeleteModal({
           <div className="p-6 overflow-y-auto flex-1">
             {/* Error message */}
             {error && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-                <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                <p className="text-sm text-red-700">{error}</p>
+              <div className="mb-4 p-3 bg-destructive/10 border border-destructive/30 rounded-lg flex items-center gap-2">
+                <XCircle className="w-5 h-5 text-destructive flex-shrink-0" />
+                <p className="text-sm text-destructive">{error}</p>
               </div>
             )}
 
             {/* Delete error */}
             {deleteError && (
-              <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-                <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                <p className="text-sm text-red-700">{deleteError}</p>
+              <div className="mb-4 p-3 bg-destructive/10 border border-destructive/30 rounded-lg flex items-center gap-2">
+                <XCircle className="w-5 h-5 text-destructive flex-shrink-0" />
+                <p className="text-sm text-destructive">{deleteError}</p>
               </div>
             )}
 
@@ -192,7 +192,7 @@ export function CascadeDeleteModal({
 
               {/* Variants Option */}
               <CascadeOption
-                icon={<Tag className="w-4 h-4 text-violet-500" />}
+                icon={<Tag className="w-4 h-4 text-primary" />}
                 label="Delete Variants"
                 description={
                   validation?.affectedSummary?.variantCount
@@ -372,7 +372,7 @@ function CascadeOption({
             <div className="mt-2 p-2 bg-warning-muted rounded-lg flex items-start gap-2">
               <AlertTriangle className="w-4 h-4 text-warning flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-amber-800">Cannot delete</p>
+                <p className="text-sm font-medium text-warning">Cannot delete</p>
                 <p className="text-xs text-warning-foreground">{blocked.reason}</p>
               </div>
             </div>
@@ -398,18 +398,18 @@ function DeleteSummary({ summary, canDelete, blockedEntities }: DeleteSummaryPro
       "p-4 rounded-xl border-2",
       canDelete
         ? "bg-success-muted border-success/30"
-        : "bg-red-50 border-red-200"
+        : "bg-destructive/10 border-destructive/30"
     )}>
       <div className="flex items-start gap-2">
         {canDelete ? (
           <CheckCircle className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
         ) : (
-          <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <XCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
         )}
         <div className="flex-1">
           <p className={cn(
             "font-semibold",
-            canDelete ? "text-green-800" : "text-red-800"
+            canDelete ? "text-success" : "text-destructive"
           )}>
             {canDelete ? "Ready to delete" : "Cannot proceed with current options"}
           </p>
@@ -433,8 +433,8 @@ function DeleteSummary({ summary, canDelete, blockedEntities }: DeleteSummaryPro
 
           {/* Blocked entities message */}
           {hasBlockedEntities && !canDelete && (
-            <div className="mt-3 pt-3 border-t border-red-200">
-              <p className="text-sm text-red-700">
+            <div className="mt-3 pt-3 border-t border-destructive/30">
+              <p className="text-sm text-destructive">
                 Uncheck the blocked options to proceed with deletion.
               </p>
             </div>

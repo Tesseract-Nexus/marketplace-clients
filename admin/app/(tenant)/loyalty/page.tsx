@@ -142,8 +142,8 @@ export default function LoyaltyProgramPage() {
     if (lowerName.includes('gold')) {
       return {
         bg: 'from-yellow-50 to-amber-100',
-        border: 'border-yellow-300',
-        text: 'text-yellow-700',
+        border: 'border-warning/30',
+        text: 'text-warning',
         icon: Crown,
         gradient: 'from-yellow-500 to-amber-500',
         badge: 'bg-gradient-to-r from-yellow-500 to-amber-500',
@@ -162,8 +162,8 @@ export default function LoyaltyProgramPage() {
     if (lowerName.includes('bronze')) {
       return {
         bg: 'from-orange-50 to-amber-100',
-        border: 'border-orange-300',
-        text: 'text-orange-700',
+        border: 'border-warning/30',
+        text: 'text-warning',
         icon: Star,
         gradient: 'from-orange-400 to-amber-500',
         badge: 'bg-gradient-to-r from-orange-400 to-amber-500',
@@ -171,9 +171,9 @@ export default function LoyaltyProgramPage() {
     }
     // Default based on index
     const defaults = [
-      { bg: 'from-orange-50 to-amber-100', border: 'border-orange-300', text: 'text-orange-700', icon: Star, gradient: 'from-orange-400 to-amber-500', badge: 'bg-gradient-to-r from-orange-400 to-amber-500' },
+      { bg: 'from-orange-50 to-amber-100', border: 'border-warning/30', text: 'text-warning', icon: Star, gradient: 'from-orange-400 to-amber-500', badge: 'bg-gradient-to-r from-orange-400 to-amber-500' },
       { bg: 'from-gray-100 to-slate-100', border: 'border-border', text: 'text-muted-foreground', icon: Medal, gradient: 'from-gray-400 to-slate-500', badge: 'bg-gradient-to-r from-gray-400 to-slate-500' },
-      { bg: 'from-yellow-50 to-amber-100', border: 'border-yellow-300', text: 'text-yellow-700', icon: Crown, gradient: 'from-yellow-500 to-amber-500', badge: 'bg-gradient-to-r from-yellow-500 to-amber-500' },
+      { bg: 'from-yellow-50 to-amber-100', border: 'border-warning/30', text: 'text-warning', icon: Crown, gradient: 'from-yellow-500 to-amber-500', badge: 'bg-gradient-to-r from-yellow-500 to-amber-500' },
       { bg: 'from-slate-100 to-blue-100', border: 'border-slate-300', text: 'text-slate-700', icon: Crown, gradient: 'from-slate-500 to-blue-500', badge: 'bg-gradient-to-r from-slate-500 to-blue-500' },
     ];
     return defaults[index % defaults.length];
@@ -289,9 +289,9 @@ export default function LoyaltyProgramPage() {
 
         {/* Error Banner */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
-            <p className="text-red-800">{error}</p>
+          <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+            <p className="text-destructive">{error}</p>
             <Button variant="outline" size="sm" onClick={fetchProgram} className="ml-auto">
               Retry
             </Button>
@@ -335,7 +335,7 @@ export default function LoyaltyProgramPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Signup Bonus</p>
               <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                <Gift className="h-6 w-6 text-purple-600" />
+                <Gift className="h-6 w-6 text-primary" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -418,7 +418,7 @@ export default function LoyaltyProgramPage() {
                         onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                      <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     </label>
                   </div>
 
@@ -558,7 +558,7 @@ export default function LoyaltyProgramPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRemoveTier(index)}
-                        className="hover:bg-red-50 hover:text-red-600 bg-white/50"
+                        className="hover:bg-destructive/10 hover:text-destructive bg-white/50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -682,7 +682,7 @@ export default function LoyaltyProgramPage() {
                   </div>
 
                   {/* Birthday Bonus Card */}
-                  <div className="p-5 rounded-xl border-2 border-pink-200 bg-gradient-to-br from-pink-50 to-rose-50 hover:shadow-lg transition-all">
+                  <div className="p-5 rounded-xl border-2 border-primary/30 bg-gradient-to-br from-pink-50 to-rose-50 hover:shadow-lg transition-all">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center text-white shadow-md">
                         <Cake className="h-6 w-6" />
@@ -709,7 +709,7 @@ export default function LoyaltyProgramPage() {
                   </div>
 
                   {/* Referral Bonus Card */}
-                  <div className="p-5 rounded-xl border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-purple-50 hover:shadow-lg transition-all">
+                  <div className="p-5 rounded-xl border-2 border-primary/30 bg-gradient-to-br from-violet-50 to-purple-50 hover:shadow-lg transition-all">
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white shadow-md">
                         <Share2 className="h-6 w-6" />
@@ -738,7 +738,7 @@ export default function LoyaltyProgramPage() {
               </div>
 
               {/* Preview Card */}
-              <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg border border-purple-200 p-6">
+              <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg border border-primary/30 p-6">
                 <h4 className="text-lg font-bold text-foreground mb-4">Program Preview</h4>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">

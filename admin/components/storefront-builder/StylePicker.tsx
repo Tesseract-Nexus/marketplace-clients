@@ -42,7 +42,7 @@ export function BorderRadiusPicker({ label = 'Border Radius', value, onChange }:
             className={cn(
               'relative flex flex-col items-center p-3 flex-1 rounded-lg border-2 transition-all',
               value === option.id
-                ? 'border-purple-500 bg-purple-50'
+                ? 'border-primary bg-primary/10'
                 : 'border-border hover:border-border'
             )}
           >
@@ -54,7 +54,7 @@ export function BorderRadiusPicker({ label = 'Border Radius', value, onChange }:
             />
             <span className="text-xs font-medium">{option.label}</span>
             {value === option.id && (
-              <Check className="h-4 w-4 text-purple-600 absolute top-1 right-1" />
+              <Check className="h-4 w-4 text-primary absolute top-1 right-1" />
             )}
           </button>
         ))}
@@ -103,7 +103,7 @@ export function ButtonStylePicker({ style, size, onStyleChange, onSizeChange }: 
               className={cn(
                 'relative flex-1 p-4 rounded-lg border-2 transition-all',
                 style === option.id
-                  ? 'border-purple-500 bg-purple-50'
+                  ? 'border-primary bg-primary/10'
                   : 'border-border hover:border-border'
               )}
             >
@@ -119,7 +119,7 @@ export function ButtonStylePicker({ style, size, onStyleChange, onSizeChange }: 
               </div>
               <span className="text-xs font-medium block text-center">{option.label}</span>
               {style === option.id && (
-                <Check className="h-4 w-4 text-purple-600 absolute top-1 right-1" />
+                <Check className="h-4 w-4 text-primary absolute top-1 right-1" />
               )}
             </button>
           ))}
@@ -137,7 +137,7 @@ export function ButtonStylePicker({ style, size, onStyleChange, onSizeChange }: 
               className={cn(
                 'relative flex-1 p-3 rounded-lg border-2 transition-all',
                 size === option.id
-                  ? 'border-purple-500 bg-purple-50'
+                  ? 'border-primary bg-primary/10'
                   : 'border-border hover:border-border'
               )}
             >
@@ -161,7 +161,7 @@ export function ButtonStylePicker({ style, size, onStyleChange, onSizeChange }: 
           </span>
           <span
             className={cn(
-              'border-2 border-purple-600 text-purple-600 font-medium',
+              'border-2 border-primary text-primary font-medium',
               getButtonClass(style, size)
             )}
           >
@@ -223,7 +223,7 @@ export function CardStylePicker({ style, padding, onStyleChange, onPaddingChange
               className={cn(
                 'relative flex flex-col items-center p-4 rounded-lg border-2 transition-all text-left',
                 style === option.id
-                  ? 'border-purple-500 bg-purple-50'
+                  ? 'border-primary bg-primary/10'
                   : 'border-border hover:border-border'
               )}
             >
@@ -234,14 +234,14 @@ export function CardStylePicker({ style, padding, onStyleChange, onPaddingChange
                 )}
               >
                 <div className="p-2">
-                  <div className="h-6 w-full bg-gray-200 rounded mb-1" />
+                  <div className="h-6 w-full bg-muted rounded mb-1" />
                   <div className="h-2 w-2/3 bg-muted rounded" />
                 </div>
               </div>
               <span className="font-medium text-sm">{option.label}</span>
               <span className="text-xs text-muted-foreground">{option.description}</span>
               {style === option.id && (
-                <Check className="h-4 w-4 text-purple-600 absolute top-2 right-2" />
+                <Check className="h-4 w-4 text-primary absolute top-2 right-2" />
               )}
             </button>
           ))}
@@ -259,7 +259,7 @@ export function CardStylePicker({ style, padding, onStyleChange, onPaddingChange
               className={cn(
                 'relative flex-1 p-3 rounded-lg border-2 transition-all text-center',
                 padding === option.id
-                  ? 'border-purple-500 bg-purple-50'
+                  ? 'border-primary bg-primary/10'
                   : 'border-border hover:border-border'
               )}
             >
@@ -297,24 +297,24 @@ export function SectionSpacingPicker({ value, onChange }: SectionSpacingPickerPr
             className={cn(
               'relative flex-1 p-4 rounded-lg border-2 transition-all',
               value === option.id
-                ? 'border-purple-500 bg-purple-50'
+                ? 'border-primary bg-primary/10'
                 : 'border-border hover:border-border'
             )}
           >
             <div className="mb-2 flex flex-col items-center gap-1">
-              <div className="w-full h-3 bg-gray-300 rounded" />
+              <div className="w-full h-3 bg-border rounded" />
               <div
                 className={cn(
-                  'w-full bg-purple-100',
+                  'w-full bg-primary/10',
                   option.id === 'compact' ? 'h-2' : option.id === 'default' ? 'h-4' : 'h-6'
                 )}
               />
-              <div className="w-full h-3 bg-gray-300 rounded" />
+              <div className="w-full h-3 bg-border rounded" />
             </div>
             <span className="text-xs font-medium block text-center">{option.label}</span>
             <span className="text-[10px] text-muted-foreground block text-center">{option.spacing}</span>
             {value === option.id && (
-              <Check className="h-4 w-4 text-purple-600 absolute top-1 right-1" />
+              <Check className="h-4 w-4 text-primary absolute top-1 right-1" />
             )}
           </button>
         ))}
@@ -349,7 +349,7 @@ export function ShadowIntensityPicker({ value, onChange }: ShadowIntensityPicker
             className={cn(
               'relative flex flex-col items-center p-3 rounded-lg border-2 transition-all',
               value === option.id
-                ? 'border-purple-500 bg-purple-50'
+                ? 'border-primary bg-primary/10'
                 : 'border-border hover:border-border'
             )}
           >
@@ -361,7 +361,7 @@ export function ShadowIntensityPicker({ value, onChange }: ShadowIntensityPicker
             />
             <span className="text-xs font-medium">{option.label}</span>
             {value === option.id && (
-              <Check className="h-4 w-4 text-purple-600 absolute top-1 right-1" />
+              <Check className="h-4 w-4 text-primary absolute top-1 right-1" />
             )}
           </button>
         ))}
@@ -404,20 +404,20 @@ export function AnimationSpeedPicker({
               className={cn(
                 'relative flex flex-col items-center p-3 rounded-lg border-2 transition-all',
                 speed === option.id
-                  ? 'border-purple-500 bg-purple-50'
+                  ? 'border-primary bg-primary/10'
                   : 'border-border hover:border-border'
               )}
             >
               <Zap
                 className={cn(
                   'h-6 w-6 mb-1',
-                  option.id === 'none' ? 'text-gray-300' : 'text-purple-500'
+                  option.id === 'none' ? 'text-muted-foreground' : 'text-primary'
                 )}
               />
               <span className="text-xs font-medium">{option.label}</span>
               <span className="text-[10px] text-muted-foreground">{option.duration}</span>
               {speed === option.id && (
-                <Check className="h-4 w-4 text-purple-600 absolute top-1 right-1" />
+                <Check className="h-4 w-4 text-primary absolute top-1 right-1" />
               )}
             </button>
           ))}
@@ -429,7 +429,7 @@ export function AnimationSpeedPicker({
           type="checkbox"
           checked={hoverEffects}
           onChange={(e) => onHoverEffectsChange(e.target.checked)}
-          className="rounded border-border text-purple-600 focus:ring-purple-500"
+          className="rounded border-border text-primary focus:ring-purple-500"
         />
         <span className="text-sm">Enable hover effects on interactive elements</span>
       </label>
@@ -463,7 +463,7 @@ export function ImageAspectRatioPicker({ value, onChange }: ImageAspectRatioPick
             className={cn(
               'relative flex flex-col items-center p-3 rounded-lg border-2 transition-all',
               value === option.id
-                ? 'border-purple-500 bg-purple-50'
+                ? 'border-primary bg-primary/10'
                 : 'border-border hover:border-border'
             )}
           >
@@ -481,7 +481,7 @@ export function ImageAspectRatioPicker({ value, onChange }: ImageAspectRatioPick
             <span className="text-xs font-medium">{option.label}</span>
             <span className="text-[10px] text-muted-foreground">{option.ratio}</span>
             {value === option.id && (
-              <Check className="h-4 w-4 text-purple-600 absolute top-1 right-1" />
+              <Check className="h-4 w-4 text-primary absolute top-1 right-1" />
             )}
           </button>
         ))}

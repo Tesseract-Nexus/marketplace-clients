@@ -268,12 +268,12 @@ export default function PaymentsSettingsPage() {
                     {hasPrimaryGateway ? (
                       <CheckCircle className="h-5 w-5 text-success" />
                     ) : (
-                      <XCircle className="h-5 w-5 text-gray-300" />
+                      <XCircle className="h-5 w-5 text-muted-foreground" />
                     )}
                     {hasFallbackGateway ? (
                       <CheckCircle className="h-5 w-5 text-success" />
                     ) : (
-                      <XCircle className="h-5 w-5 text-gray-300" />
+                      <XCircle className="h-5 w-5 text-muted-foreground" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">Primary + Fallback</p>
@@ -346,7 +346,7 @@ export default function PaymentsSettingsPage() {
                 {(!hasPrimaryGateway || !hasFallbackGateway) && (
                   <Button
                     onClick={() => setActiveTab('gateways')}
-                    className="w-full bg-white text-violet-700 hover:bg-muted"
+                    className="w-full bg-white text-primary hover:bg-muted"
                   >
                     <Zap className="h-4 w-4 mr-2" />
                     Quick Setup

@@ -233,7 +233,7 @@ export function RefreshSelector({ compact = false }: RefreshSelectorProps) {
                 isAutoRefreshActive
                   ? "bg-success-muted text-success-foreground"
                   : isAutoRefreshEnabled
-                    ? "bg-yellow-100 text-yellow-700"
+                    ? "bg-warning-muted text-warning"
                     : "bg-muted text-muted-foreground"
               )}>
                 {isAutoRefreshActive ? 'Active' : isAutoRefreshEnabled ? 'Dashboard only' : 'Paused'}

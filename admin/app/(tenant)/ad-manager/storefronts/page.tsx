@@ -167,9 +167,9 @@ export default function StorefrontsPage() {
 
           {/* Error Banner */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
-              <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
-              <p className="text-red-800">{error}</p>
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-center gap-3">
+              <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+              <p className="text-destructive">{error}</p>
               <Button variant="outline" size="sm" onClick={fetchData} className="ml-auto">
                 Retry
               </Button>

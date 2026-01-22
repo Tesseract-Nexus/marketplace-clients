@@ -25,7 +25,7 @@ export function TopProductsWidget({ data }: TopProductsWidgetProps) {
   const { formatPrice } = useAdminCurrency();
 
   return (
-    <DashboardCard className="border-border/50 hover:border-violet-300/50 transition-all duration-300">
+    <DashboardCard className="border-border/50 hover:border-primary/30/50 transition-all duration-300">
       <DashboardCardHeader className="pb-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -40,7 +40,7 @@ export function TopProductsWidget({ data }: TopProductsWidgetProps) {
             </div>
           </div>
           <Link href="/products">
-            <Button variant="outline" className="text-foreground hover:text-violet-700 hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 text-xs h-8 bg-card border border-border hover:border-violet-300 shadow-sm hover:shadow transition-all">
+            <Button variant="outline" className="text-foreground hover:text-primary hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 text-xs h-8 bg-card border border-border hover:border-primary/30 shadow-sm hover:shadow transition-all">
               <Package className="h-3 w-3 mr-1" />
               <AdminUIText text="View All" />
             </Button>
@@ -55,14 +55,14 @@ export function TopProductsWidget({ data }: TopProductsWidgetProps) {
             {topProducts.map((product, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-violet-50/50 transition-all duration-200 border border-border hover:border-violet-200"
+                className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-primary/10/50 transition-all duration-200 border border-border hover:border-primary/30"
               >
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     "w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm",
                     index === 0 ? "bg-warning-muted text-warning-foreground" :
-                    index === 1 ? "bg-gray-200 text-foreground" :
-                    index === 2 ? "bg-orange-100 text-orange-700" :
+                    index === 1 ? "bg-muted text-foreground" :
+                    index === 2 ? "bg-warning-muted text-warning" :
                     "bg-muted text-muted-foreground"
                   )}>
                     #{index + 1}
@@ -73,7 +73,7 @@ export function TopProductsWidget({ data }: TopProductsWidgetProps) {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-sm text-violet-600">{formatPrice(product.revenue)}</p>
+                  <p className="font-semibold text-sm text-primary">{formatPrice(product.revenue)}</p>
                 </div>
               </div>
             ))}

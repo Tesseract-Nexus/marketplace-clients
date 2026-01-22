@@ -27,7 +27,7 @@ export function ActivityFeedWidget({ data }: ActivityFeedWidgetProps) {
       case 'order': return <ShoppingCart className="h-4 w-4 text-primary" />;
       case 'customer': return <UserPlus className="h-4 w-4 text-emerald-600" />;
       case 'review': return <MessageCircle className="h-4 w-4 text-warning" />;
-      case 'product': return <Package className="h-4 w-4 text-violet-600" />;
+      case 'product': return <Package className="h-4 w-4 text-primary" />;
       case 'payment': return <CreditCard className="h-4 w-4 text-emerald-600" />;
       default: return <Activity className="h-4 w-4 text-muted-foreground" />;
     }
@@ -38,7 +38,7 @@ export function ActivityFeedWidget({ data }: ActivityFeedWidgetProps) {
       case 'order': return 'border-primary/30 bg-primary/10/50';
       case 'customer': return 'border-emerald-200 bg-emerald-50/50';
       case 'review': return 'border-warning/30 bg-warning-muted/50';
-      case 'product': return 'border-violet-200 bg-violet-50/50';
+      case 'product': return 'border-primary/30 bg-primary/10/50';
       case 'payment': return 'border-emerald-200 bg-emerald-50/50';
       default: return 'border-border bg-muted/50';
     }

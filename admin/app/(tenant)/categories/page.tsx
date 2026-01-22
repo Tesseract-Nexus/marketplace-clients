@@ -695,11 +695,11 @@ export default function CategoriesPage() {
                     e.stopPropagation();
                     handleEditCategory(category);
                   }}
-                  className="h-8 w-8 p-0 rounded-lg hover:bg-violet-50 transition-colors"
+                  className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                   title="Edit"
                   aria-label="Edit category"
                 >
-                  <Edit className="w-4 h-4 text-violet-600" aria-hidden="true" />
+                  <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                 </Button>
               </PermissionGate>
               <PermissionGate permission={Permission.CATEGORIES_DELETE}>
@@ -929,9 +929,9 @@ export default function CategoriesPage() {
                     options={[
                       { value: 'ALL', label: 'All Status', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
                       { value: 'DRAFT', label: 'Draft', icon: <FileEdit className="w-4 h-4 text-muted-foreground" /> },
-                      { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-yellow-500" /> },
+                      { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-warning" /> },
                       { value: 'APPROVED', label: 'Approved', icon: <CheckCircle2 className="w-4 h-4 text-success" /> },
-                      { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-red-500" /> },
+                      { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-destructive" /> },
                     ]}
                     variant="filter"
                   />
@@ -944,7 +944,7 @@ export default function CategoriesPage() {
                     options={[
                       { value: 'ALL', label: 'All States', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
                       { value: 'ACTIVE', label: 'Active Only', icon: <Circle className="w-4 h-4 text-success fill-green-500" /> },
-                      { value: 'INACTIVE', label: 'Inactive Only', icon: <CircleOff className="w-4 h-4 text-red-500" /> },
+                      { value: 'INACTIVE', label: 'Inactive Only', icon: <CircleOff className="w-4 h-4 text-destructive" /> },
                     ]}
                     variant="filter"
                   />
@@ -1031,7 +1031,7 @@ export default function CategoriesPage() {
                     variant="destructive"
                     size="sm"
                     onClick={handleBulkDelete}
-                    className="bg-red-600 hover:bg-red-700"
+                    className="bg-destructive hover:bg-destructive"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
                     <AdminButtonText text="Delete Selected" />
@@ -1097,7 +1097,7 @@ export default function CategoriesPage() {
             )}
             {filteredCategories.length === 0 ? (
               <div className="text-center py-16">
-                <FolderTree className="w-20 h-20 mx-auto text-gray-300 mb-6" />
+                <FolderTree className="w-20 h-20 mx-auto text-muted-foreground mb-6" />
                 <h3 className="text-xl font-semibold text-foreground mb-2">
                   {searchQuery || statusFilter !== 'ALL' || activeFilter !== 'ALL'
                     ? <AdminUIText text="No categories found" />
@@ -1128,7 +1128,7 @@ export default function CategoriesPage() {
       ) : !loading ? (
         /* Create/Edit Form */
         <Card className="border-primary/50/50 bg-gradient-to-r from-blue-50/50 to-violet-50/50">
-          <CardHeader className="border-b border-blue-100">
+          <CardHeader className="border-b border-primary/20">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
                 {viewMode === 'create' ? <AdminUIText text="Create Category" /> : viewMode === 'edit' ? <AdminUIText text="Edit Category" /> : <AdminUIText text="Category Details" />}
@@ -1220,7 +1220,7 @@ export default function CategoriesPage() {
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-bold text-foreground mb-3">
-                    <AdminFormLabel text="Category Name" as="span" /> <span className="text-red-500">*</span>
+                    <AdminFormLabel text="Category Name" as="span" /> <span className="text-destructive">*</span>
                   </label>
                   <div className="relative">
                     <Tags className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
@@ -1231,14 +1231,14 @@ export default function CategoriesPage() {
                       className={cn(
                         "w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium shadow-sm",
                         errors.name
-                          ? "border-red-500 focus:ring-red-500 focus:border-red-500"
+                          ? "border-destructive focus:ring-red-500 focus:border-destructive"
                           : "border-border focus:ring-ring focus:border-primary"
                       )}
                       placeholder="Enter category name..."
                     />
                   </div>
                   {errors.name && (
-                    <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                    <div className="flex items-center gap-1 mt-1 text-destructive text-sm">
                       <AlertCircle className="h-4 w-4" />
                       <span>{errors.name}</span>
                     </div>
@@ -1247,7 +1247,7 @@ export default function CategoriesPage() {
 
                 <div>
                   <label className="block text-sm font-bold text-foreground mb-3">
-                    <AdminFormLabel text="Slug" as="span" /> <span className="text-red-500">*</span>
+                    <AdminFormLabel text="Slug" as="span" /> <span className="text-destructive">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none font-mono text-sm">#</div>
@@ -1258,14 +1258,14 @@ export default function CategoriesPage() {
                       className={cn(
                         "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-mono font-medium shadow-sm",
                         errors.slug
-                          ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-                          : "border-border focus:ring-violet-500 focus:border-violet-500"
+                          ? "border-destructive focus:ring-red-500 focus:border-destructive"
+                          : "border-border focus:ring-violet-500 focus:border-primary"
                       )}
                       placeholder="category-slug"
                     />
                   </div>
                   {errors.slug && (
-                    <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                    <div className="flex items-center gap-1 mt-1 text-destructive text-sm">
                       <AlertCircle className="h-4 w-4" />
                       <span>{errors.slug}</span>
                     </div>
@@ -1322,7 +1322,7 @@ export default function CategoriesPage() {
                           .map(cat => ({
                             value: cat.id,
                             label: `${'  '.repeat(cat.level)}${cat.name}`,
-                            icon: cat.level === 0 ? <Folder className="w-4 h-4 text-yellow-500" /> : <Tag className="w-4 h-4 text-violet-500" />,
+                            icon: cat.level === 0 ? <Folder className="w-4 h-4 text-warning" /> : <Tag className="w-4 h-4 text-primary" />,
                           }))
                       ]}
                       leftIcon={<FolderTree className="w-5 h-5 text-muted-foreground" />}
@@ -1336,9 +1336,9 @@ export default function CategoriesPage() {
                       onChange={(value) => setFormData({ ...formData, status: value as any })}
                       options={[
                         { value: 'DRAFT', label: 'Draft', icon: <FileEdit className="w-4 h-4 text-muted-foreground" /> },
-                        { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-yellow-500" /> },
+                        { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-warning" /> },
                         { value: 'APPROVED', label: 'Approved', icon: <CheckCircle2 className="w-4 h-4 text-success" /> },
-                        { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-red-500" /> },
+                        { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-destructive" /> },
                       ]}
                       leftIcon={<CheckCircle className="w-5 h-5 text-muted-foreground" />}
                     />

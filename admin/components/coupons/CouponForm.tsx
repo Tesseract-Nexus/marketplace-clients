@@ -304,7 +304,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
           <Button
             onClick={() => router.push('/coupons')}
             variant="outline"
-            className="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-border text-foreground hover:bg-muted hover:border-gray-400 transition-all"
+            className="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-border text-foreground hover:bg-muted hover:border-border transition-all"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Coupons
@@ -313,11 +313,11 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
 
         {/* Error Alert */}
         {error && (
-          <div className="bg-red-50 border-2 border-red-200 rounded-xl p-4 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="bg-destructive/10 border-2 border-destructive/30 rounded-xl p-4 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-semibold text-red-900">Error</h3>
-              <p className="text-red-700 text-sm mt-1">{error}</p>
+              <h3 className="font-semibold text-destructive">Error</h3>
+              <p className="text-destructive text-sm mt-1">{error}</p>
             </div>
           </div>
         )}
@@ -326,7 +326,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
         <Card className="rounded-2xl border-2 border-dashed border-primary/50 bg-gradient-to-br from-blue-50 to-violet-50 shadow-lg overflow-hidden">
           <CardContent className="p-6">
             <p className="text-xs font-bold text-primary mb-3 uppercase tracking-wide">Live Preview</p>
-            <div className="bg-card rounded-xl p-5 shadow-md border border-blue-100">
+            <div className="bg-card rounded-xl p-5 shadow-md border border-primary/20">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
@@ -374,7 +374,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
         </Card>
 
         <Card className="rounded-2xl border-primary/50/50 bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300">
-          <CardHeader className="border-b border-blue-100 p-6">
+          <CardHeader className="border-b border-primary/20 p-6">
             <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
               {mode === 'create' ? 'Create New Coupon' : 'Edit Coupon'}
             </CardTitle>
@@ -383,7 +383,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-bold text-foreground mb-3">
-                  Coupon Code <span className="text-red-500">*</span>
+                  Coupon Code <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="text"
@@ -391,12 +391,12 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   onChange={(e) => handleFieldChange('code', e.target.value.toUpperCase())}
                   className={cn(
                     "w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 font-mono font-bold",
-                    errors.code ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-ring'
+                    errors.code ? 'border-destructive focus:ring-red-500' : 'border-border focus:ring-ring'
                   )}
                   placeholder="SUMMER20"
                 />
                 {errors.code && (
-                  <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                  <div className="flex items-center gap-1 mt-1 text-destructive text-sm">
                     <AlertCircle className="h-4 w-4" />
                     <span>{errors.code}</span>
                   </div>
@@ -405,7 +405,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
 
               <div>
                 <label className="block text-sm font-bold text-foreground mb-3">
-                  Coupon Name <span className="text-red-500">*</span>
+                  Coupon Name <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="text"
@@ -413,12 +413,12 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   onChange={(e) => handleFieldChange('name', e.target.value)}
                   className={cn(
                     "w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2",
-                    errors.name ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-ring'
+                    errors.name ? 'border-destructive focus:ring-red-500' : 'border-border focus:ring-ring'
                   )}
                   placeholder="Summer Sale"
                 />
                 {errors.name && (
-                  <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                  <div className="flex items-center gap-1 mt-1 text-destructive text-sm">
                     <AlertCircle className="h-4 w-4" />
                     <span>{errors.name}</span>
                   </div>
@@ -454,7 +454,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
 
               <div>
                 <label className="block text-sm font-bold text-foreground mb-3">
-                  Discount Value <span className="text-red-500">*</span>
+                  Discount Value <span className="text-destructive">*</span>
                 </label>
                 <input
                   type="number"
@@ -463,12 +463,12 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   onChange={(e) => handleFieldChange('discountValue', e.target.value)}
                   className={cn(
                     "w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2",
-                    errors.discountValue ? 'border-red-500 focus:ring-red-500' : 'border-border focus:ring-ring'
+                    errors.discountValue ? 'border-destructive focus:ring-red-500' : 'border-border focus:ring-ring'
                   )}
                   placeholder={formData.discountType === 'PERCENTAGE' ? '20' : '25.00'}
                 />
                 {errors.discountValue && (
-                  <div className="flex items-center gap-1 mt-1 text-red-600 text-sm">
+                  <div className="flex items-center gap-1 mt-1 text-destructive text-sm">
                     <AlertCircle className="h-4 w-4" />
                     <span>{errors.discountValue}</span>
                   </div>

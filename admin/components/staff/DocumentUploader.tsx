@@ -209,7 +209,7 @@ export function DocumentUploader({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700">
+        <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-xl flex items-center gap-2 text-destructive">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           <p className="text-sm">{error}</p>
         </div>
@@ -227,7 +227,7 @@ export function DocumentUploader({
             ? 'border-primary bg-primary/10'
             : file
             ? 'border-success/40 bg-success-muted'
-            : 'border-border hover:border-gray-400 bg-muted'
+            : 'border-border hover:border-border bg-muted'
         )}
       >
         <input
@@ -256,7 +256,7 @@ export function DocumentUploader({
                 e.stopPropagation();
                 clearFile();
               }}
-              className="p-2 text-muted-foreground hover:text-red-600 hover:bg-red-50"
+              className="p-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
             >
               <X className="w-5 h-5" />
             </Button>
@@ -279,7 +279,7 @@ export function DocumentUploader({
         {/* Document Type */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            Document Type <span className="text-red-500">*</span>
+            Document Type <span className="text-destructive">*</span>
           </label>
           <Select
             value={formData.documentType}
@@ -300,7 +300,7 @@ export function DocumentUploader({
         {/* Document Name */}
         <div>
           <label className="block text-sm font-medium text-foreground mb-2">
-            Document Name <span className="text-red-500">*</span>
+            Document Name <span className="text-destructive">*</span>
           </label>
           <input
             type="text"

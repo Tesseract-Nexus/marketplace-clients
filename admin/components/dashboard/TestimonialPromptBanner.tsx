@@ -139,7 +139,7 @@ export function TestimonialPromptBanner({ className }: TestimonialPromptBannerPr
                   Share Your Success Story
                   <span className="flex">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                      <Star key={i} className="h-4 w-4 fill-amber-400 text-warning" />
                     ))}
                   </span>
                 </h3>

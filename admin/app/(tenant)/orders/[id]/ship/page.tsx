@@ -236,9 +236,9 @@ export default function CreateShipmentPage() {
     return (
       <div className="min-h-screen bg-background p-8">
         <div className="max-w-4xl mx-auto">
-          <Card className="border-red-200">
+          <Card className="border-destructive/30">
             <CardContent className="p-12 text-center">
-              <AlertCircle className="w-16 h-16 mx-auto text-red-400 mb-4" />
+              <AlertCircle className="w-16 h-16 mx-auto text-destructive mb-4" />
               <h2 className="text-xl font-bold text-foreground mb-2">Order Not Found</h2>
               <p className="text-muted-foreground mb-6">{error || 'The requested order could not be found.'}</p>
               <Button onClick={() => router.push('/orders')} className="bg-primary hover:bg-primary">
@@ -295,7 +295,7 @@ export default function CreateShipmentPage() {
         />
 
         {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700">
+          <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-xl flex items-center gap-3 text-destructive">
             <AlertCircle className="w-5 h-5" />
             <span>{error}</span>
           </div>
@@ -493,36 +493,36 @@ export default function CreateShipmentPage() {
                   <div className="space-y-3 animate-pulse">
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <div className="h-3 w-10 bg-gray-200 rounded mb-1" />
-                        <div className="h-10 bg-gray-200 rounded-lg" />
+                        <div className="h-3 w-10 bg-muted rounded mb-1" />
+                        <div className="h-10 bg-muted rounded-lg" />
                       </div>
                       <div>
-                        <div className="h-3 w-14 bg-gray-200 rounded mb-1" />
-                        <div className="h-10 bg-gray-200 rounded-lg" />
+                        <div className="h-3 w-14 bg-muted rounded mb-1" />
+                        <div className="h-10 bg-muted rounded-lg" />
                       </div>
                     </div>
                     <div>
-                      <div className="h-3 w-12 bg-gray-200 rounded mb-1" />
-                      <div className="h-10 bg-gray-200 rounded-lg" />
+                      <div className="h-3 w-12 bg-muted rounded mb-1" />
+                      <div className="h-10 bg-muted rounded-lg" />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <div className="h-3 w-8 bg-gray-200 rounded mb-1" />
-                        <div className="h-10 bg-gray-200 rounded-lg" />
+                        <div className="h-3 w-8 bg-muted rounded mb-1" />
+                        <div className="h-10 bg-muted rounded-lg" />
                       </div>
                       <div>
-                        <div className="h-3 w-10 bg-gray-200 rounded mb-1" />
-                        <div className="h-10 bg-gray-200 rounded-lg" />
+                        <div className="h-3 w-10 bg-muted rounded mb-1" />
+                        <div className="h-10 bg-muted rounded-lg" />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <div className="h-3 w-16 bg-gray-200 rounded mb-1" />
-                        <div className="h-10 bg-gray-200 rounded-lg" />
+                        <div className="h-3 w-16 bg-muted rounded mb-1" />
+                        <div className="h-10 bg-muted rounded-lg" />
                       </div>
                       <div>
-                        <div className="h-3 w-14 bg-gray-200 rounded mb-1" />
-                        <div className="h-10 bg-gray-200 rounded-lg" />
+                        <div className="h-3 w-14 bg-muted rounded mb-1" />
+                        <div className="h-10 bg-muted rounded-lg" />
                       </div>
                     </div>
                   </div>
@@ -531,7 +531,7 @@ export default function CreateShipmentPage() {
                     <div className="flex items-start gap-3">
                       <AlertCircle className="w-5 h-5 text-warning mt-0.5" />
                       <div>
-                        <p className="font-medium text-amber-800">No warehouse configured</p>
+                        <p className="font-medium text-warning">No warehouse configured</p>
                         <p className="text-sm text-warning-foreground mt-1">
                           Please fill in your warehouse address below, or configure it in{' '}
                           <a href="/settings/shipping-carriers" className="underline hover:no-underline">
@@ -679,7 +679,7 @@ export default function CreateShipmentPage() {
                     );
                   }
                   return (
-                    <div className="p-4 bg-red-50 rounded-xl text-red-700">
+                    <div className="p-4 bg-destructive/10 rounded-xl text-destructive">
                       <AlertCircle className="w-5 h-5 inline mr-2" />
                       No shipping address on this order
                     </div>
@@ -692,7 +692,7 @@ export default function CreateShipmentPage() {
             <Card>
               <CardContent>
                 <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
-                  <Box className="w-5 h-5 text-violet-600" />
+                  <Box className="w-5 h-5 text-primary" />
                   Order Summary
                 </h3>
 

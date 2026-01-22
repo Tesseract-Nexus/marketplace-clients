@@ -193,7 +193,7 @@ export default function TaxExemptionsPage() {
   const getStatusColor = (status: CertificateStatus) => {
     const colors = {
       ACTIVE: 'bg-success-muted text-success-muted-foreground border-success/30',
-      PENDING: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+      PENDING: 'bg-warning-muted text-warning border-warning/30',
       EXPIRED: 'bg-error-muted text-error-muted-foreground border-error/30',
       REVOKED: 'bg-muted text-foreground border-border',
     };
@@ -203,9 +203,9 @@ export default function TaxExemptionsPage() {
   const getTypeColor = (type: CertificateType) => {
     const colors = {
       RESALE: 'bg-primary/20 text-primary border-primary/30',
-      GOVERNMENT: 'bg-purple-100 text-purple-700 border-purple-200',
+      GOVERNMENT: 'bg-primary/10 text-primary border-primary/30',
       NON_PROFIT: 'bg-success-muted text-success-muted-foreground border-success/30',
-      DIPLOMATIC: 'bg-orange-100 text-orange-700 border-orange-200',
+      DIPLOMATIC: 'bg-warning-muted text-warning border-warning/30',
     };
     return colors[type];
   };
@@ -371,7 +371,7 @@ export default function TaxExemptionsPage() {
                       </td>
                       <td className="px-6 py-4 text-sm text-foreground">
                         {cert.appliesToAllJurisdictions ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/30">
                             All Jurisdictions
                           </span>
                         ) : (
@@ -414,11 +414,11 @@ export default function TaxExemptionsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleEdit(cert)}
-                            className="h-8 w-8 p-0 rounded-lg hover:bg-violet-50 transition-colors"
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                             title="Edit"
                             aria-label="Edit exemption"
                           >
-                            <Edit className="w-4 h-4 text-violet-600" aria-hidden="true" />
+                            <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                           </Button>
                           <Button
                             variant="ghost"
@@ -640,7 +640,7 @@ export default function TaxExemptionsPage() {
                     <div className="text-sm font-semibold text-muted-foreground mb-1">Jurisdiction</div>
                     <div className="text-foreground">
                       {viewingCert.appliesToAllJurisdictions ? (
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/30">
                           All Jurisdictions
                         </span>
                       ) : (

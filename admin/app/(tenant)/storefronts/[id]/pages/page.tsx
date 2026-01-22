@@ -200,7 +200,7 @@ export default function StorefrontPagesPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 text-purple-500 animate-spin mx-auto mb-4" />
+          <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
           <p className="text-muted-foreground">Loading pages...</p>
         </div>
       </div>
@@ -289,7 +289,7 @@ export default function StorefrontPagesPage() {
               placeholder="Search pages..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
             />
           </div>
         </div>
@@ -298,10 +298,10 @@ export default function StorefrontPagesPage() {
         <div className="bg-card rounded-xl border border-border overflow-hidden">
           {filteredPages.length === 0 ? (
             <div className="p-12 text-center">
-              <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+              <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">No pages found</h3>
               <p className="text-muted-foreground mb-4">Create your first custom page</p>
-              <Button onClick={handleCreatePage} className="bg-purple-600 text-white">
+              <Button onClick={handleCreatePage} className="bg-primary text-white">
                 <Plus className="h-4 w-4 mr-2" />
                 Create Page
               </Button>
@@ -313,7 +313,7 @@ export default function StorefrontPagesPage() {
                   key={page.id}
                   className="flex items-center gap-4 p-4 hover:bg-muted transition-colors group"
                 >
-                  <div className="text-gray-300 cursor-grab">
+                  <div className="text-muted-foreground cursor-grab">
                     <GripVertical className="h-5 w-5" />
                   </div>
 
@@ -355,7 +355,7 @@ export default function StorefrontPagesPage() {
                       className={cn(
                         'p-2 rounded-lg',
                         page.isPublished
-                          ? 'hover:bg-orange-50 text-orange-600'
+                          ? 'hover:bg-warning-muted text-warning'
                           : 'hover:bg-success-muted text-success'
                       )}
                     >
@@ -373,7 +373,7 @@ export default function StorefrontPagesPage() {
                     </button>
                     <button
                       onClick={() => handleDeletePage(page)}
-                      className="p-2 rounded-lg hover:bg-red-50 text-red-600"
+                      className="p-2 rounded-lg hover:bg-destructive/10 text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -417,7 +417,7 @@ export default function StorefrontPagesPage() {
                         setEditingPage({ ...editingPage, title: e.target.value })
                       }
                       placeholder="About Us"
-                      className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                      className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                     />
                   </div>
                   <div>
@@ -436,7 +436,7 @@ export default function StorefrontPagesPage() {
                           })
                         }
                         placeholder="about-us"
-                        className="flex-1 px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                        className="flex-1 px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                       />
                     </div>
                   </div>
@@ -453,7 +453,7 @@ export default function StorefrontPagesPage() {
                     }
                     placeholder="Enter your page content (HTML supported)..."
                     rows={12}
-                    className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 font-mono text-sm"
+                    className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary font-mono text-sm"
                   />
                   <p className="text-xs text-muted-foreground mt-1">
                     You can use HTML to format your content
@@ -472,7 +472,7 @@ export default function StorefrontPagesPage() {
                         setEditingPage({ ...editingPage, metaTitle: e.target.value })
                       }
                       placeholder="Page title for search engines"
-                      className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                      className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                     />
                   </div>
                   <div>
@@ -489,7 +489,7 @@ export default function StorefrontPagesPage() {
                         })
                       }
                       placeholder="Brief description for search engines"
-                      className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                      className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                     />
                   </div>
                 </div>
@@ -501,7 +501,7 @@ export default function StorefrontPagesPage() {
                     onChange={(e) =>
                       setEditingPage({ ...editingPage, isPublished: e.target.checked })
                     }
-                    className="rounded border-border text-purple-600 focus:ring-purple-500"
+                    className="rounded border-border text-primary focus:ring-purple-500"
                   />
                   <span className="text-sm font-medium">Publish this page</span>
                 </label>

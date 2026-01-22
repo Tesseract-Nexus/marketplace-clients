@@ -309,8 +309,8 @@ export function MediaUploader({
         className={cn(
           'relative border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200',
           isDragging
-            ? 'border-violet-500 bg-violet-50'
-            : 'border-border hover:border-violet-400 hover:bg-muted',
+            ? 'border-primary bg-primary/10'
+            : 'border-border hover:border-primary/60 hover:bg-muted',
           disabled && 'opacity-50 cursor-not-allowed',
           isSingle ? 'aspect-square' : 'aspect-[4/3]',
           className
@@ -347,7 +347,7 @@ export function MediaUploader({
         key={item.id}
         className={cn(
           'relative group rounded-xl overflow-hidden bg-muted border-2',
-          isFirst ? 'border-violet-500' : 'border-transparent',
+          isFirst ? 'border-primary' : 'border-transparent',
           draggedItem === item.id && 'opacity-50',
         )}
         style={{ aspectRatio }}
@@ -386,7 +386,7 @@ export function MediaUploader({
 
         {/* Primary Badge */}
         {isFirst && !isSingle && (
-          <div className="absolute top-2 left-2 bg-violet-600 text-white text-xs px-2 py-0.5 rounded-full">
+          <div className="absolute top-2 left-2 bg-primary text-white text-xs px-2 py-0.5 rounded-full">
             Primary
           </div>
         )}
@@ -436,7 +436,7 @@ export function MediaUploader({
 
       {/* Error Message */}
       {uploadError && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-600">
+        <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-sm text-destructive">
           {uploadError}
         </div>
       )}

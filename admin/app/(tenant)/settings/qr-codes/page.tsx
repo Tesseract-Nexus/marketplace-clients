@@ -1304,7 +1304,7 @@ export default function QRCodesPage() {
                               "rounded-full border border-border transition-all duration-200",
                               shareSuccess === 'instagram' || shareSuccess === 'instagram-download'
                                 ? "bg-success-muted border-success/30 text-success"
-                                : "hover:bg-pink-50 hover:border-pink-200 hover:text-[#E1306C]"
+                                : "hover:bg-primary/10 hover:border-primary/30 hover:text-[#E1306C]"
                             )}
                           >
                             {shareSuccess === 'instagram' || shareSuccess === 'instagram-download' ? (

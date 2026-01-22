@@ -159,7 +159,7 @@ const getDeliveryStatusBadge = (status: string) => {
       );
     case "failed":
       return (
-        <Badge className="bg-red-100 text-red-700 border-red-200">
+        <Badge className="bg-destructive/10 text-destructive border-destructive/30">
           <AlertCircle className="w-3 h-3 mr-1" />
           Failed
         </Badge>
@@ -262,8 +262,8 @@ export default function WebhooksPage() {
                 <p className="text-sm text-muted-foreground">Total Webhooks</p>
                 <p className="text-2xl font-bold">{sampleWebhooks.length}</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                <Webhook className="w-5 h-5 text-orange-600" />
+              <div className="w-10 h-10 rounded-lg bg-warning-muted dark:bg-warning/30 flex items-center justify-center">
+                <Webhook className="w-5 h-5 text-warning" />
               </div>
             </div>
           </CardContent>
@@ -290,7 +290,7 @@ export default function WebhooksPage() {
                 <p className="text-sm text-muted-foreground">Deliveries (24h)</p>
                 <p className="text-2xl font-bold">156</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-primary/20 dark:bg-blue-900/30 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-primary/20 dark:bg-primary/30 flex items-center justify-center">
                 <Activity className="w-5 h-5 text-primary" />
               </div>
             </div>
@@ -304,8 +304,8 @@ export default function WebhooksPage() {
                 <p className="text-sm text-muted-foreground">Success Rate</p>
                 <p className="text-2xl font-bold">98.5%</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5 text-purple-600" />
+              <div className="w-10 h-10 rounded-lg bg-primary/10 dark:bg-primary/30 flex items-center justify-center">
+                <CheckCircle2 className="w-5 h-5 text-primary" />
               </div>
             </div>
           </CardContent>
@@ -380,7 +380,7 @@ export default function WebhooksPage() {
                           Regenerate Secret
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-red-600">
+                        <DropdownMenuItem className="text-destructive">
                           <Trash2 className="w-4 h-4 mr-2" />
                           Delete
                         </DropdownMenuItem>

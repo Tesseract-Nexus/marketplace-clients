@@ -163,11 +163,11 @@ export default function OrderDetailsPage() {
     const styles: Record<OrderStatus, string> = {
       PLACED: 'bg-warning-muted text-warning-foreground border-warning/30',
       CONFIRMED: 'bg-primary/20 text-primary border-primary/30',
-      PROCESSING: 'bg-violet-100 text-violet-700 border-violet-200',
-      SHIPPED: 'bg-indigo-100 text-indigo-700 border-indigo-200',
-      DELIVERED: 'bg-teal-100 text-teal-700 border-teal-200',
+      PROCESSING: 'bg-primary/10 text-primary border-primary/30',
+      SHIPPED: 'bg-primary/10 text-primary border-primary/30',
+      DELIVERED: 'bg-success-muted text-success border-success/30',
       COMPLETED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      CANCELLED: 'bg-red-100 text-red-700 border-red-200',
+      CANCELLED: 'bg-destructive/10 text-destructive border-destructive/30',
     };
     return <Badge className={styles[status]}>{status}</Badge>;
   };
@@ -176,9 +176,9 @@ export default function OrderDetailsPage() {
     const styles: Record<PaymentStatus, string> = {
       PENDING: 'bg-warning-muted text-warning-foreground border-warning/30',
       PAID: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      FAILED: 'bg-red-100 text-red-700 border-red-200',
-      PARTIALLY_REFUNDED: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-      REFUNDED: 'bg-orange-100 text-orange-700 border-orange-200',
+      FAILED: 'bg-destructive/10 text-destructive border-destructive/30',
+      PARTIALLY_REFUNDED: 'bg-warning-muted text-warning border-warning/30',
+      REFUNDED: 'bg-warning-muted text-warning border-warning/30',
     };
     return <Badge className={styles[status]}>{status.replace('_', ' ')}</Badge>;
   };
@@ -187,13 +187,13 @@ export default function OrderDetailsPage() {
     const styles: Record<FulfillmentStatus, string> = {
       UNFULFILLED: 'bg-muted text-foreground border-border',
       PROCESSING: 'bg-primary/20 text-primary border-primary/30',
-      PACKED: 'bg-indigo-100 text-indigo-700 border-indigo-200',
-      DISPATCHED: 'bg-cyan-100 text-cyan-700 border-cyan-200',
+      PACKED: 'bg-primary/10 text-primary border-primary/30',
+      DISPATCHED: 'bg-accent text-accent-foreground border-accent',
       IN_TRANSIT: 'bg-sky-100 text-sky-700 border-sky-200',
-      OUT_FOR_DELIVERY: 'bg-teal-100 text-teal-700 border-teal-200',
+      OUT_FOR_DELIVERY: 'bg-success-muted text-success border-success/30',
       DELIVERED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      FAILED_DELIVERY: 'bg-red-100 text-red-700 border-red-200',
-      RETURNED: 'bg-orange-100 text-orange-700 border-orange-200',
+      FAILED_DELIVERY: 'bg-destructive/10 text-destructive border-destructive/30',
+      RETURNED: 'bg-warning-muted text-warning border-warning/30',
     };
     const labels: Record<FulfillmentStatus, string> = {
       UNFULFILLED: 'Unfulfilled',
@@ -317,9 +317,9 @@ export default function OrderDetailsPage() {
     return (
       <div className="min-h-screen bg-background p-8">
         <div className="max-w-4xl mx-auto">
-          <Card className="border-red-200">
+          <Card className="border-destructive/30">
             <CardContent className="p-12 text-center">
-              <XCircle className="w-16 h-16 mx-auto text-red-400 mb-4" />
+              <XCircle className="w-16 h-16 mx-auto text-destructive mb-4" />
               <h2 className="text-xl font-bold text-foreground mb-2">Order Not Found</h2>
               <p className="text-muted-foreground mb-6">{error || 'The requested order could not be found.'}</p>
               <Button onClick={() => router.push('/orders')} className="bg-primary hover:bg-primary">
@@ -379,7 +379,7 @@ export default function OrderDetailsPage() {
                   </div>
                   <div>
                     <h2 className="text-3xl font-bold">{order.orderNumber}</h2>
-                    <p className="text-blue-100 text-sm flex items-center gap-2 mt-1">
+                    <p className="text-primary/30 text-sm flex items-center gap-2 mt-1">
                       <Calendar className="w-4 h-4" />
                       {formatDateTime(order)}
                     </p>
@@ -387,7 +387,7 @@ export default function OrderDetailsPage() {
                 </div>
               </div>
               <div className="text-right">
-                <p className="text-blue-100 text-sm mb-1">Order Total</p>
+                <p className="text-primary/30 text-sm mb-1">Order Total</p>
                 <p className="text-4xl font-bold">{formatCurrency(order.total, order.currencyCode)}</p>
               </div>
             </div>
@@ -421,7 +421,7 @@ export default function OrderDetailsPage() {
               <div className="flex items-center gap-4">
                 <div className={cn(
                   "p-3 rounded-xl",
-                  order.status === 'CANCELLED' ? "bg-red-100" :
+                  order.status === 'CANCELLED' ? "bg-destructive/10" :
                   order.status === 'DELIVERED' || order.status === 'COMPLETED' ? "bg-emerald-100" : "bg-primary/20"
                 )}>
                   {getStatusIcon(order.status)}
@@ -438,22 +438,22 @@ export default function OrderDetailsPage() {
               <div className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-xl border",
                 order.paymentStatus === 'PAID' ? "bg-emerald-50 border-emerald-200" :
-                order.paymentStatus === 'FAILED' ? "bg-red-50 border-red-200" :
-                order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "bg-orange-50 border-orange-200" :
+                order.paymentStatus === 'FAILED' ? "bg-destructive/10 border-destructive/30" :
+                order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "bg-warning-muted border-warning/30" :
                 "bg-warning-muted border-warning/30"
               )}>
                 <CreditCard className={cn(
                   "w-4 h-4",
                   order.paymentStatus === 'PAID' ? "text-emerald-600" :
-                  order.paymentStatus === 'FAILED' ? "text-red-600" :
-                  order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "text-orange-600" :
+                  order.paymentStatus === 'FAILED' ? "text-destructive" :
+                  order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "text-warning" :
                   "text-warning"
                 )} />
                 <span className={cn(
                   "text-sm font-semibold",
                   order.paymentStatus === 'PAID' ? "text-emerald-700" :
-                  order.paymentStatus === 'FAILED' ? "text-red-700" :
-                  order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "text-orange-700" :
+                  order.paymentStatus === 'FAILED' ? "text-destructive" :
+                  order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "text-warning" :
                   "text-warning-foreground"
                 )}>
                   {order.paymentStatus === 'PAID' ? 'Paid' :
@@ -470,7 +470,7 @@ export default function OrderDetailsPage() {
               <div className="mb-8 py-4 px-2">
                 <div className="relative">
                   {/* Progress line */}
-                  <div className="absolute top-4 left-8 right-8 h-1 bg-gray-200 rounded-full">
+                  <div className="absolute top-4 left-8 right-8 h-1 bg-muted rounded-full">
                     <div
                       className="absolute h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all duration-500"
                       style={{ width: `${(getOrderStatusStep(order.status) / (orderStatusSteps.length - 1)) * 100}%` }}
@@ -487,7 +487,7 @@ export default function OrderDetailsPage() {
                         <div key={step} className="flex flex-col items-center flex-1">
                           <div className={cn(
                             "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all z-10",
-                            isCompleted ? "bg-gradient-to-r from-blue-600 to-emerald-500 text-white shadow-lg" : "bg-gray-200 text-muted-foreground",
+                            isCompleted ? "bg-gradient-to-r from-blue-600 to-emerald-500 text-white shadow-lg" : "bg-muted text-muted-foreground",
                             isCurrent && "ring-4 ring-primary/20 scale-110"
                           )}>
                             {isCompleted ? <CheckCircle className="w-4 h-4" /> : index + 1}
@@ -508,12 +508,12 @@ export default function OrderDetailsPage() {
 
             {/* Cancelled State */}
             {order.status === 'CANCELLED' && (
-              <div className="mb-6 p-4 bg-red-50 rounded-xl border border-red-200">
+              <div className="mb-6 p-4 bg-destructive/10 rounded-xl border border-destructive/30">
                 <div className="flex items-center gap-3">
-                  <XCircle className="w-6 h-6 text-red-500" />
+                  <XCircle className="w-6 h-6 text-destructive" />
                   <div>
-                    <p className="font-semibold text-red-700">Order Cancelled</p>
-                    <p className="text-sm text-red-600">This order has been cancelled and cannot be processed further.</p>
+                    <p className="font-semibold text-destructive">Order Cancelled</p>
+                    <p className="text-sm text-destructive">This order has been cancelled and cannot be processed further.</p>
                   </div>
                 </div>
               </div>
@@ -533,7 +533,7 @@ export default function OrderDetailsPage() {
                       className={cn(
                         "group px-4 py-3 text-sm rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 font-medium",
                         status === 'CANCELLED'
-                          ? "bg-red-50 hover:bg-red-100 text-red-700 border border-red-200"
+                          ? "bg-destructive/10 hover:bg-destructive/10 text-destructive border border-destructive/30"
                           : "bg-primary/10 hover:bg-primary text-primary hover:text-white border border-primary/30 hover:border-primary"
                       )}
                     >
@@ -617,7 +617,7 @@ export default function OrderDetailsPage() {
                     Fulfillment Progress
                   </h3>
                   <div className="relative">
-                    <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                    <div className="h-3 bg-muted rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 transition-all duration-1000 ease-out rounded-full"
                         style={{ width: `${getFulfillmentProgress(order.fulfillmentStatus)}%` }}
@@ -636,7 +636,7 @@ export default function OrderDetailsPage() {
                           {order.fulfillmentStatus === 'DELIVERED' ? (
                             <PackageCheck className="w-5 h-5 text-primary" />
                           ) : order.fulfillmentStatus === 'FAILED_DELIVERY' ? (
-                            <PackageX className="w-5 h-5 text-red-600" />
+                            <PackageX className="w-5 h-5 text-destructive" />
                           ) : (
                             <Truck className="w-5 h-5 text-primary" />
                           )}
@@ -711,8 +711,8 @@ export default function OrderDetailsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3 p-3 bg-muted rounded-xl">
-                    <div className="p-2 bg-violet-100 rounded-lg">
-                      <Mail className="w-4 h-4 text-violet-600" />
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Mail className="w-4 h-4 text-primary" />
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground font-semibold">Email</p>

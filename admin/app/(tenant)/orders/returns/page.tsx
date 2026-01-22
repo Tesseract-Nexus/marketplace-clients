@@ -199,8 +199,8 @@ export default function ReturnsPage() {
     const styles: Record<ReturnStatus, string> = {
       PENDING: 'bg-warning-muted text-warning-foreground border-warning/30',
       APPROVED: 'bg-primary/20 text-primary border-primary/30',
-      REJECTED: 'bg-red-100 text-red-700 border-red-200',
-      PROCESSING: 'bg-violet-100 text-violet-700 border-violet-200',
+      REJECTED: 'bg-destructive/10 text-destructive border-destructive/30',
+      PROCESSING: 'bg-primary/10 text-primary border-primary/30',
       COMPLETED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
       CANCELLED: 'bg-muted text-foreground border-border',
     };
@@ -212,7 +212,7 @@ export default function ReturnsPage() {
       PENDING: 'bg-warning-muted text-warning-foreground border-warning/30',
       PROCESSING: 'bg-primary/20 text-primary border-primary/30',
       COMPLETED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      FAILED: 'bg-red-100 text-red-700 border-red-200',
+      FAILED: 'bg-destructive/10 text-destructive border-destructive/30',
     };
     return <Badge className={styles[status]}>Refund: {status}</Badge>;
   };
@@ -303,7 +303,7 @@ export default function ReturnsPage() {
     return (
       <div className="min-h-screen bg-background p-8 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center">
-          <AlertCircle className="h-12 w-12 text-red-500" />
+          <AlertCircle className="h-12 w-12 text-destructive" />
           <h2 className="text-xl font-semibold text-foreground">Failed to load returns</h2>
           <p className="text-muted-foreground">{error}</p>
           <Button onClick={() => loadReturns()} className="mt-4">
@@ -482,7 +482,7 @@ export default function ReturnsPage() {
                 {paginatedReturns.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
-                      <RotateCcw className="w-12 h-12 mx-auto text-gray-300 mb-4" />
+                      <RotateCcw className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                       <p>No return requests found</p>
                     </td>
                   </tr>
@@ -539,11 +539,11 @@ export default function ReturnsPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleReject(ret.id)}
-                                className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                                className="h-8 w-8 p-0 rounded-lg hover:bg-destructive/10 transition-colors"
                                 title="Reject"
                                 aria-label="Reject return"
                               >
-                                <Ban className="w-4 h-4 text-red-600" aria-hidden="true" />
+                                <Ban className="w-4 h-4 text-destructive" aria-hidden="true" />
                               </Button>
                             </>
                           )}

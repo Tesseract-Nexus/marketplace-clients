@@ -206,13 +206,13 @@ export default function ProductsPage() {
   // Default categories shown when no categories exist for the tenant
   const defaultCategoryOptions = [
     { name: 'Electronics', icon: <Smartphone className="w-4 h-4 text-primary" /> },
-    { name: 'Computers', icon: <Monitor className="w-4 h-4 text-purple-500" /> },
+    { name: 'Computers', icon: <Monitor className="w-4 h-4 text-primary" /> },
     { name: 'Audio', icon: <Headphones className="w-4 h-4 text-success" /> },
-    { name: 'TV & Video', icon: <Tv className="w-4 h-4 text-red-500" /> },
-    { name: 'Gaming', icon: <Gamepad2 className="w-4 h-4 text-orange-500" /> },
-    { name: 'Clothing', icon: <Folder className="w-4 h-4 text-pink-500" /> },
+    { name: 'TV & Video', icon: <Tv className="w-4 h-4 text-destructive" /> },
+    { name: 'Gaming', icon: <Gamepad2 className="w-4 h-4 text-warning" /> },
+    { name: 'Clothing', icon: <Folder className="w-4 h-4 text-primary" /> },
     { name: 'Home & Kitchen', icon: <Folder className="w-4 h-4 text-warning" /> },
-    { name: 'Sports & Outdoors', icon: <Folder className="w-4 h-4 text-teal-500" /> },
+    { name: 'Sports & Outdoors', icon: <Folder className="w-4 h-4 text-success" /> },
     { name: 'Accessories', icon: <Mouse className="w-4 h-4 text-muted-foreground" /> },
   ];
 
@@ -1212,7 +1212,7 @@ export default function ProductsPage() {
                 <Card className="border-border/50">
                   <CardHeader className="border-b border-border bg-gradient-to-r from-violet-50 to-purple-50">
                     <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
-                      <ImageIcon className="w-5 h-5 text-violet-600" />
+                      <ImageIcon className="w-5 h-5 text-primary" />
                       Product Images ({selectedProduct.images.length})
                     </CardTitle>
                   </CardHeader>
@@ -1262,23 +1262,23 @@ export default function ProductsPage() {
                         {formatCurrency(selectedProduct.price, selectedProduct.currencyCode || storeCurrency)}
                       </p>
                     </div>
-                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
+                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-primary/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Compare Price</p>
                       <p className="text-2xl font-bold text-primary">
                         {selectedProduct.comparePrice ? formatCurrency(selectedProduct.comparePrice, selectedProduct.currencyCode || storeCurrency) : 'N/A'}
                       </p>
                     </div>
-                    <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border border-orange-100">
+                    <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border border-warning/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Cost Price</p>
-                      <p className="text-2xl font-bold text-orange-600">
+                      <p className="text-2xl font-bold text-warning">
                         {selectedProduct.costPrice ? formatCurrency(selectedProduct.costPrice, selectedProduct.currencyCode || storeCurrency) : 'N/A'}
                       </p>
                     </div>
                   </div>
                   {selectedProduct.costPrice && (
-                    <div className="mt-4 p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl border border-violet-200">
+                    <div className="mt-4 p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl border border-primary/30">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Profit Margin</p>
-                      <p className="text-xl font-bold text-violet-600">
+                      <p className="text-xl font-bold text-primary">
                         {formatCurrency(parseFloat(selectedProduct.price) - parseFloat(selectedProduct.costPrice), selectedProduct.currencyCode || storeCurrency)}
                         <span className="text-sm font-normal text-muted-foreground ml-2">
                           ({(((parseFloat(selectedProduct.price) - parseFloat(selectedProduct.costPrice)) / parseFloat(selectedProduct.price)) * 100).toFixed(1)}%)
@@ -1299,7 +1299,7 @@ export default function ProductsPage() {
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-blue-100">
+                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-primary/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Stock Quantity</p>
                       <p className="text-2xl font-bold text-primary">{selectedProduct.quantity || 0}</p>
                     </div>
@@ -1311,9 +1311,9 @@ export default function ProductsPage() {
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Min Order</p>
                       <p className="text-2xl font-bold text-success">{selectedProduct.minOrderQty || 1}</p>
                     </div>
-                    <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-4 border border-violet-100">
+                    <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-4 border border-primary/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Max Order</p>
-                      <p className="text-2xl font-bold text-violet-600">{selectedProduct.maxOrderQty || '∞'}</p>
+                      <p className="text-2xl font-bold text-primary">{selectedProduct.maxOrderQty || '∞'}</p>
                     </div>
                   </div>
                   {selectedProduct.weight && (
@@ -1332,17 +1332,17 @@ export default function ProductsPage() {
                   {(selectedProduct.warehouseName || selectedProduct.supplierName) && (
                     <div className="mt-4 pt-4 border-t border-border">
                       <p className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                        <Building2 className="w-4 h-4 text-indigo-600" />
+                        <Building2 className="w-4 h-4 text-primary" />
                         Warehouse & Supplier
                       </p>
                       <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                         {selectedProduct.warehouseName && (
-                          <span className="flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-200">
+                          <span className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg border border-primary/30">
                             <Warehouse className="w-4 h-4 inline-block" aria-hidden="true" /> {selectedProduct.warehouseName}
                           </span>
                         )}
                         {selectedProduct.supplierName && (
-                          <span className="flex items-center gap-2 px-3 py-1.5 bg-purple-50 text-purple-700 rounded-lg border border-purple-200">
+                          <span className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 text-primary rounded-lg border border-primary/30">
                             <Truck className="w-4 h-4 inline-block" aria-hidden="true" /> {selectedProduct.supplierName}
                           </span>
                         )}
@@ -1549,7 +1549,7 @@ export default function ProductsPage() {
                               "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-mono font-medium shadow-sm",
                               errors.sku
                                 ? "border-error focus:ring-error focus:border-error"
-                                : "border-border focus:ring-violet-500 focus:border-violet-500"
+                                : "border-border focus:ring-violet-500 focus:border-primary"
                             )}
                             placeholder="APL-IP15PM-256"
                           />
@@ -1588,7 +1588,7 @@ export default function ProductsPage() {
                             type="text"
                             value={formData.slug}
                             onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                            className="w-full pl-10 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-500 transition-all bg-white hover:border-border font-mono font-medium shadow-sm"
+                            className="w-full pl-10 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-primary transition-all bg-white hover:border-border font-mono font-medium shadow-sm"
                             placeholder="Auto-generated from name if empty"
                           />
                         </div>
@@ -1843,7 +1843,7 @@ export default function ProductsPage() {
                               "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium shadow-sm",
                               errors.costPrice
                                 ? "border-error focus:ring-error focus:border-error"
-                                : "border-border focus:ring-orange-500 focus:border-orange-500"
+                                : "border-border focus:ring-orange-500 focus:border-warning"
                             )}
                             placeholder="0.00"
                           />
@@ -2017,7 +2017,7 @@ export default function ProductsPage() {
                     {/* Warehouse & Supplier Section */}
                     <div className="mt-8 pt-6 border-t border-border">
                       <h3 className="text-lg font-bold text-foreground flex items-center gap-2 mb-4">
-                        <Building2 className="w-5 h-5 text-indigo-600" />
+                        <Building2 className="w-5 h-5 text-primary" />
                         Warehouse & Supplier (Optional)
                       </h3>
                       <p className="text-muted-foreground text-sm mb-4">Link this product to a warehouse and supplier for inventory tracking. New names will be automatically created.</p>
@@ -2031,7 +2031,7 @@ export default function ProductsPage() {
                               type="text"
                               value={formData.warehouseName || ''}
                               onChange={(e) => setFormData({ ...formData, warehouseName: e.target.value })}
-                              className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white hover:border-border font-medium shadow-sm"
+                              className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm"
                               placeholder="e.g., Main Warehouse, NYC Fulfillment"
                             />
                           </div>
@@ -2046,7 +2046,7 @@ export default function ProductsPage() {
                               type="text"
                               value={formData.supplierName || ''}
                               onChange={(e) => setFormData({ ...formData, supplierName: e.target.value })}
-                              className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all bg-white hover:border-border font-medium shadow-sm"
+                              className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm"
                               placeholder="e.g., Acme Corp, Global Supplies"
                             />
                           </div>
@@ -2103,7 +2103,7 @@ export default function ProductsPage() {
                                     <Star className="h-3 w-3 fill-current" /> Primary
                                   </span>
                                 ) : (
-                                  <span className="px-2 py-0.5 bg-gray-700/70 text-white text-xs rounded font-medium">
+                                  <span className="px-2 py-0.5 bg-muted-foreground/70 text-white text-xs rounded font-medium">
                                     #{index + 1}
                                   </span>
                                 )}
@@ -2203,7 +2203,7 @@ export default function ProductsPage() {
                           {uploadingImages ? (
                             <div className="py-4">
                               <Loader2 className="h-10 w-10 text-primary animate-spin mx-auto mb-4" />
-                              <div className="w-full max-w-xs mx-auto h-2 bg-gray-200 rounded-full overflow-hidden">
+                              <div className="w-full max-w-xs mx-auto h-2 bg-muted rounded-full overflow-hidden">
                                 <div
                                   className="h-full bg-primary transition-all duration-300"
                                   style={{ width: `${uploadProgress}%` }}
@@ -2614,7 +2614,7 @@ export default function ProductsPage() {
                     ...uniqueBrands.map((brand) => ({
                       value: brand!,
                       label: brand!,
-                      icon: <Tag className="w-4 h-4 text-violet-500" />,
+                      icon: <Tag className="w-4 h-4 text-primary" />,
                     })),
                   ]}
                   variant="filter"
@@ -2906,11 +2906,11 @@ export default function ProductsPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleEdit(product)}
-                                className="h-8 w-8 p-0 rounded-lg hover:bg-violet-50 transition-colors"
+                                className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                                 title="Edit"
                                 aria-label="Edit product"
                               >
-                                <Edit className="w-4 h-4 text-violet-600" aria-hidden="true" />
+                                <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                               </Button>
                             </PermissionGate>
                             <PermissionGate permission={Permission.PRODUCTS_DELETE}>

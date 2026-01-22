@@ -64,15 +64,15 @@ export function PageError({
       className={cn(
         'flex items-start gap-3 p-4 rounded-lg border',
         isDestructive
-          ? 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-900'
-          : 'bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-900',
+          ? 'bg-destructive/10 border-destructive/30 dark:bg-destructive/20 dark:border-destructive'
+          : 'bg-warning-muted border-warning/30 dark:bg-warning/20 dark:border-warning',
         className
       )}
     >
       <Icon
         className={cn(
           'h-5 w-5 flex-shrink-0 mt-0.5',
-          isDestructive ? 'text-red-600 dark:text-red-400' : 'text-yellow-600 dark:text-yellow-400'
+          isDestructive ? 'text-destructive dark:text-destructive' : 'text-warning dark:text-warning'
         )}
       />
       <div className="flex-1 min-w-0">
@@ -80,7 +80,7 @@ export function PageError({
           <h3
             className={cn(
               'font-semibold text-sm',
-              isDestructive ? 'text-red-900 dark:text-red-200' : 'text-yellow-900 dark:text-yellow-200'
+              isDestructive ? 'text-destructive dark:text-destructive/50' : 'text-warning dark:text-warning/50'
             )}
           >
             {title}
@@ -90,7 +90,7 @@ export function PageError({
           className={cn(
             'text-sm',
             title ? 'mt-1' : '',
-            isDestructive ? 'text-red-700 dark:text-red-300' : 'text-yellow-700 dark:text-yellow-300'
+            isDestructive ? 'text-destructive dark:text-destructive/70' : 'text-warning dark:text-warning'
           )}
         >
           {message}
@@ -103,8 +103,8 @@ export function PageError({
             className={cn(
               'mt-2 h-8 px-3',
               isDestructive
-                ? 'text-red-700 hover:text-red-800 hover:bg-red-100 dark:text-red-300 dark:hover:bg-red-900/30'
-                : 'text-yellow-700 hover:text-yellow-800 hover:bg-yellow-100 dark:text-yellow-300 dark:hover:bg-yellow-900/30'
+                ? 'text-destructive hover:text-destructive hover:bg-destructive/10 dark:text-destructive/70 dark:hover:bg-destructive/30'
+                : 'text-warning hover:text-warning hover:bg-warning-muted dark:text-warning dark:hover:bg-warning/30'
             )}
           >
             <RefreshCw className="h-4 w-4 mr-2" />
@@ -120,8 +120,8 @@ export function PageError({
           className={cn(
             'h-8 w-8 flex-shrink-0',
             isDestructive
-              ? 'text-red-600 hover:text-red-700 hover:bg-red-100 dark:text-red-400 dark:hover:bg-red-900/30'
-              : 'text-yellow-600 hover:text-yellow-700 hover:bg-yellow-100 dark:text-yellow-400 dark:hover:bg-yellow-900/30'
+              ? 'text-destructive hover:text-destructive hover:bg-destructive/10 dark:text-destructive dark:hover:bg-destructive/30'
+              : 'text-warning hover:text-warning hover:bg-warning-muted dark:text-warning dark:hover:bg-warning/30'
           )}
           aria-label="Dismiss error"
         >

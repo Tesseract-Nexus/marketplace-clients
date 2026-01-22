@@ -33,8 +33,8 @@ export default function TenantNotFoundPage() {
       <div className="max-w-md w-full">
         <div className="bg-card rounded-2xl shadow-xl border border-border p-8 text-center">
           {/* Icon */}
-          <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <AlertCircle className="h-10 w-10 text-red-500" />
+          <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6">
+            <AlertCircle className="h-10 w-10 text-destructive" />
           </div>
 
           {/* Title */}

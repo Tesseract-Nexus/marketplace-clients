@@ -75,7 +75,7 @@ export class ErrorBoundary extends Component<Props, State> {
               <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
                 Error details
               </summary>
-              <pre className="mt-2 p-2 bg-muted rounded text-xs text-red-600 overflow-auto max-h-32">
+              <pre className="mt-2 p-2 bg-muted rounded text-xs text-destructive overflow-auto max-h-32">
                 {this.state.error.message}
                 {this.state.errorInfo?.componentStack}
               </pre>
@@ -133,7 +133,7 @@ export function ChartErrorBoundary({ children }: { children: ReactNode }) {
     <ErrorBoundary
       fallback={
         <div className="flex flex-col items-center justify-center p-6 text-center h-full min-h-[250px] bg-muted rounded-lg">
-          <AlertTriangle className="h-10 w-10 text-amber-400 mb-3" />
+          <AlertTriangle className="h-10 w-10 text-warning mb-3" />
           <p className="text-sm font-medium text-foreground">Chart Error</p>
           <p className="text-xs text-muted-foreground mt-1">
             Unable to render chart data

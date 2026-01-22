@@ -41,17 +41,17 @@ export function ContainerWidthPicker({ value, onChange }: ContainerWidthPickerPr
             className={cn(
               'flex flex-col items-center p-3 rounded-lg border-2 transition-all',
               value === option.id
-                ? 'border-purple-500 bg-purple-50'
+                ? 'border-primary bg-primary/10'
                 : 'border-border hover:border-border'
             )}
           >
             <div className="w-full h-8 bg-muted rounded mb-2 flex items-center justify-center overflow-hidden">
-              <div className={cn('h-6 bg-purple-400 rounded', option.preview)} />
+              <div className={cn('h-6 bg-primary/60 rounded', option.preview)} />
             </div>
             <span className="text-xs font-medium">{option.label}</span>
             <span className="text-[10px] text-muted-foreground">{option.width}</span>
             {value === option.id && (
-              <Check className="h-4 w-4 text-purple-600 absolute top-1 right-1" />
+              <Check className="h-4 w-4 text-primary absolute top-1 right-1" />
             )}
           </button>
         ))}
@@ -86,7 +86,7 @@ export function HomepageLayoutPicker({ value, onChange }: HomepageLayoutPickerPr
             className={cn(
               'relative flex flex-col items-start p-4 rounded-lg border-2 transition-all text-left',
               value === option.id
-                ? 'border-purple-500 bg-purple-50'
+                ? 'border-primary bg-primary/10'
                 : 'border-border hover:border-border'
             )}
           >
@@ -97,7 +97,7 @@ export function HomepageLayoutPicker({ value, onChange }: HomepageLayoutPickerPr
                   <div className="h-8 bg-gradient-to-r from-purple-400 to-pink-400" />
                   <div className="flex-1 p-1 grid grid-cols-3 gap-1">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
-                      <div key={i} className="bg-gray-300 rounded" />
+                      <div key={i} className="bg-border rounded" />
                     ))}
                   </div>
                 </div>
@@ -111,30 +111,30 @@ export function HomepageLayoutPicker({ value, onChange }: HomepageLayoutPickerPr
                   </div>
                   <div className="flex-1 p-1 flex gap-1">
                     {[1, 2, 3, 4].map((i) => (
-                      <div key={i} className="flex-1 bg-gray-300 rounded" />
+                      <div key={i} className="flex-1 bg-border rounded" />
                     ))}
                   </div>
                 </div>
               )}
               {option.id === 'minimal' && (
                 <div className="h-full p-2 flex flex-col items-center justify-center gap-1">
-                  <div className="w-16 h-2 bg-gray-300 rounded" />
-                  <div className="w-12 h-1 bg-gray-300 rounded" />
-                  <div className="w-10 h-3 bg-purple-400 rounded mt-1" />
+                  <div className="w-16 h-2 bg-border rounded" />
+                  <div className="w-12 h-1 bg-border rounded" />
+                  <div className="w-10 h-3 bg-primary/60 rounded mt-1" />
                 </div>
               )}
               {option.id === 'magazine' && (
                 <div className="h-full p-1 grid grid-cols-3 gap-1">
                   <div className="col-span-2 row-span-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded" />
-                  <div className="bg-gray-300 rounded" />
-                  <div className="bg-gray-300 rounded" />
+                  <div className="bg-border rounded" />
+                  <div className="bg-border rounded" />
                 </div>
               )}
             </div>
             <span className="font-medium text-sm">{option.label}</span>
             <span className="text-xs text-muted-foreground">{option.description}</span>
             {value === option.id && (
-              <Check className="h-4 w-4 text-purple-600 absolute top-2 right-2" />
+              <Check className="h-4 w-4 text-primary absolute top-2 right-2" />
             )}
           </button>
         ))}
@@ -177,41 +177,41 @@ export function HeaderLayoutPicker({ value, height, onChange, onHeightChange }: 
               className={cn(
                 'relative flex flex-col items-center p-3 rounded-lg border-2 transition-all',
                 value === option.id
-                  ? 'border-purple-500 bg-purple-50'
+                  ? 'border-primary bg-primary/10'
                   : 'border-border hover:border-border'
               )}
             >
               <div className="w-full h-8 bg-muted rounded mb-2 flex items-center px-2 gap-2">
                 {option.id === 'logo-left' && (
                   <>
-                    <div className="w-6 h-3 bg-purple-400 rounded" />
+                    <div className="w-6 h-3 bg-primary/60 rounded" />
                     <div className="flex-1 flex gap-1 justify-end">
-                      <div className="w-4 h-2 bg-gray-300 rounded" />
-                      <div className="w-4 h-2 bg-gray-300 rounded" />
-                      <div className="w-4 h-2 bg-gray-300 rounded" />
+                      <div className="w-4 h-2 bg-border rounded" />
+                      <div className="w-4 h-2 bg-border rounded" />
+                      <div className="w-4 h-2 bg-border rounded" />
                     </div>
                   </>
                 )}
                 {option.id === 'logo-center' && (
                   <>
                     <div className="flex-1 flex gap-1">
-                      <div className="w-4 h-2 bg-gray-300 rounded" />
-                      <div className="w-4 h-2 bg-gray-300 rounded" />
+                      <div className="w-4 h-2 bg-border rounded" />
+                      <div className="w-4 h-2 bg-border rounded" />
                     </div>
-                    <div className="w-6 h-3 bg-purple-400 rounded" />
+                    <div className="w-6 h-3 bg-primary/60 rounded" />
                     <div className="flex-1 flex gap-1 justify-end">
-                      <div className="w-4 h-2 bg-gray-300 rounded" />
-                      <div className="w-4 h-2 bg-gray-300 rounded" />
+                      <div className="w-4 h-2 bg-border rounded" />
+                      <div className="w-4 h-2 bg-border rounded" />
                     </div>
                   </>
                 )}
                 {option.id === 'mega-menu' && (
                   <>
-                    <div className="w-6 h-3 bg-purple-400 rounded" />
+                    <div className="w-6 h-3 bg-primary/60 rounded" />
                     <div className="flex-1 flex gap-1">
-                      <div className="w-4 h-2 bg-gray-300 rounded" />
-                      <div className="w-4 h-2 bg-gray-300 rounded" />
-                      <div className="w-4 h-2 bg-gray-300 rounded" />
+                      <div className="w-4 h-2 bg-border rounded" />
+                      <div className="w-4 h-2 bg-border rounded" />
+                      <div className="w-4 h-2 bg-border rounded" />
                     </div>
                     <Menu className="h-3 w-3 text-muted-foreground" />
                   </>
@@ -219,7 +219,7 @@ export function HeaderLayoutPicker({ value, height, onChange, onHeightChange }: 
               </div>
               <span className="text-xs font-medium">{option.label}</span>
               {value === option.id && (
-                <Check className="h-4 w-4 text-purple-600 absolute top-1 right-1" />
+                <Check className="h-4 w-4 text-primary absolute top-1 right-1" />
               )}
             </button>
           ))}
@@ -237,7 +237,7 @@ export function HeaderLayoutPicker({ value, height, onChange, onHeightChange }: 
               className={cn(
                 'relative flex flex-col items-center p-3 rounded-lg border-2 transition-all',
                 height === option.id
-                  ? 'border-purple-500 bg-purple-50'
+                  ? 'border-primary bg-primary/10'
                   : 'border-border hover:border-border'
               )}
             >
@@ -277,17 +277,17 @@ export function FooterLayoutPicker({ value, onChange }: FooterLayoutPickerProps)
             className={cn(
               'relative flex flex-col items-center p-3 rounded-lg border-2 transition-all',
               value === option.id
-                ? 'border-purple-500 bg-purple-50'
+                ? 'border-primary bg-primary/10'
                 : 'border-border hover:border-border'
             )}
           >
             <div className="w-full h-10 bg-muted rounded mb-2 overflow-hidden">
               {option.id === 'simple' && (
                 <div className="h-full flex items-center justify-between px-2">
-                  <div className="w-6 h-2 bg-gray-400 rounded" />
+                  <div className="w-6 h-2 bg-border rounded" />
                   <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-gray-300 rounded" />
-                    <div className="w-2 h-2 bg-gray-300 rounded" />
+                    <div className="w-2 h-2 bg-border rounded" />
+                    <div className="w-2 h-2 bg-border rounded" />
                   </div>
                 </div>
               )}
@@ -295,32 +295,32 @@ export function FooterLayoutPicker({ value, onChange }: FooterLayoutPickerProps)
                 <div className="h-full p-1 grid grid-cols-4 gap-1">
                   {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="flex flex-col gap-0.5">
-                      <div className="h-1 bg-gray-400 rounded" />
-                      <div className="h-0.5 bg-gray-300 rounded" />
-                      <div className="h-0.5 bg-gray-300 rounded" />
+                      <div className="h-1 bg-border rounded" />
+                      <div className="h-0.5 bg-border rounded" />
+                      <div className="h-0.5 bg-border rounded" />
                     </div>
                   ))}
                 </div>
               )}
               {option.id === 'minimal' && (
                 <div className="h-full flex items-center justify-center">
-                  <div className="w-16 h-1 bg-gray-300 rounded" />
+                  <div className="w-16 h-1 bg-border rounded" />
                 </div>
               )}
               {option.id === 'centered' && (
                 <div className="h-full flex flex-col items-center justify-center gap-1">
-                  <div className="w-8 h-2 bg-gray-400 rounded" />
+                  <div className="w-8 h-2 bg-border rounded" />
                   <div className="flex gap-1">
-                    <div className="w-2 h-2 bg-gray-300 rounded-full" />
-                    <div className="w-2 h-2 bg-gray-300 rounded-full" />
-                    <div className="w-2 h-2 bg-gray-300 rounded-full" />
+                    <div className="w-2 h-2 bg-border rounded-full" />
+                    <div className="w-2 h-2 bg-border rounded-full" />
+                    <div className="w-2 h-2 bg-border rounded-full" />
                   </div>
                 </div>
               )}
             </div>
             <span className="text-xs font-medium">{option.label}</span>
             {value === option.id && (
-              <Check className="h-4 w-4 text-purple-600 absolute top-1 right-1" />
+              <Check className="h-4 w-4 text-primary absolute top-1 right-1" />
             )}
           </button>
         ))}
@@ -353,7 +353,7 @@ export function ProductGridColumnsPicker({ mobile, tablet, desktop, onChange }: 
                 className={cn(
                   'flex-1 py-2 rounded-lg border-2 text-sm font-medium transition-all',
                   mobile === cols
-                    ? 'border-purple-500 bg-purple-50 text-purple-600'
+                    ? 'border-primary bg-primary/10 text-primary'
                     : 'border-border hover:border-border'
                 )}
               >
@@ -373,7 +373,7 @@ export function ProductGridColumnsPicker({ mobile, tablet, desktop, onChange }: 
                 className={cn(
                   'flex-1 py-2 rounded-lg border-2 text-sm font-medium transition-all',
                   tablet === cols
-                    ? 'border-purple-500 bg-purple-50 text-purple-600'
+                    ? 'border-primary bg-primary/10 text-primary'
                     : 'border-border hover:border-border'
                 )}
               >
@@ -393,7 +393,7 @@ export function ProductGridColumnsPicker({ mobile, tablet, desktop, onChange }: 
                 className={cn(
                   'flex-1 py-2 rounded-lg border-2 text-sm font-medium transition-all',
                   desktop === cols
-                    ? 'border-purple-500 bg-purple-50 text-purple-600'
+                    ? 'border-primary bg-primary/10 text-primary'
                     : 'border-border hover:border-border'
                 )}
               >
@@ -433,57 +433,57 @@ export function ProductDetailLayoutPicker({ value, onChange }: ProductDetailLayo
             className={cn(
               'relative flex flex-col items-center p-3 rounded-lg border-2 transition-all',
               value === option.id
-                ? 'border-purple-500 bg-purple-50'
+                ? 'border-primary bg-primary/10'
                 : 'border-border hover:border-border'
             )}
           >
             <div className="w-full h-12 bg-muted rounded mb-2 overflow-hidden p-1">
               {option.id === 'image-left' && (
                 <div className="h-full flex gap-1">
-                  <div className="w-1/2 bg-purple-300 rounded" />
+                  <div className="w-1/2 bg-primary/40 rounded" />
                   <div className="w-1/2 flex flex-col gap-0.5">
-                    <div className="h-2 bg-gray-300 rounded" />
-                    <div className="h-1 bg-gray-200 rounded" />
+                    <div className="h-2 bg-border rounded" />
+                    <div className="h-1 bg-muted rounded" />
                     <div className="flex-1" />
-                    <div className="h-2 bg-purple-400 rounded" />
+                    <div className="h-2 bg-primary/60 rounded" />
                   </div>
                 </div>
               )}
               {option.id === 'image-right' && (
                 <div className="h-full flex gap-1">
                   <div className="w-1/2 flex flex-col gap-0.5">
-                    <div className="h-2 bg-gray-300 rounded" />
-                    <div className="h-1 bg-gray-200 rounded" />
+                    <div className="h-2 bg-border rounded" />
+                    <div className="h-1 bg-muted rounded" />
                     <div className="flex-1" />
-                    <div className="h-2 bg-purple-400 rounded" />
+                    <div className="h-2 bg-primary/60 rounded" />
                   </div>
-                  <div className="w-1/2 bg-purple-300 rounded" />
+                  <div className="w-1/2 bg-primary/40 rounded" />
                 </div>
               )}
               {option.id === 'gallery-top' && (
                 <div className="h-full flex flex-col gap-1">
-                  <div className="flex-1 bg-purple-300 rounded" />
+                  <div className="flex-1 bg-primary/40 rounded" />
                   <div className="h-3 flex gap-0.5">
-                    <div className="flex-1 bg-gray-300 rounded" />
-                    <div className="flex-1 bg-gray-200 rounded" />
-                    <div className="flex-1 bg-purple-400 rounded" />
+                    <div className="flex-1 bg-border rounded" />
+                    <div className="flex-1 bg-muted rounded" />
+                    <div className="flex-1 bg-primary/60 rounded" />
                   </div>
                 </div>
               )}
               {option.id === 'split' && (
                 <div className="h-full flex gap-0.5">
-                  <div className="w-1/2 bg-purple-300 rounded" />
+                  <div className="w-1/2 bg-primary/40 rounded" />
                   <div className="w-1/2 flex flex-col gap-0.5 justify-center">
-                    <div className="h-1 bg-gray-300 rounded" />
-                    <div className="h-1 bg-gray-200 rounded" />
-                    <div className="h-2 bg-purple-400 rounded mt-1" />
+                    <div className="h-1 bg-border rounded" />
+                    <div className="h-1 bg-muted rounded" />
+                    <div className="h-2 bg-primary/60 rounded mt-1" />
                   </div>
                 </div>
               )}
             </div>
             <span className="text-xs font-medium">{option.label}</span>
             {value === option.id && (
-              <Check className="h-4 w-4 text-purple-600 absolute top-1 right-1" />
+              <Check className="h-4 w-4 text-primary absolute top-1 right-1" />
             )}
           </button>
         ))}
@@ -520,17 +520,17 @@ export function CategoryLayoutPicker({ value, showBanner, onChange, onBannerChan
               className={cn(
                 'relative flex flex-col items-center p-3 rounded-lg border-2 transition-all',
                 value === option.id
-                  ? 'border-purple-500 bg-purple-50'
+                  ? 'border-primary bg-primary/10'
                   : 'border-border hover:border-border'
               )}
             >
               <div className="w-full h-10 bg-muted rounded mb-2 overflow-hidden p-1 flex gap-1">
                 {option.id === 'sidebar-left' && (
                   <>
-                    <div className="w-1/4 bg-gray-300 rounded" />
+                    <div className="w-1/4 bg-border rounded" />
                     <div className="flex-1 grid grid-cols-3 gap-0.5">
                       {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="bg-gray-200 rounded" />
+                        <div key={i} className="bg-muted rounded" />
                       ))}
                     </div>
                   </>
@@ -539,23 +539,23 @@ export function CategoryLayoutPicker({ value, showBanner, onChange, onBannerChan
                   <>
                     <div className="flex-1 grid grid-cols-3 gap-0.5">
                       {[1, 2, 3, 4, 5, 6].map((i) => (
-                        <div key={i} className="bg-gray-200 rounded" />
+                        <div key={i} className="bg-muted rounded" />
                       ))}
                     </div>
-                    <div className="w-1/4 bg-gray-300 rounded" />
+                    <div className="w-1/4 bg-border rounded" />
                   </>
                 )}
                 {option.id === 'no-sidebar' && (
                   <div className="w-full grid grid-cols-4 gap-0.5">
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-                      <div key={i} className="bg-gray-200 rounded" />
+                      <div key={i} className="bg-muted rounded" />
                     ))}
                   </div>
                 )}
               </div>
               <span className="text-xs font-medium">{option.label}</span>
               {value === option.id && (
-                <Check className="h-4 w-4 text-purple-600 absolute top-1 right-1" />
+                <Check className="h-4 w-4 text-primary absolute top-1 right-1" />
               )}
             </button>
           ))}
@@ -567,7 +567,7 @@ export function CategoryLayoutPicker({ value, showBanner, onChange, onBannerChan
           type="checkbox"
           checked={showBanner}
           onChange={(e) => onBannerChange(e.target.checked)}
-          className="rounded border-border text-purple-600 focus:ring-purple-500"
+          className="rounded border-border text-primary focus:ring-purple-500"
         />
         <span className="text-sm">Show category banner image</span>
       </label>
@@ -600,7 +600,7 @@ export function ContentPaddingPicker({ value, onChange }: ContentPaddingPickerPr
             className={cn(
               'relative flex flex-col items-center p-3 rounded-lg border-2 transition-all',
               value === option.id
-                ? 'border-purple-500 bg-purple-50'
+                ? 'border-primary bg-primary/10'
                 : 'border-border hover:border-border'
             )}
           >
@@ -638,7 +638,7 @@ export function ProductListLayoutPicker({ value, onChange }: ProductListLayoutPi
             className={cn(
               'relative flex flex-col items-center p-3 rounded-lg border-2 transition-all',
               value === option.id
-                ? 'border-purple-500 bg-purple-50'
+                ? 'border-primary bg-primary/10'
                 : 'border-border hover:border-border'
             )}
           >
@@ -646,7 +646,7 @@ export function ProductListLayoutPicker({ value, onChange }: ProductListLayoutPi
               {option.id === 'grid' && (
                 <div className="h-full grid grid-cols-3 gap-0.5">
                   {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={i} className="bg-gray-300 rounded" />
+                    <div key={i} className="bg-border rounded" />
                   ))}
                 </div>
               )}
@@ -654,10 +654,10 @@ export function ProductListLayoutPicker({ value, onChange }: ProductListLayoutPi
                 <div className="h-full flex flex-col gap-0.5">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="flex-1 flex gap-1">
-                      <div className="w-1/4 bg-gray-300 rounded" />
+                      <div className="w-1/4 bg-border rounded" />
                       <div className="flex-1 flex flex-col justify-center gap-0.5">
-                        <div className="h-1 w-2/3 bg-gray-300 rounded" />
-                        <div className="h-0.5 w-1/2 bg-gray-200 rounded" />
+                        <div className="h-1 w-2/3 bg-border rounded" />
+                        <div className="h-0.5 w-1/2 bg-muted rounded" />
                       </div>
                     </div>
                   ))}
@@ -665,16 +665,16 @@ export function ProductListLayoutPicker({ value, onChange }: ProductListLayoutPi
               )}
               {option.id === 'masonry' && (
                 <div className="h-full grid grid-cols-3 gap-0.5">
-                  <div className="bg-gray-300 rounded row-span-2" />
-                  <div className="bg-gray-300 rounded" />
-                  <div className="bg-gray-300 rounded row-span-2" />
-                  <div className="bg-gray-300 rounded" />
+                  <div className="bg-border rounded row-span-2" />
+                  <div className="bg-border rounded" />
+                  <div className="bg-border rounded row-span-2" />
+                  <div className="bg-border rounded" />
                 </div>
               )}
             </div>
             <span className="text-xs font-medium">{option.label}</span>
             {value === option.id && (
-              <Check className="h-4 w-4 text-purple-600 absolute top-1 right-1" />
+              <Check className="h-4 w-4 text-primary absolute top-1 right-1" />
             )}
           </button>
         ))}

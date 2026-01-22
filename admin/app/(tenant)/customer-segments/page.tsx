@@ -323,10 +323,10 @@ export default function CustomerSegmentsPage() {
 
         {/* Error Alert */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-red-700">{error}</p>
+              <p className="text-destructive">{error}</p>
             </div>
             <Button onClick={() => setError(null)} variant="ghost" size="sm">
               <X className="h-4 w-4" />
@@ -364,7 +364,7 @@ export default function CustomerSegmentsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Total Members</p>
               <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                <Users className="h-6 w-6 text-purple-600" />
+                <Users className="h-6 w-6 text-primary" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -474,10 +474,10 @@ export default function CustomerSegmentsPage() {
                               setSegmentToDelete(segment.id);
                               setShowDeleteModal(true);
                             }}
-                            className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 transition-colors"
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-destructive/10 transition-colors"
                             title="Delete"
                           >
-                            <Trash2 className="w-4 h-4 text-red-600" />
+                            <Trash2 className="w-4 h-4 text-destructive" />
                           </Button>
                         </div>
                       </td>
@@ -573,7 +573,7 @@ export default function CustomerSegmentsPage() {
                             onClick={() => handleRemoveRule(index)}
                             className="mt-5 p-2"
                           >
-                            <X className="h-4 w-4 text-red-600" />
+                            <X className="h-4 w-4 text-destructive" />
                           </Button>
                         )}
                       </div>
@@ -696,7 +696,7 @@ export default function CustomerSegmentsPage() {
                             </div>
                             {createForm.rules.length > 1 && (
                               <Button variant="ghost" size="sm" onClick={() => handleRemoveRule(index)} className="mt-5 p-2">
-                                <X className="h-4 w-4 text-red-600" />
+                                <X className="h-4 w-4 text-destructive" />
                               </Button>
                             )}
                           </div>

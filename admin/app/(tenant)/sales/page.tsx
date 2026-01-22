@@ -314,7 +314,7 @@ export default function SalesDashboardPage() {
       <div
         className={cn(
           'flex items-center gap-1 text-sm font-semibold',
-          isPositive ? 'text-success' : 'text-red-600'
+          isPositive ? 'text-success' : 'text-destructive'
         )}
       >
         {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}
@@ -411,7 +411,7 @@ export default function SalesDashboardPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Average Order Value</p>
               <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                <CreditCard className="h-6 w-6 text-purple-600" />
+                <CreditCard className="h-6 w-6 text-primary" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -454,7 +454,7 @@ export default function SalesDashboardPage() {
                   className="flex-1 bg-gradient-to-t from-blue-600 to-violet-600 rounded-t hover:opacity-80 transition-opacity cursor-pointer relative group"
                   style={{ height: `${height}%`, minHeight: '4px' }}
                 >
-                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
+                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-foreground text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
                     {new Date(data.date).toLocaleDateString()}
                     <br />
                     {formatCurrency(data.value)}

@@ -24,14 +24,14 @@ interface ErrorStateConfig {
 const ERROR_CONFIGS: Record<Exclude<ErrorType, 'custom'>, ErrorStateConfig> = {
   access_denied: {
     icon: ShieldX,
-    iconBgColor: 'bg-red-100 dark:bg-red-900/20',
-    iconColor: 'text-red-500',
+    iconBgColor: 'bg-destructive/10 dark:bg-destructive/20',
+    iconColor: 'text-destructive',
     title: 'Access Denied',
     description: 'You don\'t have permission to access this resource.',
   },
   permission_denied: {
     icon: Lock,
-    iconBgColor: 'bg-warning-muted dark:bg-amber-900/20',
+    iconBgColor: 'bg-warning-muted dark:bg-warning/20',
     iconColor: 'text-warning',
     title: 'Permission Required',
     description: 'You need additional permissions to view this content.',
@@ -45,15 +45,15 @@ const ERROR_CONFIGS: Record<Exclude<ErrorType, 'custom'>, ErrorStateConfig> = {
   },
   forbidden: {
     icon: Lock,
-    iconBgColor: 'bg-red-100 dark:bg-red-900/20',
-    iconColor: 'text-red-500',
+    iconBgColor: 'bg-destructive/10 dark:bg-destructive/20',
+    iconColor: 'text-destructive',
     title: 'Forbidden',
     description: 'You are not authorized to access this area.',
   },
   server_error: {
     icon: ServerCrash,
-    iconBgColor: 'bg-violet-100 dark:bg-violet-900/20',
-    iconColor: 'text-violet-500',
+    iconBgColor: 'bg-primary/10 dark:bg-primary/20',
+    iconColor: 'text-primary',
     title: 'Something Went Wrong',
     description: 'An unexpected error occurred. Please try again later.',
   },

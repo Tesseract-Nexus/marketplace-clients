@@ -340,7 +340,7 @@ function CompletenessIndicator({
           )}
           <span
             className={`font-semibold ${
-              isComplete ? 'text-success' : 'text-amber-800'
+              isComplete ? 'text-success' : 'text-warning'
             }`}
           >
             {isComplete ? 'Setup Complete' : 'Setup Progress'}
@@ -356,7 +356,7 @@ function CompletenessIndicator({
       </div>
 
       {/* Progress bar */}
-      <div className="h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
+      <div className="h-2 bg-muted rounded-full overflow-hidden mb-3">
         <div
           className={`h-full transition-all duration-500 ${
             isComplete ? 'bg-success' : 'bg-warning'
@@ -373,7 +373,7 @@ function CompletenessIndicator({
             <button
               key={field.key}
               onClick={() => onFieldClick(field.key)}
-              className="hover:underline text-amber-800"
+              className="hover:underline text-warning"
             >
               {field.label}
               {idx < missingFields.length - 1 ? ', ' : ''}
@@ -528,7 +528,7 @@ function CreateStorefrontModal({
                 <p className="text-xs font-medium text-muted-foreground mb-1">
                   Your storefront URL will be:
                 </p>
-                <p className="text-sm font-mono text-purple-600 break-all">
+                <p className="text-sm font-mono text-primary break-all">
                   {storefrontUrl}
                 </p>
               </div>
@@ -1244,7 +1244,7 @@ export default function GeneralSettingsPage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                  <Rocket className="h-6 w-6 text-purple-600" />
+                  <Rocket className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">Storefront Visibility</h3>
@@ -1268,7 +1268,7 @@ export default function GeneralSettingsPage() {
                       )}
                       <div>
                         <p className={`font-semibold ${
-                          selectedStorefront?.isActive ? 'text-success' : 'text-amber-800'
+                          selectedStorefront?.isActive ? 'text-success' : 'text-warning'
                         }`}>
                           {selectedStorefront?.isActive ? 'Published' : 'Unpublished'}
                         </p>
@@ -1326,7 +1326,7 @@ export default function GeneralSettingsPage() {
                       <Globe className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                       <div className="overflow-hidden">
                         <p className="text-sm font-medium text-foreground">Store URL</p>
-                        <p className="text-sm text-purple-600 truncate">
+                        <p className="text-sm text-primary truncate">
                           {selectedStorefront.storefrontUrl}
                         </p>
                       </div>
@@ -1604,7 +1604,7 @@ export default function GeneralSettingsPage() {
         ) : (
           /* No Storefront Selected State */
           <div className="bg-card rounded-xl border border-border p-12 text-center">
-            <Store className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <Store className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-foreground mb-2">
               Create Your First Storefront
             </h3>

@@ -148,7 +148,7 @@ export function PlatformFeesTab() {
         <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 mb-6 flex items-start gap-3">
           <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-blue-900">How Platform Fees Work</p>
+            <p className="text-sm font-semibold text-primary">How Platform Fees Work</p>
             <p className="text-sm text-primary mt-1">
               Platform fees are automatically collected on each successful payment. For Stripe, this uses
               the Application Fee feature with Stripe Connect. The fee is deducted before funds are

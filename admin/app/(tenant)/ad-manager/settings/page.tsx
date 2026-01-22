@@ -142,8 +142,8 @@ export default function AdSettingsPage() {
           <Card className="mb-6">
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                  <FileCheck className="h-5 w-5 text-blue-600" />
+                <div className="h-10 w-10 rounded-lg bg-accent flex items-center justify-center">
+                  <FileCheck className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <CardTitle>Approval Settings</CardTitle>
@@ -374,8 +374,8 @@ export default function AdSettingsPage() {
           <Card>
             <CardHeader>
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
-                  <Bell className="h-5 w-5 text-purple-600" />
+                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Bell className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <CardTitle>Notification Settings</CardTitle>

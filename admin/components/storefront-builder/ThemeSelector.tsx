@@ -17,7 +17,7 @@ export function ThemeSelector({ selectedTheme, onThemeSelect, disabled }: ThemeS
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-purple-500" />
+        <Sparkles className="h-5 w-5 text-primary" />
         <h3 className="text-lg font-semibold">Choose Your Theme</h3>
       </div>
       <p className="text-sm text-muted-foreground">
@@ -72,14 +72,14 @@ function ThemeCard({
         'relative rounded-xl border-2 p-4 transition-all duration-200 text-left',
         'hover:shadow-lg hover:scale-[1.02]',
         isSelected
-          ? 'border-purple-500 ring-2 ring-purple-500/20 shadow-lg'
+          ? 'border-primary ring-2 ring-purple-500/20 shadow-lg'
           : 'border-border hover:border-border',
         disabled && 'opacity-50 cursor-not-allowed hover:scale-100'
       )}
     >
       {/* Selection indicator */}
       {isSelected && (
-        <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center shadow-md">
+        <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary/100 rounded-full flex items-center justify-center shadow-md">
           <Check className="h-4 w-4 text-white" />
         </div>
       )}

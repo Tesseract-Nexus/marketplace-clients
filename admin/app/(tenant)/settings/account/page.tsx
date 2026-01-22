@@ -104,8 +104,8 @@ export default function AccountSettingsPage() {
               </div>
               <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
                 isOwner
-                  ? 'bg-purple-100 text-purple-800'
-                  : 'bg-primary/20 text-blue-800'
+                  ? 'bg-primary/10 text-primary'
+                  : 'bg-primary/20 text-primary'
               }`}>
                 {currentTenant.role?.charAt(0).toUpperCase() + currentTenant.role?.slice(1)}
               </span>
@@ -124,7 +124,7 @@ export default function AccountSettingsPage() {
           <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                <User className="h-6 w-6 text-purple-600" />
+                <User className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-foreground">Ownership</h3>
@@ -132,11 +132,11 @@ export default function AccountSettingsPage() {
               </div>
             </div>
 
-            <div className="p-4 bg-purple-50 border border-purple-200 rounded-lg">
-              <p className="text-sm text-purple-800">
+            <div className="p-4 bg-primary/10 border border-primary/30 rounded-lg">
+              <p className="text-sm text-primary">
                 As the owner, you have full control over this tenant including:
               </p>
-              <ul className="mt-2 space-y-1 text-sm text-purple-700">
+              <ul className="mt-2 space-y-1 text-sm text-primary">
                 <li>- Managing team members and their roles</li>
                 <li>- Configuring all settings and storefronts</li>
                 <li>- Billing and subscription management</li>
@@ -148,7 +148,7 @@ export default function AccountSettingsPage() {
 
         {/* Danger Zone */}
         {isOwner && (
-          <div className="bg-card rounded-xl border-2 border-red-200 p-6 shadow-sm">
+          <div className="bg-card rounded-xl border-2 border-destructive/30 p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-orange-100 rounded-lg flex items-center justify-center">
                 <AlertTriangle className="h-6 w-6 text-error" />

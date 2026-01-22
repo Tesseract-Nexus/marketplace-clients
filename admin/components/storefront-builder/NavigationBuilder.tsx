@@ -120,8 +120,8 @@ function NavItemEditor({
       <div
         className={cn(
           'flex items-center gap-2 p-3 bg-card rounded-lg border border-border',
-          'hover:border-purple-300 transition-all group',
-          showSettings && 'ring-2 ring-purple-500/20 border-purple-500'
+          'hover:border-primary/30 transition-all group',
+          showSettings && 'ring-2 ring-purple-500/20 border-primary'
         )}
       >
         {/* Drag handle */}
@@ -144,7 +144,7 @@ function NavItemEditor({
 
         {/* Icon indicator */}
         {link.icon && (
-          <span className="text-purple-500 text-sm">{link.icon}</span>
+          <span className="text-primary text-sm">{link.icon}</span>
         )}
 
         {/* Link fields */}
@@ -157,7 +157,7 @@ function NavItemEditor({
             placeholder="Link label"
             className={cn(
               'px-3 py-1.5 rounded-lg border border-border text-sm',
-              'focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500',
+              'focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary',
               disabled && 'opacity-50 cursor-not-allowed bg-muted'
             )}
           />
@@ -169,7 +169,7 @@ function NavItemEditor({
             placeholder="/path or https://..."
             className={cn(
               'px-3 py-1.5 rounded-lg border border-border text-sm',
-              'focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500',
+              'focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary',
               disabled && 'opacity-50 cursor-not-allowed bg-muted'
             )}
           />
@@ -187,7 +187,7 @@ function NavItemEditor({
 
         {/* Mega menu indicator */}
         {link.isMegaMenu && depth === 0 && (
-          <span className="px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded">
+          <span className="px-2 py-0.5 text-xs bg-accent text-primary rounded">
             Mega
           </span>
         )}
@@ -200,7 +200,7 @@ function NavItemEditor({
           title={link.isExternal ? 'Opens in new tab' : 'Opens in same tab'}
           className={cn(
             'p-1.5 rounded-lg transition-colors',
-            link.isExternal ? 'bg-purple-50 text-purple-500' : 'hover:bg-muted text-muted-foreground',
+            link.isExternal ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground',
             disabled && 'opacity-50 cursor-not-allowed'
           )}
         >
@@ -213,7 +213,7 @@ function NavItemEditor({
           onClick={() => setShowSettings(!showSettings)}
           className={cn(
             'p-1.5 rounded-lg transition-colors',
-            showSettings ? 'bg-purple-50 text-purple-500' : 'hover:bg-muted text-muted-foreground'
+            showSettings ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground'
           )}
         >
           <Settings2 className="h-4 w-4" />
@@ -267,7 +267,7 @@ function NavItemEditor({
           onClick={onDelete}
           disabled={disabled}
           className={cn(
-            'p-1.5 rounded-lg hover:bg-red-50 hover:text-red-500 transition-colors text-muted-foreground',
+            'p-1.5 rounded-lg hover:bg-destructive/10 hover:text-destructive transition-colors text-muted-foreground',
             disabled && 'opacity-50 cursor-not-allowed'
           )}
         >
@@ -343,7 +343,7 @@ function NavItemEditor({
                   type="checkbox"
                   checked={link.isMegaMenu || false}
                   onChange={(e) => onUpdate({ isMegaMenu: e.target.checked })}
-                  className="rounded border-border text-purple-600"
+                  className="rounded border-border text-primary"
                 />
                 <span className="text-sm font-medium">Enable Mega Menu</span>
                 <LayoutGrid className="h-4 w-4 text-muted-foreground" />
@@ -514,7 +514,7 @@ export function NavigationBuilder({
       </div>
 
       {/* Help text */}
-      <div className="bg-blue-50 rounded-lg p-3 text-sm text-blue-700">
+      <div className="bg-accent rounded-lg p-3 text-sm text-primary">
         <p className="font-medium mb-1">Tips:</p>
         <ul className="list-disc list-inside space-y-0.5 text-xs">
           <li>Click the <Settings2 className="h-3 w-3 inline" /> icon to add badges, icons, or enable mega menus</li>

@@ -727,7 +727,7 @@ export default function TaxSettingsPage() {
 
         {/* Quick Setup Card - Show for India */}
         {isIndiaStore && needsSetup && !setupSuccess && !storeSettings.loading && (
-          <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-orange-200 shadow-sm overflow-hidden">
+          <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-warning/30 shadow-sm overflow-hidden">
             <div className="p-6">
               <div className="flex items-start gap-4 mb-6">
                 <div className="p-3 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white">
@@ -756,7 +756,7 @@ export default function TaxSettingsPage() {
                     onChange={(e) => handleGstinChange(e.target.value)}
                     placeholder="27AABCU9603R1ZM"
                     maxLength={15}
-                    className={`uppercase tracking-wider ${gstinError ? 'border-red-500' : ''}`}
+                    className={`uppercase tracking-wider ${gstinError ? 'border-destructive' : ''}`}
                   />
                   {gstinError ? (
                     <p className="text-sm text-error mt-1">{gstinError}</p>
@@ -801,7 +801,7 @@ export default function TaxSettingsPage() {
                       key={slab}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 cursor-pointer transition-all ${
                         selectedGstSlabs.includes(slab)
-                          ? 'bg-orange-100 border-orange-500 text-orange-700'
+                          ? 'bg-warning-muted border-warning text-warning'
                           : 'bg-card border-border text-muted-foreground hover:border-border'
                       }`}
                     >
@@ -817,9 +817,9 @@ export default function TaxSettingsPage() {
 
               {/* Setup Progress */}
               {isSettingUp && (
-                <div className="mt-6 p-4 bg-card rounded-lg border border-orange-200">
+                <div className="mt-6 p-4 bg-card rounded-lg border border-warning/30">
                   <div className="flex items-center gap-3 mb-2">
-                    <Loader2 className="h-5 w-5 animate-spin text-orange-600" />
+                    <Loader2 className="h-5 w-5 animate-spin text-warning" />
                     <span className="text-sm font-medium text-foreground">{setupStep}</span>
                   </div>
                   <Progress value={setupProgress} className="h-2" />
@@ -859,7 +859,7 @@ export default function TaxSettingsPage() {
               </div>
 
               {/* Help Links */}
-              <div className="mt-6 pt-6 border-t border-orange-200">
+              <div className="mt-6 pt-6 border-t border-warning/30">
                 <p className="text-sm font-medium text-foreground mb-2">Useful Resources</p>
                 <div className="flex flex-wrap gap-3">
                   {countryConfig?.helpLinks.map((link) => (
@@ -868,7 +868,7 @@ export default function TaxSettingsPage() {
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sm text-orange-600 hover:text-orange-700"
+                      className="inline-flex items-center gap-1 text-sm text-warning hover:text-warning"
                     >
                       {link.label}
                       <ExternalLink className="h-3 w-3" />
@@ -959,7 +959,7 @@ export default function TaxSettingsPage() {
 
         {/* Quick Setup Card - UK VAT */}
         {isUKStore && needsSetup && !setupSuccess && !storeSettings.loading && (
-          <div className="bg-gradient-to-r from-red-50 to-blue-50 rounded-xl border-2 border-red-200 shadow-sm overflow-hidden">
+          <div className="bg-gradient-to-r from-red-50 to-blue-50 rounded-xl border-2 border-destructive/30 shadow-sm overflow-hidden">
             <div className="p-6">
               <div className="flex items-start gap-4 mb-6">
                 <div className="p-3 rounded-xl bg-gradient-to-br from-red-500 to-blue-500 text-white">
@@ -985,7 +985,7 @@ export default function TaxSettingsPage() {
               </div>
 
               {isSettingUp && (
-                <div className="mt-6 p-4 bg-card rounded-lg border border-red-200">
+                <div className="mt-6 p-4 bg-card rounded-lg border border-destructive/30">
                   <div className="flex items-center gap-3 mb-2">
                     <Loader2 className="h-5 w-5 animate-spin text-error" />
                     <span className="text-sm font-medium text-foreground">{setupStep}</span>
@@ -1091,7 +1091,7 @@ export default function TaxSettingsPage() {
 
         {/* Quick Setup Card - Canada Tax */}
         {isCanadaStore && needsSetup && !setupSuccess && !storeSettings.loading && (
-          <div className="bg-gradient-to-r from-red-50 to-white rounded-xl border-2 border-red-200 shadow-sm overflow-hidden">
+          <div className="bg-gradient-to-r from-red-50 to-white rounded-xl border-2 border-destructive/30 shadow-sm overflow-hidden">
             <div className="p-6">
               <div className="flex items-start gap-4 mb-6">
                 <div className="p-3 rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white">
@@ -1137,7 +1137,7 @@ export default function TaxSettingsPage() {
               </div>
 
               {isSettingUp && (
-                <div className="mt-6 p-4 bg-card rounded-lg border border-red-200">
+                <div className="mt-6 p-4 bg-card rounded-lg border border-destructive/30">
                   <div className="flex items-center gap-3 mb-2">
                     <Loader2 className="h-5 w-5 animate-spin text-error" />
                     <span className="text-sm font-medium text-foreground">{setupStep}</span>

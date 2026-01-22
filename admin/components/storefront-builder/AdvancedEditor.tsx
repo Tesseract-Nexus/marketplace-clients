@@ -144,7 +144,7 @@ export function AdvancedEditor({ config, onChange, disabled = false }: AdvancedE
         <CardContent className="space-y-4">
           <Alert variant="default" className="bg-warning-muted border-warning/30">
             <Shield className="w-4 h-4 text-warning" />
-            <AlertTitle className="text-amber-800">Security Notice</AlertTitle>
+            <AlertTitle className="text-warning">Security Notice</AlertTitle>
             <AlertDescription className="text-warning-foreground">
               Custom CSS is sanitized to prevent security issues. Some patterns like
               @import, JavaScript URLs, and targeting html/body are restricted.

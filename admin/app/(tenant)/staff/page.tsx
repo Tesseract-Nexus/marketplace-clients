@@ -374,14 +374,14 @@ export default function StaffPage() {
 
   const getRoleBadge = (role: StaffRole) => {
     const styles = {
-      super_admin: 'bg-purple-100 text-purple-700 border-purple-200',
+      super_admin: 'bg-primary/10 text-primary border-primary/30',
       admin: 'bg-error-muted text-error-muted-foreground border-error/30',
       manager: 'bg-primary/20 text-primary border-primary/30',
       senior_employee: 'bg-success-muted text-success-muted-foreground border-success/30',
       employee: 'bg-muted text-foreground border-border',
       intern: 'bg-warning-muted text-warning-muted-foreground border-warning/30',
-      contractor: 'bg-orange-100 text-orange-700 border-orange-200',
-      guest: 'bg-pink-100 text-pink-700 border-pink-200',
+      contractor: 'bg-warning-muted text-warning border-warning/30',
+      guest: 'bg-primary/10 text-primary border-primary/30',
       readonly: 'bg-neutral-muted text-neutral-muted-foreground border-neutral/30',
     };
     return <Badge className={styles[role]}>{role.replace('_', ' ').toUpperCase()}</Badge>;
@@ -391,11 +391,11 @@ export default function StaffPage() {
     const styles = {
       full_time: 'bg-success-muted text-success-muted-foreground border-success/30',
       part_time: 'bg-primary/20 text-primary border-primary/30',
-      contract: 'bg-orange-100 text-orange-700 border-orange-200',
+      contract: 'bg-warning-muted text-warning border-warning/30',
       temporary: 'bg-warning-muted text-warning-muted-foreground border-warning/30',
-      intern: 'bg-purple-100 text-purple-700 border-purple-200',
+      intern: 'bg-primary/10 text-primary border-primary/30',
       consultant: 'bg-info-muted text-info-muted-foreground border-info/30',
-      volunteer: 'bg-pink-100 text-pink-700 border-pink-200',
+      volunteer: 'bg-primary/10 text-primary border-primary/30',
     };
     return <Badge className={styles[type]}>{type.replace('_', ' ').toUpperCase()}</Badge>;
   };
@@ -404,7 +404,7 @@ export default function StaffPage() {
     if (!status) return null;
     const styles: Record<StaffAccountStatus, { className: string; icon: React.ReactNode }> = {
       pending_activation: { className: 'bg-warning-muted text-warning-muted-foreground border-warning/30', icon: <Clock className="w-3 h-3" /> },
-      pending_password: { className: 'bg-orange-100 text-orange-700 border-orange-200', icon: <Key className="w-3 h-3" /> },
+      pending_password: { className: 'bg-warning-muted text-warning border-warning/30', icon: <Key className="w-3 h-3" /> },
       active: { className: 'bg-success-muted text-success-muted-foreground border-success/30', icon: <CheckCircle className="w-3 h-3" /> },
       suspended: { className: 'bg-error-muted text-error-muted-foreground border-error/30', icon: <AlertCircle className="w-3 h-3" /> },
       locked: { className: 'bg-error-muted text-error-muted-foreground border-error/30', icon: <Lock className="w-3 h-3" /> },
@@ -426,7 +426,7 @@ export default function StaffPage() {
       google_sso: { icon: <LogIn className="w-4 h-4" />, color: 'text-error', label: 'Google' },
       microsoft_sso: { icon: <LogIn className="w-4 h-4" />, color: 'text-primary', label: 'Microsoft' },
       invitation_pending: { icon: <Send className="w-4 h-4" />, color: 'text-warning', label: 'Invitation Pending' },
-      sso_pending: { icon: <Clock className="w-4 h-4" />, color: 'text-orange-500', label: 'SSO Pending' },
+      sso_pending: { icon: <Clock className="w-4 h-4" />, color: 'text-warning', label: 'SSO Pending' },
     };
     const authIcon = icons[method];
     return (
@@ -536,7 +536,7 @@ export default function StaffPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Mail className="w-5 h-5 text-violet-600" />
+                <Mail className="w-5 h-5 text-primary" />
                 Contact Information
               </CardTitle>
             </CardHeader>
@@ -569,7 +569,7 @@ export default function StaffPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-purple-600" />
+                <Briefcase className="w-5 h-5 text-primary" />
                 Employment Details
               </CardTitle>
             </CardHeader>
@@ -649,7 +649,7 @@ export default function StaffPage() {
             <Card className="lg:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-indigo-600" />
+                <Shield className="w-5 h-5 text-primary" />
                 Authentication & Access
               </CardTitle>
             </CardHeader>
@@ -950,13 +950,13 @@ export default function StaffPage() {
                   onChange={setRoleFilter}
                   options={[
                     { value: 'ALL', label: 'All Roles', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'super_admin', label: 'Super Admin', icon: <Crown className="w-4 h-4 text-purple-500" /> },
+                    { value: 'super_admin', label: 'Super Admin', icon: <Crown className="w-4 h-4 text-primary" /> },
                     { value: 'admin', label: 'Admin', icon: <Shield className="w-4 h-4 text-primary" /> },
-                    { value: 'manager', label: 'Manager', icon: <UserCog className="w-4 h-4 text-indigo-500" /> },
+                    { value: 'manager', label: 'Manager', icon: <UserCog className="w-4 h-4 text-primary" /> },
                     { value: 'senior_employee', label: 'Senior Employee', icon: <Star className="w-4 h-4 text-warning" /> },
                     { value: 'employee', label: 'Employee', icon: <UserCheck className="w-4 h-4 text-success" /> },
-                    { value: 'intern', label: 'Intern', icon: <GraduationCap className="w-4 h-4 text-cyan-500" /> },
-                    { value: 'contractor', label: 'Contractor', icon: <Hammer className="w-4 h-4 text-orange-500" /> },
+                    { value: 'intern', label: 'Intern', icon: <GraduationCap className="w-4 h-4 text-accent-foreground" /> },
+                    { value: 'contractor', label: 'Contractor', icon: <Hammer className="w-4 h-4 text-warning" /> },
                   ]}
                   variant="filter"
                 />
@@ -971,10 +971,10 @@ export default function StaffPage() {
                     { value: 'ALL', label: 'All Types', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
                     { value: 'full_time', label: 'Full Time', icon: <Briefcase className="w-4 h-4 text-primary" /> },
                     { value: 'part_time', label: 'Part Time', icon: <Clock className="w-4 h-4 text-warning" /> },
-                    { value: 'contract', label: 'Contract', icon: <FileText className="w-4 h-4 text-purple-500" /> },
-                    { value: 'temporary', label: 'Temporary', icon: <Hourglass className="w-4 h-4 text-orange-500" /> },
-                    { value: 'intern', label: 'Intern', icon: <GraduationCap className="w-4 h-4 text-cyan-500" /> },
-                    { value: 'consultant', label: 'Consultant', icon: <HelpCircle className="w-4 h-4 text-indigo-500" /> },
+                    { value: 'contract', label: 'Contract', icon: <FileText className="w-4 h-4 text-primary" /> },
+                    { value: 'temporary', label: 'Temporary', icon: <Hourglass className="w-4 h-4 text-warning" /> },
+                    { value: 'intern', label: 'Intern', icon: <GraduationCap className="w-4 h-4 text-accent-foreground" /> },
+                    { value: 'consultant', label: 'Consultant', icon: <HelpCircle className="w-4 h-4 text-primary" /> },
                   ]}
                   variant="filter"
                 />
@@ -1117,11 +1117,11 @@ export default function StaffPage() {
                                 e.stopPropagation();
                                 handleEditStaff(staffMember);
                               }}
-                              className="h-8 w-8 p-0 rounded-lg hover:bg-violet-50 transition-colors"
+                              className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                               title="Edit"
                               aria-label="Edit staff"
                             >
-                              <Edit className="w-4 h-4 text-violet-600" aria-hidden="true" />
+                              <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                             </Button>
                           )}
                           {canDeleteStaff && (

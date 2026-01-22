@@ -232,9 +232,9 @@ export function PaymentStep({
           <CardDescription>Choose how you want to pay for this campaign</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
-            <p className="text-red-800">{error}</p>
+          <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+            <p className="text-destructive">{error}</p>
           </div>
         </CardContent>
       </Card>
@@ -251,7 +251,7 @@ export function PaymentStep({
         <CardContent>
           <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-center gap-3">
             <AlertCircle className="h-5 w-5 text-warning flex-shrink-0" />
-            <p className="text-amber-800">
+            <p className="text-warning">
               Please set a campaign budget in the previous step to see payment options.
             </p>
           </div>
@@ -396,11 +396,11 @@ export function PaymentStep({
       </Card>
 
       {/* Info Note */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
-        <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+      <div className="bg-accent border border-primary/30 rounded-lg p-4 flex items-start gap-3">
+        <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
         <div>
-          <p className="font-medium text-blue-800">Payment after campaign creation</p>
-          <p className="text-sm text-blue-700">
+          <p className="font-medium text-primary">Payment after campaign creation</p>
+          <p className="text-sm text-primary">
             After creating your campaign, you&apos;ll be redirected to complete the payment.
             Your campaign will remain in draft status until payment is confirmed.
           </p>

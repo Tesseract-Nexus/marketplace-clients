@@ -170,7 +170,7 @@ const getStatusBadge = (status: string) => {
       );
     case "failed":
       return (
-        <Badge className="bg-red-100 text-red-700 border-red-200">
+        <Badge className="bg-destructive/10 text-destructive border-destructive/30">
           <AlertCircle className="w-3 h-3 mr-1" />
           Failed
         </Badge>
@@ -279,7 +279,7 @@ export default function DataImportPage() {
                 <p className="text-sm text-muted-foreground">Total Imports</p>
                 <p className="text-2xl font-bold">{importHistory.length}</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-primary/20 dark:bg-blue-900/30 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-primary/20 dark:bg-primary/30 flex items-center justify-center">
                 <Upload className="w-5 h-5 text-primary" />
               </div>
             </div>
@@ -311,7 +311,7 @@ export default function DataImportPage() {
                   {importHistory.filter((i) => i.status === "processing").length}
                 </p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-warning-muted dark:bg-amber-900/30 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-warning-muted dark:bg-warning/30 flex items-center justify-center">
                 <RefreshCw className="w-5 h-5 text-warning" />
               </div>
             </div>
@@ -327,8 +327,8 @@ export default function DataImportPage() {
                   {importHistory.reduce((acc, imp) => acc + imp.errorRows, 0)}
                 </p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                <AlertCircle className="w-5 h-5 text-red-600" />
+              <div className="w-10 h-10 rounded-lg bg-destructive/10 dark:bg-destructive/30 flex items-center justify-center">
+                <AlertCircle className="w-5 h-5 text-destructive" />
               </div>
             </div>
           </CardContent>
@@ -428,7 +428,7 @@ export default function DataImportPage() {
                           <div className="text-sm">
                             <span className="text-emerald-600">{imp.successRows.toLocaleString()}</span>
                             {imp.errorRows > 0 && (
-                              <span className="text-red-600 ml-2">
+                              <span className="text-destructive ml-2">
                                 ({imp.errorRows} errors)
                               </span>
                             )}
@@ -454,7 +454,7 @@ export default function DataImportPage() {
                               <Download className="w-4 h-4 mr-2" />
                               Download Report
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-red-600">
+                            <DropdownMenuItem className="text-destructive">
                               <Trash2 className="w-4 h-4 mr-2" />
                               Delete
                             </DropdownMenuItem>
@@ -487,7 +487,7 @@ export default function DataImportPage() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-primary/20 dark:bg-blue-900/30 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-primary/20 dark:bg-primary/30 flex items-center justify-center">
                 <FileSpreadsheet className="w-5 h-5 text-primary" />
               </div>
               <div>
@@ -498,8 +498,8 @@ export default function DataImportPage() {
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                <FileJson className="w-5 h-5 text-purple-600" />
+              <div className="w-10 h-10 rounded-lg bg-primary/10 dark:bg-primary/30 flex items-center justify-center">
+                <FileJson className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <p className="font-medium">JSON Files</p>

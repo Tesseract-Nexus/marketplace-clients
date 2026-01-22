@@ -52,7 +52,7 @@ export function LowStockAlertWidget({ data }: LowStockAlertWidgetProps) {
           lowStockProducts.map((product) => (
             <div
               key={product.id}
-              className="group flex items-center justify-between p-2.5 rounded-lg bg-warning-muted/50 hover:bg-warning-muted transition-all duration-200 cursor-pointer border border-amber-100 hover:border-warning/40"
+              className="group flex items-center justify-between p-2.5 rounded-lg bg-warning-muted/50 hover:bg-warning-muted transition-all duration-200 cursor-pointer border border-warning/20 hover:border-warning/40"
             >
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <div className="p-1.5 rounded-md bg-warning-muted">

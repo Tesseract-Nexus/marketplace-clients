@@ -196,7 +196,7 @@ export default function TestimonialSettingsPage() {
               <Star
                 className={`h-6 w-6 ${
                   star <= rating
-                    ? 'fill-amber-400 text-amber-400'
+                    ? 'fill-amber-400 text-warning'
                     : 'fill-muted text-muted'
                 }`}
               />

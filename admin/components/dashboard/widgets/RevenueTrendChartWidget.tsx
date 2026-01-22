@@ -136,7 +136,7 @@ export function RevenueTrendChartWidget({ data }: RevenueTrendChartWidgetProps) 
             <p className="text-xs text-muted-foreground"><AdminUIText text="Orders" /></p>
           </div>
           <div className="text-center">
-            <p className="text-lg font-bold text-violet-600">
+            <p className="text-lg font-bold text-primary">
               {formatPrice(revenueTrendSummary.total / Math.max(revenueTrendSummary.orders, 1))}
             </p>
             <p className="text-xs text-muted-foreground"><AdminUIText text="Avg/Order" /></p>

@@ -219,7 +219,7 @@ export default function ContentPagesSettingsPage() {
       case 'PUBLISHED':
         return 'bg-success-muted text-success-muted-foreground border-success/30';
       case 'DRAFT':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        return 'bg-warning-muted text-warning border-warning/30';
       case 'ARCHIVED':
         return 'bg-muted text-foreground border-border';
       default:
@@ -232,13 +232,13 @@ export default function ContentPagesSettingsPage() {
       case 'STATIC':
         return 'bg-primary/20 text-primary border-primary/30';
       case 'BLOG':
-        return 'bg-purple-100 text-purple-700 border-purple-200';
+        return 'bg-primary/10 text-primary border-primary/30';
       case 'FAQ':
         return 'bg-success-muted text-success-muted-foreground border-success/30';
       case 'POLICY':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        return 'bg-warning-muted text-warning border-warning/30';
       case 'LANDING':
-        return 'bg-pink-100 text-pink-700 border-pink-200';
+        return 'bg-primary/10 text-primary border-primary/30';
       case 'CUSTOM':
         return 'bg-muted text-foreground border-border';
       default:
@@ -596,7 +596,7 @@ export default function ContentPagesSettingsPage() {
         {selectedStorefront ? (
           loading ? (
             <div className="bg-card rounded-xl border border-border p-12 text-center">
-              <Loader2 className="h-8 w-8 text-purple-500 animate-spin mx-auto mb-4" />
+              <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
               <p className="text-muted-foreground">Loading content pages...</p>
             </div>
           ) : (
@@ -631,7 +631,7 @@ export default function ContentPagesSettingsPage() {
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-sm font-medium text-muted-foreground">Drafts</p>
                     <div className="w-12 h-12 bg-gradient-to-br from-yellow-100 to-amber-100 rounded-lg flex items-center justify-center">
-                      <Edit className="h-6 w-6 text-yellow-600" />
+                      <Edit className="h-6 w-6 text-warning" />
                     </div>
                   </div>
                   <p className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-amber-600 bg-clip-text text-transparent">
@@ -643,7 +643,7 @@ export default function ContentPagesSettingsPage() {
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-sm font-medium text-muted-foreground">Total Views</p>
                     <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                      <Eye className="h-6 w-6 text-purple-600" />
+                      <Eye className="h-6 w-6 text-primary" />
                     </div>
                   </div>
                   <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -688,7 +688,7 @@ export default function ContentPagesSettingsPage() {
               <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
                 {filteredPages.length === 0 ? (
                   <div className="p-12 text-center">
-                    <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                    <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-foreground mb-2">
                       {pages.length === 0 ? 'No Content Pages Yet' : 'No Pages Match Filters'}
                     </h3>
@@ -751,7 +751,7 @@ export default function ContentPagesSettingsPage() {
                                     </span>
                                   )}
                                   {page.isFeatured && (
-                                    <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-semibold">
+                                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-semibold">
                                       Featured
                                     </span>
                                   )}
@@ -846,7 +846,7 @@ export default function ContentPagesSettingsPage() {
           )
         ) : (
           <div className="bg-card rounded-xl border border-border p-12 text-center">
-            <FileText className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-foreground mb-2">
               Create Your First Storefront
             </h3>
@@ -984,7 +984,7 @@ export default function ContentPagesSettingsPage() {
                             onChange={(e) =>
                               setCreateForm({ ...createForm, showInMenu: e.target.checked })
                             }
-                            className="rounded border-border text-purple-600 focus:ring-purple-500"
+                            className="rounded border-border text-primary focus:ring-purple-500"
                           />
                           Show in Menu
                         </label>
@@ -995,7 +995,7 @@ export default function ContentPagesSettingsPage() {
                             onChange={(e) =>
                               setCreateForm({ ...createForm, showInFooter: e.target.checked })
                             }
-                            className="rounded border-border text-purple-600 focus:ring-purple-500"
+                            className="rounded border-border text-primary focus:ring-purple-500"
                           />
                           Show in Footer
                         </label>
@@ -1006,7 +1006,7 @@ export default function ContentPagesSettingsPage() {
                             onChange={(e) =>
                               setCreateForm({ ...createForm, isFeatured: e.target.checked })
                             }
-                            className="rounded border-border text-purple-600 focus:ring-purple-500"
+                            className="rounded border-border text-primary focus:ring-purple-500"
                           />
                           Featured Page
                         </label>
@@ -1136,7 +1136,7 @@ export default function ContentPagesSettingsPage() {
                     editForm.status === 'PUBLISHED'
                       ? 'bg-success-muted text-success-muted-foreground'
                       : editForm.status === 'DRAFT'
-                      ? 'bg-yellow-100 text-yellow-700'
+                      ? 'bg-warning-muted text-warning'
                       : 'bg-muted text-foreground'
                   )}
                 >
@@ -1227,7 +1227,7 @@ export default function ContentPagesSettingsPage() {
                             type="checkbox"
                             checked={editForm.showInMenu}
                             onChange={(e) => setEditForm({ ...editForm, showInMenu: e.target.checked })}
-                            className="rounded border-border text-purple-600 focus:ring-purple-500"
+                            className="rounded border-border text-primary focus:ring-purple-500"
                           />
                           Show in Menu
                         </label>
@@ -1236,7 +1236,7 @@ export default function ContentPagesSettingsPage() {
                             type="checkbox"
                             checked={editForm.showInFooter}
                             onChange={(e) => setEditForm({ ...editForm, showInFooter: e.target.checked })}
-                            className="rounded border-border text-purple-600 focus:ring-purple-500"
+                            className="rounded border-border text-primary focus:ring-purple-500"
                           />
                           Show in Footer
                         </label>
@@ -1245,7 +1245,7 @@ export default function ContentPagesSettingsPage() {
                             type="checkbox"
                             checked={editForm.isFeatured}
                             onChange={(e) => setEditForm({ ...editForm, isFeatured: e.target.checked })}
-                            className="rounded border-border text-purple-600 focus:ring-purple-500"
+                            className="rounded border-border text-primary focus:ring-purple-500"
                           />
                           Featured Page
                         </label>
@@ -1310,11 +1310,11 @@ export default function ContentPagesSettingsPage() {
                         </p>
                         <p className="text-xs text-success mt-1">Published</p>
                       </div>
-                      <div className="bg-card border border-purple-200 rounded-lg p-3 text-center">
-                        <p className="text-xs font-bold text-purple-700">
+                      <div className="bg-card border border-primary/30 rounded-lg p-3 text-center">
+                        <p className="text-xs font-bold text-primary">
                           {new Date(editForm.updatedAt).toLocaleDateString()}
                         </p>
-                        <p className="text-xs text-purple-600 mt-1">Updated</p>
+                        <p className="text-xs text-primary mt-1">Updated</p>
                       </div>
                     </div>
                   </div>

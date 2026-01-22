@@ -250,7 +250,7 @@ export default function StorefrontThemePage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 text-purple-500 animate-spin mx-auto mb-4" />
+          <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
           <p className="text-muted-foreground">Loading theme settings...</p>
         </div>
       </div>
@@ -323,7 +323,7 @@ export default function StorefrontThemePage() {
               <Button
                 onClick={handleReset}
                 variant="outline"
-                className="text-red-600 hover:bg-red-50"
+                className="text-destructive hover:bg-destructive/10"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reset
@@ -444,25 +444,25 @@ export default function StorefrontThemePage() {
                           className={cn(
                             'relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-center',
                             settings.colorMode === mode.value
-                              ? 'border-purple-500 bg-purple-50'
+                              ? 'border-primary bg-primary/10'
                               : 'border-border hover:border-border bg-white'
                           )}
                         >
                           <div className={cn(
                             'w-12 h-8 rounded-lg flex items-center justify-center',
                             mode.value === 'light' && 'bg-card border border-border',
-                            mode.value === 'dark' && 'bg-gray-900',
+                            mode.value === 'dark' && 'bg-foreground',
                             mode.value === 'both' && 'bg-gradient-to-r from-white to-gray-900 border border-border',
                             mode.value === 'system' && 'bg-gradient-to-br from-blue-100 to-purple-100 border border-border'
                           )}>
                             {mode.value === 'both' && (
-                              <div className="w-px h-full bg-gray-300" />
+                              <div className="w-px h-full bg-border" />
                             )}
                           </div>
                           <span className="font-medium text-sm">{mode.label}</span>
                           <span className="text-xs text-muted-foreground">{mode.description}</span>
                           {settings.colorMode === mode.value && (
-                            <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center">
+                            <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary/100 flex items-center justify-center">
                               <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                               </svg>
@@ -512,7 +512,7 @@ export default function StorefrontThemePage() {
                           max="20"
                           value={getTypographyConfig().baseFontSize}
                           onChange={(e) => updateTypographyConfig({ baseFontSize: parseInt(e.target.value) })}
-                          className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-purple-600"
+                          className="w-full h-2 bg-muted rounded-lg appearance-none cursor-pointer accent-purple-600"
                         />
                         <div className="flex justify-between text-xs text-muted-foreground mt-1">
                           <span>14px</span>
@@ -592,7 +592,7 @@ export default function StorefrontThemePage() {
                           description: 'Traditional horizontal navigation at the top',
                           preview: (
                             <div className="w-full h-24 bg-muted rounded-lg overflow-hidden border border-border">
-                              <div className="h-6 bg-gray-300 w-full" />
+                              <div className="h-6 bg-border w-full" />
                               <div className="p-2 h-full bg-white" />
                             </div>
                           ),
@@ -603,7 +603,7 @@ export default function StorefrontThemePage() {
                           description: 'Vertical navigation on the left side',
                           preview: (
                             <div className="w-full h-24 bg-muted rounded-lg overflow-hidden border border-border flex">
-                              <div className="w-1/4 h-full bg-gray-300" />
+                              <div className="w-1/4 h-full bg-border" />
                               <div className="flex-1 h-full bg-white" />
                             </div>
                           ),
@@ -615,7 +615,7 @@ export default function StorefrontThemePage() {
                           preview: (
                             <div className="w-full h-24 bg-muted rounded-lg overflow-hidden border border-border flex">
                               <div className="flex-1 h-full bg-white" />
-                              <div className="w-1/4 h-full bg-gray-300" />
+                              <div className="w-1/4 h-full bg-border" />
                             </div>
                           ),
                         },
@@ -626,9 +626,9 @@ export default function StorefrontThemePage() {
                           preview: (
                             <div className="w-full h-24 bg-muted rounded-lg overflow-hidden border border-border">
                               <div className="h-full bg-white flex items-center justify-center">
-                                <div className="w-2 h-2 rounded-full bg-gray-300 mx-0.5" />
-                                <div className="w-2 h-2 rounded-full bg-gray-300 mx-0.5" />
-                                <div className="w-2 h-2 rounded-full bg-gray-300 mx-0.5" />
+                                <div className="w-2 h-2 rounded-full bg-border mx-0.5" />
+                                <div className="w-2 h-2 rounded-full bg-border mx-0.5" />
+                                <div className="w-2 h-2 rounded-full bg-border mx-0.5" />
                               </div>
                             </div>
                           ),
@@ -641,7 +641,7 @@ export default function StorefrontThemePage() {
                           className={cn(
                             'relative flex flex-col gap-3 p-4 rounded-xl border-2 transition-all text-left',
                             settings.layoutConfig?.navigationStyle === option.value
-                              ? 'border-purple-500 bg-purple-50'
+                              ? 'border-primary bg-primary/10'
                               : 'border-border hover:border-border bg-white'
                           )}
                         >
@@ -651,7 +651,7 @@ export default function StorefrontThemePage() {
                             <span className="text-xs text-muted-foreground">{option.description}</span>
                           </div>
                           {settings.layoutConfig?.navigationStyle === option.value && (
-                            <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-purple-500 flex items-center justify-center">
+                            <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary/100 flex items-center justify-center">
                               <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                               </svg>
@@ -676,7 +676,7 @@ export default function StorefrontThemePage() {
                 <div className="space-y-8">
                   <div>
                     <div className="flex items-center gap-2 mb-4">
-                      <Sparkles className="h-5 w-5 text-purple-500" />
+                      <Sparkles className="h-5 w-5 text-primary" />
                       <h3 className="text-lg font-semibold">Hero Section</h3>
                     </div>
 
@@ -698,7 +698,7 @@ export default function StorefrontThemePage() {
                               value={settings.homepageConfig.heroTitle || ''}
                               onChange={(e) => updateHomepageConfig({ heroTitle: e.target.value })}
                               placeholder="Welcome to Our Store"
-                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                             />
                           </div>
                           <div>
@@ -708,7 +708,7 @@ export default function StorefrontThemePage() {
                               value={settings.homepageConfig.heroSubtitle || ''}
                               onChange={(e) => updateHomepageConfig({ heroSubtitle: e.target.value })}
                               placeholder="Discover amazing products"
-                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                             />
                           </div>
                           <div>
@@ -718,7 +718,7 @@ export default function StorefrontThemePage() {
                               value={settings.homepageConfig.heroCtaText || ''}
                               onChange={(e) => updateHomepageConfig({ heroCtaText: e.target.value })}
                               placeholder="Shop Now"
-                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                             />
                           </div>
                           <div>
@@ -728,7 +728,7 @@ export default function StorefrontThemePage() {
                               value={settings.homepageConfig.heroCtaLink || ''}
                               onChange={(e) => updateHomepageConfig({ heroCtaLink: e.target.value })}
                               placeholder="/products"
-                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                             />
                           </div>
                           <div className="md:col-span-2">
@@ -789,7 +789,7 @@ export default function StorefrontThemePage() {
                               value={settings.headerConfig.announcementText || ''}
                               onChange={(e) => updateHeaderConfig({ announcementText: e.target.value })}
                               placeholder="Free shipping on orders over $50!"
-                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                             />
                           </div>
                           <div>
@@ -799,7 +799,7 @@ export default function StorefrontThemePage() {
                               value={settings.headerConfig.announcementLink || ''}
                               onChange={(e) => updateHeaderConfig({ announcementLink: e.target.value })}
                               placeholder="/shipping"
-                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                             />
                           </div>
                         </div>
@@ -883,7 +883,7 @@ export default function StorefrontThemePage() {
                                 value={settings.footerConfig.contactEmail || ''}
                                 onChange={(e) => updateFooterConfig({ contactEmail: e.target.value })}
                                 placeholder="support@example.com"
-                                className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                                className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                               />
                             </div>
                             <div>
@@ -893,7 +893,7 @@ export default function StorefrontThemePage() {
                                 value={settings.footerConfig.contactPhone || ''}
                                 onChange={(e) => updateFooterConfig({ contactPhone: e.target.value })}
                                 placeholder="+1 (555) 123-4567"
-                                className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                                className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                               />
                             </div>
                           </div>
@@ -952,7 +952,7 @@ export default function StorefrontThemePage() {
                           value={settings.footerConfig.copyrightText || ''}
                           onChange={(e) => updateFooterConfig({ copyrightText: e.target.value })}
                           placeholder="© 2024 Your Store. All rights reserved."
-                          className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                          className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                         />
                       </div>
                     </>
@@ -999,7 +999,7 @@ export default function StorefrontThemePage() {
 .my-custom-class {
   color: red;
 }`}
-                        className="w-full h-64 p-4 font-mono text-sm bg-gray-900 text-gray-100 focus:outline-none resize-none"
+                        className="w-full h-64 p-4 font-mono text-sm bg-foreground text-muted focus:outline-none resize-none"
                         spellCheck={false}
                       />
                     </div>

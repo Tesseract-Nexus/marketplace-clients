@@ -79,8 +79,8 @@ export function StatsGridWidget({ data }: StatsGridWidgetProps) {
   const colorMap: Record<string, { gradient: string; light: string; ring: string; text: string }> = {
     emerald: { gradient: 'from-emerald-500 to-teal-500', light: 'bg-emerald-50', ring: 'ring-emerald-500/20', text: 'text-emerald-600' },
     blue: { gradient: 'from-blue-500 to-cyan-500', light: 'bg-primary/10', ring: 'ring-primary/20', text: 'text-primary' },
-    cyan: { gradient: 'from-cyan-500 to-blue-500', light: 'bg-cyan-50', ring: 'ring-cyan-500/20', text: 'text-cyan-600' },
-    violet: { gradient: 'from-violet-500 to-purple-500', light: 'bg-violet-50', ring: 'ring-violet-500/20', text: 'text-violet-600' },
+    cyan: { gradient: 'from-cyan-500 to-blue-500', light: 'bg-accent', ring: 'ring-cyan-500/20', text: 'text-accent-foreground' },
+    violet: { gradient: 'from-violet-500 to-purple-500', light: 'bg-primary/10', ring: 'ring-violet-500/20', text: 'text-primary' },
     amber: { gradient: 'from-amber-500 to-orange-500', light: 'bg-warning-muted', ring: 'ring-amber-500/20', text: 'text-warning' },
   };
 

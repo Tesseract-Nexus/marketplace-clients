@@ -164,15 +164,15 @@ const RESOURCE_TYPES = [
 // Severity colors
 const SEVERITY_COLORS = {
   LOW: 'bg-success-muted text-success-muted-foreground border-success/30',
-  MEDIUM: 'bg-yellow-100 text-yellow-700 border-yellow-200',
-  HIGH: 'bg-orange-100 text-orange-700 border-orange-200',
+  MEDIUM: 'bg-warning-muted text-warning border-warning/30',
+  HIGH: 'bg-warning-muted text-warning border-warning/30',
   CRITICAL: 'bg-error-muted text-error-muted-foreground border-error/30',
 };
 
 const STATUS_COLORS = {
   SUCCESS: 'bg-success-muted text-success-muted-foreground',
   FAILURE: 'bg-error-muted text-error-muted-foreground',
-  PENDING: 'bg-yellow-100 text-yellow-700',
+  PENDING: 'bg-warning-muted text-warning',
 };
 
 const STATUS_ICONS = {
@@ -804,7 +804,7 @@ export default function AuditLogsPage() {
                     )}>
                       <div className={cn(
                         'h-2 w-2 rounded-full',
-                        isConnected ? 'bg-success animate-pulse' : 'bg-gray-400'
+                        isConnected ? 'bg-success animate-pulse' : 'bg-border'
                       )} />
                       {isConnected ? 'Live' : 'Connecting...'}
                     </div>
@@ -1032,7 +1032,7 @@ export default function AuditLogsPage() {
                 {logs.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
-                      <Database className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                      <Database className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                       <p className="font-medium">No audit logs found</p>
                       <p className="text-sm mt-1">Try adjusting your filters or check back later</p>
                     </td>

@@ -60,8 +60,8 @@ export function QuickActionsWidget() {
     <DashboardCard className="border-border bg-white/80 backdrop-blur">
       <DashboardCardHeader className="pb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-violet-100">
-            <BarChart3 className="h-5 w-5 text-violet-600" />
+          <div className="p-2 rounded-xl bg-primary/10">
+            <BarChart3 className="h-5 w-5 text-primary" />
           </div>
           <div>
             <DashboardCardTitle className="text-xl"><AdminUIText text="Quick Actions" /></DashboardCardTitle>

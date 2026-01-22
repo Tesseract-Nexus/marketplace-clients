@@ -103,7 +103,7 @@ function StepIndicator({ steps, currentStep }: { steps: typeof STEPS; currentSte
                 className={cn(
                   'flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all',
                   isActive && 'border-primary bg-primary text-primary-foreground',
-                  isCompleted && 'border-green-500 bg-success text-white',
+                  isCompleted && 'border-success bg-success text-white',
                   !isActive && !isCompleted && 'border-muted-foreground/30 text-muted-foreground'
                 )}
               >
@@ -644,7 +644,7 @@ function ReviewStep({
       <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-start gap-3">
         <Info className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
         <div>
-          <p className="font-medium text-amber-800">Campaign will be saved as Draft</p>
+          <p className="font-medium text-warning">Campaign will be saved as Draft</p>
           <p className="text-sm text-warning-foreground">
             After saving, you can submit it for approval or launch it directly if you have
             permissions.

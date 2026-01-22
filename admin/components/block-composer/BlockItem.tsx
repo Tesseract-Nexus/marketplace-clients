@@ -209,7 +209,7 @@ export function BlockItem({
             {hasPersonalization && (
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <div className="p-0.5 rounded text-blue-500">
+                  <div className="p-0.5 rounded text-primary">
                     <Users className="w-3 h-3" />
                   </div>
                 </TooltipTrigger>

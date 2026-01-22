@@ -68,8 +68,8 @@ function AuthErrorContent() {
 
       {/* Error icon and message */}
       <div className="text-center space-y-4">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-2">
-          <AlertTriangle className="w-8 h-8 text-red-600" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 mb-2">
+          <AlertTriangle className="w-8 h-8 text-destructive" />
         </div>
         <div>
           <h2 className="text-xl font-semibold text-foreground mb-2">{errorInfo.title}</h2>
@@ -143,8 +143,8 @@ export default function AuthErrorPage() {
 
       {/* Animated elements */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-red-500/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-violet-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-destructive/100/20 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/100/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
       </div>
 
       {/* Error card */}

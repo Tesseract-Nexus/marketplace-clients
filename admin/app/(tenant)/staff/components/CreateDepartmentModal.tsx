@@ -144,7 +144,7 @@ export function CreateDepartmentModal({
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           {apiError && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm">
               {apiError}
             </div>
           )}
@@ -162,7 +162,7 @@ export function CreateDepartmentModal({
               }}
               className={cn(
                 "w-full px-3 py-2 border-2 rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
-                errors.name ? "border-red-500" : "border-border"
+                errors.name ? "border-destructive" : "border-border"
               )}
               placeholder="e.g., Engineering, Sales, Marketing"
               disabled={isSubmitting}

@@ -130,7 +130,7 @@ export function DocumentCard({
             </span>
           </div>
           {document.isMandatory && (
-            <span className="px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 rounded-full">
+            <span className="px-2 py-0.5 text-xs font-medium bg-destructive/10 text-destructive rounded-full">
               Required
             </span>
           )}
@@ -180,8 +180,8 @@ export function DocumentCard({
             <div
               className={cn(
                 'flex items-center gap-1',
-                isExpired() && 'text-red-600 font-medium',
-                isExpiringSoon() && 'text-orange-600 font-medium'
+                isExpired() && 'text-destructive font-medium',
+                isExpiringSoon() && 'text-warning font-medium'
               )}
             >
               <AlertTriangle className="w-3.5 h-3.5" />
@@ -203,8 +203,8 @@ export function DocumentCard({
 
         {/* Rejection Reason */}
         {document.verificationStatus === 'rejected' && document.rejectionReason && (
-          <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-xs text-red-700">
+          <div className="mt-3 p-2 bg-destructive/10 border border-destructive/30 rounded-lg">
+            <p className="text-xs text-destructive">
               <span className="font-medium">Rejection Reason:</span> {document.rejectionReason}
             </p>
           </div>
@@ -250,7 +250,7 @@ export function DocumentCard({
               variant="ghost"
               size="sm"
               onClick={() => onVerify(document)}
-              className="p-2 text-purple-600 hover:bg-purple-50"
+              className="p-2 text-primary hover:bg-primary/10"
               title="Verify"
             >
               <CheckCircle className="w-4 h-4" />
@@ -261,7 +261,7 @@ export function DocumentCard({
               variant="ghost"
               size="sm"
               onClick={() => onDelete(document)}
-              className="p-2 text-red-600 hover:bg-red-50"
+              className="p-2 text-destructive hover:bg-destructive/10"
               title="Delete"
             >
               <Trash2 className="w-4 h-4" />

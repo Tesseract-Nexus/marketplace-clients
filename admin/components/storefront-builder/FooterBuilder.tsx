@@ -108,7 +108,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
           className="w-full flex items-center justify-between p-4 bg-muted hover:bg-muted/80 transition-colors"
         >
           <div className="flex items-center gap-3">
-            <Icon className="h-5 w-5 text-purple-500" />
+            <Icon className="h-5 w-5 text-primary" />
             <span className="font-medium">{title}</span>
           </div>
           {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -134,7 +134,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
             disabled={disabled}
             className="sr-only peer"
           />
-          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600"></div>
+          <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
         </label>
       </div>
 
@@ -154,8 +154,8 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                       className={cn(
                         'p-3 border rounded-lg text-center transition-all',
                         config.columnLayout === num
-                          ? 'border-purple-500 bg-purple-50 text-purple-700'
-                          : 'border-border hover:border-purple-300'
+                          ? 'border-primary bg-primary/10 text-primary'
+                          : 'border-border hover:border-primary/30'
                       )}
                     >
                       <div className="flex justify-center gap-1 mb-1">
@@ -243,7 +243,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                   type="checkbox"
                   checked={config.showContactInfo}
                   onChange={(e) => onChange({ showContactInfo: e.target.checked })}
-                  className="rounded border-border text-purple-600"
+                  className="rounded border-border text-primary"
                   disabled={disabled}
                 />
                 <span className="text-sm font-medium">Show contact information</span>
@@ -297,7 +297,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                   type="checkbox"
                   checked={config.showSocialIcons}
                   onChange={(e) => onChange({ showSocialIcons: e.target.checked })}
-                  className="rounded border-border text-purple-600"
+                  className="rounded border-border text-primary"
                   disabled={disabled}
                 />
                 <span className="text-sm font-medium">Show social icons</span>
@@ -320,7 +320,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                   type="checkbox"
                   checked={config.showPaymentIcons || false}
                   onChange={(e) => onChange({ showPaymentIcons: e.target.checked })}
-                  className="rounded border-border text-purple-600"
+                  className="rounded border-border text-primary"
                   disabled={disabled}
                 />
                 <span className="text-sm font-medium">Show payment method icons</span>
@@ -339,8 +339,8 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                         className={cn(
                           'p-3 border rounded-lg text-center transition-all text-sm',
                           isSelected
-                            ? 'border-purple-500 bg-purple-50 text-purple-700'
-                            : 'border-border hover:border-purple-300'
+                            ? 'border-primary bg-primary/10 text-primary'
+                            : 'border-border hover:border-primary/30'
                         )}
                       >
                         <span className="flex items-center justify-center mb-1">
@@ -363,7 +363,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                   type="checkbox"
                   checked={config.showTrustBadges || false}
                   onChange={(e) => onChange({ showTrustBadges: e.target.checked })}
-                  className="rounded border-border text-purple-600"
+                  className="rounded border-border text-primary"
                   disabled={disabled}
                 />
                 <span className="text-sm font-medium">Show trust badges</span>
@@ -434,7 +434,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                           size="sm"
                           onClick={() => handleDeleteTrustBadge(badge.id)}
                           disabled={disabled}
-                          className="h-8 w-8 p-0 text-muted-foreground hover:text-red-500"
+                          className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -466,7 +466,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                   type="checkbox"
                   checked={config.showNewsletter}
                   onChange={(e) => onChange({ showNewsletter: e.target.checked })}
-                  className="rounded border-border text-purple-600"
+                  className="rounded border-border text-primary"
                   disabled={disabled}
                 />
                 <span className="text-sm font-medium">Show newsletter signup</span>
@@ -489,7 +489,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                   type="checkbox"
                   checked={config.showPoweredBy}
                   onChange={(e) => onChange({ showPoweredBy: e.target.checked })}
-                  className="rounded border-border text-purple-600"
+                  className="rounded border-border text-primary"
                   disabled={disabled}
                 />
                 <span className="text-sm font-medium">Show "Powered by" branding</span>

@@ -74,14 +74,14 @@ function MobilePreview({ config }: { config: MobileConfig }) {
   return (
     <div className="relative w-[280px] h-[560px] mx-auto">
       {/* Phone Frame */}
-      <div className="absolute inset-0 border-[12px] border-gray-800 rounded-[36px] bg-white overflow-hidden">
+      <div className="absolute inset-0 border-[12px] border-foreground rounded-[36px] bg-white overflow-hidden">
         {/* Status Bar */}
-        <div className="h-6 bg-gray-100 flex items-center justify-between px-4">
-          <span className="text-[10px] text-gray-600">9:41</span>
+        <div className="h-6 bg-muted flex items-center justify-between px-4">
+          <span className="text-[10px] text-muted-foreground">9:41</span>
           <div className="flex gap-1">
-            <div className="w-3 h-3 rounded-full bg-gray-400" />
-            <div className="w-3 h-3 rounded-full bg-gray-400" />
-            <div className="w-3 h-3 rounded-full bg-gray-400" />
+            <div className="w-3 h-3 rounded-full bg-border" />
+            <div className="w-3 h-3 rounded-full bg-border" />
+            <div className="w-3 h-3 rounded-full bg-border" />
           </div>
         </div>
 
@@ -98,13 +98,13 @@ function MobilePreview({ config }: { config: MobileConfig }) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 bg-gray-50 p-2 space-y-2" style={{ height: config.showBottomNav !== false ? 'calc(100% - 6rem - 48px)' : 'calc(100% - 6rem)' }}>
-          <div className="h-32 bg-gray-200 rounded-lg" />
+        <div className="flex-1 bg-muted p-2 space-y-2" style={{ height: config.showBottomNav !== false ? 'calc(100% - 6rem - 48px)' : 'calc(100% - 6rem)' }}>
+          <div className="h-32 bg-muted rounded-lg" />
           <div className="grid grid-cols-2 gap-2">
-            <div className="h-24 bg-gray-200 rounded" />
-            <div className="h-24 bg-gray-200 rounded" />
+            <div className="h-24 bg-muted rounded" />
+            <div className="h-24 bg-muted rounded" />
           </div>
-          <div className="h-20 bg-gray-200 rounded" />
+          <div className="h-20 bg-muted rounded" />
         </div>
 
         {/* Sticky Add to Cart */}
@@ -130,8 +130,8 @@ function MobilePreview({ config }: { config: MobileConfig }) {
               const Icon = option.icon;
               return (
                 <div key={item} className="flex flex-col items-center gap-0.5">
-                  <Icon className="w-5 h-5 text-gray-600" />
-                  <span className="text-[10px] text-gray-600">{option.label}</span>
+                  <Icon className="w-5 h-5 text-muted-foreground" />
+                  <span className="text-[10px] text-muted-foreground">{option.label}</span>
                 </div>
               );
             })}
@@ -140,7 +140,7 @@ function MobilePreview({ config }: { config: MobileConfig }) {
       </div>
 
       {/* Notch */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-5 bg-gray-800 rounded-full" />
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-5 bg-foreground/80 rounded-full" />
     </div>
   );
 }

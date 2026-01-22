@@ -125,7 +125,7 @@ export function RegionalSettingsTab() {
       <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 flex items-start gap-3">
         <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
         <div>
-          <p className="text-sm font-semibold text-blue-900">Regional Payment Configuration</p>
+          <p className="text-sm font-semibold text-primary">Regional Payment Configuration</p>
           <p className="text-sm text-primary mt-1">
             Configure which payment gateways are available in each country. The primary gateway for
             each country will be used by default, with others as fallbacks based on priority.
@@ -180,7 +180,7 @@ export function RegionalSettingsTab() {
                             key={gw.gatewayType}
                             className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
                               gw.isPrimary
-                                ? 'bg-primary/20 text-blue-800 border border-primary/30'
+                                ? 'bg-primary/20 text-primary border border-primary/30'
                                 : 'bg-muted text-foreground border border-border'
                             }`}
                           >

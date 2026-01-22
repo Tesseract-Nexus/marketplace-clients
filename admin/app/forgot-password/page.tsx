@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
       {/* Animated elements */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-violet-500/20 rounded-full blur-3xl animate-float-delayed" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/100/20 rounded-full blur-3xl animate-float-delayed" />
       </div>
 
       {/* Card */}
@@ -38,9 +38,9 @@ export default function ForgotPasswordPage() {
           <div className="text-center relative">
             <button
               onClick={handleBackToLogin}
-              className="absolute -top-1 -left-1 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              className="absolute -top-1 -left-1 p-2 rounded-lg hover:bg-muted transition-colors"
             >
-              <ArrowLeft className="h-5 w-5 text-gray-600" />
+              <ArrowLeft className="h-5 w-5 text-muted-foreground" />
             </button>
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-violet-600 to-purple-600 shadow-lg shadow-primary/30 mb-3">
               <Sparkles className="w-7 h-7 text-white" />
@@ -56,7 +56,7 @@ export default function ForgotPasswordPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3 rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-left text-sm text-blue-700">
+          <div className="flex items-center gap-3 rounded-lg border border-primary/20 bg-accent px-4 py-3 text-left text-sm text-primary">
             <ShieldCheck className="h-5 w-5 flex-shrink-0" />
             <span>Use the "Forgot Password" link on the Keycloak login page.</span>
           </div>

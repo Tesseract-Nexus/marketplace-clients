@@ -248,7 +248,7 @@ export default function ReviewsPage() {
           key={i}
           className={cn(
             'h-4 w-4',
-            i < rating ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'
+            i < rating ? 'fill-yellow-400 text-warning' : 'text-muted-foreground'
           )}
         />
       );
@@ -369,7 +369,7 @@ export default function ReviewsPage() {
               </p>
             </div>
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-100 to-rose-100 rounded-lg flex items-center justify-center">
-              <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-red-600" />
+              <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-destructive" />
             </div>
           </div>
         </div>
@@ -426,7 +426,7 @@ export default function ReviewsPage() {
               </Button>
               <Button
                 onClick={() => handleBulkAction('reject')}
-                className="bg-red-600 hover:bg-red-700 text-white flex-1 sm:flex-none"
+                className="bg-destructive hover:bg-destructive text-white flex-1 sm:flex-none"
                 size="sm"
               >
                 <XCircle className="h-4 w-4 mr-1 sm:mr-2" />
@@ -435,7 +435,7 @@ export default function ReviewsPage() {
               </Button>
               <Button
                 onClick={() => handleBulkAction('flag')}
-                className="bg-orange-600 hover:bg-orange-700 text-white flex-1 sm:flex-none"
+                className="bg-warning hover:bg-warning text-white flex-1 sm:flex-none"
                 size="sm"
               >
                 <Flag className="h-4 w-4 mr-1 sm:mr-2" />
@@ -606,7 +606,7 @@ export default function ReviewsPage() {
                             )}
                             <a
                               href={`/products/${review.targetId}`}
-                              className="text-primary hover:text-blue-800 hover:underline font-medium"
+                              className="text-primary hover:text-primary hover:underline font-medium"
                             >
                               {product.name}
                             </a>
@@ -620,7 +620,7 @@ export default function ReviewsPage() {
                         <span className="text-primary inline-flex items-center gap-1"><ThumbsUp className="w-3.5 h-3.5" aria-hidden="true" /> {review.helpfulCount} helpful</span>
                       )}
                       {review.reportCount > 0 && (
-                        <span className="text-red-600 inline-flex items-center gap-1"><Flag className="w-3.5 h-3.5" aria-hidden="true" /> {review.reportCount} reports</span>
+                        <span className="text-destructive inline-flex items-center gap-1"><Flag className="w-3.5 h-3.5" aria-hidden="true" /> {review.reportCount} reports</span>
                       )}
                     </div>
                   </div>
@@ -741,7 +741,7 @@ export default function ReviewsPage() {
                             <div className="flex items-center gap-2">
                               <span className="font-semibold">{comment.userName}</span>
                               {comment.isInternal && (
-                                <span className="text-xs bg-yellow-200 text-yellow-800 px-1.5 py-0.5 rounded">Internal Note</span>
+                                <span className="text-xs bg-warning/20 text-warning px-1.5 py-0.5 rounded">Internal Note</span>
                               )}
                             </div>
                             <span className="text-xs text-muted-foreground">{new Date(comment.createdAt).toLocaleDateString()}</span>

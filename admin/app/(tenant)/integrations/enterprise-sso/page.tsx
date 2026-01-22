@@ -390,7 +390,7 @@ export default function EnterpriseSSOPage() {
                 {ssoStatus?.microsoftConfigured || ssoStatus?.oktaConfigured ? (
                   <CheckCircle2 className="h-8 w-8 text-success" />
                 ) : (
-                  <XCircle className="h-8 w-8 text-gray-300" />
+                  <XCircle className="h-8 w-8 text-muted-foreground" />
                 )}
                 <div>
                   <p className="text-sm text-muted-foreground">SSO Status</p>
@@ -418,7 +418,7 @@ export default function EnterpriseSSOPage() {
                 {ssoStatus?.scimEnabled ? (
                   <CheckCircle2 className="h-8 w-8 text-success" />
                 ) : (
-                  <Users className="h-8 w-8 text-gray-300" />
+                  <Users className="h-8 w-8 text-muted-foreground" />
                 )}
                 <div>
                   <p className="text-sm text-muted-foreground">SCIM Provisioning</p>
@@ -431,7 +431,7 @@ export default function EnterpriseSSOPage() {
 
             <div className="bg-card rounded-lg border border-border p-4 shadow-sm">
               <div className="flex items-center gap-3">
-                <Shield className="h-8 w-8 text-purple-500" />
+                <Shield className="h-8 w-8 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Auth Policy</p>
                   <p className="text-lg font-semibold">
@@ -570,7 +570,7 @@ export default function EnterpriseSSOPage() {
                           <Button
                             variant="outline"
                             onClick={() => handleRemoveProvider('microsoft')}
-                            className="text-red-600 hover:bg-red-50"
+                            className="text-destructive hover:bg-destructive/10"
                           >
                             Remove
                           </Button>
@@ -583,8 +583,8 @@ export default function EnterpriseSSOPage() {
                   <div className="border border-border rounded-lg p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center">
-                          <Key className="h-5 w-5 text-indigo-600" />
+                        <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                          <Key className="h-5 w-5 text-primary" />
                         </div>
                         <div>
                           <h3 className="font-semibold text-foreground">Okta</h3>
@@ -698,7 +698,7 @@ export default function EnterpriseSSOPage() {
                       <Button
                         onClick={handleConfigureOkta}
                         disabled={saving || !oktaConfig.domain || !oktaConfig.clientId || !oktaConfig.clientSecret}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                        className="bg-primary hover:bg-primary text-white"
                       >
                         {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                         Save Configuration
@@ -716,7 +716,7 @@ export default function EnterpriseSSOPage() {
                           <Button
                             variant="outline"
                             onClick={() => handleRemoveProvider('okta')}
-                            className="text-red-600 hover:bg-red-50"
+                            className="text-destructive hover:bg-destructive/10"
                           >
                             Remove
                           </Button>
@@ -773,12 +773,12 @@ export default function EnterpriseSSOPage() {
                         </div>
 
                         {scimToken && (
-                          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                            <div className="flex items-center gap-2 text-yellow-700 mb-2">
+                          <div className="bg-warning-muted border border-warning/30 rounded-lg p-4">
+                            <div className="flex items-center gap-2 text-warning mb-2">
                               <AlertTriangle className="h-5 w-5" />
                               <span className="font-medium">Save this token now!</span>
                             </div>
-                            <p className="text-sm text-yellow-600 mb-3">
+                            <p className="text-sm text-warning mb-3">
                               This token will only be shown once. Copy it and configure your IdP.
                             </p>
                             <div className="flex gap-2">
@@ -822,7 +822,7 @@ export default function EnterpriseSSOPage() {
                       </div>
                     ) : (
                       <div className="text-center py-8">
-                        <Users className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                        <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                         <h4 className="text-lg font-medium text-foreground mb-2">
                           SCIM Provisioning Not Enabled
                         </h4>
@@ -849,8 +849,8 @@ export default function EnterpriseSSOPage() {
                 <div className="space-y-6">
                   <div className="border border-border rounded-lg p-6">
                     <div className="flex items-center gap-3 mb-6">
-                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <Shield className="h-5 w-5 text-purple-600" />
+                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <Shield className="h-5 w-5 text-primary" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground">Authentication Policy</h3>
@@ -889,7 +889,7 @@ export default function EnterpriseSSOPage() {
                             Disable password login. Staff must use enterprise SSO.
                           </p>
                           {!(ssoStatus?.microsoftConfigured || ssoStatus?.oktaConfigured) && (
-                            <p className="text-sm text-orange-600 mt-1">
+                            <p className="text-sm text-warning mt-1">
                               <AlertTriangle className="h-4 w-4 inline mr-1" />
                               Configure at least one SSO provider first.
                             </p>
@@ -943,7 +943,7 @@ export default function EnterpriseSSOPage() {
                       <Button
                         onClick={handleUpdateSecuritySettings}
                         disabled={saving}
-                        className="bg-purple-600 hover:bg-purple-700 text-white"
+                        className="bg-primary hover:bg-primary text-white"
                       >
                         {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                         Save Security Settings
@@ -960,7 +960,7 @@ export default function EnterpriseSSOPage() {
             <div className="flex items-start gap-3">
               <ExternalLink className="h-5 w-5 text-primary mt-0.5" />
               <div>
-                <p className="font-medium text-blue-900">Need help configuring SSO?</p>
+                <p className="font-medium text-primary">Need help configuring SSO?</p>
                 <p className="text-sm text-primary">
                   Check our documentation for step-by-step guides on configuring Microsoft Entra, Okta, and SCIM provisioning.
                 </p>

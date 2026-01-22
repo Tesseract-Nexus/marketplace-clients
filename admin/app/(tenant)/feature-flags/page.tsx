@@ -56,13 +56,13 @@ interface FeaturesResponse {
 const FLAG_CATEGORIES: Record<string, { label: string; icon: React.ElementType; color: string }> = {
   search: { label: 'Search', icon: Search, color: 'bg-primary/20 text-primary' },
   ecommerce: { label: 'E-Commerce', icon: Zap, color: 'bg-success-muted text-success-foreground' },
-  payment: { label: 'Payments', icon: Shield, color: 'bg-purple-100 text-purple-700' },
-  ui: { label: 'UI/UX', icon: Settings2, color: 'bg-pink-100 text-pink-700' },
-  admin: { label: 'Admin', icon: Users, color: 'bg-orange-100 text-orange-700' },
-  mobile: { label: 'Mobile', icon: Zap, color: 'bg-cyan-100 text-cyan-700' },
-  performance: { label: 'Performance', icon: Zap, color: 'bg-yellow-100 text-yellow-700' },
-  tenant: { label: 'Multi-Tenant', icon: Users, color: 'bg-indigo-100 text-indigo-700' },
-  qr: { label: 'QR Codes', icon: Zap, color: 'bg-teal-100 text-teal-700' },
+  payment: { label: 'Payments', icon: Shield, color: 'bg-primary/10 text-primary' },
+  ui: { label: 'UI/UX', icon: Settings2, color: 'bg-primary/10 text-primary' },
+  admin: { label: 'Admin', icon: Users, color: 'bg-warning-muted text-warning' },
+  mobile: { label: 'Mobile', icon: Zap, color: 'bg-accent text-accent-foreground' },
+  performance: { label: 'Performance', icon: Zap, color: 'bg-warning-muted text-warning' },
+  tenant: { label: 'Multi-Tenant', icon: Users, color: 'bg-primary/10 text-primary' },
+  qr: { label: 'QR Codes', icon: Zap, color: 'bg-success-muted text-success' },
   other: { label: 'Other', icon: Flag, color: 'bg-muted text-foreground' },
 };
 
@@ -162,7 +162,7 @@ function FeatureFlagCard({
                 disabled={isLoading}
                 className={cn(
                   'relative inline-flex h-6 w-11 items-center rounded-full transition-colors',
-                  isEnabled ? 'bg-success' : 'bg-gray-300',
+                  isEnabled ? 'bg-success' : 'bg-border',
                   isLoading && 'opacity-50 cursor-not-allowed'
                 )}
               >
@@ -539,8 +539,8 @@ export default function FeatureFlagsPage() {
 
           <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-100 rounded-lg">
-                <XCircle className="w-5 h-5 text-red-600" />
+              <div className="p-2 bg-destructive/10 rounded-lg">
+                <XCircle className="w-5 h-5 text-destructive" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-foreground">{totalFlags - enabledFlags}</p>
@@ -551,8 +551,8 @@ export default function FeatureFlagsPage() {
 
           <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Clock className="w-5 h-5 text-purple-600" />
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Clock className="w-5 h-5 text-primary" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-foreground">
@@ -569,7 +569,7 @@ export default function FeatureFlagsPage() {
           <div className="bg-warning-muted border border-warning/30 rounded-xl p-4 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-warning shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium text-amber-800">Notice</p>
+              <p className="font-medium text-warning">Notice</p>
               <p className="text-sm text-warning-foreground">{error}</p>
             </div>
           </div>
@@ -579,7 +579,7 @@ export default function FeatureFlagsPage() {
         <div className="bg-primary/10 border border-primary/30 rounded-xl p-4 flex items-start gap-3">
           <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
           <div>
-            <p className="font-medium text-blue-800">Multi-Tenant Feature Flags</p>
+            <p className="font-medium text-primary">Multi-Tenant Feature Flags</p>
             <p className="text-sm text-primary">
               Feature flags are managed through GrowthBook with attribute-based targeting.
               Each tenant can have different flag values based on targeting rules using tenantId, userId, and custom attributes.
@@ -627,18 +627,18 @@ export default function FeatureFlagsPage() {
           <div className="bg-success-muted border border-success/30 rounded-xl p-4 flex items-start gap-3 animate-in slide-in-from-top duration-300">
             <CheckCircle className="w-5 h-5 text-success shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium text-green-800">Success</p>
+              <p className="font-medium text-success">Success</p>
               <p className="text-sm text-success-foreground">{updateSuccess}</p>
             </div>
           </div>
         )}
 
         {updateError && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3 animate-in slide-in-from-top duration-300">
-            <XCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 flex items-start gap-3 animate-in slide-in-from-top duration-300">
+            <XCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium text-red-800">Error</p>
-              <p className="text-sm text-red-700">{updateError}</p>
+              <p className="font-medium text-destructive">Error</p>
+              <p className="text-sm text-destructive">{updateError}</p>
             </div>
           </div>
         )}
@@ -647,7 +647,7 @@ export default function FeatureFlagsPage() {
         <div className="space-y-6">
           {Object.keys(categorizedFlags).length === 0 ? (
             <div className="bg-card rounded-xl border border-border p-12 text-center">
-              <Flag className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+              <Flag className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">No Feature Flags Found</h3>
               <p className="text-muted-foreground">
                 {searchQuery
@@ -674,7 +674,7 @@ export default function FeatureFlagsPage() {
         {/* Quick Reference */}
         <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
           <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
-            <Beaker className="w-5 h-5 text-purple-600" />
+            <Beaker className="w-5 h-5 text-primary" />
             Quick Reference
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

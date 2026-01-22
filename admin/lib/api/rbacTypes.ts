@@ -325,10 +325,10 @@ export const PERMISSION_CATEGORY_ICONS: Record<string, string> = {
 
 // Role Badge Colors
 export const ROLE_PRIORITY_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-  owner: { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-300' },
-  admin: { bg: 'bg-violet-100', text: 'text-violet-800', border: 'border-violet-300' },
-  manager: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-300' },
-  standard: { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-300' },
+  owner: { bg: 'bg-primary/10', text: 'text-primary', border: 'border-primary/30' },
+  admin: { bg: 'bg-primary/10', text: 'text-primary', border: 'border-primary/30' },
+  manager: { bg: 'bg-accent', text: 'text-primary', border: 'border-primary/30' },
+  standard: { bg: 'bg-muted', text: 'text-foreground', border: 'border-border' },
   viewer: { bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-300' },
 };
 

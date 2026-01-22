@@ -40,27 +40,27 @@ const DEFAULT_DURATIONS: Record<ToastType, number> = {
 // Toast styling by type
 const TOAST_STYLES: Record<ToastType, { bg: string; border: string; text: string; icon: React.ReactNode }> = {
   success: {
-    bg: 'bg-green-50',
-    border: 'border-green-200',
-    text: 'text-green-800',
-    icon: <CheckCircle className="h-5 w-5 text-green-500" />,
+    bg: 'bg-success-muted',
+    border: 'border-success/30',
+    text: 'text-success',
+    icon: <CheckCircle className="h-5 w-5 text-success" />,
   },
   error: {
-    bg: 'bg-red-50',
-    border: 'border-red-200',
-    text: 'text-red-800',
-    icon: <AlertCircle className="h-5 w-5 text-red-500" />,
+    bg: 'bg-destructive/10',
+    border: 'border-destructive/30',
+    text: 'text-destructive',
+    icon: <AlertCircle className="h-5 w-5 text-destructive" />,
   },
   warning: {
-    bg: 'bg-yellow-50',
-    border: 'border-yellow-200',
-    text: 'text-yellow-800',
-    icon: <AlertTriangle className="h-5 w-5 text-yellow-500" />,
+    bg: 'bg-warning-muted',
+    border: 'border-warning/30',
+    text: 'text-warning',
+    icon: <AlertTriangle className="h-5 w-5 text-warning" />,
   },
   info: {
     bg: 'bg-primary/10',
     border: 'border-primary/30',
-    text: 'text-blue-800',
+    text: 'text-primary',
     icon: <Info className="h-5 w-5 text-primary" />,
   },
 };

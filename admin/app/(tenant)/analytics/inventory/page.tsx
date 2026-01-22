@@ -133,7 +133,7 @@ export default function InventoryAnalyticsPage() {
   ].filter(item => item.value > 0);
 
   const getStockLevelBadge = (stock: number, reorder: number) => {
-    if (stock === 0) return { className: 'bg-red-100 text-red-700 border-red-200', label: 'Out of Stock' };
+    if (stock === 0) return { className: 'bg-destructive/10 text-destructive border-destructive/30', label: 'Out of Stock' };
     if (stock <= reorder) return { className: 'bg-warning-muted text-warning-foreground border-warning/30', label: 'Low Stock' };
     return { className: 'bg-success-muted text-success-foreground border-success/30', label: 'In Stock' };
   };
@@ -142,7 +142,7 @@ export default function InventoryAnalyticsPage() {
     return (
       <div className="min-h-screen bg-background p-8">
         <div className="flex items-center justify-center h-64">
-          <RefreshCw className="h-8 w-8 animate-spin text-indigo-600" />
+          <RefreshCw className="h-8 w-8 animate-spin text-primary" />
         </div>
       </div>
     );
@@ -176,7 +176,7 @@ export default function InventoryAnalyticsPage() {
                 <Download className="h-4 w-4 mr-1.5" />
                 Export
               </Button>
-              <div className="w-px h-6 bg-gray-200" />
+              <div className="w-px h-6 bg-muted" />
               <Button
                 variant="ghost"
                 size="sm"
@@ -194,7 +194,7 @@ export default function InventoryAnalyticsPage() {
         {error && (
           <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-center gap-3">
             <AlertTriangle className="h-5 w-5 text-warning" />
-            <p className="text-amber-800">{error instanceof Error ? error.message : 'Failed to load inventory analytics'}</p>
+            <p className="text-warning">{error instanceof Error ? error.message : 'Failed to load inventory analytics'}</p>
           </div>
         )}
 
@@ -212,11 +212,11 @@ export default function InventoryAnalyticsPage() {
             </p>
           </div>
 
-          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-purple-300/50 hover:-translate-y-1 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-primary/30/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Total SKUs</p>
               <div className="w-10 h-10 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <Boxes className="h-5 w-5 text-purple-600" />
+                <Boxes className="h-5 w-5 text-primary" />
               </div>
             </div>
             <p className="text-2xl font-bold text-foreground">
@@ -249,24 +249,24 @@ export default function InventoryAnalyticsPage() {
             <p className="text-xs text-warning mt-1">Needs reorder</p>
           </div>
 
-          <div className="group bg-card rounded-xl border border-red-200/60 p-6 shadow-sm bg-gradient-to-br from-red-50 to-white hover:shadow-xl hover:border-red-300/50 hover:-translate-y-1 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-destructive/30/60 p-6 shadow-sm bg-gradient-to-br from-red-50 to-white hover:shadow-xl hover:border-destructive/30/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-red-700">Out of Stock</p>
-              <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <XCircle className="h-5 w-5 text-red-600" />
+              <p className="text-sm font-medium text-destructive">Out of Stock</p>
+              <div className="w-10 h-10 bg-destructive/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <XCircle className="h-5 w-5 text-destructive" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-red-700">
+            <p className="text-2xl font-bold text-destructive">
               {formatNumber(data?.outOfStockCount || 0)}
             </p>
-            <p className="text-xs text-red-600 mt-1">Urgent attention needed</p>
+            <p className="text-xs text-destructive mt-1">Urgent attention needed</p>
           </div>
         </div>
 
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Stock Health Pie Chart */}
-          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-indigo-300/50 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
             <h3 className="text-lg font-semibold text-foreground mb-6">Stock Health Distribution</h3>
             <SafeChartContainer height={288} minHeight={200}>
               <PieChart>
@@ -294,7 +294,7 @@ export default function InventoryAnalyticsPage() {
           </div>
 
           {/* Inventory by Category */}
-          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-purple-300/50 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
             <h3 className="text-lg font-semibold text-foreground mb-6">Inventory Value by Category</h3>
             <SafeChartContainer height={288} minHeight={200}>
               <BarChart data={categoryChartData} layout="vertical">
@@ -312,7 +312,7 @@ export default function InventoryAnalyticsPage() {
         </div>
 
         {/* Inventory Tables with Tabs */}
-        <div className="bg-card rounded-xl border border-border/60 shadow-sm hover:shadow-xl hover:border-indigo-300/50 transition-all duration-300">
+        <div className="bg-card rounded-xl border border-border/60 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
           <div className="border-b border-border overflow-x-auto">
             <nav className="flex min-w-max">
               {[
@@ -327,7 +327,7 @@ export default function InventoryAnalyticsPage() {
                   className={cn(
                     'flex items-center gap-2 py-4 px-6 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap',
                     activeTab === tab.id
-                      ? 'border-indigo-600 text-indigo-600'
+                      ? 'border-primary text-primary'
                       : 'border-transparent text-muted-foreground hover:text-foreground'
                   )}
                 >
@@ -339,7 +339,7 @@ export default function InventoryAnalyticsPage() {
                     </span>
                   ) : null}
                   {tab.id === 'out-of-stock' && data?.outOfStockCount ? (
-                    <span className="ml-1 px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 rounded-full">
+                    <span className="ml-1 px-2 py-0.5 text-xs font-medium bg-destructive/10 text-destructive rounded-full">
                       {data.outOfStockCount}
                     </span>
                   ) : null}
@@ -369,7 +369,7 @@ export default function InventoryAnalyticsPage() {
                         <td className="px-6 py-4 font-medium text-foreground">{product.productName}</td>
                         <td className="px-6 py-4 text-sm text-muted-foreground font-mono">{product.sku}</td>
                         <td className="px-6 py-4 text-right">
-                          <span className={cn('font-semibold', product.stockLevel === 0 ? 'text-red-600' : 'text-warning')}>
+                          <span className={cn('font-semibold', product.stockLevel === 0 ? 'text-destructive' : 'text-warning')}>
                             {formatNumber(product.stockLevel)}
                           </span>
                         </td>
@@ -411,8 +411,8 @@ export default function InventoryAnalyticsPage() {
                         <span className={cn(
                           'inline-flex px-2 py-1 text-xs font-medium rounded-full',
                           product.turnoverRate >= 2 ? 'bg-success-muted text-success-foreground' :
-                          product.turnoverRate >= 1 ? 'bg-yellow-100 text-yellow-700' :
-                          'bg-red-100 text-red-700'
+                          product.turnoverRate >= 1 ? 'bg-warning-muted text-warning' :
+                          'bg-destructive/10 text-destructive'
                         )}>
                           {product.turnoverRate.toFixed(2)}x
                         </span>
@@ -426,7 +426,7 @@ export default function InventoryAnalyticsPage() {
         </div>
 
         {/* Category Details */}
-        <div className="bg-card rounded-xl border border-border/60 shadow-sm hover:shadow-xl hover:border-violet-300/50 transition-all duration-300">
+        <div className="bg-card rounded-xl border border-border/60 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
           <div className="p-6 border-b border-border">
             <h3 className="text-lg font-semibold text-foreground">Inventory by Category</h3>
             <p className="text-sm text-muted-foreground">Stock distribution across product categories</p>

@@ -43,7 +43,7 @@ export function CustomerSatisfactionWidget({ data }: CustomerSatisfactionWidgetP
     if (satisfaction.avgRating >= 4.5) return { text: excellentText, color: 'text-emerald-600' };
     if (satisfaction.avgRating >= 4) return { text: greatText, color: 'text-primary' };
     if (satisfaction.avgRating >= 3) return { text: goodText, color: 'text-warning' };
-    return { text: needsWorkText, color: 'text-orange-600' };
+    return { text: needsWorkText, color: 'text-warning' };
   };
 
   const status = getStatus();
@@ -81,10 +81,10 @@ export function CustomerSatisfactionWidget({ data }: CustomerSatisfactionWidgetP
                   className={cn(
                     "h-8 w-8 transition-colors",
                     hasRatingData && star <= Math.round(satisfaction.avgRating)
-                      ? "text-amber-400 fill-amber-400"
+                      ? "text-warning fill-amber-400"
                       : hasRatingData && star - 0.5 <= satisfaction.avgRating
-                      ? "text-amber-400 fill-amber-200"
-                      : "text-gray-200 fill-gray-100"
+                      ? "text-warning fill-amber-200"
+                      : "text-muted fill-gray-100"
                   )}
                 />
               ))}

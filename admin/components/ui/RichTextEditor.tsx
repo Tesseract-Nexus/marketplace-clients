@@ -62,7 +62,7 @@ const ToolbarButton = ({ onClick, isActive, disabled, title, children }: Toolbar
     className={cn(
       'p-1.5 rounded transition-colors',
       isActive
-        ? 'bg-purple-100 text-purple-700'
+        ? 'bg-primary/10 text-primary'
         : 'text-muted-foreground hover:bg-muted hover:text-foreground',
       disabled && 'opacity-50 cursor-not-allowed'
     )}
@@ -72,7 +72,7 @@ const ToolbarButton = ({ onClick, isActive, disabled, title, children }: Toolbar
 );
 
 const ToolbarDivider = () => (
-  <div className="w-px h-6 bg-gray-200 mx-1" />
+  <div className="w-px h-6 bg-muted mx-1" />
 );
 
 export function RichTextEditor({
@@ -92,7 +92,7 @@ export function RichTextEditor({
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: 'text-primary underline hover:text-blue-800',
+          class: 'text-primary underline hover:text-primary',
         },
       }),
       Image.configure({
@@ -120,9 +120,9 @@ export function RichTextEditor({
           'prose-h1:text-2xl prose-h2:text-xl prose-h3:text-lg',
           'prose-p:text-foreground prose-p:leading-relaxed',
           'prose-ul:list-disc prose-ol:list-decimal',
-          'prose-blockquote:border-l-4 prose-blockquote:border-purple-300 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-muted-foreground',
+          'prose-blockquote:border-l-4 prose-blockquote:border-primary/30 prose-blockquote:pl-4 prose-blockquote:italic prose-blockquote:text-muted-foreground',
           'prose-code:bg-muted prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:text-sm prose-code:font-mono',
-          'prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:rounded-lg prose-pre:p-4',
+          'prose-pre:bg-foreground prose-pre:text-muted prose-pre:rounded-lg prose-pre:p-4',
           'prose-a:text-primary prose-a:underline',
           'prose-img:rounded-lg prose-img:mx-auto'
         ),
@@ -184,8 +184,8 @@ export function RichTextEditor({
     return (
       <div className={cn('border border-border rounded-lg bg-muted', className)}>
         <div className="animate-pulse p-4">
-          <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+          <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+          <div className="h-4 bg-muted rounded w-1/2"></div>
         </div>
       </div>
     );

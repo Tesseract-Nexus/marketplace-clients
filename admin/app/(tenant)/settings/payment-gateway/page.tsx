@@ -183,7 +183,7 @@ export default function PaymentGatewayPage() {
         <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-start gap-3">
           <AlertCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-amber-900">Test Mode Enabled</p>
+            <p className="text-sm font-semibold text-warning">Test Mode Enabled</p>
             <p className="text-sm text-warning-foreground mt-1">
               Currently displaying mock data. Connect to payment service microservice for live configuration.
             </p>
@@ -272,7 +272,7 @@ export default function PaymentGatewayPage() {
                       </span>
                     )}
                     {gateway.supportsSubscriptions && (
-                      <span className="text-xs px-2 py-1 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                      <span className="text-xs px-2 py-1 rounded bg-primary/10 text-primary border border-primary/30">
                         Subscriptions
                       </span>
                     )}

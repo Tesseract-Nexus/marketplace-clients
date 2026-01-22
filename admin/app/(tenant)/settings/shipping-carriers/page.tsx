@@ -268,12 +268,12 @@ export default function ShippingCarriersSettingsPage() {
                     {hasPrimaryCarrier ? (
                       <CheckCircle className="h-5 w-5 text-success" />
                     ) : (
-                      <XCircle className="h-5 w-5 text-gray-300" />
+                      <XCircle className="h-5 w-5 text-muted-foreground" />
                     )}
                     {hasFallbackCarrier ? (
                       <CheckCircle className="h-5 w-5 text-success" />
                     ) : (
-                      <XCircle className="h-5 w-5 text-gray-300" />
+                      <XCircle className="h-5 w-5 text-muted-foreground" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">Primary + Fallback</p>
@@ -305,7 +305,7 @@ export default function ShippingCarriersSettingsPage() {
                   <div className="flex items-center justify-between bg-white/10 rounded-lg px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 bg-card rounded flex items-center justify-center">
-                        <Package className="h-4 w-4 text-violet-600" />
+                        <Package className="h-4 w-4 text-primary" />
                       </div>
                       <span className="font-medium">{recommendation.primaryName}</span>
                     </div>
@@ -320,7 +320,7 @@ export default function ShippingCarriersSettingsPage() {
                     <div className="flex items-center justify-between bg-white/10 rounded-lg px-4 py-3">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-card rounded flex items-center justify-center">
-                          <Truck className="h-4 w-4 text-violet-600" />
+                          <Truck className="h-4 w-4 text-primary" />
                         </div>
                         <span className="font-medium">{recommendation.fallbackName}</span>
                       </div>
@@ -336,7 +336,7 @@ export default function ShippingCarriersSettingsPage() {
                 {(!hasPrimaryCarrier || !hasFallbackCarrier) && (
                   <Button
                     onClick={() => setActiveTab('carriers')}
-                    className="w-full bg-white text-violet-700 hover:bg-muted"
+                    className="w-full bg-white text-primary hover:bg-muted"
                   >
                     <Zap className="h-4 w-4 mr-2" />
                     Quick Setup

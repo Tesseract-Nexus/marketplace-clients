@@ -103,7 +103,7 @@ export function NavigationEditor({
       <div className="space-y-2">
         {sortedLinks.length === 0 ? (
           <div className="text-center py-8 bg-muted rounded-lg border-2 border-dashed border-border">
-            <LinkIcon className="h-8 w-8 text-gray-300 mx-auto mb-2" />
+            <LinkIcon className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
             <p className="text-sm text-muted-foreground">No navigation links</p>
           </div>
         ) : (
@@ -113,11 +113,11 @@ export function NavigationEditor({
               className={cn(
                 'flex items-center gap-3 p-3 bg-card rounded-lg border border-border',
                 'hover:border-border transition-all',
-                editingId === link.id && 'ring-2 ring-purple-500/20 border-purple-500'
+                editingId === link.id && 'ring-2 ring-purple-500/20 border-primary'
               )}
             >
               {/* Drag handle */}
-              <div className="text-gray-300 cursor-grab">
+              <div className="text-muted-foreground cursor-grab">
                 <GripVertical className="h-4 w-4" />
               </div>
 
@@ -133,7 +133,7 @@ export function NavigationEditor({
                   placeholder="Link label"
                   className={cn(
                     'px-3 py-1.5 rounded-lg border border-border text-sm',
-                    'focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500',
+                    'focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary',
                     disabled && 'opacity-50 cursor-not-allowed bg-muted'
                   )}
                 />
@@ -148,7 +148,7 @@ export function NavigationEditor({
                     placeholder="/path or https://..."
                     className={cn(
                       'w-full px-3 py-1.5 rounded-lg border border-border text-sm pr-8',
-                      'focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500',
+                      'focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary',
                       disabled && 'opacity-50 cursor-not-allowed bg-muted'
                     )}
                   />
@@ -167,7 +167,7 @@ export function NavigationEditor({
                 className={cn(
                   'p-1.5 rounded-lg transition-colors',
                   link.isExternal
-                    ? 'bg-purple-50 text-purple-500'
+                    ? 'bg-primary/10 text-primary'
                     : 'hover:bg-muted text-muted-foreground',
                   disabled && 'opacity-50 cursor-not-allowed'
                 )}
@@ -207,11 +207,11 @@ export function NavigationEditor({
                 onClick={() => handleDeleteLink(link.id)}
                 disabled={disabled}
                 className={cn(
-                  'p-1.5 rounded-lg hover:bg-red-50 transition-colors',
+                  'p-1.5 rounded-lg hover:bg-destructive/10 transition-colors',
                   disabled && 'opacity-50 cursor-not-allowed'
                 )}
               >
-                <Trash2 className="h-4 w-4 text-muted-foreground hover:text-red-500" />
+                <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
               </button>
             </div>
           ))

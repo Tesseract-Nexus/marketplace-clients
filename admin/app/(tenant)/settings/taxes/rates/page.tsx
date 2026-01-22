@@ -205,20 +205,20 @@ export default function TaxRatesPage() {
   const getTaxTypeColor = (type: TaxType) => {
     const colors: Record<TaxType, string> = {
       SALES: 'bg-primary/20 text-primary border-primary/30',
-      VAT: 'bg-purple-100 text-purple-700 border-purple-200',
+      VAT: 'bg-primary/10 text-primary border-primary/30',
       GST: 'bg-success-muted text-success-muted-foreground border-success/30',
       CGST: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      SGST: 'bg-teal-100 text-teal-700 border-teal-200',
-      IGST: 'bg-cyan-100 text-cyan-700 border-cyan-200',
+      SGST: 'bg-success-muted text-success border-success/30',
+      IGST: 'bg-accent text-accent-foreground border-accent',
       UTGST: 'bg-sky-100 text-sky-700 border-sky-200',
       CESS: 'bg-warning-muted text-warning-foreground border-warning/30',
       HST: 'bg-rose-100 text-rose-700 border-rose-200',
       PST: 'bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200',
-      QST: 'bg-violet-100 text-violet-700 border-violet-200',
-      CITY: 'bg-orange-100 text-orange-700 border-orange-200',
-      COUNTY: 'bg-pink-100 text-pink-700 border-pink-200',
-      STATE: 'bg-indigo-100 text-indigo-700 border-indigo-200',
-      SPECIAL: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+      QST: 'bg-primary/10 text-primary border-primary/30',
+      CITY: 'bg-warning-muted text-warning border-warning/30',
+      COUNTY: 'bg-primary/10 text-primary border-primary/30',
+      STATE: 'bg-primary/10 text-primary border-primary/30',
+      SPECIAL: 'bg-warning-muted text-warning border-warning/30',
     };
     return colors[type];
   };
@@ -420,11 +420,11 @@ export default function TaxRatesPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleEdit(rate)}
-                            className="h-8 w-8 p-0 rounded-lg hover:bg-violet-50 transition-colors"
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                             title="Edit"
                             aria-label="Edit tax rate"
                           >
-                            <Edit className="w-4 h-4 text-violet-600" aria-hidden="true" />
+                            <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                           </Button>
                           <Button
                             variant="ghost"

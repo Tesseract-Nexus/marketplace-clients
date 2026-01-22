@@ -459,11 +459,11 @@ export default function DepartmentsPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => handleEditDepartment(dept)}
-                className="h-8 w-8 p-0 rounded-lg bg-violet-100 hover:bg-violet-200 transition-colors"
+                className="h-8 w-8 p-0 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
                 title="Edit"
                 aria-label="Edit department"
               >
-                <Edit className="w-4 h-4 text-violet-700" aria-hidden="true" />
+                <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
               </Button>
             )}
             {canDeleteDepartments && (
@@ -519,11 +519,11 @@ export default function DepartmentsPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEditTeam(team)}
-                      className="h-8 w-8 p-0 rounded-lg bg-violet-100 hover:bg-violet-200 transition-colors"
+                      className="h-8 w-8 p-0 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
                       title="Edit"
                       aria-label="Edit team"
                     >
-                      <Edit className="w-4 h-4 text-violet-700" aria-hidden="true" />
+                      <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                     </Button>
                   )}
                   {canDeleteTeams && (
@@ -623,11 +623,11 @@ export default function DepartmentsPage() {
                 variant="ghost"
                 size="sm"
                 onClick={() => handleEditDepartment(dept)}
-                className="h-8 w-8 p-0 rounded-lg bg-violet-100 hover:bg-violet-200 transition-colors"
+                className="h-8 w-8 p-0 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
                 title="Edit"
                 aria-label="Edit department"
               >
-                <Edit className="w-4 h-4 text-violet-700" aria-hidden="true" />
+                <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
               </Button>
             )}
             {canDeleteDepartments && (
@@ -683,11 +683,11 @@ export default function DepartmentsPage() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleEditTeam(team)}
-                      className="h-8 w-8 p-0 rounded-lg bg-violet-100 hover:bg-violet-200 transition-colors"
+                      className="h-8 w-8 p-0 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
                       title="Edit"
                       aria-label="Edit team"
                     >
-                      <Edit className="w-4 h-4 text-violet-700" aria-hidden="true" />
+                      <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                     </Button>
                   )}
                   {canDeleteTeams && (
@@ -1130,7 +1130,7 @@ export default function DepartmentsPage() {
               <div className="pt-2 border-t">
                 <p className="text-sm text-muted-foreground">Default Role (Inherited Permissions)</p>
                 {selectedTeam.defaultRoleId ? (
-                  <Badge className="mt-1 bg-violet-100 text-violet-700">
+                  <Badge className="mt-1 bg-primary/10 text-primary">
                     {roles.find(r => r.id === selectedTeam.defaultRoleId)?.displayName ||
                      roles.find(r => r.id === selectedTeam.defaultRoleId)?.name ||
                      'Unknown Role'}
@@ -1307,8 +1307,8 @@ export default function DepartmentsPage() {
           <Card>
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-violet-100 flex items-center justify-center">
-                  <UserCircle className="w-6 h-6 text-violet-600" />
+                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <UserCircle className="w-6 h-6 text-primary" />
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Total Staff</p>
@@ -1456,11 +1456,11 @@ export default function DepartmentsPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleEditDepartment(dept)}
-                                  className="h-8 w-8 p-0 rounded-lg bg-violet-100 hover:bg-violet-200 transition-colors"
+                                  className="h-8 w-8 p-0 rounded-lg bg-primary/10 hover:bg-primary/20 transition-colors"
                                   title="Edit"
                                   aria-label="Edit department"
                                 >
-                                  <Edit className="w-4 h-4 text-violet-700" aria-hidden="true" />
+                                  <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                                 </Button>
                               )}
                               {canDeleteDepartments && (

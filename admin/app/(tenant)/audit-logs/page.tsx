@@ -222,11 +222,11 @@ export default function AuditLogsPage() {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'CRITICAL':
-        return 'bg-red-100 text-red-700 border-red-200';
+        return 'bg-destructive/10 text-destructive border-destructive/30';
       case 'HIGH':
-        return 'bg-orange-100 text-orange-700 border-orange-200';
+        return 'bg-warning-muted text-warning border-warning/30';
       case 'MEDIUM':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        return 'bg-warning-muted text-warning border-warning/30';
       case 'LOW':
         return 'bg-success-muted text-success-foreground border-success/30';
       default:
@@ -239,9 +239,9 @@ export default function AuditLogsPage() {
       case 'SUCCESS':
         return 'bg-success-muted text-success-foreground border-success/30';
       case 'FAILURE':
-        return 'bg-red-100 text-red-700 border-red-200';
+        return 'bg-destructive/10 text-destructive border-destructive/30';
       case 'PENDING':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        return 'bg-warning-muted text-warning border-warning/30';
       default:
         return 'bg-muted text-foreground border-border';
     }
@@ -330,7 +330,7 @@ export default function AuditLogsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">High Severity</p>
               <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-red-100 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-orange-600" />
+                <AlertTriangle className="h-6 w-6 text-warning" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
@@ -342,7 +342,7 @@ export default function AuditLogsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Failed Actions</p>
               <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-pink-100 rounded-lg flex items-center justify-center">
-                <XCircle className="h-6 w-6 text-red-600" />
+                <XCircle className="h-6 w-6 text-destructive" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
@@ -656,10 +656,10 @@ export default function AuditLogsPage() {
 
               {selectedLog.errorMessage && (
                 <div>
-                  <label className="block text-sm font-bold text-red-700 mb-1">
+                  <label className="block text-sm font-bold text-destructive mb-1">
                     Error Message
                   </label>
-                  <p className="text-sm text-red-700 bg-red-50 p-3 rounded border border-red-200">
+                  <p className="text-sm text-destructive bg-destructive/10 p-3 rounded border border-destructive/30">
                     {selectedLog.errorMessage}
                   </p>
                 </div>

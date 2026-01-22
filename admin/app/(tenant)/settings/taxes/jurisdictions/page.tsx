@@ -146,11 +146,11 @@ export default function TaxJurisdictionsPage() {
 
   const getTypeColor = (type: JurisdictionType) => {
     const colors = {
-      COUNTRY: 'bg-purple-100 text-purple-700 border-purple-200',
+      COUNTRY: 'bg-primary/10 text-primary border-primary/30',
       STATE: 'bg-primary/20 text-primary border-primary/30',
       COUNTY: 'bg-success-muted text-success-muted-foreground border-success/30',
-      CITY: 'bg-orange-100 text-orange-700 border-orange-200',
-      ZIP: 'bg-pink-100 text-pink-700 border-pink-200',
+      CITY: 'bg-warning-muted text-warning border-warning/30',
+      ZIP: 'bg-primary/10 text-primary border-primary/30',
     };
     return colors[type];
   };
@@ -325,11 +325,11 @@ export default function TaxJurisdictionsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleEdit(jurisdiction)}
-                            className="h-8 w-8 p-0 rounded-lg hover:bg-violet-50 transition-colors"
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                             title="Edit"
                             aria-label="Edit jurisdiction"
                           >
-                            <Edit className="w-4 h-4 text-violet-600" aria-hidden="true" />
+                            <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                           </Button>
                           <Button
                             variant="ghost"

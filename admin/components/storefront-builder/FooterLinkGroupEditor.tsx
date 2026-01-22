@@ -37,7 +37,7 @@ function FooterLinkEditor({ link, onUpdate, onDelete }: FooterLinkEditorProps) {
           type="checkbox"
           checked={link.isExternal}
           onChange={(e) => onUpdate({ isExternal: e.target.checked })}
-          className="rounded border-border text-purple-600 focus:ring-purple-500"
+          className="rounded border-border text-primary focus:ring-purple-500"
         />
         <ExternalLink className="h-3 w-3" />
       </label>
@@ -46,7 +46,7 @@ function FooterLinkEditor({ link, onUpdate, onDelete }: FooterLinkEditorProps) {
         variant="ghost"
         size="sm"
         onClick={onDelete}
-        className="h-7 w-7 p-0 text-muted-foreground hover:text-red-500 hover:bg-red-50 shrink-0"
+        className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
       >
         <Trash2 className="h-3.5 w-3.5" />
       </Button>
@@ -94,7 +94,7 @@ export function FooterLinkGroupEditor({ group, onUpdate, onDelete }: FooterLinkG
           value={group.title}
           onChange={(e) => onUpdate({ title: e.target.value })}
           placeholder="Column Title"
-          className="flex-1 px-3 py-1.5 text-sm font-medium border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+          className="flex-1 px-3 py-1.5 text-sm font-medium border border-border rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
         />
 
         <span className="text-xs text-muted-foreground shrink-0">
@@ -114,7 +114,7 @@ export function FooterLinkGroupEditor({ group, onUpdate, onDelete }: FooterLinkG
           variant="ghost"
           size="sm"
           onClick={onDelete}
-          className="h-7 w-7 p-0 text-muted-foreground hover:text-red-500 hover:bg-red-50 shrink-0"
+          className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
         >
           <Trash2 className="h-4 w-4" />
         </Button>

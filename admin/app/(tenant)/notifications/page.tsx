@@ -70,8 +70,8 @@ const typeIcons: Record<string, typeof Bell> = {
 const priorityColors: Record<string, string> = {
   low: 'bg-muted text-foreground',
   normal: 'bg-primary/20 text-primary',
-  high: 'bg-orange-100 text-orange-700',
-  urgent: 'bg-red-100 text-red-700',
+  high: 'bg-warning-muted text-warning',
+  urgent: 'bg-destructive/10 text-destructive',
 };
 
 // Generate navigation URL based on notification type and entity
@@ -265,7 +265,7 @@ export default function NotificationsPage() {
         </div>
         <div className="flex items-center gap-2">
           <Badge variant={isConnected ? 'default' : 'secondary'} className="gap-1">
-            <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-success' : 'bg-gray-400'}`} />
+            <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-success' : 'bg-border'}`} />
             {isConnected ? 'Live' : 'Offline'}
           </Badge>
           <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing}>
@@ -437,7 +437,7 @@ export default function NotificationsPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                             onClick={(e) => {
                               e.stopPropagation();
                               e.preventDefault();

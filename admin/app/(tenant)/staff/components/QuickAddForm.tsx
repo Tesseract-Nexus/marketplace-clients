@@ -246,7 +246,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
               }}
               className={cn(
                 "w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
-                errors.firstName ? "border-red-500" : "border-border"
+                errors.firstName ? "border-destructive" : "border-border"
               )}
               placeholder="John"
             />
@@ -268,7 +268,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
               }}
               className={cn(
                 "w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
-                errors.lastName ? "border-red-500" : "border-border"
+                errors.lastName ? "border-destructive" : "border-border"
               )}
               placeholder="Doe"
             />
@@ -290,7 +290,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
               }}
               className={cn(
                 "w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
-                errors.email ? "border-red-500" : "border-border"
+                errors.email ? "border-destructive" : "border-border"
               )}
               placeholder="john.doe@company.com"
             />
@@ -315,7 +315,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
                   <Building2 className="w-6 h-6 text-warning" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-lg font-semibold text-amber-800">No departments found</h4>
+                  <h4 className="text-lg font-semibold text-warning">No departments found</h4>
                   <p className="text-sm text-warning-foreground mt-1">
                     {canCreateDepartments
                       ? 'You need to create a department before adding staff members. Departments help organize your team structure.'
@@ -407,14 +407,14 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
 
           {/* No Teams Empty State */}
           {showNoTeamsMessage && (
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+            <div className="bg-accent border-2 border-primary/30 rounded-xl p-4">
               <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-                  <Users className="w-5 h-5 text-blue-600" />
+                <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center flex-shrink-0">
+                  <Users className="w-5 h-5 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="text-sm font-semibold text-blue-800">No teams in this department</h4>
-                  <p className="text-xs text-blue-700 mt-1">
+                  <h4 className="text-sm font-semibold text-primary">No teams in this department</h4>
+                  <p className="text-xs text-primary mt-1">
                     {canCreateTeams
                       ? 'Create a team to assign staff members to.'
                       : 'No teams exist in this department. Please contact an administrator to create teams.'}
@@ -423,7 +423,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
                     <button
                       type="button"
                       onClick={() => setShowCreateTeamModal(true)}
-                      className="mt-3 inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium text-sm"
+                      className="mt-3 inline-flex items-center gap-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-all font-medium text-sm"
                     >
                       <Plus className="w-4 h-4" />
                       Create Team
@@ -454,7 +454,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
             <div className="bg-warning-muted border-2 border-warning/30 rounded-xl p-4 flex items-start gap-3">
               <Shield className="w-5 h-5 text-warning mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-amber-800">
+                <p className="text-sm font-medium text-warning">
                   No default role assigned to this team
                 </p>
                 <p className="text-xs text-warning-foreground mt-1">

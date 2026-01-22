@@ -244,8 +244,8 @@ function WelcomeContent() {
 
   const getStrengthColor = () => {
     switch (passwordStrength) {
-      case 'weak': return 'bg-red-500';
-      case 'medium': return 'bg-yellow-500';
+      case 'weak': return 'bg-destructive/100';
+      case 'medium': return 'bg-warning';
       case 'strong': return 'bg-success';
     }
   };
@@ -282,7 +282,7 @@ function WelcomeContent() {
       {/* Background effects */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-blob" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-violet-500/5 rounded-full blur-3xl animate-blob animation-delay-2000" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/100/5 rounded-full blur-3xl animate-blob animation-delay-2000" />
         <div className="absolute top-1/3 right-1/3 w-64 h-64 bg-success/5 rounded-full blur-3xl animate-pulse" />
       </div>
 
@@ -424,14 +424,14 @@ function WelcomeContent() {
                   <div className="flex items-center justify-between text-xs">
                     <span className="text-muted-foreground">Strength:</span>
                     <span className={`font-medium ${
-                      passwordStrength === 'weak' ? 'text-red-600' :
-                      passwordStrength === 'medium' ? 'text-yellow-600' :
+                      passwordStrength === 'weak' ? 'text-destructive' :
+                      passwordStrength === 'medium' ? 'text-warning' :
                       'text-success'
                     }`}>
                       {passwordStrength.charAt(0).toUpperCase() + passwordStrength.slice(1)}
                     </span>
                   </div>
-                  <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                     <div className={`h-full transition-all duration-300 ${getStrengthColor()} ${getStrengthWidth()}`} />
                   </div>
                 </div>
@@ -471,19 +471,19 @@ function WelcomeContent() {
               <p className="text-xs font-medium text-foreground mb-1.5">Requirements:</p>
               <ul className="text-[10px] text-muted-foreground space-y-0.5">
                 <li className="flex items-center gap-1.5">
-                  <div className={`w-1 h-1 rounded-full ${password.length >= 8 ? 'bg-success' : 'bg-gray-400'}`} />
+                  <div className={`w-1 h-1 rounded-full ${password.length >= 8 ? 'bg-success' : 'bg-border'}`} />
                   8+ characters
                 </li>
                 <li className="flex items-center gap-1.5">
-                  <div className={`w-1 h-1 rounded-full ${/[A-Z]/.test(password) ? 'bg-success' : 'bg-gray-400'}`} />
+                  <div className={`w-1 h-1 rounded-full ${/[A-Z]/.test(password) ? 'bg-success' : 'bg-border'}`} />
                   Uppercase letter
                 </li>
                 <li className="flex items-center gap-1.5">
-                  <div className={`w-1 h-1 rounded-full ${/[a-z]/.test(password) ? 'bg-success' : 'bg-gray-400'}`} />
+                  <div className={`w-1 h-1 rounded-full ${/[a-z]/.test(password) ? 'bg-success' : 'bg-border'}`} />
                   Lowercase letter
                 </li>
                 <li className="flex items-center gap-1.5">
-                  <div className={`w-1 h-1 rounded-full ${/[0-9]/.test(password) ? 'bg-success' : 'bg-gray-400'}`} />
+                  <div className={`w-1 h-1 rounded-full ${/[0-9]/.test(password) ? 'bg-success' : 'bg-border'}`} />
                   Number
                 </li>
               </ul>

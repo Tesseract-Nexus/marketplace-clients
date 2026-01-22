@@ -24,7 +24,7 @@ const variantStyles = {
     iconColor: 'text-white',
     headerGradient: 'from-red-50 to-pink-50',
     confirmButton: 'from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700',
-    borderColor: 'border-red-200',
+    borderColor: 'border-destructive/30',
   },
   warning: {
     icon: AlertTriangle,

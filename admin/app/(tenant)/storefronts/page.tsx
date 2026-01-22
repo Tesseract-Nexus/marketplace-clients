@@ -216,7 +216,7 @@ export default function StorefrontsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Globe className="w-5 h-5 text-violet-600" />
+                <Globe className="w-5 h-5 text-primary" />
                 URLs & Access
               </CardTitle>
             </CardHeader>
@@ -259,7 +259,7 @@ export default function StorefrontsPage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Palette className="w-5 h-5 text-purple-600" />
+                <Palette className="w-5 h-5 text-primary" />
                 Branding
               </CardTitle>
             </CardHeader>
@@ -344,7 +344,7 @@ export default function StorefrontsPage() {
       />
 
       {error && (
-        <div className="mb-6 p-4 bg-red-50 border-2 border-red-200 rounded-xl text-red-700 flex items-center gap-2">
+        <div className="mb-6 p-4 bg-destructive/10 border-2 border-destructive/30 rounded-xl text-destructive flex items-center gap-2">
           <XCircle className="w-5 h-5" />
           {error}
         </div>
@@ -498,22 +498,22 @@ export default function StorefrontsPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="p-1.5 h-auto rounded-lg hover:bg-violet-50 transition-colors"
+                              className="p-1.5 h-auto rounded-lg hover:bg-primary/10 transition-colors"
                               title="Edit"
                               aria-label="Edit storefront"
                             >
-                              <Edit className="w-4 h-4 text-violet-600" aria-hidden="true" />
+                              <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                             </Button>
                           </Link>
                           <Link href="/settings/storefront-theme" onClick={(e) => e.stopPropagation()}>
                             <Button
                               variant="ghost"
                               size="sm"
-                              className="p-1.5 h-auto rounded-lg hover:bg-purple-50 transition-colors"
+                              className="p-1.5 h-auto rounded-lg hover:bg-primary/10 transition-colors"
                               title="Customize Theme"
                               aria-label="Customize storefront theme"
                             >
-                              <Palette className="w-4 h-4 text-purple-600" aria-hidden="true" />
+                              <Palette className="w-4 h-4 text-primary" aria-hidden="true" />
                             </Button>
                           </Link>
                           <Button
@@ -523,11 +523,11 @@ export default function StorefrontsPage() {
                               e.stopPropagation();
                               handleDeleteStorefront(storefront);
                             }}
-                            className="p-1.5 h-auto rounded-lg hover:bg-red-50 transition-colors"
+                            className="p-1.5 h-auto rounded-lg hover:bg-destructive/10 transition-colors"
                             title="Delete"
                             aria-label="Delete storefront"
                           >
-                            <Trash2 className="w-4 h-4 text-red-600" aria-hidden="true" />
+                            <Trash2 className="w-4 h-4 text-destructive" aria-hidden="true" />
                           </Button>
                         </div>
                       </td>

@@ -229,7 +229,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 className="h-6 w-6 text-purple-500 animate-spin" />
+        <Loader2 className="h-6 w-6 text-primary animate-spin" />
       </div>
     );
   }
@@ -238,17 +238,17 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
     <div className={cn('space-y-6', className)}>
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-purple-200">
-          <p className="text-2xl font-bold text-purple-700">{stats.total}</p>
-          <p className="text-sm text-purple-600">Total Pages</p>
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-primary/30">
+          <p className="text-2xl font-bold text-primary">{stats.total}</p>
+          <p className="text-sm text-primary">Total Pages</p>
         </div>
         <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-success/30">
           <p className="text-2xl font-bold text-success-foreground">{stats.published}</p>
           <p className="text-sm text-success">Published</p>
         </div>
-        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-yellow-200">
-          <p className="text-2xl font-bold text-yellow-700">{stats.draft}</p>
-          <p className="text-sm text-yellow-600">Drafts</p>
+        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-warning/30">
+          <p className="text-2xl font-bold text-warning">{stats.draft}</p>
+          <p className="text-sm text-warning">Drafts</p>
         </div>
       </div>
 
@@ -273,7 +273,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
       <div className="bg-muted rounded-xl border border-border overflow-hidden">
         {filteredPages.length === 0 ? (
           <div className="p-12 text-center">
-            <FileText className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+            <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
             <p className="text-muted-foreground mb-4">
               {pages.length === 0 ? 'No content pages yet' : 'No pages match your search'}
             </p>
@@ -299,7 +299,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
                         'px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border shrink-0',
                         page.status === 'PUBLISHED'
                           ? 'bg-success-muted text-success-foreground border-success/30'
-                          : 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                          : 'bg-warning-muted text-warning border-warning/30'
                       )}
                     >
                       {page.status}
@@ -338,7 +338,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
                       size="sm"
                       onClick={() => handleUnpublish(page)}
                       disabled={saving}
-                      className="text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50"
+                      className="text-warning hover:text-warning hover:bg-warning-muted"
                     >
                       Unpublish
                     </Button>
@@ -350,7 +350,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
                     variant="ghost"
                     size="icon"
                     onClick={() => handleDeletePage(page)}
-                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                    className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -501,7 +501,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
                       type="checkbox"
                       checked={editingPage.showInMenu}
                       onChange={(e) => setEditingPage({ ...editingPage, showInMenu: e.target.checked })}
-                      className="w-4 h-4 text-purple-600 rounded border-border focus:ring-purple-500"
+                      className="w-4 h-4 text-primary rounded border-border focus:ring-purple-500"
                     />
                     <div>
                       <p className="font-medium text-sm">Show in Menu</p>
@@ -513,7 +513,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
                       type="checkbox"
                       checked={editingPage.showInFooter}
                       onChange={(e) => setEditingPage({ ...editingPage, showInFooter: e.target.checked })}
-                      className="w-4 h-4 text-purple-600 rounded border-border focus:ring-purple-500"
+                      className="w-4 h-4 text-primary rounded border-border focus:ring-purple-500"
                     />
                     <div>
                       <p className="font-medium text-sm">Show in Footer</p>
@@ -525,7 +525,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
                       type="checkbox"
                       checked={editingPage.isFeatured}
                       onChange={(e) => setEditingPage({ ...editingPage, isFeatured: e.target.checked })}
-                      className="w-4 h-4 text-purple-600 rounded border-border focus:ring-purple-500"
+                      className="w-4 h-4 text-primary rounded border-border focus:ring-purple-500"
                     />
                     <div>
                       <p className="font-medium text-sm">Featured</p>

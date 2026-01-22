@@ -47,8 +47,8 @@ function StoreNotFoundPage() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center max-w-md p-8 bg-card rounded-2xl shadow-xl">
-        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <AlertCircle className="h-8 w-8 text-red-500" />
+        <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-6">
+          <AlertCircle className="h-8 w-8 text-destructive" />
         </div>
         <h2 className="text-2xl font-bold text-foreground mb-3">Store Not Found</h2>
         {requestedSlug && (
@@ -195,7 +195,7 @@ export function TenantApiProvider({ children, requireTenant = true }: TenantApiP
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center max-w-md p-6 bg-card rounded-xl shadow-lg">
-          <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+          <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-foreground mb-2">Tenant Error</h2>
           <p className="text-muted-foreground mb-4">{error}</p>
           <div className="space-y-2">

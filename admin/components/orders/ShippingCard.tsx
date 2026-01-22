@@ -150,13 +150,13 @@ export function ShippingCard({ order, onShipmentCreated }: ShippingCardProps) {
     const styles: Record<ShipmentStatus, string> = {
       PENDING: 'bg-warning-muted text-warning-foreground border-warning/30',
       CREATED: 'bg-primary/20 text-primary border-primary/30',
-      PICKED_UP: 'bg-indigo-100 text-indigo-700 border-indigo-200',
-      IN_TRANSIT: 'bg-cyan-100 text-cyan-700 border-cyan-200',
-      OUT_FOR_DELIVERY: 'bg-teal-100 text-teal-700 border-teal-200',
+      PICKED_UP: 'bg-primary/10 text-primary border-primary/30',
+      IN_TRANSIT: 'bg-accent text-accent-foreground border-accent',
+      OUT_FOR_DELIVERY: 'bg-success-muted text-success border-success/30',
       DELIVERED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      FAILED: 'bg-red-100 text-red-700 border-red-200',
+      FAILED: 'bg-destructive/10 text-destructive border-destructive/30',
       CANCELLED: 'bg-muted text-foreground border-border',
-      RETURNED: 'bg-orange-100 text-orange-700 border-orange-200',
+      RETURNED: 'bg-warning-muted text-warning border-warning/30',
     };
     const labels: Record<ShipmentStatus, string> = {
       PENDING: 'Pending',
@@ -178,10 +178,10 @@ export function ShippingCard({ order, onShipmentCreated }: ShippingCardProps) {
         return <CheckCircle className="w-5 h-5 text-emerald-600" />;
       case 'FAILED':
       case 'CANCELLED':
-        return <XCircle className="w-5 h-5 text-red-600" />;
+        return <XCircle className="w-5 h-5 text-destructive" />;
       case 'IN_TRANSIT':
       case 'OUT_FOR_DELIVERY':
-        return <Truck className="w-5 h-5 text-cyan-600" />;
+        return <Truck className="w-5 h-5 text-accent-foreground" />;
       default:
         return <Package className="w-5 h-5 text-primary" />;
     }
@@ -310,7 +310,7 @@ export function ShippingCard({ order, onShipmentCreated }: ShippingCardProps) {
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl flex items-center gap-2 text-red-700 text-sm">
+          <div className="mb-4 p-3 bg-destructive/10 border border-destructive/30 rounded-xl flex items-center gap-2 text-destructive text-sm">
             <AlertCircle className="w-4 h-4" />
             {error}
           </div>
@@ -322,38 +322,38 @@ export function ShippingCard({ order, onShipmentCreated }: ShippingCardProps) {
             <div className="p-4 bg-muted rounded-xl border border-border">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 bg-gray-200 rounded" />
+                  <div className="w-5 h-5 bg-muted rounded" />
                   <div>
                     <div className="flex items-center gap-2">
-                      <div className="h-4 w-20 bg-gray-200 rounded" />
-                      <div className="h-5 w-16 bg-gray-200 rounded-full" />
+                      <div className="h-4 w-20 bg-muted rounded" />
+                      <div className="h-5 w-16 bg-muted rounded-full" />
                     </div>
-                    <div className="h-3 w-32 bg-gray-200 rounded mt-1.5" />
+                    <div className="h-3 w-32 bg-muted rounded mt-1.5" />
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gray-200 rounded-lg" />
+                  <div className="w-8 h-8 bg-muted rounded-lg" />
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-gray-200 rounded" />
-                  <div className="h-3 w-12 bg-gray-200 rounded" />
+                  <div className="w-4 h-4 bg-muted rounded" />
+                  <div className="h-3 w-12 bg-muted rounded" />
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-gray-200 rounded" />
-                  <div className="h-3 w-24 bg-gray-200 rounded" />
+                  <div className="w-4 h-4 bg-muted rounded" />
+                  <div className="h-3 w-24 bg-muted rounded" />
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-gray-200 rounded" />
-                  <div className="h-3 w-16 bg-gray-200 rounded" />
+                  <div className="w-4 h-4 bg-muted rounded" />
+                  <div className="h-3 w-16 bg-muted rounded" />
                 </div>
-                <div className="h-3 w-16 bg-gray-200 rounded" />
+                <div className="h-3 w-16 bg-muted rounded" />
               </div>
               <div className="mt-3 pt-3 border-t border-border">
                 <div className="flex items-start gap-2">
-                  <div className="w-4 h-4 bg-gray-200 rounded mt-0.5" />
-                  <div className="h-3 w-48 bg-gray-200 rounded" />
+                  <div className="w-4 h-4 bg-muted rounded mt-0.5" />
+                  <div className="h-3 w-48 bg-muted rounded" />
                 </div>
               </div>
             </div>
@@ -432,7 +432,7 @@ export function ShippingCard({ order, onShipmentCreated }: ShippingCardProps) {
                         size="sm"
                         onClick={() => handleCancelShipment(shipment.id)}
                         disabled={cancelling === shipment.id}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       >
                         {cancelling === shipment.id ? (
                           <Loader2 className="w-4 h-4 animate-spin" />

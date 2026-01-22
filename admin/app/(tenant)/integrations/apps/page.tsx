@@ -392,7 +392,7 @@ export default function AppsPluginsPage() {
                     <CardContent>
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2 text-sm">
-                          <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                          <Star className="w-4 h-4 fill-amber-400 text-warning" />
                           <span className="font-medium">{app.rating}</span>
                           <span className="text-muted-foreground">
                             ({app.reviews.toLocaleString()})
@@ -438,7 +438,7 @@ export default function AppsPluginsPage() {
                           )}
                         </div>
                         <div className="flex items-center gap-2 mt-1">
-                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                          <Star className="w-3 h-3 fill-amber-400 text-warning" />
                           <span className="text-sm">{app.rating}</span>
                           <span className="text-xs text-muted-foreground">
                             ({app.reviews})
@@ -491,7 +491,7 @@ export default function AppsPluginsPage() {
                     <DialogTitle className="text-xl">{selectedApp.name}</DialogTitle>
                     <div className="flex items-center gap-3 mt-2">
                       <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                        <Star className="w-4 h-4 fill-amber-400 text-warning" />
                         <span className="font-medium">{selectedApp.rating}</span>
                         <span className="text-sm text-muted-foreground">
                           ({selectedApp.reviews.toLocaleString()} reviews)
@@ -544,7 +544,7 @@ export default function AppsPluginsPage() {
               <DialogFooter>
                 {selectedApp.installed ? (
                   <>
-                    <Button variant="outline" className="text-red-600 hover:text-red-700">
+                    <Button variant="outline" className="text-destructive hover:text-destructive">
                       <Trash2 className="w-4 h-4 mr-2" />
                       Uninstall
                     </Button>

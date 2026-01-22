@@ -119,10 +119,10 @@ function StatCard({
             {change >= 0 ? (
               <ArrowUp className="h-3 w-3 text-success" />
             ) : (
-              <ArrowDown className="h-3 w-3 text-red-600" />
+              <ArrowDown className="h-3 w-3 text-destructive" />
             )}
             <span
-              className={cn('text-xs font-medium', change >= 0 ? 'text-success' : 'text-red-600')}
+              className={cn('text-xs font-medium', change >= 0 ? 'text-success' : 'text-destructive')}
             >
               {Math.abs(change).toFixed(1)}%
             </span>
@@ -366,9 +366,9 @@ export default function AnalyticsPage() {
 
           {/* Error Banner */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3 mb-6">
-              <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
-              <p className="text-red-800">{error}</p>
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-center gap-3 mb-6">
+              <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+              <p className="text-destructive">{error}</p>
               <Button variant="outline" size="sm" onClick={fetchAnalytics} className="ml-auto">
                 Retry
               </Button>
@@ -495,7 +495,7 @@ export default function AnalyticsPage() {
                   <span
                     className={cn(
                       'font-semibold',
-                      calculatedRoas >= 3 ? 'text-success' : calculatedRoas >= 1 ? 'text-warning' : 'text-red-600'
+                      calculatedRoas >= 3 ? 'text-success' : calculatedRoas >= 1 ? 'text-warning' : 'text-destructive'
                     )}
                   >
                     {calculatedRoas.toFixed(2)}x
@@ -508,7 +508,7 @@ export default function AnalyticsPage() {
                       'font-semibold',
                       (summary?.revenue || 0) - (summary?.spend || 0) >= 0
                         ? 'text-success'
-                        : 'text-red-600'
+                        : 'text-destructive'
                     )}
                   >
                     {formatCurrency((summary?.revenue || 0) - (summary?.spend || 0))}

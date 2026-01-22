@@ -177,7 +177,7 @@ export default function CreateIndependentStorePage() {
                   'w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all',
                   step >= s
                     ? 'bg-primary text-primary-foreground'
-                    : 'bg-gray-200 text-muted-foreground'
+                    : 'bg-muted text-muted-foreground'
                 )}
               >
                 {step > s ? <Check className="w-5 h-5" /> : s}
@@ -186,7 +186,7 @@ export default function CreateIndependentStorePage() {
                 <div
                   className={cn(
                     'w-16 h-1 rounded-full transition-all',
-                    step > s ? 'bg-gradient-to-r from-blue-600 to-violet-600' : 'bg-gray-200'
+                    step > s ? 'bg-gradient-to-r from-blue-600 to-violet-600' : 'bg-muted'
                   )}
                 />
               )}
@@ -195,7 +195,7 @@ export default function CreateIndependentStorePage() {
         </div>
 
         {error && (
-          <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700">
+          <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-xl flex items-center gap-3 text-destructive">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <p>{error}</p>
           </div>
@@ -244,7 +244,7 @@ export default function CreateIndependentStorePage() {
                       className={cn(
                         "flex-1 px-4 py-3 border-2 rounded-r-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
                         slugAvailable === true && "border-success/40 bg-success-muted",
-                        slugAvailable === false && "border-red-300 bg-red-50",
+                        slugAvailable === false && "border-destructive/30 bg-destructive/10",
                         slugAvailable === null && "border-border"
                       )}
                     />
@@ -262,7 +262,7 @@ export default function CreateIndependentStorePage() {
                   </p>
                 )}
                 {slugAvailable === false && (
-                  <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                  <p className="mt-2 text-sm text-destructive flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     This URL is already taken
                   </p>
@@ -299,7 +299,7 @@ export default function CreateIndependentStorePage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Globe className="w-5 h-5 text-violet-600" />
+                <Globe className="w-5 h-5 text-primary" />
                 Industry
               </CardTitle>
               <CardDescription>
@@ -313,9 +313,9 @@ export default function CreateIndependentStorePage() {
                     key={industry.value}
                     onClick={() => setFormData({ ...formData, industry: industry.value })}
                     className={cn(
-                      'p-4 border-2 rounded-xl text-left transition-all hover:border-violet-300',
+                      'p-4 border-2 rounded-xl text-left transition-all hover:border-primary/30',
                       formData.industry === industry.value
-                        ? 'border-violet-500 bg-violet-50'
+                        ? 'border-primary bg-primary/10'
                         : 'border-border'
                     )}
                   >
@@ -350,7 +350,7 @@ export default function CreateIndependentStorePage() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Palette className="w-5 h-5 text-purple-600" />
+                <Palette className="w-5 h-5 text-primary" />
                 Branding & Confirmation
               </CardTitle>
               <CardDescription>
@@ -421,7 +421,7 @@ export default function CreateIndependentStorePage() {
 
               {/* Summary */}
               <div className="p-4 bg-primary/10 rounded-xl border border-primary/30">
-                <h4 className="font-semibold text-blue-900 mb-2">What happens next?</h4>
+                <h4 className="font-semibold text-primary mb-2">What happens next?</h4>
                 <ul className="text-sm text-primary space-y-1">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4" />

@@ -201,7 +201,7 @@ export function SettingsPageWrapper({
         {selectedStorefront ? (
           loading ? (
             <div className="bg-card rounded-xl border border-border p-12 text-center">
-              <Loader2 className="h-8 w-8 text-purple-500 animate-spin mx-auto mb-4" />
+              <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
               <p className="text-muted-foreground">Loading settings...</p>
             </div>
           ) : (
@@ -217,7 +217,7 @@ export function SettingsPageWrapper({
           )
         ) : (
           <div className="bg-card rounded-xl border border-border p-12 text-center">
-            <Store className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <Store className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-foreground mb-2">
               Create Your First Storefront
             </h3>

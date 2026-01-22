@@ -41,7 +41,7 @@ export function SocialLinkEditor({ social, onUpdate, onDelete }: SocialLinkEdito
         <select
           value={social.platform}
           onChange={(e) => onUpdate({ platform: e.target.value as StorefrontSocialLink['platform'] })}
-          className="px-3 py-2 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-sm"
+          className="px-3 py-2 rounded-lg border border-border bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary text-sm"
         >
           {SOCIAL_PLATFORMS.map((platform) => (
             <option key={platform.value} value={platform.value}>
@@ -55,7 +55,7 @@ export function SocialLinkEditor({ social, onUpdate, onDelete }: SocialLinkEdito
           value={social.url}
           onChange={(e) => onUpdate({ url: e.target.value })}
           placeholder={platformInfo?.placeholder || 'https://...'}
-          className="col-span-2 px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-sm"
+          className="col-span-2 px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary text-sm"
         />
       </div>
 
@@ -63,7 +63,7 @@ export function SocialLinkEditor({ social, onUpdate, onDelete }: SocialLinkEdito
         variant="ghost"
         size="sm"
         onClick={onDelete}
-        className="h-8 w-8 p-0 text-muted-foreground hover:text-red-500 hover:bg-red-50 shrink-0"
+        className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
       >
         <Trash2 className="h-4 w-4" />
       </Button>

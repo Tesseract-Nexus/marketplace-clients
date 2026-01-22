@@ -224,10 +224,10 @@ export default function ProfilePage() {
                 <img
                   src={profile.photo}
                   alt={profile.displayName}
-                  className="h-24 w-24 rounded-full object-cover shadow-lg border-4 border-blue-100"
+                  className="h-24 w-24 rounded-full object-cover shadow-lg border-4 border-primary/20"
                 />
               ) : (
-                <div className={`h-24 w-24 rounded-full bg-gradient-to-br ${getInitialsGradient(profile.displayName)} flex items-center justify-center shadow-lg border-4 border-blue-100`}>
+                <div className={`h-24 w-24 rounded-full bg-gradient-to-br ${getInitialsGradient(profile.displayName)} flex items-center justify-center shadow-lg border-4 border-primary/20`}>
                   <span className="text-white font-bold text-2xl">{userInitial}</span>
                 </div>
               )}
@@ -306,7 +306,7 @@ export default function ProfilePage() {
                 <span className="px-2 py-1 bg-success-muted text-success-foreground rounded-full text-xs font-semibold">
                   {profile.accountEnabled ? 'Active' : 'Disabled'}
                 </span>
-                <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
+                <span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold">
                   {profile.role}
                 </span>
               </div>
@@ -389,7 +389,7 @@ export default function ProfilePage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                  <Building2 className="h-6 w-6 text-purple-600" />
+                  <Building2 className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">Organization</h3>
@@ -405,7 +405,7 @@ export default function ProfilePage() {
                       <p className="text-sm text-muted-foreground">{profile.role}</p>
                     </div>
                   </div>
-                  <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">
+                  <span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold">
                     {profile.role}
                   </span>
                 </div>
@@ -434,7 +434,7 @@ export default function ProfilePage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-red-100 rounded-lg flex items-center justify-center">
-                  <Key className="h-6 w-6 text-orange-600" />
+                  <Key className="h-6 w-6 text-warning" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">Security</h3>

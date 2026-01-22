@@ -83,11 +83,11 @@ const getCarrierIconComponent = (carrierType: CarrierType) => {
   const iconName = getCarrierIcon(carrierType);
   switch (iconName) {
     case 'rocket':
-      return <Rocket className="h-6 w-6 text-violet-600" />;
+      return <Rocket className="h-6 w-6 text-primary" />;
     case 'truck':
       return <Truck className="h-6 w-6 text-primary" />;
     case 'ship':
-      return <Ship className="h-6 w-6 text-cyan-600" />;
+      return <Ship className="h-6 w-6 text-accent-foreground" />;
     default:
       return <Package className="h-6 w-6 text-muted-foreground" />;
   }
@@ -336,7 +336,7 @@ export function CarrierConfigTab() {
     <div className="space-y-6">
       {/* Location-Based Recommendation Banner */}
       {!loadingLocation && storeCountry && recommendation && (
-        <div className="bg-gradient-to-r from-violet-50 via-purple-50 to-pink-50 border border-violet-200 rounded-xl p-6">
+        <div className="bg-gradient-to-r from-violet-50 via-purple-50 to-pink-50 border border-primary/30 rounded-xl p-6">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
               <MapPin className="h-6 w-6 text-white" />
@@ -346,7 +346,7 @@ export function CarrierConfigTab() {
                 <h3 className="text-lg font-bold text-foreground">
                   Recommended for {storeCountryName || storeCountry}
                 </h3>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-violet-100 text-violet-700">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                   <Sparkles className="h-3 w-3 mr-1" />
                   Based on your store location
                 </span>
@@ -374,7 +374,7 @@ export function CarrierConfigTab() {
                     <Button
                       size="sm"
                       onClick={() => handleSetupRecommended(recommendation.primary)}
-                      className="ml-2 bg-violet-600 hover:bg-violet-700 text-white"
+                      className="ml-2 bg-primary hover:bg-primary text-white"
                       disabled={loading || templates.length === 0}
                     >
                       {loading ? 'Loading...' : 'Set Up'}
@@ -497,7 +497,7 @@ export function CarrierConfigTab() {
                       {carrier.supportsRates ? (
                         <CheckCircle className="h-4 w-4 text-success inline" />
                       ) : (
-                        <XCircle className="h-4 w-4 text-gray-300 inline" />
+                        <XCircle className="h-4 w-4 text-muted-foreground inline" />
                       )}
                     </p>
                   </div>
@@ -507,7 +507,7 @@ export function CarrierConfigTab() {
                       {carrier.supportsTracking ? (
                         <CheckCircle className="h-4 w-4 text-success inline" />
                       ) : (
-                        <XCircle className="h-4 w-4 text-gray-300 inline" />
+                        <XCircle className="h-4 w-4 text-muted-foreground inline" />
                       )}
                     </p>
                   </div>
@@ -517,7 +517,7 @@ export function CarrierConfigTab() {
                       {carrier.supportsLabels ? (
                         <CheckCircle className="h-4 w-4 text-success inline" />
                       ) : (
-                        <XCircle className="h-4 w-4 text-gray-300 inline" />
+                        <XCircle className="h-4 w-4 text-muted-foreground inline" />
                       )}
                     </p>
                   </div>
@@ -570,7 +570,7 @@ export function CarrierConfigTab() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDelete(carrier.id)}
-                  className="hover:bg-red-50 hover:text-red-600"
+                  className="hover:bg-destructive/10 hover:text-destructive"
                   title="Delete Carrier"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -615,11 +615,11 @@ export function CarrierConfigTab() {
                           key={template.id}
                           onClick={() => handleSelectTemplate(template)}
                           className={`p-4 border-2 rounded-lg hover:border-primary hover:bg-primary/10 transition-colors text-left ${
-                            template.carrierType === 'DELHIVERY' ? 'border-red-200 bg-red-50/30' : 'border-purple-200 bg-purple-50/30'
+                            template.carrierType === 'DELHIVERY' ? 'border-destructive/30 bg-destructive/10/30' : 'border-primary/30 bg-primary/10/30'
                           }`}
                         >
                           <div className={`w-12 h-12 rounded-lg mb-3 flex items-center justify-center ${
-                            template.carrierType === 'DELHIVERY' ? 'bg-red-100' : 'bg-purple-100'
+                            template.carrierType === 'DELHIVERY' ? 'bg-destructive/10' : 'bg-primary/10'
                           }`}>
                             {getCarrierIconComponent(template.carrierType)}
                           </div>
@@ -643,7 +643,7 @@ export function CarrierConfigTab() {
               ) : (
                 <div className="space-y-4">
                   {selectedTemplate.setupInstructions && (
-                    <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 text-sm text-blue-800 whitespace-pre-line">
+                    <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 text-sm text-primary whitespace-pre-line">
                       {selectedTemplate.setupInstructions}
                     </div>
                   )}
@@ -653,7 +653,7 @@ export function CarrierConfigTab() {
                       href={selectedTemplate.documentationUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-sm text-primary hover:text-blue-800"
+                      className="inline-flex items-center gap-1 text-sm text-primary hover:text-primary"
                     >
                       View Documentation <ExternalLink className="h-3 w-3" />
                     </a>
@@ -674,7 +674,7 @@ export function CarrierConfigTab() {
                     <div key={field}>
                       <label className="block text-sm font-semibold text-foreground mb-2">
                         {field.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-                        <span className="text-red-500"> *</span>
+                        <span className="text-destructive"> *</span>
                       </label>
                       <Input
                         type={field.includes('secret') || field.includes('password') || field.includes('key') ? 'password' : 'text'}

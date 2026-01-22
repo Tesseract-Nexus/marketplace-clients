@@ -65,10 +65,10 @@ const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destruc
   PENDING_APPROVAL: { variant: 'outline', icon: Send, className: 'bg-warning-muted text-warning-foreground border-warning/30' },
   APPROVED: { variant: 'default', icon: CheckCircle2, className: 'bg-success-muted text-success-foreground' },
   ACTIVE: { variant: 'default', icon: Play, className: 'bg-emerald-100 text-emerald-700' },
-  PAUSED: { variant: 'secondary', icon: PauseCircle, className: 'bg-yellow-100 text-yellow-700' },
-  COMPLETED: { variant: 'secondary', icon: CheckCircle2, className: 'bg-blue-100 text-blue-700' },
-  REJECTED: { variant: 'destructive', icon: XCircle, className: 'bg-red-100 text-red-700' },
-  ARCHIVED: { variant: 'secondary', icon: Clock, className: 'bg-gray-100 text-gray-600' },
+  PAUSED: { variant: 'secondary', icon: PauseCircle, className: 'bg-warning-muted text-warning' },
+  COMPLETED: { variant: 'secondary', icon: CheckCircle2, className: 'bg-accent text-primary' },
+  REJECTED: { variant: 'destructive', icon: XCircle, className: 'bg-destructive/10 text-destructive' },
+  ARCHIVED: { variant: 'secondary', icon: Clock, className: 'bg-muted text-muted-foreground' },
 };
 
 const statusLabels: Record<string, string> = {
@@ -145,7 +145,7 @@ function StatCard({
         </div>
         <p className="text-2xl font-bold">{value}</p>
         {trend && (
-          <p className={cn('text-xs mt-1', trend.value >= 0 ? 'text-success' : 'text-red-600')}>
+          <p className={cn('text-xs mt-1', trend.value >= 0 ? 'text-success' : 'text-destructive')}>
             {trend.value >= 0 ? '+' : ''}
             {trend.value}% {trend.label}
           </p>
@@ -226,7 +226,7 @@ function CampaignCard({
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => onDelete(campaign.id)} className="text-red-600">
+              <DropdownMenuItem onClick={() => onDelete(campaign.id)} className="text-destructive">
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete
               </DropdownMenuItem>
@@ -252,7 +252,7 @@ function CampaignCard({
             <div
               className={cn(
                 'h-full rounded-full transition-all',
-                budgetProgress > 90 ? 'bg-red-500' : budgetProgress > 70 ? 'bg-warning' : 'bg-primary'
+                budgetProgress > 90 ? 'bg-destructive/100' : budgetProgress > 70 ? 'bg-warning' : 'bg-primary'
               )}
               style={{ width: `${Math.min(budgetProgress, 100)}%` }}
             />
@@ -337,7 +337,7 @@ function CampaignRow({
             <div
               className={cn(
                 'h-full rounded-full transition-all',
-                budgetProgress > 90 ? 'bg-red-500' : budgetProgress > 70 ? 'bg-warning' : 'bg-primary'
+                budgetProgress > 90 ? 'bg-destructive/100' : budgetProgress > 70 ? 'bg-warning' : 'bg-primary'
               )}
               style={{ width: `${Math.min(budgetProgress, 100)}%` }}
             />
@@ -437,7 +437,7 @@ function CampaignRow({
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => onDelete(campaign.id)}
-                className="text-red-600 focus:text-red-600"
+                className="text-destructive focus:text-destructive"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete Campaign
@@ -657,9 +657,9 @@ export default function AdCampaignsPage() {
         <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
           {/* Error Banner */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3 mb-6">
-              <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
-              <p className="text-red-800">{error}</p>
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-center gap-3 mb-6">
+              <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+              <p className="text-destructive">{error}</p>
               <Button variant="outline" size="sm" onClick={fetchCampaigns} className="ml-auto">
                 Retry
               </Button>

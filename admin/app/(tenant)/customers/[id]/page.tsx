@@ -411,7 +411,7 @@ export default function CustomerDetailPage() {
     const styles = {
       ACTIVE: 'bg-success-muted text-success-foreground border-success/30',
       INACTIVE: 'bg-muted text-foreground border-border',
-      BLOCKED: 'bg-red-100 text-red-700 border-red-200',
+      BLOCKED: 'bg-destructive/10 text-destructive border-destructive/30',
     };
     return styles[status] || styles.ACTIVE;
   };
@@ -419,7 +419,7 @@ export default function CustomerDetailPage() {
   const getTypeBadge = (type: CustomerType) => {
     const styles = {
       RETAIL: 'bg-primary/20 text-primary border-primary/30',
-      WHOLESALE: 'bg-purple-100 text-purple-700 border-purple-200',
+      WHOLESALE: 'bg-primary/10 text-primary border-primary/30',
       VIP: 'bg-warning-muted text-warning-foreground border-warning/30',
     };
     return styles[type] || styles.RETAIL;
@@ -428,12 +428,12 @@ export default function CustomerDetailPage() {
   const getOrderStatusBadge = (status: string) => {
     const styles: Record<string, string> = {
       PLACED: 'bg-primary/20 text-primary',
-      CONFIRMED: 'bg-indigo-100 text-indigo-700',
-      PROCESSING: 'bg-yellow-100 text-yellow-700',
-      SHIPPED: 'bg-purple-100 text-purple-700',
+      CONFIRMED: 'bg-primary/10 text-primary',
+      PROCESSING: 'bg-warning-muted text-warning',
+      SHIPPED: 'bg-primary/10 text-primary',
       DELIVERED: 'bg-success-muted text-success-foreground',
       COMPLETED: 'bg-emerald-100 text-emerald-700',
-      CANCELLED: 'bg-red-100 text-red-700',
+      CANCELLED: 'bg-destructive/10 text-destructive',
     };
     return styles[status] || 'bg-muted text-foreground';
   };
@@ -470,12 +470,12 @@ export default function CustomerDetailPage() {
   if (error || !customer) {
     return (
       <div className="min-h-screen bg-background p-8">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-lg mx-auto">
+        <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-6 max-w-lg mx-auto">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-red-900">Error</h3>
-              <p className="text-red-700 mt-1">{error || 'Customer not found'}</p>
+              <h3 className="font-semibold text-destructive">Error</h3>
+              <p className="text-destructive mt-1">{error || 'Customer not found'}</p>
               <Button
                 onClick={() => router.push('/customers')}
                 variant="outline"
@@ -541,10 +541,10 @@ export default function CustomerDetailPage() {
 
         {/* Error Alert */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+          <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-red-700">{error}</p>
+              <p className="text-destructive">{error}</p>
             </div>
             <Button onClick={() => setError(null)} variant="ghost" size="sm">
               <X className="h-4 w-4" />
@@ -584,8 +584,8 @@ export default function CustomerDetailPage() {
                 <p className="text-sm text-muted-foreground font-medium">Avg Order Value</p>
                 <p className="text-3xl font-bold text-foreground mt-2">${customer.averageOrderValue.toFixed(2)}</p>
               </div>
-              <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-purple-600" />
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-primary" />
               </div>
             </div>
           </div>
@@ -599,7 +599,7 @@ export default function CustomerDetailPage() {
                 </p>
               </div>
               <div className="w-12 h-12 bg-gradient-to-br from-violet-100 to-purple-100 rounded-lg flex items-center justify-center">
-                <Package className="h-6 w-6 text-violet-600" />
+                <Package className="h-6 w-6 text-primary" />
               </div>
             </div>
           </div>
@@ -785,7 +785,7 @@ export default function CustomerDetailPage() {
               <div>
                 {orders.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
-                    <ShoppingCart className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <ShoppingCart className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                     <p>No orders yet</p>
                   </div>
                 ) : (
@@ -847,7 +847,7 @@ export default function CustomerDetailPage() {
                 </div>
                 {addresses.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
-                    <MapPin className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <MapPin className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                     <p>No addresses saved</p>
                   </div>
                 ) : (
@@ -899,7 +899,7 @@ export default function CustomerDetailPage() {
                               }}
                               className="h-8 w-8 p-0"
                             >
-                              <Trash2 className="h-4 w-4 text-red-500" />
+                              <Trash2 className="h-4 w-4 text-destructive" />
                             </Button>
                           </div>
                         </div>
@@ -931,7 +931,7 @@ export default function CustomerDetailPage() {
                 </div>
                 {notes.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
-                    <StickyNote className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <StickyNote className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                     <p>No notes yet</p>
                   </div>
                 ) : (
@@ -939,7 +939,7 @@ export default function CustomerDetailPage() {
                     {notes.map((note) => (
                       <div
                         key={note.id}
-                        className="border border-border rounded-lg p-4 bg-yellow-50/50"
+                        className="border border-border rounded-lg p-4 bg-warning-muted/50"
                       >
                         <div className="flex justify-between items-start">
                           <p className="text-foreground whitespace-pre-wrap">{note.note}</p>
@@ -952,7 +952,7 @@ export default function CustomerDetailPage() {
                             }}
                             className="h-8 w-8 p-0 flex-shrink-0"
                           >
-                            <Trash2 className="h-4 w-4 text-red-500" />
+                            <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
                         </div>
                         <p className="text-xs text-muted-foreground mt-2">
@@ -985,7 +985,7 @@ export default function CustomerDetailPage() {
                 </div>
                 {customerSegments.length === 0 ? (
                   <div className="text-center py-12 text-muted-foreground">
-                    <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                    <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                     <p>Not assigned to any segments</p>
                     {availableSegments.length > 0 && (
                       <Button
@@ -1011,7 +1011,7 @@ export default function CustomerDetailPage() {
                               <span className={cn(
                                 'text-xs font-medium px-2 py-0.5 rounded',
                                 segment.segmentType === 'DYNAMIC'
-                                  ? 'bg-purple-100 text-purple-700'
+                                  ? 'bg-primary/10 text-primary'
                                   : 'bg-primary/20 text-primary'
                               )}>
                                 {segment.segmentType}
@@ -1035,7 +1035,7 @@ export default function CustomerDetailPage() {
                               {removingFromSegment === segment.id ? (
                                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                               ) : (
-                                <X className="h-4 w-4 text-red-500" />
+                                <X className="h-4 w-4 text-destructive" />
                               )}
                             </Button>
                           )}

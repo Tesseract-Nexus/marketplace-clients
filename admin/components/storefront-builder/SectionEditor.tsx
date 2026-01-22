@@ -141,7 +141,7 @@ export function SectionEditor({ sections, onChange, disabled }: SectionEditorPro
             disabled={disabled}
             className={cn(
               'flex items-center gap-2 px-4 py-2 rounded-lg',
-              'bg-purple-500 text-white hover:bg-purple-600 transition-colors',
+              'bg-primary/100 text-white hover:bg-primary transition-colors',
               'focus:outline-none focus:ring-2 focus:ring-purple-500/20',
               disabled && 'opacity-50 cursor-not-allowed'
             )}
@@ -164,8 +164,8 @@ export function SectionEditor({ sections, onChange, disabled }: SectionEditorPro
                       'hover:bg-muted transition-colors text-left'
                     )}
                   >
-                    <div className="p-2 rounded-lg bg-purple-50">
-                      <Icon className="h-4 w-4 text-purple-500" />
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Icon className="h-4 w-4 text-primary" />
                     </div>
                     <div>
                       <p className="font-medium text-foreground">{label}</p>
@@ -183,7 +183,7 @@ export function SectionEditor({ sections, onChange, disabled }: SectionEditorPro
       <div className="space-y-2">
         {sortedSections.length === 0 ? (
           <div className="text-center py-12 bg-muted rounded-xl border-2 border-dashed border-border">
-            <LayoutGrid className="h-12 w-12 text-gray-300 mx-auto mb-3" />
+            <LayoutGrid className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
             <p className="text-muted-foreground">No sections added yet</p>
             <p className="text-sm text-muted-foreground mt-1">
               Click "Add Section" to get started
@@ -206,7 +206,7 @@ export function SectionEditor({ sections, onChange, disabled }: SectionEditorPro
                 )}
               >
                 {/* Drag handle */}
-                <div className="text-gray-300 cursor-grab">
+                <div className="text-muted-foreground cursor-grab">
                   <GripVertical className="h-5 w-5" />
                 </div>
 
@@ -214,13 +214,13 @@ export function SectionEditor({ sections, onChange, disabled }: SectionEditorPro
                 <div
                   className={cn(
                     'p-2 rounded-lg',
-                    section.enabled ? 'bg-purple-50' : 'bg-muted'
+                    section.enabled ? 'bg-primary/10' : 'bg-muted'
                   )}
                 >
                   <Icon
                     className={cn(
                       'h-4 w-4',
-                      section.enabled ? 'text-purple-500' : 'text-muted-foreground'
+                      section.enabled ? 'text-primary' : 'text-muted-foreground'
                     )}
                   />
                 </div>
@@ -289,11 +289,11 @@ export function SectionEditor({ sections, onChange, disabled }: SectionEditorPro
                     onClick={() => handleDelete(section.id)}
                     disabled={disabled}
                     className={cn(
-                      'p-1.5 rounded-lg hover:bg-red-50 transition-colors',
+                      'p-1.5 rounded-lg hover:bg-destructive/10 transition-colors',
                       disabled && 'opacity-50 cursor-not-allowed'
                     )}
                   >
-                    <Trash2 className="h-4 w-4 text-muted-foreground hover:text-red-500" />
+                    <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                   </button>
                 </div>
               </div>

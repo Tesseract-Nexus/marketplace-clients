@@ -95,7 +95,7 @@ export function PaymentMethodsTab() {
         <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 flex items-start gap-3">
           <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm text-blue-800">
+            <p className="text-sm text-primary">
               Payment methods are automatically determined based on your configured gateways and
               their regional availability. To add more payment methods, configure additional gateways
               in the Payment Gateways tab.

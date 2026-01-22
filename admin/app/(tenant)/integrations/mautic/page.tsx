@@ -169,7 +169,7 @@ export default function MauticIntegrationPage() {
               )}>
                 <Mail className={cn(
                   "h-8 w-8",
-                  status?.connected ? "text-success" : "text-red-600"
+                  status?.connected ? "text-success" : "text-destructive"
                 )} />
               </div>
               <div>
@@ -193,12 +193,12 @@ export default function MauticIntegrationPage() {
                   <span className="text-sm font-medium">Connected</span>
                 </div>
               ) : status?.enabled ? (
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-yellow-100 text-yellow-700">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-warning-muted text-warning">
                   <AlertCircle className="h-4 w-4" />
                   <span className="text-sm font-medium">Connection Error</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-100 text-red-700">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/10 text-destructive">
                   <XCircle className="h-4 w-4" />
                   <span className="text-sm font-medium">Disabled</span>
                 </div>
@@ -207,7 +207,7 @@ export default function MauticIntegrationPage() {
           </div>
 
           {status?.error && (
-            <div className="mt-4 p-3 rounded-lg bg-red-50 border border-red-200 text-red-800 text-sm">
+            <div className="mt-4 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
               <strong>Error:</strong> {status.error}
             </div>
           )}
@@ -249,7 +249,7 @@ export default function MauticIntegrationPage() {
 
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-100 to-pink-100 flex items-center justify-center mb-4">
-              <BarChart3 className="h-6 w-6 text-purple-600" />
+              <BarChart3 className="h-6 w-6 text-primary" />
             </div>
             <h4 className="text-lg font-bold text-foreground">Campaign Analytics</h4>
             <p className="text-muted-foreground text-sm mt-2">
@@ -269,7 +269,7 @@ export default function MauticIntegrationPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
-                <Send className="h-5 w-5 text-orange-600" />
+                <Send className="h-5 w-5 text-warning" />
               </div>
               <div>
                 <h4 className="text-lg font-bold text-foreground">Send Test Email</h4>

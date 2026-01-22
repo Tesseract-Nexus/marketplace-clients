@@ -98,7 +98,7 @@ export function DeleteTenantModal({
       {/* Modal */}
       <div className="relative bg-card rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className={`px-6 py-4 ${step === 'success' ? 'bg-success' : 'bg-red-600'}`}>
+        <div className={`px-6 py-4 ${step === 'success' ? 'bg-success' : 'bg-destructive'}`}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-white/20 rounded-lg">
@@ -127,13 +127,13 @@ export function DeleteTenantModal({
         <div className="p-6">
           {step === 'warning' && (
             <div className="space-y-4">
-              <div className="flex items-start gap-4 p-4 bg-red-50 border border-red-200 rounded-xl">
-                <AlertTriangle className="h-6 w-6 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="flex items-start gap-4 p-4 bg-destructive/10 border border-destructive/30 rounded-xl">
+                <AlertTriangle className="h-6 w-6 text-destructive flex-shrink-0 mt-0.5" />
                 <div>
-                  <h4 className="font-semibold text-red-900 mb-1">
+                  <h4 className="font-semibold text-destructive mb-1">
                     This action is permanent and cannot be undone
                   </h4>
-                  <p className="text-sm text-red-700">
+                  <p className="text-sm text-destructive">
                     Deleting <strong>{tenantName}</strong> will permanently remove:
                   </p>
                 </div>
@@ -141,25 +141,25 @@ export function DeleteTenantModal({
 
               <ul className="space-y-2 text-sm text-foreground ml-4">
                 <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+                  <span className="w-1.5 h-1.5 bg-destructive/100 rounded-full" />
                   All storefronts and their configurations
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+                  <span className="w-1.5 h-1.5 bg-destructive/100 rounded-full" />
                   All team member access and permissions
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+                  <span className="w-1.5 h-1.5 bg-destructive/100 rounded-full" />
                   SSL certificates and DNS routing
                 </li>
                 <li className="flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-red-500 rounded-full" />
+                  <span className="w-1.5 h-1.5 bg-destructive/100 rounded-full" />
                   All settings and customizations
                 </li>
               </ul>
 
               <div className="p-3 bg-warning-muted border border-warning/30 rounded-lg">
-                <p className="text-sm text-amber-800">
+                <p className="text-sm text-warning">
                   <strong>Note:</strong> Your data will be archived for audit purposes but cannot be restored.
                 </p>
               </div>
@@ -170,7 +170,7 @@ export function DeleteTenantModal({
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
                 To confirm deletion, please type{' '}
-                <code className="px-2 py-1 bg-muted rounded font-mono text-red-600">
+                <code className="px-2 py-1 bg-muted rounded font-mono text-destructive">
                   {expectedConfirmation}
                 </code>
               </p>
@@ -185,7 +185,7 @@ export function DeleteTenantModal({
                   placeholder={expectedConfirmation}
                   className={`font-mono ${
                     confirmationText && !isConfirmationValid
-                      ? 'border-red-300 focus:ring-red-500'
+                      ? 'border-destructive/30 focus:ring-red-500'
                       : isConfirmationValid
                       ? 'border-success/40 focus:ring-green-500'
                       : ''
@@ -193,7 +193,7 @@ export function DeleteTenantModal({
                   autoFocus
                 />
                 {confirmationText && !isConfirmationValid && (
-                  <p className="text-xs text-red-600 mt-1">
+                  <p className="text-xs text-destructive mt-1">
                     Text doesn&apos;t match. Please type exactly: {expectedConfirmation}
                   </p>
                 )}
@@ -211,8 +211,8 @@ export function DeleteTenantModal({
               </div>
 
               {error && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-sm text-red-700">{error}</p>
+                <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
+                  <p className="text-sm text-destructive">{error}</p>
                 </div>
               )}
             </div>
@@ -220,7 +220,7 @@ export function DeleteTenantModal({
 
           {step === 'processing' && (
             <div className="py-8 text-center">
-              <Loader2 className="h-12 w-12 text-red-600 animate-spin mx-auto mb-4" />
+              <Loader2 className="h-12 w-12 text-destructive animate-spin mx-auto mb-4" />
               <p className="text-foreground font-medium">Deleting tenant...</p>
               <p className="text-sm text-muted-foreground mt-1">
                 This may take a few moments
@@ -250,7 +250,7 @@ export function DeleteTenantModal({
             {step === 'warning' && (
               <Button
                 onClick={handleProceedToConfirm}
-                className="bg-red-600 hover:bg-red-700 text-white"
+                className="bg-destructive hover:bg-destructive text-white"
               >
                 I understand, continue
               </Button>
@@ -259,7 +259,7 @@ export function DeleteTenantModal({
               <Button
                 onClick={handleDelete}
                 disabled={!isConfirmationValid || isDeleting}
-                className="bg-red-600 hover:bg-red-700 text-white disabled:opacity-50"
+                className="bg-destructive hover:bg-destructive text-white disabled:opacity-50"
               >
                 {isDeleting ? (
                   <>

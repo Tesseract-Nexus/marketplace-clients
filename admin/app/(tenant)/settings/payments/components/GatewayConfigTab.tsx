@@ -273,7 +273,7 @@ export function GatewayConfigTab() {
     <div className="space-y-6">
       {/* Location-Based Recommendation Banner */}
       {!loadingLocation && storeCountry && recommendation && (
-        <div className="bg-gradient-to-r from-violet-50 via-purple-50 to-pink-50 border border-violet-200 rounded-xl p-6">
+        <div className="bg-gradient-to-r from-violet-50 via-purple-50 to-pink-50 border border-primary/30 rounded-xl p-6">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
               <MapPin className="h-6 w-6 text-white" />
@@ -283,7 +283,7 @@ export function GatewayConfigTab() {
                 <h3 className="text-lg font-bold text-foreground">
                   Recommended for {storeCountryName || storeCountry}
                 </h3>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-violet-100 text-violet-700">
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
                   <Sparkles className="h-3 w-3 mr-1" />
                   Based on your store location
                 </span>
@@ -316,7 +316,7 @@ export function GatewayConfigTab() {
                     <Button
                       size="sm"
                       onClick={() => handleSetupRecommended(recommendation.primary)}
-                      className="ml-2 bg-violet-600 hover:bg-violet-700 text-white"
+                      className="ml-2 bg-primary hover:bg-primary text-white"
                     >
                       Set Up
                     </Button>
@@ -388,14 +388,14 @@ export function GatewayConfigTab() {
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-blue-900">Stripe Connect Setup Required</p>
+              <p className="text-sm font-semibold text-primary">Stripe Connect Setup Required</p>
               <p className="text-sm text-primary mt-1">
                 To collect 5% platform fees automatically, you need to set up Stripe Connect.{' '}
                 <a
                   href="https://dashboard.stripe.com/connect/accounts"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-primary underline hover:text-blue-800 inline-flex items-center gap-1"
+                  className="text-primary underline hover:text-primary inline-flex items-center gap-1"
                 >
                   Open Stripe Dashboard <ExternalLink className="h-3 w-3" />
                 </a>
@@ -447,7 +447,7 @@ export function GatewayConfigTab() {
                       </span>
                     )}
                     {gateway.supportsPlatformSplit && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 border border-purple-200">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/30">
                         Platform Fees
                       </span>
                     )}
@@ -518,7 +518,7 @@ export function GatewayConfigTab() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDelete(gateway.id)}
-                  className="hover:bg-red-50 hover:text-red-600"
+                  className="hover:bg-destructive/10 hover:text-destructive"
                   title="Delete Gateway"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -574,7 +574,7 @@ export function GatewayConfigTab() {
               ) : (
                 <div className="space-y-4">
                   {selectedTemplate.setupInstructions && (
-                    <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 text-sm text-blue-800">
+                    <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 text-sm text-primary">
                       {selectedTemplate.setupInstructions}
                     </div>
                   )}
@@ -583,7 +583,7 @@ export function GatewayConfigTab() {
                     <div key={field}>
                       <label className="block text-sm font-semibold text-foreground mb-2">
                         {field.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-                        <span className="text-red-500"> *</span>
+                        <span className="text-destructive"> *</span>
                       </label>
                       <Input
                         type={field.includes('secret') || field.includes('key') ? 'password' : 'text'}

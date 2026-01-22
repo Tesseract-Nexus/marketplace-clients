@@ -490,7 +490,7 @@ export function CommandPalette() {
 
           {/* Error Message */}
           {searchError && (
-            <div className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 text-sm">
+            <div className="flex items-center gap-2 px-4 py-2 bg-destructive/10 text-destructive text-sm">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{searchError}</span>
             </div>
@@ -513,7 +513,7 @@ export function CommandPalette() {
                       </p>
                       <button
                         onClick={handleClearHistory}
-                        className="text-xs text-muted-foreground hover:text-red-500 flex items-center gap-1 transition-colors"
+                        className="text-xs text-muted-foreground hover:text-destructive flex items-center gap-1 transition-colors"
                       >
                         <Trash2 className="w-3 h-3" />
                         Clear
@@ -569,12 +569,12 @@ export function CommandPalette() {
               </div>
             ) : query.length < 2 ? (
               <div className="px-4 py-12 text-center">
-                <Search className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+                <Search className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">Type at least 2 characters to search</p>
               </div>
             ) : !hasResults && !isSearching ? (
               <div className="px-4 py-12 text-center">
-                <Search className="w-10 h-10 mx-auto mb-3 text-gray-300" />
+                <Search className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground font-medium">No results found for "{query}"</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Try different keywords or check spelling
@@ -638,11 +638,11 @@ function renderResultItem(
   const typeColors: Record<string, string> = {
     product: 'text-primary bg-primary/10',
     customer: 'text-success bg-success-muted',
-    order: 'text-orange-600 bg-orange-50',
-    category: 'text-purple-600 bg-purple-50',
+    order: 'text-warning bg-warning-muted',
+    category: 'text-primary bg-primary/10',
     page: 'text-muted-foreground bg-muted',
     setting: 'text-slate-600 bg-slate-100',
-    action: 'text-pink-600 bg-pink-50',
+    action: 'text-primary bg-primary/10',
     recent: 'text-muted-foreground bg-muted',
   };
 

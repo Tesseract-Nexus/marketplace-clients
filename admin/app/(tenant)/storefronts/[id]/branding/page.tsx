@@ -107,7 +107,7 @@ export default function StorefrontBrandingPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 text-purple-500 animate-spin mx-auto mb-4" />
+          <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
           <p className="text-muted-foreground">Loading branding settings...</p>
         </div>
       </div>
@@ -200,7 +200,7 @@ export default function StorefrontBrandingPage() {
           {/* Brand Identity */}
           <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Type className="h-5 w-5 text-purple-500" />
+              <Type className="h-5 w-5 text-primary" />
               Brand Identity
             </h3>
 
@@ -212,7 +212,7 @@ export default function StorefrontBrandingPage() {
                   value={branding.brandName || ''}
                   onChange={(e) => setBranding({ ...branding, brandName: e.target.value })}
                   placeholder="Your Brand Name"
-                  className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                 />
               </div>
 
@@ -223,7 +223,7 @@ export default function StorefrontBrandingPage() {
                   value={branding.tagline || ''}
                   onChange={(e) => setBranding({ ...branding, tagline: e.target.value })}
                   placeholder="Your catchy tagline"
-                  className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                 />
               </div>
             </div>
@@ -232,7 +232,7 @@ export default function StorefrontBrandingPage() {
           {/* Visual Assets */}
           <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <ImageIcon className="h-5 w-5 text-purple-500" />
+              <ImageIcon className="h-5 w-5 text-primary" />
               Visual Assets
             </h3>
 
@@ -240,13 +240,13 @@ export default function StorefrontBrandingPage() {
               {/* Logo Upload */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Logo</label>
-                <div className="border-2 border-dashed border-border rounded-lg p-4 text-center hover:border-purple-300 transition-colors">
+                <div className="border-2 border-dashed border-border rounded-lg p-4 text-center hover:border-primary/30 transition-colors">
                   {branding.logoUrl ? (
                     <div className="relative inline-block">
                       <img src={branding.logoUrl} alt="Logo" className="h-16 mx-auto" />
                       <button
                         onClick={() => setBranding({ ...branding, logoUrl: undefined })}
-                        className="absolute -top-2 -right-2 p-1 bg-red-100 rounded-full text-red-600 hover:bg-red-200"
+                        className="absolute -top-2 -right-2 p-1 bg-destructive/10 rounded-full text-destructive hover:bg-destructive/20"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -263,7 +263,7 @@ export default function StorefrontBrandingPage() {
                     value={branding.logoUrl || ''}
                     onChange={(e) => setBranding({ ...branding, logoUrl: e.target.value })}
                     placeholder="Or enter logo URL"
-                    className="mt-3 w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-sm"
+                    className="mt-3 w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary text-sm"
                   />
                 </div>
               </div>
@@ -271,13 +271,13 @@ export default function StorefrontBrandingPage() {
               {/* Favicon Upload */}
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Favicon</label>
-                <div className="border-2 border-dashed border-border rounded-lg p-4 text-center hover:border-purple-300 transition-colors">
+                <div className="border-2 border-dashed border-border rounded-lg p-4 text-center hover:border-primary/30 transition-colors">
                   {branding.faviconUrl ? (
                     <div className="relative inline-block">
                       <img src={branding.faviconUrl} alt="Favicon" className="h-8 mx-auto" />
                       <button
                         onClick={() => setBranding({ ...branding, faviconUrl: undefined })}
-                        className="absolute -top-2 -right-2 p-1 bg-red-100 rounded-full text-red-600 hover:bg-red-200"
+                        className="absolute -top-2 -right-2 p-1 bg-destructive/10 rounded-full text-destructive hover:bg-destructive/20"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -293,7 +293,7 @@ export default function StorefrontBrandingPage() {
                     value={branding.faviconUrl || ''}
                     onChange={(e) => setBranding({ ...branding, faviconUrl: e.target.value })}
                     placeholder="Or enter favicon URL"
-                    className="mt-3 w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 text-sm"
+                    className="mt-3 w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary text-sm"
                   />
                 </div>
               </div>
@@ -303,7 +303,7 @@ export default function StorefrontBrandingPage() {
           {/* SEO & Social */}
           <div className="bg-card rounded-xl border border-border p-6 shadow-sm lg:col-span-2">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Globe className="h-5 w-5 text-purple-500" />
+              <Globe className="h-5 w-5 text-primary" />
               SEO & Social Sharing
             </h3>
 
@@ -315,7 +315,7 @@ export default function StorefrontBrandingPage() {
                   value={branding.metaTitle || ''}
                   onChange={(e) => setBranding({ ...branding, metaTitle: e.target.value })}
                   placeholder="Page title for search engines"
-                  className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                 />
                 <p className="text-xs text-muted-foreground mt-1">Recommended: 50-60 characters</p>
               </div>
@@ -327,7 +327,7 @@ export default function StorefrontBrandingPage() {
                   value={branding.ogImageUrl || ''}
                   onChange={(e) => setBranding({ ...branding, ogImageUrl: e.target.value })}
                   placeholder="Image for social sharing"
-                  className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                 />
                 <p className="text-xs text-muted-foreground mt-1">Recommended: 1200x630px</p>
               </div>
@@ -339,7 +339,7 @@ export default function StorefrontBrandingPage() {
                   onChange={(e) => setBranding({ ...branding, metaDescription: e.target.value })}
                   placeholder="Brief description for search engines and social sharing"
                   rows={3}
-                  className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                 />
                 <p className="text-xs text-muted-foreground mt-1">Recommended: 150-160 characters</p>
               </div>
@@ -349,7 +349,7 @@ export default function StorefrontBrandingPage() {
           {/* Brand Colors */}
           <div className="bg-card rounded-xl border border-border p-6 shadow-sm lg:col-span-2">
             <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Palette className="h-5 w-5 text-purple-500" />
+              <Palette className="h-5 w-5 text-primary" />
               Brand Colors
             </h3>
 
@@ -367,7 +367,7 @@ export default function StorefrontBrandingPage() {
                     type="text"
                     value={branding.primaryColor || '#6366f1'}
                     onChange={(e) => setBranding({ ...branding, primaryColor: e.target.value })}
-                    className="flex-1 px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 font-mono text-sm"
+                    className="flex-1 px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary font-mono text-sm"
                   />
                 </div>
               </div>
@@ -385,7 +385,7 @@ export default function StorefrontBrandingPage() {
                     type="text"
                     value={branding.secondaryColor || '#ec4899'}
                     onChange={(e) => setBranding({ ...branding, secondaryColor: e.target.value })}
-                    className="flex-1 px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 font-mono text-sm"
+                    className="flex-1 px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary font-mono text-sm"
                   />
                 </div>
               </div>

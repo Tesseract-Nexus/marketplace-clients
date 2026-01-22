@@ -107,7 +107,7 @@ function highlightMatch(text: string, query: string): React.ReactNode {
   return (
     <>
       {text.slice(0, index)}
-      <span className="bg-blue-500/30 text-blue-200 rounded px-0.5">
+      <span className="bg-accent0/30 text-primary/50 rounded px-0.5">
         {text.slice(index, index + lowerQuery.length)}
       </span>
       {text.slice(index + lowerQuery.length)}

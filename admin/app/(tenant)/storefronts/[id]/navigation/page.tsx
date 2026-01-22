@@ -258,7 +258,7 @@ export default function StorefrontNavigationPage() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 text-purple-500 animate-spin mx-auto mb-4" />
+          <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
           <p className="text-muted-foreground">Loading navigation...</p>
         </div>
       </div>
@@ -354,7 +354,7 @@ export default function StorefrontNavigationPage() {
             className={cn(
               'px-4 py-2 rounded-lg font-medium text-sm transition-all',
               activeSection === 'header'
-                ? 'bg-purple-100 text-purple-700'
+                ? 'bg-primary/10 text-primary'
                 : 'text-muted-foreground hover:bg-muted'
             )}
           >
@@ -365,7 +365,7 @@ export default function StorefrontNavigationPage() {
             className={cn(
               'px-4 py-2 rounded-lg font-medium text-sm transition-all',
               activeSection === 'footer'
-                ? 'bg-purple-100 text-purple-700'
+                ? 'bg-primary/10 text-primary'
                 : 'text-muted-foreground hover:bg-muted'
             )}
           >
@@ -384,7 +384,7 @@ export default function StorefrontNavigationPage() {
                 <Button
                   onClick={handleAddLink}
                   size="sm"
-                  className="bg-purple-600 text-white"
+                  className="bg-primary text-white"
                 >
                   <Plus className="h-4 w-4 mr-1" />
                   Add Link
@@ -393,10 +393,10 @@ export default function StorefrontNavigationPage() {
 
               {currentLinks.length === 0 ? (
                 <div className="p-12 text-center">
-                  <Menu className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+                  <Menu className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-foreground mb-2">No links yet</h3>
                   <p className="text-muted-foreground mb-4">Add navigation links for your storefront</p>
-                  <Button onClick={handleAddLink} className="bg-purple-600 text-white">
+                  <Button onClick={handleAddLink} className="bg-primary text-white">
                     <Plus className="h-4 w-4 mr-2" />
                     Add First Link
                   </Button>
@@ -418,7 +418,7 @@ export default function StorefrontNavigationPage() {
                         key={index}
                         className="flex items-center gap-3 p-4 hover:bg-muted transition-colors group"
                       >
-                        <div className="text-gray-300 cursor-grab">
+                        <div className="text-muted-foreground cursor-grab">
                           <GripVertical className="h-5 w-5" />
                         </div>
 
@@ -431,7 +431,7 @@ export default function StorefrontNavigationPage() {
                           <p className="text-sm text-muted-foreground truncate">
                             {link.href}
                             {link.isExternal && (
-                              <span className="ml-2 text-xs text-purple-600">(external)</span>
+                              <span className="ml-2 text-xs text-primary">(external)</span>
                             )}
                           </p>
                         </div>
@@ -459,7 +459,7 @@ export default function StorefrontNavigationPage() {
                           </button>
                           <button
                             onClick={() => handleDeleteLink(index)}
-                            className="p-2 rounded-lg hover:bg-red-50 text-red-600"
+                            className="p-2 rounded-lg hover:bg-destructive/10 text-destructive"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
@@ -491,7 +491,7 @@ export default function StorefrontNavigationPage() {
                         'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all',
                         alreadyAdded
                           ? 'bg-muted text-muted-foreground cursor-not-allowed'
-                          : 'bg-muted hover:bg-purple-50 text-foreground hover:text-purple-700'
+                          : 'bg-muted hover:bg-primary/10 text-foreground hover:text-primary'
                       )}
                     >
                       <IconComponent className="h-4 w-4" />
@@ -508,7 +508,7 @@ export default function StorefrontNavigationPage() {
             {/* Preview */}
             <div className="bg-card rounded-xl border border-border p-4 mt-4">
               <h3 className="font-semibold text-foreground mb-4">Preview</h3>
-              <div className="bg-gray-900 rounded-lg p-4">
+              <div className="bg-foreground rounded-lg p-4">
                 <div className="flex items-center justify-center gap-4">
                   {currentLinks.slice(0, 5).map((link, index) => (
                     <span key={index} className="text-white text-sm">
@@ -557,7 +557,7 @@ export default function StorefrontNavigationPage() {
                       setEditingLink({ ...editingLink, label: e.target.value })
                     }
                     placeholder="Home"
-                    className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                    className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                   />
                 </div>
 
@@ -572,7 +572,7 @@ export default function StorefrontNavigationPage() {
                       setEditingLink({ ...editingLink, href: e.target.value })
                     }
                     placeholder="/about or https://..."
-                    className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                    className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                   />
                 </div>
 
@@ -583,7 +583,7 @@ export default function StorefrontNavigationPage() {
                     onChange={(e) =>
                       setEditingLink({ ...editingLink, isExternal: e.target.checked })
                     }
-                    className="rounded border-border text-purple-600 focus:ring-purple-500"
+                    className="rounded border-border text-primary focus:ring-purple-500"
                   />
                   <span className="text-sm">Open in new tab (external link)</span>
                 </label>

@@ -368,7 +368,7 @@ function LoginPageContent() {
               </div>
 
               {error && (
-                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 dark:bg-destructive/20 border border-destructive/30 dark:border-destructive rounded-lg px-3 py-2">
                   <AlertCircle className="h-4 w-4 flex-shrink-0" />
                   <span>{error}</span>
                 </div>
@@ -406,9 +406,9 @@ function LoginPageContent() {
             <div className="text-center">
               <button
                 onClick={handleBack}
-                className="absolute top-4 left-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="absolute top-4 left-4 p-2 rounded-lg hover:bg-muted transition-colors"
               >
-                <ArrowLeft className="h-5 w-5 text-gray-600" />
+                <ArrowLeft className="h-5 w-5 text-muted-foreground" />
               </button>
               <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-violet-600 to-purple-600 shadow-lg shadow-primary/30 mb-3">
                 <Building2 className="w-7 h-7 text-white" />
@@ -423,7 +423,7 @@ function LoginPageContent() {
                 <button
                   key={tenant.id}
                   onClick={() => handleTenantSelect(tenant)}
-                  className="w-full flex items-center gap-3 p-4 rounded-xl border border-gray-200 hover:border-primary hover:bg-primary/5 transition-all duration-200 text-left group"
+                  className="w-full flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all duration-200 text-left group"
                 >
                   {tenant.logo_url ? (
                     <img src={tenant.logo_url} alt={tenant.name} className="w-10 h-10 rounded-lg object-cover" />
@@ -438,7 +438,7 @@ function LoginPageContent() {
                     </p>
                     <p className="text-xs text-muted-foreground">{tenant.slug}</p>
                   </div>
-                  <ArrowLeft className="h-4 w-4 text-gray-400 group-hover:text-primary rotate-180 transition-colors" />
+                  <ArrowLeft className="h-4 w-4 text-muted-foreground group-hover:text-primary rotate-180 transition-colors" />
                 </button>
               ))}
             </div>
@@ -451,9 +451,9 @@ function LoginPageContent() {
             <div className="text-center relative">
               <button
                 onClick={handleBack}
-                className="absolute -top-2 -left-2 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="absolute -top-2 -left-2 p-2 rounded-lg hover:bg-muted transition-colors"
               >
-                <ArrowLeft className="h-5 w-5 text-gray-600" />
+                <ArrowLeft className="h-5 w-5 text-muted-foreground" />
               </button>
               <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-violet-600 to-purple-600 shadow-lg shadow-primary/30 mb-3">
                 <Lock className="w-7 h-7 text-white" />
@@ -497,7 +497,7 @@ function LoginPageContent() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="rounded border-gray-300 text-primary focus:ring-primary"
+                    className="rounded border-border text-primary focus:ring-primary"
                   />
                   <span className="text-xs text-muted-foreground">Remember me</span>
                 </label>
@@ -511,7 +511,7 @@ function LoginPageContent() {
               </div>
 
               {error && (
-                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 dark:bg-destructive/20 border border-destructive/30 dark:border-destructive rounded-lg px-3 py-2">
                   <AlertCircle className="h-4 w-4 flex-shrink-0" />
                   <div>
                     <span>{error}</span>
@@ -577,7 +577,7 @@ function LoginPageContent() {
       {/* Animated elements */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-violet-500/20 rounded-full blur-3xl animate-float-delayed" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/100/20 rounded-full blur-3xl animate-float-delayed" />
       </div>
 
       {/* Login card */}

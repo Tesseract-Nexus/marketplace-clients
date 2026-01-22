@@ -165,7 +165,7 @@ export default function GiftCardsPage() {
     const classes: Record<string, string> = {
       ACTIVE: 'bg-success-muted text-success-foreground border-success/30',
       REDEEMED: 'bg-primary/20 text-primary border-primary/30',
-      EXPIRED: 'bg-red-100 text-red-700 border-red-200',
+      EXPIRED: 'bg-destructive/10 text-destructive border-destructive/30',
       CANCELLED: 'bg-muted text-foreground border-border',
     };
     return classes[status] || classes.ACTIVE;
@@ -179,8 +179,8 @@ export default function GiftCardsPage() {
   const getBalanceColor = (percentage: number) => {
     if (percentage >= 75) return 'bg-success';
     if (percentage >= 50) return 'bg-warning';
-    if (percentage >= 25) return 'bg-orange-500';
-    return 'bg-red-500';
+    if (percentage >= 25) return 'bg-warning';
+    return 'bg-destructive/100';
   };
 
   const getDaysUntilExpiry = (expiresAt: string | undefined) => {
@@ -196,11 +196,11 @@ export default function GiftCardsPage() {
     if (days === null) return null;
 
     if (days < 0) {
-      return { text: 'Expired', color: 'text-red-600 bg-red-50', urgent: true };
+      return { text: 'Expired', color: 'text-destructive bg-destructive/10', urgent: true };
     } else if (days === 0) {
-      return { text: 'Expires today', color: 'text-red-600 bg-red-50', urgent: true };
+      return { text: 'Expires today', color: 'text-destructive bg-destructive/10', urgent: true };
     } else if (days <= 7) {
-      return { text: `${days} days left`, color: 'text-orange-600 bg-orange-50', urgent: true };
+      return { text: `${days} days left`, color: 'text-warning bg-warning-muted', urgent: true };
     } else if (days <= 30) {
       return { text: `${days} days left`, color: 'text-warning bg-warning-muted', urgent: false };
     }
@@ -293,9 +293,9 @@ export default function GiftCardsPage() {
 
         {/* Error Banner */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
-            <p className="text-red-800">{error}</p>
+          <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+            <p className="text-destructive">{error}</p>
             <Button variant="outline" size="sm" onClick={fetchGiftCards} className="ml-auto">
               Retry
             </Button>
@@ -308,7 +308,7 @@ export default function GiftCardsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Total Cards</p>
               <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                <Gift className="h-6 w-6 text-purple-600" />
+                <Gift className="h-6 w-6 text-primary" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -398,7 +398,7 @@ export default function GiftCardsPage() {
           ) : giftCards.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center">
-                <Gift className="h-10 w-10 text-violet-500" />
+                <Gift className="h-10 w-10 text-primary" />
               </div>
               <h3 className="text-xl font-bold text-foreground mb-2">
                 {searchQuery || filterStatus
@@ -508,7 +508,7 @@ export default function GiftCardsPage() {
                         <div className="text-right">
                           <span className={cn(
                             "font-bold text-lg",
-                            balancePercentage >= 50 ? "text-success" : balancePercentage >= 25 ? "text-warning" : "text-red-600"
+                            balancePercentage >= 50 ? "text-success" : balancePercentage >= 25 ? "text-warning" : "text-destructive"
                           )}>
                             {formatCurrency(card.currentBalance)}
                           </span>

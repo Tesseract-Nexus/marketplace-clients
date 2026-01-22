@@ -77,9 +77,9 @@ export function LocationConfirmationModal({
 
       {/* Modal */}
       <div className="relative w-full max-w-md mx-4 animate-in fade-in zoom-in-95 duration-300">
-        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-700/50">
+        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-muted-foreground/50">
           {/* Header */}
-          <div className="px-6 py-5 border-b border-gray-700/50">
+          <div className="px-6 py-5 border-b border-muted-foreground/50">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/25">
@@ -111,13 +111,13 @@ export function LocationConfirmationModal({
               <div className="flex flex-col items-center py-8">
                 <div className="relative">
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-violet-500/20 rounded-full flex items-center justify-center">
-                    <Navigation className="w-8 h-8 text-blue-400 animate-pulse" />
+                    <Navigation className="w-8 h-8 text-primary animate-pulse" />
                   </div>
                   <div className="absolute inset-0 animate-ping">
                     <div className="w-16 h-16 bg-primary/20 rounded-full" />
                   </div>
                 </div>
-                <p className="mt-4 text-gray-300 text-center">
+                <p className="mt-4 text-muted-foreground text-center">
                   Detecting your location...
                 </p>
                 <p className="mt-2 text-sm text-muted-foreground text-center">
@@ -126,10 +126,10 @@ export function LocationConfirmationModal({
               </div>
             ) : error ? (
               <div className="text-center py-6">
-                <div className="w-14 h-14 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <X className="w-7 h-7 text-red-400" />
+                <div className="w-14 h-14 bg-destructive/100/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <X className="w-7 h-7 text-destructive" />
                 </div>
-                <p className="text-red-400 font-medium mb-2">Location Detection Failed</p>
+                <p className="text-destructive font-medium mb-2">Location Detection Failed</p>
                 <p className="text-sm text-muted-foreground">{error}</p>
               </div>
             ) : detectedLocation ? (
@@ -140,7 +140,7 @@ export function LocationConfirmationModal({
                     <div className="bg-white/5 rounded-xl p-4 border border-white/10">
                       <div className="flex items-start gap-3">
                         <div className="w-10 h-10 bg-success/20 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Building2 className="w-5 h-5 text-green-400" />
+                          <Building2 className="w-5 h-5 text-success" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-muted-foreground mb-1">Detected Address</p>
@@ -149,7 +149,7 @@ export function LocationConfirmationModal({
                               {detectedLocation.address}
                             </p>
                           )}
-                          <p className="text-gray-300">{locationDisplay}</p>
+                          <p className="text-muted-foreground">{locationDisplay}</p>
                           {detectedLocation.zipCode && (
                             <p className="text-muted-foreground text-sm">
                               {detectedLocation.zipCode}
@@ -182,7 +182,7 @@ export function LocationConfirmationModal({
                     {/* Edit button */}
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 transition-colors"
+                      className="flex items-center gap-2 text-sm text-primary hover:text-primary/70 transition-colors"
                     >
                       <Edit3 className="w-4 h-4" />
                       Edit location details
@@ -262,7 +262,7 @@ export function LocationConfirmationModal({
                     </div>
                     <button
                       onClick={() => setIsEditing(false)}
-                      className="text-sm text-muted-foreground hover:text-gray-300 transition-colors"
+                      className="text-sm text-muted-foreground hover:text-muted-foreground transition-colors"
                     >
                       Cancel editing
                     </button>
@@ -273,17 +273,17 @@ export function LocationConfirmationModal({
           </div>
 
           {/* Footer */}
-          <div className="px-6 py-4 bg-black/20 border-t border-gray-700/50">
+          <div className="px-6 py-4 bg-black/20 border-t border-muted-foreground/50">
             {isDetecting ? (
               <div className="flex justify-center">
-                <Loader2 className="w-6 h-6 text-blue-400 animate-spin" />
+                <Loader2 className="w-6 h-6 text-primary animate-spin" />
               </div>
             ) : error ? (
               <div className="flex gap-3">
                 <Button
                   variant="outline"
                   onClick={onSkip}
-                  className="flex-1 bg-transparent border-gray-600 text-gray-300 hover:bg-white/5 hover:text-white"
+                  className="flex-1 bg-transparent border-muted-foreground text-muted-foreground hover:bg-white/5 hover:text-white"
                 >
                   Enter Manually
                 </Button>
@@ -299,7 +299,7 @@ export function LocationConfirmationModal({
                 <Button
                   variant="outline"
                   onClick={onSkip}
-                  className="flex-1 bg-transparent border-gray-600 text-gray-300 hover:bg-white/5 hover:text-white"
+                  className="flex-1 bg-transparent border-muted-foreground text-muted-foreground hover:bg-white/5 hover:text-white"
                 >
                   Skip
                 </Button>

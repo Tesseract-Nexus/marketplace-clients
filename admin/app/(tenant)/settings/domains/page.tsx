@@ -36,7 +36,7 @@ function StatusBadge({ status }: { status: string }) {
   const config: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
     pending: { color: 'bg-warning-muted text-warning-muted-foreground', icon: <Clock className="h-3 w-3" />, label: 'Pending' },
     verifying: { color: 'bg-info-muted text-info-muted-foreground', icon: <RefreshCw className="h-3 w-3 animate-spin" />, label: 'Verifying' },
-    provisioning: { color: 'bg-purple-100 text-purple-800', icon: <Loader2 className="h-3 w-3 animate-spin" />, label: 'Provisioning SSL' },
+    provisioning: { color: 'bg-primary/10 text-primary', icon: <Loader2 className="h-3 w-3 animate-spin" />, label: 'Provisioning SSL' },
     active: { color: 'bg-success-muted text-success-muted-foreground', icon: <CheckCircle2 className="h-3 w-3" />, label: 'Active' },
     inactive: { color: 'bg-neutral-muted text-neutral-muted-foreground', icon: <XCircle className="h-3 w-3" />, label: 'Inactive' },
     failed: { color: 'bg-error-muted text-error-muted-foreground', icon: <XCircle className="h-3 w-3" />, label: 'Failed' },
@@ -85,7 +85,7 @@ function DNSRecordRow({ record, onCopy }: { record: DNSRecord; onCopy: (text: st
         {record.isVerified ? (
           <CheckCircle2 className="h-5 w-5 text-success" />
         ) : (
-          <Clock className="h-5 w-5 text-yellow-500" />
+          <Clock className="h-5 w-5 text-warning" />
         )}
       </div>
     </div>
@@ -198,12 +198,12 @@ function AddDomainModal({
           )}
 
           {/* Info box */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="bg-accent border border-primary/30 rounded-lg p-4">
             <div className="flex gap-3">
-              <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-blue-800">
+              <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+              <div className="text-sm text-primary">
                 <p className="font-medium mb-1">What happens next?</p>
-                <ol className="list-decimal list-inside space-y-1 text-blue-700">
+                <ol className="list-decimal list-inside space-y-1 text-primary">
                   <li>We&apos;ll generate DNS records for you to add</li>
                   <li>Add the records at your domain registrar</li>
                   <li>We&apos;ll verify and provision SSL automatically</li>
@@ -295,7 +295,7 @@ function DomainCard({
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold text-foreground">{domain.domain}</h3>
                 {domain.isPrimary && (
-                  <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">
+                  <span className="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">
                     Primary
                   </span>
                 )}
@@ -317,7 +317,7 @@ function DomainCard({
             {domain.dnsVerified ? (
               <CheckCircle2 className="h-4 w-4 text-success" />
             ) : (
-              <Clock className="h-4 w-4 text-yellow-500" />
+              <Clock className="h-4 w-4 text-warning" />
             )}
             <span className="text-sm">DNS Verified</span>
           </div>
@@ -366,7 +366,7 @@ function DomainCard({
             {showDNS && (
               <div className="space-y-3 animate-in slide-in-from-top-2 duration-200">
                 <div className="bg-warning-muted border border-warning/30 rounded-lg p-3">
-                  <p className="text-sm text-amber-800">
+                  <p className="text-sm text-warning">
                     <strong>Action Required:</strong> Add the following DNS records at your domain registrar
                     (e.g., GoDaddy, Cloudflare, Namecheap).
                   </p>
@@ -597,11 +597,11 @@ export default function DomainsSettingsPage() {
                 <div className="text-sm text-muted-foreground">Active</div>
               </div>
               <div className="bg-card rounded-lg border border-border p-4">
-                <div className="text-2xl font-bold text-yellow-600">{stats.pendingDomains}</div>
+                <div className="text-2xl font-bold text-warning">{stats.pendingDomains}</div>
                 <div className="text-sm text-muted-foreground">Pending</div>
               </div>
               <div className="bg-card rounded-lg border border-border p-4">
-                <div className="text-2xl font-bold text-orange-600">{stats.expiringCertificates}</div>
+                <div className="text-2xl font-bold text-warning">{stats.expiringCertificates}</div>
                 <div className="text-sm text-muted-foreground">Expiring Soon</div>
               </div>
             </div>
@@ -652,14 +652,14 @@ export default function DomainsSettingsPage() {
                   </p>
                 </div>
                 <div className="p-4 bg-muted/50 rounded-lg">
-                  <Zap className="h-5 w-5 text-purple-600 mb-2" />
+                  <Zap className="h-5 w-5 text-primary mb-2" />
                   <h4 className="font-medium text-foreground">Fast Setup</h4>
                   <p className="text-xs text-muted-foreground">
                     Usually active within 15 minutes
                   </p>
                 </div>
                 <div className="p-4 bg-muted/50 rounded-lg">
-                  <Globe className="h-5 w-5 text-blue-600 mb-2" />
+                  <Globe className="h-5 w-5 text-primary mb-2" />
                   <h4 className="font-medium text-foreground">Your Brand</h4>
                   <p className="text-xs text-muted-foreground">
                     Customers see your domain, not ours

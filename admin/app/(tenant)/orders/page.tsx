@@ -575,7 +575,7 @@ export default function OrdersPage() {
           {statusFilter !== 'ALL' && (
             <button
               onClick={() => setStatusFilter('ALL')}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-violet-50 text-violet-700 rounded-full text-sm font-medium hover:bg-violet-100 transition-colors group"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-medium hover:bg-primary/10 transition-colors group"
             >
               Status: {statusFilter}
               <X className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100" />
@@ -595,7 +595,7 @@ export default function OrdersPage() {
           {fulfillmentStatusFilter !== 'ALL' && (
             <button
               onClick={() => setFulfillmentStatusFilter('ALL')}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-cyan-50 text-cyan-700 rounded-full text-sm font-medium hover:bg-cyan-100 transition-colors group"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent text-accent-foreground rounded-full text-sm font-medium hover:bg-accent transition-colors group"
             >
               Fulfillment: {fulfillmentStatusFilter.replace('_', ' ')}
               <X className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100" />
@@ -614,7 +614,7 @@ export default function OrdersPage() {
           <CardContent className="p-12 text-center">
             <div className="relative">
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-24 h-24 rounded-full border-4 border-blue-100 animate-pulse" />
+                <div className="w-24 h-24 rounded-full border-4 border-primary/20 animate-pulse" />
               </div>
               <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin mb-4 relative" />
             </div>
@@ -657,8 +657,8 @@ export default function OrdersPage() {
                           <div className={cn(
                             "p-2 rounded-xl transition-all",
                             order.status === 'COMPLETED' && "bg-emerald-100 text-emerald-600",
-                            order.status === 'CANCELLED' && "bg-red-100 text-red-600",
-                            order.status === 'PROCESSING' && "bg-violet-100 text-violet-600",
+                            order.status === 'CANCELLED' && "bg-destructive/10 text-destructive",
+                            order.status === 'PROCESSING' && "bg-primary/10 text-primary",
                             order.status === 'CONFIRMED' && "bg-primary/20 text-primary",
                             order.status === 'PLACED' && "bg-warning-muted text-warning"
                           )}>
@@ -701,7 +701,7 @@ export default function OrdersPage() {
                         <p className="text-xs text-muted-foreground font-semibold">Shipping</p>
                         <p className="text-sm font-bold text-foreground group-hover/item:text-primary transition-colors">{formatCurrency(order.shippingCost, order.currencyCode)}</p>
                       </div>
-                      <div className="bg-gradient-to-br from-blue-50 to-violet-50 -m-2 p-2 rounded-xl border border-blue-100">
+                      <div className="bg-gradient-to-br from-blue-50 to-violet-50 -m-2 p-2 rounded-xl border border-primary/20">
                         <p className="text-xs text-primary font-semibold">Total</p>
                         <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
                           {formatCurrency(order.total, order.currencyCode)}
@@ -758,7 +758,7 @@ export default function OrdersPage() {
                           >
                             <Eye className="w-4 h-4 text-muted-foreground" />
                             <span>View Details</span>
-                            <ChevronRight className="w-4 h-4 text-gray-300 ml-auto" />
+                            <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto" />
                           </button>
 
                           {order.paymentStatus === 'PAID' && order.fulfillmentStatus === 'UNFULFILLED' && (

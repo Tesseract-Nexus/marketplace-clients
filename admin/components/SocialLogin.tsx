@@ -40,9 +40,9 @@ export function SocialLogin({ onLogin, isLoading = false, disabled = false }: So
           />
         </svg>
       ),
-      bgColor: 'bg-white hover:bg-gray-50',
-      textColor: 'text-gray-700',
-      borderColor: 'border-gray-300',
+      bgColor: 'bg-white hover:bg-muted',
+      textColor: 'text-foreground',
+      borderColor: 'border-border',
       label: 'Continue with Google',
     },
   ];

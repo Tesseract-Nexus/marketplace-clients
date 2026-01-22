@@ -69,7 +69,7 @@ const typeIcons: Record<string, React.ElementType> = {
 const statusColors: Record<string, string> = {
   ACTIVE: 'bg-success-muted text-success-foreground',
   DRAFT: 'bg-slate-100 text-slate-700',
-  ARCHIVED: 'bg-gray-100 text-gray-600',
+  ARCHIVED: 'bg-muted text-muted-foreground',
 };
 
 function formatDate(dateString: string): string {
@@ -149,7 +149,7 @@ function CreativeCard({
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => onDelete(creative.id)}
-                className="text-red-600 focus:text-red-600"
+                className="text-destructive focus:text-destructive"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete
@@ -320,9 +320,9 @@ export default function CreativesPage() {
           <div>
           {/* Error Banner */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3 mb-6">
-              <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
-              <p className="text-red-800">{error}</p>
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-center gap-3 mb-6">
+              <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+              <p className="text-destructive">{error}</p>
               <Button variant="outline" size="sm" onClick={fetchCreatives} className="ml-auto">
                 Retry
               </Button>

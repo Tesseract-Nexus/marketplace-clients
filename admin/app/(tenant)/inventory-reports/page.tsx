@@ -193,8 +193,8 @@ export default function InventoryReportsPage() {
   };
 
   const getStockStatusColor = (stockLevel: number, reorderLevel: number) => {
-    if (stockLevel === 0) return 'bg-red-100 text-red-700 border-red-200';
-    if (stockLevel <= reorderLevel) return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+    if (stockLevel === 0) return 'bg-destructive/10 text-destructive border-destructive/30';
+    if (stockLevel <= reorderLevel) return 'bg-warning-muted text-warning border-warning/30';
     return 'bg-success-muted text-success-foreground border-success/30';
   };
 
@@ -270,7 +270,7 @@ export default function InventoryReportsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Low Stock Items</p>
               <div className="w-12 h-12 bg-gradient-to-br from-yellow-100 to-amber-100 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-yellow-600" />
+                <AlertTriangle className="h-6 w-6 text-warning" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-yellow-600 to-amber-600 bg-clip-text text-transparent">
@@ -283,7 +283,7 @@ export default function InventoryReportsPage() {
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Out of Stock</p>
               <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-pink-100 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-red-600" />
+                <AlertTriangle className="h-6 w-6 text-destructive" />
               </div>
             </div>
             <p className="text-3xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
@@ -351,7 +351,7 @@ export default function InventoryReportsPage() {
                 {/* Low Stock Products */}
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <AlertTriangle className="h-5 w-5 text-yellow-600" />
+                    <AlertTriangle className="h-5 w-5 text-warning" />
                     <h3 className="text-lg font-bold text-foreground">Low Stock Products</h3>
                   </div>
                   <div className="overflow-x-auto">
@@ -411,7 +411,7 @@ export default function InventoryReportsPage() {
                 {/* Out of Stock Products */}
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <AlertTriangle className="h-5 w-5 text-red-600" />
+                    <AlertTriangle className="h-5 w-5 text-destructive" />
                     <h3 className="text-lg font-bold text-foreground">Out of Stock Products</h3>
                   </div>
                   <div className="overflow-x-auto">
@@ -512,7 +512,7 @@ export default function InventoryReportsPage() {
                 {/* Slow Moving Products */}
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <TrendingDown className="h-5 w-5 text-orange-600" />
+                    <TrendingDown className="h-5 w-5 text-warning" />
                     <h3 className="text-lg font-bold text-foreground">Slow Moving Products</h3>
                   </div>
                   <div className="overflow-x-auto">
@@ -543,7 +543,7 @@ export default function InventoryReportsPage() {
                               <p className="font-semibold text-foreground">{product.productName}</p>
                               <p className="text-sm text-muted-foreground">{product.sku}</p>
                             </td>
-                            <td className="px-6 py-4 text-right font-semibold text-orange-600">
+                            <td className="px-6 py-4 text-right font-semibold text-warning">
                               {formatNumber(product.unitsSold)}
                             </td>
                             <td className="px-6 py-4 text-right text-sm text-foreground">
@@ -603,7 +603,7 @@ export default function InventoryReportsPage() {
                           {formatCurrency(category.totalValue)}
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-yellow-100 text-yellow-700 border border-yellow-200">
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-warning-muted text-warning border border-warning/30">
                             {formatNumber(category.lowStockCount)}
                           </span>
                         </td>

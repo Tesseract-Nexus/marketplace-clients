@@ -245,7 +245,7 @@ export default function ReturnsSettingsPage() {
         {selectedStorefront ? (
           loading ? (
             <div className="bg-card rounded-xl border border-border p-12 text-center">
-              <Loader2 className="h-8 w-8 text-purple-500 animate-spin mx-auto mb-4" />
+              <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
               <p className="text-muted-foreground">Loading settings...</p>
             </div>
           ) : (
@@ -326,7 +326,7 @@ export default function ReturnsSettingsPage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                  <RotateCcw className="h-6 w-6 text-purple-600" />
+                  <RotateCcw className="h-6 w-6 text-primary" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">Processing Rules</h3>
@@ -346,7 +346,7 @@ export default function ReturnsSettingsPage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-red-100 rounded-lg flex items-center justify-center">
-                  <RotateCcw className="h-6 w-6 text-orange-600" />
+                  <RotateCcw className="h-6 w-6 text-warning" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">Return Exclusions</h3>
@@ -366,7 +366,7 @@ export default function ReturnsSettingsPage() {
           )
         ) : (
           <div className="bg-card rounded-xl border border-border p-12 text-center">
-            <RotateCcw className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <RotateCcw className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-foreground mb-2">
               Create Your First Storefront
             </h3>

@@ -360,7 +360,7 @@ function SidebarUserProfile({ onLogout }: { onLogout: () => void }) {
       {/* Logout Button */}
       <Button
         onClick={onLogout}
-        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-red-600 hover:bg-red-500 text-white font-medium shadow-lg hover:shadow-xl border-0"
+        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-destructive hover:bg-destructive/100 text-white font-medium shadow-lg hover:shadow-xl border-0"
       >
         <LogOut className="w-4 h-4" />
         <span className="text-sm font-medium"><AdminUIText text="Sign Out" /></span>
@@ -545,7 +545,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               {item.icon && (
                 <item.icon className={cn(
                   "w-5 h-5 transition-colors",
-                  isExpanded ? "text-blue-400" : "text-slate-400 group-hover:text-blue-400"
+                  isExpanded ? "text-primary" : "text-slate-400 group-hover:text-primary"
                 )} aria-hidden="true" />
               )}
               {!item.icon && (
@@ -560,9 +560,9 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               <AdminUIText text={item.name} />
             </div>
             {isExpanded ? (
-              <ChevronDown className="w-4 h-4 text-blue-400" aria-hidden="true" />
+              <ChevronDown className="w-4 h-4 text-primary" aria-hidden="true" />
             ) : (
-              <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-blue-400 transition-colors" aria-hidden="true" />
+              <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-primary transition-colors" aria-hidden="true" />
             )}
           </button>
           {isExpanded && (

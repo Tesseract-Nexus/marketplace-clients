@@ -60,7 +60,7 @@ export function StyledSelect({
         className={cn(
           'w-full flex items-center justify-between px-4 py-3 rounded-lg border transition-all text-left',
           isOpen
-            ? 'border-purple-500 ring-2 ring-purple-500/20'
+            ? 'border-primary ring-2 ring-purple-500/20'
             : 'border-border hover:border-border'
         )}
       >
@@ -93,7 +93,7 @@ export function StyledSelect({
                   }}
                   className={cn(
                     'w-full flex items-center justify-between px-4 py-3 text-left transition-colors',
-                    String(value) === String(option.value) ? 'bg-purple-50' : 'hover:bg-muted'
+                    String(value) === String(option.value) ? 'bg-primary/10' : 'hover:bg-muted'
                   )}
                 >
                   <div>
@@ -102,7 +102,7 @@ export function StyledSelect({
                       <span className="text-xs text-muted-foreground ml-2">{option.description}</span>
                     )}
                   </div>
-                  {String(value) === String(option.value) && <Check className="h-5 w-5 text-purple-600" />}
+                  {String(value) === String(option.value) && <Check className="h-5 w-5 text-primary" />}
                 </button>
               ))}
             </div>

@@ -187,8 +187,8 @@ function ActivatePageContent() {
       case 'error':
         return (
           <div className="text-center py-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
-              <AlertCircle className="w-8 h-8 text-red-600" />
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 mb-4">
+              <AlertCircle className="w-8 h-8 text-destructive" />
             </div>
             <h2 className="text-xl font-semibold text-foreground mb-2">Invitation Invalid</h2>
             <p className="text-sm text-muted-foreground mb-6">{error}</p>
@@ -216,14 +216,14 @@ function ActivatePageContent() {
               )}
             </div>
 
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4">
+            <div className="bg-accent dark:bg-primary/20 border border-primary/30 dark:border-primary rounded-xl p-4">
               <div className="flex items-center gap-3">
-                <Mail className="h-5 w-5 text-blue-600" />
+                <Mail className="h-5 w-5 text-primary" />
                 <div>
-                  <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                  <p className="text-sm font-medium text-primary dark:text-primary/30">
                     {invitationData?.staff?.email}
                   </p>
-                  <p className="text-xs text-blue-700 dark:text-blue-300">
+                  <p className="text-xs text-primary dark:text-primary/70">
                     Role: {invitationData?.staff?.role?.replace(/_/g, ' ')}
                   </p>
                 </div>
@@ -299,9 +299,9 @@ function ActivatePageContent() {
             <div className="text-center">
               <button
                 onClick={() => setStep('choose-method')}
-                className="absolute top-4 left-4 p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="absolute top-4 left-4 p-2 rounded-lg hover:bg-muted transition-colors"
               >
-                <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="h-5 w-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
@@ -363,7 +363,7 @@ function ActivatePageContent() {
               </div>
 
               {/* Password requirements */}
-              <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3 space-y-2">
+              <div className="bg-muted dark:bg-foreground/80/50 rounded-lg p-3 space-y-2">
                 <p className="text-xs font-medium text-muted-foreground">Password requirements:</p>
                 <div className="grid grid-cols-2 gap-1">
                   <RequirementItem met={!passwordErrors.minLength} text="8+ characters" />
@@ -376,7 +376,7 @@ function ActivatePageContent() {
               </div>
 
               {error && (
-                <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+                <div className="flex items-center gap-2 text-sm text-destructive bg-destructive/10 dark:bg-destructive/20 border border-destructive/30 dark:border-destructive rounded-lg px-3 py-2">
                   <AlertCircle className="h-4 w-4 flex-shrink-0" />
                   <span>{error}</span>
                 </div>
@@ -430,7 +430,7 @@ function ActivatePageContent() {
       {/* Animated elements */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-float" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-violet-500/20 rounded-full blur-3xl animate-float-delayed" />
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-primary/100/20 rounded-full blur-3xl animate-float-delayed" />
       </div>
 
       {/* Activation card */}
@@ -477,7 +477,7 @@ function RequirementItem({ met, text }: { met: boolean; text: string }) {
       {met ? (
         <CheckCircle2 className="h-3.5 w-3.5 text-success" />
       ) : (
-        <div className="h-3.5 w-3.5 rounded-full border border-gray-300" />
+        <div className="h-3.5 w-3.5 rounded-full border border-border" />
       )}
       <span className={`text-xs ${met ? 'text-success' : 'text-muted-foreground'}`}>{text}</span>
     </div>

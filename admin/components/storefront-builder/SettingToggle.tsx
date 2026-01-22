@@ -38,7 +38,7 @@ export function SettingToggle({
         isCard && [
           'p-4 rounded-xl border transition-all duration-200',
           checked
-            ? 'border-purple-200 bg-purple-50/50'
+            ? 'border-primary/30 bg-primary/10/50'
             : 'border-border bg-white hover:border-border',
         ],
         disabled && 'opacity-50 cursor-not-allowed',
@@ -50,7 +50,7 @@ export function SettingToggle({
           className={cn(
             'block font-medium',
             isCard ? 'text-sm text-foreground' : 'text-sm text-foreground',
-            checked && isCard && 'text-purple-900'
+            checked && isCard && 'text-primary'
           )}
         >
           {label}
@@ -59,7 +59,7 @@ export function SettingToggle({
           <span
             className={cn(
               'block text-xs mt-0.5',
-              checked && isCard ? 'text-purple-600' : 'text-muted-foreground'
+              checked && isCard ? 'text-primary' : 'text-muted-foreground'
             )}
           >
             {description}
@@ -72,7 +72,7 @@ export function SettingToggle({
         disabled={disabled}
         className={cn(
           'shrink-0',
-          checked && 'data-[state=checked]:bg-purple-600'
+          checked && 'data-[state=checked]:bg-primary'
         )}
       />
     </label>

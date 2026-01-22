@@ -125,7 +125,7 @@ export function ColorPicker({
             style={{ padding: 0 }}
           />
           {!isValid && (
-            <div className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
+            <div className="absolute -top-1 -right-1 w-4 h-4 bg-destructive/100 rounded-full flex items-center justify-center">
               <AlertCircle className="h-3 w-3 text-white" />
             </div>
           )}
@@ -143,8 +143,8 @@ export function ColorPicker({
               maxLength={7}
               className={cn(
                 'w-full px-3 py-2 rounded-lg border text-sm font-mono uppercase',
-                'focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500',
-                isValid ? 'border-border' : 'border-red-500 bg-red-50',
+                'focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary',
+                isValid ? 'border-border' : 'border-destructive bg-destructive/10',
                 disabled && 'opacity-50 cursor-not-allowed bg-muted'
               )}
             />
@@ -155,7 +155,7 @@ export function ColorPicker({
             )}
           </div>
           {!isValid && (
-            <p className="text-xs text-red-500 mt-1">Please enter a valid hex color</p>
+            <p className="text-xs text-destructive mt-1">Please enter a valid hex color</p>
           )}
         </div>
 
@@ -237,7 +237,7 @@ export function ColorPairPicker({
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <Palette className="h-5 w-5 text-purple-500" />
+        <Palette className="h-5 w-5 text-primary" />
         <h3 className="text-lg font-semibold">Customize Colors</h3>
       </div>
 

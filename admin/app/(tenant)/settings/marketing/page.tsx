@@ -220,7 +220,7 @@ export default function MarketingSettingsPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 text-purple-600 animate-spin mx-auto mb-4" />
+          <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
           <p className="text-muted-foreground">Loading storefronts...</p>
         </div>
       </div>
@@ -233,7 +233,7 @@ export default function MarketingSettingsPage() {
       fallback="styled"
       fallbackTitle="Marketing Settings Access Required"
       fallbackDescription="You don't have the required permissions to manage marketing settings. Please contact your administrator to request access."
-      loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-purple-500" /></div>}
+      loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
     >
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20 p-8">
       <div className="space-y-6 animate-in fade-in duration-500">
@@ -274,7 +274,7 @@ export default function MarketingSettingsPage() {
         {selectedStorefront ? (
           loading ? (
             <div className="bg-card rounded-xl border border-border p-12 text-center">
-              <Loader2 className="h-8 w-8 text-purple-500 animate-spin mx-auto mb-4" />
+              <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
               <p className="text-muted-foreground">Loading settings...</p>
             </div>
           ) : (
@@ -283,7 +283,7 @@ export default function MarketingSettingsPage() {
               <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                    <Sparkles className="h-6 w-6 text-purple-600" />
+                    <Sparkles className="h-6 w-6 text-primary" />
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-foreground">Marketing Features</h3>
@@ -363,7 +363,7 @@ export default function MarketingSettingsPage() {
                     />
                   </div>
                   <div className="flex items-center gap-3 p-4 rounded-lg border border-border bg-muted">
-                    <Bell className="h-5 w-5 text-purple-600" />
+                    <Bell className="h-5 w-5 text-primary" />
                     <Checkbox
                       checked={marketingData.features.enablePushCampaigns}
                       onChange={(e) => updateField(['features', 'enablePushCampaigns'], e.target.checked)}
@@ -379,7 +379,7 @@ export default function MarketingSettingsPage() {
                 <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-12 h-12 bg-gradient-to-br from-pink-100 to-rose-100 rounded-lg flex items-center justify-center">
-                      <Users className="h-6 w-6 text-pink-600" />
+                      <Users className="h-6 w-6 text-primary" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-foreground">Referral Program</h3>
@@ -457,7 +457,7 @@ export default function MarketingSettingsPage() {
                 <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-amber-100 rounded-lg flex items-center justify-center">
-                      <Tag className="h-6 w-6 text-orange-600" />
+                      <Tag className="h-6 w-6 text-warning" />
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-foreground">Promotion Display</h3>
@@ -570,7 +570,7 @@ export default function MarketingSettingsPage() {
           )
         ) : (
           <div className="bg-card rounded-xl border border-border p-12 text-center">
-            <Megaphone className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <Megaphone className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-foreground mb-2">
               Create Your First Storefront
             </h3>

@@ -369,7 +369,7 @@ export default function DocumentVerificationPage() {
                                     daysUntilExpiry !== null && daysUntilExpiry <= 7
                                       ? 'text-error font-medium'
                                       : daysUntilExpiry !== null && daysUntilExpiry <= 30
-                                      ? 'text-orange-600'
+                                      ? 'text-warning'
                                       : 'text-muted-foreground'
                                   )}
                                 >
@@ -481,7 +481,7 @@ export default function DocumentVerificationPage() {
                               ? 'border-success/50 bg-success-muted text-success-muted-foreground'
                               : status === 'rejected'
                               ? 'border-error/50 bg-error-muted text-error-muted-foreground'
-                              : 'border-purple-500 bg-purple-50 text-purple-700'
+                              : 'border-primary bg-primary/10 text-primary'
                             : 'border-border hover:border-border'
                         )}
                       >
@@ -540,7 +540,7 @@ export default function DocumentVerificationPage() {
                       ? 'bg-success hover:bg-success/90'
                       : verifyStatus === 'rejected'
                       ? 'bg-error hover:bg-error/90'
-                      : 'bg-purple-600 hover:bg-purple-700'
+                      : 'bg-primary hover:bg-primary'
                   )}
                 >
                   {verifying ? (

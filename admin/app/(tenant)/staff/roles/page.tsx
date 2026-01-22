@@ -940,7 +940,7 @@ export default function RolesPage() {
                               <Badge className="bg-primary/20 text-primary">Staff</Badge>
                             )}
                             {role.canCreateRoles && (
-                              <Badge className="bg-purple-100 text-purple-700">Roles</Badge>
+                              <Badge className="bg-primary/10 text-primary">Roles</Badge>
                             )}
                             {!role.canManageStaff && !role.canCreateRoles && (
                               <span className="text-muted-foreground text-sm">-</span>
@@ -970,11 +970,11 @@ export default function RolesPage() {
                                   e.stopPropagation();
                                   handleEditRole(role);
                                 }}
-                                className="h-8 w-8 p-0 rounded-lg hover:bg-violet-50 transition-colors"
+                                className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                                 title="Edit"
                                 aria-label="Edit role"
                               >
-                                <Edit className="w-4 h-4 text-violet-600" aria-hidden="true" />
+                                <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                               </Button>
                             )}
                             {!role.isSystem && canDeleteRoles && (

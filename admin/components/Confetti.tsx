@@ -145,7 +145,7 @@ export function FloralCelebration({ active = true }: { active?: boolean }) {
             animationDelay: `${Math.random() * 2}s`,
           }}
         >
-          <svg className="w-4 h-4 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
+          <svg className="w-4 h-4 text-warning" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z" />
           </svg>
         </div>

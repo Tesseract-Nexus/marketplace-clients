@@ -168,7 +168,7 @@ export default function SalesAnalyticsPage() {
     return (
       <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
         <div className="flex items-center justify-center h-64">
-          <RefreshCw className="h-8 w-8 animate-spin text-indigo-600" />
+          <RefreshCw className="h-8 w-8 animate-spin text-primary" />
         </div>
       </div>
     );
@@ -201,7 +201,7 @@ export default function SalesAnalyticsPage() {
                 variant="filter"
                 className="min-w-[140px] border-0 shadow-none hover:bg-muted rounded-lg"
               />
-              <div className="w-px h-6 bg-gray-200" />
+              <div className="w-px h-6 bg-muted" />
               <Button
                 variant="ghost"
                 size="sm"
@@ -227,7 +227,7 @@ export default function SalesAnalyticsPage() {
         {error && (
           <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-center gap-3">
             <AlertTriangle className="h-5 w-5 text-warning" />
-            <p className="text-amber-800">{error instanceof Error ? error.message : 'Failed to load sales analytics'}</p>
+            <p className="text-warning">{error instanceof Error ? error.message : 'Failed to load sales analytics'}</p>
           </div>
         )}
 
@@ -247,9 +247,9 @@ export default function SalesAnalyticsPage() {
               {(data?.revenueChange || 0) >= 0 ? (
                 <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 flex-shrink-0" />
               ) : (
-                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 flex-shrink-0" />
+                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
               )}
-              <span className={`text-xs sm:text-sm font-medium ${(data?.revenueChange || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+              <span className={`text-xs sm:text-sm font-medium ${(data?.revenueChange || 0) >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
                 {formatPercent(data?.revenueChange || 0)}
               </span>
             </div>
@@ -269,19 +269,19 @@ export default function SalesAnalyticsPage() {
               {(data?.ordersChange || 0) >= 0 ? (
                 <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 flex-shrink-0" />
               ) : (
-                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 flex-shrink-0" />
+                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
               )}
-              <span className={`text-xs sm:text-sm font-medium ${(data?.ordersChange || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+              <span className={`text-xs sm:text-sm font-medium ${(data?.ordersChange || 0) >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
                 {formatPercent(data?.ordersChange || 0)}
               </span>
             </div>
           </div>
 
-          <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-xl hover:border-purple-300/50 hover:-translate-y-1 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-xl hover:border-primary/30/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <p className="text-xs sm:text-sm font-medium text-muted-foreground truncate">Avg Order Value</p>
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
+                <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
             </div>
             <p className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -291,9 +291,9 @@ export default function SalesAnalyticsPage() {
               {(data?.aovChange || 0) >= 0 ? (
                 <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 flex-shrink-0" />
               ) : (
-                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-red-600 flex-shrink-0" />
+                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
               )}
-              <span className={`text-xs sm:text-sm font-medium ${(data?.aovChange || 0) >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+              <span className={`text-xs sm:text-sm font-medium ${(data?.aovChange || 0) >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
                 {formatPercent(data?.aovChange || 0)}
               </span>
             </div>
@@ -318,7 +318,7 @@ export default function SalesAnalyticsPage() {
         {/* Charts Row */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
           {/* Revenue & Orders Trend */}
-          <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-6 shadow-sm hover:shadow-xl hover:border-indigo-300/50 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-6 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
             <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6">Revenue & Orders Trend</h3>
             {revenueChartData.length === 0 ? (
               <ChartEmptyState message="No trend data for this period" />
@@ -380,7 +380,7 @@ export default function SalesAnalyticsPage() {
           </div>
 
           {/* Order Status Distribution */}
-          <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-6 shadow-sm hover:shadow-xl hover:border-purple-300/50 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-6 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
             <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6">Revenue by Order Status</h3>
             {statusChartData.length === 0 ? (
               <ChartEmptyState message="No order status data available" />
@@ -418,7 +418,7 @@ export default function SalesAnalyticsPage() {
         </div>
 
         {/* Payment Methods */}
-        <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-6 shadow-sm hover:shadow-xl hover:border-violet-300/50 transition-all duration-300">
+        <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-6 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
           <h3 className="text-base sm:text-lg font-semibold text-foreground mb-4 sm:mb-6">Payment Methods</h3>
           {paymentChartData.length === 0 ? (
             <ChartEmptyState message="No payment data available" />
@@ -468,7 +468,7 @@ export default function SalesAnalyticsPage() {
         </div>
 
         {/* Data Tables with Tabs */}
-        <div className="bg-card rounded-xl border border-border/60 shadow-sm hover:shadow-xl hover:border-indigo-300/50 transition-all duration-300 overflow-hidden">
+        <div className="bg-card rounded-xl border border-border/60 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300 overflow-hidden">
           <div className="border-b border-border">
             <nav className="flex overflow-x-auto">
               {['products', 'categories', 'payments'].map((tab) => (
@@ -477,7 +477,7 @@ export default function SalesAnalyticsPage() {
                   onClick={() => setActiveTab(tab as typeof activeTab)}
                   className={`flex-1 min-w-[100px] py-3 sm:py-4 px-3 sm:px-6 text-xs sm:text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
                     activeTab === tab
-                      ? 'border-indigo-600 text-indigo-600'
+                      ? 'border-primary text-primary'
                       : 'border-transparent text-muted-foreground hover:text-foreground'
                   }`}
                 >
@@ -495,7 +495,7 @@ export default function SalesAnalyticsPage() {
                   <div key={product.productId} className="p-4 hover:bg-muted transition-colors">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-medium text-muted-foreground">#{index + 1}</span>
-                      <span className="font-semibold text-indigo-600">{formatCurrency(product.revenue)}</span>
+                      <span className="font-semibold text-primary">{formatCurrency(product.revenue)}</span>
                     </div>
                     <p className="font-medium text-foreground text-sm truncate mb-1">{product.productName}</p>
                     <div className="flex justify-between text-xs text-muted-foreground">
@@ -547,7 +547,7 @@ export default function SalesAnalyticsPage() {
                   <div key={category.categoryId} className="p-4 hover:bg-muted transition-colors">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-xs font-medium text-muted-foreground">#{index + 1}</span>
-                      <span className="font-semibold text-indigo-600">{formatCurrency(category.revenue)}</span>
+                      <span className="font-semibold text-primary">{formatCurrency(category.revenue)}</span>
                     </div>
                     <p className="font-medium text-foreground text-sm truncate mb-1">{category.categoryName}</p>
                     <div className="flex justify-between text-xs text-muted-foreground">
@@ -599,14 +599,14 @@ export default function SalesAnalyticsPage() {
                   <div key={method.method} className="p-4 hover:bg-muted transition-colors">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium text-foreground text-sm capitalize">{method.method}</span>
-                      <span className="font-semibold text-indigo-600">{formatCurrency(method.totalAmount)}</span>
+                      <span className="font-semibold text-primary">{formatCurrency(method.totalAmount)}</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-xs text-muted-foreground">{formatNumber(method.orderCount)} orders</span>
                       <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${
                         method.successRate >= 95 ? 'bg-success-muted text-success-foreground' :
-                        method.successRate >= 90 ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-red-100 text-red-700'
+                        method.successRate >= 90 ? 'bg-warning-muted text-warning' :
+                        'bg-destructive/10 text-destructive'
                       }`}>
                         {method.successRate.toFixed(1)}% success
                       </span>
@@ -637,8 +637,8 @@ export default function SalesAnalyticsPage() {
                         <td className="px-4 lg:px-6 py-4 text-right">
                           <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                             method.successRate >= 95 ? 'bg-success-muted text-success-foreground' :
-                            method.successRate >= 90 ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
+                            method.successRate >= 90 ? 'bg-warning-muted text-warning' :
+                            'bg-destructive/10 text-destructive'
                           }`}>
                             {method.successRate.toFixed(1)}%
                           </span>

@@ -176,7 +176,7 @@ export function LivePreview({ settings, tenantSlug, className, contentPages = []
         className={cn(
           'p-2 rounded-lg transition-colors',
           currentMode === mode
-            ? 'bg-purple-100 text-purple-600'
+            ? 'bg-primary/10 text-primary'
             : 'hover:bg-muted text-muted-foreground'
         )}
       >
@@ -492,7 +492,7 @@ export function LivePreview({ settings, tenantSlug, className, contentPages = []
                   </h3>
                   {settings?.productConfig?.showRatings && (
                     <div className="flex items-center gap-0.5 sm:gap-1 mt-0.5 sm:mt-1">
-                      <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-yellow-400 text-yellow-400" />
+                      <Star className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-yellow-400 text-warning" />
                       <span className="text-[8px] sm:text-xs" style={{ color: textColorMuted }}>
                         {product.rating}
                       </span>
@@ -616,7 +616,7 @@ export function LivePreview({ settings, tenantSlug, className, contentPages = []
         {isIframeLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-white/80 z-10">
             <div className="flex flex-col items-center">
-              <Loader2 className="h-6 w-6 text-purple-500 animate-spin mb-2" />
+              <Loader2 className="h-6 w-6 text-primary animate-spin mb-2" />
               <span className="text-xs text-muted-foreground">Loading storefront...</span>
             </div>
           </div>
@@ -652,7 +652,7 @@ export function LivePreview({ settings, tenantSlug, className, contentPages = []
               className={cn(
                 "px-2.5 py-1 text-xs font-medium rounded-md transition-colors",
                 previewMode === 'quick'
-                  ? "bg-purple-100 text-purple-700"
+                  ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -667,7 +667,7 @@ export function LivePreview({ settings, tenantSlug, className, contentPages = []
               className={cn(
                 "px-2.5 py-1 text-xs font-medium rounded-md transition-colors flex items-center gap-1",
                 previewMode === 'live'
-                  ? "bg-purple-100 text-purple-700"
+                  ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -781,7 +781,7 @@ export function LivePreview({ settings, tenantSlug, className, contentPages = []
             <> ({DEVICE_WIDTHS[deviceMode]})</>
           )}
           {previewMode === 'live' && (
-            <span className="ml-2 text-purple-500">• Live updates enabled</span>
+            <span className="ml-2 text-primary">• Live updates enabled</span>
           )}
         </span>
       </div>
@@ -790,7 +790,7 @@ export function LivePreview({ settings, tenantSlug, className, contentPages = []
       {isFullscreenOpen && typeof document !== 'undefined' && createPortal(
         <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex flex-col">
           {/* Modal Header */}
-          <div className="flex items-center justify-between px-4 py-3 bg-gray-900 border-b border-gray-700">
+          <div className="flex items-center justify-between px-4 py-3 bg-foreground border-b border-muted-foreground">
             <div className="flex items-center gap-4">
               <h3 className="font-medium text-white">Fullscreen Preview</h3>
               <span
@@ -814,14 +814,14 @@ export function LivePreview({ settings, tenantSlug, className, contentPages = []
                   type="button"
                   onClick={() => setPreviewDarkMode(!previewDarkMode)}
                   title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-                  className="p-2 rounded-lg hover:bg-gray-700 text-muted-foreground transition-colors"
+                  className="p-2 rounded-lg hover:bg-muted-foreground text-muted-foreground transition-colors"
                 >
                   {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
                 </button>
               )}
 
               {/* Device mode buttons for modal */}
-              <div className="flex items-center gap-1 px-2 py-1 bg-gray-800 rounded-lg">
+              <div className="flex items-center gap-1 px-2 py-1 bg-foreground/80 rounded-lg">
                 <DeviceButton mode="mobile" icon={Smartphone} isModal />
                 <DeviceButton mode="tablet" icon={Tablet} isModal />
                 <DeviceButton mode="desktop" icon={Monitor} isModal />
@@ -832,7 +832,7 @@ export function LivePreview({ settings, tenantSlug, className, contentPages = []
                 type="button"
                 onClick={() => setIsFullscreenOpen(false)}
                 title="Close fullscreen (ESC)"
-                className="p-2 rounded-lg hover:bg-gray-700 text-muted-foreground transition-colors ml-2"
+                className="p-2 rounded-lg hover:bg-muted-foreground text-muted-foreground transition-colors ml-2"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -859,14 +859,14 @@ export function LivePreview({ settings, tenantSlug, className, contentPages = []
           </div>
 
           {/* Modal Footer */}
-          <div className="px-4 py-2 bg-gray-900 border-t border-gray-700 text-center">
+          <div className="px-4 py-2 bg-foreground border-t border-muted-foreground text-center">
             <span className="text-xs text-muted-foreground">
               {DEVICE_LABELS[modalDeviceMode]} view
               {modalDeviceMode !== 'desktop' && (
                 <> ({DEVICE_WIDTHS[modalDeviceMode]})</>
               )}
               {previewMode === 'live' && (
-                <span className="ml-2 text-purple-400">• Live</span>
+                <span className="ml-2 text-primary">• Live</span>
               )}
               {' '} • Press ESC to close
             </span>

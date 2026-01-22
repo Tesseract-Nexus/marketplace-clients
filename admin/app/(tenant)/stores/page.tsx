@@ -73,7 +73,7 @@ export default function StoresPage() {
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'owner':
-        return <Badge className="bg-purple-100 text-purple-700 border-purple-200 flex items-center gap-1"><Crown className="w-3 h-3" /> Owner</Badge>;
+        return <Badge className="bg-primary/10 text-primary border-primary/30 flex items-center gap-1"><Crown className="w-3 h-3" /> Owner</Badge>;
       case 'admin':
         return <Badge className="bg-primary/20 text-primary border-primary/30">Admin</Badge>;
       default:
@@ -114,7 +114,7 @@ export default function StoresPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-sm font-medium">Independent Stores</p>
+                  <p className="text-primary/30 text-sm font-medium">Independent Stores</p>
                   <p className="text-3xl font-bold mt-1">{ownedTenants.length}</p>
                 </div>
                 <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
@@ -142,7 +142,7 @@ export default function StoresPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-violet-100 text-sm font-medium">Total Stores</p>
+                  <p className="text-primary/30 text-sm font-medium">Total Stores</p>
                   <p className="text-3xl font-bold mt-1">{ownedTenants.length + storefronts.length}</p>
                 </div>
                 <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
@@ -235,7 +235,7 @@ export default function StoresPage() {
             ) : filteredTenants.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
-                  <Building2 className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <Building2 className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
                   <p className="text-muted-foreground">No independent stores found</p>
                   <p className="text-sm text-muted-foreground mt-1">Create a new independent store with full data isolation</p>
                 </CardContent>
@@ -318,7 +318,7 @@ export default function StoresPage() {
             ) : filteredStorefronts.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
-                  <Globe className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                  <Globe className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
                   <p className="text-muted-foreground">No storefronts found</p>
                   <p className="text-sm text-muted-foreground mt-1">Create a new storefront to share data with your other brands</p>
                 </CardContent>

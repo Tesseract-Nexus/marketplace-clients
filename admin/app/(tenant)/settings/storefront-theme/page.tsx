@@ -67,7 +67,7 @@ function LoadingFallback() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20 flex items-center justify-center">
       <div className="text-center">
-        <Loader2 className="h-8 w-8 text-purple-500 animate-spin mx-auto mb-4" />
+        <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
         <p className="text-muted-foreground">Loading...</p>
       </div>
     </div>
@@ -371,8 +371,8 @@ function StorefrontThemePageContent() {
                 <Globe className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <h4 className="font-semibold text-blue-900 mb-2">How Storefronts Work</h4>
-                <ul className="text-sm text-blue-800 space-y-1.5">
+                <h4 className="font-semibold text-primary mb-2">How Storefronts Work</h4>
+                <ul className="text-sm text-primary space-y-1.5">
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-0.5">•</span>
                     <span>Each storefront gets its own <strong>unique subdomain</strong> (e.g., <code className="bg-primary/20 px-1.5 py-0.5 rounded text-xs">your-store.{getStorefrontDomain()}</code>)</span>
@@ -396,7 +396,7 @@ function StorefrontThemePageContent() {
 
           {storefronts.length === 0 && !loadingStorefronts && (
             <div className="bg-card rounded-xl border border-border p-12 text-center">
-              <Store className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+              <Store className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-xl font-semibold text-foreground mb-2">
                 Create Your First Storefront
               </h3>
@@ -437,7 +437,7 @@ function StorefrontThemePageContent() {
           />
           <div className="flex items-center justify-center py-12">
             <div className="text-center">
-              <Loader2 className="h-8 w-8 text-purple-500 animate-spin mx-auto mb-4" />
+              <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
               <p className="text-muted-foreground">Loading storefront settings...</p>
             </div>
           </div>
@@ -470,10 +470,10 @@ function StorefrontThemePageContent() {
             showUrlInfo={false}
             className="mb-6"
           />
-          <div className="bg-card rounded-xl border border-red-200 p-8 text-center">
-            <AlertCircle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+          <div className="bg-card rounded-xl border border-destructive/30 p-8 text-center">
+            <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
             <p className="text-muted-foreground mb-4">Failed to load settings for this storefront</p>
-            <Button onClick={loadSettings} className="bg-purple-600 hover:bg-purple-700 text-white">
+            <Button onClick={loadSettings} className="bg-primary hover:bg-primary text-white">
               Try Again
             </Button>
           </div>
@@ -521,7 +521,7 @@ function StorefrontThemePageContent() {
               <Button
                 onClick={handleReset}
                 variant="outline"
-                className="text-red-600 hover:bg-red-50"
+                className="text-destructive hover:bg-destructive/10"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reset All
@@ -625,7 +625,7 @@ function StorefrontThemePageContent() {
                           className={cn(
                             'flex flex-col items-center p-4 rounded-xl border-2 transition-all',
                             settings.colorMode === mode.id
-                              ? 'border-purple-500 bg-purple-50 text-purple-700'
+                              ? 'border-primary bg-primary/10 text-primary'
                               : 'border-border hover:border-border text-muted-foreground'
                           )}
                         >
@@ -689,7 +689,7 @@ function StorefrontThemePageContent() {
                   {/* Hero Section */}
                   <div>
                     <div className="flex items-center gap-2 mb-4">
-                      <Sparkles className="h-5 w-5 text-purple-500" />
+                      <Sparkles className="h-5 w-5 text-primary" />
                       <h3 className="text-lg font-semibold">Hero Section</h3>
                     </div>
 
@@ -701,7 +701,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateHomepageConfig({ heroEnabled: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm font-medium">Enable hero section</span>
                       </label>
@@ -719,7 +719,7 @@ function StorefrontThemePageContent() {
                                 updateHomepageConfig({ heroTitle: e.target.value })
                               }
                               placeholder="Welcome to Our Store"
-                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                             />
                           </div>
                           <div>
@@ -733,7 +733,7 @@ function StorefrontThemePageContent() {
                                 updateHomepageConfig({ heroSubtitle: e.target.value })
                               }
                               placeholder="Discover amazing products"
-                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                             />
                           </div>
                           <div>
@@ -747,7 +747,7 @@ function StorefrontThemePageContent() {
                                 updateHomepageConfig({ heroCtaText: e.target.value })
                               }
                               placeholder="Shop Now"
-                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                             />
                           </div>
                           <div>
@@ -761,7 +761,7 @@ function StorefrontThemePageContent() {
                                 updateHomepageConfig({ heroCtaLink: e.target.value })
                               }
                               placeholder="/products"
-                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                             />
                           </div>
                           <div className="md:col-span-2">
@@ -797,7 +797,7 @@ function StorefrontThemePageContent() {
                         onChange={(e) =>
                           updateHomepageConfig({ showNewsletter: e.target.checked })
                         }
-                        className="rounded border-border text-purple-600 focus:ring-purple-500"
+                        className="rounded border-border text-primary focus:ring-purple-500"
                       />
                       <span className="text-sm font-medium">Show newsletter signup</span>
                     </label>
@@ -819,7 +819,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateHeaderConfig({ showAnnouncement: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm font-medium">Show announcement bar</span>
                       </label>
@@ -837,7 +837,7 @@ function StorefrontThemePageContent() {
                                 updateHeaderConfig({ announcementText: e.target.value })
                               }
                               placeholder="Free shipping on orders over $50!"
-                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                             />
                           </div>
                           <div>
@@ -851,7 +851,7 @@ function StorefrontThemePageContent() {
                                 updateHeaderConfig({ announcementLink: e.target.value })
                               }
                               placeholder="/shipping"
-                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                              className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                             />
                           </div>
                         </div>
@@ -880,7 +880,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateHeaderConfig({ stickyHeader: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Sticky header (stays visible on scroll)</span>
                       </label>
@@ -891,7 +891,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateHeaderConfig({ showSearch: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Show search bar</span>
                       </label>
@@ -900,7 +900,7 @@ function StorefrontThemePageContent() {
                           type="checkbox"
                           checked={settings.headerConfig.showCart}
                           onChange={(e) => updateHeaderConfig({ showCart: e.target.checked })}
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Show cart icon</span>
                       </label>
@@ -911,7 +911,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateHeaderConfig({ showAccount: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Show account icon</span>
                       </label>
@@ -930,7 +930,7 @@ function StorefrontThemePageContent() {
 
                   {/* Content Pages Hint */}
                   <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
-                    <h4 className="font-medium text-blue-900 mb-2">Content Pages</h4>
+                    <h4 className="font-medium text-primary mb-2">Content Pages</h4>
                     <p className="text-sm text-primary mb-3">
                       Create pages like Privacy Policy, Terms of Service, About Us, etc. in{' '}
                       <Link href="/settings/content-pages" className="underline font-medium">
@@ -965,7 +965,7 @@ function StorefrontThemePageContent() {
                               gridColumns: parseInt(e.target.value) as 2 | 3 | 4,
                             })
                           }
-                          className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                          className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                         >
                           <option value={2}>2 Columns</option>
                           <option value={3}>3 Columns</option>
@@ -982,7 +982,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateProductConfig({ cardStyle: e.target.value as any })
                           }
-                          className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                          className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                         >
                           <option value="default">Default</option>
                           <option value="minimal">Minimal</option>
@@ -1000,7 +1000,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateProductConfig({ imageAspectRatio: e.target.value as any })
                           }
-                          className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                          className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                         >
                           <option value="square">Square (1:1)</option>
                           <option value="portrait">Portrait (3:4)</option>
@@ -1017,7 +1017,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateProductConfig({ hoverEffect: e.target.value as any })
                           }
-                          className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                          className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                         >
                           <option value="none">None</option>
                           <option value="zoom">Zoom</option>
@@ -1038,7 +1038,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateProductConfig({ showQuickView: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Enable quick view</span>
                       </label>
@@ -1049,7 +1049,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateProductConfig({ showWishlist: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Show wishlist button</span>
                       </label>
@@ -1060,7 +1060,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateProductConfig({ showRatings: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Show ratings</span>
                       </label>
@@ -1071,7 +1071,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateProductConfig({ showSaleBadge: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Show sale badges</span>
                       </label>
@@ -1082,7 +1082,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateProductConfig({ showStockStatus: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Show stock status</span>
                       </label>
@@ -1105,7 +1105,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateCheckoutConfig({ guestCheckoutEnabled: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm font-medium">Allow guest checkout</span>
                         <span className="text-xs text-muted-foreground">
@@ -1125,7 +1125,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateCheckoutConfig({ requirePhone: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Require phone number</span>
                       </label>
@@ -1136,7 +1136,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateCheckoutConfig({ requireCompany: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Require company name</span>
                       </label>
@@ -1153,7 +1153,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateCheckoutConfig({ showOrderNotes: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Allow order notes</span>
                       </label>
@@ -1164,7 +1164,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateCheckoutConfig({ showGiftOptions: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Show gift options</span>
                       </label>
@@ -1175,7 +1175,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateCheckoutConfig({ showTrustBadges: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Show trust badges</span>
                       </label>
@@ -1186,7 +1186,7 @@ function StorefrontThemePageContent() {
                           onChange={(e) =>
                             updateCheckoutConfig({ showPaymentIcons: e.target.checked })
                           }
-                          className="rounded border-border text-purple-600 focus:ring-purple-500"
+                          className="rounded border-border text-primary focus:ring-purple-500"
                         />
                         <span className="text-sm">Show payment method icons</span>
                       </label>
@@ -1202,7 +1202,7 @@ function StorefrontThemePageContent() {
                         onChange={(e) =>
                           updateCheckoutConfig({ showTermsCheckbox: e.target.checked })
                         }
-                        className="rounded border-border text-purple-600 focus:ring-purple-500"
+                        className="rounded border-border text-primary focus:ring-purple-500"
                       />
                       <span className="text-sm">Require terms acceptance</span>
                     </label>
@@ -1220,7 +1220,7 @@ function StorefrontThemePageContent() {
                               updateCheckoutConfig({ termsText: e.target.value })
                             }
                             placeholder="I agree to the terms and conditions"
-                            className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                           />
                         </div>
                         <div>
@@ -1234,7 +1234,7 @@ function StorefrontThemePageContent() {
                               updateCheckoutConfig({ termsLink: e.target.value })
                             }
                             placeholder="/terms"
-                            className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                            className="w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary"
                           />
                         </div>
                       </div>

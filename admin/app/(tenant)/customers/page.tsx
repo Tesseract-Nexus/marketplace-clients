@@ -290,7 +290,7 @@ export default function CustomersPage() {
               </p>
             </div>
             <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-purple-600" />
+              <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
           </div>
         </div>
@@ -416,7 +416,7 @@ export default function CustomersPage() {
                     <td className="px-4 lg:px-6 py-4 text-sm font-semibold text-foreground">
                       ${customer.totalSpent.toFixed(2)}
                     </td>
-                    <td className="px-4 lg:px-6 py-4 text-sm font-semibold text-purple-600">
+                    <td className="px-4 lg:px-6 py-4 text-sm font-semibold text-primary">
                       ${customer.lifetimeValue.toFixed(2)}
                     </td>
                     <td className="px-4 lg:px-6 py-4 text-right">
@@ -514,7 +514,7 @@ export default function CustomersPage() {
                     </div>
                     <div>
                       <div className="text-xs text-muted-foreground">LTV</div>
-                      <div className="font-semibold text-purple-600">${customer.lifetimeValue.toFixed(2)}</div>
+                      <div className="font-semibold text-primary">${customer.lifetimeValue.toFixed(2)}</div>
                     </div>
                   </div>
 
@@ -667,7 +667,7 @@ export default function CustomersPage() {
                               {tag}
                               <Button
                                 onClick={() => handleRemoveTag(tag)}
-                                className="hover:text-blue-900"
+                                className="hover:text-primary"
                               >
                                 ×
                               </Button>

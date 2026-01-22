@@ -359,7 +359,7 @@ export function BulkImportModal({
                 isDragging
                   ? "border-primary/70 bg-primary/10"
                   : file
-                    ? "border-green-400 bg-success-muted"
+                    ? "border-success bg-success-muted"
                     : "border-border hover:border-primary/70 hover:bg-primary/10/50"
               )}
             >
@@ -457,11 +457,11 @@ export function BulkImportModal({
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+            <div className="mb-4 p-4 bg-destructive/10 border border-destructive/30 rounded-xl flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-red-800">Import Error</p>
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="font-semibold text-destructive">Import Error</p>
+                <p className="text-sm text-destructive">{error}</p>
               </div>
             </div>
           )}
@@ -474,7 +474,7 @@ export function BulkImportModal({
                 ? "bg-success-muted border-success/30"
                 : result.failedCount > 0
                   ? "bg-warning-muted border-warning/30"
-                  : "bg-red-50 border-red-200"
+                  : "bg-destructive/10 border-destructive/30"
             )}>
               <div className="flex items-start gap-3">
                 {result.success && result.successCount > 0 ? (
@@ -482,7 +482,7 @@ export function BulkImportModal({
                 ) : result.failedCount > 0 && result.successCount > 0 ? (
                   <AlertTriangle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
                 ) : (
-                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                 )}
                 <div className="flex-1">
                   <p className="font-semibold text-foreground">
@@ -511,7 +511,7 @@ export function BulkImportModal({
                       </div>
                     )}
                     <div className="text-center p-2 bg-card rounded-lg">
-                      <p className="text-2xl font-bold text-red-600">{result.failedCount}</p>
+                      <p className="text-2xl font-bold text-destructive">{result.failedCount}</p>
                       <p className="text-muted-foreground">Failed</p>
                     </div>
                     {result.skippedCount && result.skippedCount > 0 && (
@@ -545,9 +545,9 @@ export function BulkImportModal({
 
                   {/* Show message when all rows failed validation */}
                   {wasValidationOnly && result.successCount === 0 && result.failedCount > 0 && (
-                    <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
-                      <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" />
-                      <p className="text-sm text-red-700">
+                    <div className="mt-3 p-3 bg-destructive/10 border border-destructive/30 rounded-lg flex items-start gap-2">
+                      <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
+                      <p className="text-sm text-destructive">
                         All rows failed validation. Please fix the errors above and re-upload the file.
                       </p>
                     </div>
@@ -559,8 +559,8 @@ export function BulkImportModal({
                       <p className="text-sm font-semibold text-foreground mb-2">Errors:</p>
                       <div className="max-h-32 overflow-y-auto space-y-1">
                         {result.errors.slice(0, 10).map((err, i) => (
-                          <div key={i} className="text-xs p-2 bg-card rounded border border-red-100">
-                            <span className="font-semibold text-red-600">Row {err.row}</span>
+                          <div key={i} className="text-xs p-2 bg-card rounded border border-destructive/20">
+                            <span className="font-semibold text-destructive">Row {err.row}</span>
                             {err.column && <span className="text-muted-foreground"> ({err.column})</span>}
                             : {err.message}
                           </div>

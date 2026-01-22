@@ -89,18 +89,18 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'owner':
-        return 'bg-purple-100 text-purple-700 border-purple-200';
+        return 'bg-primary/10 text-primary border-primary/30';
       case 'admin':
         return 'bg-primary/20 text-primary border-primary/30';
       case 'platform_admin':
-        return 'bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 border-indigo-200';
+        return 'bg-gradient-to-r from-indigo-100 to-purple-100 text-primary border-primary/30';
       case 'manager':
         return 'bg-success-muted text-success-foreground border-success/30';
       case 'staff':
       case 'member':
         return 'bg-muted text-foreground border-border';
       case 'viewer':
-        return 'bg-yellow-100 text-yellow-700 border-yellow-200';
+        return 'bg-warning-muted text-warning border-warning/30';
       default:
         return 'bg-muted text-muted-foreground border-border';
     }
@@ -287,8 +287,8 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
                 {/* Platform Tenants - Only shown to platform admins */}
                 {isPlatformAdmin && groupedTenants.platformTenants.length > 0 && (
                   <div>
-                    <div className="px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-indigo-100">
-                      <span className="text-xs font-semibold text-indigo-600 uppercase tracking-wider">
+                    <div className="px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-primary/20">
+                      <span className="text-xs font-semibold text-primary uppercase tracking-wider">
                         All Platform Tenants
                       </span>
                     </div>

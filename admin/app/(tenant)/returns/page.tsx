@@ -59,10 +59,10 @@ interface Return {
 const statusConfig: Record<string, { label: string; color: string; bgColor: string; icon: React.ElementType }> = {
   PENDING: { label: 'Pending Review', color: 'text-warning-foreground', bgColor: 'bg-warning-muted border-warning/30', icon: Clock },
   APPROVED: { label: 'Approved', color: 'text-success-foreground', bgColor: 'bg-success-muted border-success/30', icon: CheckCircle },
-  REJECTED: { label: 'Rejected', color: 'text-red-700', bgColor: 'bg-red-50 border-red-200', icon: XCircle },
+  REJECTED: { label: 'Rejected', color: 'text-destructive', bgColor: 'bg-destructive/10 border-destructive/30', icon: XCircle },
   IN_TRANSIT: { label: 'In Transit', color: 'text-primary', bgColor: 'bg-primary/10 border-primary/30', icon: Truck },
-  RECEIVED: { label: 'Received', color: 'text-indigo-700', bgColor: 'bg-indigo-50 border-indigo-200', icon: Package },
-  INSPECTING: { label: 'Inspecting', color: 'text-purple-700', bgColor: 'bg-purple-50 border-purple-200', icon: Eye },
+  RECEIVED: { label: 'Received', color: 'text-primary', bgColor: 'bg-primary/10 border-primary/30', icon: Package },
+  INSPECTING: { label: 'Inspecting', color: 'text-primary', bgColor: 'bg-primary/10 border-primary/30', icon: Eye },
   COMPLETED: { label: 'Completed', color: 'text-emerald-700', bgColor: 'bg-emerald-50 border-emerald-200', icon: CheckCircle },
   CANCELLED: { label: 'Cancelled', color: 'text-foreground', bgColor: 'bg-muted border-border', icon: XCircle },
 };
@@ -403,7 +403,7 @@ export default function ReturnsPage() {
                                   setActionType('reject');
                                   setIsActionDialogOpen(true);
                                 }}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
                               >
                                 <X className="h-4 w-4" />
                               </Button>
@@ -434,7 +434,7 @@ export default function ReturnsPage() {
                         <Badge variant="secondary" className="font-normal">
                           {reasonLabels[ret.reason] || ret.reason.replace(/_/g, ' ')}
                         </Badge>
-                        <span className="text-gray-300">|</span>
+                        <span className="text-muted-foreground">|</span>
                         <span className="text-muted-foreground">Items:</span>
                         <span className="font-medium text-foreground">{ret.items?.length || 0}</span>
                         {ret.items?.slice(0, 2).map((item, idx) => (
@@ -462,7 +462,7 @@ export default function ReturnsPage() {
               <div className="sticky top-0 bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 px-6 py-5 flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-white">{selectedReturn.rmaNumber}</h2>
-                  <p className="text-blue-100 text-sm">Order: {selectedReturn.order?.orderNumber || selectedReturn.orderId.substring(0, 8)}</p>
+                  <p className="text-primary/30 text-sm">Order: {selectedReturn.order?.orderNumber || selectedReturn.orderId.substring(0, 8)}</p>
                 </div>
                 <button
                   onClick={() => setIsDetailsOpen(false)}
@@ -599,7 +599,7 @@ export default function ReturnsPage() {
                         setIsActionDialogOpen(true);
                       }}
                       variant="outline"
-                      className="flex-1 border-red-200 text-red-600 hover:bg-red-50"
+                      className="flex-1 border-destructive/30 text-destructive hover:bg-destructive/10"
                     >
                       <X className="h-4 w-4 mr-2" />
                       Reject Return
@@ -617,7 +617,7 @@ export default function ReturnsPage() {
             <div className="bg-card rounded-2xl max-w-md w-full shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
               <div className={`px-6 py-4 ${
                 actionType === 'approve' ? 'bg-success' :
-                actionType === 'reject' ? 'bg-red-600' :
+                actionType === 'reject' ? 'bg-destructive' :
                 'bg-primary'
               }`}>
                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
@@ -658,7 +658,7 @@ export default function ReturnsPage() {
                   onClick={handleAction}
                   className={
                     actionType === 'approve' ? 'bg-success hover:bg-success text-white' :
-                    actionType === 'reject' ? 'bg-red-600 hover:bg-red-700 text-white' :
+                    actionType === 'reject' ? 'bg-destructive hover:bg-destructive text-white' :
                     'bg-primary hover:bg-primary text-white'
                   }
                 >

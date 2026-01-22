@@ -314,22 +314,22 @@ export default function StaffDocumentsPage() {
               </div>
               <div className="bg-card rounded-xl p-4 border border-border shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-yellow-100 rounded-lg">
-                    <Clock className="w-5 h-5 text-yellow-600" />
+                  <div className="p-2 bg-warning-muted rounded-lg">
+                    <Clock className="w-5 h-5 text-warning" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+                    <p className="text-2xl font-bold text-warning">{stats.pending}</p>
                     <p className="text-sm text-muted-foreground">Pending</p>
                   </div>
                 </div>
               </div>
               <div className="bg-card rounded-xl p-4 border border-border shadow-sm">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-orange-100 rounded-lg">
-                    <AlertTriangle className="w-5 h-5 text-orange-600" />
+                  <div className="p-2 bg-warning-muted rounded-lg">
+                    <AlertTriangle className="w-5 h-5 text-warning" />
                   </div>
                   <div>
-                    <p className="text-2xl font-bold text-orange-600">{stats.expired}</p>
+                    <p className="text-2xl font-bold text-warning">{stats.expired}</p>
                     <p className="text-sm text-muted-foreground">Expired</p>
                   </div>
                 </div>
@@ -443,7 +443,7 @@ export default function StaffDocumentsPage() {
                               ? 'border-success/50 bg-success-muted text-success-muted-foreground'
                               : status === 'rejected'
                               ? 'border-error/50 bg-error-muted text-error-muted-foreground'
-                              : 'border-purple-500 bg-purple-50 text-purple-700'
+                              : 'border-primary bg-primary/10 text-primary'
                             : 'border-border hover:border-border'
                         )}
                       >
@@ -502,7 +502,7 @@ export default function StaffDocumentsPage() {
                       ? 'bg-success hover:bg-success/90'
                       : verifyStatus === 'rejected'
                       ? 'bg-error hover:bg-error/90'
-                      : 'bg-purple-600 hover:bg-purple-700'
+                      : 'bg-primary hover:bg-primary'
                   )}
                 >
                   {verifying ? (

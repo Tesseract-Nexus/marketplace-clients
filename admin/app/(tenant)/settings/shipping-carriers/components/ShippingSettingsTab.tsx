@@ -391,7 +391,7 @@ export function ShippingSettingsTab() {
           <div className="px-6 pb-6 space-y-4 border-t border-border pt-4">
             {/* Shipping Markup Section */}
             <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 mb-4">
-              <p className="text-sm text-blue-800">
+              <p className="text-sm text-primary">
                 <strong>Shipping Markup:</strong> Add a percentage and/or fixed amount to carrier rates.
                 This helps absorb rate fluctuations and creates a shipping margin.
                 Customers see the final rate (carrier + markup) as a single shipping cost.

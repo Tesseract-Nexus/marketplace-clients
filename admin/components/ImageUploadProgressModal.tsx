@@ -41,7 +41,7 @@ const StatusIcon = ({ status }: { status: UploadStatus }) => {
     case 'success':
       return <CheckCircle className="w-5 h-5 text-emerald-500" />;
     case 'error':
-      return <XCircle className="w-5 h-5 text-red-500" />;
+      return <XCircle className="w-5 h-5 text-destructive" />;
   }
 };
 
@@ -122,7 +122,7 @@ export function ImageUploadProgressModal({
               {totalCount > 0 ? Math.round((successCount / totalCount) * 100) : 0}%
             </span>
           </div>
-          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+          <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div
               className={cn(
                 "h-full rounded-full transition-all duration-500 ease-out",
@@ -146,7 +146,7 @@ export function ImageUploadProgressModal({
                 className={cn(
                   "flex items-center gap-3 p-3 rounded-xl border transition-all duration-300",
                   file.status === 'success' && "bg-emerald-50 border-emerald-200",
-                  file.status === 'error' && "bg-red-50 border-red-200",
+                  file.status === 'error' && "bg-destructive/10 border-destructive/30",
                   file.status === 'uploading' && "bg-primary/10 border-primary/30",
                   file.status === 'pending' && "bg-muted border-border"
                 )}
@@ -179,7 +179,7 @@ export function ImageUploadProgressModal({
                   <p className={cn(
                     "text-sm font-medium truncate",
                     file.status === 'success' && "text-emerald-700",
-                    file.status === 'error' && "text-red-700",
+                    file.status === 'error' && "text-destructive",
                     file.status === 'uploading' && "text-primary",
                     file.status === 'pending' && "text-foreground"
                   )}>
@@ -188,7 +188,7 @@ export function ImageUploadProgressModal({
                   <p className="text-xs text-muted-foreground">
                     {formatFileSize(file.size)}
                     {file.error && (
-                      <span className="text-red-500 ml-2">{file.error}</span>
+                      <span className="text-destructive ml-2">{file.error}</span>
                     )}
                   </p>
                 </div>

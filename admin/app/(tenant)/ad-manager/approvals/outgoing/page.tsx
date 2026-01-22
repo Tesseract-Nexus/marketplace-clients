@@ -30,8 +30,8 @@ import { cn } from '@/lib/utils';
 const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ElementType; className: string; label: string }> = {
   PENDING: { variant: 'outline', icon: Clock, className: 'bg-warning-muted text-warning-foreground border-warning/30', label: 'Pending Review' },
   APPROVED: { variant: 'default', icon: CheckCircle, className: 'bg-success-muted text-success-foreground', label: 'Approved' },
-  REJECTED: { variant: 'destructive', icon: XCircle, className: 'bg-red-100 text-red-700', label: 'Rejected' },
-  REVISION_REQUESTED: { variant: 'secondary', icon: MessageSquare, className: 'bg-blue-100 text-blue-700', label: 'Revision Requested' },
+  REJECTED: { variant: 'destructive', icon: XCircle, className: 'bg-destructive/10 text-destructive', label: 'Rejected' },
+  REVISION_REQUESTED: { variant: 'secondary', icon: MessageSquare, className: 'bg-accent text-primary', label: 'Revision Requested' },
 };
 
 function formatDate(dateString: string): string {
@@ -59,13 +59,13 @@ function SubmissionCard({ submission }: { submission: AdSubmission }) {
                 'h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0',
                 submission.status === 'PENDING' ? 'bg-warning-muted' :
                 submission.status === 'APPROVED' ? 'bg-success-muted' :
-                submission.status === 'REJECTED' ? 'bg-red-100' : 'bg-blue-100'
+                submission.status === 'REJECTED' ? 'bg-destructive/10' : 'bg-accent'
               )}>
                 <StatusIcon className={cn(
                   'h-6 w-6',
                   submission.status === 'PENDING' ? 'text-warning' :
                   submission.status === 'APPROVED' ? 'text-success' :
-                  submission.status === 'REJECTED' ? 'text-red-600' : 'text-blue-600'
+                  submission.status === 'REJECTED' ? 'text-destructive' : 'text-primary'
                 )} />
               </div>
               <div>
@@ -116,9 +116,9 @@ function SubmissionCard({ submission }: { submission: AdSubmission }) {
 
             {/* Rejection reason or conditions */}
             {submission.status === 'REJECTED' && submission.rejectionReason && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-sm font-medium mb-1 text-red-700">Rejection reason:</p>
-                <p className="text-sm text-red-600">{submission.rejectionReason}</p>
+              <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
+                <p className="text-sm font-medium mb-1 text-destructive">Rejection reason:</p>
+                <p className="text-sm text-destructive">{submission.rejectionReason}</p>
               </div>
             )}
 
@@ -270,8 +270,8 @@ export default function OutgoingApprovalsPage() {
             </Card>
             <Card>
               <CardContent className="p-4 flex items-center gap-4">
-                <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center">
-                  <XCircle className="h-5 w-5 text-red-600" />
+                <div className="h-10 w-10 rounded-full bg-destructive/10 flex items-center justify-center">
+                  <XCircle className="h-5 w-5 text-destructive" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{rejectedCount}</p>
@@ -283,9 +283,9 @@ export default function OutgoingApprovalsPage() {
 
           {/* Error Banner */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-center gap-3 mb-6">
-              <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
-              <p className="text-red-800">{error}</p>
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-center gap-3 mb-6">
+              <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+              <p className="text-destructive">{error}</p>
               <Button variant="outline" size="sm" onClick={fetchSubmissions} className="ml-auto">
                 Retry
               </Button>
