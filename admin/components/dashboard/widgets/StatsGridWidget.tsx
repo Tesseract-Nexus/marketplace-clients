@@ -40,7 +40,7 @@ export function StatsGridWidget({ data }: StatsGridWidgetProps) {
       change: "+0%",
       icon: DollarSign,
       description: allTimeRevenueText,
-      color: "emerald"
+      color: "success"
     },
     {
       title: ordersText,
@@ -77,7 +77,7 @@ export function StatsGridWidget({ data }: StatsGridWidgetProps) {
   ], [orderAnalytics, stats, formatPrice, totalRevenueText, ordersText, avgOrderValueText, productsText, customersText, allTimeRevenueText, totalOrdersText, perOrderAverageText, activeProductsText, registeredUsersText]);
 
   const colorMap: Record<string, { bgColor: string; light: string; ring: string; text: string }> = {
-    emerald: { bgColor: 'bg-success', light: 'bg-success/10', ring: 'ring-success/20', text: 'text-success' },
+    success: { bgColor: 'bg-success', light: 'bg-success/10', ring: 'ring-success/20', text: 'text-success' },
     blue: { bgColor: 'bg-primary', light: 'bg-primary/10', ring: 'ring-primary/20', text: 'text-primary' },
     cyan: { bgColor: 'bg-accent', light: 'bg-accent', ring: 'ring-accent/20', text: 'text-accent-foreground' },
     violet: { bgColor: 'bg-primary', light: 'bg-primary/10', ring: 'ring-primary/20', text: 'text-primary' },

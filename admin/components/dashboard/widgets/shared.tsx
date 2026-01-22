@@ -97,7 +97,7 @@ export const CustomTooltip = ({
         {payload.map((item, index) => (
           <p key={index} className="text-sm text-muted-foreground">
             {item.name === 'revenue' ? 'Revenue: ' : 'Orders: '}
-            <span className="font-semibold text-emerald-600">
+            <span className="font-semibold text-success">
               {item.name === 'revenue' && typeof item.value === 'number'
                 ? formatCurrency(item.value, currency)
                 : item.value

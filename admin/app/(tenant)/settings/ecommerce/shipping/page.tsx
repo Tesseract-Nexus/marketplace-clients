@@ -614,7 +614,7 @@ export default function ShippingSettingsPage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
-                  <Key className="h-6 w-6 text-emerald-600" />
+                  <Key className="h-6 w-6 text-success" />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold text-foreground">Shipping Carriers</h3>
@@ -624,7 +624,7 @@ export default function ShippingSettingsPage() {
 
               {loadingCarriers ? (
                 <div className="text-center py-8">
-                  <Loader2 className="h-6 w-6 text-emerald-500 animate-spin mx-auto mb-2" />
+                  <Loader2 className="h-6 w-6 text-success animate-spin mx-auto mb-2" />
                   <p className="text-muted-foreground">Loading carrier configurations...</p>
                 </div>
               ) : (

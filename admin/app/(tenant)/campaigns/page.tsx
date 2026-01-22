@@ -263,7 +263,7 @@ export default function CampaignsPage() {
       case 'SENT':
         return 'bg-success-muted text-success-foreground border-success/30';
       case 'COMPLETED':
-        return 'bg-emerald-100 text-emerald-700 border-emerald-200';
+        return 'bg-success/10 text-success border-success/30';
       case 'PAUSED':
         return 'bg-warning-muted text-warning border-warning/30';
       case 'CANCELLED':

@@ -64,7 +64,7 @@ const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destruc
   DRAFT: { variant: 'secondary', icon: Clock, className: 'bg-muted text-foreground' },
   PENDING_APPROVAL: { variant: 'outline', icon: Send, className: 'bg-warning-muted text-warning-foreground border-warning/30' },
   APPROVED: { variant: 'default', icon: CheckCircle2, className: 'bg-success-muted text-success-foreground' },
-  ACTIVE: { variant: 'default', icon: Play, className: 'bg-emerald-100 text-emerald-700' },
+  ACTIVE: { variant: 'default', icon: Play, className: 'bg-success/10 text-success' },
   PAUSED: { variant: 'secondary', icon: PauseCircle, className: 'bg-warning-muted text-warning' },
   COMPLETED: { variant: 'secondary', icon: CheckCircle2, className: 'bg-accent text-primary' },
   REJECTED: { variant: 'destructive', icon: XCircle, className: 'bg-destructive/10 text-destructive' },

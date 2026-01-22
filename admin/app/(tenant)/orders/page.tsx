@@ -585,7 +585,7 @@ export default function OrdersPage() {
           {paymentStatusFilter !== 'ALL' && (
             <button
               onClick={() => setPaymentStatusFilter('ALL')}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-full text-sm font-medium hover:bg-emerald-100 transition-colors group"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-success/10 text-success rounded-full text-sm font-medium hover:bg-success/20 transition-colors group"
             >
               Payment: {paymentStatusFilter.replace('_', ' ')}
               <X className="w-3.5 h-3.5 opacity-60 group-hover:opacity-100" />
@@ -656,7 +656,7 @@ export default function OrdersPage() {
                           {/* Order Status Icon */}
                           <div className={cn(
                             "p-2 rounded-xl transition-all",
-                            order.status === 'COMPLETED' && "bg-emerald-100 text-emerald-600",
+                            order.status === 'COMPLETED' && "bg-success/10 text-success",
                             order.status === 'CANCELLED' && "bg-destructive/10 text-destructive",
                             order.status === 'PROCESSING' && "bg-primary/10 text-primary",
                             order.status === 'CONFIRMED' && "bg-primary/20 text-primary",
@@ -739,8 +739,8 @@ export default function OrdersPage() {
                           >
                             {copiedId === order.orderNumber ? (
                               <>
-                                <CheckCircle className="w-4 h-4 text-emerald-500" />
-                                <span className="text-emerald-600 font-medium">Copied!</span>
+                                <CheckCircle className="w-4 h-4 text-success" />
+                                <span className="text-success font-medium">Copied!</span>
                               </>
                             ) : (
                               <>

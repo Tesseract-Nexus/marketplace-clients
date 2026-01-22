@@ -28,12 +28,12 @@ const notificationIcons: Record<string, React.ElementType> = {
 };
 
 const notificationColors: Record<string, { bg: string; icon: string; border: string }> = {
-  'order.created': { bg: 'bg-emerald-50', icon: 'text-emerald-600', border: 'border-l-emerald-500' },
+  'order.created': { bg: 'bg-success/10', icon: 'text-success', border: 'border-l-success' },
   'order.status_changed': { bg: 'bg-primary/10', icon: 'text-primary', border: 'border-l-blue-500' },
   'order.cancelled': { bg: 'bg-destructive/10', icon: 'text-destructive', border: 'border-l-red-500' },
   'order.shipped': { bg: 'bg-primary/10', icon: 'text-primary', border: 'border-l-indigo-500' },
   'order.delivered': { bg: 'bg-success-muted', icon: 'text-success', border: 'border-l-green-500' },
-  'payment.captured': { bg: 'bg-emerald-50', icon: 'text-emerald-600', border: 'border-l-emerald-500' },
+  'payment.captured': { bg: 'bg-success/10', icon: 'text-success', border: 'border-l-success' },
   'payment.failed': { bg: 'bg-destructive/10', icon: 'text-destructive', border: 'border-l-red-500' },
   'payment.refunded': { bg: 'bg-warning-muted', icon: 'text-warning', border: 'border-l-amber-500' },
   'inventory.low_stock': { bg: 'bg-warning-muted', icon: 'text-warning', border: 'border-l-orange-500' },
@@ -210,7 +210,7 @@ function NotificationItem({
               {notification.title}
             </p>
             {amount !== undefined && currency && (
-              <span className="inline-flex items-center mt-1 px-2 py-0.5 text-xs font-semibold bg-emerald-100 text-emerald-700 rounded-full">
+              <span className="inline-flex items-center mt-1 px-2 py-0.5 text-xs font-semibold bg-success/10 text-success rounded-full">
                 {currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : currency + ' '}
                 {amount.toFixed(2)}
               </span>
@@ -353,7 +353,7 @@ export function NotificationBell() {
         <span
           className={cn(
             "absolute bottom-0.5 right-0.5 w-2 h-2 rounded-full border border-white",
-            isConnected ? "bg-emerald-500" : "bg-border"
+            isConnected ? "bg-success/100" : "bg-border"
           )}
           title={isConnected ? "Real-time updates active" : "Connecting..."}
         />

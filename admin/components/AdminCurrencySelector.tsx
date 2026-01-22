@@ -92,7 +92,7 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
                 <h3 className="text-sm font-semibold text-foreground">Display Currency</h3>
               </div>
               {isConverted && (
-                <div className="px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700">
+                <div className="px-2 py-0.5 text-xs font-medium rounded-full bg-success/10 text-success">
                   Converting
                 </div>
               )}
@@ -112,7 +112,7 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search currencies..."
-                className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-success focus:border-transparent"
               />
             </div>
           </div>
@@ -135,7 +135,7 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
                   className={cn(
                     "w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors",
                     selectedCurrency === currency.code
-                      ? "bg-emerald-50 text-emerald-700"
+                      ? "bg-success/10 text-success"
                       : "text-foreground hover:bg-muted"
                   )}
                 >
@@ -148,7 +148,7 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
                     </div>
                   </div>
                   {selectedCurrency === currency.code && (
-                    <Check className="h-4 w-4 text-emerald-600" />
+                    <Check className="h-4 w-4 text-success" />
                   )}
                 </button>
               ))
@@ -178,7 +178,7 @@ export function AdminCurrencySelectorCompact() {
       className={cn(
         "flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md",
         isConverted
-          ? "bg-emerald-100 text-emerald-700"
+          ? "bg-success/10 text-success"
           : "bg-muted text-muted-foreground"
       )}
       title={`Display currency: ${selectedCurrencyInfo?.name || selectedCurrency}`}

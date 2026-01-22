@@ -432,7 +432,7 @@ export default function CustomerDetailPage() {
       PROCESSING: 'bg-warning-muted text-warning',
       SHIPPED: 'bg-primary/10 text-primary',
       DELIVERED: 'bg-success-muted text-success-foreground',
-      COMPLETED: 'bg-emerald-100 text-emerald-700',
+      COMPLETED: 'bg-success/10 text-success',
       CANCELLED: 'bg-destructive/10 text-destructive',
     };
     return styles[status] || 'bg-muted text-foreground';

@@ -25,10 +25,10 @@ export function ActivityFeedWidget({ data }: ActivityFeedWidgetProps) {
   const getActivityIcon = (type: string) => {
     switch (type) {
       case 'order': return <ShoppingCart className="h-4 w-4 text-primary" />;
-      case 'customer': return <UserPlus className="h-4 w-4 text-emerald-600" />;
+      case 'customer': return <UserPlus className="h-4 w-4 text-success" />;
       case 'review': return <MessageCircle className="h-4 w-4 text-warning" />;
       case 'product': return <Package className="h-4 w-4 text-primary" />;
-      case 'payment': return <CreditCard className="h-4 w-4 text-emerald-600" />;
+      case 'payment': return <CreditCard className="h-4 w-4 text-success" />;
       default: return <Activity className="h-4 w-4 text-muted-foreground" />;
     }
   };
@@ -36,10 +36,10 @@ export function ActivityFeedWidget({ data }: ActivityFeedWidgetProps) {
   const getActivityColor = (type: string) => {
     switch (type) {
       case 'order': return 'border-primary/30 bg-primary/10/50';
-      case 'customer': return 'border-emerald-200 bg-emerald-50/50';
+      case 'customer': return 'border-success/30 bg-success/10';
       case 'review': return 'border-warning/30 bg-warning-muted/50';
       case 'product': return 'border-primary/30 bg-primary/10/50';
-      case 'payment': return 'border-emerald-200 bg-emerald-50/50';
+      case 'payment': return 'border-success/30 bg-success/10';
       default: return 'border-border bg-muted/50';
     }
   };
@@ -86,7 +86,7 @@ export function ActivityFeedWidget({ data }: ActivityFeedWidgetProps) {
                 {activity.metadata && (
                   <div className="flex items-center gap-2 text-[10px]">
                     {typeof activity.metadata.amount === 'number' && (
-                      <span className="font-semibold text-emerald-600">
+                      <span className="font-semibold text-success">
                         {formatPrice(activity.metadata.amount)}
                       </span>
                     )}

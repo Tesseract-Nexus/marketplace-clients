@@ -224,11 +224,11 @@ export default function InventoryAnalyticsPage() {
             </p>
           </div>
 
-          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-emerald-300/50 hover:-translate-y-1 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-success/30 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Total Value</p>
               <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <BarChart3 className="h-5 w-5 text-emerald-600" />
+                <BarChart3 className="h-5 w-5 text-success" />
               </div>
             </div>
             <p className="text-2xl font-bold text-foreground">

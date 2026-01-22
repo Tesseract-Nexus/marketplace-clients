@@ -63,7 +63,7 @@ const statusConfig: Record<string, { label: string; color: string; bgColor: stri
   IN_TRANSIT: { label: 'In Transit', color: 'text-primary', bgColor: 'bg-primary/10 border-primary/30', icon: Truck },
   RECEIVED: { label: 'Received', color: 'text-primary', bgColor: 'bg-primary/10 border-primary/30', icon: Package },
   INSPECTING: { label: 'Inspecting', color: 'text-primary', bgColor: 'bg-primary/10 border-primary/30', icon: Eye },
-  COMPLETED: { label: 'Completed', color: 'text-emerald-700', bgColor: 'bg-emerald-50 border-emerald-200', icon: CheckCircle },
+  COMPLETED: { label: 'Completed', color: 'text-success', bgColor: 'bg-success/10 border-success/30', icon: CheckCircle },
   CANCELLED: { label: 'Cancelled', color: 'text-foreground', bgColor: 'bg-muted border-border', icon: XCircle },
 };
 
@@ -275,14 +275,14 @@ export default function ReturnsPage() {
               </div>
             </div>
           </div>
-          <div className="bg-card rounded-xl border border-emerald-200 p-4 shadow-sm hover:shadow-md transition-shadow">
+          <div className="bg-card rounded-xl border border-success/30 p-4 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-emerald-100 rounded-lg">
-                <Package className="h-5 w-5 text-emerald-600" />
+              <div className="p-2 bg-success/10 rounded-lg">
+                <Package className="h-5 w-5 text-success" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Completed</p>
-                <p className="text-2xl font-bold text-emerald-600">{stats.completed}</p>
+                <p className="text-2xl font-bold text-success">{stats.completed}</p>
               </div>
             </div>
           </div>

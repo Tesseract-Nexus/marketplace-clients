@@ -153,7 +153,7 @@ export function ShippingCard({ order, onShipmentCreated }: ShippingCardProps) {
       PICKED_UP: 'bg-primary/10 text-primary border-primary/30',
       IN_TRANSIT: 'bg-accent text-accent-foreground border-accent',
       OUT_FOR_DELIVERY: 'bg-success-muted text-success border-success/30',
-      DELIVERED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      DELIVERED: 'bg-success/10 text-success border-success/30',
       FAILED: 'bg-destructive/10 text-destructive border-destructive/30',
       CANCELLED: 'bg-muted text-foreground border-border',
       RETURNED: 'bg-warning-muted text-warning border-warning/30',
@@ -175,7 +175,7 @@ export function ShippingCard({ order, onShipmentCreated }: ShippingCardProps) {
   const getStatusIcon = (status: ShipmentStatus) => {
     switch (status) {
       case 'DELIVERED':
-        return <CheckCircle className="w-5 h-5 text-emerald-600" />;
+        return <CheckCircle className="w-5 h-5 text-success" />;
       case 'FAILED':
       case 'CANCELLED':
         return <XCircle className="w-5 h-5 text-destructive" />;
@@ -281,7 +281,7 @@ export function ShippingCard({ order, onShipmentCreated }: ShippingCardProps) {
                   size="sm"
                   onClick={handleQuickShip}
                   disabled={quickShipping}
-                  className="bg-emerald-600 hover:bg-emerald-700"
+                  className="bg-success hover:bg-success/90"
                 >
                   {quickShipping ? (
                     <>

@@ -201,7 +201,7 @@ export default function ReturnsPage() {
       APPROVED: 'bg-primary/20 text-primary border-primary/30',
       REJECTED: 'bg-destructive/10 text-destructive border-destructive/30',
       PROCESSING: 'bg-primary/10 text-primary border-primary/30',
-      COMPLETED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      COMPLETED: 'bg-success/10 text-success border-success/30',
       CANCELLED: 'bg-muted text-foreground border-border',
     };
     return <Badge className={styles[status]}>{status}</Badge>;
@@ -211,7 +211,7 @@ export default function ReturnsPage() {
     const styles: Record<RefundStatus, string> = {
       PENDING: 'bg-warning-muted text-warning-foreground border-warning/30',
       PROCESSING: 'bg-primary/20 text-primary border-primary/30',
-      COMPLETED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      COMPLETED: 'bg-success/10 text-success border-success/30',
       FAILED: 'bg-destructive/10 text-destructive border-destructive/30',
     };
     return <Badge className={styles[status]}>Refund: {status}</Badge>;

@@ -156,7 +156,7 @@ const getStatusBadge = (status: string) => {
   switch (status) {
     case "completed":
       return (
-        <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
+        <Badge className="bg-success/10 text-success border-success/30">
           <CheckCircle2 className="w-3 h-3 mr-1" />
           Completed
         </Badge>
@@ -295,8 +295,8 @@ export default function DataImportPage() {
                   {importHistory.reduce((acc, imp) => acc + imp.successRows, 0).toLocaleString()}
                 </p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+              <div className="w-10 h-10 rounded-lg bg-success/10 dark:bg-success/10 flex items-center justify-center">
+                <CheckCircle2 className="w-5 h-5 text-success" />
               </div>
             </div>
           </CardContent>
@@ -426,7 +426,7 @@ export default function DataImportPage() {
                           </div>
                         ) : (
                           <div className="text-sm">
-                            <span className="text-emerald-600">{imp.successRows.toLocaleString()}</span>
+                            <span className="text-success">{imp.successRows.toLocaleString()}</span>
                             {imp.errorRows > 0 && (
                               <span className="text-destructive ml-2">
                                 ({imp.errorRows} errors)
@@ -476,8 +476,8 @@ export default function DataImportPage() {
           <h3 className="text-lg font-semibold mb-4">Supported File Formats</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
+              <div className="w-10 h-10 rounded-lg bg-success/10 dark:bg-success/10 flex items-center justify-center">
+                <FileSpreadsheet className="w-5 h-5 text-success" />
               </div>
               <div>
                 <p className="font-medium">CSV Files</p>
@@ -572,7 +572,7 @@ export default function DataImportPage() {
               >
                 {uploadedFile ? (
                   <div className="flex items-center justify-center gap-3">
-                    <FileSpreadsheet className="w-8 h-8 text-emerald-600" />
+                    <FileSpreadsheet className="w-8 h-8 text-success" />
                     <div className="text-left">
                       <p className="font-medium">{uploadedFile.name}</p>
                       <p className="text-sm text-muted-foreground">

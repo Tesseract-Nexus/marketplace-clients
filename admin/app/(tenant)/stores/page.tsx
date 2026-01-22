@@ -128,7 +128,7 @@ export default function StoresPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-emerald-100 text-sm font-medium">Storefronts</p>
+                  <p className="text-success-foreground text-sm font-medium">Storefronts</p>
                   <p className="text-3xl font-bold mt-1">{storefronts.length}</p>
                 </div>
                 <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
@@ -197,7 +197,7 @@ export default function StoresPage() {
                   className={cn(
                     'px-4 py-2 rounded-lg font-medium transition-all',
                     storeTypeFilter === 'storefronts'
-                      ? 'bg-emerald-600 text-white'
+                      ? 'bg-success text-white'
                       : 'bg-muted text-foreground hover:bg-muted'
                   )}
                 >
@@ -296,12 +296,12 @@ export default function StoresPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
-                <Globe className="w-5 h-5 text-emerald-600" />
+                <Globe className="w-5 h-5 text-success" />
                 Storefronts
                 <span className="text-sm font-normal text-muted-foreground">(within {currentTenant?.name})</span>
               </h2>
               <Link href="/storefronts/create">
-                <Button className="text-emerald-600 hover:bg-emerald-50 flex items-center gap-1">
+                <Button className="text-success hover:bg-success/10 flex items-center gap-1">
                   <Plus className="w-4 h-4" />
                   Add Storefront
                 </Button>
@@ -311,7 +311,7 @@ export default function StoresPage() {
             {loading ? (
               <Card>
                 <CardContent className="py-12 text-center">
-                  <Loader2 className="w-8 h-8 animate-spin text-emerald-600 mx-auto" />
+                  <Loader2 className="w-8 h-8 animate-spin text-success mx-auto" />
                   <p className="mt-2 text-muted-foreground">Loading storefronts...</p>
                 </CardContent>
               </Card>
@@ -342,20 +342,20 @@ export default function StoresPage() {
                           </div>
                           <Badge className={cn(
                             storefront.isActive
-                              ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                              ? 'bg-success/10 text-success border-success/30'
                               : 'bg-muted text-muted-foreground border-border'
                           )}>
                             {storefront.isActive ? 'Active' : 'Draft'}
                           </Badge>
                         </div>
 
-                        <h3 className="text-lg font-bold text-foreground group-hover:text-emerald-600 transition-colors">
+                        <h3 className="text-lg font-bold text-foreground group-hover:text-success transition-colors">
                           {storefront.name}
                         </h3>
                         <p className="text-sm text-muted-foreground mt-1">{storefront.slug}</p>
 
                         {storefront.customDomain && (
-                          <div className="flex items-center gap-1 mt-2 text-sm text-emerald-600">
+                          <div className="flex items-center gap-1 mt-2 text-sm text-success">
                             <ExternalLink className="w-3 h-3" />
                             {storefront.customDomain}
                           </div>
@@ -363,7 +363,7 @@ export default function StoresPage() {
 
                         <div className="mt-4 pt-4 border-t border-border flex items-center justify-between">
                           <span className="text-xs text-muted-foreground">Storefront</span>
-                          <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-emerald-600 transition-colors" />
+                          <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-success transition-colors" />
                         </div>
                       </CardContent>
                     </Card>
@@ -428,11 +428,11 @@ export default function StoresPage() {
                     onClick={() => setShowCreateModal(false)}
                     className="block"
                   >
-                    <div className="p-6 border-2 border-border rounded-xl hover:border-emerald-500 hover:bg-emerald-50/50 transition-all cursor-pointer group">
+                    <div className="p-6 border-2 border-border rounded-xl hover:border-success hover:bg-success/5 transition-all cursor-pointer group">
                       <div className="w-14 h-14 bg-success rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <Globe className="w-7 h-7 text-white" />
                       </div>
-                      <h3 className="text-lg font-bold text-foreground group-hover:text-emerald-600">
+                      <h3 className="text-lg font-bold text-foreground group-hover:text-success">
                         New Storefront
                       </h3>
                       <p className="text-sm text-muted-foreground mt-2">
@@ -440,15 +440,15 @@ export default function StoresPage() {
                       </p>
                       <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
                         <li className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-emerald-500" />
+                          <Check className="w-4 h-4 text-success" />
                           Shared products & inventory
                         </li>
                         <li className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-emerald-500" />
+                          <Check className="w-4 h-4 text-success" />
                           Shared customers
                         </li>
                         <li className="flex items-center gap-2">
-                          <Check className="w-4 h-4 text-emerald-500" />
+                          <Check className="w-4 h-4 text-success" />
                           Different branding/theme
                         </li>
                       </ul>

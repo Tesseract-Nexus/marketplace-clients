@@ -136,7 +136,7 @@ const deliveryLogs = [
 
 const getStatusBadge = (active: boolean) => {
   return active ? (
-    <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
+    <Badge className="bg-success/10 text-success border-success/30">
       <CheckCircle2 className="w-3 h-3 mr-1" />
       Active
     </Badge>
@@ -152,7 +152,7 @@ const getDeliveryStatusBadge = (status: string) => {
   switch (status) {
     case "success":
       return (
-        <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
+        <Badge className="bg-success/10 text-success border-success/30">
           <CheckCircle2 className="w-3 h-3 mr-1" />
           Success
         </Badge>
@@ -276,8 +276,8 @@ export default function WebhooksPage() {
                 <p className="text-sm text-muted-foreground">Active</p>
                 <p className="text-2xl font-bold">{activeWebhooks}</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-                <Zap className="w-5 h-5 text-emerald-600" />
+              <div className="w-10 h-10 rounded-lg bg-success/10 dark:bg-success/10 flex items-center justify-center">
+                <Zap className="w-5 h-5 text-success" />
               </div>
             </div>
           </CardContent>
@@ -354,7 +354,7 @@ export default function WebhooksPage() {
                     </div>
                     <div className="text-right text-sm">
                       <p className="text-muted-foreground">Success rate</p>
-                      <p className="font-medium text-emerald-600">{webhook.successRate}%</p>
+                      <p className="font-medium text-success">{webhook.successRate}%</p>
                     </div>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

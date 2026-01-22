@@ -233,11 +233,11 @@ export default function SalesAnalyticsPage() {
 
         {/* Key Metrics */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-          <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-xl hover:border-emerald-300/50 hover:-translate-y-1 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-xl hover:border-success/30 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Revenue</p>
               <div className="w-10 h-10 sm:w-12 sm:h-12 bg-success/10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
-                <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
+                <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-success" />
               </div>
             </div>
             <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-success">
@@ -245,11 +245,11 @@ export default function SalesAnalyticsPage() {
             </p>
             <div className="flex items-center gap-1 sm:gap-2 mt-2">
               {(data?.revenueChange || 0) >= 0 ? (
-                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 flex-shrink-0" />
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-success flex-shrink-0" />
               ) : (
                 <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
               )}
-              <span className={`text-xs sm:text-sm font-medium ${(data?.revenueChange || 0) >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
+              <span className={`text-xs sm:text-sm font-medium ${(data?.revenueChange || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
                 {formatPercent(data?.revenueChange || 0)}
               </span>
             </div>
@@ -267,11 +267,11 @@ export default function SalesAnalyticsPage() {
             </p>
             <div className="flex items-center gap-1 sm:gap-2 mt-2">
               {(data?.ordersChange || 0) >= 0 ? (
-                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 flex-shrink-0" />
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-success flex-shrink-0" />
               ) : (
                 <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
               )}
-              <span className={`text-xs sm:text-sm font-medium ${(data?.ordersChange || 0) >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
+              <span className={`text-xs sm:text-sm font-medium ${(data?.ordersChange || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
                 {formatPercent(data?.ordersChange || 0)}
               </span>
             </div>
@@ -289,11 +289,11 @@ export default function SalesAnalyticsPage() {
             </p>
             <div className="flex items-center gap-1 sm:gap-2 mt-2">
               {(data?.aovChange || 0) >= 0 ? (
-                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-emerald-600 flex-shrink-0" />
+                <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-success flex-shrink-0" />
               ) : (
                 <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
               )}
-              <span className={`text-xs sm:text-sm font-medium ${(data?.aovChange || 0) >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
+              <span className={`text-xs sm:text-sm font-medium ${(data?.aovChange || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
                 {formatPercent(data?.aovChange || 0)}
               </span>
             </div>

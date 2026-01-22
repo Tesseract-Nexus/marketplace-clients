@@ -39,7 +39,7 @@ const StatusIcon = ({ status }: { status: UploadStatus }) => {
     case 'uploading':
       return <Loader2 className="w-5 h-5 text-primary animate-spin" />;
     case 'success':
-      return <CheckCircle className="w-5 h-5 text-emerald-500" />;
+      return <CheckCircle className="w-5 h-5 text-success" />;
     case 'error':
       return <XCircle className="w-5 h-5 text-destructive" />;
   }
@@ -145,7 +145,7 @@ export function ImageUploadProgressModal({
                 key={file.id}
                 className={cn(
                   "flex items-center gap-3 p-3 rounded-xl border transition-all duration-300",
-                  file.status === 'success' && "bg-emerald-50 border-emerald-200",
+                  file.status === 'success' && "bg-success/10 border-success/30",
                   file.status === 'error' && "bg-destructive/10 border-destructive/30",
                   file.status === 'uploading' && "bg-primary/10 border-primary/30",
                   file.status === 'pending' && "bg-muted border-border"
@@ -178,7 +178,7 @@ export function ImageUploadProgressModal({
                 <div className="flex-1 min-w-0">
                   <p className={cn(
                     "text-sm font-medium truncate",
-                    file.status === 'success' && "text-emerald-700",
+                    file.status === 'success' && "text-success",
                     file.status === 'error' && "text-destructive",
                     file.status === 'uploading' && "text-primary",
                     file.status === 'pending' && "text-foreground"
@@ -204,15 +204,15 @@ export function ImageUploadProgressModal({
         {showComplete && (
           <div className="px-6 py-4 border-t border-border bg-muted">
             {isAllSuccess ? (
-              <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-                <div className="p-2 bg-emerald-500 rounded-lg">
+              <div className="flex items-center gap-3 p-3 bg-success/10 rounded-xl border border-success/30">
+                <div className="p-2 bg-success rounded-lg">
                   <CheckCircle className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <p className="text-sm font-semibold text-emerald-700">
+                  <p className="text-sm font-semibold text-success">
                     All images uploaded successfully!
                   </p>
-                  <p className="text-xs text-emerald-600">
+                  <p className="text-xs text-success-foreground">
                     {totalCount} image{totalCount !== 1 ? 's' : ''} ready for your product
                   </p>
                 </div>

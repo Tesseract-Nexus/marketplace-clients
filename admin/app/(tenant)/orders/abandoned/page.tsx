@@ -177,7 +177,7 @@ export default function AbandonedCartsPage() {
     const styles: Record<CartStatus, string> = {
       ABANDONED: 'bg-warning-muted text-warning-foreground border-warning/30',
       CONTACTED: 'bg-primary/20 text-primary border-primary/30',
-      RECOVERED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      RECOVERED: 'bg-success/10 text-success border-success/30',
       EXPIRED: 'bg-muted text-foreground border-border',
     };
     return <Badge className={styles[status]}>{status}</Badge>;

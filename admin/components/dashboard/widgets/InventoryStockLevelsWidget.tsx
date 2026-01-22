@@ -131,7 +131,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
                 <p className="text-xs text-muted-foreground"><AdminUIText text="Total Units" /></p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold text-emerald-600">
+                <p className="text-2xl font-bold text-success">
                   {inventorySummary.healthyCount}
                 </p>
                 <p className="text-xs text-muted-foreground"><AdminUIText text="Healthy Stock" /></p>

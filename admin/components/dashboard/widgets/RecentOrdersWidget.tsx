@@ -30,7 +30,7 @@ export function RecentOrdersWidget({ data }: RecentOrdersWidgetProps) {
     switch (normalizedStatus) {
       case 'delivered':
       case 'completed':
-        return <CheckCircle className="h-4 w-4 text-emerald-600" />;
+        return <CheckCircle className="h-4 w-4 text-success" />;
       case 'processing':
         return <Activity className="h-4 w-4 text-primary animate-pulse" />;
       case 'pending':
@@ -47,7 +47,7 @@ export function RecentOrdersWidget({ data }: RecentOrdersWidgetProps) {
     switch (normalizedStatus) {
       case 'delivered':
       case 'completed':
-        return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+        return 'bg-success/10 text-success border-success/30';
       case 'processing':
         return 'bg-primary/10 text-primary border-primary/30';
       case 'pending':

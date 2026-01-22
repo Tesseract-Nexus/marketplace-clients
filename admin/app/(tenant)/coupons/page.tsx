@@ -202,7 +202,7 @@ export default function CouponsPage() {
     if (percentage >= 90) return 'bg-destructive/100';
     if (percentage >= 75) return 'bg-warning';
     if (percentage >= 50) return 'bg-warning';
-    return 'bg-emerald-500';
+    return 'bg-success';
   };
 
   const stats = [

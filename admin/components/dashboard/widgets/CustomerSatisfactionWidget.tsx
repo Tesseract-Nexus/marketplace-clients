@@ -40,7 +40,7 @@ export function CustomerSatisfactionWidget({ data }: CustomerSatisfactionWidgetP
     if (!hasRatingData) {
       return { text: hasReviews ? noRatingsText : noReviewsText, color: 'text-muted-foreground' };
     }
-    if (satisfaction.avgRating >= 4.5) return { text: excellentText, color: 'text-emerald-600' };
+    if (satisfaction.avgRating >= 4.5) return { text: excellentText, color: 'text-success' };
     if (satisfaction.avgRating >= 4) return { text: greatText, color: 'text-primary' };
     if (satisfaction.avgRating >= 3) return { text: goodText, color: 'text-warning' };
     return { text: needsWorkText, color: 'text-warning' };
@@ -105,7 +105,7 @@ export function CustomerSatisfactionWidget({ data }: CustomerSatisfactionWidgetP
               <p className="text-xs text-muted-foreground"><AdminUIText text="Total Reviews" /></p>
             </div>
             <div className="text-center">
-              <p className={cn("text-2xl font-bold", hasRatingData ? "text-emerald-600" : "text-muted-foreground")}>
+              <p className={cn("text-2xl font-bold", hasRatingData ? "text-success" : "text-muted-foreground")}>
                 {hasRatingData ? `${satisfaction.satisfactionRate}%` : '—'}
               </p>
               <p className="text-xs text-muted-foreground"><AdminUIText text="Satisfied" /></p>

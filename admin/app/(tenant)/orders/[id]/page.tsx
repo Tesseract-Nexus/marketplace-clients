@@ -166,7 +166,7 @@ export default function OrderDetailsPage() {
       PROCESSING: 'bg-primary/10 text-primary border-primary/30',
       SHIPPED: 'bg-primary/10 text-primary border-primary/30',
       DELIVERED: 'bg-success-muted text-success border-success/30',
-      COMPLETED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      COMPLETED: 'bg-success/10 text-success border-success/30',
       CANCELLED: 'bg-destructive/10 text-destructive border-destructive/30',
     };
     return <Badge className={styles[status]}>{status}</Badge>;
@@ -175,7 +175,7 @@ export default function OrderDetailsPage() {
   const getPaymentBadge = (status: PaymentStatus) => {
     const styles: Record<PaymentStatus, string> = {
       PENDING: 'bg-warning-muted text-warning-foreground border-warning/30',
-      PAID: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      PAID: 'bg-success/10 text-success border-success/30',
       FAILED: 'bg-destructive/10 text-destructive border-destructive/30',
       PARTIALLY_REFUNDED: 'bg-warning-muted text-warning border-warning/30',
       REFUNDED: 'bg-warning-muted text-warning border-warning/30',
@@ -189,9 +189,9 @@ export default function OrderDetailsPage() {
       PROCESSING: 'bg-primary/20 text-primary border-primary/30',
       PACKED: 'bg-primary/10 text-primary border-primary/30',
       DISPATCHED: 'bg-accent text-accent-foreground border-accent',
-      IN_TRANSIT: 'bg-sky-100 text-sky-700 border-sky-200',
+      IN_TRANSIT: 'bg-info/10 text-info border-info/30',
       OUT_FOR_DELIVERY: 'bg-success-muted text-success border-success/30',
-      DELIVERED: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      DELIVERED: 'bg-success/10 text-success border-success/30',
       FAILED_DELIVERY: 'bg-destructive/10 text-destructive border-destructive/30',
       RETURNED: 'bg-warning-muted text-warning border-warning/30',
     };
@@ -422,7 +422,7 @@ export default function OrderDetailsPage() {
                 <div className={cn(
                   "p-3 rounded-xl",
                   order.status === 'CANCELLED' ? "bg-destructive/10" :
-                  order.status === 'DELIVERED' || order.status === 'COMPLETED' ? "bg-emerald-100" : "bg-primary/20"
+                  order.status === 'DELIVERED' || order.status === 'COMPLETED' ? "bg-success/10" : "bg-primary/20"
                 )}>
                   {getStatusIcon(order.status)}
                 </div>
@@ -437,21 +437,21 @@ export default function OrderDetailsPage() {
               {/* Payment Badge */}
               <div className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-xl border",
-                order.paymentStatus === 'PAID' ? "bg-emerald-50 border-emerald-200" :
+                order.paymentStatus === 'PAID' ? "bg-success/10 border-success/30" :
                 order.paymentStatus === 'FAILED' ? "bg-destructive/10 border-destructive/30" :
                 order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "bg-warning-muted border-warning/30" :
                 "bg-warning-muted border-warning/30"
               )}>
                 <CreditCard className={cn(
                   "w-4 h-4",
-                  order.paymentStatus === 'PAID' ? "text-emerald-600" :
+                  order.paymentStatus === 'PAID' ? "text-success" :
                   order.paymentStatus === 'FAILED' ? "text-destructive" :
                   order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "text-warning" :
                   "text-warning"
                 )} />
                 <span className={cn(
                   "text-sm font-semibold",
-                  order.paymentStatus === 'PAID' ? "text-emerald-700" :
+                  order.paymentStatus === 'PAID' ? "text-success" :
                   order.paymentStatus === 'FAILED' ? "text-destructive" :
                   order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "text-warning" :
                   "text-warning-foreground"
@@ -572,11 +572,11 @@ export default function OrderDetailsPage() {
               <CardContent>
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-bold text-foreground flex items-center gap-2">
-                    <DollarSign className="w-5 h-5 text-emerald-600" />
+                    <DollarSign className="w-5 h-5 text-success" />
                     Order Summary
                   </h3>
-                  <div className="px-3 py-1 bg-emerald-100 border border-emerald-300 rounded-full">
-                    <span className="text-emerald-700 text-sm font-semibold flex items-center gap-1">
+                  <div className="px-3 py-1 bg-success/10 border border-success/30 rounded-full">
+                    <span className="text-success text-sm font-semibold flex items-center gap-1">
                       <TrendingUp className="w-4 h-4" />
                       {order.totalItems ?? order.items?.length ?? 0} items
                     </span>
@@ -601,7 +601,7 @@ export default function OrderDetailsPage() {
                     )}
                   </div>
                   <div className="bg-success p-4 rounded-xl shadow-lg">
-                    <p className="text-xs text-emerald-100 font-semibold mb-1">Total</p>
+                    <p className="text-xs text-success-foreground/80 font-semibold mb-1">Total</p>
                     <p className={`${getDynamicFontSize(formatCurrency(order.total, order.currencyCode))} font-bold text-white whitespace-nowrap`}>{formatCurrency(order.total, order.currencyCode)}</p>
                   </div>
                 </div>

@@ -25,6 +25,13 @@ export function QuickActionsWidget() {
   const { translatedText: reviewsLabel } = useAdminTranslatedText('Reviews');
   const { translatedText: reviewsDesc } = useAdminTranslatedText('Customer feedback');
 
+  const colorMap: Record<string, { bg: string; text: string; border: string }> = {
+    blue: { bg: 'bg-primary/10', text: 'text-primary', border: 'hover:border-primary/30' },
+    success: { bg: 'bg-success/10', text: 'text-success', border: 'hover:border-success/30' },
+    violet: { bg: 'bg-primary/10', text: 'text-primary', border: 'hover:border-primary/30' },
+    amber: { bg: 'bg-warning/10', text: 'text-warning', border: 'hover:border-warning/30' },
+  };
+
   const actions = [
     {
       icon: Package,
@@ -37,7 +44,7 @@ export function QuickActionsWidget() {
       icon: Users,
       label: manageStaffLabel,
       description: manageStaffDesc,
-      color: "emerald",
+      color: "success",
       href: "/staff"
     },
     {
@@ -73,15 +80,16 @@ export function QuickActionsWidget() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {actions.map((action, index) => {
             const Icon = action.icon;
+            const colors = colorMap[action.color];
             return (
               <Link href={action.href} key={index} className="block w-full">
                 <Button
                   variant="ghost"
-                  className={`w-full h-full group p-6 text-center border border-border rounded-xl hover:border-${action.color}-300 transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-white`}
+                  className={`w-full h-full group p-6 text-center border border-border rounded-xl ${colors.border} transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-white`}
                 >
                   <div className="flex flex-col items-center">
-                    <div className={`mb-4 p-3 rounded-xl bg-${action.color}-100 group-hover:scale-110 transition-transform duration-300 w-fit`}>
-                      <Icon className={`h-6 w-6 text-${action.color}-600`} />
+                    <div className={`mb-4 p-3 rounded-xl ${colors.bg} group-hover:scale-110 transition-transform duration-300 w-fit`}>
+                      <Icon className={`h-6 w-6 ${colors.text}`} />
                     </div>
                     <div className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors mb-1">
                       {action.label}

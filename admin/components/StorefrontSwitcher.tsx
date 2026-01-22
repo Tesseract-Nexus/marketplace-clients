@@ -82,7 +82,7 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
           'flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-200',
           isOpen
             ? 'bg-success/10 border-success shadow-md'
-            : 'bg-card border-border hover:border-emerald-300 hover:hover:bg-success/5'
+            : 'bg-card border-border hover:border-success/30 hover:bg-success/5'
         )}
       >
         {/* Storefront Icon */}
@@ -134,7 +134,7 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
                   placeholder="Search storefronts..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-3 py-2 text-sm bg-muted border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className="w-full pl-10 pr-3 py-2 text-sm bg-muted border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-success focus:border-transparent"
                   autoFocus
                 />
               </div>
@@ -153,7 +153,7 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
                   key={storefront.id}
                   onClick={() => handleSelectStorefront(storefront)}
                   className={cn(
-                    'w-full flex items-center justify-between px-4 py-3 hover:hover:bg-success/5 transition-all duration-150 group',
+                    'w-full flex items-center justify-between px-4 py-3 hover:bg-success/5 transition-all duration-150 group',
                     storefront.id === currentStorefront?.id && 'bg-success/10'
                   )}
                 >
@@ -179,7 +179,7 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
                       <div className="flex items-center gap-1.5">
                         <span className="text-xs text-muted-foreground">{storefront.slug}</span>
                         {storefront.customDomain && (
-                          <span className="text-xs text-emerald-600 flex items-center gap-0.5">
+                          <span className="text-xs text-success flex items-center gap-0.5">
                             <ExternalLink className="w-3 h-3" />
                             {storefront.customDomain}
                           </span>
@@ -194,7 +194,7 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
                       className={cn(
                         'text-xs px-2 py-0.5 rounded-full font-medium',
                         storefront.isActive
-                          ? 'bg-emerald-100 text-emerald-700'
+                          ? 'bg-success/10 text-success'
                           : 'bg-muted text-muted-foreground'
                       )}
                     >
@@ -203,7 +203,7 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
 
                     {/* Check mark for selected */}
                     {storefront.id === currentStorefront?.id && (
-                      <div className="w-5 h-5 bg-emerald-600 rounded-full flex items-center justify-center">
+                      <div className="w-5 h-5 bg-success rounded-full flex items-center justify-center">
                         <Check className="w-3 h-3 text-white" />
                       </div>
                     )}
@@ -218,7 +218,7 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
             <Link
               href="/storefronts/create"
               onClick={() => setIsOpen(false)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors duration-200"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-success hover:bg-success/10 rounded-lg transition-colors duration-200"
             >
               <Plus className="w-4 h-4" />
               <span>Create New Storefront</span>

@@ -256,9 +256,9 @@ export default function CreateShipmentPage() {
     return (
       <div className="min-h-screen bg-background p-8">
         <div className="max-w-4xl mx-auto">
-          <Card className="border-emerald-200">
+          <Card className="border-success/30">
             <CardContent className="p-12 text-center">
-              <CheckCircle className="w-16 h-16 mx-auto text-emerald-500 mb-4" />
+              <CheckCircle className="w-16 h-16 mx-auto text-success mb-4" />
               <h2 className="text-xl font-bold text-foreground mb-2">Shipment Created!</h2>
               <p className="text-muted-foreground mb-6">The shipment has been created successfully. Redirecting to order...</p>
             </CardContent>
@@ -423,7 +423,7 @@ export default function CreateShipmentPage() {
             <Card>
               <CardContent>
                 <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-emerald-600" />
+                  <DollarSign className="w-5 h-5 text-success" />
                   Shipping Rates
                 </h3>
 

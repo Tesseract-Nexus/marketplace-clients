@@ -204,7 +204,7 @@ export default function IntegrationsOverviewPage() {
                         <span>{category.stats.available} available</span>
                       )}
                       {category.stats.connected !== undefined && category.stats.connected > 0 && (
-                        <span className="ml-2 text-emerald-600">
+                        <span className="ml-2 text-success">
                           {category.stats.connected} connected
                         </span>
                       )}
@@ -240,7 +240,7 @@ export default function IntegrationsOverviewPage() {
                   <Badge
                     variant="outline"
                     className={connector.status === "available"
-                      ? "mt-2 text-emerald-600 border-emerald-200 bg-emerald-50"
+                      ? "mt-2 text-success border-success/30 bg-success/10"
                       : "mt-2 text-warning border-warning/30 bg-warning-muted"
                     }
                   >

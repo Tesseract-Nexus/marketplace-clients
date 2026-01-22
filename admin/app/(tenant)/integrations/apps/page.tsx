@@ -301,7 +301,7 @@ export default function AppsPluginsPage() {
             {installedApps.map((app) => (
               <Card key={app.id} className="relative">
                 <div className="absolute top-3 right-3">
-                  <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
+                  <Badge className="bg-success/10 text-success border-success/30">
                     <CheckCircle2 className="w-3 h-3 mr-1" />
                     Installed
                   </Badge>
@@ -434,7 +434,7 @@ export default function AppsPluginsPage() {
                             {app.name}
                           </CardTitle>
                           {app.installed && (
-                            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                            <CheckCircle2 className="w-4 h-4 text-success flex-shrink-0" />
                           )}
                         </div>
                         <div className="flex items-center gap-2 mt-1">

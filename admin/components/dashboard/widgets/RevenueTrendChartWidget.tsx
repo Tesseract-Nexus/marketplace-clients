@@ -55,7 +55,7 @@ export function RevenueTrendChartWidget({ data }: RevenueTrendChartWidgetProps) 
           {payload.map((item, index) => (
             <p key={index} className="text-sm text-muted-foreground">
               {item.name === 'revenue' ? 'Revenue: ' : 'Orders: '}
-              <span className="font-semibold text-emerald-600">
+              <span className="font-semibold text-success">
                 {item.name === 'revenue' && typeof item.value === 'number'
                   ? formatPrice(item.value, adminCurrency) // Already converted, just format
                   : item.value
@@ -70,7 +70,7 @@ export function RevenueTrendChartWidget({ data }: RevenueTrendChartWidgetProps) 
   }, [formatPrice, adminCurrency]);
 
   return (
-    <DashboardCard className="border-border/50 hover:border-emerald-300/50 transition-all duration-300">
+    <DashboardCard className="border-border/50 hover:border-success/30 transition-all duration-300">
       <DashboardCardHeader className="pb-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -124,7 +124,7 @@ export function RevenueTrendChartWidget({ data }: RevenueTrendChartWidgetProps) 
         )}
         <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-border">
           <div className="text-center">
-            <p className="text-lg font-bold text-emerald-600">
+            <p className="text-lg font-bold text-success">
               {formatPrice(revenueTrendSummary.total)}
             </p>
             <p className="text-xs text-muted-foreground"><AdminUIText text="7-Day Total" /></p>
