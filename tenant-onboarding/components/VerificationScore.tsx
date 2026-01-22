@@ -204,21 +204,27 @@ export function useVerificationScore(data: {
   storeConfigComplete: boolean;
 }): VerificationItem[] {
   const weights = config.verificationScore.weights;
+  const items: VerificationItem[] = [];
 
-  return [
-    {
-      key: 'email',
-      label: 'Email Verified',
-      completed: data.emailVerified,
-      points: weights.emailVerified,
-    },
-    {
+  items.push({
+    key: 'email',
+    label: 'Email Verified',
+    completed: data.emailVerified,
+    points: weights.emailVerified,
+  });
+
+  // Only include phone verification if feature is enabled
+  if (config.features.enablePhoneVerification) {
+    items.push({
       key: 'phone',
       label: 'Phone Verified',
       completed: data.phoneVerified,
       points: weights.phoneVerified,
       optional: true,
-    },
+    });
+  }
+
+  items.push(
     {
       key: 'business',
       label: 'Business Info',
@@ -257,8 +263,10 @@ export function useVerificationScore(data: {
       label: 'Store Setup',
       completed: data.storeConfigComplete,
       points: weights.storeConfigComplete,
-    },
-  ];
+    }
+  );
+
+  return items;
 }
 
 export default VerificationScore;

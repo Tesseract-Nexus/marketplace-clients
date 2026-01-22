@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { createSanitizedHtml } from '@/lib/utils/sanitize';
 import type {
   HubPage,
   HubSection,
@@ -454,7 +455,7 @@ function TextRenderer({ content }: { content: TextContent }) {
   return (
     <div
       className="prose prose-lg max-w-none"
-      dangerouslySetInnerHTML={{ __html: content.html }}
+      dangerouslySetInnerHTML={createSanitizedHtml(content.html)}
     />
   );
 }

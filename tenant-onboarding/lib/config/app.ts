@@ -31,7 +31,8 @@ export const config = {
   // Feature Flags
   features: {
     enableEmailVerification: true,
-    enablePhoneVerification: true,
+    // Phone verification is disabled by default until SMS provider is configured
+    enablePhoneVerification: process.env.NEXT_PUBLIC_ENABLE_PHONE_VERIFICATION === 'true',
     enableBusinessValidation: true,
     enableProgressPersistence: true,
     enableAnalytics: process.env.NODE_ENV === 'production',
