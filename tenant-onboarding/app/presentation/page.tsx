@@ -381,44 +381,45 @@ export default function PresentationPage() {
       </div>
 
       {/* Controls */}
-      <div className="absolute top-6 right-6 z-50 flex gap-2">
+      <div className="absolute top-4 sm:top-6 right-4 sm:right-6 z-50 flex gap-2">
         <button
           onClick={toggleFullscreen}
-          className="p-3 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 transition-all"
+          className="hidden sm:block p-2 sm:p-3 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 transition-all"
         >
-          {isFullscreen ? <Minimize2 className="w-5 h-5 text-warm-700" /> : <Maximize2 className="w-5 h-5 text-warm-700" />}
+          {isFullscreen ? <Minimize2 className="w-4 h-4 sm:w-5 sm:h-5 text-warm-700" /> : <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5 text-warm-700" />}
         </button>
         <button
           onClick={() => router.push('/')}
-          className="p-3 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 transition-all"
+          className="p-2 sm:p-3 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 transition-all"
         >
-          <X className="w-5 h-5 text-warm-700" />
+          <X className="w-4 h-4 sm:w-5 sm:h-5 text-warm-700" />
         </button>
       </div>
 
       {/* Slide Counter */}
-      <div className="absolute bottom-6 left-6 z-50 text-sm text-muted-foreground">
+      <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 z-50 text-xs sm:text-sm text-muted-foreground">
         {currentSlide + 1} / {totalSlides}
+        <span className="md:hidden ml-2 text-foreground-tertiary">• Swipe to navigate</span>
       </div>
 
-      {/* Navigation Arrows */}
+      {/* Navigation Arrows - hidden on mobile, use swipe instead */}
       <button
         onClick={prevSlide}
         disabled={currentSlide === 0}
-        className="absolute left-6 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        className="hidden md:block absolute left-4 lg:left-6 top-1/2 -translate-y-1/2 z-50 p-2 lg:p-3 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
       >
-        <ArrowRight className="w-5 h-5 text-warm-700 rotate-180" />
+        <ArrowRight className="w-4 h-4 lg:w-5 lg:h-5 text-warm-700 rotate-180" />
       </button>
       <button
         onClick={nextSlide}
         disabled={currentSlide === totalSlides - 1}
-        className="absolute right-6 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+        className="hidden md:block absolute right-4 lg:right-6 top-1/2 -translate-y-1/2 z-50 p-2 lg:p-3 rounded-full bg-warm-100 hover:bg-warm-200 border border-warm-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
       >
-        <ArrowRight className="w-5 h-5 text-warm-700" />
+        <ArrowRight className="w-4 h-4 lg:w-5 lg:h-5 text-warm-700" />
       </button>
 
       {/* Main Content */}
-      <div className="relative h-full flex items-center justify-center p-8 md:p-16">
+      <div className="relative h-full flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-16">
         <div className="max-w-6xl w-full">
           <div className={`transition-all duration-500 ${isAnimating ? 'opacity-0 translate-y-8' : 'opacity-100 translate-y-0'}`}>
 
@@ -456,14 +457,14 @@ export default function PresentationPage() {
                   <span className="text-foreground">Traditional E-Commerce is </span>
                   <span className="text-destructive">Broken</span>
                 </h2>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
                   {problemItems.map((problem, idx) => (
-                    <div key={idx} className="bg-card border border-border rounded-2xl p-6 hover:border-destructive/30 transition-all shadow-card">
-                      <div className="w-14 h-14 rounded-xl bg-destructive/10 flex items-center justify-center mb-4">
-                        <problem.icon className="w-7 h-7 text-destructive" />
+                    <div key={idx} className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:border-destructive/30 transition-all shadow-card">
+                      <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl bg-destructive/10 flex items-center justify-center mb-3 sm:mb-4">
+                        <problem.icon className="w-5 h-5 sm:w-7 sm:h-7 text-destructive" />
                       </div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2">{problem.title}</h3>
-                      <p className="text-sm text-muted-foreground">{problem.description}</p>
+                      <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1 sm:mb-2">{problem.title}</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground">{problem.description}</p>
                     </div>
                   ))}
                 </div>
@@ -480,18 +481,18 @@ export default function PresentationPage() {
                   <span className="text-foreground">Everything You Need, </span>
                   <span className="text-foreground-secondary">All-in-One</span>
                 </h2>
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {ecosystemCards.map((card, idx) => (
-                    <div key={idx} className="bg-card border border-border rounded-2xl p-6 hover:border-warm-300 transition-colors shadow-card">
-                      <div className="w-14 h-14 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center mb-4">
-                        <card.icon className="w-7 h-7 text-foreground-secondary" />
+                    <div key={idx} className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6 hover:border-warm-300 transition-colors shadow-card">
+                      <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-lg sm:rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center mb-3 sm:mb-4">
+                        <card.icon className="w-5 h-5 sm:w-7 sm:h-7 text-foreground-secondary" />
                       </div>
-                      <h3 className="text-lg font-semibold text-foreground mb-2">{card.title}</h3>
-                      <p className="text-sm text-muted-foreground mb-4">{card.description}</p>
-                      <ul className="space-y-2">
+                      <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1 sm:mb-2">{card.title}</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">{card.description}</p>
+                      <ul className="space-y-1.5 sm:space-y-2">
                         {card.features.map((feature, fidx) => (
                           <li key={fidx} className="text-xs text-foreground-secondary flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 bg-warm-400 rounded-full" />
+                            <span className="w-1.5 h-1.5 bg-warm-400 rounded-full flex-shrink-0" />
                             {feature}
                           </li>
                         ))}
@@ -504,21 +505,21 @@ export default function PresentationPage() {
 
             {/* Slide 3: Global */}
             {currentSlide === 3 && (
-              <div className="grid grid-cols-2 gap-12 items-center">
-                <div className="flex justify-center">
-                  <div className="relative w-48 h-48">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+                <div className="flex justify-center order-2 md:order-1">
+                  <div className="relative w-32 h-32 sm:w-48 sm:h-48">
                     <div className="absolute inset-0 border border-warm-300/50 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
                     <div className="absolute inset-4 border border-warm-300/30 rounded-full animate-ping" style={{ animationDuration: '3s', animationDelay: '1s' }} />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-20 h-20 bg-primary rounded-full flex items-center justify-center">
-                      <Globe className="w-10 h-10 text-white" />
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 sm:w-20 sm:h-20 bg-primary rounded-full flex items-center justify-center">
+                      <Globe className="w-7 h-7 sm:w-10 sm:h-10 text-white" />
                     </div>
                   </div>
                 </div>
-                <div>
-                  <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
+                <div className="order-1 md:order-2 text-center md:text-left">
+                  <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-4 sm:mb-6">
                     GO GLOBAL
                   </span>
-                  <h2 className="text-4xl font-serif font-medium mb-8">
+                  <h2 className="text-3xl sm:text-4xl font-serif font-medium mb-6 sm:mb-8">
                     <span className="text-foreground">Sell Anywhere. </span>
                     <span className="text-foreground-secondary">Speak Any Language.</span>
                   </h2>
@@ -541,43 +542,43 @@ export default function PresentationPage() {
             {/* Slide 4: AI Features */}
             {currentSlide === 4 && (
               <div className="text-center">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-4 sm:mb-6">
                   AI-POWERED
                 </span>
-                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-12">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-medium mb-8 sm:mb-12">
                   <span className="text-foreground">Intelligence </span>
                   <span className="text-foreground-secondary">Built In</span>
                 </h2>
-                <div className="grid grid-cols-2 gap-8 items-start">
-                  <div className="bg-card border border-border rounded-2xl p-6 text-left shadow-card">
-                    <div className="mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 items-start">
+                  <div className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6 text-left shadow-card">
+                    <div className="mb-3 sm:mb-4">
                       <div className="text-xs text-muted-foreground uppercase tracking-wider mb-2">Generate description for:</div>
-                      <div className="text-lg font-medium text-foreground-secondary">&ldquo;Vintage Leather Messenger Bag&rdquo;</div>
+                      <div className="text-base sm:text-lg font-medium text-foreground-secondary">&ldquo;Vintage Leather Messenger Bag&rdquo;</div>
                     </div>
-                    <div className="flex gap-1.5 mb-4">
+                    <div className="flex gap-1.5 mb-3 sm:mb-4">
                       <span className="w-2 h-2 bg-warm-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
                       <span className="w-2 h-2 bg-warm-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                       <span className="w-2 h-2 bg-warm-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
-                    <div className="bg-warm-50 rounded-xl p-4 border-l-2 border-primary">
-                      <p className="text-sm text-foreground-secondary leading-relaxed">
+                    <div className="bg-warm-50 rounded-lg sm:rounded-xl p-3 sm:p-4 border-l-2 border-primary">
+                      <p className="text-xs sm:text-sm text-foreground-secondary leading-relaxed">
                         Crafted from premium full-grain leather, this vintage messenger bag combines timeless style with modern functionality. Features adjustable shoulder strap, multiple compartments, and antique brass hardware.
                       </p>
                     </div>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-3 sm:space-y-4">
                     {[
                       { icon: Package, title: 'Auto Product Descriptions', description: 'Generate SEO-optimized descriptions in seconds' },
                       { icon: Languages, title: 'Smart Translations', description: 'Auto-translate content to 27 languages' },
                       { icon: BarChart3, title: 'Intelligent Search', description: 'Typo-tolerant search with instant results' },
                     ].map((feature, idx) => (
-                      <div key={idx} className="flex gap-4 bg-card border border-border rounded-xl p-5 text-left shadow-card">
-                        <div className="w-12 h-12 bg-warm-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                          <feature.icon className="w-6 h-6 text-foreground-secondary" />
+                      <div key={idx} className="flex gap-3 sm:gap-4 bg-card border border-border rounded-lg sm:rounded-xl p-3 sm:p-5 text-left shadow-card">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-warm-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                          <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 text-foreground-secondary" />
                         </div>
                         <div>
-                          <h4 className="font-semibold text-foreground mb-1">{feature.title}</h4>
-                          <p className="text-sm text-muted-foreground">{feature.description}</p>
+                          <h4 className="font-semibold text-foreground text-sm sm:text-base mb-0.5 sm:mb-1">{feature.title}</h4>
+                          <p className="text-xs sm:text-sm text-muted-foreground">{feature.description}</p>
                         </div>
                       </div>
                     ))}
@@ -589,21 +590,21 @@ export default function PresentationPage() {
             {/* Slide 5: Security */}
             {currentSlide === 5 && (
               <div>
-                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-4 sm:mb-6">
                   ENTERPRISE SECURITY
                 </span>
-                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-12">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-medium mb-8 sm:mb-12">
                   <span className="text-foreground">Bank-Grade </span>
                   <span className="text-foreground-secondary">Security</span>
                 </h2>
-                <div className="grid grid-cols-3 gap-5">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-5">
                   {securityFeatures.map((feature, idx) => (
-                    <div key={idx} className="bg-card border border-border rounded-xl p-5 text-center hover:border-warm-300 transition-all shadow-card">
-                      <div className="w-12 h-12 bg-warm-100 rounded-xl flex items-center justify-center mx-auto mb-3">
-                        <feature.icon className="w-6 h-6 text-foreground-secondary" />
+                    <div key={idx} className="bg-card border border-border rounded-lg sm:rounded-xl p-3 sm:p-5 text-center hover:border-warm-300 transition-all shadow-card">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-warm-100 rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-2 sm:mb-3">
+                        <feature.icon className="w-5 h-5 sm:w-6 sm:h-6 text-foreground-secondary" />
                       </div>
-                      <h3 className="font-semibold text-foreground text-sm mb-1">{feature.title}</h3>
-                      <p className="text-xs text-muted-foreground">{feature.description}</p>
+                      <h3 className="font-semibold text-foreground text-xs sm:text-sm mb-0.5 sm:mb-1">{feature.title}</h3>
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">{feature.description}</p>
                     </div>
                   ))}
                 </div>
@@ -613,21 +614,21 @@ export default function PresentationPage() {
             {/* Slide 6: Features */}
             {currentSlide === 6 && (
               <div>
-                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-4 sm:mb-6">
                   POWERFUL FEATURES
                 </span>
-                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-10">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-medium mb-6 sm:mb-10">
                   <span className="text-foreground">Everything to </span>
                   <span className="text-foreground-secondary">Succeed</span>
                 </h2>
-                <div className="grid grid-cols-3 gap-5">
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5">
                   {featureCategories.map((cat, idx) => (
-                    <div key={idx} className="bg-card border border-border rounded-xl p-5 shadow-card">
-                      <h4 className="font-semibold text-foreground-secondary text-sm mb-3 pb-3 border-b border-border">{cat.title}</h4>
-                      <ul className="space-y-2">
+                    <div key={idx} className="bg-card border border-border rounded-lg sm:rounded-xl p-3 sm:p-5 shadow-card">
+                      <h4 className="font-semibold text-foreground-secondary text-xs sm:text-sm mb-2 sm:mb-3 pb-2 sm:pb-3 border-b border-border">{cat.title}</h4>
+                      <ul className="space-y-1.5 sm:space-y-2">
                         {cat.features.map((feature, fidx) => (
-                          <li key={fidx} className="text-xs text-muted-foreground flex items-center gap-2">
-                            <CheckCircle2 className="w-3 h-3 text-sage-500" />
+                          <li key={fidx} className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1.5 sm:gap-2">
+                            <CheckCircle2 className="w-3 h-3 text-sage-500 flex-shrink-0" />
                             {feature}
                           </li>
                         ))}
@@ -641,32 +642,32 @@ export default function PresentationPage() {
             {/* Slide 7: Pricing */}
             {currentSlide === 7 && (
               <div className="text-center">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-4 sm:mb-6">
                   SIMPLE PRICING
                 </span>
-                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-4">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-medium mb-3 sm:mb-4">
                   <span className="text-foreground">Simple, </span>
                   <span className="text-foreground-secondary">honest pricing</span>
                 </h2>
-                <p className="text-muted-foreground mb-10">Start free. Stay free for a year. Then one flat price.</p>
+                <p className="text-sm sm:text-base text-muted-foreground mb-6 sm:mb-10">Start free. Stay free for a year. Then one flat price.</p>
 
                 {/* Single Pricing Card - matching home page */}
-                <div className="max-w-3xl mx-auto rounded-2xl border border-warm-200 bg-white p-8 shadow-card">
-                  <div className="flex flex-col md:flex-row gap-8">
+                <div className="max-w-3xl mx-auto rounded-xl sm:rounded-2xl border border-warm-200 bg-white p-4 sm:p-8 shadow-card">
+                  <div className="flex flex-col md:flex-row gap-6 sm:gap-8">
                     {/* Left - Price */}
                     <div className="md:w-1/2 text-left">
-                      <div className="mb-4">
+                      <div className="mb-3 sm:mb-4">
                         <div className="flex items-baseline gap-2 mb-2">
-                          <span className="text-5xl font-serif font-medium text-foreground">₹0</span>
-                          <span className="text-foreground-secondary">/month</span>
+                          <span className="text-4xl sm:text-5xl font-serif font-medium text-foreground">₹0</span>
+                          <span className="text-foreground-secondary text-sm sm:text-base">/month</span>
                         </div>
-                        <p className="text-foreground-secondary">
+                        <p className="text-sm sm:text-base text-foreground-secondary">
                           for your first <span className="font-semibold text-foreground">12 months</span>
                         </p>
                       </div>
 
-                      <div className="p-3 rounded-lg bg-warm-50 border border-warm-200 mb-6">
-                        <p className="text-sm text-foreground-secondary">
+                      <div className="p-2.5 sm:p-3 rounded-lg bg-warm-50 border border-warm-200 mb-4 sm:mb-6">
+                        <p className="text-xs sm:text-sm text-foreground-secondary">
                           Then just <span className="font-semibold text-foreground text-lg">{monthlyPrice}/month</span>
                           <br />
                           <span className="text-foreground-tertiary">No transaction fees. No hidden costs.</span>
@@ -701,29 +702,29 @@ export default function PresentationPage() {
             {/* Slide 8: Testimonials */}
             {currentSlide === 8 && (
               <div className="text-center">
-                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-4 sm:mb-6">
                   TRUSTED BY THOUSANDS
                 </span>
-                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-12">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-medium mb-6 sm:mb-12">
                   <span className="text-foreground">What Our </span>
                   <span className="text-foreground-secondary">Customers Say</span>
                 </h2>
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                   {testimonials.map((t, idx) => (
-                    <div key={idx} className="bg-card border border-border rounded-2xl p-6 text-left shadow-card">
-                      <div className="flex gap-1 mb-4">
+                    <div key={idx} className="bg-card border border-border rounded-xl sm:rounded-2xl p-4 sm:p-6 text-left shadow-card">
+                      <div className="flex gap-1 mb-3 sm:mb-4">
                         {[...Array(t.rating)].map((_, i) => (
-                          <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
+                          <Star key={i} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-amber-400 text-amber-400" />
                         ))}
                       </div>
-                      <p className="text-sm text-foreground-secondary mb-4 italic">&ldquo;{t.content}&rdquo;</p>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-xs font-bold text-white">
+                      <p className="text-xs sm:text-sm text-foreground-secondary mb-3 sm:mb-4 italic">&ldquo;{t.content}&rdquo;</p>
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold text-white">
                           {t.avatar}
                         </div>
                         <div>
-                          <div className="font-semibold text-foreground text-sm">{t.name}</div>
-                          <div className="text-xs text-muted-foreground">{t.role}, {t.company}</div>
+                          <div className="font-semibold text-foreground text-xs sm:text-sm">{t.name}</div>
+                          <div className="text-[10px] sm:text-xs text-muted-foreground">{t.role}, {t.company}</div>
                         </div>
                       </div>
                     </div>
@@ -735,30 +736,30 @@ export default function PresentationPage() {
             {/* Slide 9: Comparison */}
             {currentSlide === 9 && (
               <div>
-                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-6">
+                <span className="inline-block px-4 py-1.5 rounded-full bg-warm-100 border border-warm-200 text-foreground-secondary text-xs font-semibold tracking-widest mb-4 sm:mb-6">
                   WHY TESSERIX
                 </span>
-                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-10">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-medium mb-6 sm:mb-10">
                   <span className="text-foreground">The </span>
                   <span className="text-foreground-secondary">Clear Choice</span>
                 </h2>
-                <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-card">
-                  <table className="w-full">
+                <div className="bg-card border border-border rounded-xl sm:rounded-2xl overflow-hidden shadow-card overflow-x-auto">
+                  <table className="w-full min-w-[500px]">
                     <thead>
                       <tr className="bg-warm-100">
-                        <th className="p-4 text-left text-sm font-semibold text-muted-foreground">Feature</th>
-                        <th className="p-4 text-left text-sm font-semibold text-foreground-secondary bg-warm-200/50">Tesserix</th>
-                        <th className="p-4 text-left text-sm font-semibold text-muted-foreground">Shopify</th>
-                        <th className="p-4 text-left text-sm font-semibold text-muted-foreground">WooCommerce</th>
+                        <th className="p-2.5 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">Feature</th>
+                        <th className="p-2.5 sm:p-4 text-left text-xs sm:text-sm font-semibold text-foreground-secondary bg-warm-200/50">Tesserix</th>
+                        <th className="p-2.5 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">Shopify</th>
+                        <th className="p-2.5 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">WooCommerce</th>
                       </tr>
                     </thead>
                     <tbody>
                       {comparisonData.map((row, idx) => (
                         <tr key={idx} className="border-t border-border">
-                          <td className="p-4 text-sm text-foreground">{row.feature}</td>
-                          <td className="p-4 text-sm font-semibold text-sage-600 bg-warm-50">{row.tesseract}</td>
-                          <td className="p-4 text-sm text-muted-foreground">{row.shopify}</td>
-                          <td className="p-4 text-sm text-muted-foreground">{row.woo}</td>
+                          <td className="p-2.5 sm:p-4 text-xs sm:text-sm text-foreground">{row.feature}</td>
+                          <td className="p-2.5 sm:p-4 text-xs sm:text-sm font-semibold text-sage-600 bg-warm-50">{row.tesseract}</td>
+                          <td className="p-2.5 sm:p-4 text-xs sm:text-sm text-muted-foreground">{row.shopify}</td>
+                          <td className="p-2.5 sm:p-4 text-xs sm:text-sm text-muted-foreground">{row.woo}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -770,24 +771,24 @@ export default function PresentationPage() {
             {/* Slide 10: CTA */}
             {currentSlide === 10 && (
               <div className="text-center">
-                <h2 className="text-4xl md:text-5xl font-serif font-medium mb-6">
+                <h2 className="text-3xl sm:text-4xl md:text-5xl font-serif font-medium mb-4 sm:mb-6">
                   <span className="text-foreground">Ready to Transform</span>
                   <br />
                   <span className="text-foreground-secondary">Your Business?</span>
                 </h2>
-                <p className="text-lg text-muted-foreground mb-10 max-w-xl mx-auto">
+                <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-xl mx-auto">
                   Join thousands of brands already growing with Tesserix. Start your free trial today.
                 </p>
-                <div className="flex items-center justify-center gap-4 mb-10">
+                <div className="flex items-center justify-center gap-4 mb-8 sm:mb-10">
                   <button
                     onClick={() => router.push('/onboarding')}
-                    className="px-8 py-4 bg-primary hover:bg-primary-hover text-primary-foreground rounded-full font-semibold text-lg transition-all flex items-center gap-2"
+                    className="px-6 sm:px-8 py-3 sm:py-4 bg-primary hover:bg-primary-hover text-primary-foreground rounded-full font-semibold text-base sm:text-lg transition-all flex items-center gap-2"
                   >
                     Start Free Trial
-                    <ArrowRight className="w-5 h-5" />
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
-                <div className="flex items-center justify-center gap-8 text-sm text-muted-foreground">
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-8 text-xs sm:text-sm text-muted-foreground">
                   <span className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-sage-500" />
                     Free 14-day trial
