@@ -321,7 +321,7 @@ export default function WebhooksPage() {
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-warning flex items-center justify-center">
                       <Webhook className="w-6 h-6 text-white" />
                     </div>
                     <div>

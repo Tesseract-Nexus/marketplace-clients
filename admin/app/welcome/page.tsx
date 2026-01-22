@@ -298,7 +298,7 @@ function WelcomeContent() {
           {/* Success icon with glow */}
           <div className="relative inline-block mb-4">
             <div className="absolute inset-0 w-20 h-20 mx-auto rounded-full bg-success blur-xl opacity-30 animate-pulse" />
-            <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 shadow-lg shadow-green-500/30">
+            <div className="relative inline-flex items-center justify-center w-20 h-20 rounded-full bg-success shadow-lg shadow-green-500/30">
               <CheckCircle className="w-10 h-10 text-white" />
             </div>
           </div>
@@ -327,7 +327,7 @@ function WelcomeContent() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
-            <div className="p-3 rounded-xl bg-gradient-to-br from-gray-50 to-blue-50/30 border border-border/50">
+            <div className="p-3 rounded-xl bg-muted border border-border/50">
               <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1.5">
                 <Building2 className="w-3 h-3" />
                 Business Name
@@ -336,7 +336,7 @@ function WelcomeContent() {
                 {onboardingData?.businessName || 'Not provided'}
               </p>
             </div>
-            <div className="p-3 rounded-xl bg-gradient-to-br from-gray-50 to-violet-50/30 border border-border/50">
+            <div className="p-3 rounded-xl bg-muted border border-border/50">
               <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3" />
                 Industry
@@ -345,7 +345,7 @@ function WelcomeContent() {
                 {onboardingData?.industry || 'Not specified'}
               </p>
             </div>
-            <div className="p-3 rounded-xl bg-gradient-to-br from-gray-50 to-purple-50/30 border border-border/50">
+            <div className="p-3 rounded-xl bg-muted border border-border/50">
               <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1.5">
                 <Mail className="w-3 h-3" />
                 Email
@@ -354,7 +354,7 @@ function WelcomeContent() {
                 {onboardingData?.email || 'Not provided'}
               </p>
             </div>
-            <div className="p-3 rounded-xl bg-gradient-to-br from-gray-50 to-pink-50/30 border border-border/50">
+            <div className="p-3 rounded-xl bg-muted border border-border/50">
               <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1.5">
                 <Building2 className="w-3 h-3" />
                 Location
@@ -493,7 +493,7 @@ function WelcomeContent() {
             <Button
               type="submit"
               disabled={isSubmitting || !password || !confirmPassword || passwordStrength === 'weak'}
-              className="w-full h-10 text-sm font-semibold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 hover:from-blue-700 hover:via-violet-700 hover:to-purple-700 text-white shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="w-full h-10 text-sm font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {isSubmitting ? (
                 <div className="flex items-center gap-2">

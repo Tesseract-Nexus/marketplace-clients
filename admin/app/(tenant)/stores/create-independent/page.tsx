@@ -186,7 +186,7 @@ export default function CreateIndependentStorePage() {
                 <div
                   className={cn(
                     'w-16 h-1 rounded-full transition-all',
-                    step > s ? 'bg-gradient-to-r from-blue-600 to-violet-600' : 'bg-muted'
+                    step > s ? 'bg-primary' : 'bg-muted'
                   )}
                 />
               )}

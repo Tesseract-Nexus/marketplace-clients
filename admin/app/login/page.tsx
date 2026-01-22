@@ -308,7 +308,7 @@ function LoginPageContent() {
   // Show loading state while checking authentication
   if (authLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-violet-900">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-white" />
           <p className="text-white/80">Loading...</p>
@@ -321,7 +321,7 @@ function LoginPageContent() {
   // (When handling unauthorized error, we need to show the login form with the error message)
   if (isAuthenticated && !handledUrlError) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-violet-900">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-white" />
           <p className="text-white/80">Redirecting...</p>
@@ -337,7 +337,7 @@ function LoginPageContent() {
         return (
           <>
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-violet-600 to-purple-600 shadow-lg shadow-primary/30 mb-3">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary shadow-lg shadow-primary/30 mb-3">
                 <Sparkles className="w-7 h-7 text-white" />
               </div>
               <h1 className="text-2xl font-bold text-primary mb-1">
@@ -377,7 +377,7 @@ function LoginPageContent() {
               <Button
                 type="submit"
                 disabled={isLoading || !email}
-                className="w-full h-12 text-sm font-semibold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 hover:from-blue-700 hover:via-violet-700 hover:to-purple-700 text-white shadow-lg shadow-primary/30 transition-all duration-300"
+                className="w-full h-12 text-sm font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all duration-300"
               >
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -410,7 +410,7 @@ function LoginPageContent() {
               >
                 <ArrowLeft className="h-5 w-5 text-muted-foreground" />
               </button>
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-violet-600 to-purple-600 shadow-lg shadow-primary/30 mb-3">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary shadow-lg shadow-primary/30 mb-3">
                 <Building2 className="w-7 h-7 text-white" />
               </div>
               <h2 className="text-xl font-semibold text-foreground mb-1">Select Organization</h2>
@@ -455,7 +455,7 @@ function LoginPageContent() {
               >
                 <ArrowLeft className="h-5 w-5 text-muted-foreground" />
               </button>
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-violet-600 to-purple-600 shadow-lg shadow-primary/30 mb-3">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary shadow-lg shadow-primary/30 mb-3">
                 <Lock className="w-7 h-7 text-white" />
               </div>
               <h2 className="text-xl font-semibold text-foreground mb-1">Enter Password</h2>
@@ -532,7 +532,7 @@ function LoginPageContent() {
               <Button
                 type="submit"
                 disabled={isLoading || !password}
-                className="w-full h-12 text-sm font-semibold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 hover:from-blue-700 hover:via-violet-700 hover:to-purple-700 text-white shadow-lg shadow-primary/30 transition-all duration-300"
+                className="w-full h-12 text-sm font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all duration-300"
               >
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -570,7 +570,7 @@ function LoginPageContent() {
           alt="Marketplace background"
           className="w-full h-full object-cover animate-slow-zoom"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-blue-900/50 to-violet-900/60" />
+        <div className="absolute inset-0 bg-background/80" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
       </div>
 

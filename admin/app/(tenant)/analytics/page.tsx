@@ -200,7 +200,7 @@ export default function AnalyticsOverviewPage() {
           <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-xl hover:border-emerald-300/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Revenue</p>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-emerald-100 to-green-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-success/10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                 <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
               </div>
             </div>
@@ -224,7 +224,7 @@ export default function AnalyticsOverviewPage() {
           <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-xl hover:border-primary/50/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Orders</p>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                 <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
             </div>
@@ -264,7 +264,7 @@ export default function AnalyticsOverviewPage() {
           <div className="group bg-card rounded-xl border border-border/60 p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-xl hover:border-warning/40/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-3 sm:mb-4">
               <p className="text-xs sm:text-sm font-medium text-muted-foreground">Active Products</p>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-warning/10 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
                 <Package className="h-5 w-5 sm:h-6 sm:w-6 text-warning" />
               </div>
             </div>
@@ -455,7 +455,7 @@ export default function AnalyticsOverviewPage() {
           <Link href="/analytics/inventory" className="group sm:col-span-2 lg:col-span-1">
             <div className="bg-card rounded-xl border border-border p-4 sm:p-5 lg:p-6 shadow-sm hover:shadow-md hover:border-warning/30 transition-all">
               <div className="flex items-center gap-3 sm:gap-4">
-                <div className="w-11 h-11 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
+                <div className="w-11 h-11 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-warning/10 rounded-lg sm:rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0">
                   <Package className="h-5 w-5 sm:h-6 sm:w-6 lg:h-7 lg:w-7 text-warning" />
                 </div>
                 <div className="min-w-0">

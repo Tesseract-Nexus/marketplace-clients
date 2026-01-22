@@ -21,7 +21,7 @@ export default function ResetPasswordPage() {
           alt="Background"
           className="w-full h-full object-cover animate-slow-zoom"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-blue-900/50 to-violet-900/60" />
+        <div className="absolute inset-0 bg-background/80" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
       </div>
 
@@ -42,7 +42,7 @@ export default function ResetPasswordPage() {
             >
               <ArrowLeft className="h-5 w-5 text-muted-foreground" />
             </button>
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-violet-600 to-purple-600 shadow-lg shadow-primary/30 mb-3">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary shadow-lg shadow-primary/30 mb-3">
               <Sparkles className="w-7 h-7 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-primary mb-1">
@@ -63,7 +63,7 @@ export default function ResetPasswordPage() {
 
           <Button
             onClick={handleBackToLogin}
-            className="w-full h-12 text-sm font-semibold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 hover:from-blue-700 hover:via-violet-700 hover:to-purple-700 text-white shadow-lg shadow-primary/30 transition-all duration-300"
+            className="w-full h-12 text-sm font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all duration-300"
           >
             Continue to Sign In
           </Button>

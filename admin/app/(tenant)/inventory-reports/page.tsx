@@ -269,7 +269,7 @@ export default function InventoryReportsPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Low Stock Items</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-yellow-100 to-amber-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
                 <AlertTriangle className="h-6 w-6 text-warning" />
               </div>
             </div>
@@ -282,7 +282,7 @@ export default function InventoryReportsPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Out of Stock</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-pink-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-destructive/10 rounded-lg flex items-center justify-center">
                 <AlertTriangle className="h-6 w-6 text-destructive" />
               </div>
             </div>

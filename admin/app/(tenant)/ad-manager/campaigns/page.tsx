@@ -61,7 +61,7 @@ const statusOptions = [
 
 // Status badge styling
 const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ElementType; className?: string }> = {
-  DRAFT: { variant: 'secondary', icon: Clock, className: 'bg-slate-100 text-slate-700' },
+  DRAFT: { variant: 'secondary', icon: Clock, className: 'bg-muted text-foreground' },
   PENDING_APPROVAL: { variant: 'outline', icon: Send, className: 'bg-warning-muted text-warning-foreground border-warning/30' },
   APPROVED: { variant: 'default', icon: CheckCircle2, className: 'bg-success-muted text-success-foreground' },
   ACTIVE: { variant: 'default', icon: Play, className: 'bg-emerald-100 text-emerald-700' },

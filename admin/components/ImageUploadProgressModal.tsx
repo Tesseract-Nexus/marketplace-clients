@@ -202,7 +202,7 @@ export function ImageUploadProgressModal({
 
         {/* Footer */}
         {showComplete && (
-          <div className="px-6 py-4 border-t border-border bg-gradient-to-r from-gray-50 to-white">
+          <div className="px-6 py-4 border-t border-border bg-muted">
             {isAllSuccess ? (
               <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-xl border border-emerald-200">
                 <div className="p-2 bg-emerald-500 rounded-lg">

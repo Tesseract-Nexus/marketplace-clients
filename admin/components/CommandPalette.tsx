@@ -641,7 +641,7 @@ function renderResultItem(
     order: 'text-warning bg-warning-muted',
     category: 'text-primary bg-primary/10',
     page: 'text-muted-foreground bg-muted',
-    setting: 'text-slate-600 bg-slate-100',
+    setting: 'text-muted-foreground bg-muted',
     action: 'text-primary bg-primary/10',
     recent: 'text-muted-foreground bg-muted',
   };

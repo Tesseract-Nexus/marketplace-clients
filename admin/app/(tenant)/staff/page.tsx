@@ -713,7 +713,7 @@ export default function StaffPage() {
                 <div className="mt-6 pt-6 border-t border-border">
                   <Button
                     onClick={() => handleSendInvitation(selectedStaff)}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white rounded-xl hover:from-yellow-600 hover:to-orange-600 transition-all duration-200 shadow-lg hover:shadow-xl"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-warning text-warning-foreground rounded-xl hover:bg-warning/90 transition-all duration-200 shadow-lg hover:shadow-xl"
                   >
                     <Send className="w-5 h-5" />
                     Send Invitation

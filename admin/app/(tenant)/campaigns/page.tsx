@@ -620,7 +620,7 @@ export default function CampaignsPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
                 <TrendingUp className="h-6 w-6 text-warning" />
               </div>
             </div>

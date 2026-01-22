@@ -38,8 +38,8 @@ const ERROR_CONFIGS: Record<Exclude<ErrorType, 'custom'>, ErrorStateConfig> = {
   },
   not_found: {
     icon: FileX,
-    iconBgColor: 'bg-slate-100 dark:bg-slate-800',
-    iconColor: 'text-slate-500',
+    iconBgColor: 'bg-muted dark:bg-sidebar',
+    iconColor: 'text-muted-foreground',
     title: 'Not Found',
     description: 'The resource you\'re looking for doesn\'t exist or has been moved.',
   },
@@ -102,8 +102,8 @@ export function ErrorState({
   const config = type !== 'custom' ? ERROR_CONFIGS[type] : null;
 
   const IconComponent = icon || config?.icon || AlertTriangle;
-  const finalIconBgColor = iconBgColor || config?.iconBgColor || 'bg-slate-100';
-  const finalIconColor = iconColor || config?.iconColor || 'text-slate-500';
+  const finalIconBgColor = iconBgColor || config?.iconBgColor || 'bg-muted';
+  const finalIconColor = iconColor || config?.iconColor || 'text-muted-foreground';
   const finalTitle = title || config?.title || 'Error';
   const finalDescription = description || config?.description || 'An error occurred.';
 
@@ -203,7 +203,7 @@ export function ErrorState({
             <div className="space-y-3 mt-8">
               {showRetryButton && (
                 <Button
-                  className="w-full h-12 bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 hover:from-blue-700 hover:via-violet-700 hover:to-purple-700 text-white shadow-lg"
+                  className="w-full h-12 bg-primary hover:bg-primary/90 text-white shadow-lg"
                   onClick={handleRetry}
                 >
                   <RefreshCw className="h-4 w-4 mr-2" />
@@ -228,7 +228,7 @@ export function ErrorState({
                     variant={action.variant || 'outline'}
                     className={cn(
                       'w-full h-12',
-                      action.variant === 'default' && 'bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 hover:from-blue-700 hover:via-violet-700 hover:to-purple-700 text-white shadow-lg'
+                      action.variant === 'default' && 'bg-primary hover:bg-primary/90 text-white shadow-lg'
                     )}
                     onClick={action.onClick}
                   >

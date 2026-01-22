@@ -65,7 +65,7 @@ import {
 // Loading fallback component
 function LoadingFallback() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20 flex items-center justify-center">
+    <div className="min-h-screen bg-muted flex items-center justify-center">
       <div className="text-center">
         <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
         <p className="text-muted-foreground">Loading...</p>
@@ -339,7 +339,7 @@ function StorefrontThemePageContent() {
   // Show storefront selector first, then loading/content
   if (!selectedStorefront) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20">
+      <div className="min-h-screen bg-muted">
         <div className="p-8 space-y-6 animate-in fade-in duration-500">
           <PageHeader
             title="Storefront Customization"
@@ -413,7 +413,7 @@ function StorefrontThemePageContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20">
+      <div className="min-h-screen bg-muted">
         <div className="p-8 space-y-6">
           <PageHeader
             title="Storefront Customization"
@@ -448,7 +448,7 @@ function StorefrontThemePageContent() {
 
   if (!settings) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20">
+      <div className="min-h-screen bg-muted">
         <div className="p-8 space-y-6">
           <PageHeader
             title="Storefront Customization"
@@ -489,7 +489,7 @@ function StorefrontThemePageContent() {
       fallbackTitle="Storefront Settings"
       fallbackDescription="You don't have permission to manage storefront themes."
     >
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20">
+    <div className="min-h-screen bg-muted">
       <div className="p-8 space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Storefront Customization"
@@ -529,7 +529,7 @@ function StorefrontThemePageContent() {
               <Button
                 onClick={handleSave}
                 disabled={!hasChanges || isSaving}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:opacity-90"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {isSaving ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -566,7 +566,7 @@ function StorefrontThemePageContent() {
                   className={cn(
                     'w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left mb-1',
                     activeTab === tab.id
-                      ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
+                      ? 'bg-primary text-primary-foreground shadow-md'
                       : 'text-foreground hover:bg-muted'
                   )}
                 >

@@ -638,8 +638,8 @@ export default function OrdersPage() {
                     className={cn(
                       "h-full transition-all duration-700 ease-out",
                       order.fulfillmentStatus === 'DELIVERED' && "bg-gradient-to-r from-emerald-400 to-teal-500",
-                      order.fulfillmentStatus === 'FAILED_DELIVERY' && "bg-gradient-to-r from-red-400 to-red-500",
-                      order.fulfillmentStatus === 'RETURNED' && "bg-gradient-to-r from-orange-400 to-amber-500",
+                      order.fulfillmentStatus === 'FAILED_DELIVERY' && "bg-destructive",
+                      order.fulfillmentStatus === 'RETURNED' && "bg-warning",
                       !['DELIVERED', 'FAILED_DELIVERY', 'RETURNED'].includes(order.fulfillmentStatus) && "bg-gradient-to-r from-blue-400 via-cyan-500 to-teal-400"
                     )}
                     style={{ width: `${getFulfillmentProgress(order.fulfillmentStatus)}%` }}

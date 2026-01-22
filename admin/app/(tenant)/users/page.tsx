@@ -363,7 +363,7 @@ export default function UsersHubPage() {
                   {disabledUsers}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-rose-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-destructive/10 rounded-lg flex items-center justify-center">
                 <XCircle className="h-6 w-6 text-destructive" />
               </div>
             </div>
@@ -423,7 +423,7 @@ export default function UsersHubPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-gradient-to-r from-gray-50 to-blue-50/30 border-b border-border">
+                <thead className="bg-muted border-b border-border">
                   <tr>
                     <th className="px-6 py-4 text-left text-sm font-bold text-foreground">User</th>
                     <th className="px-6 py-4 text-left text-sm font-bold text-foreground">Role</th>

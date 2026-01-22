@@ -402,7 +402,7 @@ export default function TranslationSettingsPage() {
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                     <BarChart3 className="h-6 w-6 text-primary" />
                   </div>
                   <div>
@@ -683,7 +683,7 @@ export default function TranslationSettingsPage() {
             {/* Auto-Translation Settings */}
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
                   <Zap className="h-6 w-6 text-warning" />
                 </div>
                 <div>

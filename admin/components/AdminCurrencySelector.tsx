@@ -85,7 +85,7 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
       {isOpen && (
         <div className="absolute right-0 mt-2 w-72 bg-card rounded-xl shadow-xl border border-border z-[9999] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
           {/* Header */}
-          <div className="px-4 py-3 border-b border-border bg-gradient-to-r from-gray-50 to-white">
+          <div className="px-4 py-3 border-b border-border bg-muted">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-muted-foreground" />

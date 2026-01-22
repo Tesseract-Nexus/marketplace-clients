@@ -94,7 +94,7 @@ export function HomepageLayoutPicker({ value, onChange }: HomepageLayoutPickerPr
             <div className="w-full h-20 bg-muted rounded mb-3 overflow-hidden">
               {option.id === 'hero-grid' && (
                 <div className="h-full flex flex-col">
-                  <div className="h-8 bg-gradient-to-r from-purple-400 to-pink-400" />
+                  <div className="h-8 bg-primary/60" />
                   <div className="flex-1 p-1 grid grid-cols-3 gap-1">
                     {[1, 2, 3, 4, 5, 6].map((i) => (
                       <div key={i} className="bg-border rounded" />
@@ -104,7 +104,7 @@ export function HomepageLayoutPicker({ value, onChange }: HomepageLayoutPickerPr
               )}
               {option.id === 'carousel' && (
                 <div className="h-full flex flex-col">
-                  <div className="h-10 bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center gap-1">
+                  <div className="h-10 bg-primary/60 flex items-center justify-center gap-1">
                     <div className="w-1 h-1 bg-card rounded-full" />
                     <div className="w-1 h-1 bg-white/50 rounded-full" />
                     <div className="w-1 h-1 bg-white/50 rounded-full" />
@@ -125,7 +125,7 @@ export function HomepageLayoutPicker({ value, onChange }: HomepageLayoutPickerPr
               )}
               {option.id === 'magazine' && (
                 <div className="h-full p-1 grid grid-cols-3 gap-1">
-                  <div className="col-span-2 row-span-2 bg-gradient-to-r from-purple-400 to-pink-400 rounded" />
+                  <div className="col-span-2 row-span-2 bg-primary/60 rounded" />
                   <div className="bg-border rounded" />
                   <div className="bg-border rounded" />
                 </div>

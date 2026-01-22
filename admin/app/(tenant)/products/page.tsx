@@ -1144,7 +1144,7 @@ export default function ProductsPage() {
                 <PermissionGate permission={Permission.PRODUCTS_UPDATE}>
                   <Button
                     onClick={() => handleEdit(selectedProduct)}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl hover:from-violet-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-xl"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl"
                   >
                     <Edit className="w-4 h-4" />
                     Edit Product
@@ -1210,7 +1210,7 @@ export default function ProductsPage() {
               {/* Product Images Card */}
               {selectedProduct.images && selectedProduct.images.length > 0 && (
                 <Card className="border-border/50">
-                  <CardHeader className="border-b border-border bg-gradient-to-r from-violet-50 to-purple-50">
+                  <CardHeader className="border-b border-border bg-primary/5">
                     <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
                       <ImageIcon className="w-5 h-5 text-primary" />
                       Product Images ({selectedProduct.images.length})
@@ -1262,7 +1262,7 @@ export default function ProductsPage() {
                         {formatCurrency(selectedProduct.price, selectedProduct.currencyCode || storeCurrency)}
                       </p>
                     </div>
-                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-primary/20">
+                    <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Compare Price</p>
                       <p className="text-2xl font-bold text-primary">
                         {selectedProduct.comparePrice ? formatCurrency(selectedProduct.comparePrice, selectedProduct.currencyCode || storeCurrency) : 'N/A'}
@@ -1276,7 +1276,7 @@ export default function ProductsPage() {
                     </div>
                   </div>
                   {selectedProduct.costPrice && (
-                    <div className="mt-4 p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl border border-primary/30">
+                    <div className="mt-4 p-4 bg-primary/5 rounded-xl border border-primary/30">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Profit Margin</p>
                       <p className="text-xl font-bold text-primary">
                         {formatCurrency(parseFloat(selectedProduct.price) - parseFloat(selectedProduct.costPrice), selectedProduct.currencyCode || storeCurrency)}
@@ -1299,7 +1299,7 @@ export default function ProductsPage() {
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border border-primary/20">
+                    <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Stock Quantity</p>
                       <p className="text-2xl font-bold text-primary">{selectedProduct.quantity || 0}</p>
                     </div>
@@ -2187,7 +2187,7 @@ export default function ProductsPage() {
                         // Edit mode - allow uploads
                         <label
                           className={cn(
-                            "border-2 border-dashed rounded-xl p-8 text-center transition-all bg-gradient-to-br from-gray-50 to-blue-50/30 cursor-pointer block",
+                            "border-2 border-dashed rounded-xl p-8 text-center transition-all bg-muted cursor-pointer block",
                             uploadingImages ? "border-primary/70 bg-primary/10" : "border-border hover:border-primary/70"
                           )}
                         >
@@ -2743,7 +2743,7 @@ export default function ProductsPage() {
                   key={product.id}
                   className={cn(
                     "group border-border/50 hover:border-primary/30 shadow-sm hover:shadow-xl transition-all duration-300 overflow-visible bg-white",
-                    selectedProducts.has(product.id) && "ring-2 ring-blue-500 border-primary/30 bg-gradient-to-r from-blue-50/50 to-violet-50/50"
+                    selectedProducts.has(product.id) && "ring-2 ring-blue-500 border-primary/30 bg-primary/5"
                   )}
                 >
                   <CardContent className="p-0 overflow-visible">
@@ -2808,12 +2808,12 @@ export default function ProductsPage() {
 
                             {/* Info grid */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                              <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-3 border border-border">
+                              <div className="bg-muted rounded-xl p-3 border border-border">
                                 <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">SKU</p>
                                 <p className="text-foreground font-mono font-semibold text-sm">{product.sku}</p>
                               </div>
 
-                              <div className="bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl p-3 border border-border">
+                              <div className="bg-muted rounded-xl p-3 border border-border">
                                 <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Brand</p>
                                 <p className="text-foreground font-semibold text-sm">{product.brand || 'N/A'}</p>
                               </div>

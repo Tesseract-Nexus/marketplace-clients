@@ -119,7 +119,7 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
       {isOpen && (
         <div className="absolute top-full right-0 mt-2 w-72 bg-card border border-border rounded-xl shadow-xl z-[9999] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
           {/* Header */}
-          <div className="px-4 py-3 border-b border-border bg-gradient-to-r from-emerald-50 to-teal-50">
+          <div className="px-4 py-3 border-b border-border bg-success/10">
             <h3 className="text-sm font-bold text-foreground">Switch Storefront</h3>
             <p className="text-xs text-muted-foreground">Select a storefront to manage</p>
           </div>
@@ -154,7 +154,7 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
                   onClick={() => handleSelectStorefront(storefront)}
                   className={cn(
                     'w-full flex items-center justify-between px-4 py-3 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 transition-all duration-150 group',
-                    storefront.id === currentStorefront?.id && 'bg-gradient-to-r from-emerald-50 to-teal-50'
+                    storefront.id === currentStorefront?.id && 'bg-success/10'
                   )}
                 >
                   <div className="flex items-center gap-3">

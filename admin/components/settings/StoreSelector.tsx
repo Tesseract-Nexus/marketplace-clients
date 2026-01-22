@@ -348,7 +348,7 @@ export function StoreSelector({
 
         {/* Store URL Info */}
         {showUrlInfo && selectedStorefront && (
-          <div className="mt-4 p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border border-primary/20">
+          <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
             <div className="flex items-center gap-2 text-sm">
               <Globe className="h-4 w-4 text-primary" />
               <span className="text-muted-foreground">Your store is live at:</span>

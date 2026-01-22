@@ -303,7 +303,7 @@ export default function CustomersPage() {
                 {totalOrders}
               </p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-warning/10 rounded-lg flex items-center justify-center flex-shrink-0">
               <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-warning" />
             </div>
           </div>
@@ -348,7 +348,7 @@ export default function CustomersPage() {
         {/* Desktop Table View */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-border">
+            <thead className="bg-muted border-b border-border">
               <tr>
                 <th className="px-4 lg:px-6 py-4 text-left text-sm font-semibold text-foreground">Customer</th>
                 <th className="px-4 lg:px-6 py-4 text-left text-sm font-semibold text-foreground">Contact</th>
@@ -711,7 +711,7 @@ export default function CustomersPage() {
 
                 {currentStep === 4 && (
                   <div className="space-y-6">
-                    <div className="bg-gradient-to-r from-blue-50 via-violet-50 to-purple-50 rounded-lg p-6 border border-primary/30">
+                    <div className="bg-primary/5 rounded-lg p-6 border border-primary/30">
                       <h3 className="text-lg font-semibold text-foreground mb-4">Review Customer Details</h3>
 
                       <div className="grid grid-cols-2 gap-4 text-sm">

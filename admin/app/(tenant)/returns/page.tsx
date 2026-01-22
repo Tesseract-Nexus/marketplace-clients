@@ -459,7 +459,7 @@ export default function ReturnsPage() {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setIsDetailsOpen(false)}>
             <div className="bg-card rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
               {/* Header */}
-              <div className="sticky top-0 bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 px-6 py-5 flex items-center justify-between">
+              <div className="sticky top-0 bg-primary px-6 py-5 flex items-center justify-between">
                 <div>
                   <h2 className="text-xl font-bold text-white">{selectedReturn.rmaNumber}</h2>
                   <p className="text-primary/30 text-sm">Order: {selectedReturn.order?.orderNumber || selectedReturn.orderId.substring(0, 8)}</p>

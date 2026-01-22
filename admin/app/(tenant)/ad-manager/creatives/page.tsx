@@ -68,7 +68,7 @@ const typeIcons: Record<string, React.ElementType> = {
 
 const statusColors: Record<string, string> = {
   ACTIVE: 'bg-success-muted text-success-foreground',
-  DRAFT: 'bg-slate-100 text-slate-700',
+  DRAFT: 'bg-muted text-foreground',
   ARCHIVED: 'bg-muted text-muted-foreground',
 };
 

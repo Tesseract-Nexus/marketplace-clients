@@ -263,8 +263,8 @@ export default function ApiKeysPage() {
                 <p className="text-sm text-muted-foreground">Total Keys</p>
                 <p className="text-2xl font-bold">{sampleApiKeys.length}</p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-900/30 flex items-center justify-center">
-                <Key className="w-5 h-5 text-slate-600" />
+              <div className="w-10 h-10 rounded-lg bg-muted dark:bg-sidebar/30 flex items-center justify-center">
+                <Key className="w-5 h-5 text-muted-foreground" />
               </div>
             </div>
           </CardContent>
@@ -332,7 +332,7 @@ export default function ApiKeysPage() {
               <CardContent className="p-6">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-500 to-zinc-600 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-xl bg-muted-foreground flex items-center justify-center">
                       <Key className="w-6 h-6 text-white" />
                     </div>
                     <div>
@@ -430,10 +430,10 @@ export default function ApiKeysPage() {
       </div>
 
       {/* API Documentation Link */}
-      <Card className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800/50 border-slate-200">
+      <Card className="bg-muted border-border">
         <CardContent className="pt-6">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-500 to-zinc-600 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-muted-foreground flex items-center justify-center">
               <Key className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1">

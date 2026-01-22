@@ -471,7 +471,7 @@ export default function DataImportPage() {
       </div>
 
       {/* Supported Formats */}
-      <Card className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800/50 border-slate-200">
+      <Card className="bg-muted border-border">
         <CardContent className="pt-6">
           <h3 className="text-lg font-semibold mb-4">Supported File Formats</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

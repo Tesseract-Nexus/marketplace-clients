@@ -1127,7 +1127,7 @@ export default function CategoriesPage() {
         </Card>
       ) : !loading ? (
         /* Create/Edit Form */
-        <Card className="border-primary/50/50 bg-gradient-to-r from-blue-50/50 to-violet-50/50">
+        <Card className="border-primary/50/50 bg-primary/5">
           <CardHeader className="border-b border-primary/20">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xl font-bold text-primary">

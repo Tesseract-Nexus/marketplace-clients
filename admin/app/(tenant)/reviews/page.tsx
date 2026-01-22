@@ -340,7 +340,7 @@ export default function ReviewsPage() {
                 {pendingReviews}
               </p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-warning/10 rounded-lg flex items-center justify-center">
               <Star className="h-5 w-5 sm:h-6 sm:w-6 text-warning" />
             </div>
           </div>
@@ -368,7 +368,7 @@ export default function ReviewsPage() {
                 {flaggedReviews}
               </p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-100 to-rose-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-destructive/10 rounded-lg flex items-center justify-center">
               <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-destructive" />
             </div>
           </div>

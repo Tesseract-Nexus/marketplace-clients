@@ -341,7 +341,7 @@ export default function AuditLogsPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Failed Actions</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-pink-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-destructive/10 rounded-lg flex items-center justify-center">
                 <XCircle className="h-6 w-6 text-destructive" />
               </div>
             </div>

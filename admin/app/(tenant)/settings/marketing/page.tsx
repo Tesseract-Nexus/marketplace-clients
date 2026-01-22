@@ -235,7 +235,7 @@ export default function MarketingSettingsPage() {
       fallbackDescription="You don't have the required permissions to manage marketing settings. Please contact your administrator to request access."
       loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
     >
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20 p-8">
+    <div className="min-h-screen bg-muted p-8">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Marketing Features"
@@ -249,7 +249,7 @@ export default function MarketingSettingsPage() {
             <Button
               onClick={handleSave}
               disabled={!hasChanges || saving || !selectedStorefront}
-              className="bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 text-white hover:opacity-90 disabled:opacity-50"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -334,7 +334,7 @@ export default function MarketingSettingsPage() {
               {/* Campaign Channels */}
               <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                     <Megaphone className="h-6 w-6 text-primary" />
                   </div>
                   <div>

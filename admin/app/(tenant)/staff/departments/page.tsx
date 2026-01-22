@@ -941,7 +941,7 @@ export default function DepartmentsPage() {
                 <Button
                   onClick={handleSaveTeam}
                   disabled={saving || !teamFormData.name || !teamFormData.departmentId}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-lg disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-all duration-200 shadow-lg disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                   {viewMode === 'create-team' ? 'Create' : 'Save'}
@@ -1161,7 +1161,7 @@ export default function DepartmentsPage() {
             {canUpdateTeams && (
               <Button
                 onClick={() => handleEditTeam(selectedTeam)}
-                className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all"
+                className="flex items-center gap-2 px-6 py-2.5 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-all"
               >
                 <Edit className="w-5 h-5" />
                 Edit Team

@@ -113,7 +113,7 @@ export default function IntegrationsOverviewPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 border-primary/30/50">
+        <Card className="bg-primary/5 dark:from-blue-950/20 dark:to-cyan-950/20 border-primary/30/50">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
@@ -158,7 +158,7 @@ export default function IntegrationsOverviewPage() {
         <Card className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 border-warning/30/50">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-warning flex items-center justify-center">
                 <Webhook className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -231,7 +231,7 @@ export default function IntegrationsOverviewPage() {
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
                   <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 flex items-center justify-center mb-3">
-                    <Store className="w-8 h-8 text-slate-500" />
+                    <Store className="w-8 h-8 text-muted-foreground" />
                   </div>
                   <h3 className="font-medium">{connector.name}</h3>
                   <Badge

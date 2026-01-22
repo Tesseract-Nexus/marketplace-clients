@@ -568,7 +568,7 @@ export default function PricingSettingsPage() {
             {/* Rounding */}
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-gradient-to-br from-gray-100 to-slate-100 rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
                   <DollarSign className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <div>

@@ -352,7 +352,7 @@ export default function GiftCardsPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Redeemed Value</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
                 <DollarSign className="h-6 w-6 text-warning" />
               </div>
             </div>
@@ -385,7 +385,7 @@ export default function GiftCardsPage() {
 
         {/* Gift Cards Table */}
         <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-border bg-gradient-to-r from-gray-50 to-blue-50/30">
+          <div className="px-6 py-4 border-b border-border bg-muted">
             <h3 className="text-lg font-bold text-foreground">Gift Cards</h3>
             <p className="text-sm text-muted-foreground">Manage all gift cards</p>
           </div>
@@ -397,7 +397,7 @@ export default function GiftCardsPage() {
             </div>
           ) : giftCards.length === 0 ? (
             <div className="text-center py-16">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-violet-100 to-purple-100 flex items-center justify-center">
+              <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
                 <Gift className="h-10 w-10 text-primary" />
               </div>
               <h3 className="text-xl font-bold text-foreground mb-2">
@@ -413,7 +413,7 @@ export default function GiftCardsPage() {
               {!(searchQuery || filterStatus) && (
                 <Button
                   onClick={() => setShowCreateModal(true)}
-                  className="bg-gradient-to-r from-violet-600 to-purple-600 text-white hover:from-violet-700 hover:to-purple-700"
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
                 >
                   <Sparkles className="h-4 w-4 mr-2" />
                   Create Your First Gift Card

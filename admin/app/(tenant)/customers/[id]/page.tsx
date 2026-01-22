@@ -598,7 +598,7 @@ export default function CustomerDetailPage() {
                   ${customer.lifetimeValue.toFixed(2)}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-violet-100 to-purple-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                 <Package className="h-6 w-6 text-primary" />
               </div>
             </div>

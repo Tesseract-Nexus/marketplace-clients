@@ -342,7 +342,7 @@ export default function MauticIntegrationPage() {
         <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-100 to-zinc-100 flex items-center justify-center">
-              <Settings className="h-5 w-5 text-slate-600" />
+              <Settings className="h-5 w-5 text-muted-foreground" />
             </div>
             <div>
               <h4 className="text-lg font-bold text-foreground">Configuration</h4>

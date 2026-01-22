@@ -250,7 +250,7 @@ export default function CustomerAnalyticsPage() {
           <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-warning/40/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Retention Rate</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <div className="w-12 h-12 bg-warning/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <TrendingUp className="h-6 w-6 text-warning" />
               </div>
             </div>
@@ -424,7 +424,7 @@ export default function CustomerAnalyticsPage() {
                       </div>
                       <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
                         <div
-                          className="bg-gradient-to-r from-blue-600 to-violet-600 h-full"
+                          className="bg-primary h-full"
                           style={{ width: `${segment.percentage}%` }}
                         />
                       </div>

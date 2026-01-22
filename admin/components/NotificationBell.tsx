@@ -363,7 +363,7 @@ export function NotificationBell() {
       {isOpen && (
         <div className="absolute right-0 mt-2 w-96 bg-card rounded-xl shadow-2xl border border-border z-[9999] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-gradient-to-r from-gray-50 to-white">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted">
             <div className="flex items-center gap-2">
               <h3 className="font-semibold text-foreground">Notifications</h3>
               {unreadCount > 0 && (

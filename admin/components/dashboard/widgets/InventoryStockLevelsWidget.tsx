@@ -33,7 +33,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
       <DashboardCardHeader className="pb-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 shadow-lg ring-4 ring-violet-500/20">
+            <div className="p-2.5 rounded-xl bg-primary shadow-lg ring-4 ring-violet-500/20">
               <BarChart3 className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -58,7 +58,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
           <div className="space-y-4">
             <div className="flex items-center justify-end gap-6 text-xs mb-2">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-sm bg-gradient-to-r from-violet-500 to-purple-500" />
+                <div className="w-3 h-3 rounded-sm bg-primary" />
                 <span className="text-muted-foreground"><AdminUIText text="Current Stock" /></span>
               </div>
               <div className="flex items-center gap-2">
@@ -108,7 +108,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
                           "absolute top-0.5 bottom-0.5 left-0.5 rounded-md transition-all duration-500 group-hover:opacity-90",
                           isLowStock
                             ? "bg-gradient-to-r from-amber-400 to-orange-400"
-                            : "bg-gradient-to-r from-violet-500 to-purple-500"
+                            : "bg-primary"
                         )}
                         style={{ width: `calc(${stockPercent}% - 4px)` }}
                       />

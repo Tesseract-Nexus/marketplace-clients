@@ -329,7 +329,7 @@ export const ROLE_PRIORITY_COLORS: Record<string, { bg: string; text: string; bo
   admin: { bg: 'bg-primary/10', text: 'text-primary', border: 'border-primary/30' },
   manager: { bg: 'bg-accent', text: 'text-primary', border: 'border-primary/30' },
   standard: { bg: 'bg-muted', text: 'text-foreground', border: 'border-border' },
-  viewer: { bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-300' },
+  viewer: { bg: 'bg-muted', text: 'text-muted-foreground', border: 'border-border' },
 };
 
 export function getRolePriorityCategory(priorityLevel: number): string {

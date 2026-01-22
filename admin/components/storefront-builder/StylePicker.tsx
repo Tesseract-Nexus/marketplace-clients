@@ -110,7 +110,7 @@ export function ButtonStylePicker({ style, size, onStyleChange, onSizeChange }: 
               <div className="flex justify-center mb-2">
                 <span
                   className={cn(
-                    'bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium',
+                    'bg-primary text-primary-foreground font-medium',
                     getButtonClass(option.id, 'medium')
                   )}
                 >
@@ -153,7 +153,7 @@ export function ButtonStylePicker({ style, size, onStyleChange, onSizeChange }: 
         <div className="flex gap-3 justify-center">
           <span
             className={cn(
-              'bg-gradient-to-r from-purple-600 to-pink-600 text-white font-medium',
+              'bg-primary text-primary-foreground font-medium',
               getButtonClass(style, size)
             )}
           >

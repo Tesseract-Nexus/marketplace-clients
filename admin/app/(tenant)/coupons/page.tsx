@@ -428,8 +428,8 @@ export default function CouponsPage() {
                     "absolute top-0 left-0 right-0 h-1",
                     coupon.discountType === 'PERCENTAGE' && "bg-gradient-to-r from-blue-500 to-cyan-500",
                     coupon.discountType === 'FIXED_AMOUNT' && "bg-success",
-                    coupon.discountType === 'FREE_SHIPPING' && "bg-gradient-to-r from-purple-500 to-violet-500",
-                    coupon.discountType === 'BUY_X_GET_Y' && "bg-gradient-to-r from-pink-500 to-rose-500"
+                    coupon.discountType === 'FREE_SHIPPING' && "bg-primary",
+                    coupon.discountType === 'BUY_X_GET_Y' && "bg-primary"
                   )} />
 
                   <CardContent className="p-4 pt-4">

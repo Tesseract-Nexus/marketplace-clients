@@ -263,7 +263,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
             className="pl-10"
           />
         </div>
-        <Button onClick={handleCreatePage} className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+        <Button onClick={handleCreatePage} className="gap-2 bg-primary text-primary-foreground">
           <Plus className="h-4 w-4" />
           New Page
         </Button>
@@ -550,7 +550,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
               <Button
                 onClick={handleSavePage}
                 disabled={saving}
-                className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white"
+                className="gap-2 bg-primary text-primary-foreground"
               >
                 {saving ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

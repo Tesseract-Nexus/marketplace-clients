@@ -233,7 +233,7 @@ export function SidebarMenuSearch({ navigation }: SidebarMenuSearchProps) {
   const showResults = isFocused && query.trim().length > 0;
 
   return (
-    <div className="p-4 border-b border-slate-700/50">
+    <div className="p-4 border-b border-sidebar-border/50">
       <div className="relative">
         <Search
           className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 transition-colors z-10"

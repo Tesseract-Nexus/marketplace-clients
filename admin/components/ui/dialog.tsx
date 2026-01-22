@@ -211,8 +211,8 @@ export function AlertDialogLegacy({
               className={cn(
                 'px-4 py-2 text-sm font-semibold text-white rounded-lg transition-all hover:scale-105 active:scale-95 shadow-lg',
                 type === 'success' && 'bg-gradient-to-r from-green-600 to-emerald-600',
-                type === 'error' && 'bg-gradient-to-r from-red-600 to-rose-600',
-                type === 'warning' && 'bg-gradient-to-r from-yellow-600 to-orange-600',
+                type === 'error' && 'bg-destructive',
+                type === 'warning' && 'bg-warning',
                 type === 'info' && 'bg-gradient-to-r from-blue-600 to-indigo-600',
                 type === 'confirm' && 'bg-gradient-to-r from-orange-600 to-red-600'
               )}

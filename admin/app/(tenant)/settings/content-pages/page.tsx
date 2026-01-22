@@ -630,7 +630,7 @@ export default function ContentPagesSettingsPage() {
                 <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
                   <div className="flex items-center justify-between mb-4">
                     <p className="text-sm font-medium text-muted-foreground">Drafts</p>
-                    <div className="w-12 h-12 bg-gradient-to-br from-yellow-100 to-amber-100 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
                       <Edit className="h-6 w-6 text-warning" />
                     </div>
                   </div>
@@ -876,7 +876,7 @@ export default function ContentPagesSettingsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-border px-6 py-4 bg-gradient-to-r from-blue-50 via-violet-50 to-purple-50 rounded-t-xl shrink-0">
+            <div className="flex items-center justify-between border-b border-border px-6 py-4 bg-primary/5 rounded-t-xl shrink-0">
               <div>
                 <h2 className="text-xl font-bold text-foreground">Create New Page</h2>
                 <p className="text-sm text-muted-foreground mt-0.5">
@@ -928,7 +928,7 @@ export default function ContentPagesSettingsPage() {
                         type="button"
                         onClick={autoGenerateContent}
                         disabled={!createForm.title}
-                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-gradient-to-r from-violet-500 to-purple-600 text-white rounded-lg hover:from-violet-600 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all hover:shadow-md"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm transition-all hover:shadow-md"
                       >
                         <Wand2 className="h-3.5 w-3.5" />
                         Auto Generate
@@ -1124,7 +1124,7 @@ export default function ContentPagesSettingsPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-border px-6 py-4 bg-gradient-to-r from-blue-50 via-violet-50 to-purple-50 rounded-t-xl shrink-0">
+            <div className="flex items-center justify-between border-b border-border px-6 py-4 bg-primary/5 rounded-t-xl shrink-0">
               <div className="flex items-center gap-3">
                 <div>
                   <h2 className="text-xl font-bold text-foreground">Edit Page</h2>

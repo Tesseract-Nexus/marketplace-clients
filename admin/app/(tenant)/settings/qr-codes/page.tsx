@@ -986,7 +986,7 @@ export default function QRCodesPage() {
             <Button
               onClick={handleGenerate}
               disabled={loading}
-              className="w-full h-11 bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 hover:opacity-90 text-white shadow-md"
+              className="w-full h-11 bg-primary hover:opacity-90 text-white shadow-md"
             >
               {loading ? (
                 <>

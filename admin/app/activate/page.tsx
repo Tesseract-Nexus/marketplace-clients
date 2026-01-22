@@ -194,7 +194,7 @@ function ActivatePageContent() {
             <p className="text-sm text-muted-foreground mb-6">{error}</p>
             <Button
               onClick={() => router.push('/login')}
-              className="bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 hover:from-blue-700 hover:via-violet-700 hover:to-purple-700 text-white"
+              className="bg-primary hover:bg-primary/90 text-white"
             >
               Go to Login
             </Button>
@@ -205,7 +205,7 @@ function ActivatePageContent() {
         return (
           <>
             <div className="text-center">
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-violet-600 to-purple-600 shadow-lg shadow-primary/30 mb-3">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary shadow-lg shadow-primary/30 mb-3">
                 <UserPlus className="w-7 h-7 text-white" />
               </div>
               <h2 className="text-xl font-semibold text-foreground mb-1">Welcome to the Team!</h2>
@@ -305,7 +305,7 @@ function ActivatePageContent() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
               </button>
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-violet-600 to-purple-600 shadow-lg shadow-primary/30 mb-3">
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary shadow-lg shadow-primary/30 mb-3">
                 <Lock className="w-7 h-7 text-white" />
               </div>
               <h2 className="text-xl font-semibold text-foreground mb-1">Create Password</h2>
@@ -385,7 +385,7 @@ function ActivatePageContent() {
               <Button
                 type="submit"
                 disabled={isLoading || !isPasswordValid}
-                className="w-full h-12 text-sm font-semibold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 hover:from-blue-700 hover:via-violet-700 hover:to-purple-700 text-white shadow-lg shadow-primary/30 transition-all duration-300"
+                className="w-full h-12 text-sm font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all duration-300"
               >
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -423,7 +423,7 @@ function ActivatePageContent() {
           alt="Marketplace background"
           className="w-full h-full object-cover animate-slow-zoom"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-900/70 via-blue-900/50 to-violet-900/60" />
+        <div className="absolute inset-0 bg-background/80" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
       </div>
 
@@ -486,7 +486,7 @@ function RequirementItem({ met, text }: { met: boolean; text: string }) {
 
 function LoadingFallback() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-violet-900">
+    <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="flex flex-col items-center gap-4">
         <Loader2 className="h-8 w-8 animate-spin text-white" />
         <p className="text-white/80">Loading...</p>

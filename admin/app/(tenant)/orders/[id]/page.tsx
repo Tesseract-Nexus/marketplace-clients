@@ -610,7 +610,7 @@ export default function OrderDetailsPage() {
 
             {/* Fulfillment Progress */}
             {order.fulfillmentStatus && order.fulfillmentStatus !== 'UNFULFILLED' && (
-              <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-primary/30">
+              <Card className="bg-primary/5 border-primary/30">
                 <CardContent>
                   <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
                     <Truck className="w-5 h-5 text-primary" />
@@ -668,7 +668,7 @@ export default function OrderDetailsPage() {
                 </h3>
                 <div className="space-y-3">
                   {(order.items || []).map((item, index) => (
-                    <div key={item.id} className="flex justify-between items-center p-4 bg-gradient-to-r from-gray-50 to-gray-100 hover:from-blue-50 hover:to-cyan-50 rounded-xl border border-border transition-all">
+                    <div key={item.id} className="flex justify-between items-center p-4 bg-muted hover:from-blue-50 hover:to-cyan-50 rounded-xl border border-border transition-all">
                       <div className="flex items-center gap-3">
                         <div className="flex items-center justify-center w-10 h-10 bg-primary/20 text-primary font-bold rounded-lg text-sm">
                           {index + 1}

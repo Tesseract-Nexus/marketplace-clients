@@ -27,7 +27,7 @@ export function LowStockAlertWidget({ data }: LowStockAlertWidgetProps) {
       <DashboardCardHeader className="pb-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg ring-4 ring-amber-500/20">
+            <div className="p-2.5 rounded-xl bg-warning shadow-lg ring-4 ring-amber-500/20">
               <AlertCircle className="h-5 w-5 text-white" />
             </div>
             <div>

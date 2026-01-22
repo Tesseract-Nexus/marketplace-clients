@@ -105,7 +105,7 @@ export default function StorefrontBrandingPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20 flex items-center justify-center">
+      <div className="min-h-screen bg-muted flex items-center justify-center">
         <div className="text-center">
           <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
           <p className="text-muted-foreground">Loading branding settings...</p>
@@ -116,7 +116,7 @@ export default function StorefrontBrandingPage() {
 
   if (!storefront) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20 p-8">
+      <div className="min-h-screen bg-muted p-8">
         <div className="text-center py-12">
           <p className="text-muted-foreground mb-4">Failed to load storefront</p>
           <Button onClick={() => router.push('/storefronts')}>Back to Storefronts</Button>
@@ -132,7 +132,7 @@ export default function StorefrontBrandingPage() {
       fallbackTitle="Storefront Branding Access Required"
       fallbackDescription="You don't have the required permissions to view storefront branding. Please contact your administrator to request access."
     >
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50/20 to-pink-50/20">
+    <div className="min-h-screen bg-muted">
       <div className="p-8 space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title={`Branding: ${storefront.name}`}
@@ -161,7 +161,7 @@ export default function StorefrontBrandingPage() {
               <Button
                 onClick={handleSave}
                 disabled={!hasChanges || isSaving}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:opacity-90"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {isSaving ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />

@@ -285,7 +285,7 @@ export default function MarketplaceConnectorsPage() {
             <CardHeader>
               <div className="flex items-start justify-between">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 flex items-center justify-center">
-                  <Store className="w-6 h-6 text-slate-600 dark:text-slate-400" />
+                  <Store className="w-6 h-6 text-muted-foreground dark:text-muted-foreground" />
                 </div>
                 <Badge
                   variant="outline"
@@ -439,7 +439,7 @@ export default function MarketplaceConnectorsPage() {
       )}
 
       {/* Help Section */}
-      <Card className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800/50">
+      <Card className="bg-muted">
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="flex-1">

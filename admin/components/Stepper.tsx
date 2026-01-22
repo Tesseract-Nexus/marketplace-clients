@@ -176,7 +176,7 @@ export function StepperNavigation({
             <button
               onClick={onSave}
               disabled={saveDisabled}
-              className="px-8 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-8 py-3 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               <Check className="w-4 h-4" aria-hidden="true" /> {saveLabel}
             </button>

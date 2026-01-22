@@ -423,7 +423,7 @@ export default function SalesDashboardPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Items Sold</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
                 <Package className="h-6 w-6 text-warning" />
               </div>
             </div>
@@ -451,7 +451,7 @@ export default function SalesDashboardPage() {
               return (
                 <div
                   key={index}
-                  className="flex-1 bg-gradient-to-t from-blue-600 to-violet-600 rounded-t hover:opacity-80 transition-opacity cursor-pointer relative group"
+                  className="flex-1 bg-primary rounded-t hover:opacity-80 transition-opacity cursor-pointer relative group"
                   style={{ height: `${height}%`, minHeight: '4px' }}
                 >
                   <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-foreground text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none z-10">
@@ -471,7 +471,7 @@ export default function SalesDashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Top Products */}
           <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-border bg-gradient-to-r from-gray-50 to-blue-50/30">
+            <div className="px-6 py-4 border-b border-border bg-muted">
               <h3 className="text-lg font-bold text-foreground">Top Products</h3>
               <p className="text-sm text-muted-foreground">Best performing products by revenue</p>
             </div>
@@ -512,7 +512,7 @@ export default function SalesDashboardPage() {
 
           {/* Top Categories */}
           <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
-            <div className="px-6 py-4 border-b border-border bg-gradient-to-r from-gray-50 to-blue-50/30">
+            <div className="px-6 py-4 border-b border-border bg-muted">
               <h3 className="text-lg font-bold text-foreground">Top Categories</h3>
               <p className="text-sm text-muted-foreground">Best performing categories by revenue</p>
             </div>

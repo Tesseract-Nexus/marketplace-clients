@@ -166,7 +166,7 @@ export default function StorefrontsPage() {
               </Link>
               <Link href={`/storefronts/${selectedStorefront.id}/theme`}>
                 <Button
-                  className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-semibold"
+                  className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-semibold"
                 >
                   <Palette className="w-5 h-5" />
                   Customize Theme

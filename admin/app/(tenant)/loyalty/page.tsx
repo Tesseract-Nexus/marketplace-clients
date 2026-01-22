@@ -132,11 +132,11 @@ export default function LoyaltyProgramPage() {
     if (lowerName.includes('platinum') || lowerName.includes('diamond')) {
       return {
         bg: 'from-slate-100 to-blue-100',
-        border: 'border-slate-300',
-        text: 'text-slate-700',
+        border: 'border-border',
+        text: 'text-foreground',
         icon: Crown,
         gradient: 'from-slate-500 to-blue-500',
-        badge: 'bg-gradient-to-r from-slate-500 to-blue-500',
+        badge: 'bg-muted-foreground',
       };
     }
     if (lowerName.includes('gold')) {
@@ -146,7 +146,7 @@ export default function LoyaltyProgramPage() {
         text: 'text-warning',
         icon: Crown,
         gradient: 'from-yellow-500 to-amber-500',
-        badge: 'bg-gradient-to-r from-yellow-500 to-amber-500',
+        badge: 'bg-warning',
       };
     }
     if (lowerName.includes('silver')) {
@@ -156,7 +156,7 @@ export default function LoyaltyProgramPage() {
         text: 'text-muted-foreground',
         icon: Medal,
         gradient: 'from-gray-400 to-slate-500',
-        badge: 'bg-gradient-to-r from-gray-400 to-slate-500',
+        badge: 'bg-muted-foreground',
       };
     }
     if (lowerName.includes('bronze')) {
@@ -166,15 +166,15 @@ export default function LoyaltyProgramPage() {
         text: 'text-warning',
         icon: Star,
         gradient: 'from-orange-400 to-amber-500',
-        badge: 'bg-gradient-to-r from-orange-400 to-amber-500',
+        badge: 'bg-warning',
       };
     }
     // Default based on index
     const defaults = [
-      { bg: 'from-orange-50 to-amber-100', border: 'border-warning/30', text: 'text-warning', icon: Star, gradient: 'from-orange-400 to-amber-500', badge: 'bg-gradient-to-r from-orange-400 to-amber-500' },
-      { bg: 'from-gray-100 to-slate-100', border: 'border-border', text: 'text-muted-foreground', icon: Medal, gradient: 'from-gray-400 to-slate-500', badge: 'bg-gradient-to-r from-gray-400 to-slate-500' },
-      { bg: 'from-yellow-50 to-amber-100', border: 'border-warning/30', text: 'text-warning', icon: Crown, gradient: 'from-yellow-500 to-amber-500', badge: 'bg-gradient-to-r from-yellow-500 to-amber-500' },
-      { bg: 'from-slate-100 to-blue-100', border: 'border-slate-300', text: 'text-slate-700', icon: Crown, gradient: 'from-slate-500 to-blue-500', badge: 'bg-gradient-to-r from-slate-500 to-blue-500' },
+      { bg: 'from-orange-50 to-amber-100', border: 'border-warning/30', text: 'text-warning', icon: Star, gradient: 'from-orange-400 to-amber-500', badge: 'bg-warning' },
+      { bg: 'from-gray-100 to-slate-100', border: 'border-border', text: 'text-muted-foreground', icon: Medal, gradient: 'from-gray-400 to-slate-500', badge: 'bg-muted-foreground' },
+      { bg: 'from-yellow-50 to-amber-100', border: 'border-warning/30', text: 'text-warning', icon: Crown, gradient: 'from-yellow-500 to-amber-500', badge: 'bg-warning' },
+      { bg: 'from-slate-100 to-blue-100', border: 'border-border', text: 'text-foreground', icon: Crown, gradient: 'from-slate-500 to-blue-500', badge: 'bg-muted-foreground' },
     ];
     return defaults[index % defaults.length];
   };
@@ -347,7 +347,7 @@ export default function LoyaltyProgramPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Loyalty Tiers</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
                 <Users className="h-6 w-6 text-warning" />
               </div>
             </div>
@@ -711,7 +711,7 @@ export default function LoyaltyProgramPage() {
                   {/* Referral Bonus Card */}
                   <div className="p-5 rounded-xl border-2 border-primary/30 bg-gradient-to-br from-violet-50 to-purple-50 hover:shadow-lg transition-all">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center text-white shadow-md">
+                      <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-white shadow-md">
                         <Share2 className="h-6 w-6" />
                       </div>
                       <div>

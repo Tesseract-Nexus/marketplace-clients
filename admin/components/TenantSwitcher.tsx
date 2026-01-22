@@ -117,12 +117,12 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
         isSidebar && 'w-full',
         className
       )}>
-        <div className="w-10 h-10 rounded-xl bg-slate-700/50 flex items-center justify-center">
-          <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
+        <div className="w-10 h-10 rounded-xl bg-sidebar-accent/50 flex items-center justify-center">
+          <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="h-4 w-24 bg-slate-700/50 rounded animate-pulse" />
-          <div className="h-3 w-16 bg-slate-700/30 rounded mt-1 animate-pulse" />
+          <div className="h-4 w-24 bg-sidebar-accent/50 rounded animate-pulse" />
+          <div className="h-3 w-16 bg-sidebar-accent/30 rounded mt-1 animate-pulse" />
         </div>
       </div>
     );
@@ -138,18 +138,18 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           'flex items-center gap-3 px-3 py-3 w-full rounded-xl transition-all duration-200',
-          'hover:bg-slate-700/50 border border-transparent hover:border-slate-600',
+          'hover:bg-sidebar-accent/50 border border-transparent hover:border-sidebar-border',
           className
         )}
       >
-        <div className="w-10 h-10 rounded-xl bg-slate-700 flex items-center justify-center">
-          <Building2 className="w-5 h-5 text-slate-400" />
+        <div className="w-10 h-10 rounded-xl bg-sidebar-accent flex items-center justify-center">
+          <Building2 className="w-5 h-5 text-muted-foreground" />
         </div>
         <div className="flex-1 min-w-0 text-left">
-          <p className="text-sm font-medium text-slate-300">Select Business</p>
-          <p className="text-xs text-slate-500">Choose a store to manage</p>
+          <p className="text-sm font-medium text-muted-foreground">Select Business</p>
+          <p className="text-xs text-muted-foreground">Choose a store to manage</p>
         </div>
-        <ChevronsUpDown className="w-4 h-4 text-slate-500" />
+        <ChevronsUpDown className="w-4 h-4 text-muted-foreground" />
       </button>
     );
   }
@@ -162,8 +162,8 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
         className={cn(
           'flex items-center gap-3 px-3 py-3 w-full rounded-xl transition-all duration-200',
           isOpen
-            ? 'bg-slate-700/80 border-slate-500'
-            : 'hover:bg-slate-700/50 border-transparent hover:border-slate-600',
+            ? 'bg-sidebar-accent/80 border-border'
+            : 'hover:bg-sidebar-accent/50 border-transparent hover:border-sidebar-border',
           'border'
         )}
       >
@@ -191,13 +191,13 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
           <p className="text-sm font-semibold text-white truncate">
             {currentTenant.name}
           </p>
-          <p className="text-xs text-slate-400 capitalize">{currentTenant.role}</p>
+          <p className="text-xs text-muted-foreground capitalize">{currentTenant.role}</p>
         </div>
 
         {/* Dropdown Indicator */}
         <ChevronsUpDown
           className={cn(
-            'w-4 h-4 text-slate-400 transition-transform duration-200 flex-shrink-0',
+            'w-4 h-4 text-muted-foreground transition-transform duration-200 flex-shrink-0',
             isOpen && 'rotate-180'
           )}
         />
@@ -210,7 +210,7 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
           'animate-in fade-in slide-in-from-top-2 duration-200'
         )}>
           {/* Header */}
-          <div className="px-4 py-3 border-b border-border bg-gradient-to-r from-slate-50 to-gray-50">
+          <div className="px-4 py-3 border-b border-border bg-muted">
             <h3 className="text-sm font-bold text-foreground">Switch Business</h3>
             <p className="text-xs text-muted-foreground">Select a business to manage</p>
           </div>
