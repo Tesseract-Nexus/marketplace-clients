@@ -200,7 +200,7 @@ export default function MarketplaceConnectorsPage() {
             <ChevronRight className="w-4 h-4" />
             <span>Marketplace Connectors</span>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-primary">
             Marketplace Connectors
           </h1>
           <p className="text-muted-foreground mt-1">

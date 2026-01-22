@@ -388,7 +388,7 @@ export default function SalesDashboardPage() {
                 <DollarSign className="h-6 w-6 text-success" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-success">
               {formatCurrency(dashboard.totalRevenue)}
             </p>
             <div className="mt-2">{renderChangeIndicator(dashboard.revenueChange)}</div>
@@ -397,11 +397,11 @@ export default function SalesDashboardPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Total Orders</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                 <ShoppingCart className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-primary">
               {formatNumber(dashboard.totalOrders)}
             </p>
             <div className="mt-2">{renderChangeIndicator(dashboard.ordersChange)}</div>
@@ -414,7 +414,7 @@ export default function SalesDashboardPage() {
                 <CreditCard className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-primary">
               {formatCurrency(dashboard.averageOrderValue)}
             </p>
             <div className="mt-2">{renderChangeIndicator(dashboard.aovChange)}</div>
@@ -427,7 +427,7 @@ export default function SalesDashboardPage() {
                 <Package className="h-6 w-6 text-warning" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-warning">
               {formatNumber(dashboard.totalItemsSold)}
             </p>
           </div>
@@ -436,7 +436,7 @@ export default function SalesDashboardPage() {
         {/* Revenue Trend */}
         <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
               <BarChart3 className="h-6 w-6 text-primary" />
             </div>
             <div>

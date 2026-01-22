@@ -331,11 +331,11 @@ export default function UsersHubPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground font-medium">Total Users</p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent mt-2">
+                <p className="text-3xl font-bold text-primary mt-2">
                   {totalUsers}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                 <UserCog className="h-6 w-6 text-primary" />
               </div>
             </div>
@@ -345,7 +345,7 @@ export default function UsersHubPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground font-medium">Active</p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mt-2">
+                <p className="text-3xl font-bold text-success mt-2">
                   {activeUsers}
                 </p>
               </div>
@@ -359,7 +359,7 @@ export default function UsersHubPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground font-medium">Disabled</p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent mt-2">
+                <p className="text-3xl font-bold text-destructive mt-2">
                   {disabledUsers}
                 </p>
               </div>
@@ -373,7 +373,7 @@ export default function UsersHubPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground font-medium">Admins</p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mt-2">
+                <p className="text-3xl font-bold text-primary mt-2">
                   {adminUsers}
                 </p>
               </div>
@@ -574,7 +574,7 @@ export default function UsersHubPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <div className="border-b border-border px-6 py-4 sticky top-0 bg-white">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+                <h2 className="text-2xl font-bold text-primary">
                   {showCreateModal ? 'Create New User' : 'Edit User'}
                 </h2>
               </div>

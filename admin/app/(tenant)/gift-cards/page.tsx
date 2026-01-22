@@ -311,7 +311,7 @@ export default function GiftCardsPage() {
                 <Gift className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-primary">
               {stats.totalCards}
             </p>
             <p className="text-xs text-muted-foreground mt-2">
@@ -326,7 +326,7 @@ export default function GiftCardsPage() {
                 <CreditCard className="h-6 w-6 text-success" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-success">
               {stats.activeCards}
             </p>
             <p className="text-xs text-muted-foreground mt-2">
@@ -337,11 +337,11 @@ export default function GiftCardsPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Redeemed</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                 <TrendingUp className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-primary">
               {stats.redeemedCards}
             </p>
             <p className="text-xs text-muted-foreground mt-2">
@@ -356,7 +356,7 @@ export default function GiftCardsPage() {
                 <DollarSign className="h-6 w-6 text-warning" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-warning">
               {formatCurrency(stats.redeemedValue)}
             </p>
             <p className="text-xs text-muted-foreground mt-2">
@@ -461,7 +461,7 @@ export default function GiftCardsPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {/* Mini gift card visual */}
-                          <div className="w-14 h-9 rounded-md bg-gradient-to-br from-violet-500 to-purple-600 shadow-sm flex items-center justify-center relative overflow-hidden">
+                          <div className="w-14 h-9 rounded-md bg-primary shadow-sm flex items-center justify-center relative overflow-hidden">
                             <div className="absolute inset-0 bg-white/10" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 30%, 0 60%)' }} />
                             <Gift className="h-4 w-4 text-white/80" />
                           </div>
@@ -482,7 +482,7 @@ export default function GiftCardsPage() {
                       <td className="px-6 py-4">
                         {(card.recipientName || card.recipientEmail) ? (
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-violet-100 flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                               <User className="h-4 w-4 text-primary" />
                             </div>
                             <div>
@@ -576,7 +576,7 @@ export default function GiftCardsPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl">
               <div className="border-b border-border px-6 py-4">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+                <h2 className="text-2xl font-bold text-primary">
                   Create Gift Card
                 </h2>
                 <p className="text-sm text-muted-foreground">Create a new gift card with a unique code</p>
@@ -688,7 +688,7 @@ export default function GiftCardsPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl">
               <div className="border-b border-border px-6 py-4">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+                <h2 className="text-2xl font-bold text-primary">
                   Gift Card Details
                 </h2>
                 <p className="text-sm text-muted-foreground">

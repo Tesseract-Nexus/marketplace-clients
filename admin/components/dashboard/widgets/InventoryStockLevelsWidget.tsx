@@ -37,7 +37,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
               <BarChart3 className="h-5 w-5 text-white" />
             </div>
             <div>
-              <DashboardCardTitle className="text-lg font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+              <DashboardCardTitle className="text-lg font-bold text-primary">
                 <AdminUIText text="Inventory Stock Levels" />
               </DashboardCardTitle>
               <DashboardCardDescription className="text-xs text-muted-foreground font-medium"><AdminUIText text="Current stock vs threshold by product" /></DashboardCardDescription>

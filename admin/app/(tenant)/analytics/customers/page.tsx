@@ -211,11 +211,11 @@ export default function CustomerAnalyticsPage() {
           <div className="group bg-card rounded-xl border border-border/60 p-6 shadow-sm hover:shadow-xl hover:border-primary/50/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Total Customers</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+              <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                 <Users className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-primary">
               {formatNumber(data?.totalCustomers || 0)}
             </p>
           </div>
@@ -227,7 +227,7 @@ export default function CustomerAnalyticsPage() {
                 <UserPlus className="h-6 w-6 text-success" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-success">
               {formatNumber(data?.newCustomers || 0)}
             </p>
             <p className="text-xs text-muted-foreground mt-2">
@@ -242,7 +242,7 @@ export default function CustomerAnalyticsPage() {
                 <DollarSign className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-primary">
               {formatCurrency(data?.averageLifetimeValue || 0)}
             </p>
           </div>
@@ -254,7 +254,7 @@ export default function CustomerAnalyticsPage() {
                 <TrendingUp className="h-6 w-6 text-warning" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-warning">
               {(data?.customerRetentionRate || 0).toFixed(1)}%
             </p>
             <p className="text-xs text-muted-foreground mt-2">

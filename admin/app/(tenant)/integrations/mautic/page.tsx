@@ -216,7 +216,7 @@ export default function MauticIntegrationPage() {
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-100 to-violet-100 flex items-center justify-center mb-4">
+            <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
               <Mail className="h-6 w-6 text-primary" />
             </div>
             <h4 className="text-lg font-bold text-foreground">Email Campaigns</h4>

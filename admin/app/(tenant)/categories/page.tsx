@@ -627,7 +627,7 @@ export default function CategoriesPage() {
                 <div className={cn(
                   "w-full h-full flex items-center justify-center",
                   category.imageUrl && "hidden",
-                  category.level === 0 ? "bg-gradient-to-br from-blue-100 to-violet-100" : "bg-muted"
+                  category.level === 0 ? "bg-primary/10" : "bg-muted"
                 )}>
                   {category.level === 0 ? (
                     <Folder className="w-4 h-4 text-primary" />
@@ -780,7 +780,7 @@ export default function CategoriesPage() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-border/50 shadow-lg">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-violet-900 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold text-foreground">
               <AdminPageTitle text="Categories Management" as="span" />
             </h1>
           </div>
@@ -1049,7 +1049,7 @@ export default function CategoriesPage() {
         <Card className="border-border/50">
           <CardHeader className="border-b border-border">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+              <CardTitle className="text-xl font-bold text-primary">
                 <AdminUIText text="Category Hierarchy" />
               </CardTitle>
               <div className="flex items-center gap-2">
@@ -1130,7 +1130,7 @@ export default function CategoriesPage() {
         <Card className="border-primary/50/50 bg-gradient-to-r from-blue-50/50 to-violet-50/50">
           <CardHeader className="border-b border-primary/20">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+              <CardTitle className="text-xl font-bold text-primary">
                 {viewMode === 'create' ? <AdminUIText text="Create Category" /> : viewMode === 'edit' ? <AdminUIText text="Edit Category" /> : <AdminUIText text="Category Details" />}
               </CardTitle>
               <Button

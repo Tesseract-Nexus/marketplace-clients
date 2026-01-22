@@ -215,7 +215,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
         {/* Quick Add Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+            <h2 className="text-2xl font-bold text-primary">
               Quick Add Staff Member
             </h2>
             <p className="text-sm text-muted-foreground mt-1">

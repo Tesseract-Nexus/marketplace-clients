@@ -375,7 +375,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
 
         <Card className="rounded-2xl border-primary/50/50 bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300">
           <CardHeader className="border-b border-primary/20 p-6">
-            <CardTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+            <CardTitle className="text-xl font-bold text-primary">
               {mode === 'create' ? 'Create New Coupon' : 'Edit Coupon'}
             </CardTitle>
           </CardHeader>

@@ -445,7 +445,7 @@ export default function TaxExemptionsPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-card rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
               <div className="border-b border-border px-6 py-4">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+                <h2 className="text-2xl font-bold text-primary">
                   {editingId ? 'Edit Exemption Certificate' : 'Create Exemption Certificate'}
                 </h2>
               </div>
@@ -599,7 +599,7 @@ export default function TaxExemptionsPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl">
               <div className="border-b border-border px-6 py-4">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+                <h2 className="text-2xl font-bold text-primary">
                   Certificate Details
                 </h2>
               </div>

@@ -70,7 +70,7 @@ export default function AccountSettingsPage() {
         {/* Tenant Information */}
         <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center">
+            <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
               <Building2 className="h-6 w-6 text-primary" />
             </div>
             <div>

@@ -33,7 +33,7 @@ export function TopProductsWidget({ data }: TopProductsWidgetProps) {
               <Award className="h-5 w-5 text-white" />
             </div>
             <div>
-              <DashboardCardTitle className="text-lg font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+              <DashboardCardTitle className="text-lg font-bold text-primary">
                 <AdminUIText text="Top Selling Products" />
               </DashboardCardTitle>
               <DashboardCardDescription className="text-xs text-muted-foreground font-medium"><AdminUIText text="Best performers by revenue" /></DashboardCardDescription>

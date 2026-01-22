@@ -60,7 +60,7 @@ function AuthErrorContent() {
         <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-600 via-violet-600 to-purple-600 shadow-lg shadow-primary/30 mb-3">
           <Sparkles className="w-7 h-7 text-white" />
         </div>
-        <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent mb-1">
+        <h1 className="text-2xl font-bold text-primary mb-1">
           Tesseract Hub
         </h1>
         <p className="text-xs text-muted-foreground mb-6">Admin Portal</p>

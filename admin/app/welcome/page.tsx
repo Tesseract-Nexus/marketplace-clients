@@ -290,7 +290,7 @@ function WelcomeContent() {
         {/* Welcome Header with Celebration */}
         <div className="text-center mb-6 relative">
           {/* Celebration badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full text-white text-sm font-medium mb-4 animate-bounce shadow-lg">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-success rounded-full text-white text-sm font-medium mb-4 animate-bounce shadow-lg">
             <PartyPopper className="w-4 h-4" />
             Account Created Successfully!
           </div>
@@ -303,7 +303,7 @@ function WelcomeContent() {
             </div>
           </div>
 
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl md:text-4xl font-bold text-success mb-2">
             Welcome to Tesserix!
           </h1>
           <p className="text-lg text-muted-foreground mb-2">
@@ -317,7 +317,7 @@ function WelcomeContent() {
         {/* Business Information Card */}
         <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-border/50 p-5 mb-5">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-violet-100 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
               <Building2 className="w-5 h-5 text-primary" />
             </div>
             <div>

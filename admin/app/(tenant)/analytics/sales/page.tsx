@@ -240,7 +240,7 @@ export default function SalesAnalyticsPage() {
                 <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-emerald-600" />
               </div>
             </div>
-            <p className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">
+            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-success">
               {formatCurrency(data?.totalRevenue || 0)}
             </p>
             <div className="flex items-center gap-1 sm:gap-2 mt-2">
@@ -262,7 +262,7 @@ export default function SalesAnalyticsPage() {
                 <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
             </div>
-            <p className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary">
               {formatNumber(data?.totalOrders || 0)}
             </p>
             <div className="flex items-center gap-1 sm:gap-2 mt-2">
@@ -284,7 +284,7 @@ export default function SalesAnalyticsPage() {
                 <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
             </div>
-            <p className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-primary">
               {formatCurrency(data?.averageOrderValue || 0)}
             </p>
             <div className="flex items-center gap-1 sm:gap-2 mt-2">
@@ -306,7 +306,7 @@ export default function SalesAnalyticsPage() {
                 <Package className="h-5 w-5 sm:h-6 sm:w-6 text-warning" />
               </div>
             </div>
-            <p className="text-xl sm:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+            <p className="text-xl sm:text-2xl lg:text-3xl font-bold text-warning">
               {formatNumber(data?.totalItemsSold || 0)}
             </p>
             <p className="text-[10px] sm:text-xs text-muted-foreground mt-2 hidden sm:block">

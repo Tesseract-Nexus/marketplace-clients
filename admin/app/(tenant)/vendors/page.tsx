@@ -561,7 +561,7 @@ export default function VendorsPage() {
               {/* Step 1: Basic Info */}
               {currentStep === 1 && (
                 <div className="space-y-6">
-                  <h2 className="text-2xl font-bold flex items-center gap-2 bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+                  <h2 className="text-2xl font-bold flex items-center gap-2 text-primary">
                     <ClipboardList className="w-5 h-5 inline-block mr-1" aria-hidden="true" /> Basic Information
                   </h2>
 
@@ -650,7 +650,7 @@ export default function VendorsPage() {
               {/* Step 2: Business Details */}
               {currentStep === 2 && (
                 <div className="space-y-6">
-                  <h2 className="text-2xl font-bold flex items-center gap-2 bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+                  <h2 className="text-2xl font-bold flex items-center gap-2 text-primary">
                     <Building2 className="w-5 h-5 inline-block mr-1" aria-hidden="true" /> Business Details
                   </h2>
 
@@ -742,7 +742,7 @@ export default function VendorsPage() {
               {/* Step 3: Contract Info */}
               {currentStep === 3 && (
                 <div className="space-y-6">
-                  <h2 className="text-2xl font-bold flex items-center gap-2 bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+                  <h2 className="text-2xl font-bold flex items-center gap-2 text-primary">
                     <FileText className="w-5 h-5 inline-block mr-1" aria-hidden="true" /> Contract Information
                   </h2>
 
@@ -824,7 +824,7 @@ export default function VendorsPage() {
               {/* Step 4: Review */}
               {currentStep === 4 && (
                 <div className="space-y-6">
-                  <h2 className="text-2xl font-bold flex items-center gap-2 bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+                  <h2 className="text-2xl font-bold flex items-center gap-2 text-primary">
                     <CheckCircle className="w-5 h-5 inline-block mr-1" aria-hidden="true" /> Review & Confirm
                   </h2>
 

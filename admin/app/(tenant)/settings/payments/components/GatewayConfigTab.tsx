@@ -273,9 +273,9 @@ export function GatewayConfigTab() {
     <div className="space-y-6">
       {/* Location-Based Recommendation Banner */}
       {!loadingLocation && storeCountry && recommendation && (
-        <div className="bg-gradient-to-r from-violet-50 via-purple-50 to-pink-50 border border-primary/30 rounded-xl p-6">
+        <div className="bg-primary/10 border border-primary/30 rounded-xl p-6">
           <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center flex-shrink-0">
               <MapPin className="h-6 w-6 text-white" />
             </div>
             <div className="flex-1">
@@ -415,7 +415,7 @@ export function GatewayConfigTab() {
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                     <img
                       src={gatewayLogos[gateway.gatewayType] || '/logos/generic-payment.svg'}
                       alt={gateway.gatewayType}
@@ -540,7 +540,7 @@ export function GatewayConfigTab() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-card rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             <div className="border-b border-border px-6 py-4">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+              <h2 className="text-2xl font-bold text-primary">
                 {selectedTemplate ? `Configure ${selectedTemplate.displayName}` : 'Choose a Payment Gateway'}
               </h2>
             </div>
@@ -640,7 +640,7 @@ export function GatewayConfigTab() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="border-b border-border px-6 py-4">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+              <h2 className="text-2xl font-bold text-primary">
                 Edit Payment Gateway
               </h2>
             </div>

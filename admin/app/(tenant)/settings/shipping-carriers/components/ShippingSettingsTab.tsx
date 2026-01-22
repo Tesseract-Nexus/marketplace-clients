@@ -368,7 +368,7 @@ export function ShippingSettingsTab() {
           className="w-full flex items-center justify-between p-6 hover:bg-muted transition-colors"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-success rounded-lg flex items-center justify-center">
               <DollarSign className="h-5 w-5 text-white" />
             </div>
             <div className="text-left">

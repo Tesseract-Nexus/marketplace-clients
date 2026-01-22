@@ -339,11 +339,11 @@ export default function CustomerSegmentsPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Total Segments</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                 <Target className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-primary">
               {totalSegments}
             </p>
           </div>
@@ -355,7 +355,7 @@ export default function CustomerSegmentsPage() {
                 <TrendingUp className="h-6 w-6 text-success" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-success">
               {activeSegments}
             </p>
           </div>
@@ -367,7 +367,7 @@ export default function CustomerSegmentsPage() {
                 <Users className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-primary">
               {formatNumber(totalMembers)}
             </p>
           </div>
@@ -746,7 +746,7 @@ export default function CustomerSegmentsPage() {
                   <div className="bg-muted border border-primary/30 rounded-lg p-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-bold text-foreground">Member Count</span>
-                      <span className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+                      <span className="text-3xl font-bold text-primary">
                         {formatNumber(selectedSegment.memberCount || 0)}
                       </span>
                     </div>

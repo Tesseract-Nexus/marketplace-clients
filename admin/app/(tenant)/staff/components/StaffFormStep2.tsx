@@ -43,7 +43,7 @@ export function StaffFormStep2({ formData, setFormData, roles = [] }: StaffFormS
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold flex items-center gap-2 bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+      <h2 className="text-2xl font-bold flex items-center gap-2 text-primary">
         Employment Information
       </h2>
 

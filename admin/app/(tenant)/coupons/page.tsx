@@ -258,7 +258,7 @@ export default function CouponsPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-border/50 shadow-lg">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-violet-900 bg-clip-text text-transparent">
+              <h1 className="text-3xl font-bold text-foreground">
                 Coupons Management
               </h1>
             </div>
@@ -427,7 +427,7 @@ export default function CouponsPage() {
                   <div className={cn(
                     "absolute top-0 left-0 right-0 h-1",
                     coupon.discountType === 'PERCENTAGE' && "bg-gradient-to-r from-blue-500 to-cyan-500",
-                    coupon.discountType === 'FIXED_AMOUNT' && "bg-gradient-to-r from-green-500 to-emerald-500",
+                    coupon.discountType === 'FIXED_AMOUNT' && "bg-success",
                     coupon.discountType === 'FREE_SHIPPING' && "bg-gradient-to-r from-purple-500 to-violet-500",
                     coupon.discountType === 'BUY_X_GET_Y' && "bg-gradient-to-r from-pink-500 to-rose-500"
                   )} />
@@ -568,7 +568,7 @@ export default function CouponsPage() {
               <div className="col-span-full">
                 <Card className="rounded-2xl border-border/50 bg-white/80 backdrop-blur-sm shadow-lg transition-all duration-300">
                   <CardContent className="p-12 text-center pt-12">
-                    <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-100 to-violet-100 flex items-center justify-center">
+                    <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
                       <Ticket className="w-10 h-10 text-primary" />
                     </div>
                     <h3 className="text-xl font-bold text-foreground mb-2">

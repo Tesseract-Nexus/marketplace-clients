@@ -322,11 +322,11 @@ export default function LoyaltyProgramPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Points per Dollar</p>
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                 <TrendingUp className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-primary">
               {formData.pointsPerDollar}x
             </p>
           </div>
@@ -338,7 +338,7 @@ export default function LoyaltyProgramPage() {
                 <Gift className="h-6 w-6 text-primary" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-primary">
               {formData.signupBonus}
             </p>
             <p className="text-xs text-muted-foreground mt-2">points</p>
@@ -351,7 +351,7 @@ export default function LoyaltyProgramPage() {
                 <Users className="h-6 w-6 text-warning" />
               </div>
             </div>
-            <p className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+            <p className="text-3xl font-bold text-warning">
               {formData.tiers.length}
             </p>
           </div>

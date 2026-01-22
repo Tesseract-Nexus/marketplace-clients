@@ -336,7 +336,7 @@ export default function ReviewsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs sm:text-sm text-muted-foreground font-medium">Pending</p>
-              <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mt-1 sm:mt-2">
+              <p className="text-2xl sm:text-3xl font-bold text-warning mt-1 sm:mt-2">
                 {pendingReviews}
               </p>
             </div>
@@ -350,7 +350,7 @@ export default function ReviewsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs sm:text-sm text-muted-foreground font-medium">Approved</p>
-              <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mt-1 sm:mt-2">
+              <p className="text-2xl sm:text-3xl font-bold text-success mt-1 sm:mt-2">
                 {approvedReviews}
               </p>
             </div>
@@ -364,7 +364,7 @@ export default function ReviewsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs sm:text-sm text-muted-foreground font-medium">Flagged</p>
-              <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent mt-1 sm:mt-2">
+              <p className="text-2xl sm:text-3xl font-bold text-destructive mt-1 sm:mt-2">
                 {flaggedReviews}
               </p>
             </div>

@@ -1472,7 +1472,7 @@ export default function ProductsPage() {
               >
                 <ChevronLeft className="w-4 h-4" aria-hidden="true" /> Back to Products List
               </Button>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-4xl font-bold text-primary">
                 {viewMode === 'create' ? 'Create New Product' : `Edit Product: ${selectedProduct?.name}`}
               </h1>
               <p className="text-muted-foreground mt-2">
@@ -1862,7 +1862,7 @@ export default function ProductsPage() {
                     <div className="flex items-center p-6 bg-success-muted rounded-xl border-2 border-success/30">
                       <div className="text-sm w-full">
                         <p className="font-bold text-foreground mb-2 flex items-center gap-1"><TrendingUp className="w-4 h-4" aria-hidden="true" /> Profit Margin</p>
-                        <p className="text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">
+                        <p className="text-3xl font-bold text-success">
                           {formData.price && formData.costPrice
                             ? formatCurrency(parseFloat(formData.price) - parseFloat(formData.costPrice), formData.currencyCode || storeCurrency)
                             : formatCurrency(0, formData.currencyCode || storeCurrency)}
@@ -2437,7 +2437,7 @@ export default function ProductsPage() {
         {/* Header */}
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold text-primary">
               Products Management
             </h1>
             <p className="text-muted-foreground mt-2">

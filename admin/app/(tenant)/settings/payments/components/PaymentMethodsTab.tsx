@@ -123,7 +123,7 @@ export function PaymentMethodsTab() {
                     className="border border-border rounded-lg p-4 hover:border-primary/50 hover:bg-primary/10/50 transition-colors"
                   >
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center text-primary">
+                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
                         {methodIcons[method.type] || <CreditCard className="h-5 w-5" />}
                       </div>
                       <div>

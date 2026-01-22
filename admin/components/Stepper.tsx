@@ -51,7 +51,7 @@ export function Stepper({ steps, currentStep, onStepClick, allowSkip = false }: 
                   className={cn(
                     "w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold transition-all mb-3 border-3 shadow-md",
                     step.number < currentStep
-                      ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white border-success shadow-green-200"
+                      ? "bg-success text-white border-success shadow-green-200"
                       : step.number === currentStep
                       ? "bg-primary text-primary-foreground border-primary/70 shadow-primary/30 ring-4 ring-primary/20 scale-110"
                       : "bg-white text-muted-foreground border-border shadow-gray-100",
@@ -95,7 +95,7 @@ export function Stepper({ steps, currentStep, onStepClick, allowSkip = false }: 
                   className={cn(
                     "h-full rounded-full transition-all",
                     step.number < currentStep
-                      ? "bg-gradient-to-r from-green-500 to-emerald-500 shadow-md shadow-green-200"
+                      ? "bg-success shadow-md shadow-green-200"
                       : "bg-muted"
                   )}
                 />

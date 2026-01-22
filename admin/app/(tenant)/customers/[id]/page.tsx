@@ -594,7 +594,7 @@ export default function CustomerDetailPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground font-medium">Lifetime Value</p>
-                <p className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mt-2">
+                <p className="text-3xl font-bold text-primary mt-2">
                   ${customer.lifetimeValue.toFixed(2)}
                 </p>
               </div>

@@ -703,7 +703,7 @@ export default function OrdersPage() {
                       </div>
                       <div className="bg-gradient-to-br from-blue-50 to-violet-50 -m-2 p-2 rounded-xl border border-primary/20">
                         <p className="text-xs text-primary font-semibold">Total</p>
-                        <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent">
+                        <p className="text-xl font-bold text-primary">
                           {formatCurrency(order.total, order.currencyCode)}
                         </p>
                       </div>
@@ -802,7 +802,7 @@ export default function OrdersPage() {
             <Card className="border-border/50 border-dashed border-2">
               <CardContent className="p-16 text-center">
                 <div className="relative inline-block">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-violet-100 rounded-full blur-xl opacity-50" />
+                  <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl opacity-50" />
                   <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 p-8 rounded-full border-2 border-border">
                     <ShoppingCart className="w-16 h-16 text-muted-foreground" />
                   </div>

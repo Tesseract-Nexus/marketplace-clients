@@ -273,7 +273,7 @@ export default function AppsPluginsPage() {
             <ChevronRight className="w-4 h-4" />
             <span>Apps & Plugins</span>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-primary">
             Apps & Plugins
           </h1>
           <p className="text-muted-foreground mt-1">

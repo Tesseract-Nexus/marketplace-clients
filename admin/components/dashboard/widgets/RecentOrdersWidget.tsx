@@ -73,7 +73,7 @@ export function RecentOrdersWidget({ data }: RecentOrdersWidgetProps) {
               <ShoppingCart className="h-5 w-5 text-white" />
             </div>
             <div>
-              <DashboardCardTitle className="text-lg font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+              <DashboardCardTitle className="text-lg font-bold text-primary">
                 <AdminUIText text="Recent Orders" />
               </DashboardCardTitle>
               <DashboardCardDescription className="text-xs text-muted-foreground font-medium"><AdminUIText text="Latest transactions" /></DashboardCardDescription>

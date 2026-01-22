@@ -78,7 +78,7 @@ export function RevenueTrendChartWidget({ data }: RevenueTrendChartWidgetProps) 
               <TrendingUp className="h-5 w-5 text-white" />
             </div>
             <div>
-              <DashboardCardTitle className="text-lg font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              <DashboardCardTitle className="text-lg font-bold text-success">
                 <AdminUIText text="Revenue Trend" />
               </DashboardCardTitle>
               <DashboardCardDescription className="text-xs text-muted-foreground font-medium"><AdminUIText text="Last 7 days performance" /></DashboardCardDescription>

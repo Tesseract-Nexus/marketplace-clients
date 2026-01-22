@@ -360,11 +360,11 @@ export default function TicketsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total Tickets</p>
-                <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent mt-1 sm:mt-2">
+                <p className="text-2xl sm:text-3xl font-bold text-primary mt-1 sm:mt-2">
                   {totalTickets}
                 </p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                 <TicketIcon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
             </div>
@@ -374,7 +374,7 @@ export default function TicketsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium">Open</p>
-                <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mt-1 sm:mt-2">
+                <p className="text-2xl sm:text-3xl font-bold text-primary mt-1 sm:mt-2">
                   {openTickets}
                 </p>
               </div>
@@ -388,7 +388,7 @@ export default function TicketsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium">In Progress</p>
-                <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent mt-1 sm:mt-2">
+                <p className="text-2xl sm:text-3xl font-bold text-warning mt-1 sm:mt-2">
                   {inProgressTickets}
                 </p>
               </div>
@@ -402,7 +402,7 @@ export default function TicketsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium">Resolved</p>
-                <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mt-1 sm:mt-2">
+                <p className="text-2xl sm:text-3xl font-bold text-success mt-1 sm:mt-2">
                   {resolvedTickets}
                 </p>
               </div>
@@ -416,7 +416,7 @@ export default function TicketsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium">Critical/Urgent</p>
-                <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent mt-1 sm:mt-2">
+                <p className="text-2xl sm:text-3xl font-bold text-destructive mt-1 sm:mt-2">
                   {urgentTickets}
                 </p>
               </div>
@@ -615,7 +615,7 @@ export default function TicketsPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <div className="border-b border-border px-6 py-4">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+                <h2 className="text-2xl font-bold text-primary">
                   Create New Ticket
                 </h2>
               </div>
@@ -742,7 +742,7 @@ export default function TicketsPage() {
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-card rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
               <div className="border-b border-border px-6 py-4">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+                <h2 className="text-2xl font-bold text-primary">
                   Ticket Details
                 </h2>
               </div>

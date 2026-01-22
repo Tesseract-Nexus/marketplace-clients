@@ -57,7 +57,7 @@ export function CustomerSatisfactionWidget({ data }: CustomerSatisfactionWidgetP
               <Smile className="h-5 w-5 text-white" />
             </div>
             <div>
-              <DashboardCardTitle className="text-lg font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+              <DashboardCardTitle className="text-lg font-bold text-warning">
                 <AdminUIText text="Customer Satisfaction" />
               </DashboardCardTitle>
               <DashboardCardDescription className="text-xs text-muted-foreground font-medium"><AdminUIText text="Based on customer reviews" /></DashboardCardDescription>

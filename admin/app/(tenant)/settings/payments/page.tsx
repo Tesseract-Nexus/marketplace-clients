@@ -201,8 +201,8 @@ export default function PaymentsSettingsPage() {
                 <div className="flex items-center gap-4">
                   <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
                     isPaymentReady
-                      ? 'bg-gradient-to-br from-green-500 to-emerald-600'
-                      : 'bg-gradient-to-br from-amber-500 to-orange-600'
+                      ? 'bg-success'
+                      : 'bg-warning'
                   }`}>
                     {isPaymentReady ? (
                       <CheckCircle className="h-7 w-7 text-white" />
@@ -239,7 +239,7 @@ export default function PaymentsSettingsPage() {
                 </div>
                 <div className="h-2 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-blue-500 via-violet-500 to-purple-500 transition-all duration-500"
+                    className="h-full bg-primary transition-all duration-500"
                     style={{ width: `${getSetupProgress()}%` }}
                   />
                 </div>
@@ -284,7 +284,7 @@ export default function PaymentsSettingsPage() {
 
           {/* Quick Setup Card */}
           {recommendation && (
-            <div className="bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 rounded-xl shadow-lg overflow-hidden text-white">
+            <div className="bg-primary rounded-xl shadow-lg overflow-hidden text-primary-foreground">
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <MapPin className="h-5 w-5" />
@@ -374,7 +374,7 @@ export default function PaymentsSettingsPage() {
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-600 data-[state=active]:via-violet-600 data-[state=active]:to-purple-600 data-[state=active]:text-white data-[state=active]:shadow-sm"
+                  className="inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
                 >
                   <Icon className="h-4 w-4 mr-2" />
                   {tab.label}

@@ -545,7 +545,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               {item.icon && (
                 <item.icon className={cn(
                   "w-5 h-5 transition-colors",
-                  isExpanded ? "text-primary" : "text-slate-400 group-hover:text-primary"
+                  isExpanded ? "text-primary" : "text-sidebar-foreground/70 group-hover:text-primary"
                 )} aria-hidden="true" />
               )}
               {!item.icon && (
@@ -562,7 +562,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             {isExpanded ? (
               <ChevronDown className="w-4 h-4 text-primary" aria-hidden="true" />
             ) : (
-              <ChevronRight className="w-4 h-4 text-slate-500 group-hover:text-primary transition-colors" aria-hidden="true" />
+              <ChevronRight className="w-4 h-4 text-sidebar-foreground/60 group-hover:text-primary transition-colors" aria-hidden="true" />
             )}
           </button>
           {isExpanded && (
@@ -604,7 +604,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         {item.icon ? (
           <item.icon className={cn(
             "w-5 h-5 relative z-10 transition-colors",
-            active ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary"
+            active ? "text-primary-foreground" : "text-sidebar-foreground/70 group-hover:text-primary"
           )} aria-hidden="true" />
         ) : (
           <div className="w-1.5 h-1.5 rounded-full transition-colors relative z-10"

@@ -229,7 +229,7 @@ export default function WebhooksPage() {
             <ChevronRight className="w-4 h-4" />
             <span>Webhooks</span>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold text-warning">
             Webhooks
           </h1>
           <p className="text-muted-foreground mt-1">

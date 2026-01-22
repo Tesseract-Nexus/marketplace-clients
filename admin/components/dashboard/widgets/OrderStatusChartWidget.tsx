@@ -49,7 +49,7 @@ export function OrderStatusChartWidget({ data }: OrderStatusChartWidgetProps) {
               <BarChart3 className="h-5 w-5 text-white" />
             </div>
             <div>
-              <DashboardCardTitle className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <DashboardCardTitle className="text-lg font-bold text-primary">
                 <AdminUIText text="Order Status" />
               </DashboardCardTitle>
               <DashboardCardDescription className="text-xs text-muted-foreground font-medium"><AdminUIText text="Distribution by status" /></DashboardCardDescription>

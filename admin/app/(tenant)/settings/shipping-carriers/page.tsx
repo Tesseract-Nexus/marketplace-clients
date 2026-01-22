@@ -201,8 +201,8 @@ export default function ShippingCarriersSettingsPage() {
                 <div className="flex items-center gap-4">
                   <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
                     isShippingReady
-                      ? 'bg-gradient-to-br from-green-500 to-emerald-600'
-                      : 'bg-gradient-to-br from-amber-500 to-orange-600'
+                      ? 'bg-success'
+                      : 'bg-warning'
                   }`}>
                     {isShippingReady ? (
                       <CheckCircle className="h-7 w-7 text-white" />
@@ -284,7 +284,7 @@ export default function ShippingCarriersSettingsPage() {
 
           {/* Quick Setup Card */}
           {recommendation && (
-            <div className="bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 rounded-xl shadow-lg overflow-hidden text-white">
+            <div className="bg-primary rounded-xl shadow-lg overflow-hidden text-white">
               <div className="p-6">
                 <div className="flex items-center gap-2 mb-4">
                   <MapPin className="h-5 w-5" />
