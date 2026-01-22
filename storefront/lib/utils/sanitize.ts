@@ -4,7 +4,6 @@
  * Uses dompurify for client-side sanitization
  */
 
-// @ts-expect-error - dompurify types may not be fully compatible
 import DOMPurify from 'dompurify';
 
 /**
