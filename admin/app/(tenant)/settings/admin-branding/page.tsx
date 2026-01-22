@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { Palette, Save, RefreshCw, Loader2, AlertCircle, Upload, Image, Check, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
-import { Input } from '@/components/ui/input';
 import { PageHeader } from '@/components/PageHeader';
 import { BrandingAssetUploader } from '@/components/settings/BrandingAssetUploader';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -350,9 +349,9 @@ export default function AdminBrandingPage() {
       fallbackDescription="You don't have permission to view admin branding settings."
     >
       <div className="min-h-screen bg-background">
-        <div className="space-y-6 animate-in fade-in duration-500">
+        <div className="animate-in fade-in duration-500">
           {loadError && (
-            <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-start gap-3">
+            <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-start gap-3 mb-6">
               <AlertCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
               <p className="text-sm text-warning-foreground">{loadError}</p>
             </div>
@@ -376,176 +375,254 @@ export default function AdminBrandingPage() {
             }
           />
 
-          {/* Theme Presets */}
-          <div className="bg-card rounded-lg border border-border p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
-                <Sparkles className="h-5 w-5 text-accent" />
+          {/* Two Column Layout */}
+          <div className="mt-6 grid grid-cols-1 xl:grid-cols-[1fr,320px] gap-6">
+            {/* Left Column - Settings */}
+            <div className="space-y-6">
+              {/* Theme Presets */}
+              <div className="bg-card rounded-lg border border-border p-5">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 bg-accent/10 rounded-lg flex items-center justify-center">
+                    <Sparkles className="h-4 w-4 text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground">Theme Presets</h3>
+                    <p className="text-xs text-muted-foreground">Quick start with professional color schemes</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                  {themePresets.map((preset) => {
+                    const isSelected =
+                      brandingData.colors.primaryColor === preset.colors.primaryColor &&
+                      brandingData.colors.accentColor === preset.colors.accentColor;
+                    return (
+                      <button
+                        key={preset.id}
+                        onClick={() => setBrandingData(prev => ({
+                          ...prev,
+                          colors: { ...prev.colors, ...preset.colors },
+                        }))}
+                        className={`relative group p-2 rounded-lg border-2 transition-all duration-200 hover:shadow-md ${
+                          isSelected
+                            ? 'border-accent bg-accent/5 shadow-sm'
+                            : 'border-border hover:border-accent/50'
+                        }`}
+                        title={preset.description}
+                      >
+                        {isSelected && (
+                          <div className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-accent rounded-full flex items-center justify-center">
+                            <Check className="w-2.5 h-2.5 text-white" />
+                          </div>
+                        )}
+                        <div className="flex gap-0.5 mb-1.5 justify-center">
+                          <div
+                            className="w-4 h-4 rounded shadow-sm"
+                            style={{ backgroundColor: preset.preview.primary }}
+                          />
+                          <div
+                            className="w-4 h-4 rounded shadow-sm"
+                            style={{ backgroundColor: preset.preview.accent }}
+                          />
+                          <div
+                            className="w-4 h-4 rounded shadow-sm border border-border/50"
+                            style={{ backgroundColor: preset.preview.bg }}
+                          />
+                        </div>
+                        <p className="text-[10px] font-medium text-foreground truncate text-center">{preset.name}</p>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-semibold text-foreground">Theme Presets</h3>
-                <p className="text-sm text-muted-foreground">Quick start with professional color schemes</p>
+
+              {/* Brand Colors */}
+              <div className="bg-card rounded-lg border border-border p-5">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Palette className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground">Brand Colors</h3>
+                    <p className="text-xs text-muted-foreground">Customize your color scheme</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+                  <ColorPicker
+                    label="Primary"
+                    value={brandingData.colors.primaryColor}
+                    onChange={(v) => updateField('colors', 'primaryColor', v)}
+                  />
+                  <ColorPicker
+                    label="Secondary"
+                    value={brandingData.colors.secondaryColor}
+                    onChange={(v) => updateField('colors', 'secondaryColor', v)}
+                  />
+                  <ColorPicker
+                    label="Accent"
+                    value={brandingData.colors.accentColor}
+                    onChange={(v) => updateField('colors', 'accentColor', v)}
+                  />
+                  <ColorPicker
+                    label="Sidebar BG"
+                    value={brandingData.colors.sidebarBg}
+                    onChange={(v) => updateField('colors', 'sidebarBg', v)}
+                  />
+                  <ColorPicker
+                    label="Sidebar Text"
+                    value={brandingData.colors.sidebarText}
+                    onChange={(v) => updateField('colors', 'sidebarText', v)}
+                  />
+                  <ColorPicker
+                    label="Sidebar Active"
+                    value={brandingData.colors.sidebarActiveText}
+                    onChange={(v) => updateField('colors', 'sidebarActiveText', v)}
+                  />
+                </div>
+              </div>
+
+              {/* Logo & Favicon */}
+              <div className="bg-card rounded-lg border border-border p-5">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Image className="h-4 w-4 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-foreground">Logo & Favicon</h3>
+                    <p className="text-xs text-muted-foreground">Upload your brand assets</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <BrandingAssetUploader
+                    assetType="logo"
+                    currentUrl={brandingData.general.logoUrl}
+                    onUpload={(url) => updateField('general', 'logoUrl', url)}
+                    onRemove={() => updateField('general', 'logoUrl', '')}
+                    label="Logo"
+                    description="PNG or SVG, max 2MB"
+                    aspectRatio="auto"
+                    disabled={loading}
+                    tenantId={currentTenant?.id}
+                  />
+                  <BrandingAssetUploader
+                    assetType="favicon"
+                    currentUrl={brandingData.general.faviconUrl}
+                    onUpload={(url) => updateField('general', 'faviconUrl', url)}
+                    onRemove={() => updateField('general', 'faviconUrl', '')}
+                    label="Favicon"
+                    description="32x32px ICO or PNG"
+                    aspectRatio="square"
+                    disabled={loading}
+                    tenantId={currentTenant?.id}
+                  />
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              {themePresets.map((preset) => {
-                const isSelected =
-                  brandingData.colors.primaryColor === preset.colors.primaryColor &&
-                  brandingData.colors.accentColor === preset.colors.accentColor;
-                return (
-                  <button
-                    key={preset.id}
-                    onClick={() => setBrandingData(prev => ({
-                      ...prev,
-                      colors: { ...prev.colors, ...preset.colors },
-                    }))}
-                    className={`relative group p-3 rounded-xl border-2 transition-all duration-200 hover:shadow-md ${
-                      isSelected
-                        ? 'border-accent bg-accent/5 shadow-sm'
-                        : 'border-border hover:border-accent/50'
-                    }`}
-                  >
-                    {isSelected && (
-                      <div className="absolute -top-2 -right-2 w-5 h-5 bg-accent rounded-full flex items-center justify-center">
-                        <Check className="w-3 h-3 text-white" />
+
+            {/* Right Column - Live Preview (Sticky) */}
+            <div className="xl:sticky xl:top-24 xl:self-start">
+              <div className="bg-card rounded-lg border border-border overflow-hidden">
+                <div className="px-4 py-3 border-b border-border bg-muted/50">
+                  <h3 className="text-sm font-semibold text-foreground">Live Preview</h3>
+                </div>
+
+                {/* Mini Admin Layout Preview */}
+                <div className="p-4">
+                  <div className="rounded-lg border border-border overflow-hidden shadow-sm">
+                    {/* Mini Header */}
+                    <div
+                      className="h-8 flex items-center px-3 border-b"
+                      style={{ backgroundColor: brandingData.colors.headerBg || '#ffffff' }}
+                    >
+                      <div
+                        className="w-16 h-3 rounded"
+                        style={{ backgroundColor: brandingData.colors.headerText || brandingData.colors.primaryColor }}
+                      />
+                      <div className="ml-auto flex gap-1.5">
+                        <div className="w-4 h-4 rounded bg-muted" />
+                        <div className="w-4 h-4 rounded bg-muted" />
                       </div>
-                    )}
-                    {/* Color Preview */}
-                    <div className="flex gap-1 mb-3">
-                      <div
-                        className="w-6 h-6 rounded-md shadow-sm"
-                        style={{ backgroundColor: preset.preview.primary }}
-                      />
-                      <div
-                        className="w-6 h-6 rounded-md shadow-sm"
-                        style={{ backgroundColor: preset.preview.accent }}
-                      />
-                      <div
-                        className="w-6 h-6 rounded-md shadow-sm border border-border"
-                        style={{ backgroundColor: preset.preview.bg }}
-                      />
                     </div>
-                    <p className="text-xs font-semibold text-foreground truncate">{preset.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{preset.description}</p>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
-          {/* Logo & Favicon */}
-          <div className="bg-card rounded-lg border border-border p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Image className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-foreground">Logo & Favicon</h3>
-                <p className="text-sm text-muted-foreground">Upload your brand assets</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <BrandingAssetUploader
-                assetType="logo"
-                currentUrl={brandingData.general.logoUrl}
-                onUpload={(url) => updateField('general', 'logoUrl', url)}
-                onRemove={() => updateField('general', 'logoUrl', '')}
-                label="Logo"
-                description="PNG or SVG, max 2MB"
-                aspectRatio="auto"
-                disabled={loading}
-                tenantId={currentTenant?.id}
-              />
-              <BrandingAssetUploader
-                assetType="favicon"
-                currentUrl={brandingData.general.faviconUrl}
-                onUpload={(url) => updateField('general', 'faviconUrl', url)}
-                onRemove={() => updateField('general', 'faviconUrl', '')}
-                label="Favicon"
-                description="32x32px ICO or PNG"
-                aspectRatio="square"
-                disabled={loading}
-                tenantId={currentTenant?.id}
-              />
-            </div>
-          </div>
+                    <div className="flex h-40">
+                      {/* Mini Sidebar */}
+                      <div
+                        className="w-14 flex flex-col items-center py-3 gap-2 border-r"
+                        style={{ backgroundColor: brandingData.colors.sidebarBg }}
+                      >
+                        {brandingData.general.logoUrl ? (
+                          <img
+                            src={brandingData.general.logoUrl}
+                            alt="Logo"
+                            className="w-7 h-7 rounded object-cover"
+                          />
+                        ) : (
+                          <div
+                            className="w-7 h-7 rounded flex items-center justify-center text-white text-xs font-bold"
+                            style={{ backgroundColor: brandingData.colors.primaryColor }}
+                          >
+                            A
+                          </div>
+                        )}
+                        <div className="w-8 h-1.5 rounded" style={{ backgroundColor: brandingData.colors.sidebarText, opacity: 0.4 }} />
+                        <div
+                          className="w-8 h-1.5 rounded"
+                          style={{ backgroundColor: brandingData.colors.sidebarActiveText }}
+                        />
+                        <div className="w-8 h-1.5 rounded" style={{ backgroundColor: brandingData.colors.sidebarText, opacity: 0.4 }} />
+                        <div className="w-8 h-1.5 rounded" style={{ backgroundColor: brandingData.colors.sidebarText, opacity: 0.4 }} />
+                      </div>
 
-          {/* Brand Colors */}
-          <div className="bg-card rounded-lg border border-border p-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Palette className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-foreground">Brand Colors</h3>
-                <p className="text-sm text-muted-foreground">Customize your color scheme</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <ColorPicker
-                label="Primary"
-                value={brandingData.colors.primaryColor}
-                onChange={(v) => updateField('colors', 'primaryColor', v)}
-              />
-              <ColorPicker
-                label="Secondary"
-                value={brandingData.colors.secondaryColor}
-                onChange={(v) => updateField('colors', 'secondaryColor', v)}
-              />
-              <ColorPicker
-                label="Accent"
-                value={brandingData.colors.accentColor}
-                onChange={(v) => updateField('colors', 'accentColor', v)}
-              />
-              <ColorPicker
-                label="Sidebar Background"
-                value={brandingData.colors.sidebarBg}
-                onChange={(v) => updateField('colors', 'sidebarBg', v)}
-              />
-              <ColorPicker
-                label="Sidebar Text"
-                value={brandingData.colors.sidebarText}
-                onChange={(v) => updateField('colors', 'sidebarText', v)}
-              />
-              <ColorPicker
-                label="Sidebar Active"
-                value={brandingData.colors.sidebarActiveText}
-                onChange={(v) => updateField('colors', 'sidebarActiveText', v)}
-              />
-            </div>
-          </div>
+                      {/* Mini Content Area */}
+                      <div className="flex-1 p-3 bg-background">
+                        <div className="space-y-2">
+                          <div
+                            className="h-3 w-24 rounded"
+                            style={{ backgroundColor: brandingData.colors.primaryColor }}
+                          />
+                          <div className="h-2 w-full rounded bg-muted" />
+                          <div className="h-2 w-3/4 rounded bg-muted" />
+                          <div className="mt-3 flex gap-2">
+                            <div
+                              className="h-5 w-14 rounded text-[8px] text-white flex items-center justify-center"
+                              style={{ backgroundColor: brandingData.colors.accentColor }}
+                            >
+                              Button
+                            </div>
+                            <div className="h-5 w-14 rounded border border-border bg-background" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-          {/* Preview */}
-          <div className="bg-card rounded-lg border border-border p-6">
-            <h3 className="text-lg font-semibold text-foreground mb-4">Preview</h3>
-            <div className="flex gap-4 items-start">
-              {/* Mini Sidebar Preview */}
-              <div
-                className="w-16 h-32 rounded-lg flex flex-col items-center py-3 gap-2"
-                style={{ backgroundColor: brandingData.colors.sidebarBg }}
-              >
-                <div className="w-8 h-8 rounded" style={{ backgroundColor: brandingData.colors.primaryColor }} />
-                <div className="w-10 h-2 rounded" style={{ backgroundColor: brandingData.colors.sidebarText, opacity: 0.5 }} />
-                <div className="w-10 h-2 rounded" style={{ backgroundColor: brandingData.colors.sidebarActiveText }} />
-                <div className="w-10 h-2 rounded" style={{ backgroundColor: brandingData.colors.sidebarText, opacity: 0.5 }} />
-              </div>
-              {/* Color Swatches */}
-              <div className="flex gap-2 flex-wrap">
-                <div
-                  className="w-12 h-12 rounded-lg shadow-sm"
-                  style={{ backgroundColor: brandingData.colors.primaryColor }}
-                  title="Primary"
-                />
-                <div
-                  className="w-12 h-12 rounded-lg shadow-sm"
-                  style={{ backgroundColor: brandingData.colors.secondaryColor }}
-                  title="Secondary"
-                />
-                <div
-                  className="w-12 h-12 rounded-lg shadow-sm"
-                  style={{ backgroundColor: brandingData.colors.accentColor }}
-                  title="Accent"
-                />
+                {/* Color Swatches */}
+                <div className="px-4 pb-4">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Color Palette</p>
+                  <div className="flex gap-2">
+                    <div className="flex-1 text-center">
+                      <div
+                        className="h-8 rounded-lg shadow-sm mb-1"
+                        style={{ backgroundColor: brandingData.colors.primaryColor }}
+                      />
+                      <span className="text-[10px] text-muted-foreground">Primary</span>
+                    </div>
+                    <div className="flex-1 text-center">
+                      <div
+                        className="h-8 rounded-lg shadow-sm mb-1"
+                        style={{ backgroundColor: brandingData.colors.secondaryColor }}
+                      />
+                      <span className="text-[10px] text-muted-foreground">Secondary</span>
+                    </div>
+                    <div className="flex-1 text-center">
+                      <div
+                        className="h-8 rounded-lg shadow-sm mb-1"
+                        style={{ backgroundColor: brandingData.colors.accentColor }}
+                      />
+                      <span className="text-[10px] text-muted-foreground">Accent</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -555,23 +632,24 @@ export default function AdminBrandingPage() {
   );
 }
 
-// Simple color picker component
+// Compact color picker component
 function ColorPicker({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
-    <div>
-      <label className="block text-sm font-medium text-foreground mb-2">{label}</label>
-      <div className="flex gap-2">
+    <div className="flex items-center gap-2 p-2 rounded-lg bg-muted/50 border border-border">
+      <input
+        type="color"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-8 h-8 rounded cursor-pointer border border-border flex-shrink-0"
+      />
+      <div className="flex-1 min-w-0">
+        <label className="block text-xs font-medium text-foreground">{label}</label>
         <input
-          type="color"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-12 h-10 rounded cursor-pointer border border-border"
-        />
-        <Input
+          type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder="#000000"
-          className="flex-1"
+          className="w-full text-xs text-muted-foreground bg-transparent border-none p-0 focus:outline-none focus:text-foreground"
         />
       </div>
     </div>
