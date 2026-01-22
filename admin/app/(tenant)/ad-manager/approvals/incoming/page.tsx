@@ -5,7 +5,6 @@ import Link from 'next/link';
 import {
   RefreshCw,
   Loader2,
-  AlertCircle,
   Clock,
   CheckCircle,
   XCircle,
@@ -23,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PageError } from '@/components/PageError';
 import { Textarea } from '@/components/ui/textarea';
 import { PermissionGate } from '@/components/permission-gate';
 import { Permissions } from '@/hooks/usePermission';
@@ -372,16 +372,8 @@ export default function IncomingApprovalsPage() {
         </div>
 
         <div className="px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-          {/* Error Banner */}
-          {error && (
-            <div className="bg-error-muted border border-error/30 rounded-lg p-4 flex items-center gap-3 mb-6">
-              <AlertCircle className="h-5 w-5 text-error flex-shrink-0" />
-              <p className="text-error">{error}</p>
-              <Button variant="outline" size="sm" onClick={fetchSubmissions} className="ml-auto">
-                Retry
-              </Button>
-            </div>
-          )}
+          {/* Error State */}
+          <PageError error={error} onRetry={fetchSubmissions} onDismiss={() => setError(null)} />
 
           {/* Submissions List */}
           {loading ? (
