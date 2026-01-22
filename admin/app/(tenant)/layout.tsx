@@ -265,10 +265,8 @@ const navigation: NavItem[] = [
     hidden: false,
     children: [
       { name: "Store Settings", href: "/settings/general" },
-      { name: "Storefront", href: "/settings/storefront-theme" },
       { name: "Shipping", href: "/settings/shipping-carriers" },
       { name: "Payments", href: "/settings/payments" },
-      { name: "Taxes", href: "/settings/taxes" },
       { name: "Approval Workflows", href: "/settings/approval-workflows", minRole: "owner" },
       { name: "Audit Logs", href: "/settings/audit-logs" },
     ],

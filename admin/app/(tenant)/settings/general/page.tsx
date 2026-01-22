@@ -23,12 +23,14 @@ import {
   EyeOff,
   Rocket,
   ArrowRight,
+  Palette,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
 import { Select } from '@/components/Select';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { PageHeader } from '@/components/PageHeader';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { useDialog } from '@/contexts/DialogContext';
@@ -44,6 +46,8 @@ import { useTenant } from '@/contexts/TenantContext';
 import { useUser } from '@/contexts/UserContext';
 import { getStorefrontDomain } from '@/lib/utils/tenant';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { Suspense } from 'react';
+import { StorefrontThemeContent } from '@/components/settings/StorefrontThemeContent';
 
 interface GeneralSettings {
   store: {
@@ -582,6 +586,9 @@ export default function GeneralSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [settingsId, setSettingsId] = useState<string | null>(null);
+
+  // Tab state
+  const [activeTab, setActiveTab] = useState<'general' | 'theme'>('general');
 
   // Storefront state
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
@@ -1191,21 +1198,21 @@ export default function GeneralSettingsPage() {
     <PermissionGate
       permission={Permission.SETTINGS_VIEW}
       fallback="styled"
-      fallbackTitle="General Settings"
-      fallbackDescription="You don't have permission to view general settings."
+      fallbackTitle="Store Settings"
+      fallbackDescription="You don't have permission to view store settings."
     >
     <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
-          title="General Settings"
-          description="Configure your store's basic information and preferences"
+          title="Store Settings"
+          description="Configure your store information, appearance, and preferences"
           breadcrumbs={[
             { label: 'Home', href: '/' },
             { label: 'Settings', href: '/settings' },
-            { label: 'General' },
+            { label: 'Store Settings' },
           ]}
           actions={
-            selectedStorefront ? (
+            activeTab === 'general' && selectedStorefront ? (
               <Button
                 onClick={handleSave}
                 disabled={!hasChanges || isSaving}
@@ -1222,22 +1229,43 @@ export default function GeneralSettingsPage() {
           }
         />
 
-        {/* Store Details Selector */}
-        <StoreSelector
-          storefronts={storefronts}
-          selectedStorefront={selectedStorefront}
-          onSelect={setSelectedStorefront}
-          onCreateNew={() => setShowCreateModal(true)}
-          onStorefrontCreated={handleStorefrontCreated}
-          loading={loadingStorefronts}
-          vendorId={vendorId}
-          className="mb-6"
-        />
+        {/* Main Tabs */}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'general' | 'theme')} className="w-full">
+          <TabsList className="inline-flex h-12 items-center justify-start rounded-xl bg-card border border-border p-1 shadow-sm mb-6">
+            <TabsTrigger
+              value="general"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-lg px-6 py-2.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
+            >
+              <Store className="h-4 w-4 mr-2" />
+              General
+            </TabsTrigger>
+            <TabsTrigger
+              value="theme"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-lg px-6 py-2.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
+            >
+              <Palette className="h-4 w-4 mr-2" />
+              Theme & Design
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Completeness Indicator */}
-        {selectedStorefront && (
-          <CompletenessIndicator settings={settings} onFieldClick={scrollToField} />
-        )}
+          {/* General Tab Content */}
+          <TabsContent value="general" className="focus-visible:outline-none">
+            {/* Store Details Selector */}
+            <StoreSelector
+              storefronts={storefronts}
+              selectedStorefront={selectedStorefront}
+              onSelect={setSelectedStorefront}
+              onCreateNew={() => setShowCreateModal(true)}
+              onStorefrontCreated={handleStorefrontCreated}
+              loading={loadingStorefronts}
+              vendorId={vendorId}
+              className="mb-6"
+            />
+
+            {/* Completeness Indicator */}
+            {selectedStorefront && (
+              <CompletenessIndicator settings={settings} onFieldClick={scrollToField} />
+            )}
 
         {/* Settings Forms */}
         {selectedStorefront ? (
@@ -1601,6 +1629,19 @@ export default function GeneralSettingsPage() {
             </Button>
           </div>
         )}
+          </TabsContent>
+
+          {/* Theme & Design Tab Content */}
+          <TabsContent value="theme" className="focus-visible:outline-none">
+            <Suspense fallback={
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 text-primary animate-spin" />
+              </div>
+            }>
+              <StorefrontThemeContent embedded />
+            </Suspense>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Create Storefront Modal */}
