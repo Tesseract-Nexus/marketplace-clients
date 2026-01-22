@@ -264,6 +264,7 @@ const navigation: NavItem[] = [
     children: [
       { name: "General", href: "/settings/general" },
       { name: "Storefront", href: "/settings/storefront-theme" },
+      { name: "Admin Branding", href: "/settings/admin-branding" },
       { name: "Domains", href: "/settings/domains" },
       { name: "Shipping", href: "/settings/shipping-carriers" },
       { name: "Payments", href: "/settings/payments" },
