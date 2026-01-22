@@ -195,7 +195,7 @@ export default function PaymentsSettingsPage() {
         {/* Payment Status Dashboard */}
         <div className={`grid grid-cols-1 gap-6 ${recommendation ? 'lg:grid-cols-3' : ''}`}>
           {/* Main Status Card */}
-          <div className={`bg-card rounded-xl border border-border shadow-sm overflow-hidden ${recommendation ? 'lg:col-span-2' : ''}`}
+          <div className={`bg-card rounded-xl border border-border shadow-sm overflow-hidden ${recommendation ? 'lg:col-span-2' : ''}`}>
             <div className="p-6">
               <div className="flex items-start justify-between mb-6">
                 <div className="flex items-center gap-4">
