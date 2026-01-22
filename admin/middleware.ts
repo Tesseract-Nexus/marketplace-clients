@@ -58,6 +58,7 @@ const VALIDATION_TIMEOUT = 1500; // 1.5 seconds - fail fast for better UX
  * Supports multiple patterns:
  * 1. {tenant}-admin.tesserix.app (cloud - prod/dev/staging)
  * 2. {tenant}.localhost (local development)
+ * 3. admin.{custom-domain} (custom domains - resolved via headers from VirtualService)
  */
 function extractTenantFromHost(host: string): string | null {
   // Remove port if present
@@ -90,7 +91,27 @@ function extractTenantFromHost(host: string): string | null {
     return null;
   }
 
-  // No tenant found
+  // No tenant found from hostname - will check headers in middleware
+  return null;
+}
+
+/**
+ * Extract tenant slug from request headers (set by Istio VirtualService for custom domains)
+ *
+ * For custom domains like admin.yahvismartfarm.com, the VirtualService injects:
+ * - X-Tenant-Slug: the tenant slug (e.g., "customer-store")
+ * - X-Tenant-ID: the tenant UUID
+ * - X-Custom-Domain: the custom domain (e.g., "yahvismartfarm.com")
+ *
+ * Security: These headers are set by Istio's VirtualService "set" operation which
+ * OVERWRITES any client-provided headers, so they cannot be spoofed.
+ */
+function extractTenantFromHeaders(request: NextRequest): string | null {
+  // X-Tenant-Slug is set by VirtualService for custom domain requests
+  const tenantSlug = request.headers.get('x-tenant-slug');
+  if (tenantSlug && tenantSlug.length > 0) {
+    return tenantSlug;
+  }
   return null;
 }
 
@@ -218,8 +239,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Extract tenant from subdomain
+  // Extract tenant from subdomain first
   let tenantSlug = extractTenantFromHost(host);
+
+  // If not found in hostname, check headers (for custom domains)
+  // VirtualService injects X-Tenant-Slug for custom domain requests
+  if (!tenantSlug) {
+    tenantSlug = extractTenantFromHeaders(request);
+    if (tenantSlug) {
+      console.log('[Middleware] Tenant resolved from headers (custom domain):', tenantSlug);
+    }
+  }
 
   // DEV MODE: Use mock tenant when no tenant in subdomain
   if (!tenantSlug && DEV_AUTH_BYPASS) {

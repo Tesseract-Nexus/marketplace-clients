@@ -40,6 +40,25 @@ function getTenantFromHost(host: string): string | null {
   return null;
 }
 
+/**
+ * Extract tenant slug from request headers (set by Istio VirtualService for custom domains)
+ *
+ * For custom domains like yahvismartfarm.com, the VirtualService injects:
+ * - X-Tenant-Slug: the tenant slug (e.g., "customer-store")
+ * - X-Tenant-ID: the tenant UUID
+ * - X-Custom-Domain: the custom domain (e.g., "yahvismartfarm.com")
+ *
+ * Security: These headers are set by Istio's VirtualService "set" operation which
+ * OVERWRITES any client-provided headers, so they cannot be spoofed.
+ */
+function getTenantFromHeaders(request: NextRequest): string | null {
+  const tenantSlug = request.headers.get('x-tenant-slug');
+  if (tenantSlug && tenantSlug.length > 0) {
+    return tenantSlug;
+  }
+  return null;
+}
+
 export function middleware(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
   const host = request.headers.get('host') || '';
@@ -49,9 +68,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Extract tenant from hostname (subdomain)
+  // Extract tenant from hostname (subdomain) first
   // e.g., demo-store.tesserix.app -> demo-store
-  const tenantSlug = getTenantFromHost(host);
+  let tenantSlug = getTenantFromHost(host);
+
+  // If not found in hostname, check headers (for custom domains)
+  // VirtualService injects X-Tenant-Slug for custom domain requests
+  if (!tenantSlug) {
+    tenantSlug = getTenantFromHeaders(request);
+  }
 
   // Check for preview mode via query parameter
   // This allows store owners to preview unpublished storefronts
