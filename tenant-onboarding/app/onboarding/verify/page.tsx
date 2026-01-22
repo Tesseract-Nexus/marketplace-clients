@@ -489,7 +489,10 @@ function VerifyEmailContent() {
     const fetchEmailFromSession = async () => {
       try {
         const session = await onboardingApi.getOnboardingSession(sessionId);
-        const sessionEmail = session.contact_details?.email || session.contact_info?.email;
+        // Handle both legacy (contact_details/contact_info) and new (contact_information array) formats
+        const sessionEmail = session.contact_details?.email
+          || session.contact_info?.email
+          || session.contact_information?.[0]?.email;
         if (sessionEmail) {
           devLog('[Verify] Email fetched from session API:', sessionEmail);
           setFetchedEmail(sessionEmail);

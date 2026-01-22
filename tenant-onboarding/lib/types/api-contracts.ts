@@ -29,6 +29,7 @@ export interface SessionResponse {
   business_info?: BusinessInformation;
   contact_info?: ContactInformation;
   contact_details?: ContactInformation;
+  contact_information?: ContactInformation[]; // Backend returns array
   address?: BusinessAddress;
   business_address?: BusinessAddress;
   store_setup?: StoreSetup;
