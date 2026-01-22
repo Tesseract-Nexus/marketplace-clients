@@ -3,7 +3,6 @@ import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard,
   ShoppingCart,
   Package,
   Users,
@@ -96,7 +95,7 @@ interface NavItem {
 // Default: all items visible except adManager and featureFlags
 // =============================================================================
 const SIDEBAR_VISIBILITY: Record<string, boolean> = {
-  dashboard: process.env.NEXT_PUBLIC_SIDEBAR_DASHBOARD !== 'false',
+  // dashboard removed - logo/brand serves as home link
   analytics: process.env.NEXT_PUBLIC_SIDEBAR_ANALYTICS !== 'false',
   catalog: process.env.NEXT_PUBLIC_SIDEBAR_CATALOG !== 'false',
   orders: process.env.NEXT_PUBLIC_SIDEBAR_ORDERS !== 'false',
@@ -123,7 +122,7 @@ const isSidebarItemHidden = (key?: string): boolean => {
 // Roles: owner > admin > manager > member > viewer
 // key: used for sidebar visibility configuration via env vars
 const navigation: NavItem[] = [
-  { key: "dashboard", name: "Dashboard", href: "/", icon: LayoutDashboard, hidden: false }, // All roles
+  // Dashboard removed - logo/brand in sidebar header serves as home link (industry standard UX)
   {
     key: "analytics",
     name: "Analytics",
@@ -582,9 +581,15 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Header - Logo & Name */}
+          {/* Header - Logo & Name (clickable to dashboard) */}
           <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
-            <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              prefetch={false}
+              onClick={(e) => handleNavClick(e, '/')}
+              aria-label="Go to dashboard"
+              className="flex items-center gap-3 rounded-lg transition-all duration-200 hover:opacity-80"
+            >
               {currentTenant?.logoUrl ? (
                 <img
                   src={currentTenant.logoUrl}
@@ -605,7 +610,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
                 </span>
                 <span className="text-xs text-sidebar-text-muted">Admin Panel</span>
               </div>
-            </div>
+            </Link>
             <Button
               variant="ghost"
               size="sm"
