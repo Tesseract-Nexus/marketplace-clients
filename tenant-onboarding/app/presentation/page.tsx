@@ -713,7 +713,7 @@ export default function PresentationPage() {
                     <div key={idx} className="bg-card border border-border rounded-2xl p-6 text-left shadow-card">
                       <div className="flex gap-1 mb-4">
                         {[...Array(t.rating)].map((_, i) => (
-                          <Star key={i} className="w-4 h-4 text-foreground-tertiary fill-warm-400" />
+                          <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                         ))}
                       </div>
                       <p className="text-sm text-foreground-secondary mb-4 italic">&ldquo;{t.content}&rdquo;</p>
