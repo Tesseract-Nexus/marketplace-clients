@@ -11,6 +11,7 @@ import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
+import { PageLoading } from '@/components/common';
 import { Pagination } from '@/components/Pagination';
 import { reviewService } from '@/lib/services/reviewService';
 import { productService } from '@/lib/services/productService';
@@ -285,7 +286,7 @@ export default function ReviewsPage() {
       fallback="styled"
       fallbackTitle="Reviews Access Required"
       fallbackDescription="You don't have the required permissions to view reviews. Please contact your administrator to request access."
-      loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
+      loading={<PageLoading fullScreen />}
     >
     <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">

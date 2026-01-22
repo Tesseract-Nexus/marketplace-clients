@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import { Search, Plus, Eye, CheckCircle, Clock, XCircle, AlertTriangle, Ticket as TicketIcon, User, MessageSquare, AlertCircle, X, Loader2 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
+import { PageLoading } from '@/components/common';
 import { useTenant } from '@/contexts/TenantContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -312,7 +313,7 @@ export default function TicketsPage() {
       fallback="styled"
       fallbackTitle="Tickets Access Required"
       fallbackDescription="You don't have the required permissions to view tickets. Please contact your administrator to request access."
-      loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
+      loading={<PageLoading fullScreen />}
     >
     <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
