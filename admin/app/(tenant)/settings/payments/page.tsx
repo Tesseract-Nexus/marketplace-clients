@@ -15,6 +15,7 @@ import {
   ArrowRight,
   Zap,
   TrendingUp,
+  Receipt,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/PageHeader';
@@ -24,6 +25,7 @@ import { PlatformFeesTab } from './components/PlatformFeesTab';
 import { RegionalSettingsTab } from './components/RegionalSettingsTab';
 import { PaymentMethodsTab } from './components/PaymentMethodsTab';
 import { SecuritySettingsTab } from './components/SecuritySettingsTab';
+import { TaxInfoTab } from './components/TaxInfoTab';
 import { settingsService } from '@/lib/services/settingsService';
 import { storefrontService } from '@/lib/services/storefrontService';
 import { paymentsService, PaymentGatewayConfig } from '@/lib/api/payments';
@@ -84,6 +86,7 @@ const tabs = [
   { id: 'gateways', label: 'Payment Gateways', icon: CreditCard },
   { id: 'fees', label: 'Platform Fees', icon: Percent },
   { id: 'methods', label: 'Payment Methods', icon: CreditCard },
+  { id: 'taxes', label: 'Taxes', icon: Receipt },
   { id: 'regions', label: 'Regional Settings', icon: Globe },
   { id: 'security', label: 'Security', icon: Shield },
 ];
@@ -394,6 +397,10 @@ export default function PaymentsSettingsPage() {
 
             <TabsContent value="methods" className="focus-visible:outline-none">
               <PaymentMethodsTab />
+            </TabsContent>
+
+            <TabsContent value="taxes" className="focus-visible:outline-none">
+              <TaxInfoTab />
             </TabsContent>
 
             <TabsContent value="regions" className="focus-visible:outline-none">
