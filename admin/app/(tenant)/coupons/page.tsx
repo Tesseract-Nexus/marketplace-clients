@@ -45,6 +45,7 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { PageError } from '@/components/PageError';
 
 export default function CouponsPage() {
   const router = useRouter();
@@ -285,18 +286,7 @@ export default function CouponsPage() {
         </div>
 
         {/* Error Alert */}
-        {error && (
-          <div className="bg-destructive/10 border-2 border-destructive/30 rounded-xl p-4 flex items-start gap-3">
-            <XCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="font-semibold text-destructive">Error</h3>
-              <p className="text-destructive text-sm mt-1">{error}</p>
-            </div>
-            <Button onClick={() => setError(null)} variant="ghost" className="p-1 rounded-lg hover:bg-destructive/10" aria-label="Dismiss error message">
-              <X className="w-4 h-4 text-destructive" aria-hidden="true" />
-            </Button>
-          </div>
-        )}
+        <PageError error={error} onDismiss={() => setError(null)} />
 
         {/* Stats */}
         {!loading && coupons.length > 0 && (

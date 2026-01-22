@@ -41,6 +41,7 @@ import {
   FileUp,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { PageError } from '@/components/PageError';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -821,24 +822,7 @@ export default function CategoriesPage() {
       </div>
 
       {/* Error Alert */}
-      {error && (
-        <div className="bg-error-muted border-2 border-error/20 rounded-xl p-4 flex items-start gap-3 animate-in slide-in-from-top-2 duration-200">
-          <AlertCircle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <h3 className="font-semibold text-error"><AdminUIText text="Error" /></h3>
-            <p className="text-error-muted-foreground text-sm mt-1"><AdminMessage text={error} /></p>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setError(null)}
-            className="p-1 h-auto rounded-lg hover:bg-error/10 transition-colors"
-            aria-label="Dismiss error message"
-          >
-            <X className="w-4 h-4 text-error" aria-hidden="true" />
-          </Button>
-        </div>
-      )}
+      <PageError error={error} onDismiss={() => setError(null)} />
 
       {/* Loading State */}
       {loading && categories.length === 0 && (

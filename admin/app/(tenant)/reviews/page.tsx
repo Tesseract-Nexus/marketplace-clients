@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
+import { PageError } from '@/components/PageError';
 import { Pagination } from '@/components/Pagination';
 import { reviewService } from '@/lib/services/reviewService';
 import { productService } from '@/lib/services/productService';
@@ -299,22 +300,7 @@ export default function ReviewsPage() {
         />
 
       {/* Error Alert */}
-      {error && (
-        <div className="bg-error-muted border border-error/20 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <h3 className="font-semibold text-error">Error</h3>
-            <p className="text-error-muted-foreground text-sm mt-1">{error}</p>
-          </div>
-          <button
-            onClick={() => setError(null)}
-            className="p-1 rounded-lg hover:bg-error/10 transition-colors"
-            aria-label="Dismiss error message"
-          >
-            <X className="h-4 w-4 text-error" aria-hidden="true" />
-          </button>
-        </div>
-      )}
+      <PageError error={error} onDismiss={() => setError(null)} />
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">

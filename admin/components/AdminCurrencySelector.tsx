@@ -85,9 +85,8 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
       {isOpen && (
         <div className={cn(
           "absolute w-72 bg-card rounded-xl shadow-xl border border-border z-[9999] animate-in fade-in duration-200 flex flex-col",
-          compact
-            ? "bottom-full mb-2 right-0 slide-in-from-bottom-2 max-h-[min(400px,calc(100vh-120px))]"
-            : "top-full mt-2 right-0 slide-in-from-top-2"
+          "top-full mt-2 right-0 slide-in-from-top-2",
+          compact && "max-h-[min(400px,calc(100vh-120px))]"
         )}>
           {/* Header */}
           <div className="px-4 py-3 border-b border-border bg-muted">

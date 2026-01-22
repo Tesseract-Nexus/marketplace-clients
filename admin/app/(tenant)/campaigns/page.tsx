@@ -38,6 +38,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
+import { PageError } from '@/components/PageError';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
@@ -569,15 +570,7 @@ export default function CampaignsPage() {
         />
 
         {/* Error Banner */}
-        {error && (
-          <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
-            <p className="text-destructive">{error}</p>
-            <Button variant="outline" size="sm" onClick={fetchCampaigns} className="ml-auto">
-              Retry
-            </Button>
-          </div>
-        )}
+        <PageError error={error} onRetry={fetchCampaigns} onDismiss={() => setError(null)} />
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
