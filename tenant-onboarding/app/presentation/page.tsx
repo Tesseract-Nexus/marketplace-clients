@@ -75,14 +75,7 @@ interface FeatureCategory {
   features: string[];
 }
 
-interface PricingPlan {
-  name: string;
-  price: string;
-  period: string;
-  tagline: string;
-  features: string[];
-  featured: boolean;
-}
+// PricingPlan interface removed - using simpler home page style pricing
 
 interface Testimonial {
   name: string;
@@ -131,31 +124,19 @@ interface PresentationContentResponse {
 // Fallback Content
 // ===========================================
 
-const fallbackPricingPlans: PricingPlan[] = [
-  {
-    name: 'Starter',
-    price: '$0',
-    period: '/month',
-    tagline: 'Perfect for new businesses',
-    features: ['Up to 100 products', '1 staff account', 'Basic analytics', 'Email support'],
-    featured: false,
-  },
-  {
-    name: 'Growth',
-    price: '$49',
-    period: '/month',
-    tagline: 'For growing businesses',
-    features: ['Unlimited products', '5 staff accounts', 'Advanced analytics', 'Priority support', 'Custom domain'],
-    featured: true,
-  },
-  {
-    name: 'Enterprise',
-    price: 'Custom',
-    period: '',
-    tagline: 'For large organizations',
-    features: ['Everything in Growth', 'Unlimited staff', 'Dedicated support', 'SLA guarantee', 'Custom integrations'],
-    featured: false,
-  },
+// Fallback pricing (matching home page style)
+const fallbackPricingTagline = '12 months free, then ₹299/mo';
+const fallbackMonthlyPrice = '₹299';
+const fallbackPricingFeatures = [
+  'Unlimited products with photos',
+  'Your own custom domain',
+  'Accept cards, UPI, and wallets',
+  'Track orders from one place',
+  'Let customers save their info',
+  'Automatic emails when orders ship',
+  'See what\'s selling (and what\'s not)',
+  'No developer needed—do it yourself',
+  'Real humans ready to help, 24/7',
 ];
 
 const fallbackTestimonials: Testimonial[] = [
@@ -270,17 +251,15 @@ export default function PresentationPage() {
     dedupingInterval: 60000,
   });
 
-  // Transform API data to component format
-  const pricingPlans: PricingPlan[] = contentData?.data?.paymentPlans?.length
-    ? contentData.data.paymentPlans.map((plan, idx) => ({
-        name: plan.name,
-        price: plan.price === '0' ? '$0' : `$${plan.price}`,
-        period: plan.price === '0' ? '' : '/month',
-        tagline: plan.tagline || '',
-        features: plan.features.map((f) => f.feature),
-        featured: idx === 1,
-      }))
-    : fallbackPricingPlans;
+  // Extract pricing info from payment plans (matching home page style)
+  const pricingFeatures = contentData?.data?.paymentPlans?.[0]?.features?.length
+    ? contentData.data.paymentPlans[0].features.map((f) => f.feature)
+    : fallbackPricingFeatures;
+
+  const freePlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'free-trial');
+  const proPlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'pro');
+  const pricingTagline = freePlan?.tagline || fallbackPricingTagline;
+  const monthlyPrice = proPlan?.price ? `₹${Math.round(parseFloat(proPlan.price))}` : fallbackMonthlyPrice;
 
   const testimonials: Testimonial[] = contentData?.data?.testimonials?.length
     ? contentData.data.testimonials.map((t) => ({
@@ -666,37 +645,55 @@ export default function PresentationPage() {
                   SIMPLE PRICING
                 </span>
                 <h2 className="text-4xl md:text-5xl font-serif font-medium mb-4">
-                  <span className="text-foreground">Start Free. </span>
-                  <span className="text-foreground-secondary">Scale Unlimited.</span>
+                  <span className="text-foreground">Simple, </span>
+                  <span className="text-foreground-secondary">honest pricing</span>
                 </h2>
-                <p className="text-muted-foreground mb-10">0% transaction fees from Tesserix. Only standard payment processor fees apply.</p>
-                <div className="flex justify-center gap-6">
-                  {pricingPlans.map((plan, idx) => (
-                    <div key={idx} className={`w-64 bg-card border rounded-2xl p-6 text-left relative shadow-card ${plan.featured ? 'border-primary scale-105' : 'border-border'}`}>
-                      {plan.featured && (
-                        <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-primary text-white text-xs font-semibold rounded-full">
-                          Most Popular
+                <p className="text-muted-foreground mb-10">Start free. Stay free for a year. Then one flat price.</p>
+
+                {/* Single Pricing Card - matching home page */}
+                <div className="max-w-3xl mx-auto rounded-2xl border border-warm-200 bg-white p-8 shadow-card">
+                  <div className="flex flex-col md:flex-row gap-8">
+                    {/* Left - Price */}
+                    <div className="md:w-1/2 text-left">
+                      <div className="mb-4">
+                        <div className="flex items-baseline gap-2 mb-2">
+                          <span className="text-5xl font-serif font-medium text-foreground">₹0</span>
+                          <span className="text-foreground-secondary">/month</span>
                         </div>
-                      )}
-                      <h3 className="text-xl font-semibold text-foreground mb-1">{plan.name}</h3>
-                      <p className="text-xs text-muted-foreground mb-4">{plan.tagline}</p>
-                      <div className="mb-4 pb-4 border-b border-border">
-                        <span className="text-4xl font-bold text-foreground">{plan.price}</span>
-                        <span className="text-muted-foreground">{plan.period}</span>
+                        <p className="text-foreground-secondary">
+                          for your first <span className="font-semibold text-foreground">12 months</span>
+                        </p>
                       </div>
-                      <ul className="space-y-2 mb-4">
-                        {plan.features.slice(0, 5).map((feature, fidx) => (
-                          <li key={fidx} className="text-sm text-foreground-secondary flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-sage-500" />
-                            {feature}
+
+                      <div className="p-3 rounded-lg bg-warm-50 border border-warm-200 mb-6">
+                        <p className="text-sm text-foreground-secondary">
+                          Then just <span className="font-semibold text-foreground text-lg">{monthlyPrice}/month</span>
+                          <br />
+                          <span className="text-foreground-tertiary">No transaction fees. No hidden costs.</span>
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => router.push('/onboarding')}
+                        className="w-full bg-primary text-primary-foreground py-3 rounded-lg font-medium hover:bg-primary-hover transition-colors"
+                      >
+                        Start Your Free Year
+                      </button>
+                    </div>
+
+                    {/* Right - Features */}
+                    <div className="md:w-1/2 md:border-l md:border-warm-200 md:pl-8 text-left">
+                      <h3 className="font-medium text-foreground mb-4">Everything included:</h3>
+                      <ul className="space-y-2">
+                        {pricingFeatures.slice(0, 7).map((feature, index) => (
+                          <li key={index} className="flex items-center gap-2">
+                            <CheckCircle2 className="w-4 h-4 text-sage-500 flex-shrink-0" />
+                            <span className="text-sm text-foreground-secondary">{feature}</span>
                           </li>
                         ))}
                       </ul>
-                      <button className={`w-full py-2 rounded-lg text-sm font-semibold transition-all ${plan.featured ? 'bg-primary hover:bg-primary-hover text-primary-foreground' : 'bg-warm-100 border border-warm-300 text-foreground hover:bg-warm-200'}`}>
-                        {plan.featured ? 'Start Trial' : 'Get Started'}
-                      </button>
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
             )}
