@@ -190,7 +190,7 @@ export default function TestimonialSettingsPage() {
                 className={`h-6 w-6 ${
                   star <= rating
                     ? 'fill-amber-400 text-amber-400'
-                    : 'fill-gray-200 text-gray-200'
+                    : 'fill-muted text-muted'
                 }`}
               />
             </button>
@@ -235,7 +235,7 @@ export default function TestimonialSettingsPage() {
         />
 
         {/* Info Card */}
-        <div className="bg-gradient-to-r from-primary/10 to-violet-100 rounded-xl border border-primary/20 p-6">
+        <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border border-primary/20 p-6">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
               <MessageSquareQuote className="h-6 w-6 text-primary" />
@@ -276,8 +276,8 @@ export default function TestimonialSettingsPage() {
           /* Testimonial Form */
           <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-gradient-to-br from-amber-100 to-orange-100 rounded-lg flex items-center justify-center">
-                <Edit3 className="h-5 w-5 text-amber-600" />
+              <div className="w-10 h-10 bg-warning-muted rounded-lg flex items-center justify-center">
+                <Edit3 className="h-5 w-5 text-warning" />
               </div>
               <div>
                 <h3 className="text-lg font-semibold text-foreground">
