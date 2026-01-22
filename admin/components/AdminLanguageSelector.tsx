@@ -88,10 +88,10 @@ export function AdminLanguageSelector({ compact = false }: AdminLanguageSelector
             : "px-3 py-1.5 text-sm rounded-lg border hover:shadow-md",
           selectedLanguage !== 'en'
             ? compact
-              ? "bg-info-muted text-info-muted-foreground hover:bg-info-muted"
+              ? "bg-info-muted text-info hover:bg-info/20 hover:text-info"
               : "bg-primary text-primary-foreground border-transparent hover:bg-primary/90"
             : compact
-              ? "bg-muted text-foreground hover:bg-muted"
+              ? "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
               : "bg-background hover:bg-muted text-foreground border-border"
         )}
       >
@@ -108,9 +108,9 @@ export function AdminLanguageSelector({ compact = false }: AdminLanguageSelector
       {/* Dropdown Menu */}
       {isOpen && (
         <div className={cn(
-          "absolute w-80 bg-card rounded-xl shadow-xl border border-border z-[9999] overflow-hidden animate-in fade-in duration-200",
+          "absolute w-80 bg-card rounded-xl shadow-xl border border-border z-[9999] animate-in fade-in duration-200 flex flex-col",
           compact
-            ? "bottom-full mb-2 right-0 slide-in-from-bottom-2"
+            ? "bottom-full mb-2 right-0 slide-in-from-bottom-2 max-h-[min(420px,calc(100vh-120px))]"
             : "top-full mt-2 right-0 slide-in-from-top-2"
         )}>
           {/* Header */}
@@ -147,7 +147,7 @@ export function AdminLanguageSelector({ compact = false }: AdminLanguageSelector
           </div>
 
           {/* Language Options */}
-          <div className="max-h-72 overflow-y-auto py-1">
+          <div className="flex-1 min-h-0 overflow-y-auto py-1">
             {filteredLanguages.length === 0 ? (
               <div className="px-4 py-6 text-center text-sm text-muted-foreground">
                 No languages found

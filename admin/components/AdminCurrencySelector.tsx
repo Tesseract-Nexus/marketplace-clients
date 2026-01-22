@@ -64,10 +64,10 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
             : "px-3 py-1.5 text-sm rounded-lg border hover:shadow-md",
           isConverted
             ? compact
-              ? "bg-success-muted text-success-muted-foreground hover:bg-success-muted"
+              ? "bg-success-muted text-success hover:bg-success/20 hover:text-success"
               : "bg-success text-success-foreground border-transparent hover:bg-success/90"
             : compact
-              ? "bg-muted text-foreground hover:bg-muted"
+              ? "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
               : "bg-background hover:bg-muted text-foreground border-border"
         )}
       >
@@ -84,9 +84,9 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
       {/* Dropdown Menu */}
       {isOpen && (
         <div className={cn(
-          "absolute w-72 bg-card rounded-xl shadow-xl border border-border z-[9999] overflow-hidden animate-in fade-in duration-200",
+          "absolute w-72 bg-card rounded-xl shadow-xl border border-border z-[9999] animate-in fade-in duration-200 flex flex-col",
           compact
-            ? "bottom-full mb-2 right-0 slide-in-from-bottom-2"
+            ? "bottom-full mb-2 right-0 slide-in-from-bottom-2 max-h-[min(400px,calc(100vh-120px))]"
             : "top-full mt-2 right-0 slide-in-from-top-2"
         )}>
           {/* Header */}
@@ -123,7 +123,7 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
           </div>
 
           {/* Currency Options */}
-          <div className="max-h-64 overflow-y-auto py-1">
+          <div className="flex-1 min-h-0 overflow-y-auto py-1">
             {filteredCurrencies.length === 0 ? (
               <div className="px-4 py-6 text-center text-sm text-muted-foreground">
                 No currencies found

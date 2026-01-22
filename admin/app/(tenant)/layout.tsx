@@ -582,14 +582,35 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Header - Mobile close button only */}
-          <div className="flex items-center justify-between p-4 border-b border-sidebar-border lg:hidden">
-            <span className="text-sm font-semibold text-sidebar-active-text">Menu</span>
+          {/* Header - Logo & Name */}
+          <div className="flex items-center justify-between p-4 border-b border-sidebar-border">
+            <div className="flex items-center gap-3">
+              {currentTenant?.logoUrl ? (
+                <img
+                  src={currentTenant.logoUrl}
+                  alt={currentTenant.name}
+                  className="w-8 h-8 rounded-lg object-cover"
+                />
+              ) : (
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm"
+                  style={{ backgroundColor: currentTenant?.primaryColor || '#6366f1' }}
+                >
+                  {currentTenant?.name?.charAt(0).toUpperCase() || 'T'}
+                </div>
+              )}
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-sidebar-active-text truncate max-w-[160px]">
+                  {currentTenant?.name || 'Admin Portal'}
+                </span>
+                <span className="text-xs text-sidebar-text-muted">Admin Panel</span>
+              </div>
+            </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setIsOpen(false)}
-              className="p-2 rounded-lg hover:bg-sidebar-accent"
+              className="p-2 rounded-lg hover:bg-sidebar-accent lg:hidden"
             >
               <X className="w-5 h-5 text-sidebar-text" />
             </Button>
@@ -599,7 +620,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           <SidebarMenuSearch navigation={filteredNavigation} />
 
           {/* Navigation */}
-          <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-sidebar-border scrollbar-track-transparent">
+          <nav className="flex-1 overflow-y-auto p-4 space-y-1 sidebar-scrollbar">
             {filteredNavigation.map((item) => renderNavItem(item))}
           </nav>
 

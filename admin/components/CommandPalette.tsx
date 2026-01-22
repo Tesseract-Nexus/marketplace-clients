@@ -442,14 +442,14 @@ export function CommandPalette() {
 
   return (
     <>
-      {/* Trigger Button - Matches admin header style */}
+      {/* Trigger Button */}
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-xl transition-all duration-200 hover:opacity-90 bg-primary text-primary-foreground"
+        className="flex items-center gap-2 h-9 px-3 text-sm font-medium rounded-lg border border-border bg-background hover:bg-accent transition-all duration-200 text-muted-foreground hover:text-foreground"
       >
         <Search className="w-4 h-4" />
         <span className="hidden sm:inline">Search...</span>
-        <kbd className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono bg-white/20 rounded">
+        <kbd className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono bg-muted text-muted-foreground rounded">
           <Command className="w-2.5 h-2.5" />K
         </kbd>
       </button>
