@@ -339,7 +339,7 @@ export default function AnalyticsPage() {
             breadcrumbs={[
               { label: 'Home', href: '/' },
               { label: 'Ad Manager', href: '/ad-manager' },
-              { label: 'Analytics' },
+              { label: 'Analytics', href: '/analytics' },
             ]}
             actions={
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">

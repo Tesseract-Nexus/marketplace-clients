@@ -258,7 +258,7 @@ export default function LoyaltyProgramPage() {
           description="Configure your customer loyalty and rewards program"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: 'Marketing' },
+            { label: 'Marketing', href: '/campaigns' },
             { label: 'Loyalty Program' },
           ]}
           actions={

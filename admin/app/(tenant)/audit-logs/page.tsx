@@ -278,9 +278,9 @@ export default function AuditLogsPage() {
           title="Audit Logs"
           description="Track all system activities and security events across your platform"
           breadcrumbs={[
-            { label: '🏠 Home', href: '/' },
-            { label: '🔒 Security' },
-            { label: '📋 Audit Logs' },
+            { label: 'Home', href: '/' },
+            { label: 'Settings', href: '/settings' },
+            { label: 'Audit Logs' },
           ]}
           actions={
             <div className="flex gap-3">

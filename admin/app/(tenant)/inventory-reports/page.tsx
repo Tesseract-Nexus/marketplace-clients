@@ -221,9 +221,9 @@ export default function InventoryReportsPage() {
           title="Inventory Reports"
           description="Monitor stock levels, turnover rates, and inventory value"
           breadcrumbs={[
-            { label: 'Home', href: '/', icon: Home },
-            { label: 'Inventory', icon: Package },
-            { label: 'Reports', icon: BarChart3 },
+            { label: 'Home', href: '/' },
+            { label: 'Inventory', href: '/inventory' },
+            { label: 'Reports' },
           ]}
           actions={
             <div className="flex gap-3">

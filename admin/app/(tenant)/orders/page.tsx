@@ -379,7 +379,7 @@ export default function OrdersPage() {
           description="Track and manage customer orders"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: 'Orders' },
+            { label: 'Orders', href: '/orders' },
           ]}
           actions={
             <div className="flex items-center gap-2">

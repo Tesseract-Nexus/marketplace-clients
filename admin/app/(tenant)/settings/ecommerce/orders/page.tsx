@@ -219,7 +219,7 @@ export default function OrderSettingsPage() {
             { label: 'Home', href: '/' },
             { label: 'Settings', href: '/settings' },
             { label: 'Ecommerce' },
-            { label: 'Orders' },
+            { label: 'Orders', href: '/orders' },
           ]}
           actions={
             <Button

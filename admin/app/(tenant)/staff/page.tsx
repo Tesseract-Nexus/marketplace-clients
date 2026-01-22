@@ -473,7 +473,7 @@ export default function StaffPage() {
             description={selectedStaff.jobTitle || 'Staff Member'}
             breadcrumbs={[
               { label: 'Home', href: '/' },
-              { label: 'Team' },
+              { label: 'Team', href: '/staff' },
               { label: 'Staff', href: '/staff' },
               { label: `${selectedStaff.firstName} ${selectedStaff.lastName}` },
             ]}
@@ -743,7 +743,7 @@ export default function StaffPage() {
               title="Add New Staff Member"
               breadcrumbs={[
                 { label: 'Home', href: '/' },
-                { label: 'Team' },
+                { label: 'Team', href: '/staff' },
                 { label: 'Staff', href: '/staff' },
                 { label: 'Quick Add' },
               ]}
@@ -772,7 +772,7 @@ export default function StaffPage() {
             title={viewMode === 'create' ? 'Add New Staff Member' : 'Edit Staff Member'}
             breadcrumbs={[
               { label: 'Home', href: '/' },
-              { label: 'Team' },
+              { label: 'Team', href: '/staff' },
               { label: 'Staff', href: '/staff' },
               { label: viewMode === 'create' ? 'Create' : 'Edit' },
             ]}
@@ -853,7 +853,7 @@ export default function StaffPage() {
           description="Manage your team members and employees"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: 'Team' },
+            { label: 'Team', href: '/staff' },
             { label: 'Staff' },
           ]}
           actions={

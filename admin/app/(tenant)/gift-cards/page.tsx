@@ -272,7 +272,7 @@ export default function GiftCardsPage() {
           description="Create and manage gift cards for your store"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: 'Marketing' },
+            { label: 'Marketing', href: '/campaigns' },
             { label: 'Gift Cards' },
           ]}
           actions={

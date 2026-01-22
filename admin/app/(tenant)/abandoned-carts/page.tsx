@@ -227,7 +227,7 @@ export default function AbandonedCartsPage() {
           description="Track and recover abandoned shopping carts to increase revenue"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: 'Orders' },
+            { label: 'Orders', href: '/orders' },
             { label: 'Abandoned Carts' },
           ]}
         />

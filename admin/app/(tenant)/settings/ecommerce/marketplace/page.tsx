@@ -51,7 +51,7 @@ export default function MarketplaceSettingsPage() {
           title="Marketplace Settings"
           description="Configure multi-vendor marketplace features"
           breadcrumbs={[
-            { label: '🏠 Home', href: '/' },
+            { label: 'Home', href: '/' },
             { label: '⚙️ Settings', href: '/settings' },
             { label: '🛒 Ecommerce' },
             { label: '🏪 Marketplace' },

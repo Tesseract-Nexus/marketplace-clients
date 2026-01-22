@@ -263,7 +263,7 @@ export default function TeamsPage() {
             title={viewMode === 'create' ? 'Create Team' : `Edit: ${selectedTeam?.name}`}
             breadcrumbs={[
               { label: 'Home', href: '/' },
-              { label: 'Team' },
+              { label: 'Team', href: '/staff' },
               { label: 'Teams', href: '/staff/teams' },
               { label: viewMode === 'create' ? 'Create' : 'Edit' },
             ]}
@@ -409,7 +409,7 @@ export default function TeamsPage() {
             title={selectedTeam.name}
             breadcrumbs={[
               { label: 'Home', href: '/' },
-              { label: 'Team' },
+              { label: 'Team', href: '/staff' },
               { label: 'Teams', href: '/staff/teams' },
               { label: selectedTeam.name },
             ]}
@@ -537,7 +537,7 @@ export default function TeamsPage() {
             description="Manage teams and their RBAC configurations"
             breadcrumbs={[
               { label: 'Home', href: '/' },
-              { label: 'Team' },
+              { label: 'Team', href: '/staff' },
               { label: 'Teams' },
             ]}
             actions={

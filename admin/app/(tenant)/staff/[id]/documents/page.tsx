@@ -226,7 +226,7 @@ export default function StaffDocumentsPage() {
           description={staff ? `${staff.firstName} ${staff.lastName}` : 'Manage verification documents'}
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: 'Team' },
+            { label: 'Team', href: '/staff' },
             { label: 'Staff', href: '/staff' },
             { label: staff ? `${staff.firstName} ${staff.lastName}` : 'Staff', href: `/staff` },
             { label: 'Documents' },

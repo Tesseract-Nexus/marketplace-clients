@@ -723,7 +723,7 @@ export default function DepartmentsPage() {
             title={viewMode === 'create-dept' ? 'Create Department' : `Edit: ${selectedDepartment?.name}`}
             breadcrumbs={[
               { label: 'Home', href: '/' },
-              { label: 'Team' },
+              { label: 'Team', href: '/staff' },
               { label: 'Departments', href: '/staff/departments' },
               { label: viewMode === 'create-dept' ? 'Create' : 'Edit' },
             ]}
@@ -834,7 +834,7 @@ export default function DepartmentsPage() {
             title={viewMode === 'create-team' ? 'Create Team' : `Edit: ${selectedTeam?.name}`}
             breadcrumbs={[
               { label: 'Home', href: '/' },
-              { label: 'Team' },
+              { label: 'Team', href: '/staff' },
               { label: 'Departments', href: '/staff/departments' },
               { label: viewMode === 'create-team' ? 'Create Team' : 'Edit Team' },
             ]}
@@ -966,7 +966,7 @@ export default function DepartmentsPage() {
             title={selectedDepartment.name}
             breadcrumbs={[
               { label: 'Home', href: '/' },
-              { label: 'Team' },
+              { label: 'Team', href: '/staff' },
               { label: 'Departments', href: '/staff/departments' },
               { label: selectedDepartment.name },
             ]}
@@ -1081,7 +1081,7 @@ export default function DepartmentsPage() {
             title={selectedTeam.name}
             breadcrumbs={[
               { label: 'Home', href: '/' },
-              { label: 'Team' },
+              { label: 'Team', href: '/staff' },
               { label: 'Departments', href: '/staff/departments' },
               { label: teamDept?.name || 'Department' },
               { label: selectedTeam.name },
@@ -1189,7 +1189,7 @@ export default function DepartmentsPage() {
           description="Manage your organizational structure"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: 'Team' },
+            { label: 'Team', href: '/staff' },
             { label: 'Departments' },
           ]}
           actions={

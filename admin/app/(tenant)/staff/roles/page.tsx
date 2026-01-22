@@ -399,7 +399,7 @@ export default function RolesPage() {
             description={selectedRole.description || 'Role details and permissions'}
             breadcrumbs={[
               { label: 'Home', href: '/' },
-              { label: 'Team' },
+              { label: 'Team', href: '/staff' },
               { label: 'Roles', href: '/staff/roles' },
               { label: selectedRole.displayName },
             ]}
@@ -534,7 +534,7 @@ export default function RolesPage() {
             title={viewMode === 'create' ? 'Create New Role' : `Edit Role: ${selectedRole?.displayName}`}
             breadcrumbs={[
               { label: 'Home', href: '/' },
-              { label: 'Team' },
+              { label: 'Team', href: '/staff' },
               { label: 'Roles', href: '/staff/roles' },
               { label: viewMode === 'create' ? 'Create' : 'Edit' },
             ]}
@@ -796,7 +796,7 @@ export default function RolesPage() {
           description="Create and manage custom roles with granular permissions"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: 'Team' },
+            { label: 'Team', href: '/staff' },
             { label: 'Roles' },
           ]}
           actions={

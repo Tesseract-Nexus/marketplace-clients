@@ -210,7 +210,7 @@ export default function ApprovalsPage() {
             description={`${pendingCount} pending ${pendingCount === 1 ? 'request' : 'requests'} awaiting your review`}
             breadcrumbs={[
               { label: 'Home', href: '/' },
-              { label: 'Team' },
+              { label: 'Team', href: '/staff' },
               { label: 'Approvals' },
             ]}
             actions={

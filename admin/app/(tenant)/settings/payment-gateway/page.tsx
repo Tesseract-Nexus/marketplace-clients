@@ -161,7 +161,7 @@ export default function PaymentGatewayPage() {
           title="Payment Gateway Settings"
           description="Configure and manage payment gateway integrations"
           breadcrumbs={[
-            { label: '🏠 Home', href: '/' },
+            { label: 'Home', href: '/' },
             { label: '⚙️ Settings', href: '/settings' },
             { label: '💳 Payment Gateway' },
           ]}

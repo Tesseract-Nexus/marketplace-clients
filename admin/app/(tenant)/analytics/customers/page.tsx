@@ -165,7 +165,7 @@ export default function CustomerAnalyticsPage() {
           breadcrumbs={[
             { label: 'Home', href: '/' },
             { label: 'Analytics', href: '/analytics' },
-            { label: 'Customers' },
+            { label: 'Customers', href: '/customers' },
           ]}
           actions={
             <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-border rounded-xl p-1.5 shadow-sm">

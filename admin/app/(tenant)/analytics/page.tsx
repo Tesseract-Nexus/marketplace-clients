@@ -160,7 +160,7 @@ export default function AnalyticsOverviewPage() {
           description="Get a comprehensive view of your store's performance"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: 'Analytics' },
+            { label: 'Analytics', href: '/analytics' },
             { label: 'Overview' },
           ]}
           actions={

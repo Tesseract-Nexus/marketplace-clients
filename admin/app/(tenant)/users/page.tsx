@@ -308,8 +308,9 @@ export default function UsersHubPage() {
           title="Users Hub"
           description="Manage internal admin users, roles, and access control"
           breadcrumbs={[
-            { label: '🏠 Home', href: '/' },
-            { label: '👥 Users Hub' },
+            { label: 'Home', href: '/' },
+            { label: 'Team', href: '/staff' },
+            { label: 'Users' },
           ]}
           actions={
             <Button

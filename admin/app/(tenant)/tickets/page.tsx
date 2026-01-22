@@ -322,7 +322,7 @@ export default function TicketsPage() {
           description="Manage support tickets, track issues, and provide customer support"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: 'Team' },
+            { label: 'Team', href: '/staff' },
             { label: 'Tickets' },
           ]}
           actions={

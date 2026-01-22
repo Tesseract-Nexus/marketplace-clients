@@ -243,7 +243,7 @@ export default function MarketingSettingsPage() {
           breadcrumbs={[
             { label: 'Home', href: '/' },
             { label: 'Settings', href: '/settings' },
-            { label: 'Marketing' },
+            { label: 'Marketing', href: '/campaigns' },
           ]}
           actions={
             <Button

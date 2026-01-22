@@ -687,7 +687,7 @@ export default function InventoryPage() {
           description="Manage warehouses, suppliers, purchase orders, and transfers"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: 'Catalog' },
+            { label: 'Catalog', href: '/products' },
             { label: 'Inventory' },
           ]}
         />

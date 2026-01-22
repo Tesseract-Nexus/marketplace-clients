@@ -346,7 +346,7 @@ export default function DelegationsPage() {
             description="Manage approval authority delegations for when you're away"
             breadcrumbs={[
               { label: 'Home', href: '/' },
-              { label: 'Team' },
+              { label: 'Team', href: '/staff' },
               { label: 'Delegations' },
             ]}
             actions={

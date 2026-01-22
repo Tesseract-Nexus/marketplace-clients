@@ -218,7 +218,7 @@ export default function CatalogSettingsPage() {
             { label: 'Home', href: '/' },
             { label: 'Settings', href: '/settings' },
             { label: 'Ecommerce' },
-            { label: 'Catalog' },
+            { label: 'Catalog', href: '/products' },
           ]}
           actions={
             <Button

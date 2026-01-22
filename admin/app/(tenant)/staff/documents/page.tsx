@@ -196,7 +196,7 @@ export default function DocumentVerificationPage() {
           description="Review and verify staff verification documents"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: 'Team' },
+            { label: 'Team', href: '/staff' },
             { label: 'Staff', href: '/staff' },
             { label: 'Document Verification' },
           ]}

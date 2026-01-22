@@ -295,7 +295,7 @@ export default function ReviewsPage() {
           description="Moderate and manage customer reviews across all products and services"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: 'Customers' },
+            { label: 'Customers', href: '/customers' },
             { label: 'Reviews' },
           ]}
         />

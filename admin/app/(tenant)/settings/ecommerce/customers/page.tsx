@@ -181,7 +181,7 @@ export default function CustomerSettingsPage() {
             { label: 'Home', href: '/' },
             { label: 'Settings', href: '/settings' },
             { label: 'Ecommerce' },
-            { label: 'Customers' },
+            { label: 'Customers', href: '/customers' },
           ]}
           actions={
             <Button onClick={handleSave} disabled={!hasChanges || saving || !selectedStorefront} className="bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50">

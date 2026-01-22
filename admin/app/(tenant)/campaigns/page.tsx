@@ -545,7 +545,7 @@ export default function CampaignsPage() {
           description="Create and manage email and SMS marketing campaigns"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: 'Marketing' },
+            { label: 'Marketing', href: '/campaigns' },
             { label: 'Campaigns' },
           ]}
           actions={
