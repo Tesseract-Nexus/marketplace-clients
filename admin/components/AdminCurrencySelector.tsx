@@ -64,8 +64,8 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
             : "px-3 py-1.5 text-sm rounded-lg border hover:shadow-md",
           isConverted
             ? compact
-              ? "bg-success-muted text-success hover:bg-success/20 hover:text-success"
-              : "bg-success text-success-foreground border-transparent hover:bg-success/90"
+              ? "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary"
+              : "bg-primary text-primary-foreground border-transparent hover:bg-primary/90"
             : compact
               ? "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
               : "bg-background hover:bg-muted text-foreground border-border"
@@ -96,7 +96,7 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
                 <h3 className="text-sm font-semibold text-foreground">Display Currency</h3>
               </div>
               {isConverted && (
-                <div className="px-2 py-0.5 text-xs font-medium rounded-full bg-success/10 text-success">
+                <div className="px-2 py-0.5 text-xs font-medium rounded-full bg-primary/10 text-primary">
                   Converting
                 </div>
               )}
@@ -116,7 +116,7 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search currencies..."
-                className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-success focus:border-transparent"
+                className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
               />
             </div>
           </div>
@@ -139,7 +139,7 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
                   className={cn(
                     "w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors",
                     selectedCurrency === currency.code
-                      ? "bg-success/10 text-success"
+                      ? "bg-primary/10 text-primary"
                       : "text-foreground hover:bg-muted"
                   )}
                 >
@@ -152,7 +152,7 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
                     </div>
                   </div>
                   {selectedCurrency === currency.code && (
-                    <Check className="h-4 w-4 text-success" />
+                    <Check className="h-4 w-4 text-primary" />
                   )}
                 </button>
               ))
@@ -182,7 +182,7 @@ export function AdminCurrencySelectorCompact() {
       className={cn(
         "flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md",
         isConverted
-          ? "bg-success/10 text-success"
+          ? "bg-primary/10 text-primary"
           : "bg-muted text-muted-foreground"
       )}
       title={`Display currency: ${selectedCurrencyInfo?.name || selectedCurrency}`}
