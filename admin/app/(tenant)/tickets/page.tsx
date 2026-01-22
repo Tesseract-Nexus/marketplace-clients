@@ -337,18 +337,18 @@ export default function TicketsPage() {
 
         {/* Error Alert */}
         {error && (
-          <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+          <div className="bg-error-muted border-2 border-error/20 rounded-xl p-4 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h3 className="font-semibold text-destructive">Error</h3>
-              <p className="text-destructive text-sm mt-1">{error}</p>
+              <h3 className="font-semibold text-error">Error</h3>
+              <p className="text-error-muted-foreground text-sm mt-1">{error}</p>
             </div>
             <button
               onClick={() => setError(null)}
-              className="p-1 rounded-lg hover:bg-destructive/10 transition-colors"
+              className="p-1 rounded-lg hover:bg-error/10 transition-colors"
               aria-label="Dismiss error message"
             >
-              <X className="h-4 w-4 text-destructive" aria-hidden="true" />
+              <X className="h-4 w-4 text-error" aria-hidden="true" />
             </button>
           </div>
         )}

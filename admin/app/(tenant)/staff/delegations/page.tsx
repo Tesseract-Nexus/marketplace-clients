@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/PageHeader';
-import { PermissionGate } from '@/components/permission-gate';
+import { PermissionGate, Permission } from '@/components/permission-gate';
 import { delegationService, workflowService, Delegation, ApprovalWorkflow } from '@/lib/services/approvalService';
 import { staffService } from '@/lib/services/staffService';
 import { Staff } from '@/lib/api/types';
@@ -333,10 +333,11 @@ export default function DelegationsPage() {
 
   return (
     <PermissionGate
-      permission="approvals:read"
+      permission={Permission.APPROVALS_READ}
       fallback="styled"
       fallbackTitle="Staff Delegations Access Required"
       fallbackDescription="You don't have the required permissions to view staff delegations. Please contact your administrator to request access."
+      loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
     >
       <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
         <div className="space-y-6 animate-in fade-in duration-500">
@@ -428,17 +429,16 @@ export default function DelegationsPage() {
 
           {/* Error State */}
           {error && (
-            <Card className="border-destructive/50 bg-destructive/10">
-              <CardContent className="py-4">
-                <div className="flex items-center gap-3">
-                  <AlertTriangle className="w-5 h-5 text-destructive" />
-                  <p className="text-destructive">{error}</p>
-                  <Button variant="ghost" size="sm" onClick={loadDelegations}>
-                    Retry
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="bg-error-muted border-2 border-error/20 rounded-xl p-4 flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <h3 className="font-semibold text-error">Error</h3>
+                <p className="text-error-muted-foreground text-sm mt-1">{error}</p>
+              </div>
+              <Button variant="ghost" size="sm" onClick={loadDelegations} className="p-1 rounded-lg hover:bg-error/10 transition-colors">
+                Retry
+              </Button>
+            </div>
           )}
 
           {/* Loading State */}
