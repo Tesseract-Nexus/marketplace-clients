@@ -24,6 +24,8 @@ import {
   QrCode,
   ClipboardCheck,
   Sliders,
+  HelpCircle,
+  Star,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { RefreshSelector } from "@/components/RefreshSelector";
@@ -179,6 +181,7 @@ const navigation: NavItem[] = [
       { name: "Coupons", href: "/coupons" },
       { name: "Gift Cards", href: "/gift-cards" },
       { name: "Loyalty Program", href: "/loyalty" },
+      { name: "QR Codes", href: "/settings/qr-codes" },
     ],
   },
   {
@@ -261,20 +264,21 @@ const navigation: NavItem[] = [
     minRole: "admin", // Admin+ for settings
     hidden: false,
     children: [
-      { name: "General", href: "/settings/general" },
+      { name: "Store Settings", href: "/settings/general" },
       { name: "Storefront", href: "/settings/storefront-theme" },
-      // { name: "Admin Branding", href: "/settings/admin-branding" },
-      { name: "Domains", href: "/settings/domains" },
       { name: "Shipping", href: "/settings/shipping-carriers" },
       { name: "Payments", href: "/settings/payments" },
       { name: "Taxes", href: "/settings/taxes" },
-      { key: "settingsMarketing", name: "Marketing", href: "/settings/marketing", hidden: true }, // Hidden (not prod ready, enable in v2)
-      { name: "QR Codes", href: "/settings/qr-codes" },
       { name: "Approval Workflows", href: "/settings/approval-workflows", minRole: "owner" },
       { name: "Audit Logs", href: "/settings/audit-logs" },
-      { name: "Your Testimonial", href: "/settings/testimonial" },
-      { name: "Account", href: "/settings/account" },
     ],
+  },
+  {
+    key: "support",
+    name: "Support",
+    icon: HelpCircle,
+    href: "/support",
+    hidden: false,
   },
 ];
 
@@ -744,6 +748,24 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
                     >
                       <Settings className="w-4 h-4" />
                       <AdminUIText text="Settings" />
+                    </Link>
+                    <Link
+                      href="/settings/account"
+                      prefetch={false}
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                    >
+                      <UserCog className="w-4 h-4" />
+                      <AdminUIText text="Account" />
+                    </Link>
+                    <Link
+                      href="/settings/testimonial"
+                      prefetch={false}
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-foreground hover:bg-muted transition-colors"
+                    >
+                      <Star className="w-4 h-4" />
+                      <AdminUIText text="Your Testimonial" />
                     </Link>
                   </div>
                   {/* Preferences Section */}

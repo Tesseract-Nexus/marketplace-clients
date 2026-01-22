@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import {
   Settings,
   Save,
@@ -21,6 +22,7 @@ import {
   Eye,
   EyeOff,
   Rocket,
+  ArrowRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1240,126 +1242,73 @@ export default function GeneralSettingsPage() {
         {/* Settings Forms */}
         {selectedStorefront ? (
           <div className="space-y-6">
-            {/* Storefront Visibility Section */}
-            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <Rocket className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-foreground">Storefront Visibility</h3>
-                  <p className="text-sm text-muted-foreground">Control whether your store is visible to customers</p>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {/* Status Indicator */}
-                <div className={`p-4 rounded-lg border ${
-                  selectedStorefront?.isActive
-                    ? 'bg-success-muted border-success/30'
-                    : 'bg-warning-muted border-warning/30'
-                }`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      {selectedStorefront?.isActive ? (
-                        <CheckCircle2 className="h-6 w-6 text-success" />
-                      ) : (
-                        <AlertCircle className="h-6 w-6 text-warning" />
+            {/* Storefront Status Bar - Compact */}
+            <div className={`rounded-lg border p-4 ${
+              selectedStorefront?.isActive
+                ? 'bg-success-muted border-success/30'
+                : 'bg-warning-muted border-warning/30'
+            }`}>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  {selectedStorefront?.isActive ? (
+                    <CheckCircle2 className="h-5 w-5 text-success flex-shrink-0" />
+                  ) : (
+                    <AlertCircle className="h-5 w-5 text-warning flex-shrink-0" />
+                  )}
+                  <div>
+                    <p className={`font-semibold ${selectedStorefront?.isActive ? 'text-success' : 'text-warning'}`}>
+                      {selectedStorefront?.isActive ? 'Store Published' : 'Store Hidden'}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      {selectedStorefront?.storefrontUrl && (
+                        <a
+                          href={selectedStorefront.storefrontUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-primary hover:underline"
+                        >
+                          {selectedStorefront.storefrontUrl}
+                        </a>
                       )}
-                      <div>
-                        <p className={`font-semibold ${
-                          selectedStorefront?.isActive ? 'text-success' : 'text-warning'
-                        }`}>
-                          {selectedStorefront?.isActive ? 'Published' : 'Unpublished'}
-                        </p>
-                        <p className={`text-sm ${
-                          selectedStorefront?.isActive ? 'text-success' : 'text-warning-foreground'
-                        }`}>
-                          {selectedStorefront?.isActive
-                            ? 'Your store is live and visible to customers'
-                            : 'Customers see a "Coming Soon" page'}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Toggle Switch */}
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm text-muted-foreground">
-                        {selectedStorefront?.isActive ? 'Live' : 'Hidden'}
-                      </span>
-                      <Switch
-                        checked={selectedStorefront?.isActive || false}
-                        onCheckedChange={(checked) => handlePublishToggle(checked)}
-                        disabled={isPublishing}
-                      />
-                    </div>
+                    </p>
                   </div>
                 </div>
-
-                {/* Preview Button (shown when unpublished) */}
-                {!selectedStorefront?.isActive && (
-                  <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <Eye className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="font-medium text-foreground">Preview Your Store</p>
-                        <p className="text-sm text-muted-foreground">
-                          See how your store looks before publishing
-                        </p>
-                      </div>
-                    </div>
+                <div className="flex items-center gap-3">
+                  {!selectedStorefront?.isActive && (
                     <Button
                       variant="outline"
+                      size="sm"
                       onClick={handlePreviewStore}
                       disabled={!selectedStorefront?.storefrontUrl}
                     >
-                      <ExternalLink className="h-4 w-4 mr-2" />
+                      <Eye className="h-4 w-4 mr-1" />
                       Preview
                     </Button>
+                  )}
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">
+                      {selectedStorefront?.isActive ? 'Live' : 'Hidden'}
+                    </span>
+                    <Switch
+                      checked={selectedStorefront?.isActive || false}
+                      onCheckedChange={(checked) => handlePublishToggle(checked)}
+                      disabled={isPublishing}
+                    />
                   </div>
-                )}
-
-                {/* Store URL */}
-                {selectedStorefront?.storefrontUrl && (
-                  <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border border-border">
-                    <div className="flex items-center gap-3 overflow-hidden">
-                      <Globe className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                      <div className="overflow-hidden">
-                        <p className="text-sm font-medium text-foreground">Store URL</p>
-                        <p className="text-sm text-primary truncate">
-                          {selectedStorefront.storefrontUrl}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => window.open(selectedStorefront.storefrontUrl, '_blank')}
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </Button>
-                  </div>
-                )}
-
-                {/* Publishing Info */}
-                <p className="text-xs text-muted-foreground">
-                  {selectedStorefront?.isActive
-                    ? 'Your store is live. Toggle off to show a "Coming Soon" page while you make changes.'
-                    : 'Your store is hidden. Finish setting up your store, then toggle on to make it visible to customers.'}
-                </p>
+                </div>
               </div>
             </div>
 
             {/* Store Information */}
             <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                    <Globe className="h-6 w-6 text-primary" />
+                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Store className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-foreground">Store Information</h3>
-                    <p className="text-sm text-muted-foreground">Basic details about your store</p>
+                    <h3 className="text-lg font-bold text-foreground">Store Information</h3>
+                    <p className="text-xs text-muted-foreground">Basic details about your store</p>
                   </div>
                 </div>
                 <Button
@@ -1368,14 +1317,13 @@ export default function GeneralSettingsPage() {
                   size="sm"
                   onClick={handleAutoDetectWithModal}
                   disabled={isDetectingLocation || showLocationModal}
-                  className="flex items-center gap-2"
                 >
                   {isDetectingLocation ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   ) : (
-                    <Locate className="h-4 w-4" />
+                    <Locate className="h-4 w-4 mr-1" />
                   )}
-                  {isDetectingLocation ? 'Detecting...' : 'Detect Location'}
+                  {isDetectingLocation ? 'Detecting...' : 'Auto-detect'}
                 </Button>
               </div>
 
@@ -1531,73 +1479,99 @@ export default function GeneralSettingsPage() {
               </div>
             </div>
 
-            {/* Business Settings */}
-            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-success" />
+            {/* Regional Settings & Custom Domains - 2 Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Regional Settings */}
+              <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-success/10 rounded-lg flex items-center justify-center">
+                    <DollarSign className="h-5 w-5 text-success" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-foreground">Regional Settings</h3>
+                    <p className="text-xs text-muted-foreground">Currency, timezone, and date format</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-foreground">Regional Settings</h3>
-                  <p className="text-sm text-muted-foreground">Currency, timezone, and date format</p>
+
+                <div className="space-y-4">
+                  <div data-field="business.currency">
+                    <label className="block text-sm font-medium text-foreground mb-1.5">
+                      Currency <span className="text-error">*</span>
+                    </label>
+                    <Select
+                      value={settings.business.currency}
+                      onChange={(value) =>
+                        setSettings({
+                          ...settings,
+                          business: { ...settings.business, currency: value },
+                        })
+                      }
+                      options={currencyOptions}
+                    />
+                  </div>
+
+                  <div data-field="business.timezone">
+                    <label className="block text-sm font-medium text-foreground mb-1.5">
+                      Timezone
+                    </label>
+                    <Select
+                      value={settings.business.timezone}
+                      onChange={(value) =>
+                        setSettings({
+                          ...settings,
+                          business: { ...settings.business, timezone: value },
+                        })
+                      }
+                      options={timezoneOptions}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1.5">
+                      Date Format
+                    </label>
+                    <Select
+                      value={settings.business.dateFormat}
+                      onChange={(value) =>
+                        setSettings({
+                          ...settings,
+                          business: { ...settings.business, dateFormat: value },
+                        })
+                      }
+                      options={dateFormatOptions}
+                    />
+                  </div>
                 </div>
+
+                <p className="text-xs text-muted-foreground mt-3">
+                  Auto-synced when you change country
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div data-field="business.currency">
-                  <label className="block text-sm font-semibold text-foreground mb-2">
-                    <DollarSign className="h-4 w-4 inline mr-1" />
-                    Currency <span className="text-error">*</span>
-                  </label>
-                  <Select
-                    value={settings.business.currency}
-                    onChange={(value) =>
-                      setSettings({
-                        ...settings,
-                        business: { ...settings.business, currency: value },
-                      })
-                    }
-                    options={currencyOptions}
-                  />
+              {/* Custom Domains Link Card */}
+              <Link
+                href="/settings/domains"
+                className="bg-card rounded-lg border border-border p-6 shadow-sm hover:border-primary/50 hover:shadow-md transition-all group flex flex-col"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <Globe className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">Custom Domains</h3>
+                    <p className="text-xs text-muted-foreground">Connect your own domain</p>
+                  </div>
                 </div>
-
-                <div data-field="business.timezone">
-                  <label className="block text-sm font-semibold text-foreground mb-2">
-                    <Clock className="h-4 w-4 inline mr-1" />
-                    Timezone
-                  </label>
-                  <Select
-                    value={settings.business.timezone}
-                    onChange={(value) =>
-                      setSettings({
-                        ...settings,
-                        business: { ...settings.business, timezone: value },
-                      })
-                    }
-                    options={timezoneOptions}
-                  />
+                <div className="flex-1 flex flex-col justify-between">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Set up custom domains, manage DNS records, and configure SSL certificates for your storefronts.
+                  </p>
+                  <div className="flex items-center text-sm text-primary font-medium group-hover:underline">
+                    Manage Domains
+                    <ArrowRight className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                  </div>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">
-                    Date Format
-                  </label>
-                  <Select
-                    value={settings.business.dateFormat}
-                    onChange={(value) =>
-                      setSettings({
-                        ...settings,
-                        business: { ...settings.business, dateFormat: value },
-                      })
-                    }
-                    options={dateFormatOptions}
-                  />
-                </div>
-              </div>
-
-              <p className="text-xs text-muted-foreground mt-4">
-                These settings are automatically synced when you change your country. You can override them here if needed.
-              </p>
+              </Link>
             </div>
 
           </div>
