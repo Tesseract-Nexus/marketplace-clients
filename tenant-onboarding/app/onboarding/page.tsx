@@ -964,8 +964,9 @@ export default function OnboardingPage() {
         const result = await response.json();
         const data = result.data;
 
-        // Domain is only valid if format is valid AND domain exists (is registered)
-        const domainIsValid = data.valid && (data.domain_exists !== false);
+        // Domain is only valid if format is valid AND domain exists AND is available
+        // available=false means the domain is already registered with another store
+        const domainIsValid = data.valid && (data.domain_exists !== false) && (data.available !== false);
 
         // Store the verification token for future use
         if (domainIsValid && data.verification_token) {
@@ -976,17 +977,25 @@ export default function OnboardingPage() {
           }
         }
 
+        // Determine the appropriate message based on validation result
+        let validationMessage = '';
+        if (!data.valid) {
+          validationMessage = data.message || 'Invalid domain format';
+        } else if (data.domain_exists === false) {
+          validationMessage = data.message || 'This domain does not appear to be registered.';
+        } else if (data.available === false) {
+          validationMessage = data.message || 'This domain is already registered with another store.';
+        } else if (data.dns_configured) {
+          validationMessage = 'Domain verified and ready!';
+        } else {
+          validationMessage = 'Domain is valid. Configure DNS to complete setup.';
+        }
+
         setCustomDomainValidation({
           isChecking: false,
           isValid: domainIsValid,
           dnsConfigured: data.dns_configured || false,
-          message: !data.valid
-            ? data.message || 'Invalid domain format'
-            : data.domain_exists === false
-              ? data.message || 'This domain does not appear to be registered.'
-              : data.dns_configured
-                ? 'Domain verified and ready!'
-                : 'Domain is valid. Configure DNS to complete setup.',
+          message: validationMessage,
           verificationRecord: domainIsValid ? data.verification_record : undefined,
           verificationRecords: domainIsValid ? data.verification_records : undefined,
           formatWarning: formatValidation.warning,
