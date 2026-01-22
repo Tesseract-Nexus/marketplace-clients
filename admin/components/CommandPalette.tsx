@@ -457,7 +457,7 @@ export function CommandPalette() {
       {/* Command Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
-          className="max-w-2xl p-0 gap-0 overflow-hidden shadow-2xl border-0 bg-card rounded-2xl"
+          className="fixed left-[50%] top-[15%] translate-x-[-50%] translate-y-0 w-[calc(100%-2rem)] max-w-2xl p-0 gap-0 overflow-hidden shadow-2xl border border-border bg-card rounded-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-top-2 data-[state=open]:slide-in-from-top-2 duration-150"
         >
           <VisuallyHidden>
             <DialogTitle>Search</DialogTitle>
