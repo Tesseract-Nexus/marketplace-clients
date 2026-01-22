@@ -75,11 +75,11 @@ export function BrandingAssetUploader({
   const config = ASSET_CONFIG[assetType];
 
   const aspectRatioClasses: Record<string, string> = {
-    square: 'aspect-square',
+    square: 'h-24 w-24', // Compact square for favicon/icons
     '16:9': 'aspect-video',
     '4:3': 'aspect-[4/3]',
     banner: 'aspect-[3/1]',
-    auto: 'min-h-[120px]',
+    auto: 'h-28', // Compact height for logo
   };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
@@ -322,24 +322,21 @@ export function BrandingAssetUploader({
           </div>
         ) : (
           /* Upload prompt */
-          <div className="absolute inset-0 flex flex-col items-center justify-center p-4">
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-2">
             <div
               className={cn(
-                'p-3 rounded-full mb-3',
+                'p-2 rounded-full mb-1',
                 isDragging ? 'bg-primary/20' : 'bg-muted'
               )}
             >
               {isDragging ? (
-                <Upload className="h-6 w-6 text-primary" />
+                <Upload className="h-4 w-4 text-primary" />
               ) : (
-                <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                <ImageIcon className="h-4 w-4 text-muted-foreground" />
               )}
             </div>
-            <p className="text-sm font-medium text-foreground">
-              {isDragging ? 'Drop image here' : 'Drag & drop or click to upload'}
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              {config.acceptLabel} (max {config.maxSizeMB}MB)
+            <p className="text-xs font-medium text-foreground text-center">
+              {isDragging ? 'Drop here' : 'Click to upload'}
             </p>
           </div>
         )}
