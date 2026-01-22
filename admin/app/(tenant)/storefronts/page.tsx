@@ -145,7 +145,7 @@ export default function StorefrontsPage() {
         fallbackTitle="Storefronts Access Required"
         fallbackDescription="You don't have the required permissions to view storefronts. Please contact your administrator to request access."
       >
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
             title="Storefront Details"
@@ -322,7 +322,7 @@ export default function StorefrontsPage() {
       fallbackTitle="Storefronts Access Required"
       fallbackDescription="You don't have the required permissions to view storefronts. Please contact your administrator to request access."
     >
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Storefront Management"

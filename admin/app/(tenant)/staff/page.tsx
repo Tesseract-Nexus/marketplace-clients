@@ -464,7 +464,7 @@ export default function StaffPage() {
 
   if (viewMode === 'detail' && selectedStaff) {
     return (
-      <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+      <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
             title={`${selectedStaff.firstName} ${selectedStaff.lastName}`}
@@ -735,7 +735,7 @@ export default function StaffPage() {
     // Quick Add mode - only for create, not edit
     if (viewMode === 'create' && isQuickAddMode) {
       return (
-        <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+        <div className="min-h-screen bg-background">
           <div className="space-y-6 animate-in fade-in duration-500">
             <PageHeader
               title="Add New Staff Member"
@@ -764,7 +764,7 @@ export default function StaffPage() {
 
     // Full form mode (for edit or when switched from quick add)
     return (
-      <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+      <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
             title={viewMode === 'create' ? 'Add New Staff Member' : 'Edit Staff Member'}
@@ -844,7 +844,7 @@ export default function StaffPage() {
       fallbackDescription="You don't have the required permissions to view staff. Please contact your administrator to request access."
       loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
     >
-    <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Staff Management"

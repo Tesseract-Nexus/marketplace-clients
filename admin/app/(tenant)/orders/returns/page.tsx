@@ -290,7 +290,7 @@ export default function ReturnsPage() {
 
   if (loading && returns.length === 0) {
     return (
-      <div className="min-h-screen bg-background p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-muted-foreground">Loading returns...</p>
@@ -301,7 +301,7 @@ export default function ReturnsPage() {
 
   if (error && returns.length === 0) {
     return (
-      <div className="min-h-screen bg-background p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center">
           <AlertCircle className="h-12 w-12 text-destructive" />
           <h2 className="text-xl font-semibold text-foreground">Failed to load returns</h2>
@@ -322,7 +322,7 @@ export default function ReturnsPage() {
       fallbackTitle="Order Returns Access Required"
       fallbackDescription="You don't have the required permissions to view order returns. Please contact your administrator to request access."
     >
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Returns & Refunds"

@@ -264,7 +264,7 @@ export default function ApprovalWorkflowsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-background">
         <div className="max-w-6xl mx-auto">
           <PageLoading message="Loading workflows..." fullScreen />
         </div>
@@ -292,7 +292,7 @@ export default function ApprovalWorkflowsPage() {
       fallbackTitle="Approval Workflows"
       fallbackDescription="You don't have permission to view approval workflows."
     >
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background">
       <div className="max-w-6xl mx-auto space-y-6">
         <PageHeader
           title="Approval Workflows"

@@ -717,7 +717,7 @@ export default function DepartmentsPage() {
   // Create/Edit Department Form
   if (viewMode === 'create-dept' || viewMode === 'edit-dept') {
     return (
-      <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+      <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
             title={viewMode === 'create-dept' ? 'Create Department' : `Edit: ${selectedDepartment?.name}`}
@@ -828,7 +828,7 @@ export default function DepartmentsPage() {
   // Create/Edit Team Form
   if (viewMode === 'create-team' || viewMode === 'edit-team') {
     return (
-      <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+      <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
             title={viewMode === 'create-team' ? 'Create Team' : `Edit: ${selectedTeam?.name}`}
@@ -960,7 +960,7 @@ export default function DepartmentsPage() {
     const parentDept = departments.find(d => d.id === selectedDepartment.parentDepartmentId);
 
     return (
-      <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+      <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
             title={selectedDepartment.name}
@@ -1075,7 +1075,7 @@ export default function DepartmentsPage() {
     const teamDept = departments.find(d => d.id === selectedTeam.departmentId);
 
     return (
-      <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+      <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
             title={selectedTeam.name}
@@ -1182,7 +1182,7 @@ export default function DepartmentsPage() {
       fallbackDescription="You don't have the required permissions to view departments. Please contact your administrator to request access."
       loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
     >
-    <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Departments & Teams"

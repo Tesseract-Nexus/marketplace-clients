@@ -165,7 +165,7 @@ export default function ShippingCarriersSettingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-background">
         <div className="flex items-center justify-center h-64">
           <Loader2 className="h-8 w-8 text-primary animate-spin" />
         </div>
@@ -180,7 +180,7 @@ export default function ShippingCarriersSettingsPage() {
       fallbackTitle="Shipping Carriers"
       fallbackDescription="You don't have permission to view shipping settings."
     >
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
           title="Shipping Carriers"

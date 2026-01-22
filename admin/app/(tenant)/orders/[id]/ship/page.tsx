@@ -221,7 +221,7 @@ export default function CreateShipmentPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-background">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin mb-4" />
@@ -234,7 +234,7 @@ export default function CreateShipmentPage() {
 
   if (!order) {
     return (
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto">
           <Card className="border-destructive/30">
             <CardContent className="p-12 text-center">
@@ -254,7 +254,7 @@ export default function CreateShipmentPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto">
           <Card className="border-success/30">
             <CardContent className="p-12 text-center">
@@ -275,7 +275,7 @@ export default function CreateShipmentPage() {
       fallbackTitle="Order Shipping Access Required"
       fallbackDescription="You don't have the required permissions to view order shipping. Please contact your administrator to request access."
     >
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background">
       <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Create Shipment"

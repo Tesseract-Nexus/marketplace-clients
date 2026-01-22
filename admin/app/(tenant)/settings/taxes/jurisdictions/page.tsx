@@ -166,7 +166,7 @@ export default function TaxJurisdictionsPage() {
 
   if (loading && jurisdictions.length === 0) {
     return (
-      <div className="min-h-screen bg-background p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-muted-foreground">Loading jurisdictions...</p>
@@ -177,7 +177,7 @@ export default function TaxJurisdictionsPage() {
 
   if (error && jurisdictions.length === 0) {
     return (
-      <div className="min-h-screen bg-background p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center">
           <AlertCircle className="h-12 w-12 text-error" />
           <h2 className="text-xl font-semibold text-foreground">Failed to load jurisdictions</h2>
@@ -198,7 +198,7 @@ export default function TaxJurisdictionsPage() {
       fallbackTitle="Tax Jurisdictions"
       fallbackDescription="You don't have permission to view tax jurisdictions."
     >
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Tax Jurisdictions"

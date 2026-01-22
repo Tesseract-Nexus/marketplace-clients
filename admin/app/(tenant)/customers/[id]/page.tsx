@@ -458,7 +458,7 @@ export default function CustomerDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <span className="text-muted-foreground">Loading customer...</span>
@@ -469,7 +469,7 @@ export default function CustomerDetailPage() {
 
   if (error || !customer) {
     return (
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-background">
         <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-6 max-w-lg mx-auto">
           <div className="flex items-start gap-3">
             <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
@@ -511,7 +511,7 @@ export default function CustomerDetailPage() {
       fallbackTitle="Customer Details Access Required"
       fallbackDescription="You don't have the required permissions to view customer details. Please contact your administrator to request access."
     >
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title={`${customer.firstName} ${customer.lastName}`}

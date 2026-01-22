@@ -257,7 +257,7 @@ export default function TeamsPage() {
   // Create/Edit Form
   if (viewMode === 'create' || viewMode === 'edit') {
     return (
-      <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+      <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
             title={viewMode === 'create' ? 'Create Team' : `Edit: ${selectedTeam?.name}`}
@@ -403,7 +403,7 @@ export default function TeamsPage() {
     const defaultRole = roles.find(r => r.id === selectedTeam.defaultRoleId);
 
     return (
-      <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+      <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
             title={selectedTeam.name}
@@ -530,7 +530,7 @@ export default function TeamsPage() {
       fallbackDescription="You don't have the required permissions to view teams. Please contact your administrator to request access."
       loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
     >
-      <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+      <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
             title="Teams"

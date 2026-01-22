@@ -166,7 +166,7 @@ export default function SalesAnalyticsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+      <div className="min-h-screen bg-background">
         <div className="flex items-center justify-center h-64">
           <RefreshCw className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -182,7 +182,7 @@ export default function SalesAnalyticsPage() {
       fallbackDescription="You don't have the required permissions to view sales analytics. Please contact your administrator to request access."
       loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
     >
-    <div className="min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-4 sm:space-y-6 animate-in fade-in duration-500 max-w-[1600px] mx-auto">
         <PageHeader
           title="Sales Analytics"

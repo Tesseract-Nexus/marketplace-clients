@@ -887,8 +887,10 @@ function TenantLayoutInner({
       <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
       <div className="flex-1 flex flex-col lg:ml-72 min-w-0">
         <Header setSidebarOpen={setSidebarOpen} />
-        <main id="main-content" className="flex-1 overflow-auto p-4 sm:p-6 relative z-0" tabIndex={-1}>
-          {children}
+        <main id="main-content" className="flex-1 overflow-auto relative z-0" tabIndex={-1}>
+          <div className="w-full max-w-[1800px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+            {children}
+          </div>
         </main>
       </div>
     </div>

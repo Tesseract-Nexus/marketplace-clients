@@ -358,7 +358,7 @@ export default function TranslationSettingsPage() {
       fallbackTitle="Translations"
       fallbackDescription="You don't have permission to view translation settings."
     >
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Translation Settings"

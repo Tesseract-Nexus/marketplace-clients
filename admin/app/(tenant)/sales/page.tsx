@@ -329,7 +329,7 @@ export default function SalesDashboardPage() {
 
   if (!dashboard) {
     return (
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-background">
         <div className="bg-card rounded-lg border border-border p-12 text-center text-muted-foreground">
           Loading...
         </div>
@@ -344,7 +344,7 @@ export default function SalesDashboardPage() {
       fallbackTitle="Sales Access Required"
       fallbackDescription="You don't have the required permissions to view sales. Please contact your administrator to request access."
     >
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Sales Dashboard"

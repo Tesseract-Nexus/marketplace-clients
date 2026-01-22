@@ -140,7 +140,7 @@ export default function InventoryAnalyticsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-background">
         <div className="flex items-center justify-center h-64">
           <RefreshCw className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -156,7 +156,7 @@ export default function InventoryAnalyticsPage() {
       fallbackDescription="You don't have the required permissions to view inventory analytics. Please contact your administrator to request access."
       loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
     >
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Inventory Analytics"

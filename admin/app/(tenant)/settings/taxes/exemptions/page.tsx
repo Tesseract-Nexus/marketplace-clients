@@ -227,7 +227,7 @@ export default function TaxExemptionsPage() {
 
   if (loading && certificates.length === 0) {
     return (
-      <div className="min-h-screen bg-background p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-muted-foreground">Loading exemption certificates...</p>
@@ -238,7 +238,7 @@ export default function TaxExemptionsPage() {
 
   if (error && certificates.length === 0) {
     return (
-      <div className="min-h-screen bg-background p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center">
           <AlertCircle className="h-12 w-12 text-error" />
           <h2 className="text-xl font-semibold text-foreground">
@@ -261,7 +261,7 @@ export default function TaxExemptionsPage() {
       fallbackTitle="Tax Exemptions"
       fallbackDescription="You don't have permission to view tax exemptions."
     >
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Tax Exemption Certificates"

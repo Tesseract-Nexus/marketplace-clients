@@ -55,7 +55,7 @@ export default function AccountSettingsPage() {
       fallbackTitle="Account Settings"
       fallbackDescription="You don't have permission to view account settings."
     >
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
           title="Account Settings"

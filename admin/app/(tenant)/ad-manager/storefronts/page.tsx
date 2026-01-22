@@ -147,7 +147,7 @@ export default function StorefrontsPage() {
 
   return (
     <PermissionGate permission={Permissions.ADS_PLACEMENTS_VIEW} fallback="styled">
-      <div className="min-h-screen bg-background p-8">
+      <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
             title="Storefronts"

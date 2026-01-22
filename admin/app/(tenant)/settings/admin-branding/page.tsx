@@ -349,7 +349,7 @@ export default function AdminBrandingPage() {
       fallbackTitle="Admin Branding"
       fallbackDescription="You don't have permission to view admin branding settings."
     >
-      <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+      <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           {loadError && (
             <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-start gap-3">

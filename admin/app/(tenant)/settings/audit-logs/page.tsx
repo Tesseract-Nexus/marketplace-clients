@@ -705,7 +705,7 @@ export default function AuditLogsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-8 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex items-center gap-3">
           <Loader2 className="h-6 w-6 animate-spin text-primary" />
           <span className="text-muted-foreground">Loading audit logs...</span>
@@ -721,7 +721,7 @@ export default function AuditLogsPage() {
       fallbackTitle="Audit Logs Settings"
       fallbackDescription="You don't have permission to view audit logs."
     >
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         {/* Header */}
         <PageHeader

@@ -156,7 +156,7 @@ export default function CreateIndependentStorePage() {
       fallbackTitle="Store Creation Access Required"
       fallbackDescription="You don't have the required permissions to view store creation. Please contact your administrator to request access."
     >
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background">
       <div className="max-w-2xl mx-auto space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Create Independent Store"

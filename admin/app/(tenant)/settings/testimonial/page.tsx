@@ -229,7 +229,7 @@ export default function TestimonialSettingsPage() {
       fallbackTitle="Your Testimonial"
       fallbackDescription="You don't have permission to manage testimonials."
     >
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Your Testimonial"

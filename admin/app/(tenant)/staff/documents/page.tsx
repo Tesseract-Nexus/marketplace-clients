@@ -189,7 +189,7 @@ export default function DocumentVerificationPage() {
       fallbackTitle="Staff Documents Access Required"
       fallbackDescription="You don't have the required permissions to view staff documents. Please contact your administrator to request access."
     >
-    <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Document Verification"

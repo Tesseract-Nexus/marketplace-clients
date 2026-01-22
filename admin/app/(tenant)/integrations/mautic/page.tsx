@@ -126,7 +126,7 @@ export default function MauticIntegrationPage() {
       fallbackTitle="Mautic Integration Access Required"
       fallbackDescription="You don't have the required permissions to view Mautic integration. Please contact your administrator to request access."
     >
-    <div className="min-h-screen bg-background p-8">
+    <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Mautic Integration"
