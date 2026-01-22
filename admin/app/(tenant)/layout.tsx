@@ -354,13 +354,13 @@ function SidebarUserProfile({ onLogout }: { onLogout: () => void }) {
               {isLoading ? '' : email}
             </p>
           </div>
-          <User className="w-4 h-4 transition-colors" style={{ color: 'var(--color-sidebar-text, #64748b)' }} />
+          <User className="w-4 h-4 transition-colors text-sidebar-text" />
         </div>
       </Link>
       {/* Logout Button */}
       <Button
         onClick={onLogout}
-        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-destructive hover:bg-destructive/100 text-white font-medium shadow-lg hover:shadow-xl border-0"
+        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-destructive hover:bg-destructive/90 text-destructive-foreground font-medium shadow-lg hover:shadow-xl border-0"
       >
         <LogOut className="w-4 h-4" />
         <span className="text-sm font-medium"><AdminUIText text="Sign Out" /></span>
