@@ -49,6 +49,7 @@ import { Select } from '@/components/Select';
 import { Stepper, StepperNavigation, Step } from '@/components/Stepper';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
+import { PageLoading } from '@/components/common';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge, StatusType } from '@/components/ui/status-badge';
 import { Badge } from '@/components/ui/badge';
@@ -925,7 +926,7 @@ export default function VendorsPage() {
       fallback="styled"
       fallbackTitle="Vendors Access Required"
       fallbackDescription="You don't have the required permissions to view vendors. Please contact your administrator to request access."
-      loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
+      loading={<PageLoading fullScreen />}
     >
     <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">

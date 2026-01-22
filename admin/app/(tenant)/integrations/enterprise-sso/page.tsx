@@ -369,7 +369,7 @@ export default function EnterpriseSSOPage() {
       fallback="styled"
       fallbackTitle="Enterprise SSO Access Required"
       fallbackDescription="Enterprise SSO configuration is restricted to store owners only. Contact your store owner if you need access to these settings."
-      loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
+      loading={<PageLoading fullScreen />}
     >
       <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">

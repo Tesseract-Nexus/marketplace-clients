@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
+import { PageLoading } from '@/components/common';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { delegationService, workflowService, Delegation, ApprovalWorkflow } from '@/lib/services/approvalService';
 import { staffService } from '@/lib/services/staffService';
@@ -337,7 +338,7 @@ export default function DelegationsPage() {
       fallback="styled"
       fallbackTitle="Staff Delegations Access Required"
       fallbackDescription="You don't have the required permissions to view staff delegations. Please contact your administrator to request access."
-      loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
+      loading={<PageLoading fullScreen />}
     >
       <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">

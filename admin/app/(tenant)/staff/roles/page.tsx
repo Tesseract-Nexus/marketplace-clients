@@ -787,7 +787,7 @@ export default function RolesPage() {
       fallback="styled"
       fallbackTitle="Roles Access Required"
       fallbackDescription="You don't have the required permissions to manage roles. Please contact your administrator to request access."
-      loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
+      loading={<PageLoading fullScreen />}
     >
     <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">

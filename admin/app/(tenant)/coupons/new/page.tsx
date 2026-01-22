@@ -11,7 +11,7 @@ export default function NewCouponPage() {
       fallback="styled"
       fallbackTitle="Coupon Creation Access Required"
       fallbackDescription="You don't have the required permissions to create coupons. Please contact your administrator to request access."
-      loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
+      loading={<PageLoading fullScreen />}
     >
       <CouponForm mode="create" />
     </PermissionGate>
