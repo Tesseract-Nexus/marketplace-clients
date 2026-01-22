@@ -24,6 +24,7 @@ import {
   Flag,
   QrCode,
   ClipboardCheck,
+  Sliders,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { RefreshSelector } from "@/components/RefreshSelector";
@@ -335,17 +336,14 @@ function SidebarUserProfile({ onLogout }: { onLogout: () => void }) {
             backgroundColor: 'var(--color-sidebar-bg, #334155)' + 'cc',
             borderColor: 'var(--color-sidebar-text, #475569)' + '60',
           }}>
-          <div className="relative w-10 h-10 rounded-full flex items-center justify-center shadow-lg shadow-primary/30"
-            style={{
-              background: `linear-gradient(to bottom right, var(--color-primary, #3b82f6), var(--color-secondary, #8b5cf6), var(--color-accent, #a855f7))`,
-            }}>
+          <div className="relative w-10 h-10 rounded-full flex items-center justify-center shadow-lg shadow-primary/30 bg-primary">
             {isLoading ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
             ) : (
-              <span className="text-white font-semibold text-sm">{initial}</span>
+              <span className="text-primary-foreground font-semibold text-sm">{initial}</span>
             )}
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 rounded-full"
-              style={{ borderWidth: '2px', borderColor: 'var(--color-sidebar-bg, #1e293b)' }}></div>
+            <div className="absolute bottom-0 right-0 w-3 h-3 bg-success rounded-full border-2"
+              style={{ borderColor: 'var(--sidebar, #1e293b)' }}></div>
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium truncate" style={{ color: 'var(--color-sidebar-active-text, #ffffff)' }}>
@@ -592,22 +590,20 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         onClick={(e) => handleNavClick(e, item.href || '/')}
         aria-current={active ? 'page' : undefined}
         className={cn(
-          "flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group relative overflow-hidden cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          "flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group relative cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+          active && "border-l-3 border-primary"
         )}
         style={{
           background: active
-            ? `linear-gradient(to right, var(--color-primary, #3b82f6), var(--color-secondary, #8b5cf6), var(--color-accent, #a855f7))`
+            ? 'var(--color-primary, #3b82f6)'
             : 'transparent',
           color: active ? '#ffffff' : 'var(--color-sidebar-text, #cbd5e1)',
         }}
       >
-        {active && (
-          <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 via-violet-400/20 to-purple-400/20 animate-pulse pointer-events-none" aria-hidden="true"></div>
-        )}
         {item.icon ? (
           <item.icon className={cn(
             "w-5 h-5 relative z-10 transition-colors",
-            active ? "text-white" : "text-slate-400 group-hover:text-blue-400"
+            active ? "text-primary-foreground" : "text-muted-foreground group-hover:text-primary"
           )} aria-hidden="true" />
         ) : (
           <div className="w-1.5 h-1.5 rounded-full transition-colors relative z-10"
@@ -697,12 +693,9 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
         <div className="flex items-center gap-2 sm:gap-4">
           <Button
             onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2.5 sm:p-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg min-h-[44px] min-w-[44px] flex items-center justify-center"
-            style={{
-              background: `linear-gradient(to bottom right, var(--color-primary, #3b82f6), var(--color-secondary, #8b5cf6))`,
-            }}
+            className="lg:hidden p-2.5 sm:p-2 rounded-xl transition-all duration-200 hover:scale-105 active:scale-95 shadow-lg min-h-[44px] min-w-[44px] flex items-center justify-center bg-primary hover:bg-primary/90"
           >
-            <Menu className="w-5 h-5 text-white" />
+            <Menu className="w-5 h-5 text-primary-foreground" />
           </Button>
 
         </div>
@@ -715,19 +708,9 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
           {/* Global Search - Command Palette */}
           <CommandPalette />
 
-          {/* Refresh Selector with Auto-refresh Options */}
+          {/* Refresh Selector - Quick access to manual refresh and auto-refresh settings */}
           <div className="hidden md:block">
             <RefreshSelector />
-          </div>
-
-          {/* Admin Currency Selector - View financials in preferred currency */}
-          <div className="hidden md:block">
-            <AdminCurrencySelector />
-          </div>
-
-          {/* Admin Language Selector - View admin panel in preferred language */}
-          <div className="hidden md:block">
-            <AdminLanguageSelector />
           </div>
 
           {/* Notifications */}
@@ -737,16 +720,11 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
           <div className="relative">
             <Button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="relative p-0.5 rounded-lg shadow-md hover:scale-105 transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
-              style={{
-                background: `linear-gradient(to bottom right, var(--color-primary, #3b82f6), var(--color-secondary, #8b5cf6))`,
-              }}>
-              <div className="w-8 h-8 sm:w-8 sm:h-8 rounded-md flex items-center justify-center"
-                style={{ backgroundColor: 'var(--color-header-bg, #ffffff)' }}>
-                <User className="w-4 h-4" style={{ color: 'var(--color-primary, #2563eb)' }} />
+              className="relative p-0.5 rounded-lg shadow-md hover:scale-105 transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center bg-primary hover:bg-primary/90">
+              <div className="w-8 h-8 sm:w-8 sm:h-8 rounded-md flex items-center justify-center bg-background">
+                <User className="w-4 h-4 text-primary" />
               </div>
-              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 rounded-full"
-                style={{ borderColor: 'var(--color-header-bg, #ffffff)' }}></div>
+              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-success border-2 border-background rounded-full"></div>
             </Button>
 
             {/* User Dropdown Menu */}
@@ -756,7 +734,7 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
                   className="fixed inset-0 z-[9998]"
                   onClick={() => setShowUserMenu(false)}
                 />
-                <div className="absolute right-0 mt-2 w-48 bg-card rounded-xl shadow-lg border border-border z-[9999] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="absolute right-0 mt-2 w-64 bg-card rounded-xl shadow-lg border border-border z-[9999] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="px-4 py-3 border-b border-border">
                     <p className="text-sm font-semibold text-foreground">{displayName}</p>
                     <p className="text-xs text-muted-foreground">{email}</p>
@@ -781,10 +759,27 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
                       <AdminUIText text="Settings" />
                     </Link>
                   </div>
+                  {/* Preferences Section */}
+                  <div className="border-t border-border py-2 px-4">
+                    <p className="text-xs font-medium text-muted-foreground mb-2 flex items-center gap-1.5">
+                      <Sliders className="w-3 h-3" />
+                      <AdminUIText text="Preferences" />
+                    </p>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground"><AdminUIText text="Currency" /></span>
+                        <AdminCurrencySelector compact />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground"><AdminUIText text="Language" /></span>
+                        <AdminLanguageSelector compact />
+                      </div>
+                    </div>
+                  </div>
                   <div className="border-t border-border py-1">
                     <button
                       onClick={handleLogout}
-                      className="flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors w-full"
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-error hover:bg-error-muted transition-colors w-full"
                     >
                       <LogOut className="w-4 h-4" />
                       <AdminUIText text="Sign Out" />

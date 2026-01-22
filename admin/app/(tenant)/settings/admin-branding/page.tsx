@@ -324,7 +324,7 @@ export default function AdminBrandingPage() {
           {/* General Branding */}
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
                 <Palette className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -383,8 +383,8 @@ export default function AdminBrandingPage() {
           {/* Color Scheme */}
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-100 to-pink-100 rounded-lg flex items-center justify-center">
-                <Palette className="h-6 w-6 text-purple-600" />
+              <div className="w-12 h-12 bg-info-muted rounded-lg flex items-center justify-center">
+                <Palette className="h-6 w-6 text-info" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-foreground">Color Scheme</h3>
@@ -466,8 +466,8 @@ export default function AdminBrandingPage() {
           {/* Appearance */}
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-green-100 to-emerald-100 rounded-lg flex items-center justify-center">
-                <Palette className="h-6 w-6 text-green-600" />
+              <div className="w-12 h-12 bg-success-muted rounded-lg flex items-center justify-center">
+                <Palette className="h-6 w-6 text-success" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-foreground">Appearance Settings</h3>
@@ -525,8 +525,8 @@ export default function AdminBrandingPage() {
           {/* Advanced */}
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-br from-orange-100 to-red-100 rounded-lg flex items-center justify-center">
-                <Palette className="h-6 w-6 text-orange-600" />
+              <div className="w-12 h-12 bg-warning-muted rounded-lg flex items-center justify-center">
+                <Palette className="h-6 w-6 text-warning" />
               </div>
               <div>
                 <h3 className="text-xl font-bold text-foreground">Advanced Options</h3>

@@ -9,7 +9,11 @@ import { Button } from '@/components/ui/button';
 // Group languages by region for organized display
 const REGION_ORDER = ['Global', 'Indian', 'Asian', 'Middle East'];
 
-export function AdminLanguageSelector() {
+interface AdminLanguageSelectorProps {
+  compact?: boolean;
+}
+
+export function AdminLanguageSelector({ compact = false }: AdminLanguageSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -75,22 +79,30 @@ export function AdminLanguageSelector() {
       {/* Main Button */}
       <Button
         onClick={() => setIsOpen(!isOpen)}
+        variant={compact ? "ghost" : "default"}
+        size={compact ? "sm" : "default"}
         className={cn(
-          "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border transition-all duration-200",
-          "hover:shadow-md",
+          "flex items-center gap-1.5 font-medium transition-all duration-200",
+          compact
+            ? "h-7 px-2 py-1 text-xs rounded-md"
+            : "px-3 py-1.5 text-sm rounded-lg border hover:shadow-md",
           selectedLanguage !== 'en'
-            ? "bg-gradient-to-r from-blue-500 to-indigo-500 text-white border-transparent"
-            : "bg-white hover:bg-muted text-foreground border-border"
+            ? compact
+              ? "bg-info-muted text-info-muted-foreground hover:bg-info-muted"
+              : "bg-primary text-primary-foreground border-transparent hover:bg-primary/90"
+            : compact
+              ? "bg-muted text-foreground hover:bg-muted"
+              : "bg-background hover:bg-muted text-foreground border-border"
         )}
       >
         {selectedLanguageInfo?.flag && (
-          <span className="text-base">{selectedLanguageInfo.flag}</span>
+          <span className={compact ? "text-sm" : "text-base"}>{selectedLanguageInfo.flag}</span>
         )}
         <span className="font-semibold uppercase">{selectedLanguage}</span>
-        {isRTL && (
+        {isRTL && !compact && (
           <span className="text-[10px] opacity-75">RTL</span>
         )}
-        <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", isOpen && "rotate-180")} />
+        <ChevronDown className={cn("h-3 w-3 transition-transform", isOpen && "rotate-180")} />
       </Button>
 
       {/* Dropdown Menu */}

@@ -51,7 +51,11 @@ function formatLastRefreshed(date: Date | null): string {
   return `${diffHour}h ago`;
 }
 
-export function RefreshSelector() {
+interface RefreshSelectorProps {
+  compact?: boolean;
+}
+
+export function RefreshSelector({ compact = false }: RefreshSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -85,6 +89,91 @@ export function RefreshSelector() {
   // Auto-refresh is enabled if interval is not OFF
   const isAutoRefreshEnabled = interval !== 'OFF';
 
+  // Compact mode - just show a single button with interval
+  if (compact) {
+    return (
+      <div className="relative" ref={dropdownRef}>
+        <Button
+          onClick={() => setIsOpen(!isOpen)}
+          variant="ghost"
+          size="sm"
+          className={cn(
+            "h-7 px-2 py-1 text-xs rounded-md flex items-center gap-1.5 font-medium transition-all duration-200",
+            isAutoRefreshEnabled
+              ? "bg-primary/10 text-primary hover:bg-primary/20"
+              : "bg-muted text-foreground hover:bg-muted"
+          )}
+        >
+          {isAutoRefreshEnabled ? (
+            <Clock className="h-3 w-3" />
+          ) : (
+            <Pause className="h-3 w-3" />
+          )}
+          <span className="font-semibold">
+            {countdown !== null ? formatCountdown(countdown) : INTERVAL_SHORT_LABELS[interval]}
+          </span>
+          <ChevronDown className={cn("h-3 w-3 transition-transform", isOpen && "rotate-180")} />
+        </Button>
+
+        {/* Dropdown Menu - same as full version */}
+        {isOpen && (
+          <div className="absolute right-0 mt-2 w-64 bg-card rounded-xl shadow-xl border border-border z-[9999] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+            {/* Header */}
+            <div className="px-4 py-3 border-b border-border bg-muted/50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <RefreshCw className="h-4 w-4 text-muted-foreground" />
+                  <h3 className="text-sm font-semibold text-foreground">Auto-refresh</h3>
+                </div>
+                {isAutoRefreshEnabled && (
+                  <div className="px-2 py-0.5 text-xs font-medium rounded-full bg-primary/20 text-primary">
+                    Active
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Options */}
+            <div className="py-1">
+              {(Object.keys(REFRESH_INTERVALS) as RefreshIntervalKey[]).map((key) => (
+                <button
+                  key={key}
+                  onClick={() => {
+                    setInterval(key);
+                    setIsOpen(false);
+                  }}
+                  className={cn(
+                    "w-full flex items-center justify-between px-4 py-2 text-sm transition-colors",
+                    interval === key
+                      ? "bg-primary/10 text-primary"
+                      : "text-foreground hover:bg-muted"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    {key === 'OFF' ? (
+                      <Pause className="h-4 w-4" />
+                    ) : (
+                      <Clock className="h-4 w-4" />
+                    )}
+                    <span>{INTERVAL_LABELS[key]}</span>
+                  </div>
+                  {interval === key && <Check className="h-4 w-4" />}
+                </button>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="px-4 py-2 border-t border-border bg-muted/50">
+              <p className="text-xs text-muted-foreground">
+                Last refreshed: {formatLastRefreshed(lastRefreshed)}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Main Button Group */}
@@ -97,8 +186,8 @@ export function RefreshSelector() {
             "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-l-lg border border-r-0 transition-all duration-200",
             "hover:shadow-md active:scale-95",
             isRefreshing
-              ? "bg-primary text-white border-transparent"
-              : "bg-white hover:bg-muted text-foreground border-border"
+              ? "bg-primary text-primary-foreground border-transparent"
+              : "bg-background hover:bg-muted text-foreground border-border"
           )}
         >
           <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
@@ -114,8 +203,8 @@ export function RefreshSelector() {
             "flex items-center gap-1 px-2 py-1.5 text-sm font-medium rounded-r-lg border transition-all duration-200",
             "hover:shadow-md",
             isAutoRefreshEnabled
-              ? "bg-primary text-white border-transparent"
-              : "bg-white hover:bg-muted text-foreground border-border"
+              ? "bg-primary text-primary-foreground border-transparent"
+              : "bg-background hover:bg-muted text-foreground border-border"
           )}
         >
           {isAutoRefreshEnabled ? (

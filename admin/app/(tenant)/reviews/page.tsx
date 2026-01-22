@@ -322,11 +322,11 @@ export default function ReviewsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total Reviews</p>
-              <p className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-violet-600 bg-clip-text text-transparent mt-1 sm:mt-2">
+              <p className="text-2xl sm:text-3xl font-bold text-foreground mt-1 sm:mt-2">
                 {totalReviews}
               </p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-100 to-violet-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center">
               <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
             </div>
           </div>
@@ -407,8 +407,8 @@ export default function ReviewsPage() {
 
       {/* Bulk Actions Toolbar */}
       {selectedReviews.size > 0 && (
-        <div className="bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 rounded-lg p-4 shadow-lg mb-6 animate-in slide-in-from-top duration-300">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white">
+        <div className="bg-primary rounded-lg p-4 shadow-lg mb-6 animate-in slide-in-from-top duration-300">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-primary-foreground">
             <div className="flex items-center gap-4">
               <span className="font-semibold text-base sm:text-lg">
                 {selectedReviews.size} review{selectedReviews.size !== 1 ? 's' : ''} selected
@@ -794,7 +794,7 @@ export default function ReviewsPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl">
             <div className="border-b border-border px-6 py-4">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+              <h2 className="text-2xl font-bold text-foreground">
                 Reply to Review
               </h2>
             </div>
@@ -862,7 +862,7 @@ export default function ReviewsPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl">
             <div className="border-b border-border px-6 py-4">
-              <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent">
+              <h2 className="text-2xl font-bold text-foreground">
                 Update Review Status
               </h2>
             </div>

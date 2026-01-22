@@ -27,9 +27,9 @@ export function PageHeader({
 }: PageHeaderProps) {
   const badgeStyles = {
     default: 'bg-primary/20 text-primary border-primary/30',
-    success: 'bg-green-100 text-green-700 border-green-200',
-    warning: 'bg-amber-100 text-amber-700 border-amber-200',
-    info: 'bg-violet-100 text-violet-700 border-violet-200',
+    success: 'bg-success-muted text-success-muted-foreground border-success/30',
+    warning: 'bg-warning-muted text-warning-muted-foreground border-warning/30',
+    info: 'bg-info-muted text-info-muted-foreground border-info/30',
   };
 
   return (
@@ -43,7 +43,7 @@ export function PageHeader({
       <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-start">
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 md:gap-3">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 via-violet-600 to-purple-600 bg-clip-text text-transparent break-words">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground break-words">
               {title}
             </h1>
             {badge && (

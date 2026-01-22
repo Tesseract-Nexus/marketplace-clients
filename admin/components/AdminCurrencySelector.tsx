@@ -6,7 +6,11 @@ import { useAdminCurrencySelector } from '@/contexts/AdminCurrencyContext';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
-export function AdminCurrencySelector() {
+interface AdminCurrencySelectorProps {
+  compact?: boolean;
+}
+
+export function AdminCurrencySelector({ compact = false }: AdminCurrencySelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -51,22 +55,30 @@ export function AdminCurrencySelector() {
       {/* Main Button */}
       <Button
         onClick={() => setIsOpen(!isOpen)}
+        variant={compact ? "ghost" : "default"}
+        size={compact ? "sm" : "default"}
         className={cn(
-          "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg border transition-all duration-200",
-          "hover:shadow-md",
+          "flex items-center gap-1.5 font-medium transition-all duration-200",
+          compact
+            ? "h-7 px-2 py-1 text-xs rounded-md"
+            : "px-3 py-1.5 text-sm rounded-lg border hover:shadow-md",
           isConverted
-            ? "bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-transparent"
-            : "bg-white hover:bg-muted text-foreground border-border"
+            ? compact
+              ? "bg-success-muted text-success-muted-foreground hover:bg-success-muted"
+              : "bg-success text-success-foreground border-transparent hover:bg-success/90"
+            : compact
+              ? "bg-muted text-foreground hover:bg-muted"
+              : "bg-background hover:bg-muted text-foreground border-border"
         )}
       >
         {selectedCurrencyInfo?.flag && (
-          <span className="text-base">{selectedCurrencyInfo.flag}</span>
+          <span className={compact ? "text-sm" : "text-base"}>{selectedCurrencyInfo.flag}</span>
         )}
         <span className="font-semibold">{selectedCurrency}</span>
-        {isConverted && (
+        {isConverted && !compact && (
           <ArrowRightLeft className="h-3 w-3" />
         )}
-        <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", isOpen && "rotate-180")} />
+        <ChevronDown className={cn("h-3 w-3 transition-transform", isOpen && "rotate-180")} />
       </Button>
 
       {/* Dropdown Menu */}
