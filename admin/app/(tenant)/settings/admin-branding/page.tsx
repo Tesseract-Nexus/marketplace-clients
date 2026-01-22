@@ -360,6 +360,11 @@ export default function AdminBrandingPage() {
           <PageHeader
             title="Admin Branding"
             description="Customize your admin panel appearance"
+            breadcrumbs={[
+              { label: 'Home', href: '/' },
+              { label: 'Settings', href: '/settings' },
+              { label: 'Admin Branding' },
+            ]}
             badge={settingsId ? { label: 'Saved', variant: 'success' } : { label: 'Not Saved', variant: 'warning' }}
             actions={
               <div className="flex items-center gap-2">
