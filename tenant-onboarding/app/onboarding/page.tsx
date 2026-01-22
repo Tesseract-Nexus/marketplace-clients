@@ -1090,6 +1090,11 @@ export default function OnboardingPage() {
       if (name === 'customDomain' && value.useCustomDomain) {
         validateCustomDomain(value.customDomain || '');
       }
+      // When custom domain toggle is enabled, trigger storefront slug validation
+      // (since custom domains still need a unique storefront slug)
+      if (name === 'useCustomDomain' && value.useCustomDomain && value.storefrontSlug) {
+        validateStorefrontSlug(value.storefrontSlug);
+      }
     });
     return () => subscription.unsubscribe();
   }, [storeSetupForm, validateSlug, validateStorefrontSlug, validateCustomDomain, storefrontSlugManuallyEdited]);
@@ -1297,46 +1302,81 @@ export default function OnboardingPage() {
     try {
       if (!sessionId) throw new Error('No active session');
 
-      // Skip slug validation if using custom domain (subdomain not required)
-      const skipSlugValidation = data.useCustomDomain && data.customDomain;
+      // Using custom domain - need to validate storefront slug separately
+      const usingCustomDomain = data.useCustomDomain && data.customDomain;
 
-      // Ensure slug is validated before proceeding (only if not using custom domain)
-      // This also reserves the slug in the database via the validation API
-      if (!skipSlugValidation && !slugValidation.isAvailable) {
-        // If validation is still checking, wait for it
-        if (slugValidation.isChecking) {
-          setValidationErrors({ storeSetup: 'Please wait for URL validation to complete.' });
+      if (usingCustomDomain) {
+        // When using custom domain, we still need to validate the storefront slug
+        // (it's used as internal identifier even with custom domains)
+        if (storefrontValidation.isChecking) {
+          setValidationErrors({ storeSetup: 'Please wait for store name validation to complete.' });
           setIsLoading(false);
           return;
         }
-        // If slug is not available, show error
-        if (slugValidation.isAvailable === false) {
-          setValidationErrors({ storeSetup: slugValidation.message || 'The selected URL is not available. Please choose a different one.' });
+        if (storefrontValidation.isAvailable === false) {
+          setValidationErrors({ storeSetup: storefrontValidation.message || 'This store name is already taken. Please choose a different one.' });
           setIsLoading(false);
           return;
         }
-        // If validation hasn't run yet (no result), trigger it now and wait
-        if (slugValidation.isAvailable === null && data.subdomain && data.subdomain.length >= 3) {
-          // Trigger final validation which also reserves the slug
-          const result = await onboardingApi.validateSubdomain(data.subdomain, sessionId, data.storefrontSlug || data.subdomain);
+        // If validation hasn't run yet, trigger it now and wait
+        if (storefrontValidation.isAvailable === null && data.storefrontSlug) {
+          const result = await onboardingApi.validateStorefrontSlug(data.storefrontSlug, sessionId);
           if (!result.available) {
-            setSlugValidation({
+            setStorefrontValidation({
               isChecking: false,
               isAvailable: false,
-              message: result.message || 'This URL is not available.',
+              message: result.message || 'This store name is already taken.',
               suggestions: result.suggestions || [],
             });
-            setValidationErrors({ storeSetup: result.message || 'The selected URL is not available. Please choose a different one.' });
+            setValidationErrors({ storeSetup: result.message || 'This store name is already taken. Please choose a different one.' });
             setIsLoading(false);
             return;
           }
-          // Update validation state
-          setSlugValidation({
+          setStorefrontValidation({
             isChecking: false,
             isAvailable: true,
-            message: 'This name is available!',
+            message: 'This store name is available!',
             suggestions: [],
           });
+        }
+      } else {
+        // Not using custom domain - validate subdomain slug as before
+        if (!slugValidation.isAvailable) {
+          // If validation is still checking, wait for it
+          if (slugValidation.isChecking) {
+            setValidationErrors({ storeSetup: 'Please wait for URL validation to complete.' });
+            setIsLoading(false);
+            return;
+          }
+          // If slug is not available, show error
+          if (slugValidation.isAvailable === false) {
+            setValidationErrors({ storeSetup: slugValidation.message || 'The selected URL is not available. Please choose a different one.' });
+            setIsLoading(false);
+            return;
+          }
+          // If validation hasn't run yet (no result), trigger it now and wait
+          if (slugValidation.isAvailable === null && data.subdomain && data.subdomain.length >= 3) {
+            // Trigger final validation which also reserves the slug
+            const result = await onboardingApi.validateSubdomain(data.subdomain, sessionId, data.storefrontSlug || data.subdomain);
+            if (!result.available) {
+              setSlugValidation({
+                isChecking: false,
+                isAvailable: false,
+                message: result.message || 'This URL is not available.',
+                suggestions: result.suggestions || [],
+              });
+              setValidationErrors({ storeSetup: result.message || 'The selected URL is not available. Please choose a different one.' });
+              setIsLoading(false);
+              return;
+            }
+            // Update validation state
+            setSlugValidation({
+              isChecking: false,
+              isAvailable: true,
+              message: 'This name is available!',
+              suggestions: [],
+            });
+          }
         }
       }
 

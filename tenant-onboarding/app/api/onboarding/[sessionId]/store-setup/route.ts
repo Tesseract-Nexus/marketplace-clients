@@ -29,13 +29,13 @@ interface StoreSetupRequest {
 }
 
 /**
- * Validates that storefront subdomain is not empty (apex domains not supported)
+ * Validates storefront subdomain format (apex domains are now supported via A records)
  * Returns error message if invalid, undefined if valid
  */
 function validateStorefrontSubdomain(subdomain: string | undefined): string | undefined {
-  // Apex domain (empty subdomain) is not allowed
+  // Apex domain (empty subdomain) is now allowed - we use A records for apex domains
   if (!subdomain || subdomain.trim() === '') {
-    return 'Apex domains are not supported. Please use a subdomain like "www" or "store".';
+    return undefined; // Apex domains are supported
   }
 
   // Check for valid subdomain characters
