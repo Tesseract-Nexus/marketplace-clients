@@ -18,6 +18,7 @@ export interface Tenant {
   secondaryColor?: string;
   displayName?: string;
   businessModel?: 'ONLINE_STORE' | 'MARKETPLACE';
+  createdAt?: string;
 }
 
 interface TenantContextType {

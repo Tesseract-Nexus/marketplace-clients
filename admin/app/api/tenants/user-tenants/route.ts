@@ -15,6 +15,7 @@ interface Tenant {
   secondaryColor?: string;
   displayName?: string;
   businessModel?: 'ONLINE_STORE' | 'MARKETPLACE';
+  createdAt?: string;
 }
 
 interface ApiResponse {
@@ -71,6 +72,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
           secondaryColor: t.secondary_color || '#8b5cf6',
           displayName: t.display_name,
           businessModel: t.business_model as 'ONLINE_STORE' | 'MARKETPLACE' | undefined,
+          createdAt: t.created_at as string | undefined,
         }));
 
         return NextResponse.json({
