@@ -107,7 +107,12 @@ export function AdminLanguageSelector({ compact = false }: AdminLanguageSelector
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 bg-card rounded-xl shadow-xl border border-border z-[9999] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className={cn(
+          "absolute w-80 bg-card rounded-xl shadow-xl border border-border z-[9999] overflow-hidden animate-in fade-in duration-200",
+          compact
+            ? "bottom-full mb-2 right-0 slide-in-from-bottom-2"
+            : "top-full mt-2 right-0 slide-in-from-top-2"
+        )}>
           {/* Header */}
           <div className="px-4 py-3 border-b border-border bg-muted">
             <div className="flex items-center justify-between">

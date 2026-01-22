@@ -330,40 +330,36 @@ function SidebarUserProfile({ onLogout }: { onLogout: () => void }) {
   const initial = displayName.charAt(0).toUpperCase();
 
   return (
-    <div className="p-4 border-t" style={{ borderColor: 'var(--color-sidebar-text, #475569)' + '60' }}>
-      <Link href="/profile" prefetch={false} className="block relative group mb-2">
-        <div className="flex items-center gap-3 p-3 rounded-lg transition-all duration-200 cursor-pointer border"
-          style={{
-            backgroundColor: 'var(--color-sidebar-bg, #334155)' + 'cc',
-            borderColor: 'var(--color-sidebar-text, #475569)' + '60',
-          }}>
-          <div className="relative w-10 h-10 rounded-full flex items-center justify-center shadow-lg shadow-primary/30 bg-primary">
+    <div className="p-4 border-t border-sidebar-border/60">
+      <Link href="/profile" prefetch={false} className="block relative group mb-3">
+        <div className="flex items-center gap-3 p-2.5 rounded-lg transition-all duration-200 cursor-pointer hover:bg-sidebar-accent">
+          <div className="relative w-9 h-9 rounded-full flex items-center justify-center bg-sidebar-accent border border-sidebar-border">
             {isLoading ? (
-              <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+              <div className="w-4 h-4 border-2 border-sidebar-text border-t-transparent rounded-full animate-spin" />
             ) : (
-              <span className="text-primary-foreground font-semibold text-sm">{initial}</span>
+              <span className="text-sidebar-text font-medium text-sm">{initial}</span>
             )}
-            <div className="absolute bottom-0 right-0 w-3 h-3 bg-success rounded-full border-2"
-              style={{ borderColor: 'var(--sidebar, #1e293b)' }}></div>
+            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-success rounded-full border-2 border-sidebar"></div>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate" style={{ color: 'var(--color-sidebar-active-text, #ffffff)' }}>
+            <p className="text-sm font-medium truncate text-sidebar-active-text">
               {isLoading ? <AdminUIText text="Loading..." /> : displayName}
             </p>
-            <p className="text-xs truncate" style={{ color: 'var(--color-sidebar-text, #cbd5e1)' }}>
+            <p className="text-xs truncate text-sidebar-text/80">
               {isLoading ? '' : email}
             </p>
           </div>
-          <User className="w-4 h-4 transition-colors text-sidebar-text" />
+          <ChevronRight className="w-4 h-4 text-sidebar-text/60 group-hover:text-sidebar-text transition-colors" />
         </div>
       </Link>
-      {/* Logout Button */}
+      {/* Logout Button - Ghost style */}
       <Button
+        variant="ghost"
         onClick={onLogout}
-        className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all duration-200 bg-destructive hover:bg-destructive/90 text-destructive-foreground font-medium shadow-lg hover:shadow-xl border-0"
+        className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sidebar-text hover:text-error hover:bg-error/10 transition-all duration-200"
       >
         <LogOut className="w-4 h-4" />
-        <span className="text-sm font-medium"><AdminUIText text="Sign Out" /></span>
+        <span className="text-sm"><AdminUIText text="Sign Out" /></span>
       </Button>
     </div>
   );
@@ -534,55 +530,41 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             aria-expanded={isExpanded}
             aria-controls={menuId}
             className={cn(
-              "w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group hover:bg-sidebar-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              "w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+              isExpanded
+                ? "bg-sidebar-accent text-sidebar-active-text"
+                : "text-sidebar-text hover:bg-sidebar-accent hover:text-sidebar-active-text"
             )}
-            style={{
-              backgroundColor: isExpanded ? 'var(--color-sidebar-bg, #334155)' + 'cc' : 'transparent',
-              color: isExpanded ? 'var(--color-sidebar-active-text, #60a5fa)' : 'var(--color-sidebar-text, #cbd5e1)',
-            }}
           >
             <div className="flex items-center gap-3">
               {item.icon && (
-                <span
-                  className="w-5 h-5 transition-colors flex items-center justify-center"
-                  style={{
-                    color: isExpanded
-                      ? 'var(--color-primary, #3b82f6)'
-                      : 'var(--color-sidebar-text, #cbd5e1)'
-                  }}
-                >
+                <span className={cn(
+                  "w-5 h-5 transition-colors flex items-center justify-center",
+                  isExpanded ? "text-primary" : "text-sidebar-text group-hover:text-sidebar-active-text"
+                )}>
                   <item.icon className="w-5 h-5" aria-hidden="true" />
                 </span>
               )}
               {!item.icon && (
-                <div className="w-1.5 h-1.5 rounded-full transition-colors"
-                  aria-hidden="true"
-                  style={{
-                    backgroundColor: isExpanded
-                      ? 'var(--color-sidebar-active-text, #60a5fa)'
-                      : 'var(--color-sidebar-text, #475569)',
-                  }}></div>
+                <div className={cn(
+                  "w-1.5 h-1.5 rounded-full transition-colors",
+                  isExpanded ? "bg-primary" : "bg-sidebar-text/60 group-hover:bg-sidebar-active-text"
+                )} aria-hidden="true" />
               )}
               <AdminUIText text={item.name} />
             </div>
-            {isExpanded ? (
-              <ChevronDown className="w-4 h-4 text-primary" aria-hidden="true" />
-            ) : (
-              <span
-                className="w-4 h-4 transition-colors flex items-center justify-center"
-                style={{ color: 'var(--color-sidebar-text, #cbd5e1)' }}
-              >
-                <ChevronRight className="w-4 h-4" aria-hidden="true" />
-              </span>
-            )}
+            <ChevronDown className={cn(
+              "w-4 h-4 transition-transform duration-200",
+              isExpanded ? "text-primary rotate-0" : "text-sidebar-text -rotate-90"
+            )} aria-hidden="true" />
           </button>
           {isExpanded && (
             <div
               id={menuId}
               role="region"
               aria-label={`${item.name} submenu`}
-              className="mt-1 ml-4 space-y-1 pl-6 border-l-2 animate-in slide-in-from-top-2 duration-200"
-              style={{ borderColor: 'var(--color-sidebar-text, #475569)' + '80' }}>
+              className="mt-1.5 ml-4 space-y-0.5 pl-5 border-l-2 border-sidebar-border/60 animate-in slide-in-from-top-2 duration-200 bg-sidebar-accent/30 rounded-r-lg py-1.5"
+            >
               {item.children.map((child) => renderNavItem(child, itemKey))}
             </div>
           )}
@@ -603,34 +585,23 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         aria-current={active ? 'page' : undefined}
         className={cn(
           "flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 group relative cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-          active && "border-l-3 border-primary"
+          active
+            ? "bg-primary/15 text-primary border-l-3 border-primary"
+            : "text-sidebar-text hover:bg-sidebar-accent hover:text-sidebar-active-text"
         )}
-        style={{
-          background: active
-            ? 'var(--color-primary, #3b82f6)'
-            : 'transparent',
-          color: active ? '#ffffff' : 'var(--color-sidebar-text, #cbd5e1)',
-        }}
       >
         {item.icon ? (
-          <span
-            className="w-5 h-5 relative z-10 transition-colors flex items-center justify-center"
-            style={{
-              color: active
-                ? '#ffffff'
-                : 'var(--color-sidebar-text, #cbd5e1)'
-            }}
-          >
+          <span className={cn(
+            "w-5 h-5 relative z-10 transition-colors flex items-center justify-center",
+            active ? "text-primary" : "text-sidebar-text group-hover:text-sidebar-active-text"
+          )}>
             <item.icon className="w-5 h-5" aria-hidden="true" />
           </span>
         ) : (
-          <div className="w-1.5 h-1.5 rounded-full transition-colors relative z-10"
-            aria-hidden="true"
-            style={{
-              backgroundColor: active
-                ? '#ffffff'
-                : 'var(--color-sidebar-text, #475569)',
-            }}></div>
+          <div className={cn(
+            "w-1.5 h-1.5 rounded-full transition-colors relative z-10",
+            active ? "bg-primary" : "bg-sidebar-text/60 group-hover:bg-sidebar-active-text"
+          )} aria-hidden="true" />
         )}
         <span className="relative z-10"><AdminUIText text={item.name} /></span>
       </Link>
@@ -650,19 +621,13 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
       {/* Sidebar - z-[110] to be above header z-[100] and overlay z-[105] */}
       <aside
         className={cn(
-          "fixed top-0 left-0 z-[110] h-screen w-72 border-r transform transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-2xl",
+          "fixed top-0 left-0 z-[110] h-screen w-72 border-r border-sidebar-border/50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-2xl bg-sidebar",
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
-        style={{
-          background: 'var(--color-sidebar-bg, #1e293b)',
-          borderColor: 'var(--color-sidebar-text, #475569)' + '50',
-        }}
       >
         <div className="flex flex-col h-full">
           {/* Header - Business Switcher */}
-          <div
-            className="flex items-center justify-between p-4 border-b"
-            style={{ borderColor: 'var(--color-sidebar-border, #334155)' }}
+          <div className="flex items-center justify-between p-4 border-b border-sidebar-border"
           >
             <TenantSwitcher variant="sidebar" className="flex-1" />
             <Button
