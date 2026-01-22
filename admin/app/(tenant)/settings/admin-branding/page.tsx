@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Palette, Save, RefreshCw, Loader2, AlertCircle, Upload, Image } from 'lucide-react';
+import { Palette, Save, RefreshCw, Loader2, AlertCircle, Upload, Image, Check, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,130 @@ import { useDialog } from '@/contexts/DialogContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { settingsService } from '@/lib/services/settingsService';
 import type { AdminBrandingSettings } from '@/lib/types/settings';
+
+// Predefined professional theme presets
+const themePresets = [
+  {
+    id: 'classic-slate',
+    name: 'Classic Slate',
+    description: 'Professional & timeless',
+    colors: {
+      primaryColor: '#0f172a',
+      secondaryColor: '#334155',
+      accentColor: '#2563eb',
+      sidebarBg: '#f8fafc',
+      sidebarText: '#475569',
+      sidebarActiveText: '#2563eb',
+      headerBg: '#ffffff',
+      headerText: '#0f172a',
+    },
+    preview: {
+      bg: '#f8fafc',
+      primary: '#0f172a',
+      accent: '#2563eb',
+    },
+  },
+  {
+    id: 'ocean-teal',
+    name: 'Ocean Teal',
+    description: 'Fresh & unique',
+    colors: {
+      primaryColor: '#0d9488',
+      secondaryColor: '#115e59',
+      accentColor: '#14b8a6',
+      sidebarBg: '#f0fdfa',
+      sidebarText: '#134e4a',
+      sidebarActiveText: '#0d9488',
+      headerBg: '#ffffff',
+      headerText: '#134e4a',
+    },
+    preview: {
+      bg: '#f0fdfa',
+      primary: '#0d9488',
+      accent: '#14b8a6',
+    },
+  },
+  {
+    id: 'warm-ember',
+    name: 'Warm Ember',
+    description: 'Approachable & warm',
+    colors: {
+      primaryColor: '#1c1917',
+      secondaryColor: '#44403c',
+      accentColor: '#ea580c',
+      sidebarBg: '#fafaf9',
+      sidebarText: '#57534e',
+      sidebarActiveText: '#ea580c',
+      headerBg: '#ffffff',
+      headerText: '#1c1917',
+    },
+    preview: {
+      bg: '#fafaf9',
+      primary: '#1c1917',
+      accent: '#ea580c',
+    },
+  },
+  {
+    id: 'midnight-blue',
+    name: 'Midnight Blue',
+    description: 'Bold & modern',
+    colors: {
+      primaryColor: '#1e3a8a',
+      secondaryColor: '#1e40af',
+      accentColor: '#3b82f6',
+      sidebarBg: '#0f172a',
+      sidebarText: '#94a3b8',
+      sidebarActiveText: '#60a5fa',
+      headerBg: '#ffffff',
+      headerText: '#1e3a8a',
+    },
+    preview: {
+      bg: '#0f172a',
+      primary: '#1e3a8a',
+      accent: '#3b82f6',
+    },
+  },
+  {
+    id: 'royal-indigo',
+    name: 'Royal Indigo',
+    description: 'Sophisticated & premium',
+    colors: {
+      primaryColor: '#4f46e5',
+      secondaryColor: '#6366f1',
+      accentColor: '#818cf8',
+      sidebarBg: '#fafafa',
+      sidebarText: '#4b5563',
+      sidebarActiveText: '#4f46e5',
+      headerBg: '#ffffff',
+      headerText: '#1f2937',
+    },
+    preview: {
+      bg: '#fafafa',
+      primary: '#4f46e5',
+      accent: '#818cf8',
+    },
+  },
+  {
+    id: 'forest-green',
+    name: 'Forest Green',
+    description: 'Natural & trustworthy',
+    colors: {
+      primaryColor: '#166534',
+      secondaryColor: '#15803d',
+      accentColor: '#22c55e',
+      sidebarBg: '#f0fdf4',
+      sidebarText: '#14532d',
+      sidebarActiveText: '#16a34a',
+      headerBg: '#ffffff',
+      headerText: '#14532d',
+    },
+    preview: {
+      bg: '#f0fdf4',
+      primary: '#166534',
+      accent: '#22c55e',
+    },
+  },
+];
 
 // Simplified default branding settings - focus on essentials
 const defaultBrandingSettings: AdminBrandingSettings = {
@@ -24,14 +148,14 @@ const defaultBrandingSettings: AdminBrandingSettings = {
     loginPageSubtitle: 'Sign in to your account',
   },
   colors: {
-    primaryColor: '#3b82f6',
-    secondaryColor: '#8b5cf6',
-    accentColor: '#a855f7',
-    sidebarBg: '#1e293b',
-    sidebarText: '#cbd5e1',
-    sidebarActiveText: '#60a5fa',
+    primaryColor: '#0f172a',
+    secondaryColor: '#334155',
+    accentColor: '#2563eb',
+    sidebarBg: '#f8fafc',
+    sidebarText: '#475569',
+    sidebarActiveText: '#2563eb',
     headerBg: '#ffffff',
-    headerText: '#374151',
+    headerText: '#0f172a',
   },
   appearance: {
     sidebarStyle: 'dark',
@@ -251,6 +375,63 @@ export default function AdminBrandingPage() {
               </div>
             }
           />
+
+          {/* Theme Presets */}
+          <div className="bg-card rounded-lg border border-border p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-accent" />
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">Theme Presets</h3>
+                <p className="text-sm text-muted-foreground">Quick start with professional color schemes</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+              {themePresets.map((preset) => {
+                const isSelected =
+                  brandingData.colors.primaryColor === preset.colors.primaryColor &&
+                  brandingData.colors.accentColor === preset.colors.accentColor;
+                return (
+                  <button
+                    key={preset.id}
+                    onClick={() => setBrandingData(prev => ({
+                      ...prev,
+                      colors: { ...prev.colors, ...preset.colors },
+                    }))}
+                    className={`relative group p-3 rounded-xl border-2 transition-all duration-200 hover:shadow-md ${
+                      isSelected
+                        ? 'border-accent bg-accent/5 shadow-sm'
+                        : 'border-border hover:border-accent/50'
+                    }`}
+                  >
+                    {isSelected && (
+                      <div className="absolute -top-2 -right-2 w-5 h-5 bg-accent rounded-full flex items-center justify-center">
+                        <Check className="w-3 h-3 text-white" />
+                      </div>
+                    )}
+                    {/* Color Preview */}
+                    <div className="flex gap-1 mb-3">
+                      <div
+                        className="w-6 h-6 rounded-md shadow-sm"
+                        style={{ backgroundColor: preset.preview.primary }}
+                      />
+                      <div
+                        className="w-6 h-6 rounded-md shadow-sm"
+                        style={{ backgroundColor: preset.preview.accent }}
+                      />
+                      <div
+                        className="w-6 h-6 rounded-md shadow-sm border border-border"
+                        style={{ backgroundColor: preset.preview.bg }}
+                      />
+                    </div>
+                    <p className="text-xs font-semibold text-foreground truncate">{preset.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{preset.description}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
           {/* Logo & Favicon */}
           <div className="bg-card rounded-lg border border-border p-6">
