@@ -1007,7 +1007,12 @@ export default function OnboardingPage() {
 
   // Verify domain DNS propagation
   const verifyDomainDNS = useCallback(async () => {
-    if (!customDomainValidation.verificationRecord) {
+    // Get the currently selected verification record based on user's method choice
+    const selectedRecord = customDomainValidation.verificationRecords?.find(
+      r => r.type === selectedVerificationMethod
+    ) || customDomainValidation.verificationRecord;
+
+    if (!selectedRecord) {
       return;
     }
 
@@ -1023,8 +1028,8 @@ export default function OnboardingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           domain: storeSetupForm.watch('customDomain'),
-          verification_host: customDomainValidation.verificationRecord.host,
-          verification_value: customDomainValidation.verificationRecord.value,
+          verification_host: selectedRecord.host,
+          verification_value: selectedRecord.value,
         }),
       });
 
@@ -1056,7 +1061,7 @@ export default function OnboardingPage() {
         lastChecked: new Date(),
       }));
     }
-  }, [customDomainValidation.verificationRecord, storeSetupForm]);
+  }, [customDomainValidation.verificationRecord, customDomainValidation.verificationRecords, selectedVerificationMethod, storeSetupForm]);
 
   // Watch subdomain changes and validate, also sync storefrontSlug if not manually edited
   useEffect(() => {
@@ -1090,6 +1095,11 @@ export default function OnboardingPage() {
       if (name === 'customDomain' && value.useCustomDomain) {
         validateCustomDomain(value.customDomain || '');
       }
+      // CRITICAL FIX: Also validate when useCustomDomain is toggled to true
+      // and there's already a customDomain value (e.g., from session restore)
+      if (name === 'useCustomDomain' && value.useCustomDomain && value.customDomain) {
+        validateCustomDomain(value.customDomain);
+      }
       // When custom domain toggle is enabled, trigger storefront slug validation
       // (since custom domains still need a unique storefront slug)
       if (name === 'useCustomDomain' && value.useCustomDomain && value.storefrontSlug) {
@@ -1098,6 +1108,26 @@ export default function OnboardingPage() {
     });
     return () => subscription.unsubscribe();
   }, [storeSetupForm, validateSlug, validateStorefrontSlug, validateCustomDomain, storefrontSlugManuallyEdited]);
+
+  // CRITICAL FIX: Initial validation when page loads with restored custom domain
+  // This handles the case where both useCustomDomain and customDomain are restored from server session
+  // We watch storeSetup changes because when server data is fetched, storeSetup is updated,
+  // which triggers the form setValue calls, and then this effect re-runs
+  const initialCustomDomainValidationDone = useRef(false);
+  useEffect(() => {
+    // Only run once to avoid infinite loops
+    if (initialCustomDomainValidationDone.current) return;
+
+    const useCustomDomain = storeSetupForm.getValues('useCustomDomain');
+    const customDomain = storeSetupForm.getValues('customDomain');
+
+    // If custom domain is enabled and has a value, trigger validation
+    if (useCustomDomain && customDomain) {
+      initialCustomDomainValidationDone.current = true;
+      validateCustomDomain(customDomain);
+      setShowCustomDomainSection(true);
+    }
+  }, [storeSetup, storeSetupForm, validateCustomDomain]);
 
   // Form handlers
   const handleBusinessSubmit = async (data: BusinessInfoForm) => {
@@ -2357,6 +2387,11 @@ export default function OnboardingPage() {
                           if (!wasOpen) {
                             // Opening the section - set useCustomDomain to true
                             storeSetupForm.setValue('useCustomDomain', true);
+                            // CRITICAL FIX: Trigger validation if there's already a domain value
+                            const existingDomain = storeSetupForm.getValues('customDomain');
+                            if (existingDomain) {
+                              validateCustomDomain(existingDomain);
+                            }
                           } else {
                             // Closing the section - reset custom domain state
                             storeSetupForm.setValue('useCustomDomain', false);

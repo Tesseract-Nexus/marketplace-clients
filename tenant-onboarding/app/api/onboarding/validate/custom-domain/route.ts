@@ -221,6 +221,41 @@ export async function POST(request: NextRequest) {
             purpose: String(rec.purpose || 'verification'),
           }));
         }
+
+        // CRITICAL FIX: If domain is valid, exists, and is available but no verification records returned,
+        // generate them locally to ensure consistent UI display.
+        // Note: We check 'available' to avoid generating records for domains registered with another store.
+        if (sanitizedData.valid && sanitizedData.domain_exists && sanitizedData.available && !sanitizedData.verification_record) {
+          const crypto = await import('crypto');
+          // Use the token from backend if available, otherwise generate new one
+          const verificationToken = sanitizedData.verification_token || crypto.randomBytes(16).toString('hex');
+          const shortToken = verificationToken.substring(0, 8);
+
+          sanitizedData.verification_token = verificationToken;
+          sanitizedData.verification_record = {
+            type: 'CNAME',
+            host: `_tesserix-${shortToken}.${cleanDomain}`,
+            value: 'verify.tesserix.app',
+            ttl: 3600,
+          };
+          sanitizedData.verification_records = [
+            {
+              type: 'CNAME',
+              host: `_tesserix-${shortToken}.${cleanDomain}`,
+              value: 'verify.tesserix.app',
+              ttl: 3600,
+              purpose: 'verification',
+            },
+            {
+              type: 'TXT',
+              host: `_tesserix.${cleanDomain}`,
+              value: `tesserix-verify=${verificationToken}`,
+              ttl: 3600,
+              purpose: 'verification',
+            },
+          ];
+        }
+
         return NextResponse.json({ data: sanitizedData });
       }
 
