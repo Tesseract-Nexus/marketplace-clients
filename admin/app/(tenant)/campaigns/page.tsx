@@ -297,19 +297,19 @@ export default function CampaignsPage() {
   const getCampaignTypeInfo = (type: string) => {
     switch (type) {
       case 'PROMOTION':
-        return { icon: Megaphone, color: 'from-orange-500 to-red-500', bg: 'from-orange-100 to-red-100', text: 'text-warning' };
+        return { icon: Megaphone, bg: 'bg-warning/20', text: 'text-warning' };
       case 'ABANDONED_CART':
-        return { icon: ShoppingCart, color: 'from-amber-500 to-orange-500', bg: 'from-amber-100 to-orange-100', text: 'text-warning' };
+        return { icon: ShoppingCart, bg: 'bg-warning/20', text: 'text-warning' };
       case 'WELCOME':
-        return { icon: UserPlus, color: 'from-green-500 to-emerald-500', bg: 'from-green-100 to-emerald-100', text: 'text-success' };
+        return { icon: UserPlus, bg: 'bg-success/20', text: 'text-success' };
       case 'WINBACK':
-        return { icon: Heart, color: 'from-pink-500 to-rose-500', bg: 'from-pink-100 to-rose-100', text: 'text-primary' };
+        return { icon: Heart, bg: 'bg-primary/20', text: 'text-primary' };
       case 'PRODUCT_LAUNCH':
-        return { icon: Rocket, color: 'from-violet-500 to-purple-500', bg: 'from-violet-100 to-purple-100', text: 'text-primary' };
+        return { icon: Rocket, bg: 'bg-primary/20', text: 'text-primary' };
       case 'NEWSLETTER':
-        return { icon: Newspaper, color: 'from-blue-500 to-cyan-500', bg: 'from-blue-100 to-cyan-100', text: 'text-primary' };
+        return { icon: Newspaper, bg: 'bg-primary/20', text: 'text-primary' };
       default:
-        return { icon: Megaphone, color: 'from-gray-500 to-gray-600', bg: 'from-gray-100 to-gray-200', text: 'text-muted-foreground' };
+        return { icon: Megaphone, bg: 'bg-muted', text: 'text-muted-foreground' };
     }
   };
 
@@ -744,7 +744,7 @@ export default function CampaignsPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className={cn(
-                            "w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br shrink-0",
+                            "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
                             typeInfo.bg
                           )}>
                             <TypeIcon className={cn("h-5 w-5", typeInfo.text)} />
@@ -761,7 +761,7 @@ export default function CampaignsPage() {
                       </td>
                       <td className="px-6 py-4">
                         <span className={cn(
-                          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-gradient-to-r",
+                          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold",
                           typeInfo.bg, typeInfo.text
                         )}>
                           {campaign.type.replace('_', ' ')}
@@ -1190,13 +1190,13 @@ export default function CampaignsPage() {
                 <div className="space-y-4">
                   <h4 className="font-bold text-foreground">Campaign Analytics</h4>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-gradient-to-br from-blue-50 to-violet-50 border border-primary/30 rounded-lg p-4 text-center">
+                    <div className="bg-primary/5 border border-primary/30 rounded-lg p-4 text-center">
                       <p className="text-2xl font-bold text-primary">
                         {formatNumber(selectedCampaign.delivered)}
                       </p>
                       <p className="text-xs text-primary mt-1">Delivered</p>
                     </div>
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-success/30 rounded-lg p-4 text-center">
+                    <div className="bg-success/5 border border-success/30 rounded-lg p-4 text-center">
                       <p className="text-2xl font-bold text-success-foreground">
                         {formatNumber(selectedCampaign.opened)}
                       </p>
@@ -1204,7 +1204,7 @@ export default function CampaignsPage() {
                         Opened ({calculateOpenRate(selectedCampaign)})
                       </p>
                     </div>
-                    <div className="bg-gradient-to-br from-purple-50 to-pink-50 border border-primary/30 rounded-lg p-4 text-center">
+                    <div className="bg-primary/5 border border-primary/30 rounded-lg p-4 text-center">
                       <p className="text-2xl font-bold text-primary">
                         {formatNumber(selectedCampaign.clicked)}
                       </p>
@@ -1212,7 +1212,7 @@ export default function CampaignsPage() {
                         Clicked ({calculateClickRate(selectedCampaign)})
                       </p>
                     </div>
-                    <div className="bg-gradient-to-br from-amber-50 to-orange-50 border border-warning/30 rounded-lg p-4 text-center">
+                    <div className="bg-warning/5 border border-warning/30 rounded-lg p-4 text-center">
                       <p className="text-2xl font-bold text-warning-foreground">
                         {formatNumber(selectedCampaign.converted)}
                       </p>

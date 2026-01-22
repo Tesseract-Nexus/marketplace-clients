@@ -320,15 +320,15 @@ export default function OrdersPage() {
       labelKey: "Total Orders",
       value: (orders || []).length,
       icon: ShoppingCart,
-      color: "from-blue-500 to-cyan-500",
-      bgColor: "from-blue-50 to-cyan-50"
+      textColor: "text-primary",
+      bgColor: "bg-primary/10"
     },
     {
       labelKey: "Awaiting Payment",
       value: (orders || []).filter(o => o.status === 'PLACED').length,
       icon: Clock,
-      color: "from-amber-500 to-yellow-500",
-      bgColor: "from-amber-50 to-yellow-50"
+      textColor: "text-warning",
+      bgColor: "bg-warning/10"
     },
     {
       labelKey: "In Fulfillment",
@@ -340,15 +340,15 @@ export default function OrdersPage() {
         o.fulfillmentStatus === 'OUT_FOR_DELIVERY'
       ).length,
       icon: Truck,
-      color: "from-cyan-500 to-blue-500",
-      bgColor: "from-cyan-50 to-blue-50"
+      textColor: "text-primary",
+      bgColor: "bg-primary/10"
     },
     {
       labelKey: "Completed",
       value: (orders || []).filter(o => o.status === 'COMPLETED').length,
       icon: CheckCircle,
-      color: "from-emerald-500 to-teal-500",
-      bgColor: "from-emerald-50 to-teal-50"
+      textColor: "text-success",
+      bgColor: "bg-success/10"
     },
     {
       labelKey: "Revenue",
@@ -357,8 +357,8 @@ export default function OrdersPage() {
         orders[0]?.currencyCode || 'INR'
       ),
       icon: DollarSign,
-      color: "from-violet-500 to-purple-500",
-      bgColor: "from-violet-50 to-purple-50"
+      textColor: "text-primary",
+      bgColor: "bg-primary/10"
     }
   ];
 
@@ -430,21 +430,21 @@ export default function OrdersPage() {
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Decorative gradient background on hover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgColor} opacity-0 group-hover:opacity-50 transition-opacity duration-300`} />
+                <div className={`absolute inset-0 ${stat.bgColor} opacity-0 group-hover:opacity-50 transition-opacity duration-300`} />
                 <CardContent className="p-6 relative">
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
                       <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors"><AdminUIText text={stat.labelKey} /></p>
-                      <p className={`text-3xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent`}>
+                      <p className={`text-3xl font-bold ${stat.textColor}`}>
                         {stat.value}
                       </p>
                     </div>
-                    <div className={`p-4 rounded-2xl bg-gradient-to-br ${stat.bgColor} border border-border group-hover:scale-110 group-hover:shadow-lg group-hover:rotate-3 transition-all duration-300`}>
+                    <div className={`p-4 rounded-2xl ${stat.bgColor} border border-border group-hover:scale-110 group-hover:shadow-lg group-hover:rotate-3 transition-all duration-300`}>
                       <Icon className="w-7 h-7 text-foreground" />
                     </div>
                   </div>
                   {/* Subtle bottom accent line */}
-                  <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${stat.color} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left`} />
+                  <div className={`absolute bottom-0 left-0 right-0 h-1 ${stat.textColor} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left`} />
                 </CardContent>
               </Card>
             );
@@ -637,10 +637,10 @@ export default function OrdersPage() {
                   <div
                     className={cn(
                       "h-full transition-all duration-700 ease-out",
-                      order.fulfillmentStatus === 'DELIVERED' && "bg-gradient-to-r from-emerald-400 to-teal-500",
+                      order.fulfillmentStatus === 'DELIVERED' && "bg-success",
                       order.fulfillmentStatus === 'FAILED_DELIVERY' && "bg-destructive",
                       order.fulfillmentStatus === 'RETURNED' && "bg-warning",
-                      !['DELIVERED', 'FAILED_DELIVERY', 'RETURNED'].includes(order.fulfillmentStatus) && "bg-gradient-to-r from-blue-400 via-cyan-500 to-teal-400"
+                      !['DELIVERED', 'FAILED_DELIVERY', 'RETURNED'].includes(order.fulfillmentStatus) && "bg-primary"
                     )}
                     style={{ width: `${getFulfillmentProgress(order.fulfillmentStatus)}%` }}
                   />
@@ -701,7 +701,7 @@ export default function OrdersPage() {
                         <p className="text-xs text-muted-foreground font-semibold">Shipping</p>
                         <p className="text-sm font-bold text-foreground group-hover/item:text-primary transition-colors">{formatCurrency(order.shippingCost, order.currencyCode)}</p>
                       </div>
-                      <div className="bg-gradient-to-br from-blue-50 to-violet-50 -m-2 p-2 rounded-xl border border-primary/20">
+                      <div className="bg-primary/5 -m-2 p-2 rounded-xl border border-primary/20">
                         <p className="text-xs text-primary font-semibold">Total</p>
                         <p className="text-xl font-bold text-primary">
                           {formatCurrency(order.total, order.currencyCode)}
@@ -712,7 +712,7 @@ export default function OrdersPage() {
 
                   <div className="flex lg:flex-col gap-2 items-center justify-center relative">
                     {/* View button */}
-                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-blue-50 to-blue-100 group-hover:from-blue-500 group-hover:to-violet-500 flex items-center justify-center transition-all duration-300 border border-primary/30 group-hover:border-primary/70">
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 group-hover:bg-primary flex items-center justify-center transition-all duration-300 border border-primary/30 group-hover:border-primary/70">
                       <Eye className="w-4 h-4 text-primary group-hover:text-white transition-colors" />
                     </div>
 
@@ -803,7 +803,7 @@ export default function OrdersPage() {
               <CardContent className="p-16 text-center">
                 <div className="relative inline-block">
                   <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl opacity-50" />
-                  <div className="relative bg-gradient-to-br from-gray-50 to-gray-100 p-8 rounded-full border-2 border-border">
+                  <div className="relative bg-muted p-8 rounded-full border-2 border-border">
                     <ShoppingCart className="w-16 h-16 text-muted-foreground" />
                   </div>
                 </div>

@@ -1248,7 +1248,7 @@ export default function ProductsPage() {
 
               {/* Pricing Card */}
               <Card className="border-border/50">
-                <CardHeader className="border-b border-border bg-gradient-to-r from-green-50 to-emerald-50">
+                <CardHeader className="border-b border-border bg-success/5">
                   <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
                     <span className="w-5 h-5 flex items-center justify-center font-bold text-lg text-success">{getCurrencySymbol(storeCurrency)}</span>
                     Pricing
@@ -1268,7 +1268,7 @@ export default function ProductsPage() {
                         {selectedProduct.comparePrice ? formatCurrency(selectedProduct.comparePrice, selectedProduct.currencyCode || storeCurrency) : 'N/A'}
                       </p>
                     </div>
-                    <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl p-4 border border-warning/20">
+                    <div className="bg-warning/5 rounded-xl p-4 border border-warning/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Cost Price</p>
                       <p className="text-2xl font-bold text-warning">
                         {selectedProduct.costPrice ? formatCurrency(selectedProduct.costPrice, selectedProduct.currencyCode || storeCurrency) : 'N/A'}
@@ -1291,7 +1291,7 @@ export default function ProductsPage() {
 
               {/* Inventory Card */}
               <Card className="border-border/50">
-                <CardHeader className="border-b border-border bg-gradient-to-r from-amber-50 to-yellow-50">
+                <CardHeader className="border-b border-border bg-warning/5">
                   <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
                     <Package className="w-5 h-5 text-warning" />
                     Inventory & Shipping
@@ -1311,7 +1311,7 @@ export default function ProductsPage() {
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Min Order</p>
                       <p className="text-2xl font-bold text-success">{selectedProduct.minOrderQty || 1}</p>
                     </div>
-                    <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-4 border border-primary/20">
+                    <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Max Order</p>
                       <p className="text-2xl font-bold text-primary">{selectedProduct.maxOrderQty || '∞'}</p>
                     </div>
@@ -2162,7 +2162,7 @@ export default function ProductsPage() {
                               </div>
 
                               {/* Filename Footer */}
-                              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                              <div className="absolute bottom-0 left-0 right-0 bg-black/30 p-2">
                                 <p className="text-white text-xs truncate">{img.fileName}</p>
                               </div>
                             </div>
@@ -2287,7 +2287,7 @@ export default function ProductsPage() {
                       {Array.isArray(formData.tags) && formData.tags.length > 0 && (
                         <div className="mt-4 flex flex-wrap gap-2">
                           {formData.tags.map((tag, index) => (
-                            <span key={index} className="px-4 py-2 bg-gradient-to-r from-blue-100 to-violet-100 text-primary rounded-full text-sm font-semibold flex items-center gap-2 border border-primary/30 shadow-sm">
+                            <span key={index} className="px-4 py-2 bg-primary/10 text-primary rounded-full text-sm font-semibold flex items-center gap-2 border border-primary/30 shadow-sm">
                               <Tag className="w-3 h-3 inline-block" aria-hidden="true" /> {tag}
                               <button
                                 type="button"
@@ -2500,29 +2500,29 @@ export default function ProductsPage() {
                 label: "Total Products",
                 value: products.length,
                 icon: Package,
-                color: "from-blue-500 to-cyan-500",
-                bgColor: "from-blue-50 to-cyan-50",
+                textColor: "text-primary",
+                bgColor: "bg-primary/10",
               },
               {
                 label: "Active",
                 value: products.filter(p => p.status === 'ACTIVE').length,
                 icon: CheckCircle,
-                color: "from-emerald-500 to-teal-500",
-                bgColor: "from-emerald-50 to-teal-50",
+                textColor: "text-success",
+                bgColor: "bg-success/10",
               },
               {
                 label: "Low Stock",
                 value: products.filter(p => p.inventoryStatus === 'LOW_STOCK').length,
                 icon: AlertTriangle,
-                color: "from-amber-500 to-yellow-500",
-                bgColor: "from-amber-50 to-yellow-50",
+                textColor: "text-warning",
+                bgColor: "bg-warning/10",
               },
               {
                 label: "Out of Stock",
                 value: products.filter(p => p.inventoryStatus === 'OUT_OF_STOCK').length,
                 icon: PackageX,
-                color: "from-red-500 to-pink-500",
-                bgColor: "from-red-50 to-pink-50",
+                textColor: "text-destructive",
+                bgColor: "bg-destructive/10",
               },
             ].map((stat, index) => {
               const Icon = stat.icon;
@@ -2532,11 +2532,11 @@ export default function ProductsPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                        <p className={`text-3xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mt-2 group-hover:scale-105 transition-transform origin-left`}>
+                        <p className={`text-3xl font-bold ${stat.textColor} mt-2 group-hover:scale-105 transition-transform origin-left`}>
                           {stat.value}
                         </p>
                       </div>
-                      <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.bgColor} border border-border group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
+                      <div className={`p-3 rounded-xl ${stat.bgColor} border border-border group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
                         <Icon className="w-6 h-6 text-muted-foreground" />
                       </div>
                     </div>
@@ -2751,10 +2751,10 @@ export default function ProductsPage() {
                       {/* Left accent bar */}
                       <div className={cn(
                         "w-1.5 flex-shrink-0 rounded-l-2xl transition-colors",
-                        product.status === 'ACTIVE' ? "bg-gradient-to-b from-emerald-400 to-green-500" :
-                        product.status === 'DRAFT' ? "bg-gradient-to-b from-gray-300 to-gray-400" :
-                        product.status === 'PENDING' ? "bg-gradient-to-b from-amber-400 to-yellow-500" :
-                        "bg-gradient-to-b from-red-400 to-rose-500"
+                        product.status === 'ACTIVE' ? "bg-success" :
+                        product.status === 'DRAFT' ? "bg-muted-foreground" :
+                        product.status === 'PENDING' ? "bg-warning" :
+                        "bg-destructive"
                       )} />
 
                       <div className="flex-1 p-5">
@@ -2861,7 +2861,7 @@ export default function ProductsPage() {
                             {/* Meta tags */}
                             <div className="flex flex-wrap gap-2 text-xs">
                               {product.weight && (
-                                <span className="px-2.5 py-1 bg-gradient-to-r from-gray-100 to-slate-100 text-muted-foreground rounded-lg font-medium border border-border flex items-center gap-1">
+                                <span className="px-2.5 py-1 bg-muted text-muted-foreground rounded-lg font-medium border border-border flex items-center gap-1">
                                   <Scale className="w-3 h-3" /> {product.weight}
                                 </span>
                               )}

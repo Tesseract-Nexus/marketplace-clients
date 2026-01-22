@@ -189,7 +189,7 @@ function NotificationItem({
         colors.border,
         notification.isRead
           ? "bg-white hover:bg-muted"
-          : "bg-gradient-to-r from-blue-50/50 to-white hover:from-blue-50 shadow-sm"
+          : "bg-primary/5 hover:bg-primary/10 shadow-sm"
       )}
       onClick={handleClick}
     >
@@ -217,7 +217,7 @@ function NotificationItem({
             )}
           </div>
           {!notification.isRead && (
-            <div className="w-2.5 h-2.5 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full shrink-0 mt-1 shadow-sm animate-pulse" />
+            <div className="w-2.5 h-2.5 bg-primary rounded-full shrink-0 mt-1 shadow-sm animate-pulse" />
           )}
         </div>
 
@@ -342,7 +342,7 @@ export function NotificationBell() {
         {/* Unread Badge */}
         {unreadCount > 0 && (
           <>
-            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center px-1 text-[10px] font-bold text-white bg-gradient-to-br from-red-500 to-pink-500 rounded-full shadow-lg shadow-red-500/30">
+            <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center px-1 text-[10px] font-bold text-white bg-destructive rounded-full shadow-lg shadow-red-500/30">
               {unreadCount > 99 ? '99+' : unreadCount}
             </span>
             <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-destructive/100 rounded-full animate-ping opacity-75" />

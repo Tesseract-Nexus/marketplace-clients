@@ -127,10 +127,10 @@ export function ImageUploadProgressModal({
               className={cn(
                 "h-full rounded-full transition-all duration-500 ease-out",
                 isAllSuccess
-                  ? "bg-gradient-to-r from-emerald-400 to-emerald-500"
+                  ? "bg-success"
                   : errorCount > 0
-                    ? "bg-gradient-to-r from-amber-400 to-amber-500"
-                    : "bg-gradient-to-r from-blue-400 to-violet-500"
+                    ? "bg-warning"
+                    : "bg-primary"
               )}
               style={{ width: `${totalCount > 0 ? (successCount / totalCount) * 100 : 0}%` }}
             />
@@ -237,10 +237,10 @@ export function ImageUploadProgressModal({
               onClick={onClose}
               className={cn(
                 "w-full mt-3 py-2.5 px-4 rounded-xl font-medium text-white transition-all duration-200",
-                "bg-gradient-to-r shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]",
+                "shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]",
                 isAllSuccess
-                  ? "from-emerald-500 to-teal-500 shadow-emerald-500/25"
-                  : "from-amber-500 to-orange-500 shadow-amber-500/25"
+                  ? "bg-success shadow-success/25"
+                  : "bg-warning shadow-warning/25"
               )}
             >
               {isAllSuccess ? 'Done' : 'Close'}

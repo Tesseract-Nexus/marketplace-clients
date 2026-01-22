@@ -122,7 +122,7 @@ export function Select({
                     "w-full flex items-center justify-between px-4 py-2.5 text-left transition-all",
                     isSelected
                       ? "bg-muted text-primary font-semibold"
-                      : "text-foreground hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50/30"
+                      : "text-foreground hover:hover:bg-muted"
                   )}
                 >
                   <span className="flex items-center gap-2">

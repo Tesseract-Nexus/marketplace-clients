@@ -64,7 +64,7 @@ export function CustomerSatisfactionWidget({ data }: CustomerSatisfactionWidgetP
             </div>
           </div>
           <Link href="/reviews">
-            <Button variant="outline" className="text-foreground hover:text-warning-foreground hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 text-xs h-8 bg-card border border-border hover:border-warning/40 shadow-sm hover:shadow transition-all">
+            <Button variant="outline" className="text-foreground hover:text-warning-foreground hover:hover:bg-warning/5 text-xs h-8 bg-card border border-border hover:border-warning/40 shadow-sm hover:shadow transition-all">
               <Eye className="h-3 w-3 mr-1" />
               <AdminUIText text="View All" />
             </Button>

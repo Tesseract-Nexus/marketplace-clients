@@ -238,15 +238,15 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
     <div className={cn('space-y-6', className)}>
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-4 border border-primary/30">
+        <div className="bg-primary/5 rounded-xl p-4 border border-primary/30">
           <p className="text-2xl font-bold text-primary">{stats.total}</p>
           <p className="text-sm text-primary">Total Pages</p>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-4 border border-success/30">
+        <div className="bg-success/10 rounded-xl p-4 border border-success/30">
           <p className="text-2xl font-bold text-success-foreground">{stats.published}</p>
           <p className="text-sm text-success">Published</p>
         </div>
-        <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-4 border border-warning/30">
+        <div className="bg-warning/10 rounded-xl p-4 border border-warning/30">
           <p className="text-2xl font-bold text-warning">{stats.draft}</p>
           <p className="text-sm text-warning">Drafts</p>
         </div>

@@ -124,7 +124,7 @@ export default function StoresPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white border-0">
+          <Card className="bg-success text-white border-0">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -333,7 +333,7 @@ export default function StoresPage() {
                     <Card className="hover:shadow-lg transition-all cursor-pointer group h-full">
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between mb-4">
-                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
+                          <div className="w-12 h-12 rounded-xl bg-success flex items-center justify-center shadow-lg">
                             {storefront.logoUrl ? (
                               <img src={storefront.logoUrl} alt="" className="w-full h-full rounded-xl object-cover" />
                             ) : (
@@ -396,7 +396,7 @@ export default function StoresPage() {
                     className="block"
                   >
                     <div className="p-6 border-2 border-border rounded-xl hover:border-primary hover:bg-primary/10/50 transition-all cursor-pointer group">
-                      <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <Building2 className="w-7 h-7 text-white" />
                       </div>
                       <h3 className="text-lg font-bold text-foreground group-hover:text-primary">
@@ -429,7 +429,7 @@ export default function StoresPage() {
                     className="block"
                   >
                     <div className="p-6 border-2 border-border rounded-xl hover:border-emerald-500 hover:bg-emerald-50/50 transition-all cursor-pointer group">
-                      <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                      <div className="w-14 h-14 bg-success rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <Globe className="w-7 h-7 text-white" />
                       </div>
                       <h3 className="text-lg font-bold text-foreground group-hover:text-emerald-600">

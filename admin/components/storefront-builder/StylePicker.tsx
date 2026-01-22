@@ -48,7 +48,7 @@ export function BorderRadiusPicker({ label = 'Border Radius', value, onChange }:
           >
             <div
               className={cn(
-                'w-10 h-10 bg-gradient-to-br from-purple-400 to-pink-400 mb-2',
+                'w-10 h-10 bg-primary/60 mb-2',
                 option.preview
               )}
             />
@@ -470,7 +470,7 @@ export function ImageAspectRatioPicker({ value, onChange }: ImageAspectRatioPick
             <div className="mb-2 flex items-center justify-center h-12 w-12">
               <div
                 className={cn(
-                  'bg-gradient-to-br from-purple-300 to-pink-300 rounded',
+                  'bg-primary/40 rounded',
                   option.id === 'square' && 'w-10 h-10',
                   option.id === 'portrait' && 'w-8 h-10',
                   option.id === 'landscape' && 'w-10 h-8',

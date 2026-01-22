@@ -145,17 +145,17 @@ export default function ProfilePage() {
     });
   };
 
-  const getInitialsGradient = (name: string) => {
-    const gradients = [
-      'from-blue-500 to-purple-600',
-      'from-green-500 to-teal-600',
-      'from-purple-500 to-pink-600',
-      'from-orange-500 to-red-600',
-      'from-teal-500 to-cyan-600',
-      'from-indigo-500 to-blue-600',
+  const getInitialsBgColor = (name: string) => {
+    const colors = [
+      'bg-primary',
+      'bg-success',
+      'bg-accent',
+      'bg-warning',
+      'bg-info',
+      'bg-destructive',
     ];
     const charCode = name.charCodeAt(0) || 0;
-    return gradients[charCode % gradients.length];
+    return colors[charCode % colors.length];
   };
 
   const userInitial = profile.displayName.charAt(0).toUpperCase();
@@ -227,7 +227,7 @@ export default function ProfilePage() {
                   className="h-24 w-24 rounded-full object-cover shadow-lg border-4 border-primary/20"
                 />
               ) : (
-                <div className={`h-24 w-24 rounded-full bg-gradient-to-br ${getInitialsGradient(profile.displayName)} flex items-center justify-center shadow-lg border-4 border-primary/20`}>
+                <div className={`h-24 w-24 rounded-full ${getInitialsBgColor(profile.displayName)} flex items-center justify-center shadow-lg border-4 border-primary/20`}>
                   <span className="text-white font-bold text-2xl">{userInitial}</span>
                 </div>
               )}

@@ -284,7 +284,7 @@ export default function MarketplaceConnectorsPage() {
           <Card key={connector.id} className="hover:shadow-lg transition-all duration-200 hover:border-primary/50">
             <CardHeader>
               <div className="flex items-start justify-between">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-xl bg-muted dark:bg-muted dark:to-slate-900 flex items-center justify-center">
                   <Store className="w-6 h-6 text-muted-foreground dark:text-muted-foreground" />
                 </div>
                 <Badge

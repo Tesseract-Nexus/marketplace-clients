@@ -242,7 +242,7 @@ export default function TestimonialSettingsPage() {
         />
 
         {/* Info Card */}
-        <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-xl border border-primary/20 p-6">
+        <div className="bg-primary/10 rounded-xl border border-primary/20 p-6">
           <div className="flex items-start gap-4">
             <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
               <MessageSquareQuote className="h-6 w-6 text-primary" />

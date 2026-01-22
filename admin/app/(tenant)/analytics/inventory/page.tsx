@@ -236,7 +236,7 @@ export default function InventoryAnalyticsPage() {
             </p>
           </div>
 
-          <div className="group bg-card rounded-xl border border-warning/30/60 p-6 shadow-sm bg-gradient-to-br from-amber-50 to-white hover:shadow-xl hover:border-warning/40/50 hover:-translate-y-1 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-warning/30 p-6 shadow-sm hover:shadow-xl hover:border-warning/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-warning-foreground">Low Stock</p>
               <div className="w-10 h-10 bg-warning-muted rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
@@ -249,7 +249,7 @@ export default function InventoryAnalyticsPage() {
             <p className="text-xs text-warning mt-1">Needs reorder</p>
           </div>
 
-          <div className="group bg-card rounded-xl border border-destructive/30/60 p-6 shadow-sm bg-gradient-to-br from-red-50 to-white hover:shadow-xl hover:border-destructive/30/50 hover:-translate-y-1 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-destructive/30/60 p-6 shadow-sm bg-destructive/5 hover:shadow-xl hover:border-destructive/30/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-destructive">Out of Stock</p>
               <div className="w-10 h-10 bg-destructive/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">

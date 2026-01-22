@@ -117,17 +117,17 @@ export function TestimonialPromptBanner({ className }: TestimonialPromptBannerPr
 
   return (
     <div className={cn(
-      "relative overflow-hidden rounded-xl border bg-gradient-to-r from-amber-50 via-orange-50 to-rose-50 border-warning/30/50",
+      "relative overflow-hidden rounded-xl border bg-warning/5 border-warning/30/50",
       className
     )}>
       {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-amber-200/30 to-transparent rounded-full -translate-y-32 translate-x-32" />
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-rose-200/30 to-transparent rounded-full translate-y-24 -translate-x-24" />
+      <div className="absolute top-0 right-0 w-64 h-64 bg-warning/20 rounded-full -translate-y-32 translate-x-32" />
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-destructive/10 rounded-full translate-y-24 -translate-x-24" />
 
       <div className="relative p-4 sm:p-6">
         <div className="flex items-start gap-4">
           {/* Icon */}
-          <div className="hidden sm:flex w-12 h-12 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 items-center justify-center flex-shrink-0 shadow-lg">
+          <div className="hidden sm:flex w-12 h-12 rounded-xl bg-warning items-center justify-center flex-shrink-0 shadow-lg">
             <MessageSquareQuote className="h-6 w-6 text-white" />
           </div>
 
@@ -162,7 +162,7 @@ export function TestimonialPromptBanner({ className }: TestimonialPromptBannerPr
             {/* Actions */}
             <div className="flex flex-wrap items-center gap-3 mt-4">
               <Link href="/settings/testimonial">
-                <Button className="gap-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-lg shadow-amber-500/25">
+                <Button className="gap-2 bg-warning hover:bg-warning/90 text-warning-foreground shadow-lg shadow-warning/25">
                   <MessageSquareQuote className="h-4 w-4" />
                   Write Testimonial
                   <ChevronRight className="h-4 w-4" />

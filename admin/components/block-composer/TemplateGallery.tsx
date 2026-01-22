@@ -166,7 +166,7 @@ function TemplateCard({ template, isSelected, onSelect }: TemplateCardProps) {
       onClick={onSelect}
     >
       {/* Thumbnail */}
-      <div className="relative aspect-[16/10] bg-gradient-to-br from-muted to-muted/50 rounded-t-lg overflow-hidden">
+      <div className="relative aspect-[16/10] bg-muted rounded-t-lg overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center">
           <Sparkles className="w-12 h-12 text-muted-foreground/30" />
         </div>

@@ -24,7 +24,8 @@ const integrationCategories = [
     description: "Connect to Amazon, Shopify, Flipkart, and more to sync your products and orders",
     icon: Store,
     href: "/integrations/marketplaces",
-    color: "from-blue-500 to-cyan-500",
+    textColor: "text-primary",
+    bgColor: "bg-primary",
     stats: { connected: 0, available: 12 },
     featured: true,
   },
@@ -34,7 +35,8 @@ const integrationCategories = [
     description: "Marketing automation for email campaigns, customer segments, and engagement tracking",
     icon: Sparkles,
     href: "/integrations/mautic",
-    color: "from-violet-500 to-purple-500",
+    textColor: "text-primary",
+    bgColor: "bg-primary",
     stats: { campaigns: 0, segments: 8 },
     featured: true,
   },
@@ -44,7 +46,8 @@ const integrationCategories = [
     description: "Import products, customers, and orders from CSV, Excel, or other platforms",
     icon: Upload,
     href: "/integrations/import",
-    color: "from-emerald-500 to-teal-500",
+    textColor: "text-success",
+    bgColor: "bg-success",
     stats: { recent: 0, total: 0 },
   },
   {
@@ -53,7 +56,7 @@ const integrationCategories = [
     description: "Extend your store with marketing, analytics, and operational tools",
     icon: Puzzle,
     href: "/integrations/apps",
-    color: "from-purple-500 to-pink-500",
+    bgColor: "bg-accent",
     stats: { installed: 0, available: 25 },
   },
   {
@@ -62,7 +65,7 @@ const integrationCategories = [
     description: "Set up real-time notifications for order events, inventory changes, and more",
     icon: Webhook,
     href: "/integrations/webhooks",
-    color: "from-orange-500 to-amber-500",
+    bgColor: "bg-warning",
     stats: { active: 0, total: 0 },
   },
   {
@@ -71,7 +74,7 @@ const integrationCategories = [
     description: "Manage API credentials for custom integrations and third-party access",
     icon: Key,
     href: "/integrations/api-keys",
-    color: "from-slate-500 to-zinc-500",
+    bgColor: "bg-muted-foreground",
     stats: { active: 0, total: 0 },
   },
 ];
@@ -116,7 +119,7 @@ export default function IntegrationsOverviewPage() {
         <Card className="bg-primary/5 dark:from-blue-950/20 dark:to-cyan-950/20 border-primary/30/50">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
                 <Store className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -127,10 +130,10 @@ export default function IntegrationsOverviewPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20 border-primary/30/50">
+        <Card className="bg-primary/5 dark:bg-primary/10 border-primary/30/50">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
                 <Puzzle className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -141,10 +144,10 @@ export default function IntegrationsOverviewPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20 border-emerald-200/50">
+        <Card className="bg-success/5 dark:bg-success/10 border-success/30">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+              <div className="w-12 h-12 rounded-xl bg-success flex items-center justify-center">
                 <Upload className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -155,7 +158,7 @@ export default function IntegrationsOverviewPage() {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-950/20 dark:to-amber-950/20 border-warning/30/50">
+        <Card className="bg-warning/5 dark:from-orange-950/20 dark:to-amber-950/20 border-warning/30/50">
           <CardContent className="pt-6">
             <div className="flex items-center gap-4">
               <div className="w-12 h-12 rounded-xl bg-warning flex items-center justify-center">
@@ -179,11 +182,11 @@ export default function IntegrationsOverviewPage() {
               <Card className="h-full hover:shadow-lg transition-all duration-200 hover:border-primary/50 cursor-pointer group">
                 <CardHeader>
                   <div className="flex items-start justify-between">
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center`}>
+                    <div className={`w-12 h-12 rounded-xl ${category.bgColor} flex items-center justify-center`}>
                       <category.icon className="w-6 h-6 text-white" />
                     </div>
                     {category.featured && (
-                      <Badge variant="secondary" className="bg-gradient-to-r from-amber-100 to-yellow-100 text-warning-foreground border-warning/30">
+                      <Badge variant="secondary" className="bg-warning/10 text-warning-foreground border-warning/30">
                         <Sparkles className="w-3 h-3 mr-1" />
                         Featured
                       </Badge>
@@ -230,7 +233,7 @@ export default function IntegrationsOverviewPage() {
             <Card key={connector.name} className="hover:shadow-md transition-shadow cursor-pointer">
               <CardContent className="pt-6">
                 <div className="flex flex-col items-center text-center">
-                  <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 flex items-center justify-center mb-3">
+                  <div className="w-16 h-16 rounded-xl bg-muted dark:bg-muted dark:to-slate-900 flex items-center justify-center mb-3">
                     <Store className="w-8 h-8 text-muted-foreground" />
                   </div>
                   <h3 className="font-medium">{connector.name}</h3>
@@ -251,7 +254,7 @@ export default function IntegrationsOverviewPage() {
       </div>
 
       {/* Getting Started */}
-      <Card className="bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-blue-950/30 dark:via-purple-950/30 dark:to-pink-950/30 border-0">
+      <Card className="bg-primary/5 dark:bg-primary/10 border-0">
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row items-center gap-6">
             <div className="flex-1">
@@ -276,7 +279,7 @@ export default function IntegrationsOverviewPage() {
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 flex items-center justify-center">
+              <div className="w-24 h-24 rounded-2xl bg-primary flex items-center justify-center">
                 <Plug2 className="w-12 h-12 text-white" />
               </div>
             </div>

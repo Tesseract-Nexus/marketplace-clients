@@ -181,7 +181,7 @@ export function ShippingSettingsTab() {
           className="w-full flex items-center justify-between p-6 hover:bg-muted transition-colors"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
               <Building className="h-5 w-5 text-white" />
             </div>
             <div className="text-left">
@@ -301,7 +301,7 @@ export function ShippingSettingsTab() {
       {/* Carrier Selection & Options */}
       <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-violet-600 rounded-lg flex items-center justify-center">
+          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
             <Truck className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -494,7 +494,7 @@ export function ShippingSettingsTab() {
           className="w-full flex items-center justify-between p-6 hover:bg-muted transition-colors"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-gray-500 to-slate-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-muted-foreground rounded-lg flex items-center justify-center">
               <Package className="h-5 w-5 text-white" />
             </div>
             <div className="text-left">

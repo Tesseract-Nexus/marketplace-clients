@@ -22,7 +22,7 @@ export default function ResetPasswordPage() {
           className="w-full h-full object-cover animate-slow-zoom"
         />
         <div className="absolute inset-0 bg-background/80" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-black/20" />
       </div>
 
       {/* Animated elements */}

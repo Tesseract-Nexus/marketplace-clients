@@ -93,7 +93,7 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
       case 'admin':
         return 'bg-primary/20 text-primary border-primary/30';
       case 'platform_admin':
-        return 'bg-gradient-to-r from-indigo-100 to-purple-100 text-primary border-primary/30';
+        return 'bg-primary/10 text-primary border-primary/30';
       case 'manager':
         return 'bg-success-muted text-success-foreground border-success/30';
       case 'staff':
@@ -287,7 +287,7 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
                 {/* Platform Tenants - Only shown to platform admins */}
                 {isPlatformAdmin && groupedTenants.platformTenants.length > 0 && (
                   <div>
-                    <div className="px-4 py-2 bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-primary/20">
+                    <div className="px-4 py-2 bg-primary/5 border-b border-primary/20">
                       <span className="text-xs font-semibold text-primary uppercase tracking-wider">
                         All Platform Tenants
                       </span>
@@ -310,7 +310,7 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
           </div>
 
           {/* Footer - Create New Business */}
-          <div className="border-t border-border p-3 bg-gradient-to-r from-gray-50 to-slate-50">
+          <div className="border-t border-border p-3 bg-muted">
             <button
               onClick={handleCreateNewBusiness}
               className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold text-primary hover:bg-primary/10 rounded-lg transition-all duration-200 hover:shadow-sm"
@@ -340,7 +340,7 @@ function TenantItem({ tenant, isSelected, onSelect, onSetDefault, isSettingDefau
     <div
       className={cn(
         'w-full flex items-center gap-3 px-4 py-3 transition-all duration-150 group cursor-pointer',
-        'hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50',
+        'hover:hover:bg-primary/5',
         isSelected && 'bg-muted'
       )}
       onClick={() => onSelect(tenant)}

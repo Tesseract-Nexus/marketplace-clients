@@ -138,7 +138,7 @@ export default function AuthErrorPage() {
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-background/80" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-black/20" />
       </div>
 
       {/* Animated elements */}

@@ -277,11 +277,11 @@ function StatCard({
   color?: 'blue' | 'green' | 'red' | 'yellow' | 'purple';
 }) {
   const colorClasses = {
-    blue: 'from-blue-500 to-blue-600',
-    green: 'from-green-500 to-green-600',
-    red: 'from-red-500 to-red-600',
-    yellow: 'from-yellow-500 to-yellow-600',
-    purple: 'from-purple-500 to-purple-600',
+    blue: 'bg-primary',
+    green: 'bg-success',
+    red: 'bg-destructive',
+    yellow: 'bg-warning',
+    purple: 'bg-accent',
   };
 
   return (
@@ -297,7 +297,7 @@ function StatCard({
             </div>
           )}
         </div>
-        <div className={cn('p-3 rounded-lg bg-gradient-to-br text-white', colorClasses[color])}>
+        <div className={cn('p-3 rounded-lg text-white', colorClasses[color])}>
           <Icon className="h-6 w-6" />
         </div>
       </div>

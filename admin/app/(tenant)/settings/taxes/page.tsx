@@ -653,7 +653,7 @@ export default function TaxSettingsPage() {
         {!storeSettings.loading && !storeSettings.country && (
           <div className="bg-warning-muted rounded-xl border-2 border-warning/30 p-6">
             <div className="flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-gradient-to-br from-amber-400 to-amber-500 text-white">
+              <div className="p-3 rounded-xl bg-warning text-warning-foreground">
                 <MapPin className="h-6 w-6" />
               </div>
               <div className="flex-1">
@@ -727,7 +727,7 @@ export default function TaxSettingsPage() {
 
         {/* Quick Setup Card - Show for India */}
         {isIndiaStore && needsSetup && !setupSuccess && !storeSettings.loading && (
-          <div className="bg-gradient-to-r from-orange-50 to-amber-50 rounded-xl border-2 border-warning/30 shadow-sm overflow-hidden">
+          <div className="bg-warning/5 rounded-xl border-2 border-warning/30 shadow-sm overflow-hidden">
             <div className="p-6">
               <div className="flex items-start gap-4 mb-6">
                 <div className="p-3 rounded-xl bg-warning text-white">
@@ -838,7 +838,7 @@ export default function TaxSettingsPage() {
                 <Button
                   onClick={handleIndiaGSTSetup}
                   disabled={isSettingUp || selectedGstSlabs.length === 0}
-                  className="bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600"
+                  className="bg-warning hover:bg-warning/90"
                 >
                   {isSettingUp ? (
                     <>
@@ -885,7 +885,7 @@ export default function TaxSettingsPage() {
           <div className="bg-muted rounded-xl border-2 border-primary/30 shadow-sm overflow-hidden">
             <div className="p-6">
               <div className="flex items-start gap-4 mb-6">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-500 text-white">
+                <div className="p-3 rounded-xl bg-primary text-primary-foreground">
                   <Sparkles className="h-6 w-6" />
                 </div>
                 <div>
@@ -938,7 +938,7 @@ export default function TaxSettingsPage() {
                 <Button
                   onClick={handleUSSalesTaxSetup}
                   disabled={isSettingUp}
-                  className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
+                  className="bg-primary hover:bg-primary/90"
                 >
                   {isSettingUp ? (
                     <>
@@ -962,7 +962,7 @@ export default function TaxSettingsPage() {
           <div className="bg-destructive/5 rounded-xl border-2 border-destructive/30 shadow-sm overflow-hidden">
             <div className="p-6">
               <div className="flex items-start gap-4 mb-6">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-red-500 to-blue-500 text-white">
+                <div className="p-3 rounded-xl bg-destructive text-destructive-foreground">
                   <Sparkles className="h-6 w-6" />
                 </div>
                 <div>
@@ -1025,10 +1025,10 @@ export default function TaxSettingsPage() {
 
         {/* Quick Setup Card - Australia GST */}
         {isAustraliaStore && needsSetup && !setupSuccess && !storeSettings.loading && (
-          <div className="bg-gradient-to-r from-green-50 to-yellow-50 rounded-xl border-2 border-success/30 shadow-sm overflow-hidden">
+          <div className="bg-success/5 rounded-xl border-2 border-success/30 shadow-sm overflow-hidden">
             <div className="p-6">
               <div className="flex items-start gap-4 mb-6">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-yellow-500 text-white">
+                <div className="p-3 rounded-xl bg-success text-success-foreground">
                   <Sparkles className="h-6 w-6" />
                 </div>
                 <div>
@@ -1070,7 +1070,7 @@ export default function TaxSettingsPage() {
                 <Button
                   onClick={handleAustraliaGSTSetup}
                   disabled={isSettingUp}
-                  className="bg-gradient-to-r from-green-500 to-yellow-500 hover:from-green-600 hover:to-yellow-600"
+                  className="bg-success hover:bg-success/90"
                 >
                   {isSettingUp ? (
                     <>
@@ -1094,7 +1094,7 @@ export default function TaxSettingsPage() {
           <div className="bg-destructive/5 rounded-xl border-2 border-destructive/30 shadow-sm overflow-hidden">
             <div className="p-6">
               <div className="flex items-start gap-4 mb-6">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-red-500 to-red-600 text-white">
+                <div className="p-3 rounded-xl bg-destructive text-destructive-foreground">
                   <Sparkles className="h-6 w-6" />
                 </div>
                 <div>
@@ -1213,7 +1213,7 @@ export default function TaxSettingsPage() {
             href="/settings/taxes/jurisdictions"
             className="group bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
           >
-            <div className="h-2 bg-gradient-to-r from-blue-500 to-blue-600" />
+            <div className="h-2 bg-primary" />
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
                 <div className="p-3 rounded-xl bg-primary text-primary-foreground">
@@ -1244,10 +1244,10 @@ export default function TaxSettingsPage() {
             href="/settings/taxes/rates"
             className="group bg-card rounded-xl border border-border shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
           >
-            <div className="h-2 bg-gradient-to-r from-green-500 to-green-600" />
+            <div className="h-2 bg-success" />
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white">
+                <div className="p-3 rounded-xl bg-success text-success-foreground">
                   <Percent className="h-6 w-6" />
                 </div>
                 <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-muted-foreground group-hover:translate-x-1 transition-all" />
@@ -1278,7 +1278,7 @@ export default function TaxSettingsPage() {
             <div className="h-2 bg-primary" />
             <div className="p-6">
               <div className="flex items-start justify-between mb-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white">
+                <div className="p-3 rounded-xl bg-primary text-primary-foreground">
                   <FileCheck className="h-6 w-6" />
                 </div>
                 <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-muted-foreground group-hover:translate-x-1 transition-all" />

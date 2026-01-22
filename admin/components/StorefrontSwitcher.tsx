@@ -81,12 +81,12 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
         className={cn(
           'flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-200',
           isOpen
-            ? 'bg-gradient-to-br from-emerald-50 to-teal-50 border-emerald-300 shadow-md'
-            : 'bg-card border-border hover:border-emerald-300 hover:bg-gradient-to-br hover:from-emerald-50 hover:to-teal-50'
+            ? 'bg-success/10 border-success shadow-md'
+            : 'bg-card border-border hover:border-emerald-300 hover:hover:bg-success/5'
         )}
       >
         {/* Storefront Icon */}
-        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-sm">
+        <div className="w-6 h-6 rounded-md bg-success flex items-center justify-center shadow-sm">
           {currentStorefront?.logoUrl ? (
             <img
               src={currentStorefront.logoUrl}
@@ -153,13 +153,13 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
                   key={storefront.id}
                   onClick={() => handleSelectStorefront(storefront)}
                   className={cn(
-                    'w-full flex items-center justify-between px-4 py-3 hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 transition-all duration-150 group',
+                    'w-full flex items-center justify-between px-4 py-3 hover:hover:bg-success/5 transition-all duration-150 group',
                     storefront.id === currentStorefront?.id && 'bg-success/10'
                   )}
                 >
                   <div className="flex items-center gap-3">
                     {/* Storefront Avatar */}
-                    <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
+                    <div className="w-9 h-9 rounded-lg bg-success flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
                       {storefront.logoUrl ? (
                         <img
                           src={storefront.logoUrl}

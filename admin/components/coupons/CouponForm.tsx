@@ -323,7 +323,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
         )}
 
         {/* Live Coupon Preview */}
-        <Card className="rounded-2xl border-2 border-dashed border-primary/50 bg-gradient-to-br from-blue-50 to-violet-50 shadow-lg overflow-hidden">
+        <Card className="rounded-2xl border-2 border-dashed border-primary/50 bg-primary/5 shadow-lg overflow-hidden">
           <CardContent className="p-6">
             <p className="text-xs font-bold text-primary mb-3 uppercase tracking-wide">Live Preview</p>
             <div className="bg-card rounded-xl p-5 shadow-md border border-primary/20">

@@ -138,7 +138,7 @@ function QuickActionCard({
       <Card
         className={`hover:shadow-lg transition-all cursor-pointer h-full ${
           variant === 'primary'
-            ? 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20'
+            ? 'bg-primary/10 border-primary/20'
             : ''
         }`}
       >

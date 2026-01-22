@@ -400,7 +400,7 @@ export default function DocumentVerificationPage() {
                               {['pending', 'under_review'].includes(doc.verificationStatus) && (
                                 <Button
                                   onClick={() => handleVerifyClick(doc)}
-                                  className="px-3 py-1.5 bg-gradient-to-r from-green-600 to-emerald-600 text-white text-sm rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all"
+                                  className="px-3 py-1.5 bg-success text-success-foreground text-sm rounded-lg hover:bg-success/90 transition-all"
                                 >
                                   Verify
                                 </Button>

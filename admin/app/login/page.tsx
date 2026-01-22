@@ -428,7 +428,7 @@ function LoginPageContent() {
                   {tenant.logo_url ? (
                     <img src={tenant.logo_url} alt={tenant.name} className="w-10 h-10 rounded-lg object-cover" />
                   ) : (
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-violet-600 flex items-center justify-center text-white font-bold">
+                    <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold">
                       {tenant.name.charAt(0).toUpperCase()}
                     </div>
                   )}
@@ -571,7 +571,7 @@ function LoginPageContent() {
           className="w-full h-full object-cover animate-slow-zoom"
         />
         <div className="absolute inset-0 bg-background/80" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-black/20" />
       </div>
 
       {/* Animated elements */}

@@ -76,12 +76,12 @@ export function StatsGridWidget({ data }: StatsGridWidgetProps) {
     }
   ], [orderAnalytics, stats, formatPrice, totalRevenueText, ordersText, avgOrderValueText, productsText, customersText, allTimeRevenueText, totalOrdersText, perOrderAverageText, activeProductsText, registeredUsersText]);
 
-  const colorMap: Record<string, { gradient: string; light: string; ring: string; text: string }> = {
-    emerald: { gradient: 'from-emerald-500 to-teal-500', light: 'bg-emerald-50', ring: 'ring-emerald-500/20', text: 'text-emerald-600' },
-    blue: { gradient: 'from-blue-500 to-cyan-500', light: 'bg-primary/10', ring: 'ring-primary/20', text: 'text-primary' },
-    cyan: { gradient: 'from-cyan-500 to-blue-500', light: 'bg-accent', ring: 'ring-cyan-500/20', text: 'text-accent-foreground' },
-    violet: { gradient: 'from-violet-500 to-purple-500', light: 'bg-primary/10', ring: 'ring-violet-500/20', text: 'text-primary' },
-    amber: { gradient: 'from-amber-500 to-orange-500', light: 'bg-warning-muted', ring: 'ring-amber-500/20', text: 'text-warning' },
+  const colorMap: Record<string, { bgColor: string; light: string; ring: string; text: string }> = {
+    emerald: { bgColor: 'bg-success', light: 'bg-success/10', ring: 'ring-success/20', text: 'text-success' },
+    blue: { bgColor: 'bg-primary', light: 'bg-primary/10', ring: 'ring-primary/20', text: 'text-primary' },
+    cyan: { bgColor: 'bg-accent', light: 'bg-accent', ring: 'ring-accent/20', text: 'text-accent-foreground' },
+    violet: { bgColor: 'bg-primary', light: 'bg-primary/10', ring: 'ring-primary/20', text: 'text-primary' },
+    amber: { bgColor: 'bg-warning', light: 'bg-warning-muted', ring: 'ring-warning/20', text: 'text-warning' },
   };
 
   return (
@@ -96,23 +96,23 @@ export function StatsGridWidget({ data }: StatsGridWidgetProps) {
             className="group relative overflow-hidden border-border/50 hover:border-primary/50/50 transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 hover:scale-[1.02]"
             style={{ animationDelay: `${index * 100}ms` }}
           >
-            <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
-            <div className="absolute -right-8 -top-8 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-violet-400/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+            <div className={`absolute inset-0 ${colors.bgColor} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
+            <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
 
             <DashboardCardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 relative z-10">
               <div className="space-y-2">
                 <DashboardCardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                   {stat.title}
                 </DashboardCardTitle>
-                <div className={`w-8 h-1 rounded-full bg-gradient-to-r ${colors.gradient} group-hover:w-16 transition-all duration-500 shadow-lg`} />
+                <div className={`w-8 h-1 rounded-full bg-primary group-hover:w-16 transition-all duration-500 shadow-lg`} />
               </div>
-              <div className={`relative p-3 rounded-2xl bg-gradient-to-br ${colors.gradient} group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg ${colors.ring} ring-4`}>
+              <div className={`relative p-3 rounded-2xl ${colors.bgColor} group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-lg ${colors.ring} ring-4`}>
                 <Icon className="h-6 w-6 text-white drop-shadow-lg" />
                 <div className="absolute inset-0 bg-white/20 rounded-2xl animate-pulse"></div>
               </div>
             </DashboardCardHeader>
             <DashboardCardContent className="relative z-10 space-y-4">
-              <div className={`text-3xl font-bold bg-gradient-to-r ${colors.gradient} bg-clip-text text-transparent mb-3 group-hover:scale-105 transition-transform duration-300`}>
+              <div className={`text-3xl font-bold text-primary mb-3 group-hover:scale-105 transition-transform duration-300`}>
                 {stat.value}
               </div>
               <div className="flex items-center justify-between">

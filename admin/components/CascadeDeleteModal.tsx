@@ -153,8 +153,8 @@ export function CascadeDeleteModal({
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex flex-col items-center p-6 border-b bg-gradient-to-br from-red-50 to-pink-50 border-destructive/30">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-pink-500 flex items-center justify-center shadow-lg mb-4">
+          <div className="flex flex-col items-center p-6 border-b bg-destructive/5 border-destructive/30">
+            <div className="w-16 h-16 rounded-full bg-destructive flex items-center justify-center shadow-lg mb-4">
               <Trash2 className="w-8 h-8 text-white" />
             </div>
             <h2 className="text-xl font-bold text-foreground text-center">{title}</h2>
@@ -284,10 +284,10 @@ export function CascadeDeleteModal({
               onClick={handleDelete}
               disabled={validating || deleting || !validation?.canDelete}
               className={cn(
-                "flex-1 px-4 py-3 text-white rounded-xl transition-all font-semibold shadow-lg hover:shadow-xl bg-gradient-to-r flex items-center justify-center gap-2",
+                "flex-1 px-4 py-3 text-white rounded-xl transition-all font-semibold shadow-lg hover:shadow-xl flex items-center justify-center gap-2",
                 validation?.canDelete
-                  ? "from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700"
-                  : "from-gray-400 to-gray-500 cursor-not-allowed"
+                  ? "bg-destructive hover:bg-destructive/90"
+                  : "bg-muted-foreground cursor-not-allowed"
               )}
             >
               {deleting ? (

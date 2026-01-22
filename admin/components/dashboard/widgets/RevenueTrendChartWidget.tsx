@@ -74,7 +74,7 @@ export function RevenueTrendChartWidget({ data }: RevenueTrendChartWidgetProps) 
       <DashboardCardHeader className="pb-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg ring-4 ring-emerald-500/20">
+            <div className="p-2.5 rounded-xl bg-success shadow-lg ring-4 ring-success/20">
               <TrendingUp className="h-5 w-5 text-white" />
             </div>
             <div>

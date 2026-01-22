@@ -69,7 +69,7 @@ export function RecentOrdersWidget({ data }: RecentOrdersWidgetProps) {
       <DashboardCardHeader className="pb-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 shadow-lg ring-4 ring-primary/20">
+            <div className="p-2.5 rounded-xl bg-primary shadow-lg ring-4 ring-primary/20">
               <ShoppingCart className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -80,7 +80,7 @@ export function RecentOrdersWidget({ data }: RecentOrdersWidgetProps) {
             </div>
           </div>
           <Link href="/orders">
-            <Button variant="outline" className="text-foreground hover:text-primary hover:bg-gradient-to-r hover:from-blue-50 hover:to-cyan-50 text-xs h-8 bg-card border border-border hover:border-primary/50 shadow-sm hover:shadow transition-all">
+            <Button variant="outline" className="text-foreground hover:text-primary hover:hover:bg-primary/5 text-xs h-8 bg-card border border-border hover:border-primary/50 shadow-sm hover:shadow transition-all">
               <Eye className="h-3 w-3 mr-1" />
               <AdminUIText text="View All" />
             </Button>

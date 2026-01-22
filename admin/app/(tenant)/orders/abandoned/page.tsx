@@ -218,29 +218,29 @@ export default function AbandonedCartsPage() {
       label: "Abandoned Carts",
       value: carts.filter(c => c.status === 'ABANDONED').length,
       icon: ShoppingCart,
-      color: "from-amber-500 to-orange-500",
-      bgColor: "from-amber-50 to-orange-50"
+      textColor: "text-warning",
+      bgColor: "bg-warning/10"
     },
     {
       label: "Contacted",
       value: carts.filter(c => c.status === 'CONTACTED').length,
       icon: Mail,
-      color: "from-blue-500 to-cyan-500",
-      bgColor: "from-blue-50 to-cyan-50"
+      textColor: "text-primary",
+      bgColor: "bg-primary/10"
     },
     {
       label: "Recovered",
       value: carts.filter(c => c.status === 'RECOVERED').length,
       icon: CheckCircle,
-      color: "from-emerald-500 to-teal-500",
-      bgColor: "from-emerald-50 to-teal-50"
+      textColor: "text-success",
+      bgColor: "bg-success/10"
     },
     {
       label: "Potential Revenue",
       value: `$${carts.filter(c => c.status !== 'RECOVERED' && c.status !== 'EXPIRED').reduce((sum, c) => sum + parseFloat(c.subtotal), 0).toFixed(2)}`,
       icon: DollarSign,
-      color: "from-violet-500 to-purple-500",
-      bgColor: "from-violet-50 to-purple-50"
+      textColor: "text-primary",
+      bgColor: "bg-primary/10"
     }
   ];
 
@@ -326,11 +326,11 @@ export default function AbandonedCartsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                      <p className={`text-3xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mt-2`}>
+                      <p className={`text-3xl font-bold ${stat.textColor} mt-2`}>
                         {stat.value}
                       </p>
                     </div>
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.bgColor} border border-border group-hover:scale-110 transition-transform`}>
+                    <div className={`p-3 rounded-xl ${stat.bgColor} border border-border group-hover:scale-110 transition-transform`}>
                       <Icon className="w-6 h-6 text-muted-foreground" />
                     </div>
                   </div>

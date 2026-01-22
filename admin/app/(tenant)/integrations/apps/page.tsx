@@ -54,7 +54,7 @@ const availableApps = [
     description: "Track website traffic, user behavior, and conversion metrics with Google Analytics integration.",
     category: "analytics",
     icon: BarChart3,
-    color: "from-orange-500 to-yellow-500",
+    bgColor: "bg-warning",
     rating: 4.8,
     reviews: 1250,
     installed: false,
@@ -67,7 +67,7 @@ const availableApps = [
     description: "Sync customer data and automate email marketing campaigns directly from your store.",
     category: "marketing",
     icon: Mail,
-    color: "from-yellow-400 to-yellow-600",
+    bgColor: "bg-warning",
     rating: 4.6,
     reviews: 890,
     installed: true,
@@ -80,7 +80,7 @@ const availableApps = [
     description: "Track conversions, optimize ads, and build targeted audiences with Facebook/Instagram.",
     category: "marketing",
     icon: Megaphone,
-    color: "from-blue-500 to-blue-700",
+    bgColor: "bg-primary",
     rating: 4.5,
     reviews: 2100,
     installed: false,
@@ -93,7 +93,7 @@ const availableApps = [
     description: "Advanced email and SMS marketing automation with powerful segmentation.",
     category: "marketing",
     icon: Mail,
-    color: "from-green-500 to-emerald-600",
+    bgColor: "bg-success",
     rating: 4.7,
     reviews: 650,
     installed: false,
@@ -106,7 +106,7 @@ const availableApps = [
     description: "Customer support ticketing and live chat integration for better customer service.",
     category: "communication",
     icon: MessageSquare,
-    color: "from-teal-400 to-cyan-600",
+    bgColor: "bg-accent",
     rating: 4.4,
     reviews: 780,
     installed: false,
@@ -119,7 +119,7 @@ const availableApps = [
     description: "Modern customer messaging platform with live chat, bots, and customer data platform.",
     category: "communication",
     icon: MessageSquare,
-    color: "from-blue-400 to-indigo-600",
+    bgColor: "bg-primary",
     rating: 4.6,
     reviews: 920,
     installed: false,
@@ -132,7 +132,7 @@ const availableApps = [
     description: "Streamline shipping with automated label printing, tracking, and multi-carrier support.",
     category: "shipping",
     icon: Truck,
-    color: "from-green-400 to-green-600",
+    bgColor: "bg-success",
     rating: 4.3,
     reviews: 1450,
     installed: true,
@@ -145,7 +145,7 @@ const availableApps = [
     description: "Compare shipping rates, automate customs documentation, and offer flexible delivery options.",
     category: "shipping",
     icon: Truck,
-    color: "from-orange-400 to-red-500",
+    bgColor: "bg-warning",
     rating: 4.5,
     reviews: 680,
     installed: false,
@@ -158,7 +158,7 @@ const availableApps = [
     description: "Accept payments, manage subscriptions, and handle complex payment flows.",
     category: "payments",
     icon: CreditCard,
-    color: "from-purple-500 to-indigo-600",
+    bgColor: "bg-accent",
     rating: 4.9,
     reviews: 3200,
     installed: true,
@@ -171,7 +171,7 @@ const availableApps = [
     description: "Accept payments via UPI, cards, netbanking, and wallets for Indian businesses.",
     category: "payments",
     icon: CreditCard,
-    color: "from-blue-500 to-blue-700",
+    bgColor: "bg-primary",
     rating: 4.6,
     reviews: 890,
     installed: false,
@@ -184,7 +184,7 @@ const availableApps = [
     description: "Understand user behavior with heatmaps, session recordings, and feedback tools.",
     category: "analytics",
     icon: BarChart3,
-    color: "from-red-500 to-orange-500",
+    bgColor: "bg-destructive",
     rating: 4.5,
     reviews: 560,
     installed: false,
@@ -197,7 +197,7 @@ const availableApps = [
     description: "Collect and display customer reviews to build trust and improve SEO.",
     category: "marketing",
     icon: Star,
-    color: "from-green-500 to-emerald-500",
+    bgColor: "bg-success",
     rating: 4.4,
     reviews: 340,
     installed: false,
@@ -210,7 +210,7 @@ const availableApps = [
     description: "Add an extra layer of security with SMS or authenticator app verification.",
     category: "security",
     icon: Shield,
-    color: "from-slate-500 to-slate-700",
+    bgColor: "bg-muted-foreground",
     rating: 4.8,
     reviews: 290,
     installed: true,
@@ -223,7 +223,7 @@ const availableApps = [
     description: "AI-powered fraud detection to protect your store from fraudulent orders.",
     category: "security",
     icon: Shield,
-    color: "from-red-500 to-pink-600",
+    bgColor: "bg-destructive",
     rating: 4.7,
     reviews: 180,
     installed: false,
@@ -308,7 +308,7 @@ export default function AppsPluginsPage() {
                 </div>
                 <CardHeader className="pb-2">
                   <div
-                    className={`w-12 h-12 rounded-xl bg-gradient-to-br ${app.color} flex items-center justify-center mb-2`}
+                    className={`w-12 h-12 rounded-xl bg-primary flex items-center justify-center mb-2`}
                   >
                     <app.icon className="w-6 h-6 text-white" />
                   </div>
@@ -373,7 +373,7 @@ export default function AppsPluginsPage() {
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div
-                          className={`w-14 h-14 rounded-xl bg-gradient-to-br ${app.color} flex items-center justify-center`}
+                          className={`w-14 h-14 rounded-xl bg-primary flex items-center justify-center`}
                         >
                           <app.icon className="w-7 h-7 text-white" />
                         </div>
@@ -424,7 +424,7 @@ export default function AppsPluginsPage() {
                   <CardHeader className="pb-2">
                     <div className="flex items-start gap-4">
                       <div
-                        className={`w-12 h-12 rounded-xl bg-gradient-to-br ${app.color} flex items-center justify-center flex-shrink-0`}
+                        className={`w-12 h-12 rounded-xl bg-primary flex items-center justify-center flex-shrink-0`}
                       >
                         <app.icon className="w-6 h-6 text-white" />
                       </div>
@@ -483,7 +483,7 @@ export default function AppsPluginsPage() {
               <DialogHeader>
                 <div className="flex items-start gap-4">
                   <div
-                    className={`w-16 h-16 rounded-xl bg-gradient-to-br ${selectedApp.color} flex items-center justify-center`}
+                    className={`w-16 h-16 rounded-xl ${selectedApp.bgColor} flex items-center justify-center`}
                   >
                     <selectedApp.icon className="w-8 h-8 text-white" />
                   </div>

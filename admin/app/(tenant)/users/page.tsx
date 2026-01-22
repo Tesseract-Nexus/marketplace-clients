@@ -245,17 +245,17 @@ export default function UsersHubPage() {
     });
   };
 
-  const getInitialsGradient = (name: string) => {
-    const gradients = [
-      'from-blue-500 to-purple-600',
-      'from-green-500 to-teal-600',
-      'from-purple-500 to-pink-600',
-      'from-orange-500 to-red-600',
-      'from-teal-500 to-cyan-600',
-      'from-indigo-500 to-blue-600',
+  const getInitialsBgColor = (name: string) => {
+    const colors = [
+      'bg-primary',
+      'bg-success',
+      'bg-accent',
+      'bg-warning',
+      'bg-info',
+      'bg-destructive',
     ];
     const charCode = name.charCodeAt(0) || 0;
-    return gradients[charCode % gradients.length];
+    return colors[charCode % colors.length];
   };
 
   const getRoleBadgeClass = (role: string) => {
@@ -451,8 +451,8 @@ export default function UsersHubPage() {
                             ) : (
                               <div
                                 className={cn(
-                                  'h-10 w-10 rounded-full bg-gradient-to-br flex items-center justify-center border-2 border-primary/20',
-                                  getInitialsGradient(user.displayName)
+                                  'h-10 w-10 rounded-full flex items-center justify-center border-2 border-primary/20',
+                                  getInitialsBgColor(user.displayName)
                                 )}
                               >
                                 <span className="text-white font-bold text-sm">{userInitial}</span>

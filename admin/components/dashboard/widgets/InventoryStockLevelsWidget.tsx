@@ -44,7 +44,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
             </div>
           </div>
           <Link href="/inventory">
-            <Button variant="outline" className="text-foreground hover:text-primary hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 text-xs h-8 bg-card border border-border hover:border-primary/30 shadow-sm hover:shadow transition-all">
+            <Button variant="outline" className="text-foreground hover:text-primary hover:hover:bg-primary/5 text-xs h-8 bg-card border border-border hover:border-primary/30 shadow-sm hover:shadow transition-all">
               <Package className="h-3 w-3 mr-1" />
               <AdminUIText text="View All" />
             </Button>
@@ -107,7 +107,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
                         className={cn(
                           "absolute top-0.5 bottom-0.5 left-0.5 rounded-md transition-all duration-500 group-hover:opacity-90",
                           isLowStock
-                            ? "bg-gradient-to-r from-amber-400 to-orange-400"
+                            ? "bg-warning"
                             : "bg-primary"
                         )}
                         style={{ width: `calc(${stockPercent}% - 4px)` }}

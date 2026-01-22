@@ -165,7 +165,7 @@ export default function MauticIntegrationPage() {
                 "w-16 h-16 rounded-lg flex items-center justify-center",
                 status?.connected
                   ? "bg-success/10"
-                  : "bg-gradient-to-br from-red-100 to-orange-100"
+                  : "bg-destructive/10"
               )}>
                 <Mail className={cn(
                   "h-8 w-8",
@@ -268,7 +268,7 @@ export default function MauticIntegrationPage() {
         {status?.connected && (
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-100 to-amber-100 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg bg-warning/10 flex items-center justify-center">
                 <Send className="h-5 w-5 text-warning" />
               </div>
               <div>
@@ -341,7 +341,7 @@ export default function MauticIntegrationPage() {
         {/* Configuration Section */}
         <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-100 to-zinc-100 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
               <Settings className="h-5 w-5 text-muted-foreground" />
             </div>
             <div>

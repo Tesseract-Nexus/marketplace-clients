@@ -40,7 +40,7 @@ export function TopProductsWidget({ data }: TopProductsWidgetProps) {
             </div>
           </div>
           <Link href="/products">
-            <Button variant="outline" className="text-foreground hover:text-primary hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 text-xs h-8 bg-card border border-border hover:border-primary/30 shadow-sm hover:shadow transition-all">
+            <Button variant="outline" className="text-foreground hover:text-primary hover:hover:bg-primary/5 text-xs h-8 bg-card border border-border hover:border-primary/30 shadow-sm hover:shadow transition-all">
               <Package className="h-3 w-3 mr-1" />
               <AdminUIText text="View All" />
             </Button>

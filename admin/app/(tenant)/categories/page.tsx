@@ -730,29 +730,29 @@ export default function CategoriesPage() {
       labelKey: "Total Categories",
       value: categories.length,
       icon: FolderTree,
-      color: "from-blue-500 to-cyan-500",
-      bgColor: "from-blue-50 to-cyan-50"
+      textColor: "text-primary",
+      bgColor: "bg-primary/10"
     },
     {
       labelKey: "Active",
       value: categories.filter(c => c.isActive).length,
       icon: CheckCircle,
-      color: "from-emerald-500 to-teal-500",
-      bgColor: "from-emerald-50 to-teal-50"
+      textColor: "text-success",
+      bgColor: "bg-success/10"
     },
     {
       labelKey: "Inactive",
       value: categories.filter(c => !c.isActive).length,
       icon: XCircle,
-      color: "from-red-500 to-pink-500",
-      bgColor: "from-red-50 to-pink-50"
+      textColor: "text-destructive",
+      bgColor: "bg-destructive/10"
     },
     {
       labelKey: "Top Level",
       value: categories.filter(c => c.level === 0).length,
       icon: Tags,
-      color: "from-violet-500 to-purple-500",
-      bgColor: "from-violet-50 to-purple-50"
+      textColor: "text-primary",
+      bgColor: "bg-primary/10"
     }
   ];
 
@@ -862,11 +862,11 @@ export default function CategoriesPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground"><AdminUIText text={stat.labelKey} /></p>
-                    <p className={`text-3xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mt-2 group-hover:scale-105 transition-transform`}>
+                    <p className={`text-3xl font-bold ${stat.textColor} mt-2 group-hover:scale-105 transition-transform`}>
                       {stat.value}
                     </p>
                   </div>
-                  <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.bgColor} border border-border group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
+                  <div className={`p-3 rounded-xl ${stat.bgColor} border border-border group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
                     <Icon className="w-6 h-6 text-muted-foreground" />
                   </div>
                 </div>

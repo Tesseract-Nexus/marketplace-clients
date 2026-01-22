@@ -77,7 +77,7 @@ export function LocationConfirmationModal({
 
       {/* Modal */}
       <div className="relative w-full max-w-md mx-4 animate-in fade-in zoom-in-95 duration-300">
-        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-muted-foreground/50">
+        <div className="bg-background rounded-2xl shadow-2xl overflow-hidden border border-border">
           {/* Header */}
           <div className="px-6 py-5 border-b border-muted-foreground/50">
             <div className="flex items-center justify-between">
@@ -110,7 +110,7 @@ export function LocationConfirmationModal({
             {isDetecting ? (
               <div className="flex flex-col items-center py-8">
                 <div className="relative">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-violet-500/20 rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
                     <Navigation className="w-8 h-8 text-primary animate-pulse" />
                   </div>
                   <div className="absolute inset-0 animate-ping">

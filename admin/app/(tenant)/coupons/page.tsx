@@ -210,29 +210,29 @@ export default function CouponsPage() {
       label: "Total Coupons",
       value: coupons.length,
       icon: Ticket,
-      color: "from-blue-500 to-cyan-500",
-      bgColor: "from-blue-50 to-cyan-50"
+      textColor: "text-primary",
+      bgColor: "bg-primary/10"
     },
     {
       label: "Active",
       value: coupons.filter(c => c.status === 'ACTIVE').length,
       icon: CheckCircle,
-      color: "from-emerald-500 to-teal-500",
-      bgColor: "from-emerald-50 to-teal-50"
+      textColor: "text-success",
+      bgColor: "bg-success/10"
     },
     {
       label: "Expired",
       value: coupons.filter(c => c.status === 'EXPIRED').length,
       icon: XCircle,
-      color: "from-red-500 to-pink-500",
-      bgColor: "from-red-50 to-pink-50"
+      textColor: "text-destructive",
+      bgColor: "bg-destructive/10"
     },
     {
       label: "Total Uses",
       value: coupons.reduce((sum, c) => sum + c.currentUsageCount, 0),
       icon: TrendingUp,
-      color: "from-violet-500 to-purple-500",
-      bgColor: "from-violet-50 to-purple-50"
+      textColor: "text-primary",
+      bgColor: "bg-primary/10"
     }
   ];
 
@@ -309,11 +309,11 @@ export default function CouponsPage() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                        <p className={`text-3xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mt-2`}>
+                        <p className={`text-3xl font-bold ${stat.textColor} mt-2`}>
                           {stat.value}
                         </p>
                       </div>
-                      <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.bgColor} border border-border group-hover:scale-110 transition-transform`}>
+                      <div className={`p-3 rounded-xl ${stat.bgColor} border border-border group-hover:scale-110 transition-transform`}>
                         <Icon className="w-6 h-6 text-muted-foreground" />
                       </div>
                     </div>
@@ -426,7 +426,7 @@ export default function CouponsPage() {
                   {/* Discount type color accent */}
                   <div className={cn(
                     "absolute top-0 left-0 right-0 h-1",
-                    coupon.discountType === 'PERCENTAGE' && "bg-gradient-to-r from-blue-500 to-cyan-500",
+                    coupon.discountType === 'PERCENTAGE' && "bg-primary",
                     coupon.discountType === 'FIXED_AMOUNT' && "bg-success",
                     coupon.discountType === 'FREE_SHIPPING' && "bg-primary",
                     coupon.discountType === 'BUY_X_GET_Y' && "bg-primary"

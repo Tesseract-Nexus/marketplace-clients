@@ -262,29 +262,29 @@ export default function ReturnsPage() {
       label: "Total Returns",
       value: returns.length,
       icon: RotateCcw,
-      color: "from-blue-500 to-cyan-500",
-      bgColor: "from-blue-50 to-cyan-50"
+      textColor: "text-primary",
+      bgColor: "bg-primary/10"
     },
     {
       label: "Pending",
       value: returns.filter(r => r.status === 'PENDING').length,
       icon: Clock,
-      color: "from-amber-500 to-yellow-500",
-      bgColor: "from-amber-50 to-yellow-50"
+      textColor: "text-warning",
+      bgColor: "bg-warning/10"
     },
     {
       label: "Completed",
       value: returns.filter(r => r.status === 'COMPLETED').length,
       icon: CheckCircle,
-      color: "from-emerald-500 to-teal-500",
-      bgColor: "from-emerald-50 to-teal-50"
+      textColor: "text-success",
+      bgColor: "bg-success/10"
     },
     {
       label: "Total Refunded",
       value: `$${returns.filter(r => r.refundStatus === 'COMPLETED').reduce((sum, r) => sum + parseFloat(r.refundAmount), 0).toFixed(2)}`,
       icon: DollarSign,
-      color: "from-violet-500 to-purple-500",
-      bgColor: "from-violet-50 to-purple-50"
+      textColor: "text-primary",
+      bgColor: "bg-primary/10"
     }
   ];
 
@@ -370,11 +370,11 @@ export default function ReturnsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                      <p className={`text-3xl font-bold bg-gradient-to-r ${stat.color} bg-clip-text text-transparent mt-2`}>
+                      <p className={`text-3xl font-bold ${stat.textColor} mt-2`}>
                         {stat.value}
                       </p>
                     </div>
-                    <div className={`p-3 rounded-xl bg-gradient-to-br ${stat.bgColor} border border-border group-hover:scale-110 transition-transform`}>
+                    <div className={`p-3 rounded-xl ${stat.bgColor} border border-border group-hover:scale-110 transition-transform`}>
                       <Icon className="w-6 h-6 text-muted-foreground" />
                     </div>
                   </div>

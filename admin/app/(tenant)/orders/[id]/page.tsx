@@ -370,7 +370,7 @@ export default function OrderDetailsPage() {
 
         {/* Order Header Card */}
         <Card className="overflow-hidden">
-          <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-violet-700 text-white p-8">
+          <div className="bg-primary text-primary-foreground p-8">
             <div className="flex flex-col md:flex-row justify-between items-start gap-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-3">
@@ -472,7 +472,7 @@ export default function OrderDetailsPage() {
                   {/* Progress line */}
                   <div className="absolute top-4 left-8 right-8 h-1 bg-muted rounded-full">
                     <div
-                      className="absolute h-full bg-gradient-to-r from-blue-500 to-emerald-500 rounded-full transition-all duration-500"
+                      className="absolute h-full bg-primary rounded-full transition-all duration-500"
                       style={{ width: `${(getOrderStatusStep(order.status) / (orderStatusSteps.length - 1)) * 100}%` }}
                     />
                   </div>
@@ -487,7 +487,7 @@ export default function OrderDetailsPage() {
                         <div key={step} className="flex flex-col items-center flex-1">
                           <div className={cn(
                             "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all z-10",
-                            isCompleted ? "bg-gradient-to-r from-blue-600 to-emerald-500 text-white shadow-lg" : "bg-muted text-muted-foreground",
+                            isCompleted ? "bg-primary text-primary-foreground shadow-lg" : "bg-muted text-muted-foreground",
                             isCurrent && "ring-4 ring-primary/20 scale-110"
                           )}>
                             {isCompleted ? <CheckCircle className="w-4 h-4" /> : index + 1}
@@ -600,7 +600,7 @@ export default function OrderDetailsPage() {
                       </p>
                     )}
                   </div>
-                  <div className="bg-gradient-to-br from-emerald-500 to-teal-600 p-4 rounded-xl shadow-lg">
+                  <div className="bg-success p-4 rounded-xl shadow-lg">
                     <p className="text-xs text-emerald-100 font-semibold mb-1">Total</p>
                     <p className={`${getDynamicFontSize(formatCurrency(order.total, order.currencyCode))} font-bold text-white whitespace-nowrap`}>{formatCurrency(order.total, order.currencyCode)}</p>
                   </div>
@@ -619,7 +619,7 @@ export default function OrderDetailsPage() {
                   <div className="relative">
                     <div className="h-3 bg-muted rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-blue-500 via-cyan-500 to-teal-500 transition-all duration-1000 ease-out rounded-full"
+                        className="h-full bg-primary transition-all duration-1000 ease-out rounded-full"
                         style={{ width: `${getFulfillmentProgress(order.fulfillmentStatus)}%` }}
                       />
                     </div>

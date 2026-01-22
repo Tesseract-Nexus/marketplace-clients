@@ -452,8 +452,8 @@ export default function StorefrontThemePage() {
                             'w-12 h-8 rounded-lg flex items-center justify-center',
                             mode.value === 'light' && 'bg-card border border-border',
                             mode.value === 'dark' && 'bg-foreground',
-                            mode.value === 'both' && 'bg-gradient-to-r from-white to-gray-900 border border-border',
-                            mode.value === 'system' && 'bg-gradient-to-br from-blue-100 to-purple-100 border border-border'
+                            mode.value === 'both' && 'bg-card border border-border',
+                            mode.value === 'system' && 'bg-primary/10 border border-border'
                           )}>
                             {mode.value === 'both' && (
                               <div className="w-px h-full bg-border" />

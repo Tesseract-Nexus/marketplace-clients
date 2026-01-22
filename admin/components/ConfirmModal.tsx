@@ -20,35 +20,35 @@ interface ConfirmModalProps {
 const variantStyles = {
   danger: {
     icon: XCircle,
-    iconBg: 'from-red-500 to-pink-500',
-    iconColor: 'text-white',
-    headerGradient: 'from-red-50 to-pink-50',
-    confirmButton: 'from-red-600 to-pink-600 hover:from-red-700 hover:to-pink-700',
+    iconBg: 'bg-destructive',
+    iconColor: 'text-destructive-foreground',
+    headerBg: 'bg-destructive/5',
+    confirmButton: 'bg-destructive hover:bg-destructive/90',
     borderColor: 'border-destructive/30',
   },
   warning: {
     icon: AlertTriangle,
-    iconBg: 'from-amber-500 to-orange-500',
-    iconColor: 'text-white',
-    headerGradient: 'from-amber-50 to-orange-50',
-    confirmButton: 'from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700',
+    iconBg: 'bg-warning',
+    iconColor: 'text-warning-foreground',
+    headerBg: 'bg-warning/5',
+    confirmButton: 'bg-warning hover:bg-warning/90 text-warning-foreground',
     borderColor: 'border-warning/30',
   },
   info: {
     icon: Info,
-    iconBg: 'from-blue-500 to-violet-500',
-    iconColor: 'text-white',
-    headerGradient: 'from-blue-50 to-violet-50',
-    confirmButton: 'from-blue-600 to-violet-600 hover:bg-primary/90',
+    iconBg: 'bg-primary',
+    iconColor: 'text-primary-foreground',
+    headerBg: 'bg-primary/5',
+    confirmButton: 'bg-primary hover:bg-primary/90',
     borderColor: 'border-primary/30',
   },
   success: {
     icon: CheckCircle,
-    iconBg: 'from-emerald-500 to-teal-500',
-    iconColor: 'text-white',
-    headerGradient: 'from-emerald-50 to-teal-50',
-    confirmButton: 'from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700',
-    borderColor: 'border-emerald-200',
+    iconBg: 'bg-success',
+    iconColor: 'text-success-foreground',
+    headerBg: 'bg-success/5',
+    confirmButton: 'bg-success hover:bg-success/90 text-success-foreground',
+    borderColor: 'border-success/30',
   },
 };
 
@@ -98,12 +98,12 @@ export function ConfirmModal({
         >
           {/* Header with Icon */}
           <div className={cn(
-            "flex flex-col items-center p-6 border-b bg-gradient-to-br rounded-t-2xl",
-            styles.headerGradient,
+            "flex flex-col items-center p-6 border-b rounded-t-2xl",
+            styles.headerBg,
             styles.borderColor
           )}>
             <div className={cn(
-              "w-16 h-16 rounded-full bg-gradient-to-br flex items-center justify-center shadow-lg mb-4",
+              "w-16 h-16 rounded-full flex items-center justify-center shadow-lg mb-4",
               styles.iconBg
             )}>
               <Icon className={cn("w-8 h-8", styles.iconColor)} />
@@ -129,7 +129,7 @@ export function ConfirmModal({
               onClick={handleConfirm}
               disabled={isLoading}
               className={cn(
-                "flex-1 px-4 py-3 text-white rounded-xl transition-all font-semibold shadow-lg hover:shadow-xl bg-gradient-to-r disabled:opacity-50 disabled:cursor-not-allowed",
+                "flex-1 px-4 py-3 text-white rounded-xl transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed",
                 styles.confirmButton
               )}
             >

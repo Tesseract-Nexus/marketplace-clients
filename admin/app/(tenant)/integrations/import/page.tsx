@@ -58,7 +58,7 @@ const entityTypes = [
     name: "Products",
     description: "Import product catalog with variants, pricing, and inventory",
     icon: Package,
-    color: "from-blue-500 to-cyan-500",
+    bgColor: "bg-primary",
     requiredFields: ["name", "sku", "price"],
     optionalFields: ["description", "category", "images", "quantity", "weight"],
   },
@@ -67,7 +67,7 @@ const entityTypes = [
     name: "Orders",
     description: "Import historical orders with line items and customer data",
     icon: ShoppingCart,
-    color: "from-purple-500 to-pink-500",
+    bgColor: "bg-accent",
     requiredFields: ["orderNumber", "orderDate", "total", "customerEmail"],
     optionalFields: ["status", "shippingAddress", "lineItems", "notes"],
   },
@@ -76,7 +76,7 @@ const entityTypes = [
     name: "Customers",
     description: "Import customer profiles with contact information",
     icon: Users,
-    color: "from-emerald-500 to-teal-500",
+    bgColor: "bg-success",
     requiredFields: ["email", "firstName", "lastName"],
     optionalFields: ["phone", "address", "company", "tags"],
   },
@@ -85,7 +85,7 @@ const entityTypes = [
     name: "Categories",
     description: "Import product categories and hierarchy",
     icon: FolderOpen,
-    color: "from-orange-500 to-amber-500",
+    bgColor: "bg-warning",
     requiredFields: ["name"],
     optionalFields: ["description", "parentCategory", "slug", "image"],
   },
@@ -94,7 +94,7 @@ const entityTypes = [
     name: "Vendors",
     description: "Import vendor and supplier information",
     icon: Building2,
-    color: "from-slate-500 to-zinc-500",
+    bgColor: "bg-muted-foreground",
     requiredFields: ["name", "email"],
     optionalFields: ["phone", "address", "website", "contactPerson"],
   },
@@ -348,7 +348,7 @@ export default function DataImportPage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div
-                    className={`w-12 h-12 rounded-xl bg-gradient-to-br ${entity.color} flex items-center justify-center`}
+                    className={`w-12 h-12 rounded-xl ${entity.bgColor} flex items-center justify-center`}
                   >
                     <entity.icon className="w-6 h-6 text-white" />
                   </div>
@@ -527,7 +527,7 @@ export default function DataImportPage() {
             <DialogTitle className="flex items-center gap-2">
               {selectedEntityData && (
                 <div
-                  className={`w-8 h-8 rounded-lg bg-gradient-to-br ${selectedEntityData.color} flex items-center justify-center`}
+                  className={`w-8 h-8 rounded-lg ${selectedEntityData.bgColor} flex items-center justify-center`}
                 >
                   <selectedEntityData.icon className="w-4 h-4 text-white" />
                 </div>
