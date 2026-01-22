@@ -34,6 +34,7 @@ import {
   Home, ChevronLeft, Warehouse, Truck, DollarSign, TrendingUp, ClipboardList, Images,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { PageError } from '@/components/PageError';
 import { Badge } from '@/components/ui/badge';
 import { BulkImportModal } from '@/components/BulkImportModal';
 import { CascadeDeleteModal } from '@/components/CascadeDeleteModal';
@@ -2476,21 +2477,7 @@ export default function ProductsPage() {
         </div>
 
         {/* Error Alert */}
-        {error && (
-          <div className="mb-6 bg-error-muted border-2 border-error/30 rounded-xl p-4 flex justify-between items-center">
-            <div className="flex items-center">
-              <AlertTriangle className="w-6 h-6 mr-3 text-error" aria-hidden="true" />
-              <p className="text-error font-semibold">{error}</p>
-            </div>
-            <Button
-              onClick={() => setError(null)}
-              className="text-error hover:text-error/80 font-bold text-xl"
-              variant="ghost"
-            >
-              <X className="w-5 h-5" aria-hidden="true" />
-            </Button>
-          </div>
-        )}
+        <PageError error={error} onDismiss={() => setError(null)} />
 
         {/* Stats Cards */}
         {!loading && products.length > 0 && (

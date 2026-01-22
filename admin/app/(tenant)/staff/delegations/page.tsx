@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/PageHeader';
+import { PageError } from '@/components/PageError';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { delegationService, workflowService, Delegation, ApprovalWorkflow } from '@/lib/services/approvalService';
 import { staffService } from '@/lib/services/staffService';
@@ -37,7 +38,6 @@ import {
   Calendar,
   Loader2,
   RefreshCw,
-  AlertTriangle,
   Plus,
   ArrowUpRight,
   ArrowDownLeft,
@@ -367,6 +367,9 @@ export default function DelegationsPage() {
             }
           />
 
+          {/* Error State - positioned above stats */}
+          <PageError error={error} onRetry={loadDelegations} onDismiss={() => setError(null)} />
+
           {/* Stats Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
@@ -426,20 +429,6 @@ export default function DelegationsPage() {
               </div>
             </CardContent>
           </Card>
-
-          {/* Error State */}
-          {error && (
-            <div className="bg-error-muted border-2 border-error/20 rounded-xl p-4 flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <h3 className="font-semibold text-error">Error</h3>
-                <p className="text-error-muted-foreground text-sm mt-1">{error}</p>
-              </div>
-              <Button variant="ghost" size="sm" onClick={loadDelegations} className="p-1 rounded-lg hover:bg-error/10 transition-colors">
-                Retry
-              </Button>
-            </div>
-          )}
 
           {/* Loading State */}
           {loading && (

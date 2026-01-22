@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
+import { PageError } from '@/components/PageError';
 import {
   AdminUIText,
   AdminButtonText,
@@ -405,18 +406,7 @@ export default function OrdersPage() {
         />
 
       {/* Error Alert */}
-      {error && (
-        <div className="bg-error-muted border-2 border-error/20 rounded-xl p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <h3 className="font-semibold text-error"><AdminUIText text="Error" /></h3>
-            <p className="text-error-muted-foreground text-sm mt-1"><AdminMessage text={error} /></p>
-          </div>
-          <Button onClick={() => setError(null)} className="p-1 rounded-lg hover:bg-error/10 transition-colors" variant="ghost">
-            <X className="w-4 h-4 text-error" />
-          </Button>
-        </div>
-      )}
+      <PageError error={error} onDismiss={() => setError(null)} />
 
       {/* Stats */}
       {!loading && orders.length > 0 && (

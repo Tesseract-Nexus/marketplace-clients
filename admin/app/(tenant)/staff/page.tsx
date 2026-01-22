@@ -54,6 +54,7 @@ import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
 import { Stepper, StepperNavigation, Step } from '@/components/Stepper';
 import { PageHeader } from '@/components/PageHeader';
+import { PageError } from '@/components/PageError';
 import { Pagination } from '@/components/Pagination';
 import { staffService } from '@/lib/services/staffService';
 import { roleService } from '@/lib/api/rbac';
@@ -889,12 +890,7 @@ export default function StaffPage() {
         }
       />
 
-      {error && (
-        <div className="mb-6 p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
-          <XCircle className="w-5 h-5" />
-          {error}
-        </div>
-      )}
+      <PageError error={error} onDismiss={() => setError(null)} />
 
       <Card className="border-border/50 overflow-visible relative z-40">
         <CardContent className="p-6 overflow-visible relative">
