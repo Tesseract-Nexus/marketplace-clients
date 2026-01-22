@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { draftApi, type DraftFormData, type GetDraftResponse } from '../api/draft';
 
 export interface DraftRecoveryState {
@@ -55,7 +55,17 @@ export function useDraftRecovery(
 
   const [showRecoveryPrompt, setShowRecoveryPrompt] = useState(false);
 
-  // Fetch draft on mount
+  // Use refs for callbacks to avoid re-fetching when callbacks change
+  const onRecoveryCompleteRef = useRef(onRecoveryComplete);
+  const onSessionNotFoundRef = useRef(onSessionNotFound);
+
+  // Keep refs up to date
+  useEffect(() => {
+    onRecoveryCompleteRef.current = onRecoveryComplete;
+    onSessionNotFoundRef.current = onSessionNotFound;
+  }, [onRecoveryComplete, onSessionNotFound]);
+
+  // Fetch draft on mount and auto-apply if found
   useEffect(() => {
     if (!sessionId || !enabled) {
       setState(prev => ({ ...prev, isLoading: false }));
@@ -77,12 +87,21 @@ export function useDraftRecovery(
             timeRemainingHours: response.time_remaining_hours ?? null,
             error: null,
           });
-          setShowRecoveryPrompt(true);
+
+          // Auto-apply draft data immediately instead of showing recovery prompt
+          // This ensures form data is restored on page reload without user interaction
+          if (response.form_data && response.current_step !== undefined) {
+            console.log('[DraftRecovery] Auto-applying draft data');
+            onRecoveryCompleteRef.current?.(response.form_data, response.current_step);
+            setShowRecoveryPrompt(false);
+          } else {
+            setShowRecoveryPrompt(true);
+          }
           console.log('[DraftRecovery] Found draft data:', response);
         } else {
           // Session not found - clear stale session data
           console.warn('[DraftRecovery] Session not found, clearing stale session');
-          onSessionNotFound?.();
+          onSessionNotFoundRef.current?.();
           setState({
             isLoading: false,
             hasDraft: false,

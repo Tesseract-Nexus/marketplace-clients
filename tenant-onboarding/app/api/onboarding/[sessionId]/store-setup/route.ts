@@ -26,6 +26,8 @@ interface StoreSetupRequest {
   custom_domain?: string;
   custom_admin_subdomain?: string;
   custom_storefront_subdomain?: string;
+  // CRITICAL: Pass verification token so backend uses the same token shown to user during DNS setup
+  verification_token?: string;
 }
 
 /**
