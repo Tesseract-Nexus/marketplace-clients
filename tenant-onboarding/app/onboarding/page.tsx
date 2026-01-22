@@ -19,7 +19,7 @@ import { getBrowserGeolocation, reverseGeocode, checkGeolocationPermission } fro
 import { useAutoSave, useBrowserClose, useDraftRecovery, type DraftFormData } from '../../lib/hooks';
 import { config } from '../../lib/config/app';
 import { getCountryDefaults } from '../../lib/utils/country-defaults';
-import { normalizeDomain, validateDomain, generateUrls, type DomainValidationResult } from '../../lib/utils/domain';
+import { normalizeDomain, validateDomain, generateUrls, validateStorefrontSubdomain, DEFAULT_STOREFRONT_SUBDOMAIN, type DomainValidationResult } from '../../lib/utils/domain';
 
 // Development-only logging utility
 const isDev = process.env.NODE_ENV === 'development';
@@ -333,7 +333,7 @@ export default function OnboardingPage() {
       customDomain: '',
       customDomainVerified: false,
       customAdminSubdomain: 'admin',
-      customStorefrontSubdomain: '',
+      customStorefrontSubdomain: DEFAULT_STOREFRONT_SUBDOMAIN, // 'www' - apex domains not supported
       currency: '',
       timezone: '',
       language: 'en',
@@ -2455,7 +2455,9 @@ export default function OnboardingPage() {
                             {(() => {
                               const domainInput = storeSetupForm.watch('customDomain');
                               const customAdminSubdomain = storeSetupForm.watch('customAdminSubdomain') || 'admin';
-                              const customStorefrontSubdomain = storeSetupForm.watch('customStorefrontSubdomain') || '';
+                              // Default to 'www' - apex domains are NOT supported
+                              const customStorefrontSubdomain = storeSetupForm.watch('customStorefrontSubdomain') || DEFAULT_STOREFRONT_SUBDOMAIN;
+                              const storefrontSubdomainError = validateStorefrontSubdomain(customStorefrontSubdomain);
                               const urls = domainInput ? generateUrls(domainInput, {
                                 adminSubdomain: customAdminSubdomain,
                                 storefrontSubdomain: customStorefrontSubdomain,
@@ -2532,24 +2534,25 @@ export default function OnboardingPage() {
                                                 <input
                                                   type="text"
                                                   {...storeSetupForm.register('customStorefrontSubdomain')}
-                                                  placeholder="www or leave empty"
-                                                  className="w-32 px-2 py-1 text-sm font-semibold bg-white border border-warm-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                                  placeholder="www"
+                                                  className={`w-32 px-2 py-1 text-sm font-semibold bg-white border rounded focus:outline-none focus:ring-1 focus:ring-primary ${storefrontSubdomainError ? 'border-red-400' : 'border-warm-300'}`}
                                                 />
                                                 <span className="text-sm text-muted-foreground">.{urls.baseDomain}</span>
                                               </div>
-                                              <p className="text-xs text-muted-foreground">
-                                                Leave empty for root domain ({urls.baseDomain}), or enter &quot;www&quot;
-                                              </p>
+                                              {storefrontSubdomainError ? (
+                                                <p className="text-xs text-red-500">
+                                                  {storefrontSubdomainError}
+                                                </p>
+                                              ) : (
+                                                <p className="text-xs text-muted-foreground">
+                                                  Enter a subdomain like &quot;www&quot; or &quot;store&quot;. Apex domains are not supported.
+                                                </p>
+                                              )}
                                             </div>
                                           ) : (
-                                            <>
-                                              <p className="text-sm font-semibold text-foreground">
-                                                {urls.storefront}
-                                              </p>
-                                              <p className="text-xs text-muted-foreground mt-0.5">
-                                                Also: {urls.storefrontWww}
-                                              </p>
-                                            </>
+                                            <p className="text-sm font-semibold text-foreground">
+                                              {urls.storefront}
+                                            </p>
                                           )}
                                         </div>
                                       </div>

@@ -433,7 +433,44 @@ export interface GenerateUrlsOptions {
 }
 
 /**
+ * Default subdomain for storefront when using custom domains
+ * We don't support apex domains because:
+ * 1. Apex domains can't use CNAME records (not all DNS providers support CNAME flattening)
+ * 2. Subdomains are more reliable for pointing to Cloudflare Tunnel
+ */
+export const DEFAULT_STOREFRONT_SUBDOMAIN = 'www';
+
+/**
+ * Validates that a storefront subdomain is not empty (apex domain)
+ * Returns error message if invalid, undefined if valid
+ */
+export function validateStorefrontSubdomain(subdomain: string | undefined): string | undefined {
+  // Apex domain (empty subdomain) is not allowed
+  if (!subdomain || subdomain.trim() === '') {
+    return 'Apex domains are not supported. Please use a subdomain like "www" or "store".';
+  }
+
+  // Check for valid subdomain characters
+  const trimmed = subdomain.trim().toLowerCase();
+  if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(trimmed)) {
+    return 'Subdomain can only contain letters, numbers, and hyphens (cannot start or end with hyphen)';
+  }
+
+  // Max length check
+  if (trimmed.length > 63) {
+    return 'Subdomain cannot exceed 63 characters';
+  }
+
+  return undefined;
+}
+
+/**
  * Generates admin and storefront URLs from a root domain
+ *
+ * IMPORTANT: Apex domains are NOT supported for storefront.
+ * We always require a subdomain (default: www) because:
+ * 1. Apex domains can't use CNAME records (not all DNS providers support CNAME flattening)
+ * 2. Subdomains are more reliable for pointing to Cloudflare Tunnel
  *
  * @param domain - Root domain (should be normalized first)
  * @param options - Optional custom subdomains
@@ -451,13 +488,12 @@ export function generateUrls(domain: string, options?: GenerateUrlsOptions): Gen
 
   // Use custom subdomains if provided, otherwise defaults
   const adminSubdomain = options?.adminSubdomain || 'admin';
-  const storefrontSubdomain = options?.storefrontSubdomain || '';
+  // IMPORTANT: Default to 'www' - apex domains are NOT supported
+  const storefrontSubdomain = options?.storefrontSubdomain || DEFAULT_STOREFRONT_SUBDOMAIN;
 
-  // Build URLs
+  // Build URLs - storefront ALWAYS uses a subdomain (no apex support)
   const adminUrl = `https://${adminSubdomain}.${baseDomain}`;
-  const storefrontUrl = storefrontSubdomain
-    ? `https://${storefrontSubdomain}.${baseDomain}`
-    : `https://${baseDomain}`;
+  const storefrontUrl = `https://${storefrontSubdomain}.${baseDomain}`;
   const storefrontWwwUrl = `https://www.${baseDomain}`;
 
   return {

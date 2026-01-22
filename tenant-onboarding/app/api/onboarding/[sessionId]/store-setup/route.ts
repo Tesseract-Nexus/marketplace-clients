@@ -24,6 +24,32 @@ interface StoreSetupRequest {
   // Custom domain fields
   use_custom_domain?: boolean;
   custom_domain?: string;
+  custom_admin_subdomain?: string;
+  custom_storefront_subdomain?: string;
+}
+
+/**
+ * Validates that storefront subdomain is not empty (apex domains not supported)
+ * Returns error message if invalid, undefined if valid
+ */
+function validateStorefrontSubdomain(subdomain: string | undefined): string | undefined {
+  // Apex domain (empty subdomain) is not allowed
+  if (!subdomain || subdomain.trim() === '') {
+    return 'Apex domains are not supported. Please use a subdomain like "www" or "store".';
+  }
+
+  // Check for valid subdomain characters
+  const trimmed = subdomain.trim().toLowerCase();
+  if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/.test(trimmed)) {
+    return 'Subdomain can only contain letters, numbers, and hyphens (cannot start or end with hyphen)';
+  }
+
+  // Max length check
+  if (trimmed.length > 63) {
+    return 'Subdomain cannot exceed 63 characters';
+  }
+
+  return undefined;
 }
 
 export async function POST(
@@ -43,6 +69,14 @@ export async function POST(
     }
 
     const body: StoreSetupRequest = await request.json();
+
+    // Validate storefront subdomain if custom domain is enabled
+    if (body.use_custom_domain && body.custom_domain) {
+      const subdomainError = validateStorefrontSubdomain(body.custom_storefront_subdomain);
+      if (subdomainError) {
+        return errorResponse(subdomainError, 400);
+      }
+    }
 
     return proxyPost(
       SERVICES.TENANT,
@@ -77,6 +111,14 @@ export async function PUT(
     }
 
     const body: StoreSetupRequest = await request.json();
+
+    // Validate storefront subdomain if custom domain is enabled
+    if (body.use_custom_domain && body.custom_domain) {
+      const subdomainError = validateStorefrontSubdomain(body.custom_storefront_subdomain);
+      if (subdomainError) {
+        return errorResponse(subdomainError, 400);
+      }
+    }
 
     return proxyPut(
       SERVICES.TENANT,
