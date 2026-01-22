@@ -637,7 +637,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           isOpen ? "translate-x-0" : "-translate-x-full"
         )}
         style={{
-          background: 'var(--color-sidebar-bg, linear-gradient(to bottom, #1e293b, #0f172a, #1e293b))',
+          background: 'var(--color-sidebar-bg, #1e293b)',
           borderColor: 'var(--color-sidebar-text, #475569)' + '50',
         }}
       >
@@ -721,9 +721,10 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
           <div className="relative">
             <Button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="relative p-0.5 rounded-lg shadow-md hover:scale-105 transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center bg-primary hover:bg-primary/90">
-              <div className="w-8 h-8 sm:w-8 sm:h-8 rounded-md flex items-center justify-center bg-background">
-                <User className="w-4 h-4 text-primary" />
+              variant="ghost"
+              className="relative rounded-full hover:bg-muted transition-all duration-200 min-h-[40px] min-w-[40px] p-0 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-full flex items-center justify-center bg-primary text-primary-foreground">
+                <User className="w-4 h-4" />
               </div>
               <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-success border-2 border-background rounded-full"></div>
             </Button>

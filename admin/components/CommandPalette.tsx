@@ -445,11 +445,7 @@ export function CommandPalette() {
       {/* Trigger Button - Matches admin header style */}
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-xl transition-all duration-200 hover:scale-105 shadow-md"
-        style={{
-          background: 'linear-gradient(135deg, var(--color-primary, #3b82f6), var(--color-secondary, #8b5cf6))',
-          color: '#ffffff',
-        }}
+        className="flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-xl transition-all duration-200 hover:opacity-90 bg-primary text-primary-foreground"
       >
         <Search className="w-4 h-4" />
         <span className="hidden sm:inline">Search...</span>
@@ -461,11 +457,7 @@ export function CommandPalette() {
       {/* Command Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent
-          className="max-w-2xl p-0 gap-0 overflow-hidden shadow-2xl border-0"
-          style={{
-            background: 'linear-gradient(to bottom, #ffffff, #f8fafc)',
-            borderRadius: '16px',
-          }}
+          className="max-w-2xl p-0 gap-0 overflow-hidden shadow-2xl border-0 bg-card rounded-2xl"
         >
           <VisuallyHidden>
             <DialogTitle>Search</DialogTitle>
@@ -537,7 +529,7 @@ export function CommandPalette() {
                           onClick={() => setQuery(recent.query)}
                           className={cn(
                             'w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg transition-all duration-150',
-                            isSelected ? 'bg-gradient-to-r from-blue-50 to-purple-50 shadow-sm' : 'hover:bg-muted'
+                            isSelected ? 'bg-primary/10' : 'hover:bg-muted'
                           )}
                         >
                           <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-muted shrink-0">
