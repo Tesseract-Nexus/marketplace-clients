@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/PageHeader';
-import { PermissionGate } from '@/components/permission-gate';
+import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading, PageError, EmptyState } from '@/components/common';
 import { approvalService, ApprovalRequest, ApprovalStatus, ApprovalType } from '@/lib/services/approvalService';
 import {
@@ -197,10 +197,11 @@ export default function ApprovalsPage() {
 
   return (
     <PermissionGate
-      permission="approvals:read"
+      permission={Permission.APPROVALS_READ}
       fallback="styled"
       fallbackTitle="Approvals Access Required"
       fallbackDescription="You don't have the required permissions to view approvals. Please contact your administrator to request access."
+      loading={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
     >
       <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
         <div className="space-y-6 animate-in fade-in duration-500">
@@ -361,7 +362,7 @@ export default function ApprovalsPage() {
                           <Eye className="w-4 h-4 mr-1" />
                           View
                         </Button>
-                        <PermissionGate permission="approvals:approve">
+                        <PermissionGate permission={Permission.APPROVALS_APPROVE}>
                           {approval.status === 'pending' && (
                             <>
                               <Button
