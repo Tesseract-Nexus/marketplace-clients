@@ -384,7 +384,7 @@ export default function TeamsPage() {
                 <Button
                   onClick={handleSave}
                   disabled={saving || !formData.name || !formData.departmentId}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-all duration-200 shadow-lg disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                   {viewMode === 'create' ? 'Create Team' : 'Save Changes'}
@@ -509,7 +509,7 @@ export default function TeamsPage() {
             {canUpdateTeams && (
               <Button
                 onClick={() => handleEdit(selectedTeam)}
-                className="flex items-center gap-2 px-6 py-2.5 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-all"
+                className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all"
               >
                 <Edit className="w-5 h-5" />
                 Edit Team
@@ -554,7 +554,7 @@ export default function TeamsPage() {
                 {canCreateTeams && (
                   <Button
                     onClick={handleCreate}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
                   >
                     <Plus className="w-5 h-5" />
                     Add Team
