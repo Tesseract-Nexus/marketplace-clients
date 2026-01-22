@@ -321,50 +321,6 @@ const filterNavByRole = (
     .filter((item): item is NavItem => item !== null);
 };
 
-// Sidebar User Profile Component
-function SidebarUserProfile({ onLogout }: { onLogout: () => void }) {
-  const { user, isLoading } = useUser();
-
-  const displayName = user?.displayName || user?.firstName || user?.email?.split('@')[0] || 'User';
-  const email = user?.email || '';
-  const initial = displayName.charAt(0).toUpperCase();
-
-  return (
-    <div className="p-4 border-t border-sidebar-border/60">
-      <Link href="/profile" prefetch={false} className="block relative group mb-3">
-        <div className="flex items-center gap-3 p-2.5 rounded-lg transition-all duration-200 cursor-pointer hover:bg-sidebar-accent">
-          <div className="relative w-9 h-9 rounded-full flex items-center justify-center bg-sidebar-accent border border-sidebar-border">
-            {isLoading ? (
-              <div className="w-4 h-4 border-2 border-sidebar-text border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <span className="text-sidebar-text font-medium text-sm">{initial}</span>
-            )}
-            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-success rounded-full border-2 border-sidebar"></div>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate text-sidebar-active-text">
-              {isLoading ? <AdminUIText text="Loading..." /> : displayName}
-            </p>
-            <p className="text-xs truncate text-sidebar-text/80">
-              {isLoading ? '' : email}
-            </p>
-          </div>
-          <ChevronRight className="w-4 h-4 text-sidebar-text/60 group-hover:text-sidebar-text transition-colors" />
-        </div>
-      </Link>
-      {/* Logout Button - Ghost style */}
-      <Button
-        variant="ghost"
-        onClick={onLogout}
-        className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sidebar-text hover:text-error hover:bg-error/10 transition-all duration-200"
-      >
-        <LogOut className="w-4 h-4" />
-        <span className="text-sm"><AdminUIText text="Sign Out" /></span>
-      </Button>
-    </div>
-  );
-}
-
 interface SidebarProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
@@ -645,9 +601,6 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           <nav className="flex-1 overflow-y-auto p-4 space-y-1 scrollbar-thin scrollbar-thumb-sidebar-border scrollbar-track-transparent">
             {filteredNavigation.map((item) => renderNavItem(item))}
           </nav>
-
-          {/* User Profile & Logout */}
-          <SidebarUserProfile onLogout={handleLogout} />
         </div>
       </aside>
     </>
@@ -669,11 +622,7 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
   };
 
   return (
-    <header className="sticky top-0 z-[100] backdrop-blur-xl border-b shadow-sm safe-top"
-      style={{
-        backgroundColor: 'var(--color-header-bg, #ffffff)' + 'f2',
-        borderColor: 'var(--color-sidebar-text, #e5e7eb)' + '80',
-      }}>
+    <header className="sticky top-0 z-[100] backdrop-blur-xl safe-top bg-background/95 border-b border-border shadow-[0_1px_3px_0_rgba(0,0,0,0.1),0_1px_2px_-1px_rgba(0,0,0,0.1),inset_0_-1px_0_0_rgba(0,0,0,0.05)]">
       <div className="flex items-center justify-between px-4 sm:px-6 py-2.5 sm:py-3 gap-2 sm:gap-4">
         {/* Left Section */}
         <div className="flex items-center gap-2 sm:gap-4">

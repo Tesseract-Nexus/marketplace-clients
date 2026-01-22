@@ -188,10 +188,10 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
 
         {/* Business Name & Role */}
         <div className="flex-1 min-w-0 text-left">
-          <p className="text-sm font-semibold text-white truncate">
+          <p className="text-sm font-semibold text-sidebar-active-text truncate">
             {currentTenant.name}
           </p>
-          <p className="text-xs text-muted-foreground capitalize">{currentTenant.role}</p>
+          <p className="text-xs text-sidebar-text-muted capitalize">{currentTenant.role}</p>
         </div>
 
         {/* Dropdown Indicator */}

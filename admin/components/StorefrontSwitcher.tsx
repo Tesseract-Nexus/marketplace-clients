@@ -79,14 +79,14 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          'flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-200',
+          'h-9 flex items-center gap-2 px-2 rounded-lg border transition-all duration-200',
           isOpen
             ? 'bg-success/10 border-success shadow-md'
-            : 'bg-card border-border hover:border-success/30 hover:bg-success/5'
+            : 'bg-background border-border hover:border-success/30 hover:bg-success/5'
         )}
       >
         {/* Storefront Icon */}
-        <div className="w-6 h-6 rounded-md bg-success flex items-center justify-center shadow-sm">
+        <div className="w-6 h-6 rounded-md bg-success flex items-center justify-center shadow-sm flex-shrink-0">
           {currentStorefront?.logoUrl ? (
             <img
               src={currentStorefront.logoUrl}
@@ -98,18 +98,15 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
           )}
         </div>
 
-        {/* Storefront Name */}
-        <div className="hidden lg:flex flex-col items-start">
-          <span className="text-sm font-medium text-foreground truncate max-w-[100px]">
-            {currentStorefront?.name || 'Select Storefront'}
-          </span>
-          <span className="text-xs text-muted-foreground">{currentStorefront?.slug || ''}</span>
-        </div>
+        {/* Storefront Name - hidden on smaller screens */}
+        <span className="hidden lg:block text-sm font-medium text-foreground truncate max-w-[100px]">
+          {currentStorefront?.name || 'Select'}
+        </span>
 
         {/* Dropdown Arrow */}
         <ChevronDown
           className={cn(
-            'w-4 h-4 text-muted-foreground transition-transform duration-200',
+            'w-4 h-4 text-muted-foreground transition-transform duration-200 flex-shrink-0',
             isOpen && 'rotate-180'
           )}
         />
