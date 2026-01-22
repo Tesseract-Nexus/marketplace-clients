@@ -44,7 +44,7 @@ export async function PUT(
   try {
     const db = await getDb();
     const body = await request.json();
-    const { quote, name, role, company, initials, rating, featured, pageContext, sortOrder, active } = body;
+    const { quote, name, role, company, initials, rating, featured, pageContext, sortOrder, active, status } = body;
 
     const [updated] = await db
       .update(testimonials)
@@ -59,6 +59,7 @@ export async function PUT(
         ...(pageContext !== undefined && { pageContext }),
         ...(sortOrder !== undefined && { sortOrder }),
         ...(active !== undefined && { active }),
+        ...(status !== undefined && { status }),
       })
       .where(eq(testimonials.id, id))
       .returning();
@@ -71,6 +72,89 @@ export async function PUT(
   } catch (error) {
     console.error('Error updating testimonial:', error);
     return NextResponse.json({ error: 'Failed to update testimonial' }, { status: 500 });
+  }
+}
+
+// PATCH - Approve, reject, or request revision for testimonial
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const authError = await validateAdminAuth(request);
+  if (authError) return authError;
+
+  const { id } = await params;
+
+  try {
+    const db = await getDb();
+    const body = await request.json();
+    const { action, revisionNotes, pageContext, reviewedBy } = body;
+
+    // Validate action
+    if (!['approve', 'reject', 'request_revision'].includes(action)) {
+      return NextResponse.json(
+        { error: 'Invalid action. Must be: approve, reject, or request_revision' },
+        { status: 400 }
+      );
+    }
+
+    // Get current testimonial
+    const existing = await db.query.testimonials.findFirst({
+      where: eq(testimonials.id, id),
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Testimonial not found' }, { status: 404 });
+    }
+
+    let updateData: Record<string, unknown> = {
+      reviewedAt: new Date(),
+      reviewedBy: reviewedBy || 'Admin',
+    };
+
+    if (action === 'approve') {
+      updateData = {
+        ...updateData,
+        status: 'approved',
+        active: true,
+        pageContext: pageContext || 'home', // Default to home page
+        revisionNotes: null,
+      };
+    } else if (action === 'reject') {
+      updateData = {
+        ...updateData,
+        status: 'rejected',
+        active: false,
+        revisionNotes: revisionNotes || null,
+      };
+    } else if (action === 'request_revision') {
+      if (!revisionNotes) {
+        return NextResponse.json(
+          { error: 'Revision notes are required when requesting revision' },
+          { status: 400 }
+        );
+      }
+      updateData = {
+        ...updateData,
+        status: 'revision_needed',
+        active: false,
+        revisionNotes,
+      };
+    }
+
+    const [updated] = await db
+      .update(testimonials)
+      .set(updateData)
+      .where(eq(testimonials.id, id))
+      .returning();
+
+    return NextResponse.json({
+      data: updated,
+      message: `Testimonial ${action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'sent for revision'} successfully`,
+    });
+  } catch (error) {
+    console.error('Error updating testimonial status:', error);
+    return NextResponse.json({ error: 'Failed to update testimonial status' }, { status: 500 });
   }
 }
 

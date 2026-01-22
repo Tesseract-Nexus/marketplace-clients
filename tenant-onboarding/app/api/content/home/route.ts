@@ -23,9 +23,13 @@ export async function GET() {
         where: and(eq(features.active, true), eq(features.pageContext, 'home')),
         orderBy: [asc(features.sortOrder)],
       }),
-      // Testimonials for home page
+      // Testimonials for home page (only approved ones)
       db.query.testimonials.findMany({
-        where: and(eq(testimonials.active, true), eq(testimonials.pageContext, 'home')),
+        where: and(
+          eq(testimonials.active, true),
+          eq(testimonials.pageContext, 'home'),
+          eq(testimonials.status, 'approved')
+        ),
         orderBy: [asc(testimonials.sortOrder)],
       }),
       // Trust badges for home page

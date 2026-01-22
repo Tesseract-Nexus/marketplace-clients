@@ -271,6 +271,7 @@ const navigation: NavItem[] = [
       { name: "QR Codes", href: "/settings/qr-codes" },
       { name: "Approval Workflows", href: "/settings/approval-workflows", minRole: "owner" },
       { name: "Audit Logs", href: "/settings/audit-logs" },
+      { name: "Your Testimonial", href: "/settings/testimonial" },
       { name: "Account", href: "/settings/account" },
     ],
   },

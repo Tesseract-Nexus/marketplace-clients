@@ -20,11 +20,12 @@ export async function GET() {
           },
         },
       }),
-      // Testimonials for presentation
+      // Testimonials for presentation (only approved ones)
       db.query.testimonials.findMany({
         where: and(
           eq(testimonials.active, true),
-          eq(testimonials.pageContext, 'presentation')
+          eq(testimonials.pageContext, 'presentation'),
+          eq(testimonials.status, 'approved')
         ),
         orderBy: [asc(testimonials.sortOrder)],
       }),

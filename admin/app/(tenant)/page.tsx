@@ -6,6 +6,7 @@ import { PermissionGate, Permission } from '@/components/permission-gate';
 import { useOnRefresh } from '@/contexts/RefreshContext';
 import { DashboardLayoutProvider, useDashboardLayoutContext } from '@/contexts/DashboardLayoutContext';
 import { DraggableWidget, DashboardToolbar, RenderWidget } from '@/components/dashboard';
+import { TestimonialPromptBanner } from '@/components/dashboard/TestimonialPromptBanner';
 import { useDashboardData, useRefreshDashboard } from '@/hooks/useDashboardData';
 import { DashboardData } from '@/lib/types/dashboard';
 
@@ -22,6 +23,9 @@ function DashboardContent({ data, loading }: { data: DashboardData; loading: boo
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
+      {/* Testimonial Prompt Banner - shows for eligible tenants */}
+      <TestimonialPromptBanner />
+
       <DashboardToolbar />
 
       {/* Responsive Grid Container for Widgets */}
