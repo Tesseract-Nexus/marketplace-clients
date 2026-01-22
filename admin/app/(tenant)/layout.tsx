@@ -543,15 +543,16 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           >
             <div className="flex items-center gap-3">
               {item.icon && (
-                <item.icon
-                  className="w-5 h-5 transition-colors"
+                <span
+                  className="w-5 h-5 transition-colors flex items-center justify-center"
                   style={{
                     color: isExpanded
                       ? 'var(--color-primary, #3b82f6)'
                       : 'var(--color-sidebar-text, #cbd5e1)'
                   }}
-                  aria-hidden="true"
-                />
+                >
+                  <item.icon className="w-5 h-5" aria-hidden="true" />
+                </span>
               )}
               {!item.icon && (
                 <div className="w-1.5 h-1.5 rounded-full transition-colors"
@@ -567,11 +568,12 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             {isExpanded ? (
               <ChevronDown className="w-4 h-4 text-primary" aria-hidden="true" />
             ) : (
-              <ChevronRight
-                className="w-4 h-4 transition-colors"
+              <span
+                className="w-4 h-4 transition-colors flex items-center justify-center"
                 style={{ color: 'var(--color-sidebar-text, #cbd5e1)' }}
-                aria-hidden="true"
-              />
+              >
+                <ChevronRight className="w-4 h-4" aria-hidden="true" />
+              </span>
             )}
           </button>
           {isExpanded && (
@@ -611,15 +613,16 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         }}
       >
         {item.icon ? (
-          <item.icon
-            className="w-5 h-5 relative z-10 transition-colors"
+          <span
+            className="w-5 h-5 relative z-10 transition-colors flex items-center justify-center"
             style={{
               color: active
                 ? '#ffffff'
                 : 'var(--color-sidebar-text, #cbd5e1)'
             }}
-            aria-hidden="true"
-          />
+          >
+            <item.icon className="w-5 h-5" aria-hidden="true" />
+          </span>
         ) : (
           <div className="w-1.5 h-1.5 rounded-full transition-colors relative z-10"
             aria-hidden="true"
