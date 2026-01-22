@@ -2332,8 +2332,8 @@ export default function OnboardingPage() {
                         }}
                         className={`w-full flex items-center justify-between p-5 rounded-2xl border-2 transition-all duration-200 group ${
                           showCustomDomainSection
-                            ? 'bg-gradient-to-r from-primary/10 to-emerald-50 dark:from-primary/20 dark:to-emerald-500/10 border-primary dark:border-primary/50 shadow-sm'
-                            : 'bg-card hover:bg-warm-50 dark:hover:bg-white/5 border-warm-200 dark:border-white/10 hover:border-primary/50 dark:hover:border-primary/30 hover:shadow-sm'
+                            ? 'bg-gradient-to-r from-primary/10 to-sage-50 border-primary shadow-sm'
+                            : 'bg-card hover:bg-warm-50 border-warm-200 hover:border-primary/50 hover:shadow-sm'
                         }`}
                       >
                         <div className="flex items-center gap-4">
@@ -2354,7 +2354,7 @@ export default function OnboardingPage() {
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
                           showCustomDomainSection
                             ? 'bg-primary text-white shadow-md'
-                            : 'bg-warm-100 dark:bg-white/10 group-hover:bg-primary/20'
+                            : 'bg-warm-100 group-hover:bg-primary/20'
                         }`}>
                           {showCustomDomainSection ? (
                             <Check className="w-5 h-5" />
@@ -2366,7 +2366,7 @@ export default function OnboardingPage() {
 
                       {/* Expandable Custom Domain Section */}
                       {showCustomDomainSection && (
-                        <div className="mt-4 p-6 bg-gradient-to-br from-primary/5 to-emerald-50/50 dark:from-primary/10 dark:to-emerald-500/5 rounded-2xl border-2 border-primary/20 dark:border-primary/30 animate-in slide-in-from-top-2 duration-200 shadow-sm">
+                        <div className="mt-4 p-6 bg-gradient-to-br from-primary/5 to-sage-50/50 rounded-2xl border-2 border-primary/20 animate-in slide-in-from-top-2 duration-200 shadow-sm">
                           <div className="space-y-5">
                             {/* Custom Domain Input */}
                             <div>
@@ -2385,12 +2385,12 @@ export default function OnboardingPage() {
                                       storeSetupForm.setValue('customDomain', normalized);
                                     }
                                   }}
-                                  className={`w-full h-14 px-5 pr-12 text-base bg-white dark:bg-white/5 border-2 rounded-xl text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 transition-all ${
+                                  className={`w-full h-14 px-5 pr-12 text-base bg-white border-2 rounded-xl text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 transition-all ${
                                     customDomainValidation.isValid === true
-                                      ? 'border-emerald-500 focus:border-emerald-500 focus:ring-emerald-500/20'
+                                      ? 'border-sage-500 focus:border-sage-500 focus:ring-sage-500/20'
                                       : customDomainValidation.isValid === false
                                         ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                                        : 'border-warm-200 dark:border-white/10 focus:border-primary focus:ring-primary/20'
+                                        : 'border-warm-200 focus:border-primary focus:ring-primary/20'
                                   }`}
                                 />
                                 {/* Validation status icon */}
@@ -2413,9 +2413,9 @@ export default function OnboardingPage() {
                               {customDomainValidation.message && (
                                 <p className={`mt-2 text-sm font-medium flex items-center gap-1.5 ${
                                   customDomainValidation.isValid === true
-                                    ? 'text-emerald-600 dark:text-emerald-400'
+                                    ? 'text-sage-600'
                                     : customDomainValidation.isValid === false
-                                      ? 'text-red-500 dark:text-red-400'
+                                      ? 'text-red-500'
                                       : 'text-muted-foreground'
                                 }`}>
                                   {customDomainValidation.isValid === true && <Check className="w-4 h-4" />}
@@ -2426,11 +2426,11 @@ export default function OnboardingPage() {
 
                               {/* Format warning (e.g., subdomain detection) */}
                               {customDomainValidation.formatWarning && (
-                                <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-500/10 rounded-lg border border-amber-200 dark:border-amber-500/20">
+                                <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
                                   <div className="flex items-start gap-2">
-                                    <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                                    <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
                                     <div className="flex-1">
-                                      <p className="text-sm text-amber-800 dark:text-amber-200">
+                                      <p className="text-sm text-amber-700">
                                         {customDomainValidation.formatWarning}
                                       </p>
                                       {customDomainValidation.suggestedDomain && (
@@ -2440,7 +2440,7 @@ export default function OnboardingPage() {
                                             storeSetupForm.setValue('customDomain', customDomainValidation.suggestedDomain || '');
                                             validateCustomDomain(customDomainValidation.suggestedDomain || '');
                                           }}
-                                          className="mt-2 text-sm font-medium text-amber-700 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-100 underline underline-offset-2"
+                                          className="mt-2 text-sm font-medium text-amber-600 hover:text-amber-800 underline underline-offset-2"
                                         >
                                           Use {customDomainValidation.suggestedDomain} instead
                                         </button>
@@ -2463,7 +2463,7 @@ export default function OnboardingPage() {
                               if (!urls || !domainInput || domainInput.length < 4) return null;
 
                               return (
-                                <div className="p-4 bg-white dark:bg-white/5 rounded-xl border-2 border-warm-200 dark:border-white/10">
+                                <div className="p-4 bg-white rounded-xl border-2 border-warm-200">
                                   <div className="flex items-center justify-between mb-3">
                                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Your Store URLs</p>
                                     <button
@@ -2486,7 +2486,7 @@ export default function OnboardingPage() {
                                   </div>
                                   <div className="space-y-3">
                                     {/* Admin URL */}
-                                    <div className="p-3 bg-warm-50 dark:bg-white/5 rounded-lg">
+                                    <div className="p-3 bg-warm-50 rounded-lg">
                                       <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                                           <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -2503,7 +2503,7 @@ export default function OnboardingPage() {
                                                 type="text"
                                                 {...storeSetupForm.register('customAdminSubdomain')}
                                                 placeholder="admin"
-                                                className="w-24 px-2 py-1 text-sm font-semibold bg-white dark:bg-white/10 border border-warm-300 dark:border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                                className="w-24 px-2 py-1 text-sm font-semibold bg-white border border-warm-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
                                               />
                                               <span className="text-sm text-muted-foreground">.{urls.baseDomain}</span>
                                             </div>
@@ -2516,7 +2516,7 @@ export default function OnboardingPage() {
                                       </div>
                                     </div>
                                     {/* Storefront URLs */}
-                                    <div className="p-3 bg-warm-50 dark:bg-white/5 rounded-lg">
+                                    <div className="p-3 bg-warm-50 rounded-lg">
                                       <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
                                           <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -2533,7 +2533,7 @@ export default function OnboardingPage() {
                                                   type="text"
                                                   {...storeSetupForm.register('customStorefrontSubdomain')}
                                                   placeholder="www or leave empty"
-                                                  className="w-32 px-2 py-1 text-sm font-semibold bg-white dark:bg-white/10 border border-warm-300 dark:border-white/20 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                                  className="w-32 px-2 py-1 text-sm font-semibold bg-white border border-warm-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
                                                 />
                                                 <span className="text-sm text-muted-foreground">.{urls.baseDomain}</span>
                                               </div>
@@ -2566,7 +2566,7 @@ export default function OnboardingPage() {
 
                             {/* DNS Configuration Instructions */}
                             {customDomainValidation.isValid === true && customDomainValidation.verificationRecord && (
-                              <div className="p-5 bg-white dark:bg-white/5 rounded-xl border-2 border-warm-200 dark:border-white/10 shadow-sm">
+                              <div className="p-5 bg-white rounded-xl border-2 border-warm-200 shadow-sm">
                                 <div className="flex items-center gap-2 mb-4">
                                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                                     <ExternalLink className="w-4 h-4 text-primary" />
@@ -2588,7 +2588,7 @@ export default function OnboardingPage() {
                                         className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                                           selectedVerificationMethod === 'CNAME'
                                             ? 'bg-primary text-white'
-                                            : 'bg-warm-100 dark:bg-white/10 text-foreground hover:bg-warm-200 dark:hover:bg-white/20'
+                                            : 'bg-warm-100 text-foreground hover:bg-warm-200'
                                         }`}
                                       >
                                         CNAME Record
@@ -2600,7 +2600,7 @@ export default function OnboardingPage() {
                                         className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                                           selectedVerificationMethod === 'TXT'
                                             ? 'bg-primary text-white'
-                                            : 'bg-warm-100 dark:bg-white/10 text-foreground hover:bg-warm-200 dark:hover:bg-white/20'
+                                            : 'bg-warm-100 text-foreground hover:bg-warm-200'
                                         }`}
                                       >
                                         TXT Record
@@ -2615,12 +2615,12 @@ export default function OnboardingPage() {
                                   const selectedRecord = customDomainValidation.verificationRecords?.find(r => r.type === selectedVerificationMethod) || customDomainValidation.verificationRecord;
                                   if (!selectedRecord) return null;
                                   return (
-                                    <div className="bg-warm-50 dark:bg-white/5 rounded-lg overflow-hidden">
+                                    <div className="bg-warm-50 rounded-lg overflow-hidden">
                                       {/* DNS Record Table */}
                                       <div className="overflow-x-auto">
                                         <table className="w-full text-sm">
                                           <thead>
-                                            <tr className="border-b border-warm-200 dark:border-white/10">
+                                            <tr className="border-b border-warm-200">
                                               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 w-20">Type</th>
                                               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">Host / Name</th>
                                               <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">Value / Points To</th>
@@ -2631,15 +2631,15 @@ export default function OnboardingPage() {
                                               <td className="px-4 py-3 align-top">
                                                 <span className={`inline-flex items-center px-2.5 py-1 rounded-md font-mono font-semibold text-xs ${
                                                   selectedRecord.type === 'CNAME'
-                                                    ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300'
-                                                    : 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300'
+                                                    ? 'bg-sage-100 text-sage-700'
+                                                    : 'bg-primary/10 text-primary'
                                                 }`}>
                                                   {selectedRecord.type}
                                                 </span>
                                               </td>
                                               <td className="px-4 py-3 align-top">
                                                 <div className="flex items-start gap-2">
-                                                  <code className="flex-1 font-mono text-sm text-foreground bg-white dark:bg-white/10 px-3 py-2 rounded-lg break-all select-all">
+                                                  <code className="flex-1 font-mono text-sm text-foreground bg-white px-3 py-2 rounded-lg break-all select-all">
                                                     {selectedRecord.host}
                                                   </code>
                                                   <button
@@ -2654,7 +2654,7 @@ export default function OnboardingPage() {
                                               </td>
                                               <td className="px-4 py-3 align-top">
                                                 <div className="flex items-start gap-2">
-                                                  <code className="flex-1 font-mono text-sm text-foreground bg-white dark:bg-white/10 px-3 py-2 rounded-lg break-all select-all">
+                                                  <code className="flex-1 font-mono text-sm text-foreground bg-white px-3 py-2 rounded-lg break-all select-all">
                                                     {selectedRecord.value}
                                                   </code>
                                                   <button
@@ -2676,21 +2676,21 @@ export default function OnboardingPage() {
                                 })()}
 
                                 {/* Quick Help */}
-                                <div className="mt-4 p-3 bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-300 dark:border-slate-600">
-                                  <p className="text-sm text-slate-800 dark:text-slate-100">
-                                    <strong className="font-semibold text-slate-900 dark:text-white">Where to add this?</strong> Log in to your domain provider and find DNS settings, Zone Editor, or DNS Management. Add a new record with the values above.
+                                <div className="mt-4 p-3 bg-warm-100 rounded-lg border border-warm-300">
+                                  <p className="text-sm text-foreground-secondary">
+                                    <strong className="font-semibold text-foreground">Where to add this?</strong> Log in to your domain provider and find DNS settings, Zone Editor, or DNS Management. Add a new record with the values above.
                                   </p>
                                 </div>
 
                                 {/* Email Setup Info (Optional) */}
-                                <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-700">
-                                  <p className="text-sm text-blue-900 dark:text-blue-100">
-                                    <strong className="font-semibold text-blue-900 dark:text-blue-50">Email Setup (Optional):</strong> Want to send emails from your custom domain (e.g., contact@{storeSetupForm.watch('customDomain')})? You can configure SPF, DKIM, and MX records later in Admin Settings → Domains.
+                                <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
+                                  <p className="text-sm text-foreground-secondary">
+                                    <strong className="font-semibold text-foreground">Email Setup (Optional):</strong> Want to send emails from your custom domain (e.g., contact@{storeSetupForm.watch('customDomain')})? You can configure SPF, DKIM, and MX records later in Admin Settings → Domains.
                                   </p>
                                 </div>
 
                                 {/* Domain Verification Section */}
-                                <div className="mt-4 p-4 bg-white dark:bg-white/5 rounded-xl border-2 border-warm-200 dark:border-white/10">
+                                <div className="mt-4 p-4 bg-white rounded-xl border-2 border-warm-200">
                                   <div className="flex items-center justify-between mb-3">
                                     <h4 className="text-sm font-semibold text-foreground">Verify DNS Configuration</h4>
                                     <button
@@ -2719,40 +2719,40 @@ export default function OnboardingPage() {
                                       {/* DNS Status */}
                                       <div className={`flex items-center gap-3 p-4 rounded-lg ${
                                         domainVerification.dnsVerified
-                                          ? 'bg-emerald-50 dark:bg-emerald-500/10 border-2 border-emerald-300 dark:border-emerald-500/30'
+                                          ? 'bg-sage-50 border-2 border-sage-300'
                                           : domainVerification.dnsRecordFound
-                                            ? 'bg-amber-50 dark:bg-amber-500/10 border-2 border-amber-300 dark:border-amber-500/30'
-                                            : 'bg-red-50 dark:bg-red-500/10 border-2 border-red-300 dark:border-red-500/30'
+                                            ? 'bg-amber-50 border-2 border-amber-200'
+                                            : 'bg-red-50 border-2 border-red-200'
                                       }`}>
                                         {domainVerification.dnsVerified ? (
-                                          <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                                            <Check className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                                          <div className="w-10 h-10 rounded-full bg-sage-100 flex items-center justify-center flex-shrink-0">
+                                            <Check className="w-6 h-6 text-sage-600" />
                                           </div>
                                         ) : domainVerification.dnsRecordFound ? (
-                                          <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-500/20 flex items-center justify-center flex-shrink-0">
-                                            <AlertCircle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                                          <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                                            <AlertCircle className="w-6 h-6 text-amber-600" />
                                           </div>
                                         ) : (
-                                          <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                                            <AlertCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
+                                          <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                                            <AlertCircle className="w-6 h-6 text-red-600" />
                                           </div>
                                         )}
                                         <div className="flex-1">
                                           <p className={`text-base font-semibold ${
                                             domainVerification.dnsVerified
-                                              ? 'text-emerald-800 dark:text-emerald-200'
+                                              ? 'text-sage-700'
                                               : domainVerification.dnsRecordFound
-                                                ? 'text-amber-800 dark:text-amber-200'
-                                                : 'text-red-800 dark:text-red-200'
+                                                ? 'text-amber-700'
+                                                : 'text-red-700'
                                           }`}>
                                             {domainVerification.dnsVerified ? 'DNS Ownership Verified' : domainVerification.dnsRecordFound ? 'DNS Record Found (Incorrect Value)' : 'DNS Record Not Found'}
                                           </p>
                                           <p className={`text-sm mt-1 ${
                                             domainVerification.dnsVerified
-                                              ? 'text-emerald-700 dark:text-emerald-300'
+                                              ? 'text-sage-600'
                                               : domainVerification.dnsRecordFound
-                                                ? 'text-amber-700 dark:text-amber-300'
-                                                : 'text-red-700 dark:text-red-300'
+                                                ? 'text-amber-600'
+                                                : 'text-red-600'
                                           }`}>
                                             {domainVerification.message}
                                           </p>
@@ -2763,31 +2763,31 @@ export default function OnboardingPage() {
                                       {domainVerification.dnsVerified && (
                                         <div className={`flex items-center gap-3 p-4 rounded-lg ${
                                           domainVerification.sslStatus === 'active'
-                                            ? 'bg-emerald-50 dark:bg-emerald-500/10 border-2 border-emerald-300 dark:border-emerald-500/30'
+                                            ? 'bg-sage-50 border-2 border-sage-300'
                                             : domainVerification.sslStatus === 'failed'
-                                              ? 'bg-red-50 dark:bg-red-500/10 border-2 border-red-300 dark:border-red-500/30'
-                                              : 'bg-blue-50 dark:bg-blue-500/10 border-2 border-blue-300 dark:border-blue-500/30'
+                                              ? 'bg-red-50 border-2 border-red-200'
+                                              : 'bg-primary/5 border-2 border-primary/20'
                                         }`}>
                                           {domainVerification.sslStatus === 'active' ? (
-                                            <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                                              <ShieldCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                                            <div className="w-10 h-10 rounded-full bg-sage-100 flex items-center justify-center flex-shrink-0">
+                                              <ShieldCheck className="w-6 h-6 text-sage-600" />
                                             </div>
                                           ) : domainVerification.sslStatus === 'failed' ? (
-                                            <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                                              <ShieldAlert className="w-6 h-6 text-red-600 dark:text-red-400" />
+                                            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                                              <ShieldAlert className="w-6 h-6 text-red-600" />
                                             </div>
                                           ) : (
-                                            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                                              <ShieldCheck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                                              <ShieldCheck className="w-6 h-6 text-primary" />
                                             </div>
                                           )}
                                           <div className="flex-1">
                                             <p className={`text-base font-semibold ${
                                               domainVerification.sslStatus === 'active'
-                                                ? 'text-emerald-800 dark:text-emerald-200'
+                                                ? 'text-sage-700'
                                                 : domainVerification.sslStatus === 'failed'
-                                                  ? 'text-red-800 dark:text-red-200'
-                                                  : 'text-blue-800 dark:text-blue-200'
+                                                  ? 'text-red-700'
+                                                  : 'text-foreground'
                                             }`}>
                                               {domainVerification.sslStatus === 'active'
                                                 ? 'SSL Certificate Active'
@@ -2797,10 +2797,10 @@ export default function OnboardingPage() {
                                             </p>
                                             <p className={`text-sm mt-1 ${
                                               domainVerification.sslStatus === 'active'
-                                                ? 'text-emerald-700 dark:text-emerald-300'
+                                                ? 'text-sage-600'
                                                 : domainVerification.sslStatus === 'failed'
-                                                  ? 'text-red-700 dark:text-red-300'
-                                                  : 'text-blue-700 dark:text-blue-300'
+                                                  ? 'text-red-600'
+                                                  : 'text-foreground-secondary'
                                             }`}>
                                               {domainVerification.sslStatus === 'active'
                                                 ? 'Your domain is secured with HTTPS'
@@ -2814,9 +2814,9 @@ export default function OnboardingPage() {
 
                                       {/* Security Note */}
                                       {domainVerification.dnsVerified && (
-                                        <div className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-700">
-                                          <p className="text-xs text-slate-600 dark:text-slate-400">
-                                            <strong className="font-semibold text-slate-700 dark:text-slate-300">Security Note:</strong> DNS verification proves you own this domain. Only you can add DNS records at your domain provider, preventing unauthorized claims.
+                                        <div className="p-3 bg-warm-100 rounded-lg border border-warm-200">
+                                          <p className="text-xs text-foreground-tertiary">
+                                            <strong className="font-semibold text-foreground-secondary">Security Note:</strong> DNS verification proves you own this domain. Only you can add DNS records at your domain provider, preventing unauthorized claims.
                                           </p>
                                         </div>
                                       )}
@@ -2860,7 +2860,7 @@ export default function OnboardingPage() {
                                     suggestedDomain: undefined,
                                   });
                                 }}
-                                className="text-sm text-muted-foreground hover:text-foreground transition-colors px-4 py-2 rounded-lg hover:bg-warm-100 dark:hover:bg-white/5"
+                                className="text-sm text-muted-foreground hover:text-foreground transition-colors px-4 py-2 rounded-lg hover:bg-warm-100"
                               >
                                 ← Skip custom domain for now
                               </button>
