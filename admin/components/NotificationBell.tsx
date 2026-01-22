@@ -330,14 +330,10 @@ export function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       {/* Bell Button */}
       <Button
-        className="relative p-2 rounded-lg border transition-all duration-200 group"
-        style={{
-          backgroundColor: 'var(--color-sidebar-text, #f9fafb)' + '40',
-          borderColor: 'var(--color-sidebar-text, #e5e7eb)',
-        }}
+        className="relative h-9 w-9 p-0 rounded-lg border border-border bg-background hover:bg-muted transition-all duration-200 group flex items-center justify-center"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <Bell className="w-4 h-4 transition-colors" style={{ color: 'var(--color-header-text, #4b5563)' }} />
+        <Bell className="w-4 h-4 text-foreground transition-colors" />
 
         {/* Unread Badge */}
         {unreadCount > 0 && (

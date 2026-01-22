@@ -722,7 +722,7 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-3">
           {/* Storefront Switcher (Brand within current business) */}
           <StorefrontSwitcher />
 
@@ -742,7 +742,7 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
             <Button
               onClick={() => setShowUserMenu(!showUserMenu)}
               variant="ghost"
-              className="relative rounded-full hover:bg-muted transition-all duration-200 min-h-[40px] min-w-[40px] p-0 flex items-center justify-center">
+              className="relative h-9 w-9 rounded-full hover:bg-muted transition-all duration-200 p-0 flex items-center justify-center">
               <div className="w-9 h-9 rounded-full flex items-center justify-center bg-primary text-primary-foreground">
                 <User className="w-4 h-4" />
               </div>

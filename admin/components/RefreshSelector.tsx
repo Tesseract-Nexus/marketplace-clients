@@ -176,50 +176,32 @@ export function RefreshSelector({ compact = false }: RefreshSelectorProps) {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* Main Button Group */}
-      <div className="flex items-center">
-        {/* Refresh Button */}
-        <Button
-          onClick={triggerRefresh}
-          disabled={isRefreshing}
-          className={cn(
-            "flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-l-lg border border-r-0 transition-all duration-200",
-            "hover:shadow-md active:scale-95",
-            isRefreshing
-              ? "bg-primary text-primary-foreground border-transparent"
-              : "bg-background hover:bg-muted text-foreground border-border"
-          )}
-        >
-          <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
-          <span className="hidden sm:inline">
-            {isRefreshing ? 'Refreshing' : 'Refresh'}
-          </span>
-        </Button>
+      {/* Single Icon Button */}
+      <Button
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          "h-9 w-9 p-0 rounded-lg border transition-all duration-200 flex items-center justify-center relative",
+          "hover:shadow-md active:scale-95",
+          isAutoRefreshEnabled
+            ? "bg-primary text-primary-foreground border-transparent hover:bg-primary/90"
+            : "bg-background hover:bg-muted text-foreground border-border"
+        )}
+        title={isRefreshing
+          ? 'Refreshing...'
+          : isAutoRefreshEnabled
+            ? `Auto-refresh: ${INTERVAL_LABELS[interval]} (Next: ${countdown !== null ? formatCountdown(countdown) : '...'})`
+            : 'Click to configure refresh settings'
+        }
+      >
+        <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
 
-        {/* Interval Dropdown Toggle */}
-        <Button
-          onClick={() => setIsOpen(!isOpen)}
-          className={cn(
-            "flex items-center gap-1 px-2 py-1.5 text-sm font-medium rounded-r-lg border transition-all duration-200",
-            "hover:shadow-md",
-            isAutoRefreshEnabled
-              ? "bg-primary text-primary-foreground border-transparent"
-              : "bg-background hover:bg-muted text-foreground border-border"
-          )}
-        >
-          {isAutoRefreshEnabled ? (
-            <>
-              <Clock className="h-3.5 w-3.5" />
-              <span className="text-xs font-semibold min-w-[28px]">
-                {countdown !== null ? formatCountdown(countdown) : INTERVAL_SHORT_LABELS[interval]}
-              </span>
-            </>
-          ) : (
-            <Pause className="h-3.5 w-3.5" />
-          )}
-          <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", isOpen && "rotate-180")} />
-        </Button>
-      </div>
+        {/* Countdown badge - only show when auto-refresh is active and countdown is low */}
+        {isAutoRefreshEnabled && countdown !== null && countdown <= 30 && !isRefreshing && (
+          <span className="absolute -bottom-1 -right-1 min-w-[16px] h-[16px] flex items-center justify-center px-0.5 text-[9px] font-bold bg-primary text-primary-foreground rounded-full border-2 border-background shadow-sm">
+            {countdown}
+          </span>
+        )}
+      </Button>
 
       {/* Dropdown Menu */}
       {isOpen && (
@@ -277,6 +259,21 @@ export function RefreshSelector({ compact = false }: RefreshSelectorProps) {
             ))}
           </div>
 
+          {/* Manual Refresh Button */}
+          <div className="px-3 py-2 border-t border-border">
+            <Button
+              onClick={() => {
+                triggerRefresh();
+                setIsOpen(false);
+              }}
+              disabled={isRefreshing}
+              className="w-full flex items-center justify-center gap-2 h-9"
+            >
+              <RefreshCw className={cn("h-4 w-4", isRefreshing && "animate-spin")} />
+              <span>{isRefreshing ? 'Refreshing...' : 'Refresh Now'}</span>
+            </Button>
+          </div>
+
           {/* Footer hint */}
           <div className="px-4 py-2 border-t border-border bg-muted">
             <p className="text-xs text-muted-foreground">
@@ -284,7 +281,7 @@ export function RefreshSelector({ compact = false }: RefreshSelectorProps) {
                 ? `Dashboard will refresh every ${INTERVAL_LABELS[interval].toLowerCase()}`
                 : isAutoRefreshEnabled
                   ? 'Auto-refresh only works on Dashboard'
-                  : 'Click refresh button to manually update data'}
+                  : 'Select an interval above for auto-refresh'}
             </p>
           </div>
         </div>
