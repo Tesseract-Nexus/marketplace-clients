@@ -17,11 +17,13 @@ if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_DEV_AUTH_BY
  * - Cloud: {tenant}-admin.tesserix.app (e.g., homechef-admin.tesserix.app)
  * - Root:  dev-admin.tesserix.app (dev environment root)
  * - Local: {tenant}.localhost:3001
+ * - Custom: admin.{custom-domain} (e.g., admin.yahvismartfarm.com)
  *
  * Examples:
- * - homechef-admin.tesserix.app -> tenant: homechef (validated)
+ * - homechef-admin.tesserix.app -> tenant: homechef (validated via slug)
  * - dev-admin.tesserix.app -> tenant: null (root domain)
  * - random-admin.tesserix.app -> 404 (tenant doesn't exist)
+ * - admin.yahvismartfarm.com -> tenant: resolved via custom-domain-service
  */
 
 // Public paths that don't require tenant context
@@ -38,8 +40,9 @@ const PUBLIC_PATHS = [
 // Root domain prefixes (these are NOT tenants)
 const ROOT_PREFIXES = ['dev', 'staging', 'prod'];
 
-// Tenant service URL for validation
-const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://tenant-service.devtest.svc.cluster.local:8082';
+// Service URLs
+const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://tenant-service.marketplace.svc.cluster.local:8082';
+const CUSTOM_DOMAIN_SERVICE_URL = process.env.CUSTOM_DOMAIN_SERVICE_URL || 'http://custom-domain-service.marketplace.svc.cluster.local:8093';
 
 // DEV MODE: Skip tenant validation when running locally without services
 // Set NEXT_PUBLIC_DEV_AUTH_BYPASS=true in .env.local to enable
@@ -51,6 +54,113 @@ const validatedTenants = new Map<string, { exists: boolean; timestamp: number; v
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes - tenant slugs rarely change
 const STALE_TTL = 15 * 60 * 1000; // 15 minutes - allow stale data while revalidating
 const VALIDATION_TIMEOUT = 1500; // 1.5 seconds - fail fast for better UX
+
+// Cache for custom domain resolution
+const resolvedDomains = new Map<string, { tenantSlug: string; tenantId: string; timestamp: number }>();
+const DOMAIN_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+/**
+ * Check if a hostname is a custom domain (not tesserix.app or localhost)
+ */
+function isCustomDomain(host: string): boolean {
+  const hostname = host.split(':')[0].toLowerCase();
+
+  // Not custom if it's tesserix.app
+  if (hostname.endsWith('.tesserix.app')) {
+    return false;
+  }
+
+  // Not custom if it's localhost
+  if (hostname === 'localhost' || hostname.endsWith('.localhost')) {
+    return false;
+  }
+
+  // It's a custom domain
+  return true;
+}
+
+/**
+ * Extract the base domain from a hostname
+ * e.g., admin.yahvismartfarm.com -> yahvismartfarm.com
+ */
+function extractBaseDomain(host: string): string {
+  const hostname = host.split(':')[0].toLowerCase();
+
+  // If it starts with 'admin.', 'www.', or 'api.', remove the subdomain
+  const subdomains = ['admin.', 'www.', 'api.'];
+  for (const sub of subdomains) {
+    if (hostname.startsWith(sub)) {
+      return hostname.substring(sub.length);
+    }
+  }
+
+  return hostname;
+}
+
+/**
+ * Resolve a custom domain to tenant information using custom-domain-service
+ * Returns { tenantSlug, tenantId } or null if domain not found
+ */
+async function resolveCustomDomain(domain: string): Promise<{ tenantSlug: string; tenantId: string } | null> {
+  // DEV MODE: Skip resolution
+  if (DEV_AUTH_BYPASS) {
+    console.log('[Middleware] 🔓 DEV AUTH BYPASS - skipping domain resolution for:', domain);
+    return null;
+  }
+
+  const now = Date.now();
+
+  // Check cache first
+  const cached = resolvedDomains.get(domain);
+  if (cached && now - cached.timestamp < DOMAIN_CACHE_TTL) {
+    console.log('[Middleware] Custom domain resolved from cache:', domain, '->', cached.tenantSlug);
+    return { tenantSlug: cached.tenantSlug, tenantId: cached.tenantId };
+  }
+
+  try {
+    const response = await fetch(
+      `${CUSTOM_DOMAIN_SERVICE_URL}/api/v1/internal/resolve?domain=${encodeURIComponent(domain)}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Internal-Service': 'admin-middleware',
+        },
+        signal: AbortSignal.timeout(VALIDATION_TIMEOUT),
+      }
+    );
+
+    if (response.ok) {
+      const result = await response.json();
+      if (result.tenant_slug && result.tenant_id) {
+        // Cache the result
+        resolvedDomains.set(domain, {
+          tenantSlug: result.tenant_slug,
+          tenantId: result.tenant_id,
+          timestamp: now,
+        });
+        console.log('[Middleware] Custom domain resolved via API:', domain, '->', result.tenant_slug);
+        return { tenantSlug: result.tenant_slug, tenantId: result.tenant_id };
+      }
+    }
+
+    if (response.status === 404) {
+      console.log('[Middleware] Custom domain not found:', domain);
+      return null;
+    }
+
+    console.error('[Middleware] Custom domain resolution failed:', response.status);
+    return null;
+  } catch (error) {
+    console.error('[Middleware] Custom domain resolution error:', error);
+    // Return cached value if available (even if stale)
+    if (cached) {
+      console.log('[Middleware] Using stale cache for domain:', domain);
+      return { tenantSlug: cached.tenantSlug, tenantId: cached.tenantId };
+    }
+    return null;
+  }
+}
 
 /**
  * Extract tenant slug from hostname
@@ -239,19 +349,45 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Extract tenant from subdomain first
-  let tenantSlug = extractTenantFromHost(host);
+  let tenantSlug: string | null = null;
+  let tenantId: string | null = null;
+  let isCustomDomainRequest = false;
 
-  // If not found in hostname, check headers (for custom domains)
-  // VirtualService injects X-Tenant-Slug for custom domain requests
-  if (!tenantSlug) {
-    tenantSlug = extractTenantFromHeaders(request);
-    if (tenantSlug) {
-      console.log('[Middleware] Tenant resolved from headers (custom domain):', tenantSlug);
+  // Check if this is a custom domain request
+  if (isCustomDomain(host)) {
+    isCustomDomainRequest = true;
+    const baseDomain = extractBaseDomain(host);
+    console.log('[Middleware] Detected custom domain request:', host, '-> base domain:', baseDomain);
+
+    // Resolve the custom domain to get tenant info
+    const resolved = await resolveCustomDomain(baseDomain);
+    if (resolved) {
+      tenantSlug = resolved.tenantSlug;
+      tenantId = resolved.tenantId;
+      console.log('[Middleware] Custom domain resolved:', baseDomain, '-> tenant:', tenantSlug);
+    } else {
+      // Fallback: Check if VirtualService injected headers
+      tenantSlug = extractTenantFromHeaders(request);
+      tenantId = request.headers.get('x-tenant-id');
+      if (tenantSlug) {
+        console.log('[Middleware] Custom domain fallback - tenant from headers:', tenantSlug);
+      }
+    }
+  } else {
+    // Standard tesserix.app or localhost domain - extract from hostname
+    tenantSlug = extractTenantFromHost(host);
+
+    // If not found in hostname, check headers (for VirtualService-injected custom domains)
+    if (!tenantSlug) {
+      tenantSlug = extractTenantFromHeaders(request);
+      tenantId = request.headers.get('x-tenant-id');
+      if (tenantSlug) {
+        console.log('[Middleware] Tenant resolved from headers:', tenantSlug);
+      }
     }
   }
 
-  // DEV MODE: Use mock tenant when no tenant in subdomain
+  // DEV MODE: Use mock tenant when no tenant found
   if (!tenantSlug && DEV_AUTH_BYPASS) {
     tenantSlug = 'dev-tenant';
     console.log('[Middleware] 🔓 DEV AUTH BYPASS - using mock tenant: dev-tenant');
@@ -263,13 +399,14 @@ export async function middleware(request: NextRequest) {
     const response = NextResponse.next();
     response.headers.set('x-tenant-slug', '');
     response.headers.set('x-is-root-domain', 'true');
+    response.headers.set('x-is-custom-domain', 'false');
     // Clear any stale tenant cookie
     response.cookies.delete('tenant-slug');
     return response;
   }
 
   // SECURITY: Validate that the tenant actually exists
-  // This prevents access via arbitrary subdomains with wildcard DNS/SSL
+  // This prevents access via arbitrary subdomains/domains
   const tenantExists = await validateTenantExists(tenantSlug);
 
   if (!tenantExists) {
@@ -285,14 +422,28 @@ export async function middleware(request: NextRequest) {
   response.headers.set('x-tenant-slug', tenantSlug);
   response.headers.set('x-is-root-domain', 'false');
   response.headers.set('x-tenant-validated', 'true');
+  response.headers.set('x-is-custom-domain', isCustomDomainRequest ? 'true' : 'false');
+  if (tenantId) {
+    response.headers.set('x-tenant-id', tenantId);
+  }
 
-  // Also set a cookie for client-side access
+  // Also set cookies for client-side access
   response.cookies.set('tenant-slug', tenantSlug, {
     httpOnly: false, // Allow client-side access
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
   });
+
+  // Set custom domain indicator cookie
+  if (isCustomDomainRequest) {
+    response.cookies.set('is-custom-domain', 'true', {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+    });
+  }
 
   return response;
 }
