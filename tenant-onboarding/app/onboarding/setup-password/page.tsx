@@ -81,8 +81,19 @@ function SetupPasswordContent() {
   }, [_hasHydrated, sessionId, router]);
 
   // Poll for provisioning status
-  const pollProvisioningStatus = async (slug: string, adminLoginUrl: string) => {
-    const maxAttempts = 60; // Poll for up to 2 minutes (60 * 2 seconds)
+  const pollProvisioningStatus = async (slug: string | undefined, adminLoginUrl: string) => {
+    // If no slug provided, skip polling and go directly to success
+    // This handles edge cases where tenant was created but slug wasn't returned
+    if (!slug || slug === 'undefined') {
+      devWarn('[Provisioning] No slug provided, skipping provisioning check');
+      setState('success');
+      setTimeout(() => {
+        safeRedirect(adminLoginUrl, '/');
+      }, 2000);
+      return;
+    }
+
+    const maxAttempts = 30; // Poll for up to 1 minute (30 * 2 seconds) - infrastructure usually ready quickly
     let attempts = 0;
 
     const poll = async (): Promise<boolean> => {
@@ -305,7 +316,7 @@ function SetupPasswordContent() {
               Setting Up Your Store
             </h2>
             <p className="text-foreground-tertiary mb-6">
-              We're configuring your store infrastructure. This usually takes 10-15 minutes.
+              We're configuring your store infrastructure. This usually takes less than a minute.
             </p>
 
             {/* Progress indicator */}

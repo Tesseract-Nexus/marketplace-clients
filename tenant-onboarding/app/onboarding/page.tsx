@@ -1435,7 +1435,8 @@ export default function OnboardingPage() {
       if (!emailForVerify && sessionId) {
         try {
           const session = await onboardingApi.getOnboardingSession(sessionId);
-          emailForVerify = session.contact_details?.email || session.contact_info?.email || '';
+          // Handle both legacy (contact_details/contact_info) and new (contact_information array) formats
+          emailForVerify = session.contact_details?.email || session.contact_info?.email || session.contact_information?.[0]?.email || '';
         } catch (fetchError) {
           console.error('Failed to fetch email from session:', fetchError);
         }
