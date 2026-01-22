@@ -3,6 +3,7 @@
 import React from 'react';
 import { AlertCircle, X, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ErrorState } from '@/components/ui/error-state';
 import { cn } from '@/lib/utils';
 
 interface PageErrorProps {
@@ -19,7 +20,27 @@ interface PageErrorProps {
 }
 
 /**
+ * Check if the error message indicates a permission/access error
+ */
+function isPermissionError(error: string): boolean {
+  const permissionPatterns = [
+    'admin portal access required',
+    'access denied',
+    'permission denied',
+    'forbidden',
+    'not authorized',
+    'unauthorized',
+    'insufficient permissions',
+    'access required',
+  ];
+  const lowerError = error.toLowerCase();
+  return permissionPatterns.some(pattern => lowerError.includes(pattern));
+}
+
+/**
  * Standardized page-level error component for consistent error display across all pages.
+ *
+ * Automatically detects permission errors and displays a full styled error state.
  *
  * Usage:
  * ```tsx
@@ -43,6 +64,22 @@ export function PageError({
 }: PageErrorProps) {
   if (!error) return null;
 
+  // For permission errors, show the full styled error state
+  if (isPermissionError(error)) {
+    return (
+      <ErrorState
+        type="permission_denied"
+        title="Access Restricted"
+        description={error}
+        showRetryButton={!!onRetry}
+        showHomeButton={true}
+        onRetry={onRetry}
+        className={className}
+      />
+    );
+  }
+
+  // For regular errors, show the inline error banner
   return (
     <div
       className={cn(

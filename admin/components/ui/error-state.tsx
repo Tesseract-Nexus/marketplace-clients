@@ -24,8 +24,8 @@ interface ErrorStateConfig {
 const ERROR_CONFIGS: Record<Exclude<ErrorType, 'custom'>, ErrorStateConfig> = {
   access_denied: {
     icon: ShieldX,
-    iconBgColor: 'bg-destructive/10 dark:bg-destructive/20',
-    iconColor: 'text-destructive',
+    iconBgColor: 'bg-error-muted dark:bg-error/20',
+    iconColor: 'text-error',
     title: 'Access Denied',
     description: 'You don\'t have permission to access this resource.',
   },
@@ -45,8 +45,8 @@ const ERROR_CONFIGS: Record<Exclude<ErrorType, 'custom'>, ErrorStateConfig> = {
   },
   forbidden: {
     icon: Lock,
-    iconBgColor: 'bg-destructive/10 dark:bg-destructive/20',
-    iconColor: 'text-destructive',
+    iconBgColor: 'bg-error-muted dark:bg-error/20',
+    iconColor: 'text-error',
     title: 'Forbidden',
     description: 'You are not authorized to access this area.',
   },
