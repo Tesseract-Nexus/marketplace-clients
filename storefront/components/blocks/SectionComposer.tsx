@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, type Variants } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import {
   type PageLayout,
@@ -18,7 +18,7 @@ import { usePersonalization } from '@/hooks/usePersonalization';
 // ANIMATION PRESETS
 // =============================================================================
 
-const animationVariants: Record<AnimationPreset, { hidden: object; visible: object }> = {
+const animationVariants: Record<AnimationPreset, Variants> = {
   none: { hidden: {}, visible: {} },
   fade: {
     hidden: { opacity: 0 },

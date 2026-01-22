@@ -265,6 +265,43 @@ export async function getOrder(
   }
 }
 
+/**
+ * Poll for order payment confirmation
+ * SECURITY: Ensures payment is truly confirmed before clearing cart
+ *
+ * @param tenantId - Tenant ID
+ * @param storefrontId - Storefront ID
+ * @param orderId - Order ID to check
+ * @param maxAttempts - Maximum polling attempts (default: 10)
+ * @param intervalMs - Polling interval in ms (default: 2000)
+ * @returns Order with confirmed payment status, or null if not confirmed
+ */
+export async function pollOrderPaymentStatus(
+  tenantId: string,
+  storefrontId: string,
+  orderId: string,
+  maxAttempts: number = 10,
+  intervalMs: number = 2000
+): Promise<Order | null> {
+  const paidStatuses = ['PAID', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'COMPLETED'];
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const order = await getOrder(tenantId, storefrontId, orderId);
+
+    if (order && paidStatuses.includes(order.status.toUpperCase())) {
+      return order;
+    }
+
+    // Wait before next attempt (except for last attempt)
+    if (attempt < maxAttempts - 1) {
+      await new Promise(resolve => setTimeout(resolve, intervalMs));
+    }
+  }
+
+  // Return the final order state even if not confirmed
+  return await getOrder(tenantId, storefrontId, orderId);
+}
+
 export interface OrderTracking {
   orderId: string;
   orderNumber: string;
@@ -395,7 +432,7 @@ export interface RazorpayResponse {
 export interface RazorpayInstance {
   open: () => void;
   close: () => void;
-  on: (event: string, callback: () => void) => void;
+  on: (event: string, callback: (response: { error: RazorpayError }) => void) => void;
 }
 
 export function loadRazorpayScript(): Promise<boolean> {

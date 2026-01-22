@@ -1,6 +1,11 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// SECURITY: Production runtime assertion - fail fast if dev bypass is enabled in production
+if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true') {
+  throw new Error('SECURITY: DEV_AUTH_BYPASS cannot be enabled in production. This is a critical security violation.');
+}
+
 /**
  * Subdomain-based multi-tenant middleware
  *

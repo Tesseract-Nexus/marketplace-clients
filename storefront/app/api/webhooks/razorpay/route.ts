@@ -95,11 +95,9 @@ export async function POST(request: NextRequest) {
     }
 
     if (!RAZORPAY_WEBHOOK_SECRET) {
+      // SECURITY: Always require webhook secret - fail hard in all environments
       console.error('[Razorpay Webhook] RAZORPAY_WEBHOOK_SECRET not configured');
-      // In development, allow webhooks without verification
-      if (process.env.NODE_ENV === 'production') {
-        return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 });
-      }
+      return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 });
     } else {
       // Verify signature
       const isValid = verifyWebhookSignature(body, signature, RAZORPAY_WEBHOOK_SECRET);

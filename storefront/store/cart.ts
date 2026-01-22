@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import { CartItem, CartItemStatus } from '@/types/storefront';
 import { createSessionAwareStorage } from '@/lib/session-storage';
 import {
@@ -499,8 +499,8 @@ export const useCartStore = create<CartState>()(
     {
       name: 'storefront-cart',
       // Use session-aware storage: sessionStorage + TTL for anonymous, localStorage for authenticated
-      storage: createSessionAwareStorage('storefront-cart') as unknown as import('zustand/middleware').PersistStorage<CartState>,
-      partialize: (state): Partial<CartState> => ({
+      storage: createJSONStorage(() => createSessionAwareStorage('storefront-cart')),
+      partialize: (state) => ({
         items: state.items,
         lastSyncedAt: state.lastSyncedAt,
         lastValidatedAt: state.lastValidatedAt,
@@ -509,7 +509,7 @@ export const useCartStore = create<CartState>()(
         hasUnavailableItems: state.hasUnavailableItems,
         hasPriceChanges: state.hasPriceChanges,
         expiresAt: state.expiresAt,
-      }) as CartState,
+      }),
     }
   )
 );

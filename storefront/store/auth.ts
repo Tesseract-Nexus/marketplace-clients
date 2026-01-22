@@ -7,12 +7,13 @@ export interface Customer {
   firstName: string;
   lastName: string;
   phone?: string;
-  status: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
-  customerType: 'RETAIL' | 'WHOLESALE' | 'VIP';
-  totalOrders: number;
-  totalSpent: number;
-  marketingOptIn: boolean;
-  emailVerified: boolean;
+  tenantId?: string; // Tenant the customer belongs to
+  status?: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
+  customerType?: 'RETAIL' | 'WHOLESALE' | 'VIP';
+  totalOrders?: number;
+  totalSpent?: number;
+  marketingOptIn?: boolean;
+  emailVerified?: boolean;
   createdAt: string;
 }
 
@@ -26,7 +27,7 @@ export interface AuthState {
   setCustomer: (customer: Customer | null) => void;
   setAccessToken: (token: string | null) => void;
   setLoading: (loading: boolean) => void;
-  login: (customer: Customer, token: string) => void;
+  login: (customer: Customer, token?: string) => void;
   logout: () => void;
   updateCustomer: (updates: Partial<Customer>) => void;
 }
@@ -54,7 +55,7 @@ export const useAuthStore = create<AuthState>()(
       login: (customer, token) =>
         set({
           customer,
-          accessToken: token,
+          accessToken: token || null,
           isAuthenticated: true,
           isLoading: false,
         }),

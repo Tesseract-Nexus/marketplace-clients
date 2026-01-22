@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { useTenant, useNavPath } from '@/context/TenantContext';
 import { ContentPage } from '@/types/storefront';
+import { createSanitizedHtml } from '@/lib/utils/sanitize';
 
 interface AboutPageClientProps {
   page: ContentPage | null;
@@ -54,7 +55,7 @@ function parseContentSections(content: string) {
       sections.push({ title: '', content: part });
     } else if (part.trim()) {
       const titleMatch = part.match(/^([^<]+)<\/h[23]>/i);
-      if (titleMatch) {
+      if (titleMatch?.[1]) {
         const title = titleMatch[1].trim();
         const restContent = part.replace(/^[^<]+<\/h[23]>/i, '').trim();
         sections.push({ title, content: restContent });
@@ -202,7 +203,7 @@ export function AboutPageClient({ page, tenantName }: AboutPageClientProps) {
                     </div>
                     <div
                       className="text-stone-600 dark:text-stone-400 leading-relaxed prose-editorial-sm"
-                      dangerouslySetInnerHTML={{ __html: storySection.content }}
+                      dangerouslySetInnerHTML={createSanitizedHtml(storySection.content)}
                     />
                   </div>
                 )}
@@ -219,7 +220,7 @@ export function AboutPageClient({ page, tenantName }: AboutPageClientProps) {
                     </div>
                     <div
                       className="text-stone-600 dark:text-stone-400 leading-relaxed prose-editorial-sm"
-                      dangerouslySetInnerHTML={{ __html: missionSection.content }}
+                      dangerouslySetInnerHTML={createSanitizedHtml(missionSection.content)}
                     />
                   </div>
                 )}
@@ -280,7 +281,7 @@ export function AboutPageClient({ page, tenantName }: AboutPageClientProps) {
                 </h2>
                 <div
                   className="text-stone-600 dark:text-stone-400 leading-relaxed mb-6 max-w-xl mx-auto"
-                  dangerouslySetInnerHTML={{ __html: communitySection.content }}
+                  dangerouslySetInnerHTML={createSanitizedHtml(communitySection.content)}
                 />
                 <div className="flex flex-wrap justify-center gap-4">
                   <Link

@@ -51,7 +51,8 @@ export function PaymentSearchCard({
   formatPrice,
   onClick,
 }: PaymentSearchCardProps) {
-  const statusInfo = statusConfig[status] || statusConfig.PENDING;
+  const defaultStatus = statusConfig.PENDING!;
+  const statusInfo = statusConfig[status] ?? defaultStatus;
   const StatusIcon = statusInfo.icon;
   const MethodIcon = methodIcons[paymentMethod?.toLowerCase()] || CreditCard;
 

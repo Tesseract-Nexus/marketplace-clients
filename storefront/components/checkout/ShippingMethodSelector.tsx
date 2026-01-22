@@ -137,7 +137,7 @@ export function ShippingMethodSelector({
               setUsingCarrierRates(true);
 
               // Auto-select cheapest rate
-              if (!selectedMethodId) {
+              if (!selectedMethodId && rates[0]) {
                 const cheapest = rates.reduce((min, r) => r.rate < min.rate ? r : min, rates[0]);
                 onSelect(cheapest, cheapest.rate);
               }
@@ -155,8 +155,8 @@ export function ShippingMethodSelector({
         setMethods(data);
 
         // Auto-select first method if none selected
-        if (data.length > 0 && !selectedMethodId) {
-          const firstMethod = data[0]!;
+        const firstMethod = data[0];
+        if (firstMethod && !selectedMethodId) {
           const cost = calculateShippingCost(firstMethod, orderSubtotal);
           onSelect(firstMethod, cost);
         }

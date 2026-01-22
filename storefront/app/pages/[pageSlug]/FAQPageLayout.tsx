@@ -3,6 +3,7 @@
 import { ContentPage } from '@/types/storefront';
 import { ChevronDown, Search, MessageCircle, HelpCircle } from 'lucide-react';
 import { useState, useMemo } from 'react';
+import { createSanitizedHtml } from '@/lib/utils/sanitize';
 
 interface FAQPageLayoutProps {
   page: ContentPage;
@@ -27,8 +28,8 @@ function parseFAQItems(content: string): FAQItem[] {
 
   // Try h3 pattern first
   while ((matches = h3Pattern.exec(content)) !== null) {
-    const question = matches[1].replace(/<[^>]+>/g, '').trim();
-    const answer = matches[2].replace(/<\/?p[^>]*>/g, '').trim();
+    const question = matches[1]?.replace(/<[^>]+>/g, '').trim() ?? '';
+    const answer = matches[2]?.replace(/<\/?p[^>]*>/g, '').trim() ?? '';
     if (question && answer) {
       items.push({ question, answer });
     }
@@ -37,8 +38,8 @@ function parseFAQItems(content: string): FAQItem[] {
   // If no h3 matches, try strong pattern
   if (items.length === 0) {
     while ((matches = strongPattern.exec(content)) !== null) {
-      const question = matches[1].replace(/<[^>]+>/g, '').trim();
-      const answer = matches[2].replace(/<\/?p[^>]*>/g, '').replace(/<[^>]+>/g, '').trim();
+      const question = matches[1]?.replace(/<[^>]+>/g, '').trim() ?? '';
+      const answer = matches[2]?.replace(/<\/?p[^>]*>/g, '').replace(/<[^>]+>/g, '').trim() ?? '';
       if (question && answer) {
         items.push({ question, answer });
       }
@@ -51,9 +52,9 @@ function parseFAQItems(content: string): FAQItem[] {
     const lines = textContent.split('\n').filter(l => l.trim());
 
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
+      const line = lines[i]?.trim() ?? '';
       if (line.endsWith('?')) {
-        const answer = lines[i + 1]?.trim() || '';
+        const answer = lines[i + 1]?.trim() ?? '';
         if (answer && !answer.endsWith('?')) {
           items.push({ question: line, answer });
           i++; // Skip the answer line
@@ -203,7 +204,7 @@ export function FAQPageLayout({ page }: FAQPageLayoutProps) {
           <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm p-8">
             <article
               className="prose-editorial"
-              dangerouslySetInnerHTML={{ __html: page.content }}
+              dangerouslySetInnerHTML={createSanitizedHtml(page.content)}
             />
           </div>
         )}

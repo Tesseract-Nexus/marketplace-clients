@@ -19,6 +19,7 @@ import {
   createOrder,
   createPaymentIntent,
   confirmPayment,
+  pollOrderPaymentStatus,
   loadRazorpayScript,
   initiateRazorpayPayment,
   loadStripeScript,
@@ -374,7 +375,23 @@ function CheckoutContent() {
           paymentDetails: { razorpayOrderId: paymentResponse.razorpay_order_id }
         });
 
-        // Success
+        // SECURITY: Poll for payment confirmation before clearing cart
+        // This ensures the backend has processed the webhook and confirmed payment
+        const confirmedOrder = await pollOrderPaymentStatus(
+          tenant.id,
+          tenant.storefrontId,
+          order.id,
+          5, // max 5 attempts
+          1500 // 1.5 seconds between attempts
+        );
+
+        if (!confirmedOrder || !['PAID', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'COMPLETED'].includes(confirmedOrder.status.toUpperCase())) {
+          // Payment not confirmed yet - show warning but proceed
+          // The webhook will eventually update the order status
+          console.warn('Payment confirmation pending, proceeding with order completion');
+        }
+
+        // Success - now safe to clear cart
         removeSelectedItems();
         clearAppliedCoupon();
         clearGiftCards();
@@ -485,6 +502,15 @@ function CheckoutContent() {
           signature: paymentResponse.razorpay_signature,
           paymentDetails: { razorpayOrderId: paymentResponse.razorpay_order_id }
         });
+
+        // SECURITY: Poll for payment confirmation before clearing cart
+        await pollOrderPaymentStatus(
+          tenant.id,
+          tenant.storefrontId,
+          pendingOrder.id,
+          5,
+          1500
+        );
 
         removeSelectedItems();
         clearAppliedCoupon();

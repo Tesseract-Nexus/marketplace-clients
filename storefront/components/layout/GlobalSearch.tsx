@@ -365,7 +365,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
         const nextIndex = e.shiftKey
           ? (currentIndex - 1 + visibleTabs.length) % visibleTabs.length
           : (currentIndex + 1) % visibleTabs.length;
-        setActiveTab(visibleTabs[nextIndex].id);
+        setActiveTab(visibleTabs[nextIndex]?.id ?? 'all');
         setSelectedIndex(0);
       }
     },

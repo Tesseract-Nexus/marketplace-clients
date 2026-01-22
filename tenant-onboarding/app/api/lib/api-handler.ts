@@ -193,10 +193,11 @@ export function rateLimit(identifier: string): boolean {
 }
 
 // Middleware: Request validation
+// NOTE: Authentication is handled by upstream services (API Gateway/Ingress).
+// This BFF does NOT perform JWT validation - it trusts the upstream auth layer.
 export function validateRequest(
   request: NextRequest,
   options: {
-    requireAuth?: boolean;
     rateLimit?: boolean;
   } = {}
 ): NextResponse | null {
@@ -206,15 +207,6 @@ export function validateRequest(
     if (!rateLimit(ip)) {
       return errorResponse('Rate limit exceeded. Please try again later.', 429);
     }
-  }
-
-  // Auth check (placeholder - implement your auth logic)
-  if (options.requireAuth) {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader) {
-      return errorResponse('Unauthorized. Authentication required.', 401);
-    }
-    // TODO: Validate JWT token here
   }
 
   return null; // No validation errors

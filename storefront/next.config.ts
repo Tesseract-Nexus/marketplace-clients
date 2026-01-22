@@ -10,10 +10,10 @@ const nextConfig: NextConfig = {
   // Enable React strict mode
   reactStrictMode: true,
 
-  // Ignore TypeScript errors during production build (for CI/CD speed)
-  // Type checking should be done separately in CI
+  // SECURITY: TypeScript errors must be fixed - no ignoring in production builds
+  // Type safety is critical for preventing runtime errors and security issues
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
 
   // Image optimization configuration

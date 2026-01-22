@@ -145,12 +145,12 @@ export function usePersonalization() {
       }
 
       // Check for frequent buyer based on order count
-      if (customer.totalOrders >= 5) {
+      if ((customer.totalOrders ?? 0) >= 5) {
         cohorts.push('frequent-buyer');
       }
 
       // Check for high value based on total spend
-      if (customer.totalSpent >= 1000) {
+      if ((customer.totalSpent ?? 0) >= 1000) {
         cohorts.push('high-value');
       }
     } else {

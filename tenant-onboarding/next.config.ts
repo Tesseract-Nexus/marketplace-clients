@@ -24,7 +24,7 @@ const nextConfig: NextConfig = {
     // Content Security Policy
     const cspDirectives = [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      "script-src 'self' 'unsafe-inline'", // SECURITY: unsafe-eval removed for production safety
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://storage.googleapis.com https://*.tesserix.app https://images.unsplash.com",
       "font-src 'self' data:",

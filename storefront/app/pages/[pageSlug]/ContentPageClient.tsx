@@ -3,6 +3,7 @@
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { ContentPage } from '@/types/storefront';
 import { FileText, Scale, HelpCircle, Building2, Mail, Calendar, ArrowLeft, Clock } from 'lucide-react';
+import { createSanitizedHtml } from '@/lib/utils/sanitize';
 import { ContactPageLayout } from './ContactPageLayout';
 import { AboutPageLayout } from './AboutPageLayout';
 import { FAQPageLayout } from './FAQPageLayout';
@@ -146,13 +147,13 @@ export function ContentPageClient({ page }: ContentPageClientProps) {
             <div className="bg-white dark:bg-stone-900 rounded-lg border border-stone-200 dark:border-stone-800 shadow-sm p-8 md:p-12">
               <article
                 className="prose-editorial"
-                dangerouslySetInnerHTML={{ __html: page.content }}
+                dangerouslySetInnerHTML={createSanitizedHtml(page.content)}
               />
             </div>
           ) : (
             <article
               className="prose-editorial"
-              dangerouslySetInnerHTML={{ __html: page.content }}
+              dangerouslySetInnerHTML={createSanitizedHtml(page.content)}
             />
           )}
         </main>

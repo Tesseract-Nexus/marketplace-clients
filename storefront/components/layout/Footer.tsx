@@ -8,7 +8,7 @@ import { useTenant, useFooterConfig, useNavPath } from '@/context/TenantContext'
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 
 // Social icon components with brand colors on hover
-const SOCIAL_ICONS: Record<string, { icon: React.ComponentType<{ className?: string }> | (() => JSX.Element); hoverColor: string; label: string }> = {
+const SOCIAL_ICONS: Record<string, { icon: React.ComponentType<{ className?: string }> | (() => React.JSX.Element); hoverColor: string; label: string }> = {
   facebook: {
     icon: Facebook,
     hoverColor: 'hover:bg-[#1877F2] hover:border-[#1877F2]',

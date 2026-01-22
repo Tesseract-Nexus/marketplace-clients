@@ -10,6 +10,7 @@ export interface TenantHostInfo {
   status: string;
   is_custom_domain?: boolean;
   primary_domain?: string;
+  name?: string; // Optional tenant display name
 }
 
 /**

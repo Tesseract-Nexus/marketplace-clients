@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select';
 import { useTenant } from '@/context/TenantContext';
 import { ContentPage } from '@/types/storefront';
+import { createSanitizedHtml } from '@/lib/utils/sanitize';
 
 interface ContactPageClientProps {
   page: ContentPage | null;
@@ -72,15 +73,15 @@ function extractContactInfo(content: string) {
 
   // Extract email
   const emailMatch = content.match(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/);
-  if (emailMatch) info.email = emailMatch[1];
+  if (emailMatch) info.email = emailMatch[1] ?? '';
 
   // Extract phone
   const phoneMatch = content.match(/(\+?1?[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}|1-800-[A-Z0-9-]+)/i);
-  if (phoneMatch) info.phone = phoneMatch[1];
+  if (phoneMatch) info.phone = phoneMatch[1] ?? '';
 
   // Extract business email if different
   const businessEmailMatch = content.match(/business[^:]*:\s*([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/i);
-  if (businessEmailMatch) info.businessEmail = businessEmailMatch[1];
+  if (businessEmailMatch) info.businessEmail = businessEmailMatch[1] ?? '';
 
   return info;
 }
@@ -399,7 +400,7 @@ export function ContactPageClient({ page, tenantName }: ContactPageClientProps) 
                       <summary className="cursor-pointer text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-300 transition-colors">
                         Additional Information
                       </summary>
-                      <div className="mt-4 pt-4 border-t border-stone-200 dark:border-stone-800" dangerouslySetInnerHTML={{ __html: page.content }} />
+                      <div className="mt-4 pt-4 border-t border-stone-200 dark:border-stone-800" dangerouslySetInnerHTML={createSanitizedHtml(page.content)} />
                     </details>
                   </div>
                 )}

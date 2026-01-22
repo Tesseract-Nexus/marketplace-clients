@@ -161,7 +161,7 @@ export function LoyaltyPointsRedemption({
 
               <Slider
                 value={[pointsToRedeem]}
-                onValueChange={([value]) => setPointsToRedeem(value)}
+                onValueChange={([value]) => setPointsToRedeem(value ?? 0)}
                 max={maxRedeemable}
                 step={minimumRedemption > 0 ? minimumRedemption : 10}
                 disabled={disabled || maxRedeemable < minimumRedemption}

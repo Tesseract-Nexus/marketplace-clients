@@ -157,19 +157,19 @@ export function ImageLightbox({
       if (e.touches.length === 1) {
         // Single touch - pan
         touchStart.current = {
-          x: e.touches[0].clientX,
-          y: e.touches[0].clientY,
+          x: e.touches[0]?.clientX ?? 0,
+          y: e.touches[0]?.clientY ?? 0,
         };
         lastPosition.current = position;
       } else if (e.touches.length === 2) {
         // Pinch zoom
         const distance = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
+          (e.touches[0]?.clientX ?? 0) - (e.touches[1]?.clientX ?? 0),
+          (e.touches[0]?.clientY ?? 0) - (e.touches[1]?.clientY ?? 0)
         );
         touchStart.current = {
-          x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
-          y: (e.touches[0].clientY + e.touches[1].clientY) / 2,
+          x: ((e.touches[0]?.clientX ?? 0) + (e.touches[1]?.clientX ?? 0)) / 2,
+          y: ((e.touches[0]?.clientY ?? 0) + (e.touches[1]?.clientY ?? 0)) / 2,
           distance,
         };
       }
@@ -183,8 +183,8 @@ export function ImageLightbox({
 
       if (e.touches.length === 1 && scale > 1) {
         // Pan
-        const deltaX = e.touches[0].clientX - touchStart.current.x;
-        const deltaY = e.touches[0].clientY - touchStart.current.y;
+        const deltaX = (e.touches[0]?.clientX ?? 0) - touchStart.current.x;
+        const deltaY = (e.touches[0]?.clientY ?? 0) - touchStart.current.y;
         setPosition({
           x: lastPosition.current.x + deltaX,
           y: lastPosition.current.y + deltaY,
@@ -192,8 +192,8 @@ export function ImageLightbox({
       } else if (e.touches.length === 2 && touchStart.current.distance) {
         // Pinch zoom
         const newDistance = Math.hypot(
-          e.touches[0].clientX - e.touches[1].clientX,
-          e.touches[0].clientY - e.touches[1].clientY
+          (e.touches[0]?.clientX ?? 0) - (e.touches[1]?.clientX ?? 0),
+          (e.touches[0]?.clientY ?? 0) - (e.touches[1]?.clientY ?? 0)
         );
         const scaleChange = newDistance / touchStart.current.distance;
         const newScale = Math.min(Math.max(scale * scaleChange, 1), 4);
@@ -242,9 +242,8 @@ export function ImageLightbox({
     [zoomIn, zoomOut]
   );
 
-  if (!isOpen || images.length === 0) return null;
-
   const currentImage = images[currentIndex];
+  if (!isOpen || images.length === 0 || !currentImage) return null;
 
   return (
     <AnimatePresence>

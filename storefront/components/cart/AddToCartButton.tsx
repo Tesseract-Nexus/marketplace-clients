@@ -3,13 +3,13 @@
 import { useState, useCallback } from 'react';
 import { ShoppingCart, Check, Plus, Minus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Button, ButtonProps } from '@/components/ui/button';
+import { Button, type ButtonProps } from '@/components/ui/button';
 import { useOptimisticCart } from '@/hooks/useOptimisticCart';
 import { CartItem } from '@/types/storefront';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 import { cn } from '@/lib/utils';
 
-interface AddToCartButtonProps extends Omit<ButtonProps, 'onClick'> {
+interface AddToCartButtonProps extends Omit<ButtonProps, 'onClick' | 'variant'> {
   /** Product data to add to cart */
   product: Omit<CartItem, 'id' | 'quantity'>;
   /** Initial quantity to add (default: 1) */

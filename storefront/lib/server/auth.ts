@@ -28,6 +28,9 @@ export function decodeJwtPayload(token: string): TokenPayload | null {
 
     // Decode the payload (second part)
     const payload = parts[1];
+    if (!payload) {
+      return null;
+    }
     // Handle base64url encoding
     const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
     const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);

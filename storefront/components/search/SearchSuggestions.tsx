@@ -179,7 +179,7 @@ export function SearchSuggestions({
       case 'Enter':
         if (highlightedIndex >= 0 && highlightedIndex < suggestions.length) {
           e.preventDefault();
-          handleSearch(suggestions[highlightedIndex].text);
+          handleSearch(suggestions[highlightedIndex]?.text ?? '');
         }
         break;
       case 'Escape':

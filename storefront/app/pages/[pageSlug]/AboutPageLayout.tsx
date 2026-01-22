@@ -2,6 +2,7 @@
 
 import { ContentPage } from '@/types/storefront';
 import { Target, Heart, Sparkles, Users, CheckCircle2, ArrowRight, Quote } from 'lucide-react';
+import { createSanitizedHtml } from '@/lib/utils/sanitize';
 
 interface AboutPageLayoutProps {
   page: ContentPage;
@@ -21,7 +22,7 @@ function parseContentSections(content: string) {
     } else if (part.trim()) {
       // Extract title from closing tag
       const titleMatch = part.match(/^([^<]+)<\/h[23]>/i);
-      if (titleMatch) {
+      if (titleMatch?.[1]) {
         const title = titleMatch[1].trim();
         const restContent = part.replace(/^[^<]+<\/h[23]>/i, '').trim();
         sections.push({ title, content: restContent });
@@ -112,7 +113,7 @@ export function AboutPageLayout({ page }: AboutPageLayoutProps) {
                 </div>
                 <div
                   className="text-stone-600 dark:text-stone-400 leading-relaxed prose-editorial-sm"
-                  dangerouslySetInnerHTML={{ __html: storySection.content }}
+                  dangerouslySetInnerHTML={createSanitizedHtml(storySection.content)}
                 />
               </div>
             )}
@@ -130,7 +131,7 @@ export function AboutPageLayout({ page }: AboutPageLayoutProps) {
                 </div>
                 <div
                   className="text-stone-600 dark:text-stone-400 leading-relaxed prose-editorial-sm"
-                  dangerouslySetInnerHTML={{ __html: missionSection.content }}
+                  dangerouslySetInnerHTML={createSanitizedHtml(missionSection.content)}
                 />
               </div>
             )}
@@ -210,7 +211,7 @@ export function AboutPageLayout({ page }: AboutPageLayoutProps) {
             </h2>
             <div
               className="text-stone-600 dark:text-stone-400 leading-relaxed mb-6 max-w-xl mx-auto"
-              dangerouslySetInnerHTML={{ __html: communitySection.content }}
+              dangerouslySetInnerHTML={createSanitizedHtml(communitySection.content)}
             />
             <div className="flex flex-wrap justify-center gap-4">
               <a

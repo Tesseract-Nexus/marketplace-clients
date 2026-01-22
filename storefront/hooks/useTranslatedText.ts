@@ -58,9 +58,12 @@ function saveCache(): void {
     const startIndex = Math.max(0, cacheArray.length - MAX_CACHE_SIZE);
 
     for (let i = startIndex; i < cacheArray.length; i++) {
-      const [key, text] = cacheArray[i];
-      entries[key] = { text, timestamp: now };
-      count++;
+      const entry = cacheArray[i];
+      if (entry) {
+        const [key, text] = entry;
+        entries[key] = { text, timestamp: now };
+        count++;
+      }
     }
 
     const data: TranslationCacheData = {
@@ -137,8 +140,10 @@ function getLanguageFromStorage(): string {
 }
 
 // Notify listeners when language changes (call this from LanguageSelector or TranslationContext)
-export function notifyLanguageChange() {
-  languageStorageListeners.forEach((listener) => listener());
+export function notifyLanguageChange(): void {
+  for (const listener of languageStorageListeners) {
+    listener();
+  }
 }
 
 export function useTranslatedText(

@@ -6,7 +6,7 @@ const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
 
 // Helper to get env var with fallback
 // During build time: always use fallback to allow build to complete
-// During runtime in production: log warning if using fallback
+// During runtime in production: throw error if using localhost fallback
 function getEnv(serverKey: string, publicKey: string, devFallback: string): string {
   const value = process.env[serverKey] || process.env[publicKey];
   if (value) return value;
@@ -22,10 +22,11 @@ function getEnv(serverKey: string, publicKey: string, devFallback: string): stri
     return devFallback;
   }
 
-  // In production runtime, log warning but use fallback
-  // (actual validation happens when service is actually used)
-  console.warn(`[Config] Missing ${serverKey}/${publicKey} in production, using fallback`);
-  return devFallback;
+  // SECURITY: In production runtime, fail fast - no localhost fallbacks allowed
+  throw new Error(
+    `Missing required environment variable: ${serverKey} or ${publicKey}. ` +
+    `Production deployments must have all service URLs configured.`
+  );
 }
 
 export const config = {
@@ -77,6 +78,7 @@ export type Config = typeof config;
  * Validate that required service URLs are configured
  * Call this at runtime (e.g., in API routes) to ensure config is valid
  * before making external service calls
+ * SECURITY: In production, throws error if any service uses localhost
  */
 export function validateConfig(): void {
   const requiredServices = [
@@ -88,18 +90,20 @@ export function validateConfig(): void {
     'paymentService',
   ] as const;
 
-  const missing: string[] = [];
+  const localhostServices: string[] = [];
 
   for (const service of requiredServices) {
     const url = config.api[service];
     // Check if it's still using localhost fallback in production
     if (!isDev && url.includes('localhost')) {
-      missing.push(service);
+      localhostServices.push(service);
     }
   }
 
-  if (missing.length > 0) {
-    console.error('[Config] Production environment using localhost fallbacks for:', missing.join(', '));
-    console.error('[Config] Please configure these environment variables for production deployment');
+  if (localhostServices.length > 0) {
+    const message = `[Config] SECURITY ERROR: Production environment has localhost URLs for: ${localhostServices.join(', ')}. ` +
+      'All service URLs must be properly configured for production deployment.';
+    console.error(message);
+    throw new Error(message);
   }
 }

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, createJSONStorage } from 'zustand/middleware';
 import {
   getWishlist,
   addToWishlist as addToWishlistApi,
@@ -176,7 +176,7 @@ export const useWishlistStore = create<WishlistState>()(
     {
       name: 'storefront-wishlist',
       // Use session-aware storage: sessionStorage + TTL for anonymous, localStorage for authenticated
-      storage: createSessionAwareStorage('storefront-wishlist') as unknown as import('zustand/middleware').PersistStorage<WishlistState>,
+      storage: createJSONStorage(() => createSessionAwareStorage('storefront-wishlist')),
       partialize: (state): Partial<WishlistState> => ({ items: state.items, lastSyncedAt: state.lastSyncedAt }) as WishlistState,
     }
   )

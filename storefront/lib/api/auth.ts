@@ -340,6 +340,7 @@ export async function getCsrfToken(): Promise<string | null> {
 export interface DirectAuthResponse {
   success: boolean;
   authenticated?: boolean;
+  registered?: boolean; // true if user was newly registered
   user?: {
     id: string;
     email: string;

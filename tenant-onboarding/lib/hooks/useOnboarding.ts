@@ -247,41 +247,16 @@ export const useOnboarding = (options: UseOnboardingOptions = {}) => {
     }
   }, [sessionId, contactDetails.email, setEmailVerified, setLoading, setError]);
 
+  // DISABLED: Phone verification feature is not implemented
+  // The backend API for phone verification does not exist yet.
+  // These functions throw errors to prevent usage until properly implemented.
   const sendPhoneVerification = useCallback(async () => {
-    if (!sessionId) {
-      throw new Error('No onboarding session found');
-    }
+    throw new Error('Phone verification is not available. This feature is coming soon.');
+  }, []);
 
-    try {
-      setLoading(true);
-      // TODO: Implement phone verification API
-      console.warn('Phone verification not yet implemented');
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Failed to send phone verification';
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [sessionId, setLoading, setError]);
-
-  const verifyPhone = useCallback(async (code: string) => {
-    if (!sessionId) {
-      throw new Error('No onboarding session found');
-    }
-
-    try {
-      setLoading(true);
-      await onboardingApi.verifyPhone(sessionId, code);
-      setPhoneVerified(true);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Invalid verification code';
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setLoading(false);
-    }
-  }, [sessionId, setPhoneVerified, setLoading, setError]);
+  const verifyPhone = useCallback(async (_code: string) => {
+    throw new Error('Phone verification is not available. This feature is coming soon.');
+  }, []);
 
   return {
     // State

@@ -43,7 +43,8 @@ export function OrderSearchCard({
   formatPrice,
   onClick,
 }: OrderSearchCardProps) {
-  const statusInfo = statusConfig[status] || statusConfig.PENDING;
+  const defaultStatus = statusConfig.PENDING!;
+  const statusInfo = statusConfig[status] ?? defaultStatus;
   const StatusIcon = statusInfo.icon;
 
   const formattedDate = new Date(createdAt).toLocaleDateString('en-US', {

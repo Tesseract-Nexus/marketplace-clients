@@ -166,7 +166,8 @@ export function CheckoutProvider({ children, isAuthenticated = false, customerEm
 
     // Can go forward only if previous steps are completed
     for (let i = 0; i < targetIndex; i++) {
-      if (!state.completedSteps.includes(STEPS_ORDER[i])) {
+      const step = STEPS_ORDER[i];
+      if (step && !state.completedSteps.includes(step)) {
         return false;
       }
     }
@@ -183,7 +184,7 @@ export function CheckoutProvider({ children, isAuthenticated = false, customerEm
   const nextStep = useCallback(() => {
     const currentIndex = getStepIndex(state.currentStep);
     if (currentIndex < STEPS_ORDER.length - 1) {
-      const nextStepValue = STEPS_ORDER[currentIndex + 1];
+      const nextStepValue = STEPS_ORDER[currentIndex + 1] as CheckoutStep;
       setState((prev) => ({
         ...prev,
         currentStep: nextStepValue,
@@ -201,7 +202,7 @@ export function CheckoutProvider({ children, isAuthenticated = false, customerEm
     if (currentIndex > 0) {
       setState((prev) => ({
         ...prev,
-        currentStep: STEPS_ORDER[currentIndex - 1],
+        currentStep: STEPS_ORDER[currentIndex - 1] as CheckoutStep,
         error: null,
       }));
       window.scrollTo({ top: 0, behavior: 'smooth' });

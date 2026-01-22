@@ -374,13 +374,15 @@ export function sortRatesByFastest(rates: ShippingRate[]): ShippingRate[] {
 }
 
 export function getCheapestRate(rates: ShippingRate[]): ShippingRate | undefined {
-  if (rates.length === 0) return undefined;
-  return rates.reduce((min, rate) => (rate.rate < min.rate ? rate : min), rates[0]);
+  const first = rates[0];
+  if (rates.length === 0 || !first) return undefined;
+  return rates.reduce((min, rate) => (rate.rate < min.rate ? rate : min), first);
 }
 
 export function getFastestRate(rates: ShippingRate[]): ShippingRate | undefined {
-  if (rates.length === 0) return undefined;
-  return rates.reduce((min, rate) => (rate.estimatedDays < min.estimatedDays ? rate : min), rates[0]);
+  const first = rates[0];
+  if (rates.length === 0 || !first) return undefined;
+  return rates.reduce((min, rate) => (rate.estimatedDays < min.estimatedDays ? rate : min), first);
 }
 
 // ========================================
