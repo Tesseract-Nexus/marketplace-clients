@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { PageHeader } from '@/components/PageHeader';
 import { useTenant } from '@/contexts/TenantContext';
+import { useUser } from '@/contexts/UserContext';
 import { Label } from '@/components/ui/label';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 
@@ -34,6 +35,7 @@ interface Testimonial {
 
 export default function TestimonialSettingsPage() {
   const { currentTenant } = useTenant();
+  const { user } = useUser();
   const [testimonial, setTestimonial] = useState<Testimonial | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,13 +43,13 @@ export default function TestimonialSettingsPage() {
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Form state
+  // Form state - rating starts at 0 (unset)
   const [formData, setFormData] = useState({
     quote: '',
     name: '',
     role: '',
     company: '',
-    rating: 5,
+    rating: 0,
   });
 
   // Fetch existing testimonial
@@ -86,15 +88,17 @@ export default function TestimonialSettingsPage() {
     fetchTestimonial();
   }, [currentTenant?.id, currentTenant?.name]);
 
-  // Pre-fill company name from tenant
+  // Pre-fill form from user and tenant context (only if no existing testimonial)
   useEffect(() => {
-    if (!testimonial && currentTenant?.name) {
+    if (!testimonial) {
       setFormData(prev => ({
         ...prev,
-        company: currentTenant.name,
+        name: user?.displayName || `${user?.firstName || ''} ${user?.lastName || ''}`.trim() || prev.name,
+        role: user?.jobTitle || prev.role,
+        company: currentTenant?.name || prev.company,
       }));
     }
-  }, [currentTenant?.name, testimonial]);
+  }, [currentTenant?.name, user?.displayName, user?.firstName, user?.lastName, user?.jobTitle, testimonial]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -172,24 +176,29 @@ export default function TestimonialSettingsPage() {
 
   const renderStars = (rating: number, interactive = false) => {
     return (
-      <div className="flex items-center gap-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <button
-            key={star}
-            type={interactive ? 'button' : undefined}
-            disabled={!interactive}
-            onClick={interactive ? () => setFormData(prev => ({ ...prev, rating: star })) : undefined}
-            className={`${interactive ? 'cursor-pointer hover:scale-110 transition-transform' : 'cursor-default'}`}
-          >
-            <Star
-              className={`h-6 w-6 ${
-                star <= rating
-                  ? 'fill-amber-400 text-amber-400'
-                  : 'fill-gray-200 text-gray-200'
-              }`}
-            />
-          </button>
-        ))}
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type={interactive ? 'button' : undefined}
+              disabled={!interactive}
+              onClick={interactive ? () => setFormData(prev => ({ ...prev, rating: star })) : undefined}
+              className={`${interactive ? 'cursor-pointer hover:scale-110 transition-transform' : 'cursor-default'}`}
+            >
+              <Star
+                className={`h-6 w-6 ${
+                  star <= rating
+                    ? 'fill-amber-400 text-amber-400'
+                    : 'fill-gray-200 text-gray-200'
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+        {interactive && rating === 0 && (
+          <span className="text-sm text-muted-foreground">Click to rate</span>
+        )}
       </div>
     );
   };
