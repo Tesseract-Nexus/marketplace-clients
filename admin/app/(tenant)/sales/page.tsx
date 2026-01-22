@@ -314,7 +314,7 @@ export default function SalesDashboardPage() {
       <div
         className={cn(
           'flex items-center gap-1 text-sm font-semibold',
-          isPositive ? 'text-success' : 'text-destructive'
+          isPositive ? 'text-success' : 'text-error'
         )}
       >
         {isPositive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}

@@ -181,9 +181,9 @@ export default function CouponsPage() {
     if (days === null) return null;
 
     if (days < 0) {
-      return { text: 'Expired', color: 'text-destructive bg-destructive/10', urgent: true };
+      return { text: 'Expired', color: 'text-error bg-error-muted', urgent: true };
     } else if (days === 0) {
-      return { text: 'Expires today!', color: 'text-destructive bg-destructive/10', urgent: true };
+      return { text: 'Expires today!', color: 'text-error bg-error-muted', urgent: true };
     } else if (days === 1) {
       return { text: 'Expires tomorrow', color: 'text-warning bg-warning-muted', urgent: true };
     } else if (days <= 7) {
@@ -200,7 +200,7 @@ export default function CouponsPage() {
   };
 
   const getUsageColor = (percentage: number): string => {
-    if (percentage >= 90) return 'bg-destructive/100';
+    if (percentage >= 90) return 'bg-error';
     if (percentage >= 75) return 'bg-warning';
     if (percentage >= 50) return 'bg-warning';
     return 'bg-success';
@@ -225,8 +225,8 @@ export default function CouponsPage() {
       label: "Expired",
       value: coupons.filter(c => c.status === 'EXPIRED').length,
       icon: XCircle,
-      textColor: "text-destructive",
-      bgColor: "bg-destructive/10"
+      textColor: "text-error",
+      bgColor: "bg-error-muted"
     },
     {
       label: "Total Uses",
@@ -542,7 +542,7 @@ export default function CouponsPage() {
                       </Button>
                       <Button
                         onClick={() => handleDeleteCoupon(coupon.id)}
-                        className="h-7 w-7 p-0 rounded-md bg-muted hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                        className="h-7 w-7 p-0 rounded-md bg-muted hover:bg-error-muted text-muted-foreground hover:text-error transition-colors"
                         variant="ghost"
                         title="Delete coupon"
                       >

@@ -252,7 +252,7 @@ export default function UsersHubPage() {
       'bg-accent',
       'bg-warning',
       'bg-info',
-      'bg-destructive',
+      'bg-error',
     ];
     const charCode = name.charCodeAt(0) || 0;
     return colors[charCode % colors.length];
@@ -359,12 +359,12 @@ export default function UsersHubPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground font-medium">Disabled</p>
-                <p className="text-3xl font-bold text-destructive mt-2">
+                <p className="text-3xl font-bold text-error mt-2">
                   {disabledUsers}
                 </p>
               </div>
-              <div className="w-12 h-12 bg-destructive/10 rounded-lg flex items-center justify-center">
-                <XCircle className="h-6 w-6 text-destructive" />
+              <div className="w-12 h-12 bg-error-muted rounded-lg flex items-center justify-center">
+                <XCircle className="h-6 w-6 text-error" />
               </div>
             </div>
           </div>
@@ -513,7 +513,7 @@ export default function UsersHubPage() {
                               'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border cursor-pointer transition-colors',
                               user.accountEnabled
                                 ? 'bg-success-muted text-success-foreground border-success/30 hover:bg-success/20'
-                                : 'bg-destructive/10 text-destructive border-destructive/30 hover:bg-destructive/20'
+                                : 'bg-error-muted text-error border-error/30 hover:bg-error/20'
                             )}
                           >
                             {user.accountEnabled ? (
@@ -552,11 +552,11 @@ export default function UsersHubPage() {
                                 setSelectedUser(user);
                                 setShowDeleteModal(true);
                               }}
-                              className="h-8 w-8 p-0 rounded-lg hover:bg-destructive/10 transition-colors"
+                              className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                               title="Delete"
                               aria-label="Delete user"
                             >
-                              <Trash2 className="w-4 h-4 text-destructive" aria-hidden="true" />
+                              <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                             </Button>
                           </div>
                         </td>

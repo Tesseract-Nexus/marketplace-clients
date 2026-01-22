@@ -148,9 +148,9 @@ export default function AccountSettingsPage() {
 
         {/* Danger Zone */}
         {isOwner && (
-          <div className="bg-card rounded-xl border-2 border-destructive/30 p-6 shadow-sm">
+          <div className="bg-card rounded-xl border-2 border-error/30 p-6 shadow-sm">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-destructive/10 rounded-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-error-muted rounded-lg flex items-center justify-center">
                 <AlertTriangle className="h-6 w-6 text-error" />
               </div>
               <div>

@@ -344,7 +344,7 @@ export function CarrierRegionsTab() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDelete(region.id)}
-                        className="hover:bg-destructive/10 hover:text-destructive"
+                        className="hover:bg-error-muted hover:text-error"
                         title="Delete Region"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -371,7 +371,7 @@ export function CarrierRegionsTab() {
             <div className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-foreground mb-2">
-                  Country <span className="text-destructive">*</span>
+                  Country <span className="text-error">*</span>
                 </label>
                 {editingRegion ? (
                   <div className="px-4 py-3 border-2 border-border rounded-xl bg-muted text-foreground font-medium">

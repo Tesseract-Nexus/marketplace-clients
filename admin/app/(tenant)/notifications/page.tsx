@@ -71,7 +71,7 @@ const priorityColors: Record<string, string> = {
   low: 'bg-muted text-foreground',
   normal: 'bg-primary/20 text-primary',
   high: 'bg-warning-muted text-warning',
-  urgent: 'bg-destructive/10 text-destructive',
+  urgent: 'bg-error-muted text-error',
 };
 
 // Generate navigation URL based on notification type and entity
@@ -437,7 +437,7 @@ export default function NotificationsPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            className="h-8 w-8 text-error hover:text-error hover:bg-error-muted"
                             onClick={(e) => {
                               e.stopPropagation();
                               e.preventDefault();

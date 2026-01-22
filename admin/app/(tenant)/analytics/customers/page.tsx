@@ -118,7 +118,7 @@ export default function CustomerAnalyticsPage() {
   const getRecencyBadgeClass = (days: number) => {
     if (days <= 30) return 'bg-success-muted text-success-foreground border-success/30';
     if (days <= 90) return 'bg-warning-muted text-warning border-warning/30';
-    return 'bg-destructive/10 text-destructive border-destructive/30';
+    return 'bg-error-muted text-error border-error/30';
   };
 
   const getRecencyLabel = (days: number) => {
@@ -529,7 +529,7 @@ export default function CustomerAnalyticsPage() {
                                   'inline-flex px-2 py-1 text-xs font-medium rounded',
                                   rate >= 50 ? 'bg-success-muted text-success-foreground' :
                                   rate >= 25 ? 'bg-warning-muted text-warning' :
-                                  'bg-destructive/10 text-destructive'
+                                  'bg-error-muted text-error'
                                 )}>
                                   {rate.toFixed(1)}%
                                 </span>

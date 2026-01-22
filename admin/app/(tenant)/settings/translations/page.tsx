@@ -454,7 +454,7 @@ export default function TranslationSettingsPage() {
                   size="sm"
                   onClick={handleClearCache}
                   disabled={clearingCache}
-                  className="flex items-center gap-2 text-destructive hover:text-destructive hover:border-destructive/30"
+                  className="flex items-center gap-2 text-error hover:text-error hover:border-error/30"
                 >
                   {clearingCache ? (
                     <Loader2 className="h-4 w-4 animate-spin" />

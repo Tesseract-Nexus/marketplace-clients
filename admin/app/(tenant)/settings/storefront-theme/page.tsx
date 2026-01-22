@@ -470,8 +470,8 @@ function StorefrontThemePageContent() {
             showUrlInfo={false}
             className="mb-6"
           />
-          <div className="bg-card rounded-xl border border-destructive/30 p-8 text-center">
-            <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
+          <div className="bg-card rounded-xl border border-error/30 p-8 text-center">
+            <AlertCircle className="h-12 w-12 text-error mx-auto mb-4" />
             <p className="text-muted-foreground mb-4">Failed to load settings for this storefront</p>
             <Button onClick={loadSettings} className="bg-primary hover:bg-primary text-white">
               Try Again
@@ -521,7 +521,7 @@ function StorefrontThemePageContent() {
               <Button
                 onClick={handleReset}
                 variant="outline"
-                className="text-destructive hover:bg-destructive/10"
+                className="text-error hover:bg-error-muted"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reset All

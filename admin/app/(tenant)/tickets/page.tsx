@@ -281,9 +281,9 @@ export default function TicketsPage() {
       RESOLVED: 'bg-success-muted text-success-foreground border-success/30',
       CLOSED: 'bg-muted text-foreground border-border',
       REOPENED: 'bg-warning-muted text-warning border-warning/30',
-      CANCELLED: 'bg-destructive/10 text-destructive border-destructive/30',
+      CANCELLED: 'bg-error-muted text-error border-error/30',
       PENDING_APPROVAL: 'bg-warning-muted text-warning border-warning/30',
-      ESCALATED: 'bg-destructive/10 text-destructive border-destructive/30',
+      ESCALATED: 'bg-error-muted text-error border-error/30',
     };
     return classes[status] || classes.OPEN;
   };
@@ -293,8 +293,8 @@ export default function TicketsPage() {
       LOW: 'bg-muted text-foreground border-border',
       MEDIUM: 'bg-primary/20 text-primary border-primary/30',
       HIGH: 'bg-warning-muted text-warning border-warning/30',
-      CRITICAL: 'bg-destructive/10 text-destructive border-destructive/30',
-      URGENT: 'bg-destructive/10 text-destructive border-destructive/30',
+      CRITICAL: 'bg-error-muted text-error border-error/30',
+      URGENT: 'bg-error-muted text-error border-error/30',
     };
     return classes[priority] || classes.MEDIUM;
   };
@@ -402,12 +402,12 @@ export default function TicketsPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs sm:text-sm text-muted-foreground font-medium">Critical/Urgent</p>
-                <p className="text-2xl sm:text-3xl font-bold text-destructive mt-1 sm:mt-2">
+                <p className="text-2xl sm:text-3xl font-bold text-error mt-1 sm:mt-2">
                   {urgentTickets}
                 </p>
               </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-destructive/10 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-destructive" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-error-muted rounded-lg flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-error" />
               </div>
             </div>
           </div>
@@ -609,16 +609,16 @@ export default function TicketsPage() {
               <div className="p-6 space-y-4">
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-2">
-                    Title <span className="text-destructive">*</span>
+                    Title <span className="text-error">*</span>
                   </label>
                   <Input
                     value={newTicket.title}
                     onChange={(e) => handleFieldChange('title', e.target.value)}
                     placeholder="Brief description of the issue"
-                    className={errors.title ? 'border-destructive' : ''}
+                    className={errors.title ? 'border-error' : ''}
                   />
                   {errors.title && (
-                    <div className="flex items-center gap-1 mt-1 text-destructive text-sm">
+                    <div className="flex items-center gap-1 mt-1 text-error text-sm">
                       <AlertCircle className="h-4 w-4" />
                       <span>{errors.title}</span>
                     </div>
@@ -627,19 +627,19 @@ export default function TicketsPage() {
 
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-2">
-                    Description <span className="text-destructive">*</span>
+                    Description <span className="text-error">*</span>
                   </label>
                   <textarea
                     value={newTicket.description}
                     onChange={(e) => handleFieldChange('description', e.target.value)}
                     placeholder="Detailed description of the issue..."
                     className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent ${
-                      errors.description ? 'border-destructive' : 'border-border'
+                      errors.description ? 'border-error' : 'border-border'
                     }`}
                     rows={4}
                   />
                   {errors.description && (
-                    <div className="flex items-center gap-1 mt-1 text-destructive text-sm">
+                    <div className="flex items-center gap-1 mt-1 text-error text-sm">
                       <AlertCircle className="h-4 w-4" />
                       <span>{errors.description}</span>
                     </div>
@@ -649,7 +649,7 @@ export default function TicketsPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">
-                      Type <span className="text-destructive">*</span>
+                      Type <span className="text-error">*</span>
                     </label>
                     <Select
                       value={newTicket.type}
@@ -660,7 +660,7 @@ export default function TicketsPage() {
 
                   <div>
                     <label className="block text-sm font-semibold text-foreground mb-2">
-                      Priority <span className="text-destructive">*</span>
+                      Priority <span className="text-error">*</span>
                     </label>
                     <Select
                       value={newTicket.priority}
@@ -693,10 +693,10 @@ export default function TicketsPage() {
                     value={newTicket.estimatedTime || ''}
                     onChange={(e) => handleFieldChange('estimatedTime', e.target.value ? parseInt(e.target.value) : undefined)}
                     placeholder="120"
-                    className={errors.estimatedTime ? 'border-destructive' : ''}
+                    className={errors.estimatedTime ? 'border-error' : ''}
                   />
                   {errors.estimatedTime && (
-                    <div className="flex items-center gap-1 mt-1 text-destructive text-sm">
+                    <div className="flex items-center gap-1 mt-1 text-error text-sm">
                       <AlertCircle className="h-4 w-4" />
                       <span>{errors.estimatedTime}</span>
                     </div>
@@ -906,7 +906,7 @@ export default function TicketsPage() {
                         onClick={() => handleUpdateStatus(selectedTicket.id, 'ESCALATED')}
                         size="sm"
                         variant="outline"
-                        className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                        className="border-error/30 text-error hover:bg-error-muted"
                       >
                         <AlertTriangle className="h-4 w-4 mr-2" />
                         Escalate

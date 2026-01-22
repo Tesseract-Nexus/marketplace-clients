@@ -193,7 +193,7 @@ export default function InventoryReportsPage() {
   };
 
   const getStockStatusColor = (stockLevel: number, reorderLevel: number) => {
-    if (stockLevel === 0) return 'bg-destructive/10 text-destructive border-destructive/30';
+    if (stockLevel === 0) return 'bg-error-muted text-error border-error/30';
     if (stockLevel <= reorderLevel) return 'bg-warning-muted text-warning border-warning/30';
     return 'bg-success-muted text-success-foreground border-success/30';
   };
@@ -282,11 +282,11 @@ export default function InventoryReportsPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Out of Stock</p>
-              <div className="w-12 h-12 bg-destructive/10 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-destructive" />
+              <div className="w-12 h-12 bg-error-muted rounded-lg flex items-center justify-center">
+                <AlertTriangle className="h-6 w-6 text-error" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-destructive">
+            <p className="text-3xl font-bold text-error">
               {formatNumber(MOCK_REPORT.outOfStockCount)}
             </p>
             <p className="text-xs text-muted-foreground mt-2">Immediate attention</p>
@@ -411,7 +411,7 @@ export default function InventoryReportsPage() {
                 {/* Out of Stock Products */}
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <AlertTriangle className="h-5 w-5 text-destructive" />
+                    <AlertTriangle className="h-5 w-5 text-error" />
                     <h3 className="text-lg font-bold text-foreground">Out of Stock Products</h3>
                   </div>
                   <div className="overflow-x-auto">

@@ -222,7 +222,7 @@ export default function AuditLogsPage() {
   const getSeverityColor = (severity: string) => {
     switch (severity) {
       case 'CRITICAL':
-        return 'bg-destructive/10 text-destructive border-destructive/30';
+        return 'bg-error-muted text-error border-error/30';
       case 'HIGH':
         return 'bg-warning-muted text-warning border-warning/30';
       case 'MEDIUM':
@@ -239,7 +239,7 @@ export default function AuditLogsPage() {
       case 'SUCCESS':
         return 'bg-success-muted text-success-foreground border-success/30';
       case 'FAILURE':
-        return 'bg-destructive/10 text-destructive border-destructive/30';
+        return 'bg-error-muted text-error border-error/30';
       case 'PENDING':
         return 'bg-warning-muted text-warning border-warning/30';
       default:
@@ -341,11 +341,11 @@ export default function AuditLogsPage() {
           <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
             <div className="flex items-center justify-between mb-4">
               <p className="text-sm font-medium text-muted-foreground">Failed Actions</p>
-              <div className="w-12 h-12 bg-destructive/10 rounded-lg flex items-center justify-center">
-                <XCircle className="h-6 w-6 text-destructive" />
+              <div className="w-12 h-12 bg-error-muted rounded-lg flex items-center justify-center">
+                <XCircle className="h-6 w-6 text-error" />
               </div>
             </div>
-            <p className="text-3xl font-bold text-destructive">
+            <p className="text-3xl font-bold text-error">
               {MOCK_SUMMARY.failedActions}
             </p>
           </div>
@@ -656,10 +656,10 @@ export default function AuditLogsPage() {
 
               {selectedLog.errorMessage && (
                 <div>
-                  <label className="block text-sm font-bold text-destructive mb-1">
+                  <label className="block text-sm font-bold text-error mb-1">
                     Error Message
                   </label>
-                  <p className="text-sm text-destructive bg-destructive/10 p-3 rounded border border-destructive/30">
+                  <p className="text-sm text-error bg-error-muted p-3 rounded border border-error/30">
                     {selectedLog.errorMessage}
                   </p>
                 </div>

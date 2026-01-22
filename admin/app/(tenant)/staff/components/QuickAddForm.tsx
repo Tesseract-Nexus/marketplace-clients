@@ -246,7 +246,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
               }}
               className={cn(
                 "w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
-                errors.firstName ? "border-destructive" : "border-border"
+                errors.firstName ? "border-error" : "border-border"
               )}
               placeholder="John"
             />
@@ -268,7 +268,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
               }}
               className={cn(
                 "w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
-                errors.lastName ? "border-destructive" : "border-border"
+                errors.lastName ? "border-error" : "border-border"
               )}
               placeholder="Doe"
             />
@@ -290,7 +290,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
               }}
               className={cn(
                 "w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
-                errors.email ? "border-destructive" : "border-border"
+                errors.email ? "border-error" : "border-border"
               )}
               placeholder="john.doe@company.com"
             />

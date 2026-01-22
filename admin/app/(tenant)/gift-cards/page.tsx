@@ -166,7 +166,7 @@ export default function GiftCardsPage() {
     const classes: Record<string, string> = {
       ACTIVE: 'bg-success-muted text-success-foreground border-success/30',
       REDEEMED: 'bg-primary/20 text-primary border-primary/30',
-      EXPIRED: 'bg-destructive/10 text-destructive border-destructive/30',
+      EXPIRED: 'bg-error-muted text-error border-error/30',
       CANCELLED: 'bg-muted text-foreground border-border',
     };
     return classes[status] || classes.ACTIVE;
@@ -181,7 +181,7 @@ export default function GiftCardsPage() {
     if (percentage >= 75) return 'bg-success';
     if (percentage >= 50) return 'bg-warning';
     if (percentage >= 25) return 'bg-warning';
-    return 'bg-destructive/100';
+    return 'bg-error';
   };
 
   const getDaysUntilExpiry = (expiresAt: string | undefined) => {
@@ -197,9 +197,9 @@ export default function GiftCardsPage() {
     if (days === null) return null;
 
     if (days < 0) {
-      return { text: 'Expired', color: 'text-destructive bg-destructive/10', urgent: true };
+      return { text: 'Expired', color: 'text-error bg-error-muted', urgent: true };
     } else if (days === 0) {
-      return { text: 'Expires today', color: 'text-destructive bg-destructive/10', urgent: true };
+      return { text: 'Expires today', color: 'text-error bg-error-muted', urgent: true };
     } else if (days <= 7) {
       return { text: `${days} days left`, color: 'text-warning bg-warning-muted', urgent: true };
     } else if (days <= 30) {
@@ -501,7 +501,7 @@ export default function GiftCardsPage() {
                         <div className="text-right">
                           <span className={cn(
                             "font-bold text-lg",
-                            balancePercentage >= 50 ? "text-success" : balancePercentage >= 25 ? "text-warning" : "text-destructive"
+                            balancePercentage >= 50 ? "text-success" : balancePercentage >= 25 ? "text-warning" : "text-error"
                           )}>
                             {formatCurrency(card.currentBalance)}
                           </span>

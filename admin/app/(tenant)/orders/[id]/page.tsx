@@ -167,7 +167,7 @@ export default function OrderDetailsPage() {
       SHIPPED: 'bg-primary/10 text-primary border-primary/30',
       DELIVERED: 'bg-success-muted text-success border-success/30',
       COMPLETED: 'bg-success/10 text-success border-success/30',
-      CANCELLED: 'bg-destructive/10 text-destructive border-destructive/30',
+      CANCELLED: 'bg-error-muted text-error border-error/30',
     };
     return <Badge className={styles[status]}>{status}</Badge>;
   };
@@ -176,7 +176,7 @@ export default function OrderDetailsPage() {
     const styles: Record<PaymentStatus, string> = {
       PENDING: 'bg-warning-muted text-warning-foreground border-warning/30',
       PAID: 'bg-success/10 text-success border-success/30',
-      FAILED: 'bg-destructive/10 text-destructive border-destructive/30',
+      FAILED: 'bg-error-muted text-error border-error/30',
       PARTIALLY_REFUNDED: 'bg-warning-muted text-warning border-warning/30',
       REFUNDED: 'bg-warning-muted text-warning border-warning/30',
     };
@@ -192,7 +192,7 @@ export default function OrderDetailsPage() {
       IN_TRANSIT: 'bg-info/10 text-info border-info/30',
       OUT_FOR_DELIVERY: 'bg-success-muted text-success border-success/30',
       DELIVERED: 'bg-success/10 text-success border-success/30',
-      FAILED_DELIVERY: 'bg-destructive/10 text-destructive border-destructive/30',
+      FAILED_DELIVERY: 'bg-error-muted text-error border-error/30',
       RETURNED: 'bg-warning-muted text-warning border-warning/30',
     };
     const labels: Record<FulfillmentStatus, string> = {
@@ -317,9 +317,9 @@ export default function OrderDetailsPage() {
     return (
       <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto">
-          <Card className="border-destructive/30">
+          <Card className="border-error/30">
             <CardContent className="p-12 text-center">
-              <XCircle className="w-16 h-16 mx-auto text-destructive mb-4" />
+              <XCircle className="w-16 h-16 mx-auto text-error mb-4" />
               <h2 className="text-xl font-bold text-foreground mb-2">Order Not Found</h2>
               <p className="text-muted-foreground mb-6">{error || 'The requested order could not be found.'}</p>
               <Button onClick={() => router.push('/orders')} className="bg-primary hover:bg-primary">
@@ -421,7 +421,7 @@ export default function OrderDetailsPage() {
               <div className="flex items-center gap-4">
                 <div className={cn(
                   "p-3 rounded-xl",
-                  order.status === 'CANCELLED' ? "bg-destructive/10" :
+                  order.status === 'CANCELLED' ? "bg-error-muted" :
                   order.status === 'DELIVERED' || order.status === 'COMPLETED' ? "bg-success/10" : "bg-primary/20"
                 )}>
                   {getStatusIcon(order.status)}
@@ -438,21 +438,21 @@ export default function OrderDetailsPage() {
               <div className={cn(
                 "flex items-center gap-2 px-4 py-2 rounded-xl border",
                 order.paymentStatus === 'PAID' ? "bg-success/10 border-success/30" :
-                order.paymentStatus === 'FAILED' ? "bg-destructive/10 border-destructive/30" :
+                order.paymentStatus === 'FAILED' ? "bg-error-muted border-error/30" :
                 order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "bg-warning-muted border-warning/30" :
                 "bg-warning-muted border-warning/30"
               )}>
                 <CreditCard className={cn(
                   "w-4 h-4",
                   order.paymentStatus === 'PAID' ? "text-success" :
-                  order.paymentStatus === 'FAILED' ? "text-destructive" :
+                  order.paymentStatus === 'FAILED' ? "text-error" :
                   order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "text-warning" :
                   "text-warning"
                 )} />
                 <span className={cn(
                   "text-sm font-semibold",
                   order.paymentStatus === 'PAID' ? "text-success" :
-                  order.paymentStatus === 'FAILED' ? "text-destructive" :
+                  order.paymentStatus === 'FAILED' ? "text-error" :
                   order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED' ? "text-warning" :
                   "text-warning-foreground"
                 )}>
@@ -508,12 +508,12 @@ export default function OrderDetailsPage() {
 
             {/* Cancelled State */}
             {order.status === 'CANCELLED' && (
-              <div className="mb-6 p-4 bg-destructive/10 rounded-xl border border-destructive/30">
+              <div className="mb-6 p-4 bg-error-muted rounded-xl border border-error/30">
                 <div className="flex items-center gap-3">
-                  <XCircle className="w-6 h-6 text-destructive" />
+                  <XCircle className="w-6 h-6 text-error" />
                   <div>
-                    <p className="font-semibold text-destructive">Order Cancelled</p>
-                    <p className="text-sm text-destructive">This order has been cancelled and cannot be processed further.</p>
+                    <p className="font-semibold text-error">Order Cancelled</p>
+                    <p className="text-sm text-error">This order has been cancelled and cannot be processed further.</p>
                   </div>
                 </div>
               </div>
@@ -533,7 +533,7 @@ export default function OrderDetailsPage() {
                       className={cn(
                         "group px-4 py-3 text-sm rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 font-medium",
                         status === 'CANCELLED'
-                          ? "bg-destructive/10 hover:bg-destructive/10 text-destructive border border-destructive/30"
+                          ? "bg-error-muted hover:bg-error-muted text-error border border-error/30"
                           : "bg-primary/10 hover:bg-primary text-primary hover:text-white border border-primary/30 hover:border-primary"
                       )}
                     >
@@ -636,7 +636,7 @@ export default function OrderDetailsPage() {
                           {order.fulfillmentStatus === 'DELIVERED' ? (
                             <PackageCheck className="w-5 h-5 text-primary" />
                           ) : order.fulfillmentStatus === 'FAILED_DELIVERY' ? (
-                            <PackageX className="w-5 h-5 text-destructive" />
+                            <PackageX className="w-5 h-5 text-error" />
                           ) : (
                             <Truck className="w-5 h-5 text-primary" />
                           )}

@@ -411,7 +411,7 @@ export default function CustomerDetailPage() {
     const styles = {
       ACTIVE: 'bg-success-muted text-success-foreground border-success/30',
       INACTIVE: 'bg-muted text-foreground border-border',
-      BLOCKED: 'bg-destructive/10 text-destructive border-destructive/30',
+      BLOCKED: 'bg-error-muted text-error border-error/30',
     };
     return styles[status] || styles.ACTIVE;
   };
@@ -433,7 +433,7 @@ export default function CustomerDetailPage() {
       SHIPPED: 'bg-primary/10 text-primary',
       DELIVERED: 'bg-success-muted text-success-foreground',
       COMPLETED: 'bg-success/10 text-success',
-      CANCELLED: 'bg-destructive/10 text-destructive',
+      CANCELLED: 'bg-error-muted text-error',
     };
     return styles[status] || 'bg-muted text-foreground';
   };
@@ -470,12 +470,12 @@ export default function CustomerDetailPage() {
   if (error || !customer) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-6 max-w-lg mx-auto">
+        <div className="bg-error-muted border border-error/30 rounded-lg p-6 max-w-lg mx-auto">
           <div className="flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
             <div>
-              <h3 className="font-semibold text-destructive">Error</h3>
-              <p className="text-destructive mt-1">{error || 'Customer not found'}</p>
+              <h3 className="font-semibold text-error">Error</h3>
+              <p className="text-error mt-1">{error || 'Customer not found'}</p>
               <Button
                 onClick={() => router.push('/customers')}
                 variant="outline"
@@ -541,10 +541,10 @@ export default function CustomerDetailPage() {
 
         {/* Error Alert */}
         {error && (
-          <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+          <div className="bg-error-muted border border-error/30 rounded-lg p-4 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-destructive">{error}</p>
+              <p className="text-error">{error}</p>
             </div>
             <Button onClick={() => setError(null)} variant="ghost" size="sm">
               <X className="h-4 w-4" />
@@ -899,7 +899,7 @@ export default function CustomerDetailPage() {
                               }}
                               className="h-8 w-8 p-0"
                             >
-                              <Trash2 className="h-4 w-4 text-destructive" />
+                              <Trash2 className="h-4 w-4 text-error" />
                             </Button>
                           </div>
                         </div>
@@ -952,7 +952,7 @@ export default function CustomerDetailPage() {
                             }}
                             className="h-8 w-8 p-0 flex-shrink-0"
                           >
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Trash2 className="h-4 w-4 text-error" />
                           </Button>
                         </div>
                         <p className="text-xs text-muted-foreground mt-2">
@@ -1035,7 +1035,7 @@ export default function CustomerDetailPage() {
                               {removingFromSegment === segment.id ? (
                                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                               ) : (
-                                <X className="h-4 w-4 text-destructive" />
+                                <X className="h-4 w-4 text-error" />
                               )}
                             </Button>
                           )}

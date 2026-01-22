@@ -279,7 +279,7 @@ function StatCard({
   const colorClasses = {
     blue: 'bg-primary',
     green: 'bg-success',
-    red: 'bg-destructive',
+    red: 'bg-error',
     yellow: 'bg-warning',
     purple: 'bg-accent',
   };

@@ -125,7 +125,7 @@ const sampleApiKeys = [
 const getStatusBadge = (status: string, expiresAt: string | null) => {
   if (status === "revoked") {
     return (
-      <Badge className="bg-destructive/10 text-destructive border-destructive/30">
+      <Badge className="bg-error-muted text-error border-error/30">
         <AlertCircle className="w-3 h-3 mr-1" />
         Revoked
       </Badge>
@@ -401,7 +401,7 @@ export default function ApiKeysPage() {
                           Regenerate
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem className="text-error">
                           <Trash2 className="w-4 h-4 mr-2" />
                           Revoke
                         </DropdownMenuItem>

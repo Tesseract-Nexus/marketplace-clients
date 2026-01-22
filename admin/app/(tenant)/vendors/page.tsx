@@ -569,7 +569,7 @@ export default function VendorsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">
-                        Vendor Name <span className="text-destructive">*</span>
+                        Vendor Name <span className="text-error">*</span>
                       </label>
                       <input
                         type="text"
@@ -582,7 +582,7 @@ export default function VendorsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">
-                        Email <span className="text-destructive">*</span>
+                        Email <span className="text-error">*</span>
                       </label>
                       <input
                         type="email"
@@ -595,7 +595,7 @@ export default function VendorsPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-2">
-                        Primary Contact <span className="text-destructive">*</span>
+                        Primary Contact <span className="text-error">*</span>
                       </label>
                       <input
                         type="tel"
@@ -1019,7 +1019,7 @@ export default function VendorsPage() {
                     { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-warning" /> },
                     { value: 'INACTIVE', label: 'Inactive', icon: <CircleOff className="w-4 h-4 text-muted-foreground" /> },
                     { value: 'SUSPENDED', label: 'Suspended', icon: <Pause className="w-4 h-4 text-warning" /> },
-                    { value: 'TERMINATED', label: 'Terminated', icon: <Ban className="w-4 h-4 text-destructive" /> },
+                    { value: 'TERMINATED', label: 'Terminated', icon: <Ban className="w-4 h-4 text-error" /> },
                   ]}
                   variant="filter"
                 />
@@ -1035,7 +1035,7 @@ export default function VendorsPage() {
                     { value: 'COMPLETED', label: 'Completed', icon: <ShieldCheck className="w-4 h-4 text-success" /> },
                     { value: 'IN_PROGRESS', label: 'In Progress', icon: <PlayCircle className="w-4 h-4 text-primary" /> },
                     { value: 'NOT_STARTED', label: 'Not Started', icon: <Hourglass className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'FAILED', label: 'Failed', icon: <ShieldAlert className="w-4 h-4 text-destructive" /> },
+                    { value: 'FAILED', label: 'Failed', icon: <ShieldAlert className="w-4 h-4 text-error" /> },
                     { value: 'EXPIRED', label: 'Expired', icon: <Timer className="w-4 h-4 text-warning" /> },
                   ]}
                   variant="filter"
@@ -1154,7 +1154,7 @@ export default function VendorsPage() {
                             title="Delete"
                             aria-label="Delete vendor"
                           >
-                            <Trash2 className="w-4 h-4 text-destructive" aria-hidden="true" />
+                            <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                           </Button>
                         </div>
                       </td>

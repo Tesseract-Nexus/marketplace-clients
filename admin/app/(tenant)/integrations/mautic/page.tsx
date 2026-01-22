@@ -165,11 +165,11 @@ export default function MauticIntegrationPage() {
                 "w-16 h-16 rounded-lg flex items-center justify-center",
                 status?.connected
                   ? "bg-success/10"
-                  : "bg-destructive/10"
+                  : "bg-error-muted"
               )}>
                 <Mail className={cn(
                   "h-8 w-8",
-                  status?.connected ? "text-success" : "text-destructive"
+                  status?.connected ? "text-success" : "text-error"
                 )} />
               </div>
               <div>
@@ -198,7 +198,7 @@ export default function MauticIntegrationPage() {
                   <span className="text-sm font-medium">Connection Error</span>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/10 text-destructive">
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-error-muted text-error">
                   <XCircle className="h-4 w-4" />
                   <span className="text-sm font-medium">Disabled</span>
                 </div>
@@ -207,7 +207,7 @@ export default function MauticIntegrationPage() {
           </div>
 
           {status?.error && (
-            <div className="mt-4 p-3 rounded-lg bg-destructive/10 border border-destructive/30 text-destructive text-sm">
+            <div className="mt-4 p-3 rounded-lg bg-error-muted border border-error/30 text-error text-sm">
               <strong>Error:</strong> {status.error}
             </div>
           )}

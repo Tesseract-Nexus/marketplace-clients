@@ -247,9 +247,9 @@ export default function SalesAnalyticsPage() {
               {(data?.revenueChange || 0) >= 0 ? (
                 <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-success flex-shrink-0" />
               ) : (
-                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
+                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-error flex-shrink-0" />
               )}
-              <span className={`text-xs sm:text-sm font-medium ${(data?.revenueChange || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+              <span className={`text-xs sm:text-sm font-medium ${(data?.revenueChange || 0) >= 0 ? 'text-success' : 'text-error'}`}>
                 {formatPercent(data?.revenueChange || 0)}
               </span>
             </div>
@@ -269,9 +269,9 @@ export default function SalesAnalyticsPage() {
               {(data?.ordersChange || 0) >= 0 ? (
                 <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-success flex-shrink-0" />
               ) : (
-                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
+                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-error flex-shrink-0" />
               )}
-              <span className={`text-xs sm:text-sm font-medium ${(data?.ordersChange || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+              <span className={`text-xs sm:text-sm font-medium ${(data?.ordersChange || 0) >= 0 ? 'text-success' : 'text-error'}`}>
                 {formatPercent(data?.ordersChange || 0)}
               </span>
             </div>
@@ -291,9 +291,9 @@ export default function SalesAnalyticsPage() {
               {(data?.aovChange || 0) >= 0 ? (
                 <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-success flex-shrink-0" />
               ) : (
-                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
+                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-error flex-shrink-0" />
               )}
-              <span className={`text-xs sm:text-sm font-medium ${(data?.aovChange || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+              <span className={`text-xs sm:text-sm font-medium ${(data?.aovChange || 0) >= 0 ? 'text-success' : 'text-error'}`}>
                 {formatPercent(data?.aovChange || 0)}
               </span>
             </div>
@@ -606,7 +606,7 @@ export default function SalesAnalyticsPage() {
                       <span className={`inline-flex px-2 py-0.5 text-xs font-medium rounded-full ${
                         method.successRate >= 95 ? 'bg-success-muted text-success-foreground' :
                         method.successRate >= 90 ? 'bg-warning-muted text-warning' :
-                        'bg-destructive/10 text-destructive'
+                        'bg-error-muted text-error'
                       }`}>
                         {method.successRate.toFixed(1)}% success
                       </span>
@@ -638,7 +638,7 @@ export default function SalesAnalyticsPage() {
                           <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                             method.successRate >= 95 ? 'bg-success-muted text-success-foreground' :
                             method.successRate >= 90 ? 'bg-warning-muted text-warning' :
-                            'bg-destructive/10 text-destructive'
+                            'bg-error-muted text-error'
                           }`}>
                             {method.successRate.toFixed(1)}%
                           </span>

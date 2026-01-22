@@ -323,7 +323,7 @@ export default function StorefrontThemePage() {
               <Button
                 onClick={handleReset}
                 variant="outline"
-                className="text-destructive hover:bg-destructive/10"
+                className="text-error hover:bg-error-muted"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Reset

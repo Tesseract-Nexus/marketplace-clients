@@ -110,7 +110,7 @@ function StatCard({
         </div>
         <p className="text-2xl font-bold mt-2">{value}</p>
         {change !== undefined && (
-          <p className={`text-xs mt-1 ${change >= 0 ? 'text-success' : 'text-destructive'}`}>
+          <p className={`text-xs mt-1 ${change >= 0 ? 'text-success' : 'text-error'}`}>
             {change >= 0 ? '+' : ''}
             {change}% {changeLabel}
           </p>

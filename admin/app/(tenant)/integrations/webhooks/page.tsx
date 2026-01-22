@@ -159,7 +159,7 @@ const getDeliveryStatusBadge = (status: string) => {
       );
     case "failed":
       return (
-        <Badge className="bg-destructive/10 text-destructive border-destructive/30">
+        <Badge className="bg-error-muted text-error border-error/30">
           <AlertCircle className="w-3 h-3 mr-1" />
           Failed
         </Badge>
@@ -380,7 +380,7 @@ export default function WebhooksPage() {
                           Regenerate Secret
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem className="text-error">
                           <Trash2 className="w-4 h-4 mr-2" />
                           Delete
                         </DropdownMenuItem>

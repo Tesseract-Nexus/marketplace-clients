@@ -628,7 +628,7 @@ export default function OrdersPage() {
                     className={cn(
                       "h-full transition-all duration-700 ease-out",
                       order.fulfillmentStatus === 'DELIVERED' && "bg-success",
-                      order.fulfillmentStatus === 'FAILED_DELIVERY' && "bg-destructive",
+                      order.fulfillmentStatus === 'FAILED_DELIVERY' && "bg-error",
                       order.fulfillmentStatus === 'RETURNED' && "bg-warning",
                       !['DELIVERED', 'FAILED_DELIVERY', 'RETURNED'].includes(order.fulfillmentStatus) && "bg-primary"
                     )}
@@ -647,7 +647,7 @@ export default function OrdersPage() {
                           <div className={cn(
                             "p-2 rounded-xl transition-all",
                             order.status === 'COMPLETED' && "bg-success/10 text-success",
-                            order.status === 'CANCELLED' && "bg-destructive/10 text-destructive",
+                            order.status === 'CANCELLED' && "bg-error-muted text-error",
                             order.status === 'PROCESSING' && "bg-primary/10 text-primary",
                             order.status === 'CONFIRMED' && "bg-primary/20 text-primary",
                             order.status === 'PLACED' && "bg-warning-muted text-warning"

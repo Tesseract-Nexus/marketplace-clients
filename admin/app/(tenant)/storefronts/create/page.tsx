@@ -166,7 +166,7 @@ export default function CreateStorefrontPage() {
         />
 
         {error && (
-          <div className="p-4 bg-destructive/10 border-2 border-destructive/30 rounded-xl text-destructive flex items-center gap-2">
+          <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
             <AlertCircle className="w-5 h-5" />
             {error}
           </div>
@@ -197,7 +197,7 @@ export default function CreateStorefrontPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Storefront Name <span className="text-destructive">*</span>
+                    Storefront Name <span className="text-error">*</span>
                   </label>
                   <input
                     type="text"
@@ -210,7 +210,7 @@ export default function CreateStorefrontPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Slug <span className="text-destructive">*</span>
+                    Slug <span className="text-error">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -219,7 +219,7 @@ export default function CreateStorefrontPage() {
                       onChange={(e) => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
                       className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all ${
                         slugAvailable === true ? 'border-success/40' :
-                        slugAvailable === false ? 'border-destructive/30' : 'border-border'
+                        slugAvailable === false ? 'border-error/30' : 'border-border'
                       }`}
                       placeholder="my-awesome-store"
                     />
@@ -229,7 +229,7 @@ export default function CreateStorefrontPage() {
                         <CheckCircle className="w-5 h-5 text-success" />
                       )}
                       {!checkingSlug && slugAvailable === false && (
-                        <AlertCircle className="w-5 h-5 text-destructive" />
+                        <AlertCircle className="w-5 h-5 text-error" />
                       )}
                     </div>
                   </div>
@@ -239,7 +239,7 @@ export default function CreateStorefrontPage() {
                     </p>
                   )}
                   {slugAvailable === false && (
-                    <p className="text-sm text-destructive mt-1">This slug is already taken</p>
+                    <p className="text-sm text-error mt-1">This slug is already taken</p>
                   )}
                 </div>
 

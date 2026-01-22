@@ -308,7 +308,7 @@ export default function ApprovalsPage() {
                           "p-3 rounded-xl",
                           approval.status === 'pending' ? "bg-secondary" :
                           approval.status === 'approved' ? "bg-primary/10" :
-                          approval.status === 'rejected' ? "bg-destructive/10" : "bg-muted"
+                          approval.status === 'rejected' ? "bg-error-muted" : "bg-muted"
                         )}>
                           {getTypeIcon(approval.approvalType)}
                         </div>
@@ -338,14 +338,14 @@ export default function ApprovalsPage() {
                               {formatDate(approval.createdAt)}
                             </span>
                             {approval.expiresAt && approval.status === 'pending' && (
-                              <span className="flex items-center gap-1 text-destructive">
+                              <span className="flex items-center gap-1 text-error">
                                 <Clock className="w-3 h-3" />
                                 Expires {formatDate(approval.expiresAt)}
                               </span>
                             )}
                           </div>
                           {approval.status === 'rejected' && approval.rejectionReason && (
-                            <p className="mt-2 text-sm text-destructive bg-destructive/10 px-3 py-1 rounded-lg inline-block">
+                            <p className="mt-2 text-sm text-error bg-error-muted px-3 py-1 rounded-lg inline-block">
                               Reason: {approval.rejectionReason}
                             </p>
                           )}

@@ -199,7 +199,7 @@ export default function ReturnsPage() {
     const styles: Record<ReturnStatus, string> = {
       PENDING: 'bg-warning-muted text-warning-foreground border-warning/30',
       APPROVED: 'bg-primary/20 text-primary border-primary/30',
-      REJECTED: 'bg-destructive/10 text-destructive border-destructive/30',
+      REJECTED: 'bg-error-muted text-error border-error/30',
       PROCESSING: 'bg-primary/10 text-primary border-primary/30',
       COMPLETED: 'bg-success/10 text-success border-success/30',
       CANCELLED: 'bg-muted text-foreground border-border',
@@ -212,7 +212,7 @@ export default function ReturnsPage() {
       PENDING: 'bg-warning-muted text-warning-foreground border-warning/30',
       PROCESSING: 'bg-primary/20 text-primary border-primary/30',
       COMPLETED: 'bg-success/10 text-success border-success/30',
-      FAILED: 'bg-destructive/10 text-destructive border-destructive/30',
+      FAILED: 'bg-error-muted text-error border-error/30',
     };
     return <Badge className={styles[status]}>Refund: {status}</Badge>;
   };
@@ -303,7 +303,7 @@ export default function ReturnsPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center">
-          <AlertCircle className="h-12 w-12 text-destructive" />
+          <AlertCircle className="h-12 w-12 text-error" />
           <h2 className="text-xl font-semibold text-foreground">Failed to load returns</h2>
           <p className="text-muted-foreground">{error}</p>
           <Button onClick={() => loadReturns()} className="mt-4">
@@ -539,11 +539,11 @@ export default function ReturnsPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleReject(ret.id)}
-                                className="h-8 w-8 p-0 rounded-lg hover:bg-destructive/10 transition-colors"
+                                className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                                 title="Reject"
                                 aria-label="Reject return"
                               >
-                                <Ban className="w-4 h-4 text-destructive" aria-hidden="true" />
+                                <Ban className="w-4 h-4 text-error" aria-hidden="true" />
                               </Button>
                             </>
                           )}

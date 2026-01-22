@@ -133,7 +133,7 @@ export default function InventoryAnalyticsPage() {
   ].filter(item => item.value > 0);
 
   const getStockLevelBadge = (stock: number, reorder: number) => {
-    if (stock === 0) return { className: 'bg-destructive/10 text-destructive border-destructive/30', label: 'Out of Stock' };
+    if (stock === 0) return { className: 'bg-error-muted text-error border-error/30', label: 'Out of Stock' };
     if (stock <= reorder) return { className: 'bg-warning-muted text-warning-foreground border-warning/30', label: 'Low Stock' };
     return { className: 'bg-success-muted text-success-foreground border-success/30', label: 'In Stock' };
   };
@@ -249,17 +249,17 @@ export default function InventoryAnalyticsPage() {
             <p className="text-xs text-warning mt-1">Needs reorder</p>
           </div>
 
-          <div className="group bg-card rounded-xl border border-destructive/30/60 p-6 shadow-sm bg-destructive/5 hover:shadow-xl hover:border-destructive/30/50 hover:-translate-y-1 transition-all duration-300">
+          <div className="group bg-card rounded-xl border border-error/30/60 p-6 shadow-sm bg-error-muted hover:shadow-xl hover:border-error/30/50 hover:-translate-y-1 transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-destructive">Out of Stock</p>
-              <div className="w-10 h-10 bg-destructive/10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <XCircle className="h-5 w-5 text-destructive" />
+              <p className="text-sm font-medium text-error">Out of Stock</p>
+              <div className="w-10 h-10 bg-error-muted rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <XCircle className="h-5 w-5 text-error" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-destructive">
+            <p className="text-2xl font-bold text-error">
               {formatNumber(data?.outOfStockCount || 0)}
             </p>
-            <p className="text-xs text-destructive mt-1">Urgent attention needed</p>
+            <p className="text-xs text-error mt-1">Urgent attention needed</p>
           </div>
         </div>
 
@@ -339,7 +339,7 @@ export default function InventoryAnalyticsPage() {
                     </span>
                   ) : null}
                   {tab.id === 'out-of-stock' && data?.outOfStockCount ? (
-                    <span className="ml-1 px-2 py-0.5 text-xs font-medium bg-destructive/10 text-destructive rounded-full">
+                    <span className="ml-1 px-2 py-0.5 text-xs font-medium bg-error-muted text-error rounded-full">
                       {data.outOfStockCount}
                     </span>
                   ) : null}
@@ -369,7 +369,7 @@ export default function InventoryAnalyticsPage() {
                         <td className="px-6 py-4 font-medium text-foreground">{product.productName}</td>
                         <td className="px-6 py-4 text-sm text-muted-foreground font-mono">{product.sku}</td>
                         <td className="px-6 py-4 text-right">
-                          <span className={cn('font-semibold', product.stockLevel === 0 ? 'text-destructive' : 'text-warning')}>
+                          <span className={cn('font-semibold', product.stockLevel === 0 ? 'text-error' : 'text-warning')}>
                             {formatNumber(product.stockLevel)}
                           </span>
                         </td>
@@ -412,7 +412,7 @@ export default function InventoryAnalyticsPage() {
                           'inline-flex px-2 py-1 text-xs font-medium rounded-full',
                           product.turnoverRate >= 2 ? 'bg-success-muted text-success-foreground' :
                           product.turnoverRate >= 1 ? 'bg-warning-muted text-warning' :
-                          'bg-destructive/10 text-destructive'
+                          'bg-error-muted text-error'
                         )}>
                           {product.turnoverRate.toFixed(2)}x
                         </span>

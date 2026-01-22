@@ -211,9 +211,9 @@ export default function AnalyticsOverviewPage() {
               {(data?.sales?.revenueChange || 0) >= 0 ? (
                 <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-success flex-shrink-0" />
               ) : (
-                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
+                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-error flex-shrink-0" />
               )}
-              <span className={`text-xs sm:text-sm font-medium ${(data?.sales?.revenueChange || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+              <span className={`text-xs sm:text-sm font-medium ${(data?.sales?.revenueChange || 0) >= 0 ? 'text-success' : 'text-error'}`}>
                 {formatPercent(data?.sales?.revenueChange || 0)}
               </span>
               <span className="text-[10px] sm:text-xs text-muted-foreground hidden sm:inline">vs previous period</span>
@@ -235,9 +235,9 @@ export default function AnalyticsOverviewPage() {
               {(data?.sales?.ordersChange || 0) >= 0 ? (
                 <TrendingUp className="h-3 w-3 sm:h-4 sm:w-4 text-success flex-shrink-0" />
               ) : (
-                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
+                <TrendingDown className="h-3 w-3 sm:h-4 sm:w-4 text-error flex-shrink-0" />
               )}
-              <span className={`text-xs sm:text-sm font-medium ${(data?.sales?.ordersChange || 0) >= 0 ? 'text-success' : 'text-destructive'}`}>
+              <span className={`text-xs sm:text-sm font-medium ${(data?.sales?.ordersChange || 0) >= 0 ? 'text-success' : 'text-error'}`}>
                 {formatPercent(data?.sales?.ordersChange || 0)}
               </span>
               <span className="text-[10px] sm:text-xs text-muted-foreground hidden sm:inline">vs previous period</span>

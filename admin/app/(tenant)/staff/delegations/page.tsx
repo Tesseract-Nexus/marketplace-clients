@@ -245,7 +245,7 @@ export default function DelegationsPage() {
                 "p-3 rounded-xl",
                 status === 'active' ? "bg-primary/10" :
                 status === 'pending' ? "bg-secondary" :
-                status === 'revoked' ? "bg-destructive/10" : "bg-muted"
+                status === 'revoked' ? "bg-error-muted" : "bg-muted"
               )}>
                 {type === 'outgoing' ? (
                   <ArrowUpRight className="w-5 h-5 text-foreground" />
@@ -297,7 +297,7 @@ export default function DelegationsPage() {
                   </span>
                 </div>
                 {delegation.revokedAt && (
-                  <p className="mt-2 text-sm text-destructive bg-destructive/10 px-3 py-1 rounded-lg inline-block">
+                  <p className="mt-2 text-sm text-error bg-error-muted px-3 py-1 rounded-lg inline-block">
                     Revoked on {formatDateTime(delegation.revokedAt)}
                     {delegation.revokeReason && `: ${delegation.revokeReason}`}
                   </p>
@@ -503,7 +503,7 @@ export default function DelegationsPage() {
               </DialogHeader>
               <div className="space-y-4 py-4">
                 {formError && (
-                  <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+                  <div className="p-3 rounded-lg bg-error-muted text-error text-sm">
                     {formError}
                   </div>
                 )}

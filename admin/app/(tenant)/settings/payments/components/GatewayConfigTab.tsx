@@ -518,7 +518,7 @@ export function GatewayConfigTab() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDelete(gateway.id)}
-                  className="hover:bg-destructive/10 hover:text-destructive"
+                  className="hover:bg-error-muted hover:text-error"
                   title="Delete Gateway"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -583,7 +583,7 @@ export function GatewayConfigTab() {
                     <div key={field}>
                       <label className="block text-sm font-semibold text-foreground mb-2">
                         {field.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-                        <span className="text-destructive"> *</span>
+                        <span className="text-error"> *</span>
                       </label>
                       <Input
                         type={field.includes('secret') || field.includes('key') ? 'password' : 'text'}

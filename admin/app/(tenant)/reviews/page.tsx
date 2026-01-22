@@ -350,12 +350,12 @@ export default function ReviewsPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs sm:text-sm text-muted-foreground font-medium">Flagged</p>
-              <p className="text-2xl sm:text-3xl font-bold text-destructive mt-1 sm:mt-2">
+              <p className="text-2xl sm:text-3xl font-bold text-error mt-1 sm:mt-2">
                 {flaggedReviews}
               </p>
             </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-destructive/10 rounded-lg flex items-center justify-center">
-              <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-destructive" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-error-muted rounded-lg flex items-center justify-center">
+              <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-error" />
             </div>
           </div>
         </div>
@@ -412,7 +412,7 @@ export default function ReviewsPage() {
               </Button>
               <Button
                 onClick={() => handleBulkAction('reject')}
-                className="bg-destructive hover:bg-destructive text-white flex-1 sm:flex-none"
+                className="bg-error hover:bg-error text-white flex-1 sm:flex-none"
                 size="sm"
               >
                 <XCircle className="h-4 w-4 mr-1 sm:mr-2" />
@@ -606,7 +606,7 @@ export default function ReviewsPage() {
                         <span className="text-primary inline-flex items-center gap-1"><ThumbsUp className="w-3.5 h-3.5" aria-hidden="true" /> {review.helpfulCount} helpful</span>
                       )}
                       {review.reportCount > 0 && (
-                        <span className="text-destructive inline-flex items-center gap-1"><Flag className="w-3.5 h-3.5" aria-hidden="true" /> {review.reportCount} reports</span>
+                        <span className="text-error inline-flex items-center gap-1"><Flag className="w-3.5 h-3.5" aria-hidden="true" /> {review.reportCount} reports</span>
                       )}
                     </div>
                   </div>

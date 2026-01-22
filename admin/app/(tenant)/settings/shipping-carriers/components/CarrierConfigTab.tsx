@@ -570,7 +570,7 @@ export function CarrierConfigTab() {
                   variant="ghost"
                   size="sm"
                   onClick={() => handleDelete(carrier.id)}
-                  className="hover:bg-destructive/10 hover:text-destructive"
+                  className="hover:bg-error-muted hover:text-error"
                   title="Delete Carrier"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -615,11 +615,11 @@ export function CarrierConfigTab() {
                           key={template.id}
                           onClick={() => handleSelectTemplate(template)}
                           className={`p-4 border-2 rounded-lg hover:border-primary hover:bg-primary/10 transition-colors text-left ${
-                            template.carrierType === 'DELHIVERY' ? 'border-destructive/30 bg-destructive/10/30' : 'border-primary/30 bg-primary/10/30'
+                            template.carrierType === 'DELHIVERY' ? 'border-error/30 bg-error-muted/30' : 'border-primary/30 bg-primary/10/30'
                           }`}
                         >
                           <div className={`w-12 h-12 rounded-lg mb-3 flex items-center justify-center ${
-                            template.carrierType === 'DELHIVERY' ? 'bg-destructive/10' : 'bg-primary/10'
+                            template.carrierType === 'DELHIVERY' ? 'bg-error-muted' : 'bg-primary/10'
                           }`}>
                             {getCarrierIconComponent(template.carrierType)}
                           </div>
@@ -674,7 +674,7 @@ export function CarrierConfigTab() {
                     <div key={field}>
                       <label className="block text-sm font-semibold text-foreground mb-2">
                         {field.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}
-                        <span className="text-destructive"> *</span>
+                        <span className="text-error"> *</span>
                       </label>
                       <Input
                         type={field.includes('secret') || field.includes('password') || field.includes('key') ? 'password' : 'text'}

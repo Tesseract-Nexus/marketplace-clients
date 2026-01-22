@@ -246,7 +246,7 @@ export default function StorefrontBrandingPage() {
                       <img src={branding.logoUrl} alt="Logo" className="h-16 mx-auto" />
                       <button
                         onClick={() => setBranding({ ...branding, logoUrl: undefined })}
-                        className="absolute -top-2 -right-2 p-1 bg-destructive/10 rounded-full text-destructive hover:bg-destructive/20"
+                        className="absolute -top-2 -right-2 p-1 bg-error-muted rounded-full text-error hover:bg-error/20"
                       >
                         <X className="h-3 w-3" />
                       </button>
@@ -277,7 +277,7 @@ export default function StorefrontBrandingPage() {
                       <img src={branding.faviconUrl} alt="Favicon" className="h-8 mx-auto" />
                       <button
                         onClick={() => setBranding({ ...branding, faviconUrl: undefined })}
-                        className="absolute -top-2 -right-2 p-1 bg-destructive/10 rounded-full text-destructive hover:bg-destructive/20"
+                        className="absolute -top-2 -right-2 p-1 bg-error-muted rounded-full text-error hover:bg-error/20"
                       >
                         <X className="h-3 w-3" />
                       </button>

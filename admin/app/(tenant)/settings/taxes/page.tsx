@@ -756,7 +756,7 @@ export default function TaxSettingsPage() {
                     onChange={(e) => handleGstinChange(e.target.value)}
                     placeholder="27AABCU9603R1ZM"
                     maxLength={15}
-                    className={`uppercase tracking-wider ${gstinError ? 'border-destructive' : ''}`}
+                    className={`uppercase tracking-wider ${gstinError ? 'border-error' : ''}`}
                   />
                   {gstinError ? (
                     <p className="text-sm text-error mt-1">{gstinError}</p>
@@ -959,10 +959,10 @@ export default function TaxSettingsPage() {
 
         {/* Quick Setup Card - UK VAT */}
         {isUKStore && needsSetup && !setupSuccess && !storeSettings.loading && (
-          <div className="bg-destructive/5 rounded-xl border-2 border-destructive/30 shadow-sm overflow-hidden">
+          <div className="bg-error-muted rounded-xl border-2 border-error/30 shadow-sm overflow-hidden">
             <div className="p-6">
               <div className="flex items-start gap-4 mb-6">
-                <div className="p-3 rounded-xl bg-destructive text-destructive-foreground">
+                <div className="p-3 rounded-xl bg-error text-error-foreground">
                   <Sparkles className="h-6 w-6" />
                 </div>
                 <div>
@@ -985,7 +985,7 @@ export default function TaxSettingsPage() {
               </div>
 
               {isSettingUp && (
-                <div className="mt-6 p-4 bg-card rounded-lg border border-destructive/30">
+                <div className="mt-6 p-4 bg-card rounded-lg border border-error/30">
                   <div className="flex items-center gap-3 mb-2">
                     <Loader2 className="h-5 w-5 animate-spin text-error" />
                     <span className="text-sm font-medium text-foreground">{setupStep}</span>
@@ -1004,7 +1004,7 @@ export default function TaxSettingsPage() {
                 <Button
                   onClick={handleUKVATSetup}
                   disabled={isSettingUp}
-                  className="bg-destructive hover:bg-destructive/90"
+                  className="bg-error hover:bg-error/90"
                 >
                   {isSettingUp ? (
                     <>
@@ -1091,10 +1091,10 @@ export default function TaxSettingsPage() {
 
         {/* Quick Setup Card - Canada Tax */}
         {isCanadaStore && needsSetup && !setupSuccess && !storeSettings.loading && (
-          <div className="bg-destructive/5 rounded-xl border-2 border-destructive/30 shadow-sm overflow-hidden">
+          <div className="bg-error-muted rounded-xl border-2 border-error/30 shadow-sm overflow-hidden">
             <div className="p-6">
               <div className="flex items-start gap-4 mb-6">
-                <div className="p-3 rounded-xl bg-destructive text-destructive-foreground">
+                <div className="p-3 rounded-xl bg-error text-error-foreground">
                   <Sparkles className="h-6 w-6" />
                 </div>
                 <div>
@@ -1137,7 +1137,7 @@ export default function TaxSettingsPage() {
               </div>
 
               {isSettingUp && (
-                <div className="mt-6 p-4 bg-card rounded-lg border border-destructive/30">
+                <div className="mt-6 p-4 bg-card rounded-lg border border-error/30">
                   <div className="flex items-center gap-3 mb-2">
                     <Loader2 className="h-5 w-5 animate-spin text-error" />
                     <span className="text-sm font-medium text-foreground">{setupStep}</span>
@@ -1156,7 +1156,7 @@ export default function TaxSettingsPage() {
                 <Button
                   onClick={handleCanadaTaxSetup}
                   disabled={isSettingUp}
-                  className="bg-destructive hover:bg-destructive/90"
+                  className="bg-error hover:bg-error/90"
                 >
                   {isSettingUp ? (
                     <>

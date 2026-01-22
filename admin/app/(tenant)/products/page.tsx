@@ -209,7 +209,7 @@ export default function ProductsPage() {
     { name: 'Electronics', icon: <Smartphone className="w-4 h-4 text-primary" /> },
     { name: 'Computers', icon: <Monitor className="w-4 h-4 text-primary" /> },
     { name: 'Audio', icon: <Headphones className="w-4 h-4 text-success" /> },
-    { name: 'TV & Video', icon: <Tv className="w-4 h-4 text-destructive" /> },
+    { name: 'TV & Video', icon: <Tv className="w-4 h-4 text-error" /> },
     { name: 'Gaming', icon: <Gamepad2 className="w-4 h-4 text-warning" /> },
     { name: 'Clothing', icon: <Folder className="w-4 h-4 text-primary" /> },
     { name: 'Home & Kitchen', icon: <Folder className="w-4 h-4 text-warning" /> },
@@ -2508,8 +2508,8 @@ export default function ProductsPage() {
                 label: "Out of Stock",
                 value: products.filter(p => p.inventoryStatus === 'OUT_OF_STOCK').length,
                 icon: PackageX,
-                textColor: "text-destructive",
-                bgColor: "bg-destructive/10",
+                textColor: "text-error",
+                bgColor: "bg-error-muted",
               },
             ].map((stat, index) => {
               const Icon = stat.icon;
@@ -2741,7 +2741,7 @@ export default function ProductsPage() {
                         product.status === 'ACTIVE' ? "bg-success" :
                         product.status === 'DRAFT' ? "bg-muted-foreground" :
                         product.status === 'PENDING' ? "bg-warning" :
-                        "bg-destructive"
+                        "bg-error"
                       )} />
 
                       <div className="flex-1 p-5">

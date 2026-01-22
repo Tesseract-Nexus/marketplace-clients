@@ -152,7 +152,7 @@ export default function ProfilePage() {
       'bg-accent',
       'bg-warning',
       'bg-info',
-      'bg-destructive',
+      'bg-error',
     ];
     const charCode = name.charCodeAt(0) || 0;
     return colors[charCode % colors.length];

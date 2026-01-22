@@ -184,7 +184,7 @@ const availableApps = [
     description: "Understand user behavior with heatmaps, session recordings, and feedback tools.",
     category: "analytics",
     icon: BarChart3,
-    bgColor: "bg-destructive",
+    bgColor: "bg-error",
     rating: 4.5,
     reviews: 560,
     installed: false,
@@ -223,7 +223,7 @@ const availableApps = [
     description: "AI-powered fraud detection to protect your store from fraudulent orders.",
     category: "security",
     icon: Shield,
-    bgColor: "bg-destructive",
+    bgColor: "bg-error",
     rating: 4.7,
     reviews: 180,
     installed: false,
@@ -544,7 +544,7 @@ export default function AppsPluginsPage() {
               <DialogFooter>
                 {selectedApp.installed ? (
                   <>
-                    <Button variant="outline" className="text-destructive hover:text-destructive">
+                    <Button variant="outline" className="text-error hover:text-error">
                       <Trash2 className="w-4 h-4 mr-2" />
                       Uninstall
                     </Button>

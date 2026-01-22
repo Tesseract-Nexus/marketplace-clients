@@ -289,9 +289,9 @@ export default function LoyaltyProgramPage() {
 
         {/* Error Banner */}
         {error && (
-          <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-center gap-3">
-            <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
-            <p className="text-destructive">{error}</p>
+          <div className="bg-error-muted border border-error/30 rounded-lg p-4 flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-error flex-shrink-0" />
+            <p className="text-error">{error}</p>
             <Button variant="outline" size="sm" onClick={fetchProgram} className="ml-auto">
               Retry
             </Button>
@@ -558,7 +558,7 @@ export default function LoyaltyProgramPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRemoveTier(index)}
-                        className="hover:bg-destructive/10 hover:text-destructive bg-white/50"
+                        className="hover:bg-error-muted hover:text-error bg-white/50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

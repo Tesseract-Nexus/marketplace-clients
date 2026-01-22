@@ -195,7 +195,7 @@ export default function CreateIndependentStorePage() {
         </div>
 
         {error && (
-          <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-xl flex items-center gap-3 text-destructive">
+          <div className="p-4 bg-error-muted border border-error/30 rounded-xl flex items-center gap-3 text-error">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <p>{error}</p>
           </div>
@@ -244,7 +244,7 @@ export default function CreateIndependentStorePage() {
                       className={cn(
                         "flex-1 px-4 py-3 border-2 rounded-r-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
                         slugAvailable === true && "border-success/40 bg-success-muted",
-                        slugAvailable === false && "border-destructive/30 bg-destructive/10",
+                        slugAvailable === false && "border-error/30 bg-error-muted",
                         slugAvailable === null && "border-border"
                       )}
                     />
@@ -262,7 +262,7 @@ export default function CreateIndependentStorePage() {
                   </p>
                 )}
                 {slugAvailable === false && (
-                  <p className="mt-2 text-sm text-destructive flex items-center gap-1">
+                  <p className="mt-2 text-sm text-error flex items-center gap-1">
                     <AlertCircle className="w-4 h-4" />
                     This URL is already taken
                   </p>

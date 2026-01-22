@@ -1002,7 +1002,7 @@ export default function QRCodesPage() {
             </Button>
 
             {error && (
-              <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
+              <div className="rounded-lg bg-error-muted border border-error/20 p-3 text-sm text-error">
                 {error}
               </div>
             )}
@@ -1158,7 +1158,7 @@ export default function QRCodesPage() {
                     />
                     <button
                       onClick={() => setLogo(null)}
-                      className="absolute -top-1.5 -right-1.5 rounded-full bg-destructive p-1 text-destructive-foreground hover:bg-destructive/90 shadow-sm transition-colors"
+                      className="absolute -top-1.5 -right-1.5 rounded-full bg-error p-1 text-error-foreground hover:bg-error/90 shadow-sm transition-colors"
                     >
                       <X className="h-2.5 w-2.5" />
                     </button>

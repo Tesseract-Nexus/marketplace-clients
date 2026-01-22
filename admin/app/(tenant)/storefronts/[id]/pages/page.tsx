@@ -373,7 +373,7 @@ export default function StorefrontPagesPage() {
                     </button>
                     <button
                       onClick={() => handleDeletePage(page)}
-                      className="p-2 rounded-lg hover:bg-destructive/10 text-destructive"
+                      className="p-2 rounded-lg hover:bg-error-muted text-error"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>

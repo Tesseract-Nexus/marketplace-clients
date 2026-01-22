@@ -268,7 +268,7 @@ export default function CampaignsPage() {
       case 'PAUSED':
         return 'bg-warning-muted text-warning border-warning/30';
       case 'CANCELLED':
-        return 'bg-destructive/10 text-destructive border-destructive/30';
+        return 'bg-error-muted text-error border-error/30';
       default:
         return 'bg-muted text-foreground border-border';
     }

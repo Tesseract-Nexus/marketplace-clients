@@ -212,7 +212,7 @@ export default function TaxRatesPage() {
       IGST: 'bg-accent text-accent-foreground border-accent',
       UTGST: 'bg-info/10 text-info border-info/30',
       CESS: 'bg-warning-muted text-warning-foreground border-warning/30',
-      HST: 'bg-destructive/10 text-destructive border-destructive/30',
+      HST: 'bg-error-muted text-error border-error/30',
       PST: 'bg-accent text-accent-foreground border-accent',
       QST: 'bg-primary/10 text-primary border-primary/30',
       CITY: 'bg-warning-muted text-warning border-warning/30',

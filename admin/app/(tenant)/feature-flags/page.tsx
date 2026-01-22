@@ -539,8 +539,8 @@ export default function FeatureFlagsPage() {
 
           <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-destructive/10 rounded-lg">
-                <XCircle className="w-5 h-5 text-destructive" />
+              <div className="p-2 bg-error-muted rounded-lg">
+                <XCircle className="w-5 h-5 text-error" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-foreground">{totalFlags - enabledFlags}</p>
@@ -634,11 +634,11 @@ export default function FeatureFlagsPage() {
         )}
 
         {updateError && (
-          <div className="bg-destructive/10 border border-destructive/30 rounded-xl p-4 flex items-start gap-3 animate-in slide-in-from-top duration-300">
-            <XCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+          <div className="bg-error-muted border border-error/30 rounded-xl p-4 flex items-start gap-3 animate-in slide-in-from-top duration-300">
+            <XCircle className="w-5 h-5 text-error shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium text-destructive">Error</p>
-              <p className="text-sm text-destructive">{updateError}</p>
+              <p className="font-medium text-error">Error</p>
+              <p className="text-sm text-error">{updateError}</p>
             </div>
           </div>
         )}

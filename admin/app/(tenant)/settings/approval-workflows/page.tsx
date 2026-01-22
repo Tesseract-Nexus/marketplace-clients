@@ -504,7 +504,7 @@ export default function ApprovalWorkflowsPage() {
                             <Label className="text-sm">Auto-approve</Label>
                           </div>
                           <Button variant="ghost" size="sm" onClick={() => removeThreshold(index)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
+                            <Trash2 className="h-4 w-4 text-error" />
                           </Button>
                         </div>
                       </div>
@@ -559,7 +559,7 @@ export default function ApprovalWorkflowsPage() {
                           </div>
                           <div className="flex items-end">
                             <Button variant="ghost" size="sm" onClick={() => removeEscalationLevel(index)}>
-                              <Trash2 className="h-4 w-4 text-destructive" />
+                              <Trash2 className="h-4 w-4 text-error" />
                             </Button>
                           </div>
                         </div>

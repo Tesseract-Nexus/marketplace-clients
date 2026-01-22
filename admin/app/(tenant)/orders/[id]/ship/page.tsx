@@ -236,9 +236,9 @@ export default function CreateShipmentPage() {
     return (
       <div className="min-h-screen bg-background">
         <div className="max-w-4xl mx-auto">
-          <Card className="border-destructive/30">
+          <Card className="border-error/30">
             <CardContent className="p-12 text-center">
-              <AlertCircle className="w-16 h-16 mx-auto text-destructive mb-4" />
+              <AlertCircle className="w-16 h-16 mx-auto text-error mb-4" />
               <h2 className="text-xl font-bold text-foreground mb-2">Order Not Found</h2>
               <p className="text-muted-foreground mb-6">{error || 'The requested order could not be found.'}</p>
               <Button onClick={() => router.push('/orders')} className="bg-primary hover:bg-primary">
@@ -295,7 +295,7 @@ export default function CreateShipmentPage() {
         />
 
         {error && (
-          <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-xl flex items-center gap-3 text-destructive">
+          <div className="p-4 bg-error-muted border border-error/30 rounded-xl flex items-center gap-3 text-error">
             <AlertCircle className="w-5 h-5" />
             <span>{error}</span>
           </div>
@@ -679,7 +679,7 @@ export default function CreateShipmentPage() {
                     );
                   }
                   return (
-                    <div className="p-4 bg-destructive/10 rounded-xl text-destructive">
+                    <div className="p-4 bg-error-muted rounded-xl text-error">
                       <AlertCircle className="w-5 h-5 inline mr-2" />
                       No shipping address on this order
                     </div>

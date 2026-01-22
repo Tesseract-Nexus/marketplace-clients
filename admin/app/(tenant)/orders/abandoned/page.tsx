@@ -259,7 +259,7 @@ export default function AbandonedCartsPage() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="flex flex-col items-center gap-4 text-center">
-          <AlertCircle className="h-12 w-12 text-destructive" />
+          <AlertCircle className="h-12 w-12 text-error" />
           <h2 className="text-xl font-semibold text-foreground">Failed to load abandoned carts</h2>
           <p className="text-muted-foreground">{error}</p>
           <Button onClick={() => loadCarts()} className="mt-4">
@@ -494,11 +494,11 @@ export default function AbandonedCartsPage() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDeleteCart(cart.id)}
-                            className="h-8 w-8 p-0 rounded-lg hover:bg-destructive/10 transition-colors"
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                             title="Delete"
                             aria-label="Delete cart"
                           >
-                            <Trash2 className="w-4 h-4 text-destructive" aria-hidden="true" />
+                            <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                           </Button>
                         </div>
                       </td>

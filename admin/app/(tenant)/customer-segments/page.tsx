@@ -323,10 +323,10 @@ export default function CustomerSegmentsPage() {
 
         {/* Error Alert */}
         {error && (
-          <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4 flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0 mt-0.5" />
+          <div className="bg-error-muted border border-error/30 rounded-lg p-4 flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="text-destructive">{error}</p>
+              <p className="text-error">{error}</p>
             </div>
             <Button onClick={() => setError(null)} variant="ghost" size="sm">
               <X className="h-4 w-4" />
@@ -474,10 +474,10 @@ export default function CustomerSegmentsPage() {
                               setSegmentToDelete(segment.id);
                               setShowDeleteModal(true);
                             }}
-                            className="h-8 w-8 p-0 rounded-lg hover:bg-destructive/10 transition-colors"
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                             title="Delete"
                           >
-                            <Trash2 className="w-4 h-4 text-destructive" />
+                            <Trash2 className="w-4 h-4 text-error" />
                           </Button>
                         </div>
                       </td>
@@ -573,7 +573,7 @@ export default function CustomerSegmentsPage() {
                             onClick={() => handleRemoveRule(index)}
                             className="mt-5 p-2"
                           >
-                            <X className="h-4 w-4 text-destructive" />
+                            <X className="h-4 w-4 text-error" />
                           </Button>
                         )}
                       </div>
@@ -696,7 +696,7 @@ export default function CustomerSegmentsPage() {
                             </div>
                             {createForm.rules.length > 1 && (
                               <Button variant="ghost" size="sm" onClick={() => handleRemoveRule(index)} className="mt-5 p-2">
-                                <X className="h-4 w-4 text-destructive" />
+                                <X className="h-4 w-4 text-error" />
                               </Button>
                             )}
                           </div>

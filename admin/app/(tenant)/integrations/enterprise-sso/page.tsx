@@ -570,7 +570,7 @@ export default function EnterpriseSSOPage() {
                           <Button
                             variant="outline"
                             onClick={() => handleRemoveProvider('microsoft')}
-                            className="text-destructive hover:bg-destructive/10"
+                            className="text-error hover:bg-error-muted"
                           >
                             Remove
                           </Button>
@@ -716,7 +716,7 @@ export default function EnterpriseSSOPage() {
                           <Button
                             variant="outline"
                             onClick={() => handleRemoveProvider('okta')}
-                            className="text-destructive hover:bg-destructive/10"
+                            className="text-error hover:bg-error-muted"
                           >
                             Remove
                           </Button>

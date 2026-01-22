@@ -170,7 +170,7 @@ const getStatusBadge = (status: string) => {
       );
     case "failed":
       return (
-        <Badge className="bg-destructive/10 text-destructive border-destructive/30">
+        <Badge className="bg-error-muted text-error border-error/30">
           <AlertCircle className="w-3 h-3 mr-1" />
           Failed
         </Badge>
@@ -327,8 +327,8 @@ export default function DataImportPage() {
                   {importHistory.reduce((acc, imp) => acc + imp.errorRows, 0)}
                 </p>
               </div>
-              <div className="w-10 h-10 rounded-lg bg-destructive/10 dark:bg-destructive/30 flex items-center justify-center">
-                <AlertCircle className="w-5 h-5 text-destructive" />
+              <div className="w-10 h-10 rounded-lg bg-error-muted dark:bg-error/30 flex items-center justify-center">
+                <AlertCircle className="w-5 h-5 text-error" />
               </div>
             </div>
           </CardContent>
@@ -428,7 +428,7 @@ export default function DataImportPage() {
                           <div className="text-sm">
                             <span className="text-success">{imp.successRows.toLocaleString()}</span>
                             {imp.errorRows > 0 && (
-                              <span className="text-destructive ml-2">
+                              <span className="text-error ml-2">
                                 ({imp.errorRows} errors)
                               </span>
                             )}
@@ -454,7 +454,7 @@ export default function DataImportPage() {
                               <Download className="w-4 h-4 mr-2" />
                               Download Report
                             </DropdownMenuItem>
-                            <DropdownMenuItem className="text-destructive">
+                            <DropdownMenuItem className="text-error">
                               <Trash2 className="w-4 h-4 mr-2" />
                               Delete
                             </DropdownMenuItem>

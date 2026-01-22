@@ -59,7 +59,7 @@ interface Return {
 const statusConfig: Record<string, { label: string; color: string; bgColor: string; icon: React.ElementType }> = {
   PENDING: { label: 'Pending Review', color: 'text-warning-foreground', bgColor: 'bg-warning-muted border-warning/30', icon: Clock },
   APPROVED: { label: 'Approved', color: 'text-success-foreground', bgColor: 'bg-success-muted border-success/30', icon: CheckCircle },
-  REJECTED: { label: 'Rejected', color: 'text-destructive', bgColor: 'bg-destructive/10 border-destructive/30', icon: XCircle },
+  REJECTED: { label: 'Rejected', color: 'text-error', bgColor: 'bg-error-muted border-error/30', icon: XCircle },
   IN_TRANSIT: { label: 'In Transit', color: 'text-primary', bgColor: 'bg-primary/10 border-primary/30', icon: Truck },
   RECEIVED: { label: 'Received', color: 'text-primary', bgColor: 'bg-primary/10 border-primary/30', icon: Package },
   INSPECTING: { label: 'Inspecting', color: 'text-primary', bgColor: 'bg-primary/10 border-primary/30', icon: Eye },
@@ -403,7 +403,7 @@ export default function ReturnsPage() {
                                   setActionType('reject');
                                   setIsActionDialogOpen(true);
                                 }}
-                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                className="text-error hover:text-error hover:bg-error-muted"
                               >
                                 <X className="h-4 w-4" />
                               </Button>
@@ -599,7 +599,7 @@ export default function ReturnsPage() {
                         setIsActionDialogOpen(true);
                       }}
                       variant="outline"
-                      className="flex-1 border-destructive/30 text-destructive hover:bg-destructive/10"
+                      className="flex-1 border-error/30 text-error hover:bg-error-muted"
                     >
                       <X className="h-4 w-4 mr-2" />
                       Reject Return
@@ -617,7 +617,7 @@ export default function ReturnsPage() {
             <div className="bg-card rounded-2xl max-w-md w-full shadow-2xl overflow-hidden" onClick={(e) => e.stopPropagation()}>
               <div className={`px-6 py-4 ${
                 actionType === 'approve' ? 'bg-success' :
-                actionType === 'reject' ? 'bg-destructive' :
+                actionType === 'reject' ? 'bg-error' :
                 'bg-primary'
               }`}>
                 <h2 className="text-lg font-bold text-white flex items-center gap-2">
@@ -658,7 +658,7 @@ export default function ReturnsPage() {
                   onClick={handleAction}
                   className={
                     actionType === 'approve' ? 'bg-success hover:bg-success text-white' :
-                    actionType === 'reject' ? 'bg-destructive hover:bg-destructive text-white' :
+                    actionType === 'reject' ? 'bg-error hover:bg-error text-white' :
                     'bg-primary hover:bg-primary text-white'
                   }
                 >

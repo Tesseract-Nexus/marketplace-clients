@@ -1945,7 +1945,7 @@ export default function InventoryPage() {
                 variant="destructive"
                 onClick={handleDelete}
                 disabled={savingEntity || deleteConfirmName !== getEntityName(modalEntityType, selectedEntityId)}
-                className="bg-destructive text-white hover:bg-destructive"
+                className="bg-error text-white hover:bg-error"
               >
                 {savingEntity ? (
                   <>

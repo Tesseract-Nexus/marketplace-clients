@@ -745,8 +745,8 @@ export default function CategoriesPage() {
       labelKey: "Inactive",
       value: categories.filter(c => !c.isActive).length,
       icon: XCircle,
-      textColor: "text-destructive",
-      bgColor: "bg-destructive/10"
+      textColor: "text-error",
+      bgColor: "bg-error-muted"
     },
     {
       labelKey: "Top Level",
@@ -915,7 +915,7 @@ export default function CategoriesPage() {
                       { value: 'DRAFT', label: 'Draft', icon: <FileEdit className="w-4 h-4 text-muted-foreground" /> },
                       { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-warning" /> },
                       { value: 'APPROVED', label: 'Approved', icon: <CheckCircle2 className="w-4 h-4 text-success" /> },
-                      { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-destructive" /> },
+                      { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-error" /> },
                     ]}
                     variant="filter"
                   />
@@ -928,7 +928,7 @@ export default function CategoriesPage() {
                     options={[
                       { value: 'ALL', label: 'All States', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
                       { value: 'ACTIVE', label: 'Active Only', icon: <Circle className="w-4 h-4 text-success fill-green-500" /> },
-                      { value: 'INACTIVE', label: 'Inactive Only', icon: <CircleOff className="w-4 h-4 text-destructive" /> },
+                      { value: 'INACTIVE', label: 'Inactive Only', icon: <CircleOff className="w-4 h-4 text-error" /> },
                     ]}
                     variant="filter"
                   />
@@ -1015,7 +1015,7 @@ export default function CategoriesPage() {
                     variant="destructive"
                     size="sm"
                     onClick={handleBulkDelete}
-                    className="bg-destructive hover:bg-destructive"
+                    className="bg-error hover:bg-error"
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
                     <AdminButtonText text="Delete Selected" />
@@ -1204,7 +1204,7 @@ export default function CategoriesPage() {
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-bold text-foreground mb-3">
-                    <AdminFormLabel text="Category Name" as="span" /> <span className="text-destructive">*</span>
+                    <AdminFormLabel text="Category Name" as="span" /> <span className="text-error">*</span>
                   </label>
                   <div className="relative">
                     <Tags className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
@@ -1215,14 +1215,14 @@ export default function CategoriesPage() {
                       className={cn(
                         "w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium shadow-sm",
                         errors.name
-                          ? "border-destructive focus:ring-red-500 focus:border-destructive"
+                          ? "border-error focus:ring-red-500 focus:border-error"
                           : "border-border focus:ring-ring focus:border-primary"
                       )}
                       placeholder="Enter category name..."
                     />
                   </div>
                   {errors.name && (
-                    <div className="flex items-center gap-1 mt-1 text-destructive text-sm">
+                    <div className="flex items-center gap-1 mt-1 text-error text-sm">
                       <AlertCircle className="h-4 w-4" />
                       <span>{errors.name}</span>
                     </div>
@@ -1231,7 +1231,7 @@ export default function CategoriesPage() {
 
                 <div>
                   <label className="block text-sm font-bold text-foreground mb-3">
-                    <AdminFormLabel text="Slug" as="span" /> <span className="text-destructive">*</span>
+                    <AdminFormLabel text="Slug" as="span" /> <span className="text-error">*</span>
                   </label>
                   <div className="relative">
                     <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none font-mono text-sm">#</div>
@@ -1242,14 +1242,14 @@ export default function CategoriesPage() {
                       className={cn(
                         "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-mono font-medium shadow-sm",
                         errors.slug
-                          ? "border-destructive focus:ring-red-500 focus:border-destructive"
+                          ? "border-error focus:ring-red-500 focus:border-error"
                           : "border-border focus:ring-violet-500 focus:border-primary"
                       )}
                       placeholder="category-slug"
                     />
                   </div>
                   {errors.slug && (
-                    <div className="flex items-center gap-1 mt-1 text-destructive text-sm">
+                    <div className="flex items-center gap-1 mt-1 text-error text-sm">
                       <AlertCircle className="h-4 w-4" />
                       <span>{errors.slug}</span>
                     </div>
@@ -1322,7 +1322,7 @@ export default function CategoriesPage() {
                         { value: 'DRAFT', label: 'Draft', icon: <FileEdit className="w-4 h-4 text-muted-foreground" /> },
                         { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-warning" /> },
                         { value: 'APPROVED', label: 'Approved', icon: <CheckCircle2 className="w-4 h-4 text-success" /> },
-                        { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-destructive" /> },
+                        { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-error" /> },
                       ]}
                       leftIcon={<CheckCircle className="w-5 h-5 text-muted-foreground" />}
                     />

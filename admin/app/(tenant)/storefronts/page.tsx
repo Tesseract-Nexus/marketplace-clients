@@ -344,7 +344,7 @@ export default function StorefrontsPage() {
       />
 
       {error && (
-        <div className="mb-6 p-4 bg-destructive/10 border-2 border-destructive/30 rounded-xl text-destructive flex items-center gap-2">
+        <div className="mb-6 p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
           <XCircle className="w-5 h-5" />
           {error}
         </div>
@@ -523,11 +523,11 @@ export default function StorefrontsPage() {
                               e.stopPropagation();
                               handleDeleteStorefront(storefront);
                             }}
-                            className="p-1.5 h-auto rounded-lg hover:bg-destructive/10 transition-colors"
+                            className="p-1.5 h-auto rounded-lg hover:bg-error-muted transition-colors"
                             title="Delete"
                             aria-label="Delete storefront"
                           >
-                            <Trash2 className="w-4 h-4 text-destructive" aria-hidden="true" />
+                            <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
                           </Button>
                         </div>
                       </td>

@@ -633,8 +633,8 @@ export default function ShippingSettingsPage() {
                   <div className="border border-border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-destructive/10 rounded-lg flex items-center justify-center">
-                          <Truck className="h-5 w-5 text-destructive" />
+                        <div className="w-10 h-10 bg-error-muted rounded-lg flex items-center justify-center">
+                          <Truck className="h-5 w-5 text-error" />
                         </div>
                         <div>
                           <h4 className="font-semibold text-foreground">Delhivery</h4>
@@ -678,7 +678,7 @@ export default function ShippingSettingsPage() {
                         <Button
                           onClick={() => saveCarrierCredentials('DELHIVERY')}
                           disabled={!delhiveryToken || savingCarrier === 'DELHIVERY'}
-                          className="bg-destructive hover:bg-destructive text-white"
+                          className="bg-error hover:bg-error text-white"
                         >
                           {savingCarrier === 'DELHIVERY' ? (
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />

@@ -195,7 +195,7 @@ export function CreateTeamModal({
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           {apiError && (
-            <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg text-destructive text-sm">
+            <div className="p-3 bg-error-muted border border-error/30 rounded-lg text-error text-sm">
               {apiError}
             </div>
           )}
@@ -213,7 +213,7 @@ export function CreateTeamModal({
               }}
               className={cn(
                 "w-full px-3 py-2 border-2 rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
-                errors.name ? "border-destructive" : "border-border"
+                errors.name ? "border-error" : "border-border"
               )}
               placeholder="e.g., Frontend Team, Sales Team A"
               disabled={isSubmitting}
@@ -282,7 +282,7 @@ export function CreateTeamModal({
               }}
               className={cn(
                 "w-full px-3 py-2 border-2 rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
-                errors.maxCapacity ? "border-destructive" : "border-border"
+                errors.maxCapacity ? "border-error" : "border-border"
               )}
               placeholder="e.g., 10"
               min={1}
