@@ -21,6 +21,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { PageHeader } from '@/components/PageHeader';
 import { StoreSelector } from '@/components/settings/StoreSelector';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { PageLoading } from '@/components/common';
 import { settingsService } from '@/lib/services/settingsService';
 import { storefrontService } from '@/lib/services/storefrontService';
 import type { Storefront } from '@/lib/api/types';

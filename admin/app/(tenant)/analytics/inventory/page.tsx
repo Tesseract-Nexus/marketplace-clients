@@ -14,6 +14,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { PageLoading } from '@/components/common';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/PageHeader';
 import {

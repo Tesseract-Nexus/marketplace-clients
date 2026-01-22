@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { PageHeader } from '@/components/PageHeader';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { PageLoading } from '@/components/common';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
 import { apiClient } from '@/lib/api/client';

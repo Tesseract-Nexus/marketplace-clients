@@ -27,6 +27,7 @@ import {
   X,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { PageLoading } from '@/components/common';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { StatusBadge, StatusType } from '@/components/ui/status-badge';

@@ -20,6 +20,7 @@ import {
   Filter,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { PageLoading } from '@/components/common';
 import { useHasPermission, Permissions } from '@/hooks/usePermission';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';

@@ -644,6 +644,14 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               </Button>
             </div>
           </div>
+
+          {/* Branding Footer - commented out for now */}
+          {/* <div className="px-4 py-3 border-t border-sidebar-border/50">
+            <div className="text-center">
+              <p className="text-xs text-sidebar-text-muted">Powered by Tesserix</p>
+              <p className="text-[10px] text-sidebar-text-muted/60">v1.0.0</p>
+            </div>
+          </div> */}
         </div>
       </aside>
     </>

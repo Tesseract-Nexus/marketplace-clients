@@ -24,6 +24,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PageHeader } from '@/components/PageHeader';
 import { PermissionGate, Permission, Priority } from '@/components/permission-gate';
+import { PageLoading } from '@/components/common';
 import { useDialog } from '@/contexts/DialogContext';
 import { useTenant } from '@/contexts/TenantContext';
 

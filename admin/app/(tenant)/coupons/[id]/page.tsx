@@ -3,6 +3,7 @@
 import { use } from 'react';
 import { CouponForm } from '@/components/coupons/CouponForm';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { PageLoading } from '@/components/common';
 import { Loader2 } from 'lucide-react';
 
 interface EditCouponPageProps {

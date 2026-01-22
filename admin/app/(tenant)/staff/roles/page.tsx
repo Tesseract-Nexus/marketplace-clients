@@ -33,6 +33,7 @@ import {
   Upload,
 } from 'lucide-react';
 import { PermissionGate, Permission as GatePermission } from '@/components/permission-gate';
+import { PageLoading } from '@/components/common';
 import { useRoleCapabilities } from '@/hooks/usePermission';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';

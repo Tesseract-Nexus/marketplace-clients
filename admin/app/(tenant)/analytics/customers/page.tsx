@@ -13,6 +13,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { PageLoading } from '@/components/common';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
