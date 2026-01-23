@@ -50,6 +50,7 @@ import { PermissionGate, Permission } from '@/components/permission-gate';
 import { useHasPermission, Permissions } from '@/hooks/usePermission';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
 import { Stepper, StepperNavigation, Step } from '@/components/Stepper';
@@ -67,36 +68,6 @@ import { BulkImportModal } from '@/components/BulkImportModal';
 import { Upload } from 'lucide-react';
 import { StaffFormStep1, StaffFormStep2, StaffFormStep3, StaffFormStep4, StaffFormData, initialFormData, QuickAddForm, QuickAddData } from './components';
 import { StatsGrid, FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
-
-const Card = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("rounded-2xl border bg-white/80 backdrop-blur-sm text-card-foreground shadow-lg hover:shadow-xl transition-all duration-300", className)} {...props}>
-    {children}
-  </div>
-);
-
-const CardHeader = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col space-y-1.5 p-6", className)} {...props}>
-    {children}
-  </div>
-);
-
-const CardTitle = ({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-  <h3 className={cn("font-semibold leading-none tracking-tight", className)} {...props}>
-    {children}
-  </h3>
-);
-
-const CardContent = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("p-6 pt-0", className)} {...props}>
-    {children}
-  </div>
-);
-
-const Badge = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors", className)} {...props}>
-    {children}
-  </div>
-);
 
 type ViewMode = 'list' | 'create' | 'edit' | 'detail';
 
@@ -523,7 +494,7 @@ export default function StaffPage() {
               {canUpdateStaff && (
                 <Button
                   onClick={() => handleEditStaff(selectedStaff)}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
                 >
                   <Edit className="w-5 h-5" />
                   Edit
@@ -531,7 +502,7 @@ export default function StaffPage() {
               )}
               <Button
                 onClick={() => setViewMode('list')}
-                className="flex items-center gap-2 px-4 py-2.5 bg-muted text-foreground rounded-xl hover:bg-muted transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-colors"
               >
                 <X className="w-5 h-5" />
                 Close
@@ -541,14 +512,14 @@ export default function StaffPage() {
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <div className="bg-card rounded-lg border border-border overflow-hidden">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                 <User className="w-5 h-5 text-primary" />
                 Personal Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div>
                 <p className="text-sm text-muted-foreground">Full Name</p>
                 <p className="font-semibold text-lg">
@@ -573,17 +544,17 @@ export default function StaffPage() {
                   {selectedStaff.isActive ? 'ACTIVE' : 'INACTIVE'}
                 </Badge>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <div className="bg-card rounded-lg border border-border overflow-hidden">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                 <Mail className="w-5 h-5 text-primary" />
                 Contact Information
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div>
                 <p className="text-sm text-muted-foreground">Email</p>
                 <p className="font-semibold">{selectedStaff.email}</p>
@@ -606,17 +577,17 @@ export default function StaffPage() {
                   <p className="font-semibold">{selectedStaff.mobileNumber}</p>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <div className="bg-card rounded-lg border border-border overflow-hidden">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                 <Briefcase className="w-5 h-5 text-primary" />
                 Employment Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div>
                 <p className="text-sm text-muted-foreground">Role</p>
                 <div className="mt-1">{getRoleBadge(selectedStaff.role)}</div>
@@ -651,17 +622,17 @@ export default function StaffPage() {
                   </p>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <div className="bg-card rounded-lg border border-border overflow-hidden">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                 <Building className="w-5 h-5 text-success" />
                 Organization
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               {selectedStaff.departmentId && (
                 <div>
                   <p className="text-sm text-muted-foreground">Department</p>
@@ -686,17 +657,17 @@ export default function StaffPage() {
                   <p className="font-semibold">{selectedStaff.locationId}</p>
                 </div>
               )}
-              </CardContent>
-            </Card>
+            </div>
+          </div>
 
-            <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <div className="bg-card rounded-lg border border-border overflow-hidden lg:col-span-2">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                 <Shield className="w-5 h-5 text-primary" />
                 Authentication & Access
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+              </h3>
+            </div>
+            <div className="p-6 pt-0">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
                   <p className="text-sm text-muted-foreground">Account Status</p>
@@ -756,7 +727,7 @@ export default function StaffPage() {
                 <div className="mt-6 pt-6 border-t border-border">
                   <Button
                     onClick={() => handleSendInvitation(selectedStaff)}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-warning text-warning-foreground rounded-xl hover:bg-warning/90 transition-all duration-200 shadow-lg hover:shadow-xl"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-warning text-warning-foreground rounded-xl hover:bg-warning/90 transition-colors"
                   >
                     <Send className="w-5 h-5" />
                     Send Invitation
@@ -766,9 +737,9 @@ export default function StaffPage() {
                   </p>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
           </div>
+        </div>
         </div>
       </div>
     );
@@ -790,16 +761,16 @@ export default function StaffPage() {
               ]}
             />
 
-            <Card className="max-w-3xl mx-auto">
-              <CardContent className="pt-6">
+            <div className="bg-card rounded-lg border border-border overflow-hidden max-w-3xl mx-auto">
+              <div className="p-6">
                 <QuickAddForm
                   onSubmit={handleQuickAddSubmit}
                   onCancel={handleCancel}
                   onSwitchToFullForm={handleSwitchToFullForm}
                   isSubmitting={isSubmitting}
                 />
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       );
@@ -819,8 +790,8 @@ export default function StaffPage() {
             ]}
           />
 
-        <Card className="max-w-5xl mx-auto">
-          <CardContent className="pt-6">
+        <div className="bg-card rounded-lg border border-border overflow-hidden max-w-5xl mx-auto">
+          <div className="p-6">
             {/* Mode toggle for create mode */}
             {viewMode === 'create' && (
               <div className="flex justify-end mb-4">
@@ -872,8 +843,8 @@ export default function StaffPage() {
                 onCancel={handleCancel}
               />
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
         </div>
       </div>
     );
@@ -922,7 +893,7 @@ export default function StaffPage() {
             {canCreateStaff && (
               <Button
                 onClick={handleCreateStaff}
-                className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+                className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
               >
                 <Plus className="w-5 h-5" />
                 Add Staff
@@ -1032,8 +1003,8 @@ export default function StaffPage() {
         </div>
       </FilterPanel>
 
-      <Card className="border-border/50 overflow-visible relative z-40">
-        <CardContent className="p-6 overflow-visible relative">
+      <div className="bg-card rounded-lg border border-border overflow-visible relative z-40">
+        <div className="p-6 overflow-visible relative">
           {loading ? (
             <div className="text-center py-12">
               <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
@@ -1062,7 +1033,7 @@ export default function StaffPage() {
                   {paginatedStaff.map((staffMember) => (
                     <tr
                       key={staffMember.id}
-                      className="border-b border-border hover:bg-primary/10/50 transition-colors cursor-pointer"
+                      className="border-b border-border hover:bg-muted/50 transition-colors cursor-pointer"
                       onClick={() => handleViewStaff(staffMember)}
                     >
                       <td className="p-4">
@@ -1171,8 +1142,8 @@ export default function StaffPage() {
               </table>
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Pagination */}
       {!loading && filteredStaff.length > 0 && (

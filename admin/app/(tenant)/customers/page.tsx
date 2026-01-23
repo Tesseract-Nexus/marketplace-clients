@@ -275,7 +275,7 @@ export default function CustomersPage() {
           actions={
           <Button
             onClick={() => setShowCreateModal(true)}
-            className="bg-primary text-primary-foreground hover:opacity-90 shadow-lg hover:shadow-xl transition-all"
+            className="bg-primary text-primary-foreground hover:opacity-90 transition-colors"
           >
             <Plus className="mr-2 h-4 w-4" /> Add Customer
           </Button>
@@ -340,7 +340,7 @@ export default function CustomersPage() {
       </FilterPanel>
 
       {/* Customers Table - Desktop */}
-      <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
+      <div className="bg-card rounded-lg border border-border overflow-hidden">
         {/* Desktop Table View */}
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
@@ -564,7 +564,7 @@ export default function CustomersPage() {
       {/* Create Customer Modal */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-card rounded-lg border border-border w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-card border-b border-border px-6 py-4 z-10">
               <h2 className="text-2xl font-bold text-primary">
                 Add New Customer

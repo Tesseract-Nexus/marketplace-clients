@@ -468,7 +468,7 @@ export default function TicketsPage() {
               return (
                 <div
                   key={ticket.id}
-                  className="bg-card rounded-lg border border-border p-6 shadow-sm hover:shadow-md transition-shadow"
+                  className="bg-card rounded-lg border border-border p-4 hover:border-primary/30 transition-colors"
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
                     <div className="flex-1">
@@ -598,7 +598,7 @@ export default function TicketsPage() {
         {/* Create Ticket Modal */}
         {showCreateModal && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="bg-card rounded-lg border border-border w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <div className="border-b border-border px-6 py-4">
                 <h2 className="text-2xl font-bold text-primary">
                   Create New Ticket
@@ -725,7 +725,7 @@ export default function TicketsPage() {
         {/* Detail Modal */}
         {showDetailModal && selectedTicket && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-card rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div className="bg-card rounded-lg border border-border w-full max-w-3xl max-h-[90vh] overflow-y-auto">
               <div className="border-b border-border px-6 py-4">
                 <h2 className="text-2xl font-bold text-primary">
                   Ticket Details
@@ -836,7 +836,7 @@ export default function TicketsPage() {
 
                   {/* Add Comment Form */}
                   <div className="space-y-3">
-                    <div className="bg-primary/10 border border-primary/30 rounded-lg p-4">
+                    <div className="bg-card border border-border rounded-lg p-4">
                       <label className="block text-sm font-semibold text-foreground mb-2">
                         Add Comment
                       </label>

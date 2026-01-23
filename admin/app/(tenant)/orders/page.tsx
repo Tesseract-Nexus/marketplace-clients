@@ -36,7 +36,6 @@ import {
   DollarSign,
   User,
   Calendar,
-  Filter,
   RefreshCw,
   X,
   Loader2,
@@ -45,8 +44,6 @@ import {
   Mail,
   FileText,
   ChevronRight,
-  AlertCircle,
-  CreditCard,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { StatusBadge, StatusType } from '@/components/ui/status-badge';
@@ -58,36 +55,6 @@ const formatCurrency = (amount: string | number | null | undefined, currencyCode
   const symbol = symbols[currencyCode] || currencyCode + ' ';
   return `${symbol}${(isNaN(numAmount) ? 0 : numAmount).toFixed(2)}`;
 };
-
-const Card = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("rounded-2xl border bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300", className)} {...props}>
-    {children}
-  </div>
-);
-
-const CardHeader = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col space-y-1.5 p-6", className)} {...props}>
-    {children}
-  </div>
-);
-
-const CardTitle = ({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-  <h3 className={cn("font-semibold leading-none tracking-tight", className)} {...props}>
-    {children}
-  </h3>
-);
-
-const CardContent = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("p-6 pt-0", className)} {...props}>
-    {children}
-  </div>
-);
-
-const Badge = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors", className)} {...props}>
-    {children}
-  </div>
-);
 
 export default function OrdersPage() {
   const router = useRouter();
@@ -562,33 +529,25 @@ export default function OrdersPage() {
 
       {/* Orders List */}
       {loading ? (
-        <Card className="border-border/50">
-          <CardContent className="p-12 text-center">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-24 h-24 rounded-full border-4 border-primary/20 animate-pulse" />
-              </div>
-              <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin mb-4 relative" />
-            </div>
-            <p className="text-muted-foreground font-medium mt-8"><AdminUIText text="Loading orders..." /></p>
-            <p className="text-muted-foreground text-sm mt-1"><AdminUIText text="Please wait while we fetch your data" /></p>
-          </CardContent>
-        </Card>
+        <div className="bg-card rounded-lg border border-border p-12 text-center">
+          <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin mb-4" />
+          <p className="text-muted-foreground font-medium"><AdminUIText text="Loading orders..." /></p>
+          <p className="text-muted-foreground text-sm mt-1"><AdminUIText text="Please wait while we fetch your data" /></p>
+        </div>
       ) : (
         <div className="space-y-4">
           {paginatedOrders.map((order, idx) => (
-            <Card
+            <div
               key={order.id}
-              className="border-border/50 hover:border-primary/50/50 hover:shadow-xl transition-all duration-300 group cursor-pointer overflow-hidden"
+              className="bg-card rounded-lg border border-border p-4 hover:border-primary/30 transition-colors group cursor-pointer overflow-hidden"
               onClick={() => navigateToOrder(order.id)}
-              style={{ animationDelay: `${idx * 50}ms` }}
             >
               {/* Mini Fulfillment Progress Bar at top of card */}
               {order.fulfillmentStatus && order.fulfillmentStatus !== 'UNFULFILLED' && (
-                <div className="h-1 bg-muted">
+                <div className="h-1 bg-muted -mt-4 -mx-4 mb-4">
                   <div
                     className={cn(
-                      "h-full transition-all duration-700 ease-out",
+                      "h-full",
                       order.fulfillmentStatus === 'DELIVERED' && "bg-success",
                       order.fulfillmentStatus === 'FAILED_DELIVERY' && "bg-error",
                       order.fulfillmentStatus === 'RETURNED' && "bg-warning",
@@ -599,7 +558,7 @@ export default function OrdersPage() {
                 </div>
               )}
 
-              <CardContent className="p-6">
+              <div>
                 <div className="flex flex-col lg:flex-row justify-between gap-4">
                   <div className="flex-1 space-y-3">
                     <div className="flex items-start justify-between">
@@ -607,7 +566,7 @@ export default function OrdersPage() {
                         <div className="flex items-center gap-3 mb-2 flex-wrap">
                           {/* Order Status Icon */}
                           <div className={cn(
-                            "p-2 rounded-xl transition-all",
+                            "p-2 rounded-lg",
                             order.status === 'COMPLETED' && "bg-success/10 text-success",
                             order.status === 'CANCELLED' && "bg-error-muted text-error",
                             order.status === 'PROCESSING' && "bg-primary/10 text-primary",
@@ -624,15 +583,15 @@ export default function OrdersPage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-                          <span className="flex items-center gap-1.5 bg-muted px-2 py-1 rounded-lg">
+                          <span className="flex items-center gap-1.5">
                             <User className="w-4 h-4 text-muted-foreground" />
                             {order.customerName}
                           </span>
-                          <span className="flex items-center gap-1.5 bg-muted px-2 py-1 rounded-lg">
+                          <span className="flex items-center gap-1.5">
                             <Calendar className="w-4 h-4 text-muted-foreground" />
                             {new Date(order.orderDate).toLocaleDateString()}
                           </span>
-                          <span className="flex items-center gap-1.5 bg-muted px-2 py-1 rounded-lg">
+                          <span className="flex items-center gap-1.5">
                             <Package className="w-4 h-4 text-muted-foreground" />
                             {order.totalItems} items
                           </span>
@@ -641,19 +600,19 @@ export default function OrdersPage() {
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-3 border-t border-border">
-                      <div className="group/item">
+                      <div>
                         <p className="text-xs text-muted-foreground font-semibold">Subtotal</p>
-                        <p className="text-sm font-bold text-foreground group-hover/item:text-primary transition-colors">{formatCurrency(order.subtotal, order.currencyCode)}</p>
+                        <p className="text-sm font-bold text-foreground">{formatCurrency(order.subtotal, order.currencyCode)}</p>
                       </div>
-                      <div className="group/item">
+                      <div>
                         <p className="text-xs text-muted-foreground font-semibold">Tax</p>
-                        <p className="text-sm font-bold text-foreground group-hover/item:text-primary transition-colors">{formatCurrency(order.tax, order.currencyCode)}</p>
+                        <p className="text-sm font-bold text-foreground">{formatCurrency(order.tax, order.currencyCode)}</p>
                       </div>
-                      <div className="group/item">
+                      <div>
                         <p className="text-xs text-muted-foreground font-semibold">Shipping</p>
-                        <p className="text-sm font-bold text-foreground group-hover/item:text-primary transition-colors">{formatCurrency(order.shippingCost, order.currencyCode)}</p>
+                        <p className="text-sm font-bold text-foreground">{formatCurrency(order.shippingCost, order.currencyCode)}</p>
                       </div>
-                      <div className="bg-primary/5 -m-2 p-2 rounded-xl border border-primary/20">
+                      <div className="bg-primary/5 -m-2 p-2 rounded-lg border border-primary/20">
                         <p className="text-xs text-primary font-semibold">Total</p>
                         <p className="text-xl font-bold text-primary">
                           {formatCurrency(order.total, order.currencyCode)}
@@ -664,8 +623,8 @@ export default function OrdersPage() {
 
                   <div className="flex lg:flex-col gap-2 items-center justify-center relative">
                     {/* View button */}
-                    <div className="h-10 w-10 rounded-xl bg-primary/10 group-hover:bg-primary flex items-center justify-center transition-all duration-300 border border-primary/30 group-hover:border-primary/70">
-                      <Eye className="w-4 h-4 text-primary group-hover:text-white transition-colors" />
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors border border-primary/20">
+                      <Eye className="w-4 h-4 text-primary" />
                     </div>
 
                     {/* Quick actions menu */}
@@ -673,10 +632,10 @@ export default function OrdersPage() {
                       <button
                         onClick={(e) => toggleMenu(e, order.id)}
                         className={cn(
-                          "h-10 w-10 rounded-xl flex items-center justify-center transition-all duration-200 border",
+                          "h-10 w-10 rounded-lg flex items-center justify-center transition-colors border",
                           openMenuId === order.id
                             ? "bg-muted border-border"
-                            : "bg-muted border-border hover:bg-muted hover:border-border"
+                            : "bg-muted border-border hover:bg-muted/80"
                         )}
                       >
                         <MoreVertical className="w-4 h-4 text-muted-foreground" />
@@ -684,7 +643,7 @@ export default function OrdersPage() {
 
                       {/* Dropdown menu */}
                       {openMenuId === order.id && (
-                        <div className="absolute right-0 top-12 w-48 bg-card rounded-xl shadow-xl border border-border py-1 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <div className="absolute right-0 top-12 w-48 bg-card rounded-lg border border-border py-1 z-50">
                           <button
                             onClick={(e) => handleCopyOrderNumber(e, order.orderNumber)}
                             className="w-full px-4 py-2.5 text-left text-sm text-foreground hover:bg-muted flex items-center gap-3 transition-colors"
@@ -746,40 +705,35 @@ export default function OrdersPage() {
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
 
           {paginatedOrders.length === 0 && (
-            <Card className="border-border/50 border-dashed border-2">
-              <CardContent className="p-16 text-center">
-                <div className="relative inline-block">
-                  <div className="absolute inset-0 bg-primary/10 rounded-full blur-xl opacity-50" />
-                  <div className="relative bg-muted p-8 rounded-full border-2 border-border">
-                    <ShoppingCart className="w-16 h-16 text-muted-foreground" />
-                  </div>
-                </div>
-                <h3 className="text-xl font-bold text-foreground mt-6">No Orders Found</h3>
-                <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-                  {searchQuery || statusFilter !== 'ALL' || paymentStatusFilter !== 'ALL' || fulfillmentStatusFilter !== 'ALL'
-                    ? "Try adjusting your search criteria or filters to find what you're looking for."
-                    : "Orders will appear here once customers start placing them."}
-                </p>
-                {(searchQuery || statusFilter !== 'ALL' || paymentStatusFilter !== 'ALL' || fulfillmentStatusFilter !== 'ALL') && (
-                  <Button
-                    onClick={() => {
-                      setSearchQuery('');
-                      setStatusFilter('ALL');
-                      setPaymentStatusFilter('ALL');
-                      setFulfillmentStatusFilter('ALL');
-                    }}
-                    className="mt-4 px-6 py-2 bg-primary hover:from-blue-600 hover:to-violet-600 text-white rounded-xl transition-all"
-                  >
-                    Clear All Filters
-                  </Button>
-                )}
-              </CardContent>
-            </Card>
+            <div className="bg-card rounded-lg border border-dashed border-border p-16 text-center">
+              <div className="bg-muted p-8 rounded-full border border-border inline-block">
+                <ShoppingCart className="w-16 h-16 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground mt-6">No Orders Found</h3>
+              <p className="text-muted-foreground mt-2 max-w-md mx-auto">
+                {searchQuery || statusFilter !== 'ALL' || paymentStatusFilter !== 'ALL' || fulfillmentStatusFilter !== 'ALL'
+                  ? "Try adjusting your search criteria or filters to find what you're looking for."
+                  : "Orders will appear here once customers start placing them."}
+              </p>
+              {(searchQuery || statusFilter !== 'ALL' || paymentStatusFilter !== 'ALL' || fulfillmentStatusFilter !== 'ALL') && (
+                <Button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setStatusFilter('ALL');
+                    setPaymentStatusFilter('ALL');
+                    setFulfillmentStatusFilter('ALL');
+                  }}
+                  className="mt-4 px-6 py-2 bg-primary text-white rounded-lg"
+                >
+                  Clear All Filters
+                </Button>
+              )}
+            </div>
           )}
         </div>
       )}

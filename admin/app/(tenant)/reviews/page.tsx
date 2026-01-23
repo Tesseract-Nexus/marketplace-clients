@@ -385,7 +385,7 @@ export default function ReviewsPage() {
 
       {/* Bulk Actions Toolbar */}
       {selectedReviews.size > 0 && (
-        <div className="bg-primary rounded-lg p-4 shadow-lg mb-6 animate-in slide-in-from-top duration-300">
+        <div className="bg-primary rounded-lg p-4 mb-6 animate-in slide-in-from-top duration-300">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-primary-foreground">
             <div className="flex items-center gap-4">
               <span className="font-semibold text-base sm:text-lg">
@@ -444,7 +444,7 @@ export default function ReviewsPage() {
 
       {/* Select All */}
       {paginatedReviews.length > 0 && (
-        <div className="bg-card rounded-lg border border-border p-4 shadow-sm mb-4">
+        <div className="bg-card rounded-lg border border-border p-4 mb-4">
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -484,8 +484,8 @@ export default function ReviewsPage() {
               <div
                 key={review.id}
                 className={cn(
-                  "bg-card rounded-lg border border-border p-6 shadow-sm hover:shadow-md transition-all",
-                  selectedReviews.has(review.id) && "ring-2 ring-blue-500 border-primary"
+                  "bg-card rounded-lg border border-border p-4 sm:p-5 hover:border-primary/30 transition-colors",
+                  selectedReviews.has(review.id) && "ring-2 ring-primary border-primary"
                 )}
               >
                 <div className="flex items-start gap-4 mb-4">
@@ -770,7 +770,7 @@ export default function ReviewsPage() {
       {/* Reply Modal */}
       {showReplyModal && selectedReview && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl">
+          <div className="bg-card rounded-lg border border-border w-full max-w-2xl">
             <div className="border-b border-border px-6 py-4">
               <h2 className="text-2xl font-bold text-foreground">
                 Reply to Review
@@ -838,7 +838,7 @@ export default function ReviewsPage() {
       {/* Status Update Modal */}
       {showStatusModal && selectedReview && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl">
+          <div className="bg-card rounded-lg border border-border w-full max-w-2xl">
             <div className="border-b border-border px-6 py-4">
               <h2 className="text-2xl font-bold text-foreground">
                 Update Review Status
@@ -854,14 +854,14 @@ export default function ReviewsPage() {
                   ? (typeof firstImage === 'string' ? firstImage : firstImage.url)
                   : null;
                 return (
-                  <div className="bg-primary/10 rounded-lg p-4 border border-primary/30">
-                    <p className="text-sm text-primary font-medium mb-2">Product Being Reviewed:</p>
+                  <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
+                    <p className="text-sm text-muted-foreground font-medium mb-2">Product Being Reviewed:</p>
                     <div className="flex items-center gap-4">
                       {imageUrl && (
                         <img
                           src={imageUrl}
                           alt={product.name}
-                          className="w-16 h-16 rounded-lg object-cover border border-primary/30"
+                          className="w-16 h-16 rounded-lg object-cover border border-border"
                         />
                       )}
                       <div>

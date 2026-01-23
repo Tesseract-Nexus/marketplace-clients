@@ -44,31 +44,6 @@ import { ImageUploadProgressModal, UploadingFile, UploadStatus } from '@/compone
 import type { CascadeDeleteResult } from '@/lib/types/cascade-delete';
 import { formatCurrency, getCurrencySymbol } from '@/lib/utils/currency';
 
-// Inline UI Components
-const Card = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("rounded-2xl border bg-white/80 backdrop-blur-sm text-card-foreground shadow-lg hover:shadow-xl transition-all duration-300", className)} {...props}>
-    {children}
-  </div>
-);
-
-const CardHeader = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col space-y-1.5 p-6", className)} {...props}>
-    {children}
-  </div>
-);
-
-const CardTitle = ({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-  <h3 className={cn("font-semibold leading-none tracking-tight", className)} {...props}>
-    {children}
-  </h3>
-);
-
-const CardContent = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("p-6", className)} {...props}>
-    {children}
-  </div>
-);
-
 const Label = React.forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(
   ({ className, ...props }, ref) => {
     return (
@@ -1244,7 +1219,7 @@ export default function ProductsPage() {
                 <PermissionGate permission={Permission.PRODUCTS_UPDATE}>
                   <Button
                     onClick={() => handleEdit(selectedProduct)}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all shadow-lg hover:shadow-xl"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
                   >
                     <Edit className="w-4 h-4" />
                     Edit Product
@@ -1268,14 +1243,14 @@ export default function ProductsPage() {
             {/* Main Info */}
             <div className="lg:col-span-2 space-y-6">
               {/* Basic Info Card */}
-              <Card className="border-border/50">
-                <CardHeader className="border-b border-border bg-muted">
-                  <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+              <div className="bg-card rounded-lg border border-border overflow-hidden">
+                <div className="flex flex-col space-y-1.5 p-6 border-b border-border bg-muted">
+                  <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                     <FileText className="w-5 h-5 text-primary" />
                     Basic Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
+                  </h3>
+                </div>
+                <div className="p-6">
                   <div className="grid grid-cols-2 gap-6">
                     <div>
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Product Name</p>
@@ -1304,19 +1279,19 @@ export default function ProductsPage() {
                       </div>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               {/* Product Images Card */}
               {selectedProduct.images && selectedProduct.images.length > 0 && (
-                <Card className="border-border/50">
-                  <CardHeader className="border-b border-border bg-primary/5">
-                    <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                <div className="bg-card rounded-lg border border-border overflow-hidden">
+                  <div className="flex flex-col space-y-1.5 p-6 border-b border-border bg-primary/5">
+                    <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                       <ImageIcon className="w-5 h-5 text-primary" />
                       Product Images ({selectedProduct.images.length})
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6">
+                    </h3>
+                  </div>
+                  <div className="p-6">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       {selectedProduct.images.map((img, index) => {
                         const imageUrl = typeof img === 'string' ? img : img?.url;
@@ -1324,8 +1299,8 @@ export default function ProductsPage() {
                           <div
                             key={index}
                             className={cn(
-                              "relative aspect-square rounded-xl overflow-hidden border-2 bg-muted",
-                              index === 0 ? "border-primary/70 ring-2 ring-blue-100" : "border-border"
+                              "relative aspect-square rounded-lg overflow-hidden border-2 bg-muted",
+                              index === 0 ? "border-primary/70" : "border-border"
                             )}
                           >
                             <img
@@ -1342,33 +1317,33 @@ export default function ProductsPage() {
                         ) : null;
                       })}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               )}
 
               {/* Pricing Card */}
-              <Card className="border-border/50">
-                <CardHeader className="border-b border-border bg-success/5">
-                  <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+              <div className="bg-card rounded-lg border border-border overflow-hidden">
+                <div className="flex flex-col space-y-1.5 p-6 border-b border-border bg-success/5">
+                  <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                     <span className="w-5 h-5 flex items-center justify-center font-bold text-lg text-success">{getCurrencySymbol(storeCurrency)}</span>
                     Pricing
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
+                  </h3>
+                </div>
+                <div className="p-6">
                   <div className="grid grid-cols-3 gap-6">
-                    <div className="bg-success-muted rounded-xl p-4 border border-success/20">
+                    <div className="bg-success-muted rounded-lg p-4 border border-success/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Selling Price</p>
                       <p className="text-2xl font-bold text-success">
                         {formatCurrency(selectedProduct.price, selectedProduct.currencyCode || storeCurrency)}
                       </p>
                     </div>
-                    <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
+                    <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Compare Price</p>
                       <p className="text-2xl font-bold text-primary">
                         {selectedProduct.comparePrice ? formatCurrency(selectedProduct.comparePrice, selectedProduct.currencyCode || storeCurrency) : 'N/A'}
                       </p>
                     </div>
-                    <div className="bg-warning/5 rounded-xl p-4 border border-warning/20">
+                    <div className="bg-warning/5 rounded-lg p-4 border border-warning/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Cost Price</p>
                       <p className="text-2xl font-bold text-warning">
                         {selectedProduct.costPrice ? formatCurrency(selectedProduct.costPrice, selectedProduct.currencyCode || storeCurrency) : 'N/A'}
@@ -1376,7 +1351,7 @@ export default function ProductsPage() {
                     </div>
                   </div>
                   {selectedProduct.costPrice && (
-                    <div className="mt-4 p-4 bg-primary/5 rounded-xl border border-primary/30">
+                    <div className="mt-4 p-4 bg-primary/5 rounded-lg border border-primary/30">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Profit Margin</p>
                       <p className="text-xl font-bold text-primary">
                         {formatCurrency(parseFloat(selectedProduct.price) - parseFloat(selectedProduct.costPrice), selectedProduct.currencyCode || storeCurrency)}
@@ -1386,32 +1361,32 @@ export default function ProductsPage() {
                       </p>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               {/* Inventory Card */}
-              <Card className="border-border/50">
-                <CardHeader className="border-b border-border bg-warning/5">
-                  <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+              <div className="bg-card rounded-lg border border-border overflow-hidden">
+                <div className="flex flex-col space-y-1.5 p-6 border-b border-border bg-warning/5">
+                  <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                     <Package className="w-5 h-5 text-warning" />
                     Inventory & Shipping
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
+                  </h3>
+                </div>
+                <div className="p-6">
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
+                    <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Stock Quantity</p>
                       <p className="text-2xl font-bold text-primary">{selectedProduct.quantity || 0}</p>
                     </div>
-                    <div className="bg-warning-muted rounded-xl p-4 border border-warning/20">
+                    <div className="bg-warning-muted rounded-lg p-4 border border-warning/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Low Stock Alert</p>
                       <p className="text-2xl font-bold text-warning">{selectedProduct.lowStockThreshold || 0}</p>
                     </div>
-                    <div className="bg-success-muted rounded-xl p-4 border border-success/20">
+                    <div className="bg-success-muted rounded-lg p-4 border border-success/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Min Order</p>
                       <p className="text-2xl font-bold text-success">{selectedProduct.minOrderQty || 1}</p>
                     </div>
-                    <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
+                    <div className="bg-primary/5 rounded-lg p-4 border border-primary/20">
                       <p className="text-sm text-muted-foreground font-semibold mb-1">Max Order</p>
                       <p className="text-2xl font-bold text-primary">{selectedProduct.maxOrderQty || '∞'}</p>
                     </div>
@@ -1449,18 +1424,18 @@ export default function ProductsPage() {
                       </div>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
 
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Status Card */}
-              <Card className="border-border/50">
-                <CardHeader className="border-b border-border">
-                  <CardTitle className="text-lg font-bold text-foreground">Status</CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
+              <div className="bg-card rounded-lg border border-border overflow-hidden">
+                <div className="flex flex-col space-y-1.5 p-6 border-b border-border">
+                  <h3 className="text-lg font-bold text-foreground">Status</h3>
+                </div>
+                <div className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-muted-foreground">Product Status</span>
                     {getStatusBadge(selectedProduct.status)}
@@ -1473,16 +1448,16 @@ export default function ProductsPage() {
                     <span className="text-sm text-muted-foreground">Currency</span>
                     <span className="font-semibold text-foreground">{selectedProduct.currencyCode || 'USD'}</span>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               {/* Reviews Card */}
               {(selectedProduct.averageRating || selectedProduct.reviewCount) && (
-                <Card className="border-border/50">
-                  <CardHeader className="border-b border-border">
-                    <CardTitle className="text-lg font-bold text-foreground">Reviews</CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6">
+                <div className="bg-card rounded-lg border border-border overflow-hidden">
+                  <div className="flex flex-col space-y-1.5 p-6 border-b border-border">
+                    <h3 className="text-lg font-bold text-foreground">Reviews</h3>
+                  </div>
+                  <div className="p-6">
                     <div className="text-center">
                       <p className="text-4xl font-bold text-warning mb-2">
                         <Star className="w-4 h-4 fill-warning text-warning inline-block" aria-hidden="true" /> {selectedProduct.averageRating?.toFixed(1) || '0.0'}
@@ -1491,20 +1466,20 @@ export default function ProductsPage() {
                         Based on {selectedProduct.reviewCount || 0} reviews
                       </p>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               )}
 
               {/* Tags Card */}
               {selectedProduct.tags && Object.keys(selectedProduct.tags).length > 0 && (
-                <Card className="border-border/50">
-                  <CardHeader className="border-b border-border">
-                    <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                <div className="bg-card rounded-lg border border-border overflow-hidden">
+                  <div className="flex flex-col space-y-1.5 p-6 border-b border-border">
+                    <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                       <Tag className="w-5 h-5 text-primary" />
                       Tags
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-6">
+                    </h3>
+                  </div>
+                  <div className="p-6">
                     <div className="flex flex-wrap gap-2">
                       {Object.values(selectedProduct.tags).map((tag, index) => (
                         <span key={index} className="px-3 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium">
@@ -1512,19 +1487,19 @@ export default function ProductsPage() {
                         </span>
                       ))}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               )}
 
               {/* Timestamps */}
-              <Card className="border-border/50">
-                <CardHeader className="border-b border-border">
-                  <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+              <div className="bg-card rounded-lg border border-border overflow-hidden">
+                <div className="flex flex-col space-y-1.5 p-6 border-b border-border">
+                  <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                     <Clock className="w-5 h-5 text-muted-foreground" />
                     Activity
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6 space-y-3">
+                  </h3>
+                </div>
+                <div className="p-6 space-y-3">
                   {selectedProduct.createdAt && (
                     <div>
                       <p className="text-xs text-muted-foreground">Created</p>
@@ -1541,8 +1516,8 @@ export default function ProductsPage() {
                       </p>
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1593,8 +1568,8 @@ export default function ProductsPage() {
             </div>
 
             {/* Form Content */}
-            <Card className="border-primary/50/50 bg-white/90 backdrop-blur-sm overflow-visible">
-              <CardContent className="p-10 overflow-visible">
+            <div className="bg-card rounded-lg border border-border overflow-visible">
+              <div className="p-10 overflow-visible">
 
                 {/* Step 1: Basic Info */}
                 {currentStep === 1 && (
@@ -1619,7 +1594,7 @@ export default function ProductsPage() {
                             value={formData.name}
                             onChange={(e) => handleFieldChange('name', e.target.value)}
                             className={cn(
-                              "w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium shadow-sm",
+                              "w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium",
                               errors.name
                                 ? "border-error focus:ring-error focus:border-error"
                                 : "border-border focus:ring-ring focus:border-primary"
@@ -1646,7 +1621,7 @@ export default function ProductsPage() {
                             value={formData.sku}
                             onChange={(e) => handleFieldChange('sku', e.target.value)}
                             className={cn(
-                              "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-mono font-medium shadow-sm",
+                              "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-mono font-medium",
                               errors.sku
                                 ? "border-error focus:ring-error focus:border-error"
                                 : "border-border focus:ring-violet-500 focus:border-primary"
@@ -1674,7 +1649,7 @@ export default function ProductsPage() {
                             type="text"
                             value={formData.brand}
                             onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                            className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm"
+                            className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
                             placeholder="e.g., Apple, Samsung, Sony"
                           />
                         </div>
@@ -1688,7 +1663,7 @@ export default function ProductsPage() {
                             type="text"
                             value={formData.slug}
                             onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                            className="w-full pl-10 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-primary transition-all bg-white hover:border-border font-mono font-medium shadow-sm"
+                            className="w-full pl-10 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-primary transition-all bg-white hover:border-border font-mono font-medium"
                             placeholder="Auto-generated from name if empty"
                           />
                         </div>
@@ -1701,7 +1676,7 @@ export default function ProductsPage() {
                       <textarea
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm resize-none"
+                        className="w-full px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium resize-none"
                         rows={4}
                         placeholder="Provide a detailed description of the product, its features, and benefits..."
                       />
@@ -1725,7 +1700,7 @@ export default function ProductsPage() {
                             }}
                             onFocus={() => setShowCategoryDropdown(true)}
                             placeholder={loadingCategories ? "Loading categories..." : "Search or create category..."}
-                            className="w-full pl-12 pr-10 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm"
+                            className="w-full pl-12 pr-10 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
                           />
                           <button
                             type="button"
@@ -1851,7 +1826,7 @@ export default function ProductsPage() {
                           type="text"
                           value={formData.searchKeywords}
                           onChange={(e) => setFormData({ ...formData, searchKeywords: e.target.value })}
-                          className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm"
+                          className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
                           placeholder="smartphone, premium, flagship, 5G (comma-separated)"
                         />
                       </div>
@@ -1884,7 +1859,7 @@ export default function ProductsPage() {
                             value={formData.price}
                             onChange={(e) => handleFieldChange('price', e.target.value)}
                             className={cn(
-                              "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium shadow-sm",
+                              "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium",
                               errors.price
                                 ? "border-error focus:ring-error focus:border-error"
                                 : "border-border focus:ring-success focus:border-success"
@@ -1912,7 +1887,7 @@ export default function ProductsPage() {
                             value={formData.comparePrice}
                             onChange={(e) => handleFieldChange('comparePrice', e.target.value)}
                             className={cn(
-                              "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium shadow-sm",
+                              "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium",
                               errors.comparePrice
                                 ? "border-error focus:ring-error focus:border-error"
                                 : "border-border focus:ring-ring focus:border-primary"
@@ -1940,7 +1915,7 @@ export default function ProductsPage() {
                             value={formData.costPrice}
                             onChange={(e) => handleFieldChange('costPrice', e.target.value)}
                             className={cn(
-                              "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium shadow-sm",
+                              "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium",
                               errors.costPrice
                                 ? "border-error focus:ring-error focus:border-error"
                                 : "border-border focus:ring-orange-500 focus:border-warning"
@@ -1998,7 +1973,7 @@ export default function ProductsPage() {
                             value={formData.quantity}
                             onChange={(e) => handleFieldChange('quantity', parseInt(e.target.value) || 0)}
                             className={cn(
-                              "w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium shadow-sm",
+                              "w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium",
                               errors.quantity
                                 ? "border-error focus:ring-error focus:border-error"
                                 : "border-border focus:ring-ring focus:border-primary"
@@ -2020,7 +1995,7 @@ export default function ProductsPage() {
                           type="number"
                           value={formData.minOrderQty}
                           onChange={(e) => setFormData({ ...formData, minOrderQty: parseInt(e.target.value) || 1 })}
-                          className="w-full px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm"
+                          className="w-full px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
                           placeholder="1"
                         />
                       </div>
@@ -2031,7 +2006,7 @@ export default function ProductsPage() {
                           type="number"
                           value={formData.maxOrderQty || ''}
                           onChange={(e) => setFormData({ ...formData, maxOrderQty: e.target.value ? parseInt(e.target.value) : undefined })}
-                          className="w-full px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm"
+                          className="w-full px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
                           placeholder="No limit"
                         />
                       </div>
@@ -2044,7 +2019,7 @@ export default function ProductsPage() {
                             type="number"
                             value={formData.lowStockThreshold}
                             onChange={(e) => setFormData({ ...formData, lowStockThreshold: parseInt(e.target.value) || 10 })}
-                            className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-warning focus:border-warning transition-all bg-white hover:border-border font-medium shadow-sm"
+                            className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-warning focus:border-warning transition-all bg-white hover:border-border font-medium"
                             placeholder="10"
                           />
                         </div>
@@ -2060,7 +2035,7 @@ export default function ProductsPage() {
                             type="text"
                             value={formData.weight}
                             onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-                            className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm"
+                            className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
                             placeholder="e.g., 250g, 1.5kg, 2lbs"
                           />
                         </div>
@@ -2076,7 +2051,7 @@ export default function ProductsPage() {
                             type="text"
                             value={formData.dimensions?.length}
                             onChange={(e) => setFormData({ ...formData, dimensions: { ...formData.dimensions, length: e.target.value } as any })}
-                            className="px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm"
+                            className="px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
                             placeholder="Length"
                           />
                         </div>
@@ -2085,7 +2060,7 @@ export default function ProductsPage() {
                             type="text"
                             value={formData.dimensions?.width}
                             onChange={(e) => setFormData({ ...formData, dimensions: { ...formData.dimensions, width: e.target.value } as any })}
-                            className="px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm"
+                            className="px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
                             placeholder="Width"
                           />
                         </div>
@@ -2094,7 +2069,7 @@ export default function ProductsPage() {
                             type="text"
                             value={formData.dimensions?.height}
                             onChange={(e) => setFormData({ ...formData, dimensions: { ...formData.dimensions, height: e.target.value } as any })}
-                            className="px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm"
+                            className="px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
                             placeholder="Height"
                           />
                         </div>
@@ -2131,7 +2106,7 @@ export default function ProductsPage() {
                               type="text"
                               value={formData.warehouseName || ''}
                               onChange={(e) => setFormData({ ...formData, warehouseName: e.target.value })}
-                              className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm"
+                              className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-primary transition-all bg-white hover:border-border font-medium"
                               placeholder="e.g., Main Warehouse, NYC Fulfillment"
                             />
                           </div>
@@ -2146,7 +2121,7 @@ export default function ProductsPage() {
                               type="text"
                               value={formData.supplierName || ''}
                               onChange={(e) => setFormData({ ...formData, supplierName: e.target.value })}
-                              className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm"
+                              className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-primary transition-all bg-white hover:border-border font-medium"
                               placeholder="e.g., Acme Corp, Global Supplies"
                             />
                           </div>
@@ -2318,7 +2293,7 @@ export default function ProductsPage() {
                               <p className="text-sm text-muted-foreground mb-1">PNG, JPG, GIF, WebP up to 10MB each</p>
                               <p className="text-sm text-muted-foreground">First image will be the primary product image</p>
                               <div className="mt-4">
-                                <span className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold shadow-lg inline-block">
+                                <span className="px-6 py-3 bg-primary text-primary-foreground rounded-lg font-semibold inline-block">
                                   Choose Files
                                 </span>
                               </div>
@@ -2378,7 +2353,7 @@ export default function ProductsPage() {
                               });
                             }
                           }}
-                          className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm"
+                          className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
                           placeholder="Type a tag and press Enter or comma to add"
                         />
                       </div>
@@ -2509,8 +2484,8 @@ export default function ProductsPage() {
                   onCancel={navigateToList}
                   saveLabel={viewMode === 'create' ? 'Create Product' : 'Save Changes'}
                 />
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
     );
@@ -2567,7 +2542,7 @@ export default function ProductsPage() {
             <PermissionGate permission={Permission.PRODUCTS_CREATE}>
               <Button
                 onClick={handleCreateNew}
-                className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+                className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
               >
                 + Add Product
               </Button>
@@ -2695,8 +2670,8 @@ export default function ProductsPage() {
 
         {/* Bulk Actions Bar */}
         {selectedProducts.size > 0 && (
-          <Card className="border-primary/30 bg-muted">
-            <CardContent className="py-3 px-6">
+          <div className="bg-muted rounded-lg border border-primary/30 overflow-hidden">
+            <div className="py-3 px-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-semibold text-primary">
@@ -2774,8 +2749,8 @@ export default function ProductsPage() {
                   </PermissionGate>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
 
         {/* Products List */}
@@ -2808,18 +2783,18 @@ export default function ProductsPage() {
             {/* Product Cards */}
             <div className="grid gap-4">
               {paginatedProducts.map((product) => (
-                <Card
+                <div
                   key={product.id}
                   className={cn(
-                    "group border-border/50 hover:border-primary/30 shadow-sm hover:shadow-xl transition-all duration-300 overflow-visible bg-white",
-                    selectedProducts.has(product.id) && "ring-2 ring-blue-500 border-primary/30 bg-primary/5"
+                    "group bg-card rounded-lg border border-border overflow-hidden hover:border-primary/30 transition-colors",
+                    selectedProducts.has(product.id) && "ring-2 ring-primary border-primary/30 bg-primary/5"
                   )}
                 >
-                  <CardContent className="p-0 overflow-visible">
+                  <div className="p-0 overflow-visible">
                     <div className="flex items-stretch">
                       {/* Left accent bar */}
                       <div className={cn(
-                        "w-1.5 flex-shrink-0 rounded-l-2xl transition-colors",
+                        "w-1.5 flex-shrink-0 rounded-l-lg transition-colors",
                         product.status === 'ACTIVE' ? "bg-success" :
                         product.status === 'DRAFT' ? "bg-muted-foreground" :
                         product.status === 'PENDING' ? "bg-warning" :
@@ -2998,8 +2973,8 @@ export default function ProductsPage() {
                         </div>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               ))}
             </div>
 
