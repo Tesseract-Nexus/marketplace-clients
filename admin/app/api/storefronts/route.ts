@@ -14,6 +14,7 @@ interface TenantInfo {
 interface Storefront {
   id: string;
   vendorId: string;
+  tenantId?: string;
   slug: string;
   name: string;
   customDomain?: string;
@@ -108,11 +109,21 @@ export async function GET(request: NextRequest) {
 
     if (domainInfo?.storefrontUrl) {
       // Enrich storefronts with the custom domain URL
-      result.data = result.data.map((storefront: Storefront) => ({
-        ...storefront,
-        storefrontUrl: domainInfo.storefrontUrl,
-        customDomain: domainInfo.customDomain,
-      }));
+      // IMPORTANT: Only apply to storefronts belonging to the current tenant
+      // to avoid cross-tenant URL contamination
+      result.data = result.data.map((storefront: Storefront) => {
+        // Only enrich if storefront belongs to the current tenant
+        // Check by tenantId if available, otherwise skip enrichment for safety
+        if (storefront.tenantId && storefront.tenantId !== tenantId) {
+          // Different tenant - don't apply custom domain URL
+          return storefront;
+        }
+        return {
+          ...storefront,
+          storefrontUrl: domainInfo.storefrontUrl,
+          customDomain: domainInfo.customDomain,
+        };
+      });
     }
 
     return NextResponse.json(result);
