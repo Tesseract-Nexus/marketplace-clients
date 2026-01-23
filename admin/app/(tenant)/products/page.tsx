@@ -36,7 +36,7 @@ import {
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
-import { StatsGrid, FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
+import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { Badge } from '@/components/ui/badge';
 import { BulkImportModal } from '@/components/BulkImportModal';
 import { CascadeDeleteModal } from '@/components/CascadeDeleteModal';
@@ -1101,17 +1101,19 @@ export default function ProductsPage() {
     new Set(products.map((p) => p.brand).filter(Boolean))
   ).sort();
 
-  // Stats calculations for StatsGrid
+  // Stats calculations for compact stats
   const productStats = useMemo(() => {
     const totalProducts = products.length;
     const publishedProducts = products.filter(p => p.status === 'ACTIVE').length;
     const draftProducts = products.filter(p => p.status === 'DRAFT').length;
+    const lowStockProducts = products.filter(p => p.inventoryStatus === 'LOW_STOCK').length;
     const outOfStockProducts = products.filter(p => p.inventoryStatus === 'OUT_OF_STOCK').length;
 
     return {
       total: totalProducts,
       published: publishedProducts,
       draft: draftProducts,
+      lowStock: lowStockProducts,
       outOfStock: outOfStockProducts,
     };
   }, [products]);
@@ -2553,39 +2555,38 @@ export default function ProductsPage() {
         {/* Error Alert */}
         <PageError error={error} onDismiss={() => setError(null)} />
 
-        {/* Stats Grid */}
+        {/* Compact Stats Row */}
         {!loading && products.length > 0 && (
-          <StatsGrid
-            stats={[
-              {
-                label: "Total Products",
-                value: productStats.total,
-                icon: Package,
-                color: "primary",
-              },
-              {
-                label: "Published",
-                value: productStats.published,
-                icon: CheckCircle,
-                color: "success",
-              },
-              {
-                label: "Draft",
-                value: productStats.draft,
-                icon: FileEdit,
-                color: "muted",
-              },
-              {
-                label: "Out of Stock",
-                value: productStats.outOfStock,
-                icon: PackageX,
-                color: "error",
-              },
-            ]}
-            columns={4}
-            showMobileRow
-            className="mb-6"
-          />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+            <div className="bg-card rounded-lg border border-border p-3">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                <Package className="h-3.5 w-3.5" />
+                Total
+              </div>
+              <p className="text-xl font-bold text-foreground">{productStats.total}</p>
+            </div>
+            <div className="bg-card rounded-lg border border-border p-3">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                <CheckCircle className="h-3.5 w-3.5" />
+                Active
+              </div>
+              <p className="text-xl font-bold text-success">{productStats.published}</p>
+            </div>
+            <div className="bg-card rounded-lg border border-border p-3">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                Low Stock
+              </div>
+              <p className="text-xl font-bold text-warning">{productStats.lowStock}</p>
+            </div>
+            <div className="bg-card rounded-lg border border-border p-3">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                <XCircle className="h-3.5 w-3.5" />
+                Out of Stock
+              </div>
+              <p className="text-xl font-bold text-error">{productStats.outOfStock}</p>
+            </div>
+          </div>
         )}
 
         {/* Filter Panel */}

@@ -67,7 +67,7 @@ import { ACCOUNT_STATUS_LABELS, AUTH_METHOD_LABELS } from '@/lib/api/staffAuthTy
 import { BulkImportModal } from '@/components/BulkImportModal';
 import { Upload } from 'lucide-react';
 import { StaffFormStep1, StaffFormStep2, StaffFormStep3, StaffFormStep4, StaffFormData, initialFormData, QuickAddForm, QuickAddData } from './components';
-import { StatsGrid, FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
+import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 
 type ViewMode = 'list' | 'create' | 'edit' | 'detail';
 
@@ -905,18 +905,37 @@ export default function StaffPage() {
 
       <PageError error={error} onDismiss={() => setError(null)} />
 
-      {/* Stats Grid */}
-      <StatsGrid
-        stats={[
-          { label: 'Total Staff', value: statsData.totalCount, icon: Users, color: 'primary' },
-          { label: 'Active', value: statsData.activeCount, icon: CheckCircle, color: 'success' },
-          { label: 'Pending Invite', value: statsData.invitedCount, icon: Send, color: 'warning' },
-          { label: 'Suspended', value: statsData.suspendedCount, icon: XCircle, color: 'error' },
-        ]}
-        columns={4}
-        showMobileRow
-        className="mb-6"
-      />
+      {/* Compact Stats Row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <div className="bg-card rounded-lg border border-border p-3">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <Users className="h-3.5 w-3.5" />
+            Total Staff
+          </div>
+          <p className="text-xl font-bold text-foreground">{statsData.totalCount}</p>
+        </div>
+        <div className="bg-card rounded-lg border border-border p-3">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <CheckCircle className="h-3.5 w-3.5" />
+            Active
+          </div>
+          <p className="text-xl font-bold text-success">{statsData.activeCount}</p>
+        </div>
+        <div className="bg-card rounded-lg border border-border p-3">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <Send className="h-3.5 w-3.5" />
+            Pending Invite
+          </div>
+          <p className="text-xl font-bold text-warning">{statsData.invitedCount}</p>
+        </div>
+        <div className="bg-card rounded-lg border border-border p-3">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <XCircle className="h-3.5 w-3.5" />
+            Suspended
+          </div>
+          <p className="text-xl font-bold text-error">{statsData.suspendedCount}</p>
+        </div>
+      </div>
 
       {/* Filter Panel with Quick Filters */}
       <FilterPanel

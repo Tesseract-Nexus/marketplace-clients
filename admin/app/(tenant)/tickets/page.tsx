@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { Plus, Eye, CheckCircle, Clock, XCircle, AlertTriangle, Ticket as TicketIcon, User, MessageSquare, AlertCircle, Loader2 } from 'lucide-react';
-import { StatsGrid, FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
+import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
@@ -323,15 +323,6 @@ export default function TicketsPage() {
   const resolvedTickets = tickets.filter((t) => t.status === 'RESOLVED').length;
   const urgentTickets = tickets.filter((t) => t.priority === 'URGENT' || t.priority === 'CRITICAL').length;
 
-  // Stats for StatsGrid
-  const stats = useMemo(() => [
-    { label: 'Total Tickets', value: totalTickets, icon: TicketIcon, color: 'primary' as const },
-    { label: 'Open', value: openTickets, icon: AlertCircle, color: 'warning' as const },
-    { label: 'In Progress', value: inProgressTickets, icon: Clock, color: 'info' as const },
-    { label: 'Resolved', value: resolvedTickets, icon: CheckCircle, color: 'success' as const },
-    { label: 'Critical/Urgent', value: urgentTickets, icon: AlertTriangle, color: 'error' as const },
-  ], [totalTickets, openTickets, inProgressTickets, resolvedTickets, urgentTickets]);
-
   // Quick filters configuration
   const quickFilters: QuickFilter[] = useMemo(() => [
     { id: 'OPEN', label: 'Open', icon: AlertCircle, color: 'warning', count: openTickets },
@@ -403,13 +394,44 @@ export default function TicketsPage() {
         <PageError error={error} onDismiss={() => setError(null)} />
 
 
-        {/* Summary Stats */}
-        <StatsGrid
-          stats={stats}
-          columns={5}
-          showMobileRow
-          className="mb-6"
-        />
+        {/* Compact Stats Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+          <div className="bg-card rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <TicketIcon className="h-3.5 w-3.5" />
+              Total
+            </div>
+            <p className="text-xl font-bold text-foreground">{totalTickets}</p>
+          </div>
+          <div className="bg-card rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <AlertCircle className="h-3.5 w-3.5" />
+              Open
+            </div>
+            <p className="text-xl font-bold text-warning">{openTickets}</p>
+          </div>
+          <div className="bg-card rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <Clock className="h-3.5 w-3.5" />
+              In Progress
+            </div>
+            <p className="text-xl font-bold text-info">{inProgressTickets}</p>
+          </div>
+          <div className="bg-card rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <CheckCircle className="h-3.5 w-3.5" />
+              Resolved
+            </div>
+            <p className="text-xl font-bold text-success">{resolvedTickets}</p>
+          </div>
+          <div className="bg-card rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <AlertTriangle className="h-3.5 w-3.5" />
+              Critical/Urgent
+            </div>
+            <p className="text-xl font-bold text-error">{urgentTickets}</p>
+          </div>
+        </div>
 
         {/* Filters and Search */}
         <FilterPanel

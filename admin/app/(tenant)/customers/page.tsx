@@ -15,7 +15,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
 import { Pagination } from '@/components/Pagination';
-import { StatsGrid, FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
+import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { customerService } from '@/lib/services/customerService';
 import type { Customer, CreateCustomerRequest, CustomerStatus, CustomerType } from '@/lib/api/types';
 
@@ -285,18 +285,37 @@ export default function CustomersPage() {
       {/* Error Alert */}
       <PageError error={error} onDismiss={() => setError(null)} />
 
-      {/* Summary Cards */}
-      <StatsGrid
-        stats={[
-          { label: 'Total Customers', value: totalCustomers, icon: Users, color: 'primary' },
-          { label: 'Active Customers', value: activeCustomers, icon: TrendingUp, color: 'success' },
-          { label: 'Total Revenue', value: `$${totalRevenue.toFixed(2)}`, icon: DollarSign, color: 'primary' },
-          { label: 'Total Orders', value: totalOrders, icon: ShoppingCart, color: 'warning' },
-        ]}
-        columns={4}
-        showMobileRow
-        className="mb-6"
-      />
+      {/* Compact Stats Row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <div className="bg-card rounded-lg border border-border p-3">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <Users className="h-3.5 w-3.5" />
+            Total
+          </div>
+          <p className="text-xl font-bold text-foreground">{totalCustomers}</p>
+        </div>
+        <div className="bg-card rounded-lg border border-border p-3">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <TrendingUp className="h-3.5 w-3.5" />
+            Active
+          </div>
+          <p className="text-xl font-bold text-success">{activeCustomers}</p>
+        </div>
+        <div className="bg-card rounded-lg border border-border p-3">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <DollarSign className="h-3.5 w-3.5" />
+            Revenue
+          </div>
+          <p className="text-xl font-bold text-primary">${totalRevenue.toFixed(2)}</p>
+        </div>
+        <div className="bg-card rounded-lg border border-border p-3">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <ShoppingCart className="h-3.5 w-3.5" />
+            Orders
+          </div>
+          <p className="text-xl font-bold text-warning">{totalOrders}</p>
+        </div>
+      </div>
 
       {/* Filters and Search */}
       <FilterPanel

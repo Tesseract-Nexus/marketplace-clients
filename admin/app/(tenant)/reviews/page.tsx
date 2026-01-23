@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Plus, Eye, CheckCircle, XCircle, Flag, Star, MessageSquare, Shield, AlertCircle, X, Loader2, Sparkles, ShieldCheck, Camera, ThumbsUp, Home, MessageCircle, Clock } from 'lucide-react';
+import { Search, Plus, Eye, CheckCircle, XCircle, Flag, Star, MessageSquare, Shield, AlertCircle, X, Loader2, Sparkles, ShieldCheck, Camera, ThumbsUp, Home, MessageCircle, Clock, TrendingUp } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
 import { Pagination } from '@/components/Pagination';
-import { StatsGrid, FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
+import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { reviewService } from '@/lib/services/reviewService';
 import { productService } from '@/lib/services/productService';
 import type { Review, ReviewStatus, UpdateReviewStatusRequest, ReviewMedia, Product } from '@/lib/api/types';
@@ -282,6 +282,15 @@ export default function ReviewsPage() {
   const rejectedReviews = reviews.filter((r) => r.status === 'REJECTED').length;
   const flaggedReviews = reviews.filter((r) => r.status === 'FLAGGED').length;
 
+  // Calculate average rating across all reviews
+  const averageRating = useMemo(() => {
+    const ratingsWithValues = reviews
+      .map(r => getAverageRating(r))
+      .filter((r): r is number => r !== undefined);
+    if (ratingsWithValues.length === 0) return 0;
+    return ratingsWithValues.reduce((sum, r) => sum + r, 0) / ratingsWithValues.length;
+  }, [reviews]);
+
   // Quick filters configuration
   const quickFilters: QuickFilter[] = useMemo(() => [
     { id: 'PENDING', label: 'Pending', icon: Clock, color: 'warning', count: pendingReviews },
@@ -336,18 +345,37 @@ export default function ReviewsPage() {
       {/* Error Alert */}
       <PageError error={error} onDismiss={() => setError(null)} />
 
-      {/* Summary Cards */}
-      <StatsGrid
-        stats={[
-          { label: 'Total Reviews', value: totalReviews, icon: MessageSquare, color: 'primary' },
-          { label: 'Pending', value: pendingReviews, icon: Star, color: 'warning' },
-          { label: 'Approved', value: approvedReviews, icon: CheckCircle, color: 'success' },
-          { label: 'Flagged', value: flaggedReviews, icon: Shield, color: 'error' },
-        ]}
-        columns={4}
-        showMobileRow
-        className="mb-6"
-      />
+      {/* Compact Stats Row */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+        <div className="bg-card rounded-lg border border-border p-3">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <Star className="h-3.5 w-3.5" />
+            Total
+          </div>
+          <p className="text-xl font-bold text-foreground">{totalReviews}</p>
+        </div>
+        <div className="bg-card rounded-lg border border-border p-3">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <TrendingUp className="h-3.5 w-3.5" />
+            Avg Rating
+          </div>
+          <p className="text-xl font-bold text-warning">{averageRating.toFixed(1)}</p>
+        </div>
+        <div className="bg-card rounded-lg border border-border p-3">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <Clock className="h-3.5 w-3.5" />
+            Pending
+          </div>
+          <p className="text-xl font-bold text-warning">{pendingReviews}</p>
+        </div>
+        <div className="bg-card rounded-lg border border-border p-3">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+            <CheckCircle className="h-3.5 w-3.5" />
+            Approved
+          </div>
+          <p className="text-xl font-bold text-success">{approvedReviews}</p>
+        </div>
+      </div>
 
       {/* Filters and Search */}
       <FilterPanel

@@ -49,7 +49,7 @@ import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select, SelectOption } from '@/components/Select';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { categoryService } from '@/lib/services/categoryService';
-import { StatsGrid, FilterPanel } from '@/components/data-listing';
+import { FilterPanel } from '@/components/data-listing';
 import { Category, CreateCategoryRequest, UpdateCategoryRequest, DefaultMediaURLs } from '@/lib/api/types';
 import { BulkImportModal } from '@/components/BulkImportModal';
 import { CategoryIconUploader, CategoryBannerUploader, MediaItem } from '@/components/MediaUploader';
@@ -781,17 +781,38 @@ export default function CategoriesPage() {
         </div>
       )}
 
-      {/* Stats */}
+      {/* Compact Stats Row */}
       {!loading && categories.length > 0 && (
-        <StatsGrid
-          stats={[
-            { label: 'Total Categories', value: categories.length, icon: FolderTree, color: 'primary' },
-            { label: 'Active', value: categories.filter(c => c.isActive).length, icon: CheckCircle, color: 'success' },
-            { label: 'Inactive', value: categories.filter(c => !c.isActive).length, icon: XCircle, color: 'error' },
-            { label: 'Top Level', value: categories.filter(c => c.level === 0).length, icon: Tags, color: 'primary' },
-          ]}
-          columns={4}
-        />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <div className="bg-card rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <Folder className="h-3.5 w-3.5" />
+              Total
+            </div>
+            <p className="text-xl font-bold text-foreground">{categories.length}</p>
+          </div>
+          <div className="bg-card rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <CheckCircle className="h-3.5 w-3.5" />
+              Active
+            </div>
+            <p className="text-xl font-bold text-success">{categories.filter(c => c.isActive).length}</p>
+          </div>
+          <div className="bg-card rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <XCircle className="h-3.5 w-3.5" />
+              Inactive
+            </div>
+            <p className="text-xl font-bold text-error">{categories.filter(c => !c.isActive).length}</p>
+          </div>
+          <div className="bg-card rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <Tags className="h-3.5 w-3.5" />
+              Top Level
+            </div>
+            <p className="text-xl font-bold text-foreground">{categories.filter(c => c.level === 0).length}</p>
+          </div>
+        </div>
       )}
 
       {/* Search and Filters */}

@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { StatsGrid } from '@/components/data-listing';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
@@ -371,15 +370,30 @@ export default function DelegationsPage() {
           {/* Error State - positioned above stats */}
           <PageError error={error} onRetry={loadDelegations} onDismiss={() => setError(null)} />
 
-          {/* Stats Cards */}
-          <StatsGrid
-            stats={[
-              { label: 'Outgoing Active', value: activeOutgoing, icon: ArrowUpRight, color: 'primary' },
-              { label: 'Incoming Active', value: activeIncoming, icon: ArrowDownLeft, color: 'muted' },
-              { label: 'Total Delegations', value: outgoing.length + incoming.length, icon: UserCheck, color: 'muted' },
-            ]}
-            columns={3}
-          />
+          {/* Compact Stats Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+            <div className="bg-card rounded-lg border border-border p-3">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                <ArrowUpRight className="h-3.5 w-3.5" />
+                Outgoing Active
+              </div>
+              <p className="text-xl font-bold text-foreground">{activeOutgoing}</p>
+            </div>
+            <div className="bg-card rounded-lg border border-border p-3">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                <ArrowDownLeft className="h-3.5 w-3.5" />
+                Incoming Active
+              </div>
+              <p className="text-xl font-bold text-foreground">{activeIncoming}</p>
+            </div>
+            <div className="bg-card rounded-lg border border-border p-3">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                <UserCheck className="h-3.5 w-3.5" />
+                Total Delegations
+              </div>
+              <p className="text-xl font-bold text-foreground">{outgoing.length + incoming.length}</p>
+            </div>
+          </div>
 
           {/* Filters */}
           <div className="bg-card rounded-lg border border-border p-4">

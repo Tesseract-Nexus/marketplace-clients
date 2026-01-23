@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
-import { StatsGrid, FilterPanel } from '@/components/data-listing';
+import { FilterPanel } from '@/components/data-listing';
 import { departmentService, teamService, roleService } from '@/lib/api/rbac';
 import type {
   Department,
@@ -546,15 +546,30 @@ export default function TeamsPage() {
             </div>
           )}
 
-          {/* Stats Cards */}
-          <StatsGrid
-            stats={[
-              { label: 'Total Teams', value: teams.length, icon: Users, color: 'success' },
-              { label: 'With Default Roles', value: teams.filter(t => t.defaultRoleId).length, icon: Shield, color: 'primary' },
-              { label: 'Total Members', value: teams.reduce((acc, t) => acc + (t.staffCount || 0), 0), icon: UserCircle, color: 'primary' },
-            ]}
-            columns={3}
-          />
+          {/* Compact Stats Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+            <div className="bg-card rounded-lg border border-border p-3">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                <Users className="h-3.5 w-3.5" />
+                Total Teams
+              </div>
+              <p className="text-xl font-bold text-foreground">{teams.length}</p>
+            </div>
+            <div className="bg-card rounded-lg border border-border p-3">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                <Shield className="h-3.5 w-3.5" />
+                With Default Roles
+              </div>
+              <p className="text-xl font-bold text-foreground">{teams.filter(t => t.defaultRoleId).length}</p>
+            </div>
+            <div className="bg-card rounded-lg border border-border p-3">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                <UserCircle className="h-3.5 w-3.5" />
+                Total Members
+              </div>
+              <p className="text-xl font-bold text-foreground">{teams.reduce((acc, t) => acc + (t.staffCount || 0), 0)}</p>
+            </div>
+          </div>
 
           <FilterPanel
             searchValue={searchQuery}

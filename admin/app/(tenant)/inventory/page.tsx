@@ -32,6 +32,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { StatusBadge, StatusType } from '@/components/ui/status-badge';
 import { PageHeader } from '@/components/PageHeader';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { inventoryService } from '@/lib/services/inventoryService';
 import { productsService } from '@/lib/api/products';
@@ -693,249 +694,302 @@ export default function InventoryPage() {
           ]}
         />
 
-        {/* Stock Statistics Cards - Only show on stock-levels tab */}
-        {activeTab === 'stock-levels' && !loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div
-              className="bg-card rounded-lg border border-border p-4 cursor-pointer hover:border-primary/30 transition-colors group"
-              onClick={() => setStockFilter('all')}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground group-hover:text-foreground transition-colors">Total Products</p>
-                  <p className="text-2xl font-bold text-foreground">{stockStats.total}</p>
+        <div className="flex gap-6">
+          {/* Sidebar with Stats - Always Visible */}
+          <div className="w-56 flex-shrink-0 hidden lg:block">
+            <div className="sticky top-6 space-y-4">
+              {/* Inventory Health Widget */}
+              <div className={cn(
+                "rounded-lg border p-3",
+                stockStats.outOfStock === 0 ? "bg-success/5 border-success/20" :
+                stockStats.outOfStock > 5 ? "bg-error/5 border-error/20" : "bg-warning/5 border-warning/20"
+              )}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={cn(
+                    "text-xs font-medium",
+                    stockStats.outOfStock === 0 ? "text-success" :
+                    stockStats.outOfStock > 5 ? "text-error" : "text-warning"
+                  )}>
+                    {stockStats.outOfStock === 0 ? 'Healthy' : stockStats.outOfStock > 5 ? 'Critical' : 'Attention'}
+                  </span>
+                  <span className="text-xs text-muted-foreground">{stockStats.inStock}/{stockStats.total}</span>
                 </div>
-                <div className="h-12 w-12 bg-primary/20 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <Package className="h-6 w-6 text-primary" />
-                </div>
-              </div>
-            </div>
-            <div
-              className="bg-card rounded-lg border border-border p-4 cursor-pointer hover:border-success/30 transition-colors group"
-              onClick={() => setStockFilter('in_stock')}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground group-hover:text-success transition-colors">In Stock</p>
-                  <p className="text-2xl font-bold text-success">{stockStats.inStock}</p>
-                </div>
-                <div className="h-12 w-12 bg-success-muted rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <CheckCircle className="h-6 w-6 text-success" />
+                <div className="flex gap-1">
+                  <div className="flex-1 h-1 rounded-full bg-success" style={{ width: `${(stockStats.inStock / Math.max(stockStats.total, 1)) * 100}%` }} />
+                  <div className="flex-1 h-1 rounded-full bg-warning" style={{ width: `${(stockStats.lowStock / Math.max(stockStats.total, 1)) * 100}%` }} />
+                  <div className="flex-1 h-1 rounded-full bg-error" style={{ width: `${(stockStats.outOfStock / Math.max(stockStats.total, 1)) * 100}%` }} />
                 </div>
               </div>
-            </div>
-            <div
-              className="bg-card rounded-lg border border-border p-4 cursor-pointer hover:border-warning/30 transition-colors group"
-              onClick={() => setStockFilter('low_stock')}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground group-hover:text-warning transition-colors">Low Stock</p>
-                  <p className="text-2xl font-bold text-warning">{stockStats.lowStock}</p>
-                </div>
-                <div className="h-12 w-12 bg-warning-muted rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <AlertTriangle className="h-6 w-6 text-warning" />
-                </div>
-              </div>
-            </div>
-            <div
-              className="bg-card rounded-lg border border-border p-4 cursor-pointer hover:border-error/30 transition-colors group"
-              onClick={() => setStockFilter('out_of_stock')}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground group-hover:text-error transition-colors">Out of Stock</p>
-                  <p className="text-2xl font-bold text-error">{stockStats.outOfStock}</p>
-                </div>
-                <div className="h-12 w-12 bg-error-muted rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <XCircle className="h-6 w-6 text-error" />
-                </div>
-              </div>
-            </div>
-            <div
-              className="bg-card rounded-lg border border-border p-4 cursor-pointer hover:border-primary/30 transition-colors group"
-              onClick={() => setStockFilter('all')}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground group-hover:text-primary transition-colors">Total Quantity</p>
-                  <p className="text-2xl font-bold text-primary">{stockStats.totalQuantity.toLocaleString()}</p>
-                </div>
-                <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center transition-transform duration-300 group-hover:scale-110">
-                  <BarChart3 className="h-6 w-6 text-primary" />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
-        {/* Tabs */}
-        <div className="bg-card rounded-lg border border-border overflow-hidden">
-          <div className="border-b border-border">
-            <nav className="flex">
-              <Button
-                variant="ghost"
-                onClick={() => navigateToTab('stock-levels')}
-                className={cn(
-                  'flex-1 py-4 px-6 text-sm font-semibold border-b-2 rounded-none transition-colors',
-                  activeTab === 'stock-levels'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                )}
-              >
-                <BarChart3 className="inline h-5 w-5 mr-2" />
-                Stock Levels ({products.length})
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => navigateToTab('warehouses')}
-                className={cn(
-                  'flex-1 py-4 px-6 text-sm font-semibold border-b-2 rounded-none transition-colors',
-                  activeTab === 'warehouses'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                )}
-              >
-                <Warehouse className="inline h-5 w-5 mr-2" />
-                Warehouses ({warehouses.length})
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => navigateToTab('suppliers')}
-                className={cn(
-                  'flex-1 py-4 px-6 text-sm font-semibold border-b-2 rounded-none transition-colors',
-                  activeTab === 'suppliers'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                )}
-              >
-                <Users className="inline h-5 w-5 mr-2" />
-                Suppliers ({suppliers.length})
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => navigateToTab('purchase-orders')}
-                className={cn(
-                  'flex-1 py-4 px-6 text-sm font-semibold border-b-2 rounded-none transition-colors',
-                  activeTab === 'purchase-orders'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                )}
-              >
-                <Package className="inline h-5 w-5 mr-2" />
-                Purchase Orders ({purchaseOrders.length})
-              </Button>
-              <Button
-                variant="ghost"
-                onClick={() => navigateToTab('transfers')}
-                className={cn(
-                  'flex-1 py-4 px-6 text-sm font-semibold border-b-2 rounded-none transition-colors',
-                  activeTab === 'transfers'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                )}
-              >
-                <Truck className="inline h-5 w-5 mr-2" />
-                Transfers ({transfers.length})
-              </Button>
-            </nav>
-          </div>
-
-          {/* Search and Action */}
-          <div className="p-6 border-b border-border bg-muted">
-            <div className="flex items-center gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder={activeTab === 'stock-levels' ? 'Search products by name, SKU, or brand...' : `Search ${activeTab}...`}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-
-              {/* Stock level specific filters */}
-              {activeTab === 'stock-levels' && (
-                <>
-                  <select
-                    value={stockFilter}
-                    onChange={(e) => setStockFilter(e.target.value as StockFilter)}
-                    className="h-10 px-3 rounded-md border border-border bg-white text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  >
-                    <option value="all">All Stock</option>
-                    <option value="in_stock">In Stock</option>
-                    <option value="low_stock">Low Stock</option>
-                    <option value="out_of_stock">Out of Stock</option>
-                  </select>
-
-                  <div className="flex items-center gap-2">
-                    <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <input
-                        type="checkbox"
-                        checked={autoRefreshEnabled}
-                        onChange={(e) => setAutoRefreshEnabled(e.target.checked)}
-                        className="h-4 w-4 rounded border-border text-primary focus:ring-violet-500"
-                      />
-                      Auto-refresh
-                    </label>
-                  </div>
-
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Clock className="h-3.5 w-3.5" />
-                    <span>Updated: {lastRefresh.toLocaleTimeString()}</span>
-                  </div>
-                </>
-              )}
-
-              <Button
-                variant="outline"
-                onClick={() => activeTab === 'stock-levels' ? fetchProducts() : fetchData()}
-                disabled={loading}
-              >
-                <RefreshCw className={cn('h-4 w-4 mr-2', loading && 'animate-spin')} />
-                Refresh
-              </Button>
-
-              {(activeTab === 'warehouses' || activeTab === 'suppliers') && (
-                <PermissionGate
-                  permission={
-                    activeTab === 'warehouses'
-                      ? Permission.INVENTORY_WAREHOUSES_MANAGE
-                      : Permission.INVENTORY_ADJUST
-                  }
+              {/* Stock Stats */}
+              <div className="bg-card rounded-lg border border-border p-3 space-y-3">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Stock Overview</p>
+                <button
+                  onClick={() => { navigateToTab('stock-levels'); setStockFilter('all'); }}
+                  className="w-full flex justify-between items-center text-sm hover:bg-muted p-1.5 rounded transition-colors"
                 >
+                  <span className="flex items-center gap-2 text-muted-foreground">
+                    <Package className="h-3.5 w-3.5" />
+                    Total Products
+                  </span>
+                  <span className="font-semibold">{stockStats.total}</span>
+                </button>
+                <button
+                  onClick={() => { navigateToTab('stock-levels'); setStockFilter('in_stock'); }}
+                  className="w-full flex justify-between items-center text-sm hover:bg-muted p-1.5 rounded transition-colors"
+                >
+                  <span className="flex items-center gap-2 text-success">
+                    <CheckCircle className="h-3.5 w-3.5" />
+                    In Stock
+                  </span>
+                  <span className="font-semibold text-success">{stockStats.inStock}</span>
+                </button>
+                <button
+                  onClick={() => { navigateToTab('stock-levels'); setStockFilter('low_stock'); }}
+                  className="w-full flex justify-between items-center text-sm hover:bg-muted p-1.5 rounded transition-colors"
+                >
+                  <span className="flex items-center gap-2 text-warning">
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    Low Stock
+                  </span>
+                  <span className="font-semibold text-warning">{stockStats.lowStock}</span>
+                </button>
+                <button
+                  onClick={() => { navigateToTab('stock-levels'); setStockFilter('out_of_stock'); }}
+                  className="w-full flex justify-between items-center text-sm hover:bg-muted p-1.5 rounded transition-colors"
+                >
+                  <span className="flex items-center gap-2 text-error">
+                    <XCircle className="h-3.5 w-3.5" />
+                    Out of Stock
+                  </span>
+                  <span className="font-semibold text-error">{stockStats.outOfStock}</span>
+                </button>
+                <div className="pt-2 border-t border-border">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="flex items-center gap-2 text-muted-foreground">
+                      <BarChart3 className="h-3.5 w-3.5" />
+                      Total Qty
+                    </span>
+                    <span className="font-semibold text-primary">{stockStats.totalQuantity.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Entity Stats */}
+              <div className="bg-card rounded-lg border border-border p-3 space-y-2">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Resources</p>
+                <button
+                  onClick={() => navigateToTab('warehouses')}
+                  className={cn(
+                    "w-full flex justify-between items-center text-sm p-1.5 rounded transition-colors",
+                    activeTab === 'warehouses' ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <Warehouse className="h-3.5 w-3.5" />
+                    Warehouses
+                  </span>
+                  <span className="font-medium">{warehouses.length}</span>
+                </button>
+                <button
+                  onClick={() => navigateToTab('suppliers')}
+                  className={cn(
+                    "w-full flex justify-between items-center text-sm p-1.5 rounded transition-colors",
+                    activeTab === 'suppliers' ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <Users className="h-3.5 w-3.5" />
+                    Suppliers
+                  </span>
+                  <span className="font-medium">{suppliers.length}</span>
+                </button>
+                <button
+                  onClick={() => navigateToTab('purchase-orders')}
+                  className={cn(
+                    "w-full flex justify-between items-center text-sm p-1.5 rounded transition-colors",
+                    activeTab === 'purchase-orders' ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <Package className="h-3.5 w-3.5" />
+                    Purchase Orders
+                  </span>
+                  <span className="font-medium">{purchaseOrders.length}</span>
+                </button>
+                <button
+                  onClick={() => navigateToTab('transfers')}
+                  className={cn(
+                    "w-full flex justify-between items-center text-sm p-1.5 rounded transition-colors",
+                    activeTab === 'transfers' ? "bg-primary/10 text-primary" : "hover:bg-muted"
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <Truck className="h-3.5 w-3.5" />
+                    Transfers
+                  </span>
+                  <span className="font-medium">{transfers.length}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content with Tabs */}
+          <div className="flex-1 min-w-0">
+            {/* Mobile Stats Row */}
+            <div className="lg:hidden mb-4 grid grid-cols-4 gap-2">
+              <button
+                onClick={() => { navigateToTab('stock-levels'); setStockFilter('in_stock'); }}
+                className="bg-card rounded-lg border border-border p-2 text-center"
+              >
+                <p className="text-lg font-bold text-success">{stockStats.inStock}</p>
+                <p className="text-[10px] text-muted-foreground">In Stock</p>
+              </button>
+              <button
+                onClick={() => { navigateToTab('stock-levels'); setStockFilter('low_stock'); }}
+                className="bg-card rounded-lg border border-border p-2 text-center"
+              >
+                <p className="text-lg font-bold text-warning">{stockStats.lowStock}</p>
+                <p className="text-[10px] text-muted-foreground">Low</p>
+              </button>
+              <button
+                onClick={() => { navigateToTab('stock-levels'); setStockFilter('out_of_stock'); }}
+                className="bg-card rounded-lg border border-border p-2 text-center"
+              >
+                <p className="text-lg font-bold text-error">{stockStats.outOfStock}</p>
+                <p className="text-[10px] text-muted-foreground">Out</p>
+              </button>
+              <div className="bg-card rounded-lg border border-border p-2 text-center">
+                <p className="text-lg font-bold text-primary">{warehouses.length}</p>
+                <p className="text-[10px] text-muted-foreground">Warehouses</p>
+              </div>
+            </div>
+
+            <Tabs value={activeTab} onValueChange={(v) => navigateToTab(v as TabType)}>
+              <TabsList className="w-full grid grid-cols-5 h-auto p-1 bg-muted/50">
+                <TabsTrigger value="stock-levels" className="flex items-center gap-2 py-2.5 data-[state=active]:bg-card">
+                  <BarChart3 className="h-4 w-4" />
+                  <span className="hidden sm:inline">Stock</span>
+                  <span className="text-xs text-muted-foreground">({products.length})</span>
+                </TabsTrigger>
+                <TabsTrigger value="warehouses" className="flex items-center gap-2 py-2.5 data-[state=active]:bg-card">
+                  <Warehouse className="h-4 w-4" />
+                  <span className="hidden sm:inline">Warehouses</span>
+                  <span className="text-xs text-muted-foreground">({warehouses.length})</span>
+                </TabsTrigger>
+                <TabsTrigger value="suppliers" className="flex items-center gap-2 py-2.5 data-[state=active]:bg-card">
+                  <Users className="h-4 w-4" />
+                  <span className="hidden sm:inline">Suppliers</span>
+                  <span className="text-xs text-muted-foreground">({suppliers.length})</span>
+                </TabsTrigger>
+                <TabsTrigger value="purchase-orders" className="flex items-center gap-2 py-2.5 data-[state=active]:bg-card">
+                  <Package className="h-4 w-4" />
+                  <span className="hidden sm:inline">POs</span>
+                  <span className="text-xs text-muted-foreground">({purchaseOrders.length})</span>
+                </TabsTrigger>
+                <TabsTrigger value="transfers" className="flex items-center gap-2 py-2.5 data-[state=active]:bg-card">
+                  <Truck className="h-4 w-4" />
+                  <span className="hidden sm:inline">Transfers</span>
+                  <span className="text-xs text-muted-foreground">({transfers.length})</span>
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Search and Actions Bar */}
+              <div className="mt-4 p-4 bg-card rounded-lg border border-border">
+                <div className="flex flex-wrap items-center gap-4">
+                  <div className="relative flex-1 min-w-[200px]">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="text"
+                      placeholder={activeTab === 'stock-levels' ? 'Search products by name, SKU, or brand...' : `Search ${activeTab}...`}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+
+                  {/* Stock level specific filters */}
+                  {activeTab === 'stock-levels' && (
+                    <>
+                      <select
+                        value={stockFilter}
+                        onChange={(e) => setStockFilter(e.target.value as StockFilter)}
+                        className="h-10 px-3 rounded-md border border-border bg-background text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <option value="all">All Stock</option>
+                        <option value="in_stock">In Stock</option>
+                        <option value="low_stock">Low Stock</option>
+                        <option value="out_of_stock">Out of Stock</option>
+                      </select>
+
+                      <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <input
+                          type="checkbox"
+                          checked={autoRefreshEnabled}
+                          onChange={(e) => setAutoRefreshEnabled(e.target.checked)}
+                          className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                        />
+                        Auto-refresh
+                      </label>
+
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Clock className="h-3.5 w-3.5" />
+                        <span>{lastRefresh.toLocaleTimeString()}</span>
+                      </div>
+                    </>
+                  )}
+
                   <Button
                     variant="outline"
-                    onClick={() => setShowBulkImport(true)}
-                    className="border-primary/30 text-primary hover:bg-primary/10"
+                    size="sm"
+                    onClick={() => activeTab === 'stock-levels' ? fetchProducts() : fetchData()}
+                    disabled={loading}
                   >
-                    <FileUp className="h-4 w-4 mr-2" />
-                    Bulk Import
+                    <RefreshCw className={cn('h-4 w-4 mr-2', loading && 'animate-spin')} />
+                    Refresh
                   </Button>
-                </PermissionGate>
-              )}
 
-              {activeTab !== 'stock-levels' && (
-                <PermissionGate
-                  permission={
-                    activeTab === 'warehouses'
-                      ? Permission.INVENTORY_WAREHOUSES_MANAGE
-                      : activeTab === 'transfers'
-                        ? Permission.INVENTORY_TRANSFERS_MANAGE
-                        : Permission.INVENTORY_ADJUST
-                  }
-                >
-                  <Button
-                    onClick={() => {
-                      if (activeTab === 'warehouses') openCreateModal('warehouse');
-                      else if (activeTab === 'suppliers') openCreateModal('supplier');
-                      else if (activeTab === 'purchase-orders') openCreateModal('purchase-order');
-                      else if (activeTab === 'transfers') openCreateModal('transfer');
-                    }}
-                    className="bg-primary text-primary-foreground"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
+                  {(activeTab === 'warehouses' || activeTab === 'suppliers') && (
+                    <PermissionGate
+                      permission={
+                        activeTab === 'warehouses'
+                          ? Permission.INVENTORY_WAREHOUSES_MANAGE
+                          : Permission.INVENTORY_ADJUST
+                      }
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowBulkImport(true)}
+                        className="border-primary/30 text-primary hover:bg-primary/10"
+                      >
+                        <FileUp className="h-4 w-4 mr-2" />
+                        Import
+                      </Button>
+                    </PermissionGate>
+                  )}
+
+                  {activeTab !== 'stock-levels' && (
+                    <PermissionGate
+                      permission={
+                        activeTab === 'warehouses'
+                          ? Permission.INVENTORY_WAREHOUSES_MANAGE
+                          : activeTab === 'transfers'
+                            ? Permission.INVENTORY_TRANSFERS_MANAGE
+                            : Permission.INVENTORY_ADJUST
+                      }
+                    >
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          if (activeTab === 'warehouses') openCreateModal('warehouse');
+                          else if (activeTab === 'suppliers') openCreateModal('supplier');
+                          else if (activeTab === 'purchase-orders') openCreateModal('purchase-order');
+                          else if (activeTab === 'transfers') openCreateModal('transfer');
+                        }}
+                        className="bg-primary text-primary-foreground"
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
                     New{' '}
                     {activeTab === 'warehouses'
                       ? 'Warehouse'
@@ -950,32 +1004,25 @@ export default function InventoryPage() {
             </div>
           </div>
 
-          {/* Loading State */}
-          {loading && (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-2 text-muted-foreground">Loading inventory data...</span>
-            </div>
-          )}
-
-          {/* Error State */}
-          {error && !loading && (
-            <div className="p-6 text-center">
-              <div className="bg-error-muted border border-error/20 rounded-lg p-4">
-                <p className="text-error font-medium">{error}</p>
-                <Button variant="outline" onClick={fetchData} className="mt-4">
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Try Again
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Content Tables */}
-          {!loading && !error && (
-            <div className="overflow-x-auto">
-              {/* Stock Levels */}
-              {activeTab === 'stock-levels' && (
+              {/* Tab Content */}
+              <TabsContent value="stock-levels" className="mt-4">
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <span className="ml-2 text-muted-foreground">Loading stock levels...</span>
+                  </div>
+                ) : error ? (
+                  <div className="p-6 text-center">
+                    <div className="bg-error-muted border border-error/20 rounded-lg p-4">
+                      <p className="text-error font-medium">{error}</p>
+                      <Button variant="outline" onClick={() => fetchProducts()} className="mt-4">
+                        <RefreshCw className="h-4 w-4 mr-2" />
+                        Try Again
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                <div className="bg-card rounded-lg border border-border overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-muted border-b border-border">
                     <tr>
@@ -1154,10 +1201,18 @@ export default function InventoryPage() {
                     )}
                   </tbody>
                 </table>
-              )}
+                </div>
+                )}
+              </TabsContent>
 
-              {/* Warehouses */}
-              {activeTab === 'warehouses' && (
+              <TabsContent value="warehouses" className="mt-4">
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <span className="ml-2 text-muted-foreground">Loading warehouses...</span>
+                  </div>
+                ) : (
+                <div className="bg-card rounded-lg border border-border overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-muted border-b border-border">
                     <tr>
@@ -1251,10 +1306,18 @@ export default function InventoryPage() {
                     )}
                   </tbody>
                 </table>
-              )}
+                </div>
+                )}
+              </TabsContent>
 
-              {/* Suppliers */}
-              {activeTab === 'suppliers' && (
+              <TabsContent value="suppliers" className="mt-4">
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <span className="ml-2 text-muted-foreground">Loading suppliers...</span>
+                  </div>
+                ) : (
+                <div className="bg-card rounded-lg border border-border overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-muted border-b border-border">
                     <tr>
@@ -1352,10 +1415,18 @@ export default function InventoryPage() {
                     )}
                   </tbody>
                 </table>
-              )}
+                </div>
+                )}
+              </TabsContent>
 
-              {/* Purchase Orders */}
-              {activeTab === 'purchase-orders' && (
+              <TabsContent value="purchase-orders" className="mt-4">
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <span className="ml-2 text-muted-foreground">Loading purchase orders...</span>
+                  </div>
+                ) : (
+                <div className="bg-card rounded-lg border border-border overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-muted border-b border-border">
                     <tr>
@@ -1454,10 +1525,18 @@ export default function InventoryPage() {
                     )}
                   </tbody>
                 </table>
-              )}
+                </div>
+                )}
+              </TabsContent>
 
-              {/* Transfers */}
-              {activeTab === 'transfers' && (
+              <TabsContent value="transfers" className="mt-4">
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <span className="ml-2 text-muted-foreground">Loading transfers...</span>
+                  </div>
+                ) : (
+                <div className="bg-card rounded-lg border border-border overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-muted border-b border-border">
                     <tr>
@@ -1548,9 +1627,11 @@ export default function InventoryPage() {
                     )}
                   </tbody>
                 </table>
-              )}
-            </div>
-          )}
+                </div>
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
 

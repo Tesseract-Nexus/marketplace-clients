@@ -16,7 +16,7 @@ import {
   AdminMessage,
 } from '@/components/translation/AdminTranslatedText';
 import { Pagination } from '@/components/Pagination';
-import { StatsGrid, FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
+import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { orderService } from '@/lib/services/orderService';
 import {
   Order,
@@ -382,20 +382,45 @@ export default function OrdersPage() {
       {/* Error Alert */}
       <PageError error={error} onDismiss={() => setError(null)} />
 
-      {/* Stats */}
+      {/* Compact Stats Row */}
       {!loading && orders.length > 0 && (
-        <StatsGrid
-          stats={[
-            { label: 'Total Orders', value: totalOrders, icon: ShoppingCart, color: 'primary' },
-            { label: 'Awaiting Payment', value: awaitingPayment, icon: Clock, color: 'warning' },
-            { label: 'In Fulfillment', value: inFulfillment, icon: Truck, color: 'primary' },
-            { label: 'Completed', value: completedOrders, icon: CheckCircle, color: 'success' },
-            { label: 'Revenue', value: formatCurrency(totalRevenue, orders[0]?.currencyCode || 'INR'), icon: DollarSign, color: 'primary' },
-          ]}
-          columns={5}
-          showMobileRow
-          className="mb-6"
-        />
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
+          <div className="bg-card rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <ShoppingCart className="h-3.5 w-3.5" />
+              Total
+            </div>
+            <p className="text-xl font-bold text-foreground">{totalOrders}</p>
+          </div>
+          <div className="bg-card rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <Clock className="h-3.5 w-3.5" />
+              Pending
+            </div>
+            <p className="text-xl font-bold text-warning">{awaitingPayment}</p>
+          </div>
+          <div className="bg-card rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <Truck className="h-3.5 w-3.5" />
+              Fulfilling
+            </div>
+            <p className="text-xl font-bold text-primary">{inFulfillment}</p>
+          </div>
+          <div className="bg-card rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <CheckCircle className="h-3.5 w-3.5" />
+              Completed
+            </div>
+            <p className="text-xl font-bold text-success">{completedOrders}</p>
+          </div>
+          <div className="bg-card rounded-lg border border-border p-3">
+            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+              <DollarSign className="h-3.5 w-3.5" />
+              Revenue
+            </div>
+            <p className="text-xl font-bold text-primary">{formatCurrency(totalRevenue, orders[0]?.currencyCode || 'INR')}</p>
+          </div>
+        </div>
       )}
 
       {/* Search and Filters */}
