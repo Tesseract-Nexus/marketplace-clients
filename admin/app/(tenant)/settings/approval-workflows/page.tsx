@@ -30,11 +30,63 @@ import {
   Trash2,
   Ban,
   RefreshCw,
+  Zap,
 } from 'lucide-react';
 import { workflowService, ApprovalWorkflow, TriggerThreshold, EscalationConfig } from '@/lib/services/approvalService';
 import { PageHeader } from '@/components/PageHeader';
-import { PageLoading, PageError } from '@/components/common';
+import { PageLoading } from '@/components/common';
 import { ErrorState } from '@/components/ui/error-state';
+import { cn } from '@/lib/utils';
+
+// Status Widget
+function WorkflowStatusWidget({
+  totalWorkflows,
+  activeWorkflows,
+  systemWorkflows,
+}: {
+  totalWorkflows: number;
+  activeWorkflows: number;
+  systemWorkflows: number;
+}) {
+  const steps = [
+    { done: totalWorkflows > 0, label: 'Configured' },
+    { done: activeWorkflows > 0, label: 'Active' },
+    { done: systemWorkflows > 0, label: 'System' },
+    { done: activeWorkflows === totalWorkflows, label: 'All On' },
+  ];
+  const completedCount = steps.filter(s => s.done).length;
+  const isReady = activeWorkflows > 0;
+
+  return (
+    <div className={cn(
+      "rounded-lg border p-3",
+      isReady ? "bg-success/5 border-success/20" : "bg-warning/5 border-warning/20"
+    )}>
+      <div className="flex items-center justify-between mb-2">
+        <span className={cn(
+          "text-xs font-medium",
+          isReady ? "text-success" : "text-warning"
+        )}>
+          {isReady ? 'Active' : 'Setup Required'}
+        </span>
+        <span className="text-xs text-muted-foreground">{completedCount}/4</span>
+      </div>
+      <div className="flex gap-1">
+        {steps.map((step, i) => (
+          <div key={i} className="flex-1 group relative">
+            <div className={cn(
+              "h-1 rounded-full transition-colors",
+              step.done ? isReady ? "bg-success" : "bg-warning" : "bg-muted"
+            )} />
+            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              {step.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // Icon mapping for workflow types
 const workflowIcons: Record<string, React.ElementType> = {
@@ -46,10 +98,8 @@ const workflowIcons: Record<string, React.ElementType> = {
   default: CheckCircle2,
 };
 
-// Format threshold for display
 function formatThreshold(triggerConfig: TriggerThreshold): string {
   if (!triggerConfig?.thresholds) return 'No thresholds configured';
-
   return triggerConfig.thresholds
     .filter((t) => t.max !== undefined)
     .map((t) => {
@@ -70,14 +120,10 @@ function formatCurrency(amount: number): string {
 
 function getTriggerTypeLabel(type: string): string {
   switch (type) {
-    case 'threshold':
-      return 'Threshold-based';
-    case 'condition':
-      return 'Condition-based';
-    case 'always':
-      return 'Always Required';
-    default:
-      return type;
+    case 'threshold': return 'Threshold-based';
+    case 'condition': return 'Condition-based';
+    case 'always': return 'Always Required';
+    default: return type;
   }
 }
 
@@ -101,8 +147,6 @@ export default function ApprovalWorkflowsPage() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedWorkflow, setSelectedWorkflow] = useState<ApprovalWorkflow | null>(null);
   const [saving, setSaving] = useState(false);
-
-  // Edit form state
   const [editForm, setEditForm] = useState({
     timeoutHours: 72,
     thresholds: [] as ThresholdLevel[],
@@ -118,7 +162,6 @@ export default function ApprovalWorkflowsPage() {
       const response = await workflowService.listWorkflows();
       setWorkflows(response.data || []);
     } catch (err) {
-      console.error('Failed to load workflows:', err);
       setError(err instanceof Error ? err.message : 'Failed to load approval workflows');
     } finally {
       setLoading(false);
@@ -134,18 +177,14 @@ export default function ApprovalWorkflowsPage() {
       setActionError('System workflows cannot be disabled');
       return;
     }
-
     try {
       setToggling(workflow.id);
       setActionError(null);
       await workflowService.toggleWorkflow(workflow.id, !workflow.isActive);
       setWorkflows((prev) =>
-        prev.map((w) =>
-          w.id === workflow.id ? { ...w, isActive: !w.isActive } : w
-        )
+        prev.map((w) => w.id === workflow.id ? { ...w, isActive: !w.isActive } : w)
       );
     } catch (err) {
-      console.error('Failed to toggle workflow:', err);
       setActionError(err instanceof Error ? err.message : 'Failed to update workflow');
     } finally {
       setToggling(null);
@@ -154,15 +193,9 @@ export default function ApprovalWorkflowsPage() {
 
   function openEditDialog(workflow: ApprovalWorkflow) {
     setSelectedWorkflow(workflow);
-
-    // Parse trigger config for thresholds
     const triggerConfig = workflow.triggerConfig as TriggerThreshold;
     const thresholds = triggerConfig?.thresholds || [];
-
-    // Parse approver config
     const approverConfig = workflow.approverConfig || {};
-
-    // Parse escalation config
     const escalationConfig = workflow.escalationConfig as EscalationConfig | undefined;
 
     setEditForm({
@@ -176,32 +209,17 @@ export default function ApprovalWorkflowsPage() {
       escalationEnabled: escalationConfig?.enabled || false,
       escalationLevels: escalationConfig?.levels || [],
     });
-
     setEditDialogOpen(true);
   }
 
   async function handleSave() {
     if (!selectedWorkflow) return;
-
     try {
       setSaving(true);
       setActionError(null);
-
-      // Build the update payload
-      const triggerConfig: TriggerThreshold = {
-        field: 'amount',
-        thresholds: editForm.thresholds,
-      };
-
-      const approverConfig = {
-        require_different_user: editForm.requireDifferentUser,
-        require_active_staff: true,
-      };
-
-      const escalationConfig: EscalationConfig = {
-        enabled: editForm.escalationEnabled,
-        levels: editForm.escalationLevels,
-      };
+      const triggerConfig: TriggerThreshold = { field: 'amount', thresholds: editForm.thresholds };
+      const approverConfig = { require_different_user: editForm.requireDifferentUser, require_active_staff: true };
+      const escalationConfig: EscalationConfig = { enabled: editForm.escalationEnabled, levels: editForm.escalationLevels };
 
       await workflowService.updateWorkflow(selectedWorkflow.id, {
         timeoutHours: editForm.timeoutHours,
@@ -209,11 +227,9 @@ export default function ApprovalWorkflowsPage() {
         approverConfig,
         escalationConfig,
       });
-
       setEditDialogOpen(false);
       loadWorkflows();
     } catch (err) {
-      console.error('Failed to update workflow:', err);
       setActionError(err instanceof Error ? err.message : 'Failed to update workflow');
     } finally {
       setSaving(false);
@@ -228,10 +244,7 @@ export default function ApprovalWorkflowsPage() {
   }
 
   function removeThreshold(index: number) {
-    setEditForm((prev) => ({
-      ...prev,
-      thresholds: prev.thresholds.filter((_, i) => i !== index),
-    }));
+    setEditForm((prev) => ({ ...prev, thresholds: prev.thresholds.filter((_, i) => i !== index) }));
   }
 
   function updateThreshold(index: number, field: keyof ThresholdLevel, value: any) {
@@ -249,10 +262,7 @@ export default function ApprovalWorkflowsPage() {
   }
 
   function removeEscalationLevel(index: number) {
-    setEditForm((prev) => ({
-      ...prev,
-      escalationLevels: prev.escalationLevels.filter((_, i) => i !== index),
-    }));
+    setEditForm((prev) => ({ ...prev, escalationLevels: prev.escalationLevels.filter((_, i) => i !== index) }));
   }
 
   function updateEscalationLevel(index: number, field: keyof EscalationLevel, value: any) {
@@ -262,12 +272,13 @@ export default function ApprovalWorkflowsPage() {
     }));
   }
 
+  const activeWorkflows = workflows.filter(w => w.isActive).length;
+  const systemWorkflows = workflows.filter(w => w.isSystem).length;
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="max-w-6xl mx-auto">
-          <PageLoading message="Loading workflows..." fullScreen />
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-primary animate-spin" />
       </div>
     );
   }
@@ -292,129 +303,151 @@ export default function ApprovalWorkflowsPage() {
       fallbackTitle="Approval Workflows"
       fallbackDescription="You don't have permission to view approval workflows."
     >
-    <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <PageHeader
-          title="Approval Workflows"
-          description="Configure approval workflows for sensitive operations like refunds, cancellations, and gateway changes."
-          breadcrumbs={[
-            { label: 'Home', href: '/' },
-            { label: 'Settings', href: '/settings' },
-            { label: 'Approval Workflows' },
-          ]}
-          actions={
-            <Button variant="outline" size="sm" onClick={loadWorkflows}>
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Refresh
-            </Button>
-          }
-        />
+      <div className="min-h-screen bg-background">
+        <div className="space-y-6 animate-in fade-in duration-500">
+          <PageHeader
+            title="Approval Workflows"
+            description="Configure approval workflows for sensitive operations"
+            breadcrumbs={[
+              { label: 'Home', href: '/' },
+              { label: 'Settings', href: '/settings' },
+              { label: 'Approval Workflows' },
+            ]}
+            actions={
+              <Button variant="outline" size="sm" onClick={loadWorkflows}>
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Refresh
+              </Button>
+            }
+          />
 
-        {/* Action error display */}
-        <PageError
-          error={actionError}
-          onDismiss={() => setActionError(null)}
-        />
+          {actionError && (
+            <div className="bg-error-muted border border-error/30 rounded-lg p-3 text-sm text-error flex items-center gap-2">
+              <AlertCircle className="h-4 w-4" />
+              {actionError}
+              <Button variant="ghost" size="sm" className="ml-auto h-6 px-2" onClick={() => setActionError(null)}>
+                Dismiss
+              </Button>
+            </div>
+          )}
 
-        {workflows.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium text-foreground mb-2">No workflows configured</h3>
-              <p className="text-muted-foreground mb-4">
-                Approval workflows will be created automatically when the system initializes.
-              </p>
-              <Button onClick={loadWorkflows}>Refresh</Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4">
-            {workflows.map((workflow) => {
-              const IconComponent = workflowIcons[workflow.name] || workflowIcons.default;
-              const triggerConfig = workflow.triggerConfig as TriggerThreshold;
+          <div className="flex gap-6">
+            {/* Sidebar */}
+            <div className="w-56 flex-shrink-0 hidden lg:block">
+              <div className="sticky top-6 space-y-3">
+                <WorkflowStatusWidget
+                  totalWorkflows={workflows.length}
+                  activeWorkflows={activeWorkflows}
+                  systemWorkflows={systemWorkflows}
+                />
 
-              return (
-                <Card key={workflow.id} className={!workflow.isActive ? 'opacity-60' : ''}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="p-2 bg-primary/10 rounded-lg">
-                          <IconComponent className="h-5 w-5 text-primary" />
-                        </div>
-                        <div>
-                          <CardTitle className="flex items-center gap-2 text-foreground">
-                            {workflow.displayName}
-                            {workflow.isSystem && (
-                              <Badge variant="secondary" className="text-xs">
-                                System
-                              </Badge>
-                            )}
-                            {!workflow.isActive && (
-                              <Badge variant="outline" className="text-xs">
-                                Disabled
-                              </Badge>
-                            )}
-                          </CardTitle>
-                          <CardDescription>{workflow.description}</CardDescription>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => openEditDialog(workflow)}
-                        >
-                          <Settings2 className="h-4 w-4 mr-1" />
-                          Configure
-                        </Button>
-                        <Switch
-                          checked={workflow.isActive}
-                          onCheckedChange={() => handleToggle(workflow)}
-                          disabled={workflow.isSystem || toggling === workflow.id}
-                        />
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      <div className="flex items-center gap-2 text-sm">
-                        <Badge variant="outline">{getTriggerTypeLabel(workflow.triggerType)}</Badge>
-                      </div>
+                {/* Quick Links */}
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="flex-1 h-8 text-xs" onClick={loadWorkflows}>
+                    <RefreshCw className="h-3 w-3 mr-1" />
+                    Refresh
+                  </Button>
+                </div>
 
-                      {workflow.triggerType === 'threshold' && triggerConfig?.thresholds && (
-                        <div className="sm:col-span-2 lg:col-span-2">
-                          <div className="text-sm text-muted-foreground mb-1">Thresholds</div>
-                          <div className="text-sm text-foreground">{formatThreshold(triggerConfig)}</div>
-                        </div>
-                      )}
+                {/* Stats */}
+                <div className="bg-card rounded-lg border border-border p-3 space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Total</span>
+                    <span className="font-medium">{workflows.length}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Active</span>
+                    <span className="font-medium text-success">{activeWorkflows}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">System</span>
+                    <span className="font-medium">{systemWorkflows}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Clock className="h-4 w-4" />
-                        <span>Expires after {workflow.timeoutHours} hours</span>
-                      </div>
+            {/* Main Content */}
+            <div className="flex-1 min-w-0">
+              {/* Mobile Status */}
+              <div className="lg:hidden mb-4">
+                <WorkflowStatusWidget
+                  totalWorkflows={workflows.length}
+                  activeWorkflows={activeWorkflows}
+                  systemWorkflows={systemWorkflows}
+                />
+              </div>
 
-                      {workflow.escalationConfig?.enabled && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Users className="h-4 w-4" />
-                          <span>
-                            Escalation: {workflow.escalationConfig.levels?.length || 0} level(s)
-                          </span>
-                        </div>
-                      )}
-
-                      {workflow.approverConfig?.require_different_user && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <ShieldCheck className="h-4 w-4" />
-                          <span>Requires different approver</span>
-                        </div>
-                      )}
-                    </div>
+              {workflows.length === 0 ? (
+                <Card>
+                  <CardContent className="py-12 text-center">
+                    <AlertCircle className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">No workflows configured</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Approval workflows will be created automatically when the system initializes.
+                    </p>
+                    <Button onClick={loadWorkflows}>Refresh</Button>
                   </CardContent>
                 </Card>
-              );
-            })}
+              ) : (
+                <div className="grid gap-4">
+                  {workflows.map((workflow) => {
+                    const IconComponent = workflowIcons[workflow.name] || workflowIcons.default;
+                    const triggerConfig = workflow.triggerConfig as TriggerThreshold;
+
+                    return (
+                      <Card key={workflow.id} className={!workflow.isActive ? 'opacity-60' : ''}>
+                        <CardHeader className="pb-3">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-primary/10 rounded-lg">
+                                <IconComponent className="h-5 w-5 text-primary" />
+                              </div>
+                              <div>
+                                <CardTitle className="flex items-center gap-2 text-foreground text-base">
+                                  {workflow.displayName}
+                                  {workflow.isSystem && <Badge variant="secondary" className="text-xs">System</Badge>}
+                                  {!workflow.isActive && <Badge variant="outline" className="text-xs">Disabled</Badge>}
+                                </CardTitle>
+                                <CardDescription className="text-sm">{workflow.description}</CardDescription>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Button variant="outline" size="sm" onClick={() => openEditDialog(workflow)}>
+                                <Settings2 className="h-4 w-4 mr-1" />
+                                Configure
+                              </Button>
+                              <Switch
+                                checked={workflow.isActive}
+                                onCheckedChange={() => handleToggle(workflow)}
+                                disabled={workflow.isSystem || toggling === workflow.id}
+                              />
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                          <div className="flex flex-wrap gap-3 text-sm">
+                            <Badge variant="outline">{getTriggerTypeLabel(workflow.triggerType)}</Badge>
+                            <span className="flex items-center gap-1 text-muted-foreground">
+                              <Clock className="h-3 w-3" />
+                              {workflow.timeoutHours}h timeout
+                            </span>
+                            {workflow.escalationConfig?.enabled && (
+                              <span className="flex items-center gap-1 text-muted-foreground">
+                                <Users className="h-3 w-3" />
+                                {workflow.escalationConfig.levels?.length || 0} escalation levels
+                              </span>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
           </div>
-        )}
+        </div>
 
         {/* Edit Dialog */}
         <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
@@ -427,7 +460,6 @@ export default function ApprovalWorkflowsPage() {
             </DialogHeader>
 
             <div className="space-y-6 py-4">
-              {/* Timeout */}
               <div className="space-y-2">
                 <Label htmlFor="timeout">Timeout (hours)</Label>
                 <Input
@@ -438,18 +470,12 @@ export default function ApprovalWorkflowsPage() {
                   value={editForm.timeoutHours}
                   onChange={(e) => setEditForm((prev) => ({ ...prev, timeoutHours: parseInt(e.target.value) || 72 }))}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Approval requests will expire after this many hours if not acted upon.
-                </p>
               </div>
 
-              {/* Require Different User */}
               <div className="flex items-center justify-between">
                 <div>
                   <Label>Require Different Approver</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Prevent the requester from approving their own requests.
-                  </p>
+                  <p className="text-xs text-muted-foreground">Prevent the requester from approving their own requests.</p>
                 </div>
                 <Switch
                   checked={editForm.requireDifferentUser}
@@ -457,22 +483,15 @@ export default function ApprovalWorkflowsPage() {
                 />
               </div>
 
-              {/* Thresholds */}
               {selectedWorkflow?.triggerType === 'threshold' && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <div>
-                      <Label>Amount Thresholds</Label>
-                      <p className="text-xs text-muted-foreground">
-                        Define approval requirements based on amount ranges.
-                      </p>
-                    </div>
+                    <Label>Amount Thresholds</Label>
                     <Button variant="outline" size="sm" onClick={addThreshold}>
                       <Plus className="h-4 w-4 mr-1" />
                       Add
                     </Button>
                   </div>
-
                   {editForm.thresholds.map((threshold, index) => (
                     <Card key={index} className="p-4">
                       <div className="grid grid-cols-3 gap-4">
@@ -482,7 +501,6 @@ export default function ApprovalWorkflowsPage() {
                             type="number"
                             value={threshold.max || ''}
                             onChange={(e) => updateThreshold(index, 'max', parseFloat(e.target.value) || 0)}
-                            placeholder="e.g., 1000"
                           />
                         </div>
                         <div className="space-y-2">
@@ -490,7 +508,6 @@ export default function ApprovalWorkflowsPage() {
                           <Input
                             value={threshold.approver_role || ''}
                             onChange={(e) => updateThreshold(index, 'approver_role', e.target.value)}
-                            placeholder="e.g., manager"
                           />
                         </div>
                         <div className="flex items-end gap-2">
@@ -499,7 +516,7 @@ export default function ApprovalWorkflowsPage() {
                               checked={threshold.auto_approve || false}
                               onCheckedChange={(checked) => updateThreshold(index, 'auto_approve', checked)}
                             />
-                            <Label className="text-sm">Auto-approve</Label>
+                            <Label className="text-sm">Auto</Label>
                           </div>
                           <Button variant="ghost" size="sm" onClick={() => removeThreshold(index)}>
                             <Trash2 className="h-4 w-4 text-error" />
@@ -511,21 +528,14 @@ export default function ApprovalWorkflowsPage() {
                 </div>
               )}
 
-              {/* Escalation */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <Label>Enable Escalation</Label>
-                    <p className="text-xs text-muted-foreground">
-                      Automatically escalate pending requests to higher roles.
-                    </p>
-                  </div>
+                  <Label>Enable Escalation</Label>
                   <Switch
                     checked={editForm.escalationEnabled}
                     onCheckedChange={(checked) => setEditForm((prev) => ({ ...prev, escalationEnabled: checked }))}
                   />
                 </div>
-
                 {editForm.escalationEnabled && (
                   <>
                     <div className="flex justify-end">
@@ -534,7 +544,6 @@ export default function ApprovalWorkflowsPage() {
                         Add Level
                       </Button>
                     </div>
-
                     {editForm.escalationLevels.map((level, index) => (
                       <Card key={index} className="p-4">
                         <div className="grid grid-cols-3 gap-4">
@@ -544,7 +553,6 @@ export default function ApprovalWorkflowsPage() {
                               type="number"
                               value={level.after_hours}
                               onChange={(e) => updateEscalationLevel(index, 'after_hours', parseInt(e.target.value) || 24)}
-                              placeholder="e.g., 24"
                             />
                           </div>
                           <div className="space-y-2">
@@ -552,7 +560,6 @@ export default function ApprovalWorkflowsPage() {
                             <Input
                               value={level.escalate_to_role}
                               onChange={(e) => updateEscalationLevel(index, 'escalate_to_role', e.target.value)}
-                              placeholder="e.g., admin"
                             />
                           </div>
                           <div className="flex items-end">
@@ -569,24 +576,14 @@ export default function ApprovalWorkflowsPage() {
             </div>
 
             <DialogFooter>
-              <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
-                Cancel
-              </Button>
+              <Button variant="outline" onClick={() => setEditDialogOpen(false)}>Cancel</Button>
               <Button onClick={handleSave} disabled={saving}>
-                {saving ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    Saving...
-                  </>
-                ) : (
-                  'Save Changes'
-                )}
+                {saving ? <><Loader2 className="w-4 h-4 animate-spin mr-2" />Saving...</> : 'Save Changes'}
               </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
-    </div>
     </PermissionGate>
   );
 }

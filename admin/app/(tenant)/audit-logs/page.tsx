@@ -7,10 +7,9 @@ import {
   Filter,
   AlertTriangle,
   Shield,
-  User,
-  Calendar,
   Clock,
   XCircle,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -59,7 +58,6 @@ const MOCK_LOGS: AuditLog[] = [
     method: 'POST',
     path: '/api/products',
     ipAddress: '192.168.1.100',
-    userAgent: 'Mozilla/5.0...',
     description: 'Created new product in catalog',
     serviceName: 'product-service',
   },
@@ -77,7 +75,6 @@ const MOCK_LOGS: AuditLog[] = [
     method: 'POST',
     path: '/api/auth/login',
     ipAddress: '203.0.113.45',
-    userAgent: 'Mozilla/5.0...',
     description: 'Failed login attempt - invalid credentials',
     errorMessage: 'Invalid username or password',
     serviceName: 'auth-service',
@@ -98,7 +95,6 @@ const MOCK_LOGS: AuditLog[] = [
     method: 'DELETE',
     path: '/api/orders/789',
     ipAddress: '192.168.1.105',
-    userAgent: 'Mozilla/5.0...',
     description: 'Deleted cancelled order from system',
     serviceName: 'order-service',
   },
@@ -118,7 +114,6 @@ const MOCK_LOGS: AuditLog[] = [
     method: 'PUT',
     path: '/api/roles/456',
     ipAddress: '192.168.1.110',
-    userAgent: 'Mozilla/5.0...',
     description: 'Updated role permissions',
     serviceName: 'auth-service',
   },
@@ -138,7 +133,6 @@ const MOCK_LOGS: AuditLog[] = [
     method: 'POST',
     path: '/api/returns/123/approve',
     ipAddress: '192.168.1.115',
-    userAgent: 'Mozilla/5.0...',
     description: 'Approved customer return request',
     serviceName: 'return-service',
   },
@@ -158,7 +152,6 @@ const MOCK_LOGS: AuditLog[] = [
     method: 'PUT',
     path: '/api/payments/555',
     ipAddress: '192.168.1.120',
-    userAgent: 'Mozilla/5.0...',
     description: 'Failed to process payment update',
     errorMessage: 'Payment gateway timeout',
     serviceName: 'payment-service',
@@ -208,48 +201,77 @@ const severityOptions = [
   { value: 'LOW', label: 'Low' },
 ];
 
+// Status Widget
+function AuditStatusWidget({ summary }: { summary: typeof MOCK_SUMMARY }) {
+  const isHealthy = summary.successRate >= 90;
+  const steps = [
+    { done: summary.totalLogs > 0, label: 'Logging' },
+    { done: summary.successRate >= 80, label: '80%+' },
+    { done: summary.successRate >= 90, label: '90%+' },
+    { done: summary.highSeverity < 10, label: 'Low Risk' },
+  ];
+  const completedCount = steps.filter(s => s.done).length;
+
+  return (
+    <div className={cn(
+      "rounded-lg border p-3",
+      isHealthy ? "bg-success/5 border-success/20" : "bg-warning/5 border-warning/20"
+    )}>
+      <div className="flex items-center justify-between mb-2">
+        <span className={cn(
+          "text-xs font-medium",
+          isHealthy ? "text-success" : "text-warning"
+        )}>
+          {isHealthy ? 'Healthy' : 'Review Needed'}
+        </span>
+        <span className="text-xs text-muted-foreground">{completedCount}/4</span>
+      </div>
+      <div className="flex gap-1">
+        {steps.map((step, i) => (
+          <div key={i} className="flex-1 group relative">
+            <div className={cn(
+              "h-1 rounded-full transition-colors",
+              step.done ? isHealthy ? "bg-success" : "bg-warning" : "bg-muted"
+            )} />
+            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              {step.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function AuditLogsPage() {
   const [searchText, setSearchText] = useState('');
   const [actionFilter, setActionFilter] = useState('');
   const [resourceFilter, setResourceFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [severityFilter, setSeverityFilter] = useState('');
-  const [fromDate, setFromDate] = useState('');
-  const [toDate, setToDate] = useState('');
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
   const getSeverityColor = (severity: string) => {
     switch (severity) {
-      case 'CRITICAL':
-        return 'bg-error-muted text-error border-error/30';
-      case 'HIGH':
-        return 'bg-warning-muted text-warning border-warning/30';
-      case 'MEDIUM':
-        return 'bg-warning-muted text-warning border-warning/30';
-      case 'LOW':
-        return 'bg-success-muted text-success-foreground border-success/30';
-      default:
-        return 'bg-muted text-foreground border-border';
+      case 'CRITICAL': return 'bg-error-muted text-error border-error/30';
+      case 'HIGH': return 'bg-warning-muted text-warning border-warning/30';
+      case 'MEDIUM': return 'bg-warning-muted text-warning border-warning/30';
+      case 'LOW': return 'bg-success-muted text-success-foreground border-success/30';
+      default: return 'bg-muted text-foreground border-border';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'SUCCESS':
-        return 'bg-success-muted text-success-foreground border-success/30';
-      case 'FAILURE':
-        return 'bg-error-muted text-error border-error/30';
-      case 'PENDING':
-        return 'bg-warning-muted text-warning border-warning/30';
-      default:
-        return 'bg-muted text-foreground border-border';
+      case 'SUCCESS': return 'bg-success-muted text-success-foreground border-success/30';
+      case 'FAILURE': return 'bg-error-muted text-error border-error/30';
+      case 'PENDING': return 'bg-warning-muted text-warning border-warning/30';
+      default: return 'bg-muted text-foreground border-border';
     }
   };
 
-  const formatTimestamp = (timestamp: string) => {
-    return new Date(timestamp).toLocaleString();
-  };
+  const formatTimestamp = (timestamp: string) => new Date(timestamp).toLocaleString();
 
   const resetFilters = () => {
     setSearchText('');
@@ -257,12 +279,6 @@ export default function AuditLogsPage() {
     setResourceFilter('');
     setStatusFilter('');
     setSeverityFilter('');
-    setFromDate('');
-    setToDate('');
-  };
-
-  const handleExport = (format: 'csv' | 'json') => {
-    // TODO: Implement audit log export via audit-service API
   };
 
   return (
@@ -270,409 +286,291 @@ export default function AuditLogsPage() {
       permission={Permission.AUDIT_VIEW}
       fallback="styled"
       fallbackTitle="Audit Logs Access Required"
-      fallbackDescription="You don't have the required permissions to view audit logs. Please contact your administrator to request access."
+      fallbackDescription="You don't have the required permissions to view audit logs."
     >
-    <div className="min-h-screen bg-background">
-      <div className="space-y-6 animate-in fade-in duration-500">
-        <PageHeader
-          title="Audit Logs"
-          description="Track all system activities and security events across your platform"
-          breadcrumbs={[
-            { label: 'Home', href: '/' },
-            { label: 'Settings', href: '/settings' },
-            { label: 'Audit Logs' },
-          ]}
-          actions={
-            <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setShowFilters(!showFilters)}>
-                <Filter className="h-4 w-4 mr-2" />
-                {showFilters ? 'Hide Filters' : 'Show Filters'}
-              </Button>
-              <Button variant="outline" onClick={() => handleExport('csv')}>
-                <Download className="h-4 w-4 mr-2" />
-                Export CSV
-              </Button>
-              <Button variant="outline" onClick={() => handleExport('json')}>
-                <Download className="h-4 w-4 mr-2" />
-                Export JSON
-              </Button>
-            </div>
-          }
-        />
+      <div className="min-h-screen bg-background">
+        <div className="space-y-6 animate-in fade-in duration-500">
+          <PageHeader
+            title="Audit Logs"
+            description="Track all system activities and security events"
+            breadcrumbs={[
+              { label: 'Home', href: '/' },
+              { label: 'Audit Logs' },
+            ]}
+            actions={
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setShowFilters(!showFilters)}>
+                  <Filter className="h-4 w-4 mr-1" />
+                  Filters
+                </Button>
+                <Button variant="outline" size="sm">
+                  <Download className="h-4 w-4 mr-1" />
+                  Export
+                </Button>
+              </div>
+            }
+          />
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Total Events</p>
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Shield className="h-6 w-6 text-primary" />
+          <div className="flex gap-6">
+            {/* Sidebar */}
+            <div className="w-56 flex-shrink-0 hidden lg:block">
+              <div className="sticky top-6 space-y-3">
+                <AuditStatusWidget summary={MOCK_SUMMARY} />
+
+                {/* Quick Links */}
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="flex-1 h-8 text-xs">
+                    <RefreshCw className="h-3 w-3 mr-1" />
+                    Refresh
+                  </Button>
+                </div>
+
+                {/* Stats */}
+                <div className="bg-card rounded-lg border border-border p-3 space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Total Events</span>
+                    <span className="font-medium">{MOCK_SUMMARY.totalLogs.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Success Rate</span>
+                    <span className="font-medium text-success">{MOCK_SUMMARY.successRate}%</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">High Severity</span>
+                    <span className="font-medium text-warning">{MOCK_SUMMARY.highSeverity}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Failed</span>
+                    <span className="font-medium text-error">{MOCK_SUMMARY.failedActions}</span>
+                  </div>
+                </div>
+
+                {/* Quick Filters */}
+                <div className="bg-card rounded-lg border border-border p-3 space-y-2">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Quick Filters</p>
+                  <Button
+                    variant={severityFilter === 'CRITICAL' ? 'default' : 'ghost'}
+                    size="sm"
+                    className="w-full justify-start h-7 text-xs"
+                    onClick={() => setSeverityFilter(severityFilter === 'CRITICAL' ? '' : 'CRITICAL')}
+                  >
+                    <AlertTriangle className="h-3 w-3 mr-1 text-error" />
+                    Critical Only
+                  </Button>
+                  <Button
+                    variant={statusFilter === 'FAILURE' ? 'default' : 'ghost'}
+                    size="sm"
+                    className="w-full justify-start h-7 text-xs"
+                    onClick={() => setStatusFilter(statusFilter === 'FAILURE' ? '' : 'FAILURE')}
+                  >
+                    <XCircle className="h-3 w-3 mr-1 text-error" />
+                    Failures Only
+                  </Button>
+                </div>
               </div>
             </div>
-            <p className="text-3xl font-bold text-primary">
-              {MOCK_SUMMARY.totalLogs.toLocaleString()}
-            </p>
-          </div>
 
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Success Rate</p>
-              <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
-                <Clock className="h-6 w-6 text-success" />
+            {/* Main Content */}
+            <div className="flex-1 min-w-0">
+              {/* Mobile Status */}
+              <div className="lg:hidden mb-4">
+                <AuditStatusWidget summary={MOCK_SUMMARY} />
+              </div>
+
+              {/* Filters */}
+              {showFilters && (
+                <div className="bg-card rounded-lg border border-border p-4 mb-4 animate-in slide-in-from-top duration-200">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-medium flex items-center gap-2">
+                      <Filter className="h-4 w-4 text-primary" />
+                      Filters
+                    </h3>
+                    <Button variant="ghost" size="sm" onClick={resetFilters}>Reset</Button>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Search</label>
+                      <div className="relative">
+                        <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground w-3 h-3" />
+                        <Input
+                          placeholder="Search..."
+                          value={searchText}
+                          onChange={(e) => setSearchText(e.target.value)}
+                          className="pl-7 h-8 text-sm"
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Action</label>
+                      <Select value={actionFilter} onChange={setActionFilter} options={actionOptions} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Resource</label>
+                      <Select value={resourceFilter} onChange={setResourceFilter} options={resourceOptions} />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1">Status</label>
+                      <Select value={statusFilter} onChange={setStatusFilter} options={statusOptions} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Audit Logs Table */}
+              <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-muted border-b border-border">
+                      <tr>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase">Time</th>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase">User</th>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase">Action</th>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase">Resource</th>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase">Status</th>
+                        <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase">Severity</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {MOCK_LOGS.map((log) => (
+                        <tr
+                          key={log.id}
+                          className="hover:bg-muted/50 cursor-pointer transition-colors"
+                          onClick={() => setSelectedLog(log)}
+                        >
+                          <td className="px-4 py-3 whitespace-nowrap text-xs text-foreground">
+                            {formatTimestamp(log.timestamp)}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <p className="text-xs font-medium text-foreground">{log.username}</p>
+                            <p className="text-[10px] text-muted-foreground">{log.userEmail}</p>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
+                              {log.action}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <p className="text-xs font-medium text-foreground">{log.resource}</p>
+                            {log.resourceName && (
+                              <p className="text-[10px] text-muted-foreground truncate max-w-[150px]">{log.resourceName}</p>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className={cn(
+                              'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border',
+                              getStatusColor(log.status)
+                            )}>
+                              {log.status}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className={cn(
+                              'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border',
+                              getSeverityColor(log.severity)
+                            )}>
+                              {log.severity}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
-            <p className="text-3xl font-bold text-success">
-              {MOCK_SUMMARY.successRate}%
-            </p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">High Severity</p>
-              <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
-                <AlertTriangle className="h-6 w-6 text-warning" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-warning">
-              {MOCK_SUMMARY.highSeverity}
-            </p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Failed Actions</p>
-              <div className="w-12 h-12 bg-error-muted rounded-lg flex items-center justify-center">
-                <XCircle className="h-6 w-6 text-error" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-error">
-              {MOCK_SUMMARY.failedActions}
-            </p>
           </div>
         </div>
 
-        {/* Filters */}
-        {showFilters && (
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm animate-in slide-in-from-top duration-300">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
-                <Filter className="h-5 w-5 text-primary" />
-                Filters
-              </h3>
-              <Button variant="outline" size="sm" onClick={resetFilters}>
-                Reset All
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="lg:col-span-2">
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Search
-                </label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                  <Input
-                    placeholder="Search logs..."
-                    value={searchText}
-                    onChange={(e) => setSearchText(e.target.value)}
-                    className="pl-10"
-                  />
+        {/* Detail Modal */}
+        {selectedLog && (
+          <div
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            onClick={() => setSelectedLog(null)}
+          >
+            <div
+              className="bg-card rounded-lg shadow-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="border-b border-border p-4">
+                <h2 className="text-lg font-bold text-foreground">Audit Log Details</h2>
+              </div>
+              <div className="p-4 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Timestamp</label>
+                    <p className="text-sm text-foreground">{formatTimestamp(selectedLog.timestamp)}</p>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">User</label>
+                    <p className="text-sm text-foreground">{selectedLog.username}</p>
+                    <p className="text-xs text-muted-foreground">{selectedLog.userEmail}</p>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Action</label>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary/10 text-primary">
+                      {selectedLog.action}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Resource</label>
+                    <p className="text-sm text-foreground">{selectedLog.resource}</p>
+                    {selectedLog.resourceName && (
+                      <p className="text-xs text-muted-foreground">{selectedLog.resourceName}</p>
+                    )}
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Status</label>
+                    <span className={cn(
+                      'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border',
+                      getStatusColor(selectedLog.status)
+                    )}>
+                      {selectedLog.status}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Severity</label>
+                    <span className={cn(
+                      'inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border',
+                      getSeverityColor(selectedLog.severity)
+                    )}>
+                      {selectedLog.severity}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">IP Address</label>
+                    <p className="text-sm text-foreground">{selectedLog.ipAddress}</p>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Service</label>
+                    <p className="text-sm text-foreground">{selectedLog.serviceName}</p>
+                  </div>
                 </div>
+                {selectedLog.path && (
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Path</label>
+                    <p className="text-xs font-mono bg-muted p-2 rounded">{selectedLog.method} {selectedLog.path}</p>
+                  </div>
+                )}
+                {selectedLog.description && (
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1">Description</label>
+                    <p className="text-sm text-foreground bg-muted p-2 rounded">{selectedLog.description}</p>
+                  </div>
+                )}
+                {selectedLog.errorMessage && (
+                  <div>
+                    <label className="block text-xs font-medium text-error mb-1">Error</label>
+                    <p className="text-sm text-error bg-error-muted p-2 rounded">{selectedLog.errorMessage}</p>
+                  </div>
+                )}
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Action
-                </label>
-                <Select
-                  value={actionFilter}
-                  onChange={setActionFilter}
-                  options={actionOptions}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Resource
-                </label>
-                <Select
-                  value={resourceFilter}
-                  onChange={setResourceFilter}
-                  options={resourceOptions}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Status
-                </label>
-                <Select
-                  value={statusFilter}
-                  onChange={setStatusFilter}
-                  options={statusOptions}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Severity
-                </label>
-                <Select
-                  value={severityFilter}
-                  onChange={setSeverityFilter}
-                  options={severityOptions}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  From Date
-                </label>
-                <Input
-                  type="datetime-local"
-                  value={fromDate}
-                  onChange={(e) => setFromDate(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  To Date
-                </label>
-                <Input
-                  type="datetime-local"
-                  value={toDate}
-                  onChange={(e) => setToDate(e.target.value)}
-                />
+              <div className="border-t border-border p-4 flex justify-end">
+                <Button onClick={() => setSelectedLog(null)}>Close</Button>
               </div>
             </div>
           </div>
         )}
-
-        {/* Audit Logs Table */}
-        <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-muted border-b border-border">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">
-                    Timestamp
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">
-                    User
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">
-                    Action
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">
-                    Resource
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">
-                    Severity
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">
-                    IP Address
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {MOCK_LOGS.map((log) => (
-                  <tr
-                    key={log.id}
-                    className="hover:bg-muted cursor-pointer transition-colors"
-                    onClick={() => setSelectedLog(log)}
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-foreground">
-                      {formatTimestamp(log.timestamp)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <p className="text-sm font-semibold text-foreground">
-                        {log.username}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{log.userEmail}</p>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-primary/20 text-primary border border-primary/30">
-                        {log.action}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <p className="text-sm font-medium text-foreground">{log.resource}</p>
-                      {log.resourceName && (
-                        <p className="text-xs text-muted-foreground">{log.resourceName}</p>
-                      )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={cn(
-                          'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border',
-                          getStatusColor(log.status)
-                        )}
-                      >
-                        {log.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={cn(
-                          'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border',
-                          getSeverityColor(log.severity)
-                        )}
-                      >
-                        {log.severity}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                      {log.ipAddress}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
       </div>
-
-      {/* Detailed Log Modal */}
-      {selectedLog && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200"
-          onClick={() => setSelectedLog(null)}
-        >
-          <div
-            className="bg-card rounded-lg shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="border-b border-border p-6">
-              <h2 className="text-2xl font-bold text-foreground">Audit Log Details</h2>
-            </div>
-
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1">
-                    Timestamp
-                  </label>
-                  <p className="text-sm text-foreground">
-                    {formatTimestamp(selectedLog.timestamp)}
-                  </p>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1">
-                    User
-                  </label>
-                  <p className="text-sm text-foreground">
-                    {selectedLog.username} ({selectedLog.userEmail})
-                  </p>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1">
-                    Action
-                  </label>
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-primary/20 text-primary border border-primary/30">
-                    {selectedLog.action}
-                  </span>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1">
-                    Resource
-                  </label>
-                  <p className="text-sm text-foreground">{selectedLog.resource}</p>
-                  {selectedLog.resourceName && (
-                    <p className="text-xs text-muted-foreground">{selectedLog.resourceName}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1">
-                    Status
-                  </label>
-                  <span
-                    className={cn(
-                      'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border',
-                      getStatusColor(selectedLog.status)
-                    )}
-                  >
-                    {selectedLog.status}
-                  </span>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1">
-                    Severity
-                  </label>
-                  <span
-                    className={cn(
-                      'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border',
-                      getSeverityColor(selectedLog.severity)
-                    )}
-                  >
-                    {selectedLog.severity}
-                  </span>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1">
-                    IP Address
-                  </label>
-                  <p className="text-sm text-foreground">{selectedLog.ipAddress}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1">
-                    Service
-                  </label>
-                  <p className="text-sm text-foreground">{selectedLog.serviceName}</p>
-                </div>
-                {selectedLog.method && (
-                  <div>
-                    <label className="block text-sm font-bold text-foreground mb-1">
-                      HTTP Method
-                    </label>
-                    <p className="text-sm text-foreground">{selectedLog.method}</p>
-                  </div>
-                )}
-                {selectedLog.path && (
-                  <div className="col-span-2">
-                    <label className="block text-sm font-bold text-foreground mb-1">
-                      Path
-                    </label>
-                    <p className="text-sm font-mono text-xs bg-muted p-2 rounded border border-border">
-                      {selectedLog.path}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {selectedLog.description && (
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1">
-                    Description
-                  </label>
-                  <p className="text-sm text-foreground bg-muted p-3 rounded border border-border">
-                    {selectedLog.description}
-                  </p>
-                </div>
-              )}
-
-              {selectedLog.errorMessage && (
-                <div>
-                  <label className="block text-sm font-bold text-error mb-1">
-                    Error Message
-                  </label>
-                  <p className="text-sm text-error bg-error-muted p-3 rounded border border-error/30">
-                    {selectedLog.errorMessage}
-                  </p>
-                </div>
-              )}
-            </div>
-
-            <div className="border-t border-border p-6 flex justify-end">
-              <Button onClick={() => setSelectedLog(null)}>Close</Button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
     </PermissionGate>
   );
 }
