@@ -196,15 +196,15 @@ export default function InventoryPage() {
   const { currentTenant, isLoading: tenantLoading } = useTenant();
   const toast = useToast();
 
-  const [activeTab, setActiveTab] = useState<TabType>('stock-levels');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState<TabType>((searchParams.get('tab') as TabType) || 'stock-levels');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showBulkImport, setShowBulkImport] = useState(false);
 
   // Stock levels state
   const [products, setProducts] = useState<Product[]>([]);
-  const [stockFilter, setStockFilter] = useState<StockFilter>('all');
+  const [stockFilter, setStockFilter] = useState<StockFilter>((searchParams.get('stock') as StockFilter) || 'all');
   const [autoRefreshEnabled, setAutoRefreshEnabled] = useState(true);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
@@ -578,11 +578,31 @@ export default function InventoryPage() {
     }
   }, [searchParams]);
 
+  // Update URL params helper
+  const updateUrlParams = useCallback((params: Record<string, string>) => {
+    const url = new URL(window.location.href);
+    Object.entries(params).forEach(([key, value]) => {
+      // Only set non-default values
+      if (value && value !== 'all' && value !== 'stock-levels') {
+        url.searchParams.set(key, value);
+      } else {
+        url.searchParams.delete(key);
+      }
+    });
+    router.replace(url.pathname + url.search, { scroll: false });
+  }, [router]);
+
   // Navigate to tab with URL update
   const navigateToTab = useCallback((tab: TabType) => {
     setActiveTab(tab);
-    router.push(`/inventory?tab=${tab}`);
-  }, [router]);
+    updateUrlParams({ tab, q: searchQuery, stock: stockFilter });
+  }, [updateUrlParams, searchQuery, stockFilter]);
+
+  // Sync search and filter to URL when they change
+  useEffect(() => {
+    if (loading) return;
+    updateUrlParams({ tab: activeTab, q: searchQuery, stock: stockFilter });
+  }, [searchQuery, stockFilter, activeTab, loading, updateUrlParams]);
 
   // Load data on mount and when tenant changes
   useEffect(() => {
