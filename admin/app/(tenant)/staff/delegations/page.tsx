@@ -426,18 +426,18 @@ export default function DelegationsPage() {
           {/* Tabs */}
           {!loading && (
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'outgoing' | 'incoming')}>
-              <TabsList className="grid w-full grid-cols-2 max-w-md">
-                <TabsTrigger value="outgoing" className="flex items-center gap-2">
-                  <ArrowUpRight className="w-4 h-4" />
+              <TabsList className="inline-flex h-auto items-center justify-start rounded-xl bg-card border border-border p-1 shadow-sm mb-6">
+                <TabsTrigger value="outgoing" className="px-4 py-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <ArrowUpRight className="w-4 h-4 mr-2" />
                   Outgoing ({outgoing.length})
                 </TabsTrigger>
-                <TabsTrigger value="incoming" className="flex items-center gap-2">
-                  <ArrowDownLeft className="w-4 h-4" />
+                <TabsTrigger value="incoming" className="px-4 py-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                  <ArrowDownLeft className="w-4 h-4 mr-2" />
                   Incoming ({incoming.length})
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="outgoing" className="mt-4 space-y-4">
+              <TabsContent value="outgoing" className="mt-0 space-y-4">
                 {outgoing.length === 0 ? (
                   <div className="bg-card rounded-lg border border-border p-12 text-center">
                     <ArrowUpRight className="w-16 h-16 mx-auto text-primary/60 mb-4" />
@@ -455,7 +455,7 @@ export default function DelegationsPage() {
                 )}
               </TabsContent>
 
-              <TabsContent value="incoming" className="mt-4 space-y-4">
+              <TabsContent value="incoming" className="mt-0 space-y-4">
                 {incoming.length === 0 ? (
                   <div className="bg-card rounded-lg border border-border p-12 text-center">
                     <ArrowDownLeft className="w-16 h-16 mx-auto text-secondary/60 mb-4" />
