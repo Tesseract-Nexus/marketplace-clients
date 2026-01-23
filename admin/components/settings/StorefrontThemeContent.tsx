@@ -523,31 +523,46 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
           </div>
         </div>
 
-        <div className={cn('grid gap-4', showPreview ? 'grid-cols-12' : 'grid-cols-12')}>
-          {/* Sidebar Tabs - Compact */}
-          <div className="col-span-12 lg:col-span-3">
-            <div className="bg-card rounded-lg border border-border p-1.5 sticky top-4">
-              {TABS.map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id)}
-                  className={cn(
-                    'w-full flex items-center gap-2.5 px-3 py-2 rounded-md transition-all text-left mb-0.5',
-                    activeTab === tab.id
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-foreground hover:bg-muted'
-                  )}
-                >
-                  <tab.icon className="h-4 w-4 flex-shrink-0" />
-                  <span className="font-medium text-sm">{tab.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+        {/* Mobile: Dropdown navigation */}
+        <div className="md:hidden mb-4">
+          <select
+            value={activeTab}
+            onChange={(e) => setActiveTab(e.target.value as TabId)}
+            className="w-full px-3 py-2 border border-border rounded-lg bg-card text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/50"
+          >
+            {TABS.map((tab) => (
+              <option key={tab.id} value={tab.id}>
+                {tab.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
+        {/* Desktop: Horizontal tabs */}
+        <div className="hidden md:block border-b border-border mb-6">
+          <nav className="-mb-px flex space-x-6 overflow-x-auto">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  'whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm transition-colors duration-200 flex items-center gap-2',
+                  activeTab === tab.id
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                )}
+              >
+                <tab.icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        <div className={cn('grid gap-4', showPreview ? 'grid-cols-1 lg:grid-cols-12' : '')}>
           {/* Main Content */}
-          <div className={cn('col-span-12', showPreview ? 'lg:col-span-5' : 'lg:col-span-9')}>
+          <div className={cn(showPreview ? 'lg:col-span-8' : '')}>
             <div className={cn('bg-card rounded-xl border border-border shadow-sm', embedded ? 'p-4' : 'p-6')}>
               {/* Theme & Colors Tab */}
               {activeTab === 'theme' && (
@@ -568,7 +583,6 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                           secondaryColor: preset?.secondaryColor || settings.secondaryColor,
                         });
                       }}
-                      compact={embedded}
                     />
                   </div>
 
@@ -1206,11 +1220,11 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
 
           {/* Live Preview Panel */}
           {showPreview && (
-            <div className="col-span-12 lg:col-span-4">
+            <div className="lg:col-span-4">
               <LivePreview
                 settings={settings}
                 tenantSlug={selectedStorefront?.slug}
-                className="sticky top-8 h-[calc(100vh-8rem)]"
+                className="sticky top-4 h-[calc(100vh-12rem)]"
               />
             </div>
           )}

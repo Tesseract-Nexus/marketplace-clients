@@ -9,14 +9,13 @@ interface ThemeSelectorProps {
   selectedTheme: ThemeTemplate;
   onThemeSelect: (theme: ThemeTemplate) => void;
   disabled?: boolean;
-  compact?: boolean;
 }
 
-export function ThemeSelector({ selectedTheme, onThemeSelect, disabled, compact }: ThemeSelectorProps) {
+export function ThemeSelector({ selectedTheme, onThemeSelect, disabled }: ThemeSelectorProps) {
   const [hoveredTheme, setHoveredTheme] = useState<ThemeTemplate | null>(null);
 
   return (
-    <div className={cn('grid gap-3', compact ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4' : 'grid-cols-2 md:grid-cols-3 gap-4')}>
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
       {THEME_PRESETS.map((preset) => (
         <ThemeCard
           key={preset.id}
@@ -27,7 +26,6 @@ export function ThemeSelector({ selectedTheme, onThemeSelect, disabled, compact 
           onMouseEnter={() => setHoveredTheme(preset.id)}
           onMouseLeave={() => setHoveredTheme(null)}
           disabled={disabled}
-          compact={compact}
         />
       ))}
     </div>
@@ -42,7 +40,6 @@ interface ThemeCardProps {
   onMouseEnter: () => void;
   onMouseLeave: () => void;
   disabled?: boolean;
-  compact?: boolean;
 }
 
 function ThemeCard({
@@ -53,7 +50,6 @@ function ThemeCard({
   onMouseEnter,
   onMouseLeave,
   disabled,
-  compact,
 }: ThemeCardProps) {
   return (
     <button
@@ -63,73 +59,58 @@ function ThemeCard({
       onMouseLeave={onMouseLeave}
       disabled={disabled}
       className={cn(
-        'group relative overflow-hidden rounded-lg border-2 transition-all duration-200 ease-out cursor-pointer text-left',
-        'hover:scale-[1.02] hover:shadow-lg hover:-translate-y-0.5',
+        'group relative p-3 rounded-xl border-2 transition-all duration-200 text-left',
+        'hover:shadow-md hover:-translate-y-0.5',
         'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2',
         isSelected
-          ? 'border-primary ring-2 ring-primary/20 shadow-md'
-          : 'border-border/50 hover:border-border',
-        disabled && 'opacity-50 cursor-not-allowed hover:scale-100 hover:translate-y-0'
+          ? 'border-primary bg-primary/5 shadow-sm'
+          : 'border-border bg-card hover:border-border/80',
+        disabled && 'opacity-50 cursor-not-allowed hover:translate-y-0 hover:shadow-none'
       )}
     >
-      {/* Gradient Hero Section - 60% */}
-      <div
-        className={cn('relative overflow-hidden', compact ? 'h-20' : 'h-24')}
-        style={{
-          background: `linear-gradient(135deg, ${preset.primaryColor} 0%, ${preset.secondaryColor} 50%, ${preset.accentColor} 100%)`,
-        }}
-      >
-        {/* Subtle pattern overlay */}
+      {/* Theme name */}
+      <h4 className={cn(
+        'font-medium text-sm mb-2.5 truncate',
+        isSelected ? 'text-primary' : 'text-foreground'
+      )}>
+        {preset.name}
+      </h4>
+
+      {/* Color palette bars - THE HERO */}
+      <div className="flex gap-1.5 mb-2">
         <div
-          className="absolute inset-0 opacity-30"
-          style={{
-            backgroundImage: `radial-gradient(circle at 20% 80%, ${preset.backgroundColor}40 0%, transparent 50%), radial-gradient(circle at 80% 20%, ${preset.backgroundColor}30 0%, transparent 40%)`,
-          }}
+          className="h-10 flex-1 rounded-md shadow-sm"
+          style={{ backgroundColor: preset.primaryColor }}
+          title="Primary"
         />
-
-        {/* Selection indicator badge */}
-        {isSelected && (
-          <div className="absolute top-2 right-2 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg">
-            <Check className="h-3 w-3 text-primary" />
-          </div>
-        )}
-
-        {/* Hover description overlay */}
         <div
-          className={cn(
-            'absolute inset-0 bg-black/60 flex items-center justify-center p-3 transition-opacity duration-200',
-            isHovered ? 'opacity-100' : 'opacity-0'
-          )}
-        >
-          <p className="text-white text-xs text-center line-clamp-3 font-medium">
-            {preset.description}
-          </p>
-        </div>
+          className="h-10 flex-1 rounded-md shadow-sm"
+          style={{ backgroundColor: preset.secondaryColor }}
+          title="Secondary"
+        />
+        <div
+          className="h-10 flex-1 rounded-md shadow-sm"
+          style={{ backgroundColor: preset.accentColor }}
+          title="Accent"
+        />
       </div>
 
-      {/* Info Section - 40% */}
-      <div className={cn('bg-card', compact ? 'p-2.5' : 'p-3')}>
-        <div className="flex items-center justify-between gap-2">
-          <h4 className={cn('font-semibold text-foreground truncate', compact ? 'text-xs' : 'text-sm')}>
-            {preset.name}
-          </h4>
-          {/* Compact color swatches */}
-          <div className="flex gap-0.5 flex-shrink-0">
-            <div
-              className={cn('rounded-full border border-white/50 shadow-sm', compact ? 'h-3 w-3' : 'h-4 w-4')}
-              style={{ backgroundColor: preset.primaryColor }}
-            />
-            <div
-              className={cn('rounded-full border border-white/50 shadow-sm', compact ? 'h-3 w-3' : 'h-4 w-4')}
-              style={{ backgroundColor: preset.secondaryColor }}
-            />
-            <div
-              className={cn('rounded-full border border-white/50 shadow-sm', compact ? 'h-3 w-3' : 'h-4 w-4')}
-              style={{ backgroundColor: preset.accentColor }}
-            />
+      {/* Description - visible on hover or when selected */}
+      <p className={cn(
+        'text-xs text-muted-foreground line-clamp-2 transition-opacity duration-200 min-h-[2rem]',
+        isSelected || isHovered ? 'opacity-100' : 'opacity-0'
+      )}>
+        {preset.description}
+      </p>
+
+      {/* Selected indicator */}
+      {isSelected && (
+        <div className="absolute top-2.5 right-2.5">
+          <div className="w-5 h-5 bg-primary rounded-full flex items-center justify-center shadow-sm">
+            <Check className="h-3 w-3 text-white" />
           </div>
         </div>
-      </div>
+      )}
     </button>
   );
 }
