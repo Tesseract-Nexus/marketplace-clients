@@ -494,7 +494,7 @@ export default function StaffPage() {
               {canUpdateStaff && (
                 <Button
                   onClick={() => handleEditStaff(selectedStaff)}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
                 >
                   <Edit className="w-5 h-5" />
                   Edit
@@ -502,7 +502,7 @@ export default function StaffPage() {
               )}
               <Button
                 onClick={() => setViewMode('list')}
-                className="flex items-center gap-2 px-4 py-2.5 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 bg-muted text-foreground rounded-md hover:bg-muted/80 transition-colors"
               >
                 <X className="w-5 h-5" />
                 Close
@@ -727,7 +727,7 @@ export default function StaffPage() {
                 <div className="mt-6 pt-6 border-t border-border">
                   <Button
                     onClick={() => handleSendInvitation(selectedStaff)}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-warning text-warning-foreground rounded-xl hover:bg-warning/90 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-warning text-warning-foreground rounded-md hover:bg-warning/90 transition-colors"
                   >
                     <Send className="w-5 h-5" />
                     Send Invitation
@@ -874,7 +874,7 @@ export default function StaffPage() {
               variant="ghost"
               onClick={loadStaff}
               disabled={loading}
-              className="p-2.5 rounded-xl bg-muted hover:bg-muted transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-border"
+              className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-border"
               title="Refresh"
               aria-label="Refresh staff list"
             >
@@ -884,7 +884,7 @@ export default function StaffPage() {
               <Button
                 variant="ghost"
                 onClick={() => setShowBulkImport(true)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-border text-foreground rounded-xl hover:bg-muted hover:border-border transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-border text-foreground rounded-md hover:bg-muted hover:border-border transition-all"
               >
                 <Upload className="w-5 h-5" />
                 Bulk Import
@@ -893,7 +893,7 @@ export default function StaffPage() {
             {canCreateStaff && (
               <Button
                 onClick={handleCreateStaff}
-                className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
               >
                 <Plus className="w-5 h-5" />
                 Add Staff

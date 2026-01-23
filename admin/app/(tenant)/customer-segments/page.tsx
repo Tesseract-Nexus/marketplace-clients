@@ -484,7 +484,7 @@ export default function CustomerSegmentsPage() {
               <div>
                 <label className="block text-sm font-bold text-foreground mb-2">Description</label>
                 <textarea
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                   rows={2}
                   placeholder="Customers who have spent over $1000"
                   value={createForm.description}
@@ -560,7 +560,7 @@ export default function CustomerSegmentsPage() {
                     type="checkbox"
                     checked={createForm.isActive}
                     onChange={(e) => setCreateForm({ ...createForm, isActive: e.target.checked })}
-                    className="rounded border-border"
+                    className="h-4 w-4 rounded-md border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                   />
                   <span className="font-semibold">Activate segment immediately</span>
                 </label>
@@ -615,7 +615,7 @@ export default function CustomerSegmentsPage() {
                   <div>
                     <label className="block text-sm font-bold text-foreground mb-2">Description</label>
                     <textarea
-                      className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                      className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                       rows={2}
                       value={createForm.description}
                       onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
@@ -682,7 +682,7 @@ export default function CustomerSegmentsPage() {
                         type="checkbox"
                         checked={createForm.isActive}
                         onChange={(e) => setCreateForm({ ...createForm, isActive: e.target.checked })}
-                        className="rounded border-border"
+                        className="h-4 w-4 rounded-md border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                       />
                       <span className="font-semibold">Active</span>
                     </label>

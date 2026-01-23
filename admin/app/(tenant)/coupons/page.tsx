@@ -271,14 +271,14 @@ export default function CouponsPage() {
               onClick={loadCoupons}
               disabled={loading}
               variant="outline"
-              className="px-4 py-2 rounded-xl bg-white hover:bg-muted transition-all disabled:opacity-50 border-2 border-border text-foreground"
+              className="px-4 py-2 rounded-md bg-white hover:bg-muted transition-all disabled:opacity-50 border-2 border-border text-foreground"
               aria-label="Refresh coupons list"
             >
               <RefreshCw className={cn("w-5 h-5 text-foreground", loading && "animate-spin")} aria-hidden="true" />
             </Button>
             <Button
               onClick={() => router.push('/coupons/new')}
-              className="px-4 py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg flex items-center gap-2"
+              className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg flex items-center gap-2"
             >
               <Plus className="w-5 h-5" />
               Create Coupon
@@ -304,7 +304,7 @@ export default function CouponsPage() {
                           {stat.value}
                         </p>
                       </div>
-                      <div className={`p-3 rounded-xl ${stat.bgColor} border border-border group-hover:scale-110 transition-transform`}>
+                      <div className={`p-3 rounded-md ${stat.bgColor} border border-border group-hover:scale-110 transition-transform`}>
                         <Icon className="w-6 h-6 text-muted-foreground" />
                       </div>
                     </div>
@@ -328,13 +328,13 @@ export default function CouponsPage() {
                       placeholder="Search by code or name..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring transition-all"
+                      className="w-full pl-10 pr-4 py-3 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring transition-all"
                     />
                   </div>
                   <Button
                     onClick={() => setShowFilters(!showFilters)}
                     className={cn(
-                      "px-4 py-3 rounded-xl transition-all flex items-center gap-2",
+                      "px-4 py-3 rounded-md transition-all flex items-center gap-2",
                       showFilters
                         ? "bg-primary/20 text-primary border-2 border-primary/50"
                         : "bg-muted text-foreground border-2 border-border hover:bg-muted"
@@ -346,7 +346,7 @@ export default function CouponsPage() {
                 </div>
 
                 {showFilters && (
-                  <div className="flex flex-wrap gap-4 p-5 bg-card rounded-xl border-2 border-border relative z-50 overflow-visible">
+                  <div className="flex flex-wrap gap-4 p-5 bg-card rounded-md border-2 border-border relative z-50 overflow-visible">
                     <div className="flex-1 min-w-[200px]">
                       <label className="text-xs font-bold text-foreground mb-2 block">Status</label>
                       <Select
@@ -385,7 +385,7 @@ export default function CouponsPage() {
                         setSearchQuery('');
                       }}
                       variant="outline"
-                      className="px-5 py-2.5 border-2 border-border rounded-xl text-sm font-semibold text-foreground hover:bg-muted hover:border-border transition-all self-end"
+                      className="px-5 py-2.5 border-2 border-border rounded-md text-sm font-semibold text-foreground hover:bg-muted hover:border-border transition-all self-end"
                     >
                       Clear All
                     </Button>
@@ -413,7 +413,7 @@ export default function CouponsPage() {
               const isCopied = copiedCode === coupon.code;
 
               return (
-                <Card key={coupon.id} className="rounded-xl border-border/50 bg-white/80 backdrop-blur-sm shadow hover:shadow-lg hover:border-primary/50/50 transition-all duration-300 group relative overflow-hidden">
+                <Card key={coupon.id} className="rounded-md border-border/50 bg-white/80 backdrop-blur-sm shadow hover:shadow-lg hover:border-primary/50/50 transition-all duration-300 group relative overflow-hidden">
                   {/* Discount type color accent */}
                   <div className={cn(
                     "absolute top-0 left-0 right-0 h-1",
@@ -575,7 +575,7 @@ export default function CouponsPage() {
                     {!(searchQuery || statusFilter !== 'ALL' || discountTypeFilter !== 'ALL') && (
                       <Button
                         onClick={() => router.push('/coupons/new')}
-                        className="px-6 py-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg inline-flex items-center gap-2"
+                        className="px-6 py-3 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg inline-flex items-center gap-2"
                       >
                         <Sparkles className="w-5 h-5" />
                         Create Your First Coupon

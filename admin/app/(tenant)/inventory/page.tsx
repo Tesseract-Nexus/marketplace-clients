@@ -943,7 +943,7 @@ export default function InventoryPage() {
                           type="checkbox"
                           checked={autoRefreshEnabled}
                           onChange={(e) => setAutoRefreshEnabled(e.target.checked)}
-                          className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                          className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                         />
                         Auto-refresh
                       </label>
@@ -1803,7 +1803,7 @@ export default function InventoryPage() {
                   id="isDefault"
                   checked={warehouseForm.isDefault}
                   onChange={(e) => setWarehouseForm({ ...warehouseForm, isDefault: e.target.checked })}
-                  className="h-4 w-4 rounded border-border text-primary focus:ring-violet-500"
+                  className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                 />
                 <label htmlFor="isDefault" className="text-sm font-medium text-foreground">
                   Set as default warehouse

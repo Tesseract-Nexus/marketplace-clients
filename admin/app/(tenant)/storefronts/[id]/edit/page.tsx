@@ -194,7 +194,7 @@ export default function EditStorefrontPage({ params }: Props) {
             <>
               <Button
                 onClick={() => router.push('/storefronts')}
-                className="px-6 py-3 bg-card border-2 border-border text-foreground rounded-xl hover:bg-muted transition-all duration-200 flex items-center gap-2 font-semibold"
+                className="px-6 py-3 bg-card border-2 border-border text-foreground rounded-md hover:bg-muted transition-all duration-200 flex items-center gap-2 font-semibold"
               >
                 <X className="w-5 h-5" />
                 Cancel
@@ -288,7 +288,7 @@ export default function EditStorefrontPage({ params }: Props) {
                       type="checkbox"
                       checked={formData.isActive}
                       onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                      className="rounded border-border text-primary focus:ring-ring"
+                      className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                     />
                     <span className="text-sm font-medium text-foreground">Active</span>
                   </label>
@@ -397,14 +397,14 @@ export default function EditStorefrontPage({ params }: Props) {
             <Button
               type="button"
               onClick={() => router.push('/storefronts')}
-              className="px-6 py-3 bg-card border-2 border-border text-foreground rounded-xl hover:bg-muted transition-all duration-200 flex items-center gap-2 font-semibold"
+              className="px-6 py-3 bg-card border-2 border-border text-foreground rounded-md hover:bg-muted transition-all duration-200 flex items-center gap-2 font-semibold"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading || slugAvailable === false}
-              className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-semibold disabled:opacity-50"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-semibold disabled:opacity-50"
             >
               {loading ? (
                 <>

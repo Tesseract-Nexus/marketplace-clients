@@ -698,7 +698,7 @@ export default function CustomerDetailPage() {
                         id="marketingOptIn"
                         checked={editForm.marketingOptIn || false}
                         onChange={(e) => setEditForm({ ...editForm, marketingOptIn: e.target.checked })}
-                        className="h-4 w-4 text-primary rounded"
+                        className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                       />
                       <label htmlFor="marketingOptIn" className="text-sm text-foreground">
                         Subscribed to marketing emails
@@ -1138,7 +1138,7 @@ export default function CustomerDetailPage() {
                       type="checkbox"
                       checked={addressForm.isDefault}
                       onChange={(e) => setAddressForm({ ...addressForm, isDefault: e.target.checked })}
-                      className="h-4 w-4 text-primary rounded"
+                      className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                     />
                     <span className="text-sm text-foreground">Set as default</span>
                   </label>

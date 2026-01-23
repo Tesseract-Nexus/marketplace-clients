@@ -313,7 +313,7 @@ export function BulkImportModal({
               <Button
                 onClick={() => handleDownloadTemplate('csv')}
                 disabled={isDownloading !== null}
-                className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-border text-foreground rounded-xl hover:bg-muted hover:border-border transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-border text-foreground rounded-md hover:bg-muted hover:border-border transition-all"
               >
                 {isDownloading === 'csv' ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -326,7 +326,7 @@ export function BulkImportModal({
               <Button
                 onClick={() => handleDownloadTemplate('xlsx')}
                 disabled={isDownloading !== null}
-                className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-border text-foreground rounded-xl hover:bg-muted hover:border-border transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-border text-foreground rounded-md hover:bg-muted hover:border-border transition-all"
               >
                 {isDownloading === 'xlsx' ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -355,7 +355,7 @@ export function BulkImportModal({
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
               className={cn(
-                "border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all",
+                "border-2 border-dashed rounded-md p-8 text-center cursor-pointer transition-all",
                 isDragging
                   ? "border-primary/70 bg-primary/10"
                   : file
@@ -457,7 +457,7 @@ export function BulkImportModal({
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-4 bg-destructive/10 border border-destructive/30 rounded-xl flex items-start gap-3">
+            <div className="mb-4 p-4 bg-destructive/10 border border-destructive/30 rounded-md flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
               <div>
                 <p className="font-semibold text-destructive">Import Error</p>
@@ -469,7 +469,7 @@ export function BulkImportModal({
           {/* Result */}
           {result && (
             <div className={cn(
-              "mb-4 p-4 rounded-xl border",
+              "mb-4 p-4 rounded-md border",
               result.success && result.successCount > 0
                 ? "bg-success-muted border-success/30"
                 : result.failedCount > 0
@@ -583,7 +583,7 @@ export function BulkImportModal({
         <div className="flex items-center justify-end gap-3 p-6 border-t border-border bg-muted">
           <Button
             onClick={handleClose}
-            className="px-6 py-2.5 bg-card border-2 border-border text-foreground rounded-xl hover:bg-muted transition-all"
+            className="px-6 py-2.5 bg-card border-2 border-border text-foreground rounded-md hover:bg-muted transition-all"
           >
             {result?.success && result.successCount > 0 && !wasValidationOnly ? 'Close' : 'Cancel'}
           </Button>
@@ -599,7 +599,7 @@ export function BulkImportModal({
                   fileInputRef.current.value = '';
                 }
               }}
-              className="px-6 py-2.5 bg-card border-2 border-warning/40 text-warning-foreground rounded-xl hover:bg-warning-muted transition-all flex items-center gap-2"
+              className="px-6 py-2.5 bg-card border-2 border-warning/40 text-warning-foreground rounded-md hover:bg-warning-muted transition-all flex items-center gap-2"
             >
               <Upload className="w-4 h-4" />
               Re-upload File
@@ -611,7 +611,7 @@ export function BulkImportModal({
             <Button
               onClick={handleImportAfterValidation}
               disabled={isUploading}
-              className="px-6 py-2.5 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2.5 bg-success text-success-foreground rounded-md hover:bg-success/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isUploading ? (
                 <>
@@ -634,7 +634,7 @@ export function BulkImportModal({
             <Button
               onClick={() => handleImport()}
               disabled={!file || isUploading}
-              className="px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {isUploading ? (
                 <>
@@ -657,7 +657,7 @@ export function BulkImportModal({
                 setResult(null);
                 setError(null);
               }}
-              className="px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all flex items-center gap-2"
+              className="px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-all flex items-center gap-2"
             >
               <Upload className="w-4 h-4" />
               Try Again

@@ -385,7 +385,7 @@ export default function RolesPage() {
                 {!selectedRole.isSystem && (
                   <Button
                     onClick={() => handleEditRole(selectedRole)}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
                   >
                     <Edit className="w-5 h-5" />
                     Edit Role
@@ -393,7 +393,7 @@ export default function RolesPage() {
                 )}
                 <Button
                   onClick={handleCancel}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-muted text-foreground rounded-xl hover:bg-muted transition-all"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-muted text-foreground rounded-md hover:bg-muted transition-all"
                 >
                   <X className="w-5 h-5" />
                   Close
@@ -518,7 +518,7 @@ export default function RolesPage() {
           />
 
           {error && (
-            <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
+            <div className="p-4 bg-error-muted border-2 border-error/30 rounded-md text-error flex items-center gap-2">
               <XCircle className="w-5 h-5" />
               {error}
             </div>
@@ -542,7 +542,7 @@ export default function RolesPage() {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
-                    className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                     placeholder="inventory_manager"
                     disabled={viewMode === 'edit' && selectedRole?.isSystem}
                   />
@@ -557,7 +557,7 @@ export default function RolesPage() {
                     type="text"
                     value={formData.displayName}
                     onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                     placeholder="Inventory Manager"
                   />
                 </div>
@@ -569,7 +569,7 @@ export default function RolesPage() {
                   <textarea
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                     placeholder="Manages inventory and stock levels"
                     rows={3}
                   />
@@ -583,7 +583,7 @@ export default function RolesPage() {
                     type="number"
                     value={formData.priorityLevel}
                     onChange={(e) => setFormData({ ...formData, priorityLevel: parseInt(e.target.value) || 50 })}
-                    className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                    className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                     min={1}
                     max={100}
                   />
@@ -605,19 +605,19 @@ export default function RolesPage() {
                       type="text"
                       value={formData.color}
                       onChange={(e) => setFormData({ ...formData, color: e.target.value })}
-                      className="flex-1 px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                      className="flex-1 px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                       placeholder="#3B82F6"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="flex items-center gap-3 p-3 bg-muted rounded-xl cursor-pointer hover:bg-muted transition-colors">
+                  <label className="flex items-center gap-3 p-3 bg-muted rounded-md cursor-pointer hover:bg-muted transition-colors">
                     <input
                       type="checkbox"
                       checked={formData.canManageStaff}
                       onChange={(e) => setFormData({ ...formData, canManageStaff: e.target.checked })}
-                      className="w-5 h-5 rounded border-border text-primary focus:ring-ring"
+                      className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                     />
                     <div>
                       <p className="font-medium">Can Manage Staff</p>
@@ -625,12 +625,12 @@ export default function RolesPage() {
                     </div>
                   </label>
 
-                  <label className="flex items-center gap-3 p-3 bg-muted rounded-xl cursor-pointer hover:bg-muted transition-colors">
+                  <label className="flex items-center gap-3 p-3 bg-muted rounded-md cursor-pointer hover:bg-muted transition-colors">
                     <input
                       type="checkbox"
                       checked={formData.canCreateRoles}
                       onChange={(e) => setFormData({ ...formData, canCreateRoles: e.target.checked })}
-                      className="w-5 h-5 rounded border-border text-primary focus:ring-ring"
+                      className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                     />
                     <div>
                       <p className="font-medium">Can Create Roles</p>
@@ -710,7 +710,7 @@ export default function RolesPage() {
                                   type="checkbox"
                                   checked={selectedPermissionIds.has(perm.id)}
                                   onChange={() => togglePermission(perm.id)}
-                                  className="w-4 h-4 mt-0.5 rounded border-border text-primary focus:ring-ring"
+                                  className="h-4 w-4 mt-0.5 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                                 />
                                 <div>
                                   <p className="text-sm font-medium">{perm.displayName}</p>
@@ -735,14 +735,14 @@ export default function RolesPage() {
             <Button
               onClick={handleCancel}
               disabled={saving}
-              className="px-6 py-2.5 bg-muted text-foreground rounded-xl hover:bg-muted transition-all"
+              className="px-6 py-2.5 bg-muted text-foreground rounded-md hover:bg-muted transition-all"
             >
               Cancel
             </Button>
             <Button
               onClick={handleSaveRole}
               disabled={saving || !formData.name || !formData.displayName}
-              className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -782,7 +782,7 @@ export default function RolesPage() {
                 variant="ghost"
                 onClick={loadData}
                 disabled={loading}
-                className="p-2.5 rounded-xl bg-muted hover:bg-muted transition-all"
+                className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
                 title="Refresh"
               >
                 <RefreshCw className={cn("w-5 h-5 text-muted-foreground", loading && "animate-spin")} />
@@ -791,7 +791,7 @@ export default function RolesPage() {
                 <Button
                   onClick={handleSeedRoles}
                   disabled={saving}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-warning text-warning-foreground rounded-xl hover:bg-warning/90 transition-all"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-warning text-warning-foreground rounded-md hover:bg-warning/90 transition-all"
                 >
                   <Sparkles className="w-5 h-5" />
                   Seed Default Roles
@@ -801,14 +801,14 @@ export default function RolesPage() {
                 <>
                   <Button
                     onClick={() => setImportModalOpen(true)}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-primary/50 text-primary rounded-xl hover:bg-primary/10 transition-all"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-primary/50 text-primary rounded-md hover:bg-primary/10 transition-all"
                   >
                     <Upload className="w-5 h-5" />
                     Import Roles
                   </Button>
                   <Button
                     onClick={handleCreateRole}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
                   >
                     <Plus className="w-5 h-5" />
                     Create Role
@@ -820,7 +820,7 @@ export default function RolesPage() {
         />
 
         {error && (
-          <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
+          <div className="p-4 bg-error-muted border-2 border-error/30 rounded-md text-error flex items-center gap-2">
             <XCircle className="w-5 h-5" />
             {error}
           </div>
@@ -836,7 +836,7 @@ export default function RolesPage() {
                   placeholder="Search roles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-10 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-10 py-3 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
                 {searchQuery && (
                   <Button

@@ -423,7 +423,7 @@ function LoginPageContent() {
                 <button
                   key={tenant.id}
                   onClick={() => handleTenantSelect(tenant)}
-                  className="w-full flex items-center gap-3 p-4 rounded-xl border border-border hover:border-primary hover:bg-primary/5 transition-all duration-200 text-left group"
+                  className="w-full flex items-center gap-3 p-4 rounded-md border border-border hover:border-primary hover:bg-primary/5 transition-all duration-200 text-left group"
                 >
                   {tenant.logo_url ? (
                     <img src={tenant.logo_url} alt={tenant.name} className="w-10 h-10 rounded-lg object-cover" />
@@ -497,7 +497,7 @@ function LoginPageContent() {
                     type="checkbox"
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="rounded border-border text-primary focus:ring-primary"
+                    className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                   />
                   <span className="text-xs text-muted-foreground">Remember me</span>
                 </label>

@@ -156,7 +156,7 @@ export default function CreateStorefrontPage() {
             <>
               <Button
                 onClick={() => router.push('/storefronts')}
-                className="px-6 py-3 bg-card border-2 border-border text-foreground rounded-xl hover:bg-muted transition-all duration-200 flex items-center gap-2 font-semibold"
+                className="px-6 py-3 bg-card border-2 border-border text-foreground rounded-md hover:bg-muted transition-all duration-200 flex items-center gap-2 font-semibold"
               >
                 <X className="w-5 h-5" />
                 Cancel
@@ -356,14 +356,14 @@ export default function CreateStorefrontPage() {
             <Button
               type="button"
               onClick={() => router.push('/storefronts')}
-              className="px-6 py-3 bg-card border-2 border-border text-foreground rounded-xl hover:bg-muted transition-all duration-200 flex items-center gap-2 font-semibold"
+              className="px-6 py-3 bg-card border-2 border-border text-foreground rounded-md hover:bg-muted transition-all duration-200 flex items-center gap-2 font-semibold"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading || slugAvailable === false}
-              className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-semibold disabled:opacity-50"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-semibold disabled:opacity-50"
             >
               {loading ? (
                 <>

@@ -484,7 +484,7 @@ export default function ReviewsPage() {
                   setSelectedReviews(new Set([...Array.from(selectedReviews), ...paginatedReviews.map(r => r.id)]));
                 }
               }}
-              className="w-5 h-5 rounded border-border text-primary focus:ring-ring"
+              className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
             />
             <span className="text-sm font-semibold text-foreground">
               Select all reviews on this page
@@ -521,7 +521,7 @@ export default function ReviewsPage() {
                     type="checkbox"
                     checked={selectedReviews.has(review.id)}
                     onChange={() => toggleReviewSelection(review.id)}
-                    className="mt-1 w-5 h-5 rounded border-border text-primary focus:ring-ring cursor-pointer"
+                    className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0 cursor-pointer"
                   />
                   <div className="flex-1 flex items-start justify-between">
                   <div className="flex-1">
@@ -822,7 +822,7 @@ export default function ReviewsPage() {
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
                   placeholder="Type your reply here..."
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                   rows={4}
                 />
               </div>
@@ -833,7 +833,7 @@ export default function ReviewsPage() {
                   id="internal-reply"
                   checked={isInternalReply}
                   onChange={(e) => setIsInternalReply(e.target.checked)}
-                  className="w-4 h-4 text-primary rounded border-border focus:ring-ring"
+                  className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                 />
                 <label htmlFor="internal-reply" className="text-sm text-foreground">
                   This is an internal note (not visible to customer)
@@ -967,7 +967,7 @@ export default function ReviewsPage() {
                   value={statusUpdate.moderationNotes || ''}
                   onChange={(e) => setStatusUpdate({ ...statusUpdate, moderationNotes: e.target.value })}
                   placeholder="Add notes about this moderation decision..."
-                  className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                   rows={4}
                 />
               </div>

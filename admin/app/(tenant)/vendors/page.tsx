@@ -356,14 +356,14 @@ export default function VendorsPage() {
             <>
               <Button
                 onClick={() => handleEditVendor(selectedVendor)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+                className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
               >
                 <Edit className="w-5 h-5" />
                 Edit
               </Button>
               <Button
                 onClick={() => setViewMode('list')}
-                className="flex items-center gap-2 px-4 py-2.5 bg-muted text-foreground rounded-xl hover:bg-muted transition-all"
+                className="flex items-center gap-2 px-4 py-2.5 bg-muted text-foreground rounded-md hover:bg-muted transition-all"
               >
                 <X className="w-5 h-5" />
                 Close
@@ -576,7 +576,7 @@ export default function VendorsPage() {
                         type="text"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         placeholder="Enter vendor name"
                       />
                     </div>
@@ -589,7 +589,7 @@ export default function VendorsPage() {
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         placeholder="vendor@example.com"
                       />
                     </div>
@@ -602,7 +602,7 @@ export default function VendorsPage() {
                         type="tel"
                         value={formData.primaryContact}
                         onChange={(e) => setFormData({ ...formData, primaryContact: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         placeholder="+1 (555) 123-4567"
                       />
                     </div>
@@ -615,7 +615,7 @@ export default function VendorsPage() {
                         type="tel"
                         value={formData.secondaryContact}
                         onChange={(e) => setFormData({ ...formData, secondaryContact: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         placeholder="+1 (555) 123-4568"
                       />
                     </div>
@@ -628,7 +628,7 @@ export default function VendorsPage() {
                         type="text"
                         value={formData.location}
                         onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         placeholder="City, State/Country"
                       />
                     </div>
@@ -641,7 +641,7 @@ export default function VendorsPage() {
                         value={formData.details}
                         onChange={(e) => setFormData({ ...formData, details: e.target.value })}
                         rows={4}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         placeholder="Brief description of the vendor..."
                       />
                     </div>
@@ -665,7 +665,7 @@ export default function VendorsPage() {
                         type="text"
                         value={formData.businessType}
                         onChange={(e) => setFormData({ ...formData, businessType: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         placeholder="e.g., Wholesale, Retail, Manufacturing"
                       />
                     </div>
@@ -678,7 +678,7 @@ export default function VendorsPage() {
                         type="url"
                         value={formData.website}
                         onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         placeholder="https://example.com"
                       />
                     </div>
@@ -691,7 +691,7 @@ export default function VendorsPage() {
                         type="text"
                         value={formData.businessRegistrationNumber}
                         onChange={(e) => setFormData({ ...formData, businessRegistrationNumber: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         placeholder="BRN-12345"
                       />
                     </div>
@@ -704,7 +704,7 @@ export default function VendorsPage() {
                         type="text"
                         value={formData.taxIdentificationNumber}
                         onChange={(e) => setFormData({ ...formData, taxIdentificationNumber: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         placeholder="TAX-67890"
                       />
                     </div>
@@ -717,7 +717,7 @@ export default function VendorsPage() {
                         type="number"
                         value={formData.foundedYear || ''}
                         onChange={(e) => setFormData({ ...formData, foundedYear: e.target.value ? parseInt(e.target.value) : undefined })}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         placeholder="2020"
                         min="1800"
                         max={new Date().getFullYear()}
@@ -732,7 +732,7 @@ export default function VendorsPage() {
                         type="number"
                         value={formData.employeeCount || ''}
                         onChange={(e) => setFormData({ ...formData, employeeCount: e.target.value ? parseInt(e.target.value) : undefined })}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         placeholder="50"
                         min="1"
                       />
@@ -757,7 +757,7 @@ export default function VendorsPage() {
                         type="number"
                         value={formData.commissionRate || ''}
                         onChange={(e) => setFormData({ ...formData, commissionRate: e.target.value ? parseFloat(e.target.value) : undefined })}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         placeholder="10.00"
                         min="0"
                         max="100"
@@ -791,7 +791,7 @@ export default function VendorsPage() {
                         type="date"
                         value={formData.contractStartDate}
                         onChange={(e) => setFormData({ ...formData, contractStartDate: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                       />
                     </div>
 
@@ -803,7 +803,7 @@ export default function VendorsPage() {
                         type="date"
                         value={formData.contractEndDate}
                         onChange={(e) => setFormData({ ...formData, contractEndDate: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                       />
                     </div>
 
@@ -815,7 +815,7 @@ export default function VendorsPage() {
                         value={formData.notes}
                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                         rows={4}
-                        className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                         placeholder="Additional notes or special terms..."
                       />
                     </div>
@@ -943,7 +943,7 @@ export default function VendorsPage() {
               variant="ghost"
               onClick={loadVendors}
               disabled={loading}
-              className="p-2.5 rounded-xl bg-muted hover:bg-muted transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-border"
+              className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-border"
               title="Refresh"
               aria-label="Refresh vendors list"
             >
@@ -951,7 +951,7 @@ export default function VendorsPage() {
             </Button>
             <Button
               onClick={handleCreateVendor}
-              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+              className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
             >
               <Plus className="w-5 h-5" />
               Add Vendor
@@ -973,7 +973,7 @@ export default function VendorsPage() {
                   placeholder="Search vendors by name or email..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-10 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full pl-10 pr-10 py-3 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                 />
                 {searchQuery && (
                   <Button
@@ -991,7 +991,7 @@ export default function VendorsPage() {
                 variant="ghost"
                 onClick={() => setShowFilters(!showFilters)}
                 className={cn(
-                  "px-4 py-3 rounded-xl transition-all flex items-center gap-2",
+                  "px-4 py-3 rounded-md transition-all flex items-center gap-2",
                   showFilters
                     ? "bg-primary/20 text-primary border-2 border-primary/50"
                     : "bg-muted text-foreground border-2 border-border hover:bg-muted"
@@ -1008,7 +1008,7 @@ export default function VendorsPage() {
             </div>
 
           {showFilters && (
-            <div className="flex flex-wrap gap-4 mt-4 p-5 bg-white/80 backdrop-blur-sm rounded-xl border-2 border-border shadow-sm animate-in slide-in-from-top-2 duration-200 relative z-50">
+            <div className="flex flex-wrap gap-4 mt-4 p-5 bg-white/80 backdrop-blur-sm rounded-md border-2 border-border shadow-sm animate-in slide-in-from-top-2 duration-200 relative z-50">
               <div className="flex-1 min-w-[200px]">
                 <label className="text-xs font-bold text-foreground mb-2 block uppercase tracking-wider">Status</label>
                 <Select
@@ -1050,7 +1050,7 @@ export default function VendorsPage() {
                   setValidationFilter('ALL');
                   setSearchQuery('');
                 }}
-                className="px-5 py-2.5 bg-card border-2 border-border rounded-xl text-sm font-semibold text-foreground hover:bg-muted hover:border-border transition-all self-end shadow-sm hover:shadow-md"
+                className="px-5 py-2.5 bg-card border-2 border-border rounded-md text-sm font-semibold text-foreground hover:bg-muted hover:border-border transition-all self-end shadow-sm hover:shadow-md"
               >
                 Clear All
               </Button>

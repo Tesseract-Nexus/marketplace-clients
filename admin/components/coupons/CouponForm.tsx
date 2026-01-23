@@ -304,7 +304,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
           <Button
             onClick={() => router.push('/coupons')}
             variant="outline"
-            className="px-4 py-2 text-sm font-semibold rounded-xl border-2 border-border text-foreground hover:bg-muted hover:border-border transition-all"
+            className="px-4 py-2 text-sm font-semibold rounded-md border-2 border-border text-foreground hover:bg-muted hover:border-border transition-all"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Coupons
@@ -313,7 +313,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
 
         {/* Error Alert */}
         {error && (
-          <div className="bg-destructive/10 border-2 border-destructive/30 rounded-xl p-4 flex items-start gap-3">
+          <div className="bg-destructive/10 border-2 border-destructive/30 rounded-md p-4 flex items-start gap-3">
             <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
             <div className="flex-1">
               <h3 className="font-semibold text-destructive">Error</h3>
@@ -326,7 +326,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
         <Card className="rounded-2xl border-2 border-dashed border-primary/50 bg-primary/5 shadow-lg overflow-hidden">
           <CardContent className="p-6">
             <p className="text-xs font-bold text-primary mb-3 uppercase tracking-wide">Live Preview</p>
-            <div className="bg-card rounded-xl p-5 shadow-md border border-primary/20">
+            <div className="bg-card rounded-md p-5 shadow-md border border-primary/20">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
@@ -390,7 +390,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   value={formData.code}
                   onChange={(e) => handleFieldChange('code', e.target.value.toUpperCase())}
                   className={cn(
-                    "w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2 font-mono font-bold",
+                    "w-full px-4 py-3 border-2 rounded-md focus:outline-none focus:ring-2 font-mono font-bold",
                     errors.code ? 'border-destructive focus:ring-red-500' : 'border-border focus:ring-ring'
                   )}
                   placeholder="SUMMER20"
@@ -412,7 +412,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   value={formData.name}
                   onChange={(e) => handleFieldChange('name', e.target.value)}
                   className={cn(
-                    "w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2",
+                    "w-full px-4 py-3 border-2 rounded-md focus:outline-none focus:ring-2",
                     errors.name ? 'border-destructive focus:ring-red-500' : 'border-border focus:ring-ring'
                   )}
                   placeholder="Summer Sale"
@@ -431,7 +431,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring resize-none"
+                className="w-full px-4 py-3 border-2 border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring resize-none"
                 rows={3}
                 placeholder="Describe this coupon..."
               />
@@ -462,7 +462,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   value={formData.discountValue}
                   onChange={(e) => handleFieldChange('discountValue', e.target.value)}
                   className={cn(
-                    "w-full px-4 py-3 border-2 rounded-xl focus:outline-none focus:ring-2",
+                    "w-full px-4 py-3 border-2 rounded-md focus:outline-none focus:ring-2",
                     errors.discountValue ? 'border-destructive focus:ring-red-500' : 'border-border focus:ring-ring'
                   )}
                   placeholder={formData.discountType === 'PERCENTAGE' ? '20' : '25.00'}
@@ -483,7 +483,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   type="datetime-local"
                   value={formData.startDate ? new Date(formData.startDate).toISOString().slice(0, 16) : ''}
                   onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-4 py-3 border-2 border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
 
@@ -493,7 +493,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   type="datetime-local"
                   value={formData.endDate ? new Date(formData.endDate).toISOString().slice(0, 16) : ''}
                   onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-4 py-3 border-2 border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
                 />
               </div>
             </div>
@@ -505,7 +505,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   type="number"
                   value={formData.totalUsageLimit || ''}
                   onChange={(e) => setFormData({ ...formData, totalUsageLimit: e.target.value ? parseInt(e.target.value) : undefined })}
-                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-4 py-3 border-2 border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
                   placeholder="Unlimited"
                 />
               </div>
@@ -516,7 +516,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   type="number"
                   value={formData.perCustomerLimit || ''}
                   onChange={(e) => setFormData({ ...formData, perCustomerLimit: e.target.value ? parseInt(e.target.value) : undefined })}
-                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-4 py-3 border-2 border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
                   placeholder="Unlimited"
                 />
               </div>
@@ -532,7 +532,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   ...formData,
                   restrictions: { ...formData.restrictions, minPurchaseAmount: e.target.value }
                 })}
-                className="w-full px-4 py-3 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring"
+                className="w-full px-4 py-3 border-2 border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
                 placeholder="0.00"
               />
             </div>
@@ -541,7 +541,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
               <Button
                 onClick={handleSave}
                 disabled={saving || !formData.code || !formData.name || !formData.discountValue}
-                className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50 shadow-lg"
+                className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-all disabled:opacity-50 shadow-lg"
               >
                 <Save className="w-5 h-5" />
                 {saving ? 'Saving...' : mode === 'create' ? 'Create Coupon' : 'Save Changes'}
@@ -549,7 +549,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
               <Button
                 onClick={() => router.push('/coupons')}
                 variant="outline"
-                className="px-6 py-3 rounded-xl border-2 border-border text-foreground hover:bg-muted transition-all"
+                className="px-6 py-3 rounded-md border-2 border-border text-foreground hover:bg-muted transition-all"
               >
                 Cancel
               </Button>

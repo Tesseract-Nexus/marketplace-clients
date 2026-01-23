@@ -501,7 +501,7 @@ export default function StorefrontPagesPage() {
                     onChange={(e) =>
                       setEditingPage({ ...editingPage, isPublished: e.target.checked })
                     }
-                    className="rounded border-border text-primary focus:ring-purple-500"
+                    className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                   />
                   <span className="text-sm font-medium">Publish this page</span>
                 </label>

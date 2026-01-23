@@ -100,7 +100,7 @@ export default function StoresPage() {
           actions={
             <Button
               onClick={() => setShowCreateModal(true)}
-              className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-semibold"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-semibold"
             >
               <Plus className="w-5 h-5" />
               Create Store

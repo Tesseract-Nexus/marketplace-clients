@@ -101,7 +101,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
   }) => {
     const isOpen = activeSection === id;
     return (
-      <div className="border border-border rounded-lg overflow-hidden">
+      <div className="border border-border rounded-md overflow-hidden">
         <button
           type="button"
           onClick={() => setActiveSection(isOpen ? null : id)}
@@ -121,7 +121,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
   return (
     <div className="space-y-4">
       {/* Show Footer Toggle */}
-      <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+      <div className="flex items-center justify-between p-4 bg-muted rounded-md">
         <div>
           <h4 className="font-medium">Footer Visibility</h4>
           <p className="text-sm text-muted-foreground">Show or hide the footer on your storefront</p>
@@ -152,7 +152,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                       type="button"
                       onClick={() => onChange({ columnLayout: num as 1 | 2 | 3 | 4 })}
                       className={cn(
-                        'p-3 border rounded-lg text-center transition-all',
+                        'p-3 border rounded-md text-center transition-all',
                         config.columnLayout === num
                           ? 'border-primary bg-primary/10 text-primary'
                           : 'border-border hover:border-primary/30'
@@ -193,7 +193,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                     type="text"
                     value={config.footerBgColor || '#1f2937'}
                     onChange={(e) => onChange({ footerBgColor: e.target.value })}
-                    className="flex-1 px-3 py-2 border border-border rounded-lg text-sm"
+                    className="flex-1 h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                     disabled={disabled}
                   />
                 </div>
@@ -212,7 +212,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                     type="text"
                     value={config.footerTextColor || '#f9fafb'}
                     onChange={(e) => onChange({ footerTextColor: e.target.value })}
-                    className="flex-1 px-3 py-2 border border-border rounded-lg text-sm"
+                    className="flex-1 h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                     disabled={disabled}
                   />
                 </div>
@@ -223,7 +223,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
             <div className="mt-4">
               <label className="block text-sm font-medium mb-2">Preview</label>
               <div
-                className="p-4 rounded-lg text-center"
+                className="p-4 rounded-md text-center"
                 style={{
                   backgroundColor: config.footerBgColor || '#1f2937',
                   color: config.footerTextColor || '#f9fafb',
@@ -258,7 +258,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                       value={config.contactEmail || ''}
                       onChange={(e) => onChange({ contactEmail: e.target.value })}
                       placeholder="support@example.com"
-                      className="w-full px-3 py-2 border border-border rounded-lg text-sm"
+                      className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                       disabled={disabled}
                     />
                   </div>
@@ -269,7 +269,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                       value={config.contactPhone || ''}
                       onChange={(e) => onChange({ contactPhone: e.target.value })}
                       placeholder="+1 (555) 123-4567"
-                      className="w-full px-3 py-2 border border-border rounded-lg text-sm"
+                      className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                       disabled={disabled}
                     />
                   </div>
@@ -280,7 +280,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                       onChange={(e) => onChange({ contactAddress: e.target.value })}
                       placeholder="123 Main St, City, State 12345"
                       rows={2}
-                      className="w-full px-3 py-2 border border-border rounded-lg text-sm"
+                      className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                       disabled={disabled}
                     />
                   </div>
@@ -337,7 +337,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                         onClick={() => handleTogglePaymentMethod(method.id)}
                         disabled={disabled}
                         className={cn(
-                          'p-3 border rounded-lg text-center transition-all text-sm',
+                          'p-3 border rounded-md text-center transition-all text-sm',
                           isSelected
                             ? 'border-primary bg-primary/10 text-primary'
                             : 'border-border hover:border-primary/30'
@@ -394,14 +394,14 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                     {(config.trustBadges || []).map((badge) => (
                       <div
                         key={badge.id}
-                        className="flex items-center gap-3 p-3 bg-muted rounded-lg"
+                        className="flex items-center gap-3 p-3 bg-muted rounded-md"
                       >
                         <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
                         <input
                           type="text"
                           value={badge.label}
                           onChange={(e) => handleUpdateTrustBadge(badge.id, { label: e.target.value })}
-                          className="flex-1 px-2 py-1 text-sm border border-border rounded"
+                          className="flex-1 h-9 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                           placeholder="Badge text"
                           disabled={disabled}
                         />
@@ -424,7 +424,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                           type="text"
                           value={badge.href || ''}
                           onChange={(e) => handleUpdateTrustBadge(badge.id, { href: e.target.value || undefined })}
-                          className="w-32 px-2 py-1 text-sm border border-border rounded"
+                          className="w-32 h-9 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                           placeholder="Link (optional)"
                           disabled={disabled}
                         />
@@ -479,7 +479,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                   value={config.copyrightText || ''}
                   onChange={(e) => onChange({ copyrightText: e.target.value })}
                   placeholder="© 2024 Your Company. All rights reserved."
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm"
+                  className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                   disabled={disabled}
                 />
               </div>

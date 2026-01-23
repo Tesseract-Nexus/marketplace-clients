@@ -223,7 +223,7 @@ export default function CreateIndependentStorePage() {
                   value={formData.businessName}
                   onChange={(e) => handleBusinessNameChange(e.target.value)}
                   placeholder="e.g., Acme Electronics"
-                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                 />
               </div>
 
@@ -233,7 +233,7 @@ export default function CreateIndependentStorePage() {
                 </label>
                 <div className="relative">
                   <div className="flex items-center">
-                    <span className="px-4 py-3 bg-muted border-2 border-r-0 border-border rounded-l-xl text-muted-foreground text-sm">
+                    <span className="px-3 h-10 flex items-center bg-muted border border-r-0 border-border rounded-l-md text-muted-foreground text-sm">
                       admin.tesserix.app/
                     </span>
                     <input
@@ -242,7 +242,7 @@ export default function CreateIndependentStorePage() {
                       onChange={(e) => setFormData({ ...formData, slug: generateSlug(e.target.value) })}
                       placeholder="acme-electronics"
                       className={cn(
-                        "flex-1 px-4 py-3 border-2 rounded-r-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
+                        "flex-1 h-10 px-3 border rounded-r-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary",
                         slugAvailable === true && "border-success/40 bg-success-muted",
                         slugAvailable === false && "border-error/30 bg-error-muted",
                         slugAvailable === null && "border-border"
@@ -276,7 +276,7 @@ export default function CreateIndependentStorePage() {
 
               <div className="flex justify-end gap-3 pt-4">
                 <Link href="/stores">
-                  <Button className="px-6 py-3 bg-muted text-foreground rounded-xl hover:bg-muted transition-all flex items-center gap-2">
+                  <Button className="px-6 py-3 bg-muted text-foreground rounded-md hover:bg-muted transition-all flex items-center gap-2">
                     <ArrowLeft className="w-4 h-4" />
                     Cancel
                   </Button>
@@ -284,7 +284,7 @@ export default function CreateIndependentStorePage() {
                 <Button
                   onClick={() => setStep(2)}
                   disabled={!canProceedStep1}
-                  className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Continue
                   <ArrowRight className="w-4 h-4" />
@@ -327,7 +327,7 @@ export default function CreateIndependentStorePage() {
               <div className="flex justify-between gap-3 pt-4">
                 <Button
                   onClick={() => setStep(1)}
-                  className="px-6 py-3 bg-muted text-foreground rounded-xl hover:bg-muted transition-all flex items-center gap-2"
+                  className="px-6 py-3 bg-muted text-foreground rounded-md hover:bg-muted transition-all flex items-center gap-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back
@@ -335,7 +335,7 @@ export default function CreateIndependentStorePage() {
                 <Button
                   onClick={() => setStep(3)}
                   disabled={!canProceedStep2}
-                  className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Continue
                   <ArrowRight className="w-4 h-4" />
@@ -368,13 +368,13 @@ export default function CreateIndependentStorePage() {
                       type="color"
                       value={formData.primaryColor}
                       onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
-                      className="w-12 h-12 rounded-lg cursor-pointer border-2 border-border"
+                      className="w-12 h-12 rounded-md cursor-pointer border border-border"
                     />
                     <input
                       type="text"
                       value={formData.primaryColor}
                       onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
-                      className="flex-1 px-4 py-2 border-2 border-border rounded-lg font-mono text-sm"
+                      className="flex-1 h-10 px-3 border border-border rounded-md bg-background text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                     />
                   </div>
                 </div>
@@ -387,13 +387,13 @@ export default function CreateIndependentStorePage() {
                       type="color"
                       value={formData.secondaryColor}
                       onChange={(e) => setFormData({ ...formData, secondaryColor: e.target.value })}
-                      className="w-12 h-12 rounded-lg cursor-pointer border-2 border-border"
+                      className="w-12 h-12 rounded-md cursor-pointer border border-border"
                     />
                     <input
                       type="text"
                       value={formData.secondaryColor}
                       onChange={(e) => setFormData({ ...formData, secondaryColor: e.target.value })}
-                      className="flex-1 px-4 py-2 border-2 border-border rounded-lg font-mono text-sm"
+                      className="flex-1 h-10 px-3 border border-border rounded-md bg-background text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                     />
                   </div>
                 </div>
@@ -441,7 +441,7 @@ export default function CreateIndependentStorePage() {
               <div className="flex justify-between gap-3 pt-4">
                 <Button
                   onClick={() => setStep(2)}
-                  className="px-6 py-3 bg-muted text-foreground rounded-xl hover:bg-muted transition-all flex items-center gap-2"
+                  className="px-6 py-3 bg-muted text-foreground rounded-md hover:bg-muted transition-all flex items-center gap-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
                   Back
@@ -449,7 +449,7 @@ export default function CreateIndependentStorePage() {
                 <Button
                   onClick={handleSubmit}
                   disabled={!canSubmit || isSubmitting}
-                  className="px-8 py-3 bg-primary text-primary-foreground rounded-xl hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-8 py-3 bg-primary text-primary-foreground rounded-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? (
                     <>

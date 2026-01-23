@@ -518,7 +518,7 @@ export default function OrganizationPage() {
           />
 
           {error && (
-            <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
+            <div className="p-4 bg-error-muted border-2 border-error/30 rounded-md text-error flex items-center gap-2">
               <XCircle className="w-5 h-5" />
               {error}
             </div>
@@ -540,7 +540,7 @@ export default function OrganizationPage() {
                   type="text"
                   value={deptFormData.name}
                   onChange={(e) => setDeptFormData({ ...deptFormData, name: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                   placeholder="Engineering"
                 />
               </div>
@@ -551,7 +551,7 @@ export default function OrganizationPage() {
                   type="text"
                   value={deptFormData.code}
                   onChange={(e) => setDeptFormData({ ...deptFormData, code: e.target.value.toUpperCase() })}
-                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                   placeholder="ENG"
                 />
               </div>
@@ -561,7 +561,7 @@ export default function OrganizationPage() {
                 <textarea
                   value={deptFormData.description}
                   onChange={(e) => setDeptFormData({ ...deptFormData, description: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                   placeholder="Department description..."
                   rows={3}
                 />
@@ -582,10 +582,10 @@ export default function OrganizationPage() {
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-4">
-                <Button onClick={handleCancel} disabled={saving} className="px-6 py-2.5 bg-muted text-foreground rounded-xl hover:bg-muted transition-all">
+                <Button onClick={handleCancel} disabled={saving} className="px-6 py-2.5 bg-muted text-foreground rounded-md hover:bg-muted transition-all">
                   Cancel
                 </Button>
-                <Button onClick={handleSaveDepartment} disabled={saving || !deptFormData.name} className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 disabled:opacity-50">
+                <Button onClick={handleSaveDepartment} disabled={saving || !deptFormData.name} className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-all duration-200 disabled:opacity-50">
                   {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                   {viewMode === 'create-dept' ? 'Create' : 'Save'}
                 </Button>
@@ -613,7 +613,7 @@ export default function OrganizationPage() {
           />
 
           {error && (
-            <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
+            <div className="p-4 bg-error-muted border-2 border-error/30 rounded-md text-error flex items-center gap-2">
               <XCircle className="w-5 h-5" />
               {error}
             </div>
@@ -635,7 +635,7 @@ export default function OrganizationPage() {
                   type="text"
                   value={teamFormData.name}
                   onChange={(e) => setTeamFormData({ ...teamFormData, name: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                   placeholder="Frontend Team"
                 />
               </div>
@@ -646,7 +646,7 @@ export default function OrganizationPage() {
                   type="text"
                   value={teamFormData.code}
                   onChange={(e) => setTeamFormData({ ...teamFormData, code: e.target.value.toUpperCase() })}
-                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                   placeholder="FE"
                 />
               </div>
@@ -690,17 +690,17 @@ export default function OrganizationPage() {
                   type="number"
                   value={teamFormData.maxCapacity || ''}
                   onChange={(e) => setTeamFormData({ ...teamFormData, maxCapacity: e.target.value ? parseInt(e.target.value) : undefined })}
-                  className="w-full px-4 py-3 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                   placeholder="10"
                   min={1}
                 />
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-4">
-                <Button onClick={handleCancel} disabled={saving} className="px-6 py-2.5 bg-muted text-foreground rounded-xl hover:bg-muted transition-all">
+                <Button onClick={handleCancel} disabled={saving} className="px-6 py-2.5 bg-muted text-foreground rounded-md hover:bg-muted transition-all">
                   Cancel
                 </Button>
-                <Button onClick={handleSaveTeam} disabled={saving || !teamFormData.name || !teamFormData.departmentId} className="flex items-center gap-2 px-6 py-2.5 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-all duration-200 disabled:opacity-50">
+                <Button onClick={handleSaveTeam} disabled={saving || !teamFormData.name || !teamFormData.departmentId} className="flex items-center gap-2 px-6 py-2.5 bg-success text-success-foreground rounded-md hover:bg-success/90 transition-all duration-200 disabled:opacity-50">
                   {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                   {viewMode === 'create-team' ? 'Create' : 'Save'}
                 </Button>
@@ -805,11 +805,11 @@ export default function OrganizationPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button onClick={handleCancel} className="px-6 py-2.5 bg-muted text-foreground rounded-xl hover:bg-muted transition-all">
+            <Button onClick={handleCancel} className="px-6 py-2.5 bg-muted text-foreground rounded-md hover:bg-muted transition-all">
               Back to List
             </Button>
             {canUpdateDepartments && (
-              <Button onClick={() => handleEditDepartment(selectedDepartment)} className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all">
+              <Button onClick={() => handleEditDepartment(selectedDepartment)} className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-all">
                 <Edit className="w-5 h-5" />
                 Edit Department
               </Button>
@@ -913,11 +913,11 @@ export default function OrganizationPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <Button onClick={handleCancel} className="px-6 py-2.5 bg-muted text-foreground rounded-xl hover:bg-muted transition-all">
+            <Button onClick={handleCancel} className="px-6 py-2.5 bg-muted text-foreground rounded-md hover:bg-muted transition-all">
               Back to List
             </Button>
             {canUpdateTeams && (
-              <Button onClick={() => handleEditTeam(selectedTeam)} className="flex items-center gap-2 px-6 py-2.5 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-all">
+              <Button onClick={() => handleEditTeam(selectedTeam)} className="flex items-center gap-2 px-6 py-2.5 bg-success text-success-foreground rounded-md hover:bg-success/90 transition-all">
                 <Edit className="w-5 h-5" />
                 Edit Team
               </Button>
@@ -949,29 +949,29 @@ export default function OrganizationPage() {
             ]}
             actions={
               <div className="flex items-center gap-3">
-                <Button variant="ghost" onClick={loadData} disabled={loading} className="p-2.5 rounded-xl bg-muted hover:bg-muted transition-all" title="Refresh">
+                <Button variant="ghost" onClick={loadData} disabled={loading} className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all" title="Refresh">
                   <RefreshCw className={cn("w-5 h-5 text-muted-foreground", loading && "animate-spin")} />
                 </Button>
                 {canCreateTeams && (
-                  <Button onClick={() => handleOpenImport('teams')} className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-success/40 text-success rounded-xl hover:bg-success-muted transition-all">
+                  <Button onClick={() => handleOpenImport('teams')} className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-success/40 text-success rounded-md hover:bg-success-muted transition-all">
                     <Upload className="w-5 h-5" />
                     Import Teams
                   </Button>
                 )}
                 {canCreateDepartments && (
-                  <Button onClick={() => handleOpenImport('departments')} className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-primary/50 text-primary rounded-xl hover:bg-primary/10 transition-all">
+                  <Button onClick={() => handleOpenImport('departments')} className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-primary/50 text-primary rounded-md hover:bg-primary/10 transition-all">
                     <Upload className="w-5 h-5" />
                     Import Depts
                   </Button>
                 )}
                 {canCreateTeams && (
-                  <Button onClick={() => handleCreateTeam()} className="flex items-center gap-2 px-4 py-2.5 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-all">
+                  <Button onClick={() => handleCreateTeam()} className="flex items-center gap-2 px-4 py-2.5 bg-success text-success-foreground rounded-md hover:bg-success/90 transition-all">
                     <Plus className="w-5 h-5" />
                     Add Team
                   </Button>
                 )}
                 {canCreateDepartments && (
-                  <Button onClick={handleCreateDepartment} className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors">
+                  <Button onClick={handleCreateDepartment} className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors">
                     <Plus className="w-5 h-5" />
                     Add Department
                   </Button>
@@ -981,7 +981,7 @@ export default function OrganizationPage() {
           />
 
           {error && (
-            <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
+            <div className="p-4 bg-error-muted border-2 border-error/30 rounded-md text-error flex items-center gap-2">
               <XCircle className="w-5 h-5" />
               {error}
             </div>
@@ -1026,7 +1026,7 @@ export default function OrganizationPage() {
 
           {/* Desktop Tabs */}
           <Tabs value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="hidden md:inline-flex h-auto items-center justify-start rounded-xl bg-card border border-border p-1 shadow-sm mb-6">
+            <TabsList className="hidden md:inline-flex h-auto items-center justify-start rounded-md bg-card border border-border p-1 shadow-sm mb-6">
               <TabsTrigger value="hierarchy" className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <FolderTree className="w-4 h-4" />
                 Departments & Teams
@@ -1050,7 +1050,7 @@ export default function OrganizationPage() {
                         placeholder="Search departments and teams..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-10 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full pl-10 pr-10 py-3 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                       />
                       {searchQuery && (
                         <Button variant="ghost" size="sm" onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 h-auto hover:bg-muted rounded-full">
@@ -1097,7 +1097,7 @@ export default function OrganizationPage() {
                         placeholder="Search teams..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-10 pr-10 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                        className="w-full pl-10 pr-10 py-3 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
                       />
                       {searchQuery && (
                         <Button variant="ghost" size="sm" onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 h-auto hover:bg-muted rounded-full">

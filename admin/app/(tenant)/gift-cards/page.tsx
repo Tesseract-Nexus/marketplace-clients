@@ -644,7 +644,7 @@ export default function GiftCardsPage() {
                 <div>
                   <label className="block text-sm font-semibold text-foreground mb-2">Message</label>
                   <textarea
-                    className="w-full min-h-[80px] px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+                    className="w-full min-h-[80px] px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                     value={createForm.message}
                     onChange={(e) => setCreateForm({ ...createForm, message: e.target.value })}
                     placeholder="Optional gift message..."

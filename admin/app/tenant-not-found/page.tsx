@@ -56,7 +56,7 @@ export default function TenantNotFoundPage() {
           <div className="space-y-3">
             <button
               onClick={handleCreateStore}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-md transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               <Store className="h-5 w-5" />
               Create a New Store
@@ -65,7 +65,7 @@ export default function TenantNotFoundPage() {
 
             <button
               onClick={handleGoToMain}
-              className="w-full px-6 py-3 bg-muted hover:bg-muted text-foreground font-medium rounded-xl transition-colors"
+              className="w-full px-6 py-3 bg-muted hover:bg-muted text-foreground font-medium rounded-md transition-colors"
             >
               Go to Main Dashboard
             </button>

@@ -325,7 +325,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
                     <button
                       type="button"
                       onClick={() => setShowCreateDeptModal(true)}
-                      className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-warning text-white rounded-lg hover:bg-warning transition-all font-medium shadow-md hover:shadow-lg"
+                      className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 bg-warning text-white rounded-md hover:bg-warning transition-all font-medium shadow-md hover:shadow-lg"
                     >
                       <Plus className="w-4 h-4" />
                       Create First Department
@@ -360,7 +360,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
                     <button
                       type="button"
                       onClick={() => setShowCreateDeptModal(true)}
-                      className="px-3 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-all"
+                      className="px-3 py-2 bg-primary/10 text-primary rounded-md hover:bg-primary/20 transition-all"
                       title="Create new department"
                     >
                       <Plus className="w-5 h-5" />
@@ -391,7 +391,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
                     <button
                       type="button"
                       onClick={() => setShowCreateTeamModal(true)}
-                      className="px-3 py-2 bg-success-muted text-success-muted-foreground rounded-lg hover:bg-success/20 transition-all"
+                      className="px-3 py-2 bg-success-muted text-success-muted-foreground rounded-md hover:bg-success/20 transition-all"
                       title="Create new team"
                     >
                       <Plus className="w-5 h-5" />
@@ -423,7 +423,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
                     <button
                       type="button"
                       onClick={() => setShowCreateTeamModal(true)}
-                      className="mt-3 inline-flex items-center gap-2 px-3 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-all font-medium text-sm"
+                      className="mt-3 inline-flex items-center gap-2 px-3 py-2 bg-primary text-white rounded-md hover:bg-primary transition-all font-medium text-sm"
                     >
                       <Plus className="w-4 h-4" />
                       Create Team
@@ -471,14 +471,14 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
             type="button"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="flex-1 px-6 py-3 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-all font-semibold border-2 border-border disabled:opacity-50"
+            className="flex-1 px-6 py-3 bg-muted text-foreground rounded-md hover:bg-muted/80 transition-all font-semibold border-2 border-border disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="flex-1 px-6 py-3 bg-primary text-white rounded-xl hover:from-blue-700 hover:to-violet-700 transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="flex-1 px-6 py-3 bg-primary text-white rounded-md hover:from-blue-700 hover:to-violet-700 transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isSubmitting ? (
               <>

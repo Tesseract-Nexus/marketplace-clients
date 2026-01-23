@@ -958,7 +958,7 @@ export default function CampaignsPage() {
                   Description
                 </label>
                 <textarea
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                   rows={3}
                   placeholder="Describe your campaign..."
                   value={createForm.description}
@@ -998,7 +998,7 @@ export default function CampaignsPage() {
                   Target Audience
                 </label>
                 <select
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring bg-white"
+                  className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                   value={createForm.segmentId || ''}
                   onChange={(e) => setCreateForm({ ...createForm, segmentId: e.target.value || undefined })}
                   disabled={loadingSegments}
@@ -1071,7 +1071,7 @@ export default function CampaignsPage() {
                 </div>
                 {contentMode === 'text' ? (
                   <textarea
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                     rows={6}
                     placeholder="Your message content..."
                     value={createForm.content}
@@ -1082,7 +1082,7 @@ export default function CampaignsPage() {
                 ) : (
                   <div className="space-y-2">
                     <textarea
-                      className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-mono text-sm bg-muted"
+                      className="w-full px-3 py-2 border border-border rounded-md bg-muted font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                       rows={10}
                       placeholder="<html>
 <body>
@@ -1301,7 +1301,7 @@ export default function CampaignsPage() {
                   Description
                 </label>
                 <textarea
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                   rows={3}
                   placeholder="Describe your campaign..."
                   value={editForm.description || ''}
@@ -1350,7 +1350,7 @@ export default function CampaignsPage() {
                   Message Content *
                 </label>
                 <textarea
-                  className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                   rows={6}
                   placeholder="Your message content..."
                   value={editForm.content || ''}

@@ -236,7 +236,7 @@ export function ImageUploadProgressModal({
             <button
               onClick={onClose}
               className={cn(
-                "w-full mt-3 py-2.5 px-4 rounded-xl font-medium text-white transition-all duration-200",
+                "w-full mt-3 py-2.5 px-4 rounded-md font-medium text-white transition-all duration-200",
                 "shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]",
                 isAllSuccess
                   ? "bg-success shadow-success/25"

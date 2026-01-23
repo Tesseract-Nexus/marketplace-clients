@@ -658,7 +658,7 @@ export default function TicketsPage() {
                     value={newTicket.description}
                     onChange={(e) => handleFieldChange('description', e.target.value)}
                     placeholder="Detailed description of the issue..."
-                    className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent ${
+                    className={`w-full px-3 py-2 border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary ${
                       errors.description ? 'border-error' : 'border-border'
                     }`}
                     rows={4}
@@ -870,7 +870,7 @@ export default function TicketsPage() {
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
                         placeholder="Type your comment here..."
-                        className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
+                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary resize-none"
                         rows={3}
                       />
                       <div className="flex justify-end mt-2">

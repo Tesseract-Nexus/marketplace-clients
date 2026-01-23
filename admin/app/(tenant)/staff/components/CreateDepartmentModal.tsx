@@ -161,7 +161,7 @@ export function CreateDepartmentModal({
                 if (errors.name) setErrors(prev => ({ ...prev, name: '' }));
               }}
               className={cn(
-                "w-full px-3 py-2 border-2 rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
+                "w-full h-10 px-3 border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all",
                 errors.name ? "border-error" : "border-border"
               )}
               placeholder="e.g., Engineering, Sales, Marketing"
@@ -180,7 +180,7 @@ export function CreateDepartmentModal({
               type="text"
               value={formData.code}
               onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-              className="w-full px-3 py-2 border-2 border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+              className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all"
               placeholder="e.g., ENG, SALES"
               disabled={isSubmitting}
             />
@@ -194,7 +194,7 @@ export function CreateDepartmentModal({
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-3 py-2 border-2 border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all resize-none"
+              className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all resize-none"
               placeholder="Brief description of this department..."
               rows={2}
               disabled={isSubmitting}
@@ -209,7 +209,7 @@ export function CreateDepartmentModal({
               <select
                 value={formData.parentDepartmentId}
                 onChange={(e) => setFormData({ ...formData, parentDepartmentId: e.target.value })}
-                className="w-full px-3 py-2 border-2 border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+                className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all"
                 disabled={isSubmitting}
               >
                 <option value="">No parent (root department)</option>

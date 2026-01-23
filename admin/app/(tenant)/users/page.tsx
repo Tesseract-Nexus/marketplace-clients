@@ -684,7 +684,7 @@ export default function UsersHubPage() {
                       type="checkbox"
                       checked={formData.accountEnabled}
                       onChange={(e) => setFormData({ ...formData, accountEnabled: e.target.checked })}
-                      className="w-5 h-5 rounded border-border text-primary focus:ring-ring"
+                      className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                     />
                     <span className="text-sm font-semibold text-foreground">
                       Account Enabled

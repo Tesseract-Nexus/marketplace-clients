@@ -441,7 +441,7 @@ export default function LoyaltyProgramPage() {
                     <textarea
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+                      className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                       placeholder="Earn points on every purchase..."
                       rows={3}
                     />
@@ -627,7 +627,7 @@ export default function LoyaltyProgramPage() {
                       <textarea
                         value={tier.benefits}
                         onChange={(e) => handleTierChange(index, 'benefits', e.target.value)}
-                        className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent bg-white"
+                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                         placeholder="Describe the benefits of this tier..."
                         rows={2}
                       />

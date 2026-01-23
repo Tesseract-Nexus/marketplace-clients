@@ -209,7 +209,7 @@ export function DocumentUploader({
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-xl flex items-center gap-2 text-destructive">
+        <div className="p-4 bg-destructive/10 border border-destructive/30 rounded-md flex items-center gap-2 text-destructive">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           <p className="text-sm">{error}</p>
         </div>
@@ -222,7 +222,7 @@ export function DocumentUploader({
         onDragOver={handleDrag}
         onDrop={handleDrop}
         className={cn(
-          'relative border-2 border-dashed rounded-xl p-8 text-center transition-colors',
+          'relative border-2 border-dashed rounded-md p-8 text-center transition-colors',
           dragActive
             ? 'border-primary bg-primary/10'
             : file
@@ -309,7 +309,7 @@ export function DocumentUploader({
               setFormData((prev) => ({ ...prev, documentName: e.target.value }))
             }
             placeholder="e.g., Passport - John Smith"
-            className="w-full px-4 py-2.5 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+            className="w-full px-4 py-2.5 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
           />
         </div>
 
@@ -326,7 +326,7 @@ export function DocumentUploader({
               setFormData((prev) => ({ ...prev, documentNumber: e.target.value }))
             }
             placeholder="e.g., ABC123456"
-            className="w-full px-4 py-2.5 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+            className="w-full px-4 py-2.5 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
           />
         </div>
 
@@ -343,7 +343,7 @@ export function DocumentUploader({
               setFormData((prev) => ({ ...prev, issuingAuthority: e.target.value }))
             }
             placeholder="e.g., Department of State"
-            className="w-full px-4 py-2.5 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+            className="w-full px-4 py-2.5 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
           />
         </div>
 
@@ -359,7 +359,7 @@ export function DocumentUploader({
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, issueDate: e.target.value }))
             }
-            className="w-full px-4 py-2.5 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+            className="w-full px-4 py-2.5 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
           />
         </div>
 
@@ -376,7 +376,7 @@ export function DocumentUploader({
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, expiryDate: e.target.value }))
               }
-              className="w-full px-4 py-2.5 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+              className="w-full px-4 py-2.5 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
             />
           </div>
         )}
@@ -423,7 +423,7 @@ export function DocumentUploader({
         <Button
           type="submit"
           disabled={uploading || !file || !formData.documentType || !formData.documentName}
-          className="px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {uploading ? (
             <>

@@ -406,7 +406,7 @@ export default function DelegationsPage() {
                   type="checkbox"
                   checked={includeExpired}
                   onChange={(e) => setIncludeExpired(e.target.checked)}
-                  className="h-4 w-4 rounded border-input"
+                  className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                 />
                 <span className="text-sm text-foreground">Include expired & revoked</span>
               </label>

@@ -55,7 +55,7 @@ export function SocialLinkEditor({ social, onUpdate, onDelete }: SocialLinkEdito
           value={social.url}
           onChange={(e) => onUpdate({ url: e.target.value })}
           placeholder={platformInfo?.placeholder || 'https://...'}
-          className="col-span-2 px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-primary text-sm"
+          className="col-span-2 w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
         />
       </div>
 

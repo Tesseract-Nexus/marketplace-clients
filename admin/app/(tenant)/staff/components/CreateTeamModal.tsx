@@ -212,7 +212,7 @@ export function CreateTeamModal({
                 if (errors.name) setErrors(prev => ({ ...prev, name: '' }));
               }}
               className={cn(
-                "w-full px-3 py-2 border-2 rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
+                "w-full h-10 px-3 border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all",
                 errors.name ? "border-error" : "border-border"
               )}
               placeholder="e.g., Frontend Team, Sales Team A"
@@ -231,7 +231,7 @@ export function CreateTeamModal({
               type="text"
               value={formData.code}
               onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
-              className="w-full px-3 py-2 border-2 border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
+              className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all"
               placeholder="e.g., FE-TEAM, SALES-A"
               disabled={isSubmitting}
             />
@@ -281,7 +281,7 @@ export function CreateTeamModal({
                 if (errors.maxCapacity) setErrors(prev => ({ ...prev, maxCapacity: '' }));
               }}
               className={cn(
-                "w-full px-3 py-2 border-2 rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent transition-all",
+                "w-full h-10 px-3 border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all",
                 errors.maxCapacity ? "border-error" : "border-border"
               )}
               placeholder="e.g., 10"

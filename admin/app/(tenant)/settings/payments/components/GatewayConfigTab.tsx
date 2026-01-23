@@ -651,7 +651,7 @@ export function GatewayConfigTab() {
                   <label className="block text-sm font-semibold text-foreground mb-2">
                     Gateway Type
                   </label>
-                  <div className="px-4 py-3 border-2 border-border rounded-xl bg-muted text-foreground font-medium">
+                  <div className="px-4 py-3 border-2 border-border rounded-md bg-muted text-foreground font-medium">
                     {gatewayTypeOptions.find(o => o.value === formData.gatewayType)?.label || formData.gatewayType}
                   </div>
                 </div>

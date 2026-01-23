@@ -700,7 +700,7 @@ export default function CustomersPage() {
                         value={formData.notes || ''}
                         onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                         placeholder="Additional notes about the customer..."
-                        className="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-ring focus:border-transparent"
+                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                         rows={4}
                       />
                     </div>
@@ -709,13 +709,13 @@ export default function CustomersPage() {
 
                 {currentStep === 3 && (
                   <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-4 bg-muted rounded-lg border border-border">
+                    <div className="flex items-center gap-3 p-4 bg-muted rounded-md border border-border">
                       <input
                         type="checkbox"
                         id="marketingOptIn"
                         checked={formData.marketingOptIn || false}
                         onChange={(e) => setFormData({ ...formData, marketingOptIn: e.target.checked })}
-                        className="w-5 h-5 text-primary border-border rounded focus:ring-ring"
+                        className="h-4 w-4 rounded-md border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                       />
                       <label htmlFor="marketingOptIn" className="text-sm font-medium text-foreground">
                         Subscribe to marketing communications

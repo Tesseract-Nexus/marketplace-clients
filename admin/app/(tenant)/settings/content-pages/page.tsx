@@ -984,7 +984,7 @@ export default function ContentPagesSettingsPage() {
                             onChange={(e) =>
                               setCreateForm({ ...createForm, showInMenu: e.target.checked })
                             }
-                            className="rounded border-border text-primary focus:ring-purple-500"
+                            className="rounded border-border text-primary focus:ring-ring"
                           />
                           Show in Menu
                         </label>
@@ -995,7 +995,7 @@ export default function ContentPagesSettingsPage() {
                             onChange={(e) =>
                               setCreateForm({ ...createForm, showInFooter: e.target.checked })
                             }
-                            className="rounded border-border text-primary focus:ring-purple-500"
+                            className="rounded border-border text-primary focus:ring-ring"
                           />
                           Show in Footer
                         </label>
@@ -1006,7 +1006,7 @@ export default function ContentPagesSettingsPage() {
                             onChange={(e) =>
                               setCreateForm({ ...createForm, isFeatured: e.target.checked })
                             }
-                            className="rounded border-border text-primary focus:ring-purple-500"
+                            className="rounded border-border text-primary focus:ring-ring"
                           />
                           Featured Page
                         </label>
@@ -1018,7 +1018,7 @@ export default function ContentPagesSettingsPage() {
                         Excerpt
                       </label>
                       <textarea
-                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                         rows={3}
                         placeholder="Short description of this page..."
                         value={createForm.excerpt}
@@ -1049,7 +1049,7 @@ export default function ContentPagesSettingsPage() {
                         Meta Description
                       </label>
                       <textarea
-                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                         rows={3}
                         placeholder="Meta description for search engines..."
                         value={createForm.metaDescription}
@@ -1227,7 +1227,7 @@ export default function ContentPagesSettingsPage() {
                             type="checkbox"
                             checked={editForm.showInMenu}
                             onChange={(e) => setEditForm({ ...editForm, showInMenu: e.target.checked })}
-                            className="rounded border-border text-primary focus:ring-purple-500"
+                            className="rounded border-border text-primary focus:ring-ring"
                           />
                           Show in Menu
                         </label>
@@ -1236,7 +1236,7 @@ export default function ContentPagesSettingsPage() {
                             type="checkbox"
                             checked={editForm.showInFooter}
                             onChange={(e) => setEditForm({ ...editForm, showInFooter: e.target.checked })}
-                            className="rounded border-border text-primary focus:ring-purple-500"
+                            className="rounded border-border text-primary focus:ring-ring"
                           />
                           Show in Footer
                         </label>
@@ -1245,7 +1245,7 @@ export default function ContentPagesSettingsPage() {
                             type="checkbox"
                             checked={editForm.isFeatured}
                             onChange={(e) => setEditForm({ ...editForm, isFeatured: e.target.checked })}
-                            className="rounded border-border text-primary focus:ring-purple-500"
+                            className="rounded border-border text-primary focus:ring-ring"
                           />
                           Featured Page
                         </label>
@@ -1257,7 +1257,7 @@ export default function ContentPagesSettingsPage() {
                         Excerpt
                       </label>
                       <textarea
-                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                         rows={3}
                         value={editForm.excerpt || ''}
                         onChange={(e) => setEditForm({ ...editForm, excerpt: e.target.value })}
@@ -1284,7 +1284,7 @@ export default function ContentPagesSettingsPage() {
                         Meta Description
                       </label>
                       <textarea
-                        className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                         rows={3}
                         value={editForm.metaDescription || ''}
                         onChange={(e) => setEditForm({ ...editForm, metaDescription: e.target.value })}

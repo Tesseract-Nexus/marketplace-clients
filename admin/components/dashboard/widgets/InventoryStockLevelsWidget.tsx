@@ -33,7 +33,7 @@ export function InventoryStockLevelsWidget({ data }: InventoryStockLevelsWidgetP
       <DashboardCardHeader className="pb-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-primary shadow-lg ring-4 ring-violet-500/20">
+            <div className="p-2.5 rounded-md bg-primary shadow-lg ring-4 ring-violet-500/20">
               <BarChart3 className="h-5 w-5 text-white" />
             </div>
             <div>

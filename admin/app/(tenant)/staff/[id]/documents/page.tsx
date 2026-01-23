@@ -238,14 +238,14 @@ export default function StaffDocumentsPage() {
                   variant="ghost"
                   onClick={loadData}
                   disabled={loading}
-                  className="p-2.5 rounded-xl bg-muted hover:bg-muted border-2 border-border"
+                  className="p-2.5 rounded-md bg-muted hover:bg-muted border-2 border-border"
                   title="Refresh"
                 >
                   <RefreshCw className={cn('w-5 h-5 text-muted-foreground', loading && 'animate-spin')} />
                 </Button>
                 <Button
                   onClick={() => setViewMode('upload')}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all shadow-lg"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-all shadow-lg"
                 >
                   <Plus className="w-5 h-5" />
                   Upload Document
@@ -254,7 +254,7 @@ export default function StaffDocumentsPage() {
             ) : (
               <Button
                 onClick={() => setViewMode('list')}
-                className="flex items-center gap-2 px-4 py-2.5 bg-muted text-foreground rounded-xl hover:bg-muted"
+                className="flex items-center gap-2 px-4 py-2.5 bg-muted text-foreground rounded-md hover:bg-muted"
               >
                 <ArrowLeft className="w-5 h-5" />
                 Back to List
@@ -264,7 +264,7 @@ export default function StaffDocumentsPage() {
         />
 
         {error && (
-          <div className="p-4 bg-error-muted border-2 border-error/30 rounded-xl text-error flex items-center gap-2">
+          <div className="p-4 bg-error-muted border-2 border-error/30 rounded-md text-error flex items-center gap-2">
             <XCircle className="w-5 h-5" />
             {error}
             <Button
@@ -290,7 +290,7 @@ export default function StaffDocumentsPage() {
           <>
             {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="bg-card rounded-xl p-4 border border-border shadow-sm">
+              <div className="bg-card rounded-md p-4 border border-border shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-primary/20 rounded-lg">
                     <FileText className="w-5 h-5 text-primary" />
@@ -301,7 +301,7 @@ export default function StaffDocumentsPage() {
                   </div>
                 </div>
               </div>
-              <div className="bg-card rounded-xl p-4 border border-border shadow-sm">
+              <div className="bg-card rounded-md p-4 border border-border shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-success-muted rounded-lg">
                     <CheckCircle className="w-5 h-5 text-success" />
@@ -312,7 +312,7 @@ export default function StaffDocumentsPage() {
                   </div>
                 </div>
               </div>
-              <div className="bg-card rounded-xl p-4 border border-border shadow-sm">
+              <div className="bg-card rounded-md p-4 border border-border shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-warning-muted rounded-lg">
                     <Clock className="w-5 h-5 text-warning" />
@@ -323,7 +323,7 @@ export default function StaffDocumentsPage() {
                   </div>
                 </div>
               </div>
-              <div className="bg-card rounded-xl p-4 border border-border shadow-sm">
+              <div className="bg-card rounded-md p-4 border border-border shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-warning-muted rounded-lg">
                     <AlertTriangle className="w-5 h-5 text-warning" />
@@ -334,7 +334,7 @@ export default function StaffDocumentsPage() {
                   </div>
                 </div>
               </div>
-              <div className="bg-card rounded-xl p-4 border border-border shadow-sm">
+              <div className="bg-card rounded-md p-4 border border-border shadow-sm">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-error-muted rounded-lg">
                     <XCircle className="w-5 h-5 text-error" />
@@ -348,7 +348,7 @@ export default function StaffDocumentsPage() {
             </div>
 
             {/* Filters */}
-            <div className="bg-card rounded-xl p-4 border border-border shadow-sm">
+            <div className="bg-card rounded-md p-4 border border-border shadow-sm">
               <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -357,7 +357,7 @@ export default function StaffDocumentsPage() {
                     placeholder="Search documents..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                    className="w-full pl-10 pr-4 py-2.5 border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                   />
                 </div>
                 <Select
@@ -437,7 +437,7 @@ export default function StaffDocumentsPage() {
                         type="button"
                         onClick={() => setVerifyStatus(status)}
                         className={cn(
-                          'px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all',
+                          'px-4 py-3 rounded-md border-2 text-sm font-medium transition-all',
                           verifyStatus === status
                             ? status === 'verified'
                               ? 'border-success/50 bg-success-muted text-success-muted-foreground'
@@ -465,7 +465,7 @@ export default function StaffDocumentsPage() {
                     onChange={(e) => setVerifyNotes(e.target.value)}
                     placeholder="Add verification notes..."
                     rows={2}
-                    className="w-full px-4 py-2.5 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
+                    className="w-full px-4 py-2.5 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
                   />
                 </div>
 
@@ -479,7 +479,7 @@ export default function StaffDocumentsPage() {
                       onChange={(e) => setRejectionReason(e.target.value)}
                       placeholder="Explain why this document is being rejected..."
                       rows={2}
-                      className="w-full px-4 py-2.5 border-2 border-border rounded-xl focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
+                      className="w-full px-4 py-2.5 border-2 border-border rounded-md focus:ring-2 focus:ring-ring focus:border-transparent resize-none"
                     />
                   </div>
                 )}
@@ -497,7 +497,7 @@ export default function StaffDocumentsPage() {
                   onClick={handleVerifySubmit}
                   disabled={verifying || (verifyStatus === 'rejected' && !rejectionReason)}
                   className={cn(
-                    'px-6 py-2.5 rounded-xl text-white transition-all shadow-lg',
+                    'px-6 py-2.5 rounded-md text-white transition-all shadow-lg',
                     verifyStatus === 'verified'
                       ? 'bg-success hover:bg-success/90'
                       : verifyStatus === 'rejected'

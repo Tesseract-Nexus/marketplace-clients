@@ -309,7 +309,7 @@ export default function MauticIntegrationPage() {
                 Content (HTML)
               </label>
               <textarea
-                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring font-mono text-sm"
+                className="w-full px-3 py-2 border border-border rounded-md bg-background font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                 rows={4}
                 value={testContent}
                 onChange={(e) => setTestContent(e.target.value)}

@@ -49,7 +49,7 @@ export function ActivityFeedWidget({ data }: ActivityFeedWidgetProps) {
       <DashboardCardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-primary/20">
+            <div className="p-2 rounded-md bg-primary/20">
               <Activity className="h-5 w-5 text-primary" />
             </div>
             <div>

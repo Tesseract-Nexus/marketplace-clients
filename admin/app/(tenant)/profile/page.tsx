@@ -367,7 +367,7 @@ export default function ProfilePage() {
                     <select
                       value={editedProfile.preferredLanguage}
                       onChange={(e) => setEditedProfile({ ...editedProfile, preferredLanguage: e.target.value })}
-                      className="mt-1 w-full px-3 py-2 rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-ring/20"
+                      className="mt-1 w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                     >
                       <option value="en-US">English (US)</option>
                       <option value="en-GB">English (UK)</option>

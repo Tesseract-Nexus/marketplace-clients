@@ -62,13 +62,13 @@ function StoreNotFoundPage() {
         <div className="space-y-3">
           <button
             onClick={handleCreateStore}
-            className="w-full px-4 py-3 bg-primary text-white rounded-xl hover:bg-primary transition-colors font-medium"
+            className="w-full px-4 py-3 bg-primary text-white rounded-md hover:bg-primary transition-colors font-medium"
           >
             Create a New Store
           </button>
           <button
             onClick={handleLogout}
-            className="w-full px-4 py-3 bg-muted text-foreground rounded-xl hover:bg-muted transition-colors font-medium"
+            className="w-full px-4 py-3 bg-muted text-foreground rounded-md hover:bg-muted transition-colors font-medium"
           >
             Sign Out & Login Again
           </button>
@@ -201,13 +201,13 @@ export function TenantApiProvider({ children, requireTenant = true }: TenantApiP
           <div className="space-y-2">
             <button
               onClick={() => window.location.reload()}
-              className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary transition-colors"
+              className="w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary transition-colors"
             >
               Retry
             </button>
             <button
               onClick={() => window.location.href = '/auth/logout?returnTo=/login'}
-              className="w-full px-4 py-2 bg-muted text-foreground rounded-lg hover:bg-muted transition-colors"
+              className="w-full px-4 py-2 bg-muted text-foreground rounded-md hover:bg-muted transition-colors"
             >
               Sign Out & Login with Different Account
             </button>

@@ -158,7 +158,7 @@ export default function StorefrontsPage() {
             <>
               <Link href={`/storefronts/${selectedStorefront.id}/edit`}>
                 <Button
-                  className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-semibold"
+                  className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-semibold"
                 >
                   <Edit className="w-5 h-5" />
                   Edit
@@ -166,7 +166,7 @@ export default function StorefrontsPage() {
               </Link>
               <Link href={`/storefronts/${selectedStorefront.id}/theme`}>
                 <Button
-                  className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-semibold"
+                  className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-semibold"
                 >
                   <Palette className="w-5 h-5" />
                   Customize Theme
@@ -174,7 +174,7 @@ export default function StorefrontsPage() {
               </Link>
               <Button
                 onClick={() => setViewMode('list')}
-                className="px-6 py-3 bg-card border-2 border-border text-foreground rounded-xl hover:bg-muted transition-all duration-200 flex items-center gap-2 font-semibold"
+                className="px-6 py-3 bg-card border-2 border-border text-foreground rounded-md hover:bg-muted transition-all duration-200 flex items-center gap-2 font-semibold"
               >
                 <X className="w-5 h-5" />
                 Close
@@ -334,7 +334,7 @@ export default function StorefrontsPage() {
           actions={
           <Link href="/storefronts/create">
             <Button
-              className="px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-semibold"
+              className="px-6 py-3 bg-primary text-primary-foreground rounded-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 font-semibold"
             >
               <Plus className="w-5 h-5" />
               Create Storefront
@@ -368,7 +368,7 @@ export default function StorefrontsPage() {
               variant="ghost"
               onClick={() => setShowFilters(!showFilters)}
               className={cn(
-                "px-4 py-3 rounded-xl transition-all flex items-center gap-2 font-medium",
+                "px-4 py-3 rounded-md transition-all flex items-center gap-2 font-medium",
                 showFilters
                   ? "bg-primary/20 text-primary border-2 border-primary/50"
                   : "bg-muted text-foreground border-2 border-border hover:bg-muted"
@@ -413,7 +413,7 @@ export default function StorefrontsPage() {
               <p className="text-muted-foreground text-lg">No storefronts found</p>
               <p className="text-muted-foreground mt-2">Try adjusting your search or create a new storefront</p>
               <Link href="/storefronts/create">
-                <Button className="mt-4 px-6 py-3 bg-primary text-primary-foreground rounded-xl">
+                <Button className="mt-4 px-6 py-3 bg-primary text-primary-foreground rounded-md">
                   <Plus className="w-5 h-5 mr-2" />
                   Create First Storefront
                 </Button>

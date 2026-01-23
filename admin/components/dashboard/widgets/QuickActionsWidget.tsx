@@ -67,7 +67,7 @@ export function QuickActionsWidget() {
     <DashboardCard className="border-border bg-white/80 backdrop-blur">
       <DashboardCardHeader className="pb-6">
         <div className="flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-primary/10">
+          <div className="p-2 rounded-md bg-primary/10">
             <BarChart3 className="h-5 w-5 text-primary" />
           </div>
           <div>
@@ -85,10 +85,10 @@ export function QuickActionsWidget() {
               <Link href={action.href} key={index} className="block w-full">
                 <Button
                   variant="ghost"
-                  className={`w-full h-full group p-6 text-center border border-border rounded-xl ${colors.border} transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-white`}
+                  className={`w-full h-full group p-6 text-center border border-border rounded-md ${colors.border} transition-all duration-300 hover:shadow-lg hover:-translate-y-1 bg-white`}
                 >
                   <div className="flex flex-col items-center">
-                    <div className={`mb-4 p-3 rounded-xl ${colors.bg} group-hover:scale-110 transition-transform duration-300 w-fit`}>
+                    <div className={`mb-4 p-3 rounded-md ${colors.bg} group-hover:scale-110 transition-transform duration-300 w-fit`}>
                       <Icon className={`h-6 w-6 ${colors.text}`} />
                     </div>
                     <div className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors mb-1">

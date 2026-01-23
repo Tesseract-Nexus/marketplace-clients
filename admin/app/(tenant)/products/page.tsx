@@ -2772,7 +2772,7 @@ export default function ProductsPage() {
                     type="checkbox"
                     checked={selectedProducts.size === paginatedProducts.length && paginatedProducts.length > 0}
                     onChange={handleSelectAll}
-                    className="w-4 h-4 rounded border-border text-primary focus:ring-ring"
+                    className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                   />
                   <span className="text-sm text-muted-foreground font-medium">
                     Select all ({paginatedProducts.length})
@@ -2810,7 +2810,7 @@ export default function ProductsPage() {
                               type="checkbox"
                               checked={selectedProducts.has(product.id)}
                               onChange={() => handleSelectProduct(product.id)}
-                              className="w-5 h-5 rounded-md border-2 border-border text-primary focus:ring-ring focus:ring-offset-0 cursor-pointer transition-colors hover:border-primary/70"
+                              className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0 cursor-pointer"
                             />
                           </div>
 

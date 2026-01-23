@@ -165,7 +165,7 @@ export default function AnalyticsOverviewPage() {
             { label: 'Overview' },
           ]}
           actions={
-            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-border rounded-xl p-1.5 shadow-sm">
+            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-border rounded-md p-1.5 shadow-sm">
               <Select
                 value={dateRange}
                 onChange={setDateRange}
