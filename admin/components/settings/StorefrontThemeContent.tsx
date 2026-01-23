@@ -101,10 +101,11 @@ const TABS: { id: TabId; label: string; icon: React.ElementType; description: st
 ];
 
 interface StorefrontThemeContentProps {
-  embedded?: boolean; // When embedded in Store Settings, hide PageHeader
+  embedded?: boolean; // When embedded in Store Settings, hide PageHeader and StoreSelector
+  selectedStorefrontId?: string; // When embedded, use parent's selected storefront
 }
 
-export function StorefrontThemeContent({ embedded = false }: StorefrontThemeContentProps) {
+export function StorefrontThemeContent({ embedded = false, selectedStorefrontId }: StorefrontThemeContentProps) {
   const searchParams = useSearchParams();
   const { showSuccess, showError, showConfirm } = useDialog();
   const { currentTenant } = useTenant();
@@ -143,16 +144,23 @@ export function StorefrontThemeContent({ embedded = false }: StorefrontThemeCont
     loadStorefronts();
   }, []);
 
-  // Handle storefront ID from URL params
+  // Handle storefront ID from URL params or embedded prop
   useEffect(() => {
-    const storefrontIdFromUrl = searchParams.get('storefrontId');
-    if (storefrontIdFromUrl && !selectedStorefront && storefronts.length > 0) {
-      const storefront = storefronts.find(sf => sf.id === storefrontIdFromUrl);
-      if (storefront) {
+    const storefrontIdToUse = embedded ? selectedStorefrontId : searchParams.get('storefrontId');
+    if (storefrontIdToUse && storefronts.length > 0) {
+      const storefront = storefronts.find(sf => sf.id === storefrontIdToUse);
+      if (storefront && storefront.id !== selectedStorefront?.id) {
         handleStorefrontSelect(storefront);
       }
     }
-  }, [searchParams, storefronts, selectedStorefront]);
+  }, [searchParams, storefronts, selectedStorefrontId, embedded]);
+
+  // Auto-select first storefront when embedded and parent hasn't selected one
+  useEffect(() => {
+    if (embedded && !selectedStorefrontId && storefronts.length > 0 && !selectedStorefront) {
+      handleStorefrontSelect(storefronts[0]);
+    }
+  }, [embedded, selectedStorefrontId, storefronts, selectedStorefront]);
 
   const loadStorefronts = async () => {
     setLoadingStorefronts(true);
@@ -320,8 +328,27 @@ export function StorefrontThemeContent({ embedded = false }: StorefrontThemeCont
     }
   };
 
-  // Show storefront selector first, then loading/content
+  // Show storefront selector first, then loading/content (only when not embedded)
   if (!selectedStorefront) {
+    // When embedded, show minimal loading state since parent controls store selection
+    if (embedded) {
+      if (loadingStorefronts) {
+        return (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 text-primary animate-spin" />
+          </div>
+        );
+      }
+      return (
+        <div className="bg-card rounded-lg border border-border p-8 text-center">
+          <Store className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <p className="text-muted-foreground">
+            Select a store from the sidebar to customize its theme.
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="space-y-6">
         {/* Store Selector */}
@@ -381,17 +408,19 @@ export function StorefrontThemeContent({ embedded = false }: StorefrontThemeCont
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <StoreSelector
-          storefronts={storefronts}
-          selectedStorefront={selectedStorefront}
-          onSelect={handleStorefrontSelect}
-          onStorefrontCreated={handleStorefrontCreated}
-          loading={loadingStorefronts}
-          vendorId={vendorId}
-          showQuickActions={false}
-          showUrlInfo={false}
-          className="mb-6"
-        />
+        {!embedded && (
+          <StoreSelector
+            storefronts={storefronts}
+            selectedStorefront={selectedStorefront}
+            onSelect={handleStorefrontSelect}
+            onStorefrontCreated={handleStorefrontCreated}
+            loading={loadingStorefronts}
+            vendorId={vendorId}
+            showQuickActions={false}
+            showUrlInfo={false}
+            className="mb-6"
+          />
+        )}
         <div className="flex items-center justify-center py-12">
           <div className="text-center">
             <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
@@ -405,21 +434,23 @@ export function StorefrontThemeContent({ embedded = false }: StorefrontThemeCont
   if (!settings) {
     return (
       <div className="space-y-6">
-        <StoreSelector
-          storefronts={storefronts}
-          selectedStorefront={selectedStorefront}
-          onSelect={handleStorefrontSelect}
-          onStorefrontCreated={handleStorefrontCreated}
-          loading={loadingStorefronts}
-          vendorId={vendorId}
-          showQuickActions={false}
-          showUrlInfo={false}
-          className="mb-6"
-        />
-        <div className="bg-card rounded-xl border border-error/30 p-8 text-center">
-          <AlertCircle className="h-12 w-12 text-error mx-auto mb-4" />
+        {!embedded && (
+          <StoreSelector
+            storefronts={storefronts}
+            selectedStorefront={selectedStorefront}
+            onSelect={handleStorefrontSelect}
+            onStorefrontCreated={handleStorefrontCreated}
+            loading={loadingStorefronts}
+            vendorId={vendorId}
+            showQuickActions={false}
+            showUrlInfo={false}
+            className="mb-6"
+          />
+        )}
+        <div className="bg-card rounded-lg border border-destructive/30 p-8 text-center">
+          <AlertCircle className="h-10 w-10 text-destructive mx-auto mb-4" />
           <p className="text-muted-foreground mb-4">Failed to load settings for this storefront</p>
-          <Button onClick={loadSettings} className="bg-primary hover:bg-primary text-white">
+          <Button onClick={loadSettings} size="sm" className="bg-primary hover:bg-primary/90 text-white">
             Try Again
           </Button>
         </div>
@@ -434,31 +465,37 @@ export function StorefrontThemeContent({ embedded = false }: StorefrontThemeCont
       fallbackTitle="Storefront Settings"
       fallbackDescription="You don't have permission to manage storefront themes."
     >
-      <div className="space-y-6">
-        {/* Action Bar */}
-        <div className="flex items-center justify-between">
-          <StoreSelector
-            storefronts={storefronts}
-            selectedStorefront={selectedStorefront}
-            onSelect={handleStorefrontSelect}
-            onStorefrontCreated={handleStorefrontCreated}
-            loading={loadingStorefronts}
-            vendorId={vendorId}
-            showQuickActions={false}
-            showUrlInfo={false}
-          />
+      <div className={cn('space-y-4', embedded && 'p-6')}>
+        {/* Action Bar - Compact when embedded */}
+        <div className={cn('flex items-center justify-between', embedded ? 'mb-4' : 'mb-6')}>
+          {!embedded ? (
+            <StoreSelector
+              storefronts={storefronts}
+              selectedStorefront={selectedStorefront}
+              onSelect={handleStorefrontSelect}
+              onStorefrontCreated={handleStorefrontCreated}
+              loading={loadingStorefronts}
+              vendorId={vendorId}
+              showQuickActions={false}
+              showUrlInfo={false}
+            />
+          ) : (
+            <div className="text-sm text-muted-foreground">
+              Customizing: <span className="font-medium text-foreground">{selectedStorefront?.name}</span>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <Button
               onClick={() => setShowPreview(!showPreview)}
               variant="outline"
               size="sm"
-              className="gap-2"
+              className="gap-1.5 h-8 text-xs"
             >
-              <Eye className="h-4 w-4" />
+              <Eye className="h-3.5 w-3.5" />
               {showPreview ? 'Hide' : 'Preview'}
             </Button>
             {hasChanges && (
-              <Button onClick={handleDiscard} variant="outline" size="sm">
+              <Button onClick={handleDiscard} variant="outline" size="sm" className="h-8 text-xs">
                 Discard
               </Button>
             )}
@@ -466,54 +503,44 @@ export function StorefrontThemeContent({ embedded = false }: StorefrontThemeCont
               onClick={handleReset}
               variant="outline"
               size="sm"
-              className="text-error hover:bg-error-muted"
+              className="text-destructive hover:bg-destructive/10 h-8 w-8 p-0"
             >
-              <RotateCcw className="h-4 w-4" />
+              <RotateCcw className="h-3.5 w-3.5" />
             </Button>
             <Button
               onClick={handleSave}
               disabled={!hasChanges || isSaving}
               size="sm"
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              className="bg-primary text-primary-foreground hover:bg-primary/90 h-8 text-xs"
             >
               {isSaving ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
               ) : (
-                <Save className="h-4 w-4 mr-2" />
+                <Save className="h-3.5 w-3.5 mr-1.5" />
               )}
               Save
             </Button>
           </div>
         </div>
 
-        <div className={cn('grid gap-6', showPreview ? 'grid-cols-12' : 'grid-cols-12')}>
-          {/* Sidebar Tabs */}
+        <div className={cn('grid gap-4', showPreview ? 'grid-cols-12' : 'grid-cols-12')}>
+          {/* Sidebar Tabs - Compact */}
           <div className="col-span-12 lg:col-span-3">
-            <div className="bg-card rounded-xl border border-border p-2 sticky top-8">
+            <div className="bg-card rounded-lg border border-border p-1.5 sticky top-4">
               {TABS.map((tab) => (
                 <button
                   key={tab.id}
                   type="button"
                   onClick={() => setActiveTab(tab.id)}
                   className={cn(
-                    'w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left mb-1',
+                    'w-full flex items-center gap-2.5 px-3 py-2 rounded-md transition-all text-left mb-0.5',
                     activeTab === tab.id
-                      ? 'bg-primary text-primary-foreground shadow-md'
+                      ? 'bg-primary text-primary-foreground'
                       : 'text-foreground hover:bg-muted'
                   )}
                 >
-                  <tab.icon className="h-5 w-5" />
-                  <div>
-                    <span className="font-semibold block">{tab.label}</span>
-                    <span
-                      className={cn(
-                        'text-xs',
-                        activeTab === tab.id ? 'text-white/80' : 'text-muted-foreground'
-                      )}
-                    >
-                      {tab.description}
-                    </span>
-                  </div>
+                  <tab.icon className="h-4 w-4 flex-shrink-0" />
+                  <span className="font-medium text-sm">{tab.label}</span>
                 </button>
               ))}
             </div>
@@ -521,55 +548,59 @@ export function StorefrontThemeContent({ embedded = false }: StorefrontThemeCont
 
           {/* Main Content */}
           <div className={cn('col-span-12', showPreview ? 'lg:col-span-5' : 'lg:col-span-9')}>
-            <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
+            <div className={cn('bg-card rounded-xl border border-border shadow-sm', embedded ? 'p-4' : 'p-6')}>
               {/* Theme & Colors Tab */}
               {activeTab === 'theme' && (
-                <div className="space-y-8">
-                  <ThemeSelector
-                    selectedTheme={settings.themeTemplate}
-                    onThemeSelect={(theme) => {
-                      const preset = THEME_PRESETS.find((p) => p.id === theme);
-                      updateSettings({
-                        themeTemplate: theme,
-                        primaryColor: preset?.primaryColor || settings.primaryColor,
-                        secondaryColor: preset?.secondaryColor || settings.secondaryColor,
-                      });
-                    }}
-                  />
+                <div className="space-y-6">
+                  {/* Theme Templates */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-semibold text-foreground">Theme Template</h3>
+                      <span className="text-xs text-muted-foreground">Hover for details</span>
+                    </div>
+                    <ThemeSelector
+                      selectedTheme={settings.themeTemplate}
+                      onThemeSelect={(theme) => {
+                        const preset = THEME_PRESETS.find((p) => p.id === theme);
+                        updateSettings({
+                          themeTemplate: theme,
+                          primaryColor: preset?.primaryColor || settings.primaryColor,
+                          secondaryColor: preset?.secondaryColor || settings.secondaryColor,
+                        });
+                      }}
+                      compact={embedded}
+                    />
+                  </div>
 
                   {/* Color Mode Setting */}
-                  <div className="border-t border-border pt-8">
-                    <h3 className="text-lg font-semibold mb-2">Color Mode</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Control how dark/light mode works on your storefront
-                    </p>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="border-t border-border pt-6">
+                    <h3 className="text-sm font-semibold text-foreground mb-3">Color Mode</h3>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                       {[
-                        { id: 'light' as ColorMode, label: 'Light Only', icon: Sun, desc: 'Always light mode' },
-                        { id: 'dark' as ColorMode, label: 'Dark Only', icon: Moon, desc: 'Always dark mode' },
-                        { id: 'both' as ColorMode, label: 'Both', icon: Monitor, desc: 'User can toggle' },
-                        { id: 'system' as ColorMode, label: 'System', icon: Monitor, desc: 'Follow device setting' },
+                        { id: 'light' as ColorMode, label: 'Light', icon: Sun },
+                        { id: 'dark' as ColorMode, label: 'Dark', icon: Moon },
+                        { id: 'both' as ColorMode, label: 'Toggle', icon: Monitor },
+                        { id: 'system' as ColorMode, label: 'System', icon: Monitor },
                       ].map((mode) => (
                         <button
                           key={mode.id}
                           type="button"
                           onClick={() => updateSettings({ colorMode: mode.id })}
                           className={cn(
-                            'flex flex-col items-center p-4 rounded-xl border-2 transition-all',
+                            'flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border-2 transition-all',
                             settings.colorMode === mode.id
                               ? 'border-primary bg-primary/10 text-primary'
-                              : 'border-border hover:border-border text-muted-foreground'
+                              : 'border-border hover:border-primary/50 text-muted-foreground'
                           )}
                         >
-                          <mode.icon className="h-6 w-6 mb-2" />
+                          <mode.icon className="h-4 w-4" />
                           <span className="font-medium text-sm">{mode.label}</span>
-                          <span className="text-xs mt-1 text-muted-foreground">{mode.desc}</span>
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  <div className="border-t border-border pt-8">
+                  <div className="border-t border-border pt-6">
                     <ColorPairPicker
                       primaryColor={settings.primaryColor}
                       secondaryColor={settings.secondaryColor}
@@ -584,32 +615,28 @@ export function StorefrontThemeContent({ embedded = false }: StorefrontThemeCont
                     />
                   </div>
 
-                  <div className="border-t border-border pt-8">
-                    <h3 className="text-lg font-semibold mb-4">Logo & Branding</h3>
-                    <div className="flex flex-wrap gap-6 items-start">
-                      <div className="flex-1 min-w-[250px]">
-                        <AssetUploader
-                          type="logo"
-                          label="Store Logo"
-                          description="Recommended: 200x60px, PNG or SVG"
-                          currentUrl={settings.logoUrl}
-                          onUpload={(url) => updateSettings({ logoUrl: url })}
-                          onRemove={() => updateSettings({ logoUrl: undefined })}
-                          aspectRatio="banner"
-                        />
-                      </div>
-                      <div className="w-auto">
-                        <AssetUploader
-                          type="favicon"
-                          label="Favicon"
-                          description="32x32px, ICO or PNG"
-                          currentUrl={settings.faviconUrl}
-                          onUpload={(url) => updateSettings({ faviconUrl: url })}
-                          onRemove={() => updateSettings({ faviconUrl: undefined })}
-                          aspectRatio="square"
-                          size="sm"
-                        />
-                      </div>
+                  <div className="border-t border-border pt-6">
+                    <h3 className="text-sm font-semibold text-foreground mb-3">Logo & Branding</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <AssetUploader
+                        type="logo"
+                        label="Store Logo"
+                        description="200x60px, PNG or SVG"
+                        currentUrl={settings.logoUrl}
+                        onUpload={(url) => updateSettings({ logoUrl: url })}
+                        onRemove={() => updateSettings({ logoUrl: undefined })}
+                        aspectRatio="banner"
+                      />
+                      <AssetUploader
+                        type="favicon"
+                        label="Favicon"
+                        description="32x32px, ICO or PNG"
+                        currentUrl={settings.faviconUrl}
+                        onUpload={(url) => updateSettings({ faviconUrl: url })}
+                        onRemove={() => updateSettings({ faviconUrl: undefined })}
+                        aspectRatio="square"
+                        size="sm"
+                      />
                     </div>
                   </div>
                 </div>

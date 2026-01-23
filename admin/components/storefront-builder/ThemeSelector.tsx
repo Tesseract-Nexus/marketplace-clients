@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Check, Sparkles } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { ThemeTemplate, ThemePreset, THEME_PRESETS } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
 
@@ -9,35 +9,27 @@ interface ThemeSelectorProps {
   selectedTheme: ThemeTemplate;
   onThemeSelect: (theme: ThemeTemplate) => void;
   disabled?: boolean;
+  compact?: boolean;
 }
 
-export function ThemeSelector({ selectedTheme, onThemeSelect, disabled }: ThemeSelectorProps) {
+export function ThemeSelector({ selectedTheme, onThemeSelect, disabled, compact }: ThemeSelectorProps) {
   const [hoveredTheme, setHoveredTheme] = useState<ThemeTemplate | null>(null);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-primary" />
-        <h3 className="text-lg font-semibold">Choose Your Theme</h3>
-      </div>
-      <p className="text-sm text-muted-foreground">
-        Select a pre-built theme as your starting point. You can customize colors after selection.
-      </p>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        {THEME_PRESETS.map((preset) => (
-          <ThemeCard
-            key={preset.id}
-            preset={preset}
-            isSelected={selectedTheme === preset.id}
-            isHovered={hoveredTheme === preset.id}
-            onSelect={() => !disabled && onThemeSelect(preset.id)}
-            onMouseEnter={() => setHoveredTheme(preset.id)}
-            onMouseLeave={() => setHoveredTheme(null)}
-            disabled={disabled}
-          />
-        ))}
-      </div>
+    <div className={cn('grid gap-3', compact ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4' : 'grid-cols-2 md:grid-cols-3 gap-4')}>
+      {THEME_PRESETS.map((preset) => (
+        <ThemeCard
+          key={preset.id}
+          preset={preset}
+          isSelected={selectedTheme === preset.id}
+          isHovered={hoveredTheme === preset.id}
+          onSelect={() => !disabled && onThemeSelect(preset.id)}
+          onMouseEnter={() => setHoveredTheme(preset.id)}
+          onMouseLeave={() => setHoveredTheme(null)}
+          disabled={disabled}
+          compact={compact}
+        />
+      ))}
     </div>
   );
 }
@@ -50,6 +42,7 @@ interface ThemeCardProps {
   onMouseEnter: () => void;
   onMouseLeave: () => void;
   disabled?: boolean;
+  compact?: boolean;
 }
 
 function ThemeCard({
@@ -60,6 +53,7 @@ function ThemeCard({
   onMouseEnter,
   onMouseLeave,
   disabled,
+  compact,
 }: ThemeCardProps) {
   return (
     <button
@@ -69,94 +63,72 @@ function ThemeCard({
       onMouseLeave={onMouseLeave}
       disabled={disabled}
       className={cn(
-        'relative rounded-xl border-2 p-4 transition-all duration-200 text-left',
-        'hover:shadow-lg hover:scale-[1.02]',
+        'group relative overflow-hidden rounded-lg border-2 transition-all duration-200 ease-out cursor-pointer text-left',
+        'hover:scale-[1.02] hover:shadow-lg hover:-translate-y-0.5',
+        'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2',
         isSelected
-          ? 'border-primary ring-2 ring-purple-500/20 shadow-lg'
-          : 'border-border hover:border-border',
-        disabled && 'opacity-50 cursor-not-allowed hover:scale-100'
+          ? 'border-primary ring-2 ring-primary/20 shadow-md'
+          : 'border-border/50 hover:border-border',
+        disabled && 'opacity-50 cursor-not-allowed hover:scale-100 hover:translate-y-0'
       )}
     >
-      {/* Selection indicator */}
-      {isSelected && (
-        <div className="absolute -top-2 -right-2 w-6 h-6 bg-primary/100 rounded-full flex items-center justify-center shadow-md">
-          <Check className="h-4 w-4 text-white" />
-        </div>
-      )}
-
-      {/* Theme preview */}
+      {/* Gradient Hero Section - 60% */}
       <div
-        className="h-24 rounded-lg mb-3 overflow-hidden relative"
-        style={{ backgroundColor: preset.backgroundColor }}
+        className={cn('relative overflow-hidden', compact ? 'h-20' : 'h-24')}
+        style={{
+          background: `linear-gradient(135deg, ${preset.primaryColor} 0%, ${preset.secondaryColor} 50%, ${preset.accentColor} 100%)`,
+        }}
       >
-        {/* Gradient overlay for vibrant themes */}
+        {/* Subtle pattern overlay */}
         <div
-          className="absolute inset-0"
+          className="absolute inset-0 opacity-30"
           style={{
-            background: `linear-gradient(135deg, ${preset.primaryColor}40 0%, ${preset.secondaryColor}40 100%)`,
+            backgroundImage: `radial-gradient(circle at 20% 80%, ${preset.backgroundColor}40 0%, transparent 50%), radial-gradient(circle at 80% 20%, ${preset.backgroundColor}30 0%, transparent 40%)`,
           }}
         />
 
-        {/* Mock UI elements */}
-        <div className="absolute inset-0 p-2">
-          {/* Header bar */}
-          <div
-            className="h-3 w-full rounded-full mb-2"
-            style={{ backgroundColor: preset.primaryColor }}
-          />
-
-          {/* Content blocks */}
-          <div className="flex gap-1">
-            <div
-              className="h-8 w-1/3 rounded"
-              style={{ backgroundColor: preset.secondaryColor + '60' }}
-            />
-            <div
-              className="h-8 w-1/3 rounded"
-              style={{ backgroundColor: preset.primaryColor + '40' }}
-            />
-            <div
-              className="h-8 w-1/3 rounded"
-              style={{ backgroundColor: preset.accentColor + '60' }}
-            />
+        {/* Selection indicator badge */}
+        {isSelected && (
+          <div className="absolute top-2 right-2 w-5 h-5 bg-white rounded-full flex items-center justify-center shadow-lg">
+            <Check className="h-3 w-3 text-primary" />
           </div>
+        )}
 
-          {/* Button */}
-          <div
-            className="h-4 w-16 rounded-full mt-2 mx-auto"
-            style={{ backgroundColor: preset.primaryColor }}
-          />
+        {/* Hover description overlay */}
+        <div
+          className={cn(
+            'absolute inset-0 bg-black/60 flex items-center justify-center p-3 transition-opacity duration-200',
+            isHovered ? 'opacity-100' : 'opacity-0'
+          )}
+        >
+          <p className="text-white text-xs text-center line-clamp-3 font-medium">
+            {preset.description}
+          </p>
         </div>
       </div>
 
-      {/* Theme info */}
-      <div className="space-y-1">
-        <h4 className="font-semibold text-foreground">{preset.name}</h4>
-        <p className="text-xs text-muted-foreground line-clamp-2">{preset.description}</p>
-      </div>
-
-      {/* Color swatches */}
-      <div className="flex gap-1 mt-3">
-        <div
-          className="h-5 w-5 rounded-full border border-border shadow-sm"
-          style={{ backgroundColor: preset.primaryColor }}
-          title="Primary"
-        />
-        <div
-          className="h-5 w-5 rounded-full border border-border shadow-sm"
-          style={{ backgroundColor: preset.secondaryColor }}
-          title="Secondary"
-        />
-        <div
-          className="h-5 w-5 rounded-full border border-border shadow-sm"
-          style={{ backgroundColor: preset.accentColor }}
-          title="Accent"
-        />
-        <div
-          className="h-5 w-5 rounded-full border border-border shadow-sm"
-          style={{ backgroundColor: preset.backgroundColor }}
-          title="Background"
-        />
+      {/* Info Section - 40% */}
+      <div className={cn('bg-card', compact ? 'p-2.5' : 'p-3')}>
+        <div className="flex items-center justify-between gap-2">
+          <h4 className={cn('font-semibold text-foreground truncate', compact ? 'text-xs' : 'text-sm')}>
+            {preset.name}
+          </h4>
+          {/* Compact color swatches */}
+          <div className="flex gap-0.5 flex-shrink-0">
+            <div
+              className={cn('rounded-full border border-white/50 shadow-sm', compact ? 'h-3 w-3' : 'h-4 w-4')}
+              style={{ backgroundColor: preset.primaryColor }}
+            />
+            <div
+              className={cn('rounded-full border border-white/50 shadow-sm', compact ? 'h-3 w-3' : 'h-4 w-4')}
+              style={{ backgroundColor: preset.secondaryColor }}
+            />
+            <div
+              className={cn('rounded-full border border-white/50 shadow-sm', compact ? 'h-3 w-3' : 'h-4 w-4')}
+              style={{ backgroundColor: preset.accentColor }}
+            />
+          </div>
+        </div>
       </div>
     </button>
   );
