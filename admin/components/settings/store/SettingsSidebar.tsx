@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import Link from 'next/link';
 import {
   Store,
   ChevronDown,
@@ -9,7 +8,6 @@ import {
   Plus,
   CheckCircle2,
   Loader2,
-  Globe,
   Star,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -279,16 +277,6 @@ export function SettingsSidebar({
         </div>
       )}
 
-      {/* Secondary Actions */}
-      <div className="p-4 border-t border-border mt-auto">
-        <Link
-          href="/settings/domains"
-          className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-md transition-colors"
-        >
-          <Globe className="h-4 w-4" />
-          <span>Custom Domains</span>
-        </Link>
-      </div>
     </aside>
   );
 }

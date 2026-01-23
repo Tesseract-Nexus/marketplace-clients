@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import {
   Save,
   Mail,
@@ -9,6 +10,7 @@ import {
   Loader2,
   Plus,
   Palette,
+  Globe,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,6 +28,7 @@ import { useTenant } from '@/contexts/TenantContext';
 import { useUser } from '@/contexts/UserContext';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { StorefrontThemeContent } from '@/components/settings/StorefrontThemeContent';
+import { DomainsTabContent } from '@/components/settings/domains';
 
 // New modular components
 import {
@@ -99,6 +102,7 @@ export default function GeneralSettingsPage() {
   const { showSuccess, showError, showConfirm } = useDialog();
   const { currentTenant } = useTenant();
   const { user } = useUser();
+  const searchParams = useSearchParams();
 
   // Settings state
   const [settings, setSettings] = useState<GeneralSettings>(defaultSettings);
@@ -107,8 +111,10 @@ export default function GeneralSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [settingsId, setSettingsId] = useState<string | null>(null);
 
-  // Tab state
-  const [activeTab, setActiveTab] = useState<'general' | 'theme'>('general');
+  // Tab state - check URL parameter for initial tab
+  const tabParam = searchParams.get('tab');
+  const initialTab = tabParam === 'domains' ? 'domains' : tabParam === 'theme' ? 'theme' : 'general';
+  const [activeTab, setActiveTab] = useState<'general' | 'theme' | 'domains'>(initialTab);
 
   // Storefront state
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
@@ -137,6 +143,16 @@ export default function GeneralSettingsPage() {
 
   // Get vendor ID from tenant context
   const vendorId = currentTenant?.id || '';
+
+  // Update active tab when URL parameter changes
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'domains') {
+      setActiveTab('domains');
+    } else if (tab === 'theme') {
+      setActiveTab('theme');
+    }
+  }, [searchParams]);
 
   // Load storefronts on mount
   useEffect(() => {
@@ -710,7 +726,7 @@ export default function GeneralSettingsPage() {
 
             {/* Tabs */}
             <div className="px-6 pb-4">
-              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'general' | 'theme')}>
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'general' | 'theme' | 'domains')}>
                 <TabsList className="inline-flex h-auto items-center justify-start rounded-xl bg-card border border-border p-1 shadow-sm">
                   <TabsTrigger
                     value="general"
@@ -725,6 +741,13 @@ export default function GeneralSettingsPage() {
                   >
                     <Palette className="h-4 w-4" />
                     Theme & Design
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="domains"
+                    className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  >
+                    <Globe className="h-4 w-4" />
+                    Domains
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -910,6 +933,19 @@ export default function GeneralSettingsPage() {
                   }
                 >
                   <StorefrontThemeContent embedded />
+                </Suspense>
+              </TabsContent>
+
+              {/* Domains Tab Content */}
+              <TabsContent value="domains" className="h-full m-0 p-0">
+                <Suspense
+                  fallback={
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                    </div>
+                  }
+                >
+                  <DomainsTabContent />
                 </Suspense>
               </TabsContent>
             </Tabs>
