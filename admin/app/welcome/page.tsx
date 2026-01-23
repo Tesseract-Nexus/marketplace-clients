@@ -64,8 +64,24 @@ function WelcomeContent() {
   // Fetch onboarding data from API
   useEffect(() => {
     const fetchOnboardingData = async () => {
+      // Log URL for debugging
+      console.log('[Welcome] Current URL:', window.location.href);
+      console.log('[Welcome] Search params:', window.location.search);
+      console.log('[Welcome] Session ID from params:', sessionId);
+
       if (!sessionId) {
         setIsLoading(false);
+        // Check if sessionId might be in a different format in the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const altSessionId = urlParams.get('sessionId') || urlParams.get('session_id') || urlParams.get('session');
+        console.log('[Welcome] Alternative session ID check:', altSessionId);
+
+        if (altSessionId) {
+          // Reload with proper sessionId
+          window.location.href = `/welcome?sessionId=${altSessionId}`;
+          return;
+        }
+
         showError('Session Error', 'No session ID provided. Please restart the onboarding process.');
         return;
       }

@@ -876,27 +876,41 @@ function VerifyEmailContent() {
           const session = await onboardingApi.getOnboardingSession(sessionId);
           const storeSetup = session.store_setup;
 
+          devLog('[Verify] Session store_setup:', JSON.stringify(storeSetup, null, 2));
+
+          // Check if using custom domain
+          const useCustomDomain = storeSetup?.use_custom_domain === true;
+          const customDomain = storeSetup?.custom_domain;
+          const customAdminSubdomain = storeSetup?.custom_admin_subdomain || 'admin';
+          const tenantSubdomain = storeSetup?.subdomain;
+
+          devLog('[Verify] Custom domain config:', { useCustomDomain, customDomain, customAdminSubdomain, tenantSubdomain });
+
           // Register custom domain as validated for safe redirect
-          if (storeSetup?.use_custom_domain && storeSetup?.custom_domain) {
-            registerValidatedCustomDomain(storeSetup.custom_domain);
+          if (useCustomDomain && customDomain) {
+            registerValidatedCustomDomain(customDomain);
+            devLog('[Verify] Registered custom domain:', customDomain);
           }
 
           // Build the appropriate admin URL based on session data
           welcomeUrl = buildSmartAdminUrl({
-            customDomain: storeSetup?.use_custom_domain ? storeSetup?.custom_domain : undefined,
-            customAdminSubdomain: storeSetup?.custom_admin_subdomain || 'admin',
-            tenantSlug: storeSetup?.subdomain,
+            customDomain: useCustomDomain ? customDomain : undefined,
+            customAdminSubdomain: customAdminSubdomain,
+            tenantSlug: tenantSubdomain,
             path: `/welcome?sessionId=${sessionId}`,
           });
-          devLog('[Verify] Redirecting to:', welcomeUrl);
+
+          console.log('[Verify] Built welcome URL:', welcomeUrl);
         } catch (error) {
-          devError('Failed to fetch session for redirect URL:', error);
+          console.error('[Verify] Failed to fetch session for redirect URL:', error);
           // Fallback to setup-password page within the onboarding app
           welcomeUrl = `/onboarding/setup-password?session=${sessionId}`;
         }
 
+        // Use direct window.location for custom domain redirects to ensure query params are preserved
         setTimeout(() => {
-          safeRedirect(welcomeUrl, '/');
+          console.log('[Verify] Executing redirect to:', welcomeUrl);
+          window.location.href = welcomeUrl;
         }, 1500);
       } else {
         const errorMsg = result.message || 'Invalid verification code. Please try again.';
