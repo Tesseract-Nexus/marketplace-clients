@@ -371,7 +371,7 @@ export default function DelegationsPage() {
           <PageError error={error} onRetry={loadDelegations} onDismiss={() => setError(null)} />
 
           {/* Hide content when there's a critical error */}
-          {error && (error.toLowerCase().includes('permission') || error.toLowerCase().includes('forbidden') || error.toLowerCase().includes('unauthorized') || error.toLowerCase().includes('access denied')) ? null : (
+          {error && (error.toLowerCase().includes('permission') || error.toLowerCase().includes('forbidden') || error.toLowerCase().includes('unauthorized') || error.toLowerCase().includes('access denied') || error.toLowerCase().includes('admin portal')) ? null : (
           <>
           {/* Compact Stats Row */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
