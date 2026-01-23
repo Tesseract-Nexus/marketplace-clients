@@ -177,10 +177,16 @@ function WelcomeContent() {
         throw new Error(result.error?.message || 'Account setup failed');
       }
 
-      // Extract admin URL from response or construct it
-      const tenantSlug = result.data?.tenant?.slug || result.tenant?.slug;
-      const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
-      const adminUrl = tenantSlug ? `https://${tenantSlug}-admin.${baseDomain}` : '/';
+      // Extract admin URL from response - backend provides correct URL for both custom domains and subdomains
+      const responseData = result.data || result;
+      const adminUrl = responseData?.admin_url
+        || responseData?.tenant?.admin_url
+        || (() => {
+          // Fallback: construct URL from tenant slug
+          const tenantSlug = responseData?.tenant?.slug || responseData?.tenant_slug;
+          const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+          return tenantSlug ? `https://${tenantSlug}-admin.${baseDomain}` : '/';
+        })();
 
       showSuccess('Account Created!', 'Welcome to Tesserix. Redirecting to your dashboard...');
       setTimeout(() => {
@@ -223,10 +229,16 @@ function WelcomeContent() {
         throw new Error(result.error?.message || 'Account setup failed');
       }
 
-      // Extract admin URL from response or construct it
-      const tenantSlug = result.data?.tenant?.slug || result.tenant?.slug;
-      const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
-      const adminUrl = tenantSlug ? `https://${tenantSlug}-admin.${baseDomain}` : '/';
+      // Extract admin URL from response - backend provides correct URL for both custom domains and subdomains
+      const responseData = result.data || result;
+      const adminUrl = responseData?.admin_url
+        || responseData?.tenant?.admin_url
+        || (() => {
+          // Fallback: construct URL from tenant slug
+          const tenantSlug = responseData?.tenant?.slug || responseData?.tenant_slug;
+          const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+          return tenantSlug ? `https://${tenantSlug}-admin.${baseDomain}` : '/';
+        })();
 
       showSuccess(
         `${provider.charAt(0).toUpperCase() + provider.slice(1)} Account Linked!`,

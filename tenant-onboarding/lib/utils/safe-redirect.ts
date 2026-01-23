@@ -14,6 +14,20 @@ const ALLOWED_EXTERNAL_DOMAINS = [
   'www.facebook.com',
 ];
 
+// Store custom domains that have been validated during this session
+// This allows safe redirects to custom domain admin URLs
+const validatedCustomDomains = new Set<string>();
+
+/**
+ * Register a custom domain as validated (called after domain validation during onboarding)
+ * @param domain - The custom domain to register
+ */
+export function registerValidatedCustomDomain(domain: string): void {
+  if (domain) {
+    validatedCustomDomains.add(domain.toLowerCase());
+  }
+}
+
 /**
  * Validates that a URL is safe to redirect to
  * @param url - The URL to validate
@@ -37,6 +51,13 @@ export function isValidRedirectUrl(url: string): boolean {
     // Allow explicitly allowed external domains
     if (ALLOWED_EXTERNAL_DOMAINS.includes(hostname)) {
       return true;
+    }
+
+    // Allow validated custom domains (including subdomains like admin.customdomain.com)
+    for (const validatedDomain of validatedCustomDomains) {
+      if (hostname === validatedDomain || hostname.endsWith(`.${validatedDomain}`)) {
+        return true;
+      }
     }
 
     // Block everything else
@@ -83,4 +104,59 @@ export function buildAdminUrl(tenantSlug: string, path: string = ''): string {
 export function buildDevAdminUrl(path: string = ''): string {
   const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
   return `https://dev-admin.${baseDomain}${path}`;
+}
+
+/**
+ * Build a custom domain admin URL
+ * @param customDomain - The custom domain (e.g., yahvismartfarm.com)
+ * @param adminSubdomain - The admin subdomain (default: 'admin')
+ * @param path - Optional path to append (default: '')
+ * @returns The constructed custom domain admin URL
+ */
+export function buildCustomDomainAdminUrl(
+  customDomain: string,
+  adminSubdomain: string = 'admin',
+  path: string = ''
+): string {
+  // Sanitize inputs to prevent injection
+  const sanitizedDomain = customDomain.toLowerCase().trim();
+  const sanitizedSubdomain = adminSubdomain.toLowerCase().replace(/[^a-z0-9-]/g, '');
+
+  // Register this domain as validated for redirect safety
+  registerValidatedCustomDomain(sanitizedDomain);
+
+  return `https://${sanitizedSubdomain}.${sanitizedDomain}${path}`;
+}
+
+/**
+ * Build the appropriate admin URL based on session data
+ * Automatically chooses between custom domain, subdomain, or dev admin URL
+ *
+ * @param options - Configuration options
+ * @param options.customDomain - The custom domain if using one
+ * @param options.customAdminSubdomain - The admin subdomain for custom domains (default: 'admin')
+ * @param options.tenantSlug - The tenant slug for subdomain-based URLs
+ * @param options.path - Path to append to the URL
+ * @returns The constructed admin URL
+ */
+export function buildSmartAdminUrl(options: {
+  customDomain?: string;
+  customAdminSubdomain?: string;
+  tenantSlug?: string;
+  path?: string;
+}): string {
+  const { customDomain, customAdminSubdomain = 'admin', tenantSlug, path = '' } = options;
+
+  // Priority 1: Custom domain
+  if (customDomain) {
+    return buildCustomDomainAdminUrl(customDomain, customAdminSubdomain, path);
+  }
+
+  // Priority 2: Tenant subdomain
+  if (tenantSlug) {
+    return buildAdminUrl(tenantSlug, path);
+  }
+
+  // Priority 3: Fall back to dev admin
+  return buildDevAdminUrl(path);
 }

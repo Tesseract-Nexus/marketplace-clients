@@ -11,7 +11,7 @@ import { Loader2, Mail, RefreshCw, Shield, CheckCircle, ExternalLink, Gift, Arro
 import { useOnboardingStore } from '../../../lib/store/onboarding-store';
 import { onboardingApi } from '../../../lib/api/onboarding';
 import { analytics } from '../../../lib/analytics/posthog';
-import { safeRedirect, buildDevAdminUrl } from '../../../lib/utils/safe-redirect';
+import { safeRedirect, buildSmartAdminUrl, registerValidatedCustomDomain } from '../../../lib/utils/safe-redirect';
 
 // Development-only logging utility
 const isDev = process.env.NODE_ENV === 'development';
@@ -870,8 +870,31 @@ function VerifyEmailContent() {
           // Continue anyway since verification was successful
         }
 
-        // Redirect to admin portal welcome page (dev-admin since it's session-based, not tenant-specific)
-        const welcomeUrl = buildDevAdminUrl(`/welcome?sessionId=${sessionId}`);
+        // Fetch session to get store setup info (including custom domain)
+        let welcomeUrl: string;
+        try {
+          const session = await onboardingApi.getOnboardingSession(sessionId);
+          const storeSetup = session.store_setup;
+
+          // Register custom domain as validated for safe redirect
+          if (storeSetup?.use_custom_domain && storeSetup?.custom_domain) {
+            registerValidatedCustomDomain(storeSetup.custom_domain);
+          }
+
+          // Build the appropriate admin URL based on session data
+          welcomeUrl = buildSmartAdminUrl({
+            customDomain: storeSetup?.use_custom_domain ? storeSetup?.custom_domain : undefined,
+            customAdminSubdomain: storeSetup?.custom_admin_subdomain || 'admin',
+            tenantSlug: storeSetup?.subdomain,
+            path: `/welcome?sessionId=${sessionId}`,
+          });
+          devLog('[Verify] Redirecting to:', welcomeUrl);
+        } catch (error) {
+          devError('Failed to fetch session for redirect URL:', error);
+          // Fallback to setup-password page within the onboarding app
+          welcomeUrl = `/onboarding/setup-password?session=${sessionId}`;
+        }
+
         setTimeout(() => {
           safeRedirect(welcomeUrl, '/');
         }, 1500);

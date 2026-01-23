@@ -8,7 +8,7 @@ import { onboardingApi } from '../../../lib/api/onboarding';
 import { useOnboardingStore } from '../../../lib/store/onboarding-store';
 import { analytics } from '../../../lib/analytics/posthog';
 import { authApi } from '../../../lib/api/auth';
-import { safeRedirect, buildAdminUrl, buildDevAdminUrl } from '../../../lib/utils/safe-redirect';
+import { safeRedirect, buildAdminUrl, buildDevAdminUrl, registerValidatedCustomDomain } from '../../../lib/utils/safe-redirect';
 
 // Development-only logging utility
 const isDev = process.env.NODE_ENV === 'development';
@@ -246,7 +246,34 @@ function SetupPasswordContent() {
       // Build admin login URL - user will login with their new credentials
       // This avoids session conflicts when user already has an existing session
       const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
-      const adminLoginUrl = `${tenantData?.admin_url || `https://${tenantData?.tenant_slug}-admin.${baseDomain}`}/login`;
+      let adminLoginUrl: string;
+
+      if (tenantData?.admin_url) {
+        // Use admin_url from backend (handles custom domains correctly)
+        adminLoginUrl = `${tenantData.admin_url}/login`;
+
+        // Register custom domain as validated for safe redirect
+        // Extract domain from admin_url (e.g., https://admin.yahvismartfarm.com -> yahvismartfarm.com)
+        try {
+          const adminUrlObj = new URL(tenantData.admin_url);
+          const hostname = adminUrlObj.hostname;
+          // Check if it's a custom domain (not tesserix.app)
+          if (!hostname.endsWith(baseDomain) && !hostname.includes('localhost')) {
+            // Extract base domain from admin subdomain (admin.yahvismartfarm.com -> yahvismartfarm.com)
+            const parts = hostname.split('.');
+            if (parts.length >= 2) {
+              const customDomain = parts.slice(-2).join('.');
+              registerValidatedCustomDomain(customDomain);
+              devLog('[SetupPassword] Registered custom domain for redirect:', customDomain);
+            }
+          }
+        } catch (e) {
+          devError('[SetupPassword] Failed to parse admin URL:', e);
+        }
+      } else {
+        // Fallback to subdomain pattern
+        adminLoginUrl = `https://${tenantData?.tenant_slug}-admin.${baseDomain}/login`;
+      }
 
       // Store admin URL for later use
       setAdminUrl(adminLoginUrl);
@@ -263,11 +290,16 @@ function SetupPasswordContent() {
   };
 
   const handleContinueToAdmin = () => {
-    // Redirect to admin login page - user will login with credentials they just created
-    const adminUrl = tenantSlug
-      ? buildAdminUrl(tenantSlug, '/login')
-      : buildDevAdminUrl('/login');
-    safeRedirect(adminUrl, '/');
+    // Redirect to admin login page - use stored adminUrl which handles both custom domains and subdomains
+    if (adminUrl) {
+      safeRedirect(adminUrl, '/');
+    } else {
+      // Fallback: construct URL from tenant slug
+      const fallbackUrl = tenantSlug
+        ? buildAdminUrl(tenantSlug, '/login')
+        : buildDevAdminUrl('/login');
+      safeRedirect(fallbackUrl, '/');
+    }
   };
 
   // Show loading while store is hydrating

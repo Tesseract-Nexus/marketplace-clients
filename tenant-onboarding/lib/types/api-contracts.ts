@@ -19,6 +19,11 @@ export interface StoreSetup {
   logo_url?: string;
   primary_color?: string;
   secondary_color?: string;
+  // Custom domain fields
+  use_custom_domain?: boolean;
+  custom_domain?: string;
+  custom_admin_subdomain?: string;
+  custom_storefront_subdomain?: string;
 }
 
 export interface SessionResponse {
