@@ -369,13 +369,28 @@ export default function ApprovalWorkflowsPage() {
 
             {/* Main Content */}
             <div className="flex-1 min-w-0">
-              {/* Mobile Status */}
-              <div className="lg:hidden mb-4">
+              {/* Mobile Status + Stats */}
+              <div className="lg:hidden mb-4 space-y-3">
                 <WorkflowStatusWidget
                   totalWorkflows={workflows.length}
                   activeWorkflows={activeWorkflows}
                   systemWorkflows={systemWorkflows}
                 />
+                {/* Mobile Stats Row */}
+                <div className="flex gap-2">
+                  <div className="flex-1 bg-card rounded-lg border border-border p-2 text-center">
+                    <p className="text-lg font-bold">{workflows.length}</p>
+                    <p className="text-[10px] text-muted-foreground">Total</p>
+                  </div>
+                  <div className="flex-1 bg-card rounded-lg border border-border p-2 text-center">
+                    <p className="text-lg font-bold text-success">{activeWorkflows}</p>
+                    <p className="text-[10px] text-muted-foreground">Active</p>
+                  </div>
+                  <div className="flex-1 bg-card rounded-lg border border-border p-2 text-center">
+                    <p className="text-lg font-bold">{systemWorkflows}</p>
+                    <p className="text-[10px] text-muted-foreground">System</p>
+                  </div>
+                </div>
               </div>
 
               {workflows.length === 0 ? (
@@ -398,24 +413,24 @@ export default function ApprovalWorkflowsPage() {
                     return (
                       <Card key={workflow.id} className={!workflow.isActive ? 'opacity-60' : ''}>
                         <CardHeader className="pb-3">
-                          <div className="flex items-start justify-between">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                             <div className="flex items-center gap-3">
-                              <div className="p-2 bg-primary/10 rounded-lg">
+                              <div className="p-2 bg-primary/10 rounded-lg flex-shrink-0">
                                 <IconComponent className="h-5 w-5 text-primary" />
                               </div>
-                              <div>
-                                <CardTitle className="flex items-center gap-2 text-foreground text-base">
-                                  {workflow.displayName}
+                              <div className="min-w-0">
+                                <CardTitle className="flex flex-wrap items-center gap-2 text-foreground text-base">
+                                  <span className="truncate">{workflow.displayName}</span>
                                   {workflow.isSystem && <Badge variant="secondary" className="text-xs">System</Badge>}
                                   {!workflow.isActive && <Badge variant="outline" className="text-xs">Disabled</Badge>}
                                 </CardTitle>
-                                <CardDescription className="text-sm">{workflow.description}</CardDescription>
+                                <CardDescription className="text-sm line-clamp-2">{workflow.description}</CardDescription>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <Button variant="outline" size="sm" onClick={() => openEditDialog(workflow)}>
-                                <Settings2 className="h-4 w-4 mr-1" />
-                                Configure
+                            <div className="flex items-center gap-2 sm:flex-shrink-0">
+                              <Button variant="outline" size="sm" className="flex-1 sm:flex-none" onClick={() => openEditDialog(workflow)}>
+                                <Settings2 className="h-4 w-4 sm:mr-1" />
+                                <span className="hidden sm:inline">Configure</span>
                               </Button>
                               <Switch
                                 checked={workflow.isActive}
@@ -426,16 +441,16 @@ export default function ApprovalWorkflowsPage() {
                           </div>
                         </CardHeader>
                         <CardContent className="pt-0">
-                          <div className="flex flex-wrap gap-3 text-sm">
-                            <Badge variant="outline">{getTriggerTypeLabel(workflow.triggerType)}</Badge>
-                            <span className="flex items-center gap-1 text-muted-foreground">
+                          <div className="flex flex-wrap gap-2 text-sm">
+                            <Badge variant="outline" className="text-xs">{getTriggerTypeLabel(workflow.triggerType)}</Badge>
+                            <span className="flex items-center gap-1 text-muted-foreground text-xs">
                               <Clock className="h-3 w-3" />
-                              {workflow.timeoutHours}h timeout
+                              {workflow.timeoutHours}h
                             </span>
                             {workflow.escalationConfig?.enabled && (
-                              <span className="flex items-center gap-1 text-muted-foreground">
+                              <span className="flex items-center gap-1 text-muted-foreground text-xs">
                                 <Users className="h-3 w-3" />
-                                {workflow.escalationConfig.levels?.length || 0} escalation levels
+                                {workflow.escalationConfig.levels?.length || 0} levels
                               </span>
                             )}
                           </div>
