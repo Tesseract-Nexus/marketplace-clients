@@ -865,32 +865,48 @@ export default function InventoryPage() {
               </div>
             </div>
 
+            {/* Mobile Tab Selector */}
+            <div className="md:hidden mb-4">
+              <select
+                value={activeTab}
+                onChange={(e) => navigateToTab(e.target.value as TabType)}
+                className="w-full px-3 py-2 border border-border rounded-lg bg-card text-sm font-medium"
+              >
+                <option value="stock-levels">Stock Levels ({products.length})</option>
+                <option value="warehouses">Warehouses ({warehouses.length})</option>
+                <option value="suppliers">Suppliers ({suppliers.length})</option>
+                <option value="purchase-orders">Purchase Orders ({purchaseOrders.length})</option>
+                <option value="transfers">Transfers ({transfers.length})</option>
+              </select>
+            </div>
+
+            {/* Desktop Tabs */}
             <Tabs value={activeTab} onValueChange={(v) => navigateToTab(v as TabType)}>
-              <TabsList className="w-full grid grid-cols-5 h-auto p-1 bg-muted/50">
-                <TabsTrigger value="stock-levels" className="flex items-center gap-2 py-2.5 data-[state=active]:bg-card">
+              <TabsList className="hidden md:inline-flex h-auto items-center justify-start rounded-xl bg-card border border-border p-1 shadow-sm mb-6">
+                <TabsTrigger value="stock-levels" className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <BarChart3 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Stock</span>
-                  <span className="text-xs text-muted-foreground">({products.length})</span>
+                  Stock
+                  <span className="text-xs opacity-70">({products.length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="warehouses" className="flex items-center gap-2 py-2.5 data-[state=active]:bg-card">
+                <TabsTrigger value="warehouses" className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <Warehouse className="h-4 w-4" />
-                  <span className="hidden sm:inline">Warehouses</span>
-                  <span className="text-xs text-muted-foreground">({warehouses.length})</span>
+                  Warehouses
+                  <span className="text-xs opacity-70">({warehouses.length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="suppliers" className="flex items-center gap-2 py-2.5 data-[state=active]:bg-card">
+                <TabsTrigger value="suppliers" className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <Users className="h-4 w-4" />
-                  <span className="hidden sm:inline">Suppliers</span>
-                  <span className="text-xs text-muted-foreground">({suppliers.length})</span>
+                  Suppliers
+                  <span className="text-xs opacity-70">({suppliers.length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="purchase-orders" className="flex items-center gap-2 py-2.5 data-[state=active]:bg-card">
+                <TabsTrigger value="purchase-orders" className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <Package className="h-4 w-4" />
-                  <span className="hidden sm:inline">POs</span>
-                  <span className="text-xs text-muted-foreground">({purchaseOrders.length})</span>
+                  POs
+                  <span className="text-xs opacity-70">({purchaseOrders.length})</span>
                 </TabsTrigger>
-                <TabsTrigger value="transfers" className="flex items-center gap-2 py-2.5 data-[state=active]:bg-card">
+                <TabsTrigger value="transfers" className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                   <Truck className="h-4 w-4" />
-                  <span className="hidden sm:inline">Transfers</span>
-                  <span className="text-xs text-muted-foreground">({transfers.length})</span>
+                  Transfers
+                  <span className="text-xs opacity-70">({transfers.length})</span>
                 </TabsTrigger>
               </TabsList>
 

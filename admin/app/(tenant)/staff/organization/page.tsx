@@ -1012,14 +1012,26 @@ export default function OrganizationPage() {
             </div>
           </div>
 
-          {/* Tabs */}
+          {/* Mobile Tab Selector */}
+          <div className="md:hidden mb-4">
+            <select
+              value={activeTab}
+              onChange={(e) => handleTabChange(e.target.value)}
+              className="w-full px-3 py-2 border border-border rounded-lg bg-card text-sm font-medium"
+            >
+              <option value="hierarchy">Departments & Teams</option>
+              <option value="teams">Teams</option>
+            </select>
+          </div>
+
+          {/* Desktop Tabs */}
           <Tabs value={activeTab} onValueChange={handleTabChange}>
-            <TabsList className="w-full sm:w-auto">
-              <TabsTrigger value="hierarchy" className="flex items-center gap-2">
+            <TabsList className="hidden md:inline-flex h-auto items-center justify-start rounded-xl bg-card border border-border p-1 shadow-sm mb-6">
+              <TabsTrigger value="hierarchy" className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <FolderTree className="w-4 h-4" />
                 Departments & Teams
               </TabsTrigger>
-              <TabsTrigger value="teams" className="flex items-center gap-2">
+              <TabsTrigger value="teams" className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <LayoutList className="w-4 h-4" />
                 Teams
               </TabsTrigger>
