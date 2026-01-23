@@ -30,8 +30,9 @@ async function fetchTenantStorefrontUrl(
   headers: Record<string, string>
 ): Promise<{ storefrontUrl?: string; customDomain?: string } | null> {
   try {
+    // Use internal endpoint which returns full tenant data including URL fields
     const response = await fetch(
-      `${TENANT_SERVICE_URL}/api/v1/tenants/${tenantId}`,
+      `${TENANT_SERVICE_URL}/internal/tenants/${tenantId}`,
       {
         method: 'GET',
         headers: {
