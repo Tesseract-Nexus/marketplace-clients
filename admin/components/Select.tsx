@@ -81,10 +81,10 @@ export function Select({
         className={cn(
           "w-full flex items-center justify-between gap-2 transition-colors text-left",
           "border border-border rounded-md bg-background",
-          "focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary",
+          "focus:outline-none focus:border-primary",
           sizeClasses[size],
           leftIcon && "pl-9",
-          isOpen && "ring-2 ring-ring border-primary",
+          isOpen && "border-primary",
           disabled && "opacity-50 cursor-not-allowed bg-muted",
           className
         )}
@@ -131,8 +131,8 @@ export function Select({
                   className={cn(
                     "w-full flex items-center justify-between px-3 py-2 text-sm text-left transition-colors",
                     isSelected
-                      ? "bg-accent text-accent-foreground font-medium"
-                      : "text-foreground hover:bg-accent hover:text-accent-foreground"
+                      ? "bg-primary/10 text-primary font-medium"
+                      : "text-foreground hover:bg-primary/10 hover:text-primary"
                   )}
                 >
                   <span className="flex items-center gap-2">

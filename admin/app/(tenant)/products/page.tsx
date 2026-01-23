@@ -62,7 +62,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttribu
     return (
       <textarea
         className={cn(
-          "flex min-h-[80px] w-full rounded-xl border-2 border-border bg-white px-4 py-2 text-sm transition-colors focus:border-primary/70 focus:ring-2 focus:ring-blue-400/20 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+          "flex min-h-[80px] w-full rounded-md border border-border bg-background px-4 py-2 text-sm transition-colors focus:border-primary/70 focus:ring-2 focus:ring-ring focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
         ref={ref}
@@ -1596,7 +1596,7 @@ export default function ProductsPage() {
                             value={formData.name}
                             onChange={(e) => handleFieldChange('name', e.target.value)}
                             className={cn(
-                              "w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium",
+                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none focus:ring-2 transition-all bg-background hover:border-border font-medium",
                               errors.name
                                 ? "border-error focus:ring-error focus:border-error"
                                 : "border-border focus:ring-ring focus:border-primary"
@@ -1623,10 +1623,10 @@ export default function ProductsPage() {
                             value={formData.sku}
                             onChange={(e) => handleFieldChange('sku', e.target.value)}
                             className={cn(
-                              "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-mono font-medium",
+                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none focus:ring-2 transition-all bg-background hover:border-border font-mono font-medium",
                               errors.sku
                                 ? "border-error focus:ring-error focus:border-error"
-                                : "border-border focus:ring-violet-500 focus:border-primary"
+                                : "border-border focus:ring-ring focus:border-primary"
                             )}
                             placeholder="APL-IP15PM-256"
                           />
@@ -1651,7 +1651,7 @@ export default function ProductsPage() {
                             type="text"
                             value={formData.brand}
                             onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                            className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
+                            className="w-full pl-10 pr-4 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium"
                             placeholder="e.g., Apple, Samsung, Sony"
                           />
                         </div>
@@ -1665,7 +1665,7 @@ export default function ProductsPage() {
                             type="text"
                             value={formData.slug}
                             onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                            className="w-full pl-10 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-primary transition-all bg-white hover:border-border font-mono font-medium"
+                            className="w-full pl-10 pr-4 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-mono font-medium"
                             placeholder="Auto-generated from name if empty"
                           />
                         </div>
@@ -1678,7 +1678,7 @@ export default function ProductsPage() {
                       <textarea
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium resize-none"
+                        className="w-full px-4 py-2 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium resize-none"
                         rows={4}
                         placeholder="Provide a detailed description of the product, its features, and benefits..."
                       />
@@ -1702,7 +1702,7 @@ export default function ProductsPage() {
                             }}
                             onFocus={() => setShowCategoryDropdown(true)}
                             placeholder={loadingCategories ? "Loading categories..." : "Search or create category..."}
-                            className="w-full pl-12 pr-10 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
+                            className="w-full pl-10 pr-3 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium"
                           />
                           <button
                             type="button"
@@ -1808,7 +1808,7 @@ export default function ProductsPage() {
                         <label className="block text-sm font-bold text-foreground mb-3">
                           Tenant/Vendor
                         </label>
-                        <div className="flex items-center gap-3 px-4 py-3.5 bg-muted border-2 border-border rounded-xl">
+                        <div className="flex items-center gap-3 px-4 h-10 bg-muted border border-border rounded-md">
                           <Building2 className="w-5 h-5 text-primary" />
                           <span className="font-medium text-foreground">
                             {currentTenant?.name || 'Loading tenant...'}
@@ -1828,7 +1828,7 @@ export default function ProductsPage() {
                           type="text"
                           value={formData.searchKeywords}
                           onChange={(e) => setFormData({ ...formData, searchKeywords: e.target.value })}
-                          className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
+                          className="w-full pl-10 pr-4 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium"
                           placeholder="smartphone, premium, flagship, 5G (comma-separated)"
                         />
                       </div>
@@ -1861,10 +1861,10 @@ export default function ProductsPage() {
                             value={formData.price}
                             onChange={(e) => handleFieldChange('price', e.target.value)}
                             className={cn(
-                              "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium",
+                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none focus:ring-2 transition-all bg-background hover:border-border font-medium",
                               errors.price
                                 ? "border-error focus:ring-error focus:border-error"
-                                : "border-border focus:ring-success focus:border-success"
+                                : "border-border focus:ring-ring focus:border-primary"
                             )}
                             placeholder="0.00"
                           />
@@ -1889,7 +1889,7 @@ export default function ProductsPage() {
                             value={formData.comparePrice}
                             onChange={(e) => handleFieldChange('comparePrice', e.target.value)}
                             className={cn(
-                              "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium",
+                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none focus:ring-2 transition-all bg-background hover:border-border font-medium",
                               errors.comparePrice
                                 ? "border-error focus:ring-error focus:border-error"
                                 : "border-border focus:ring-ring focus:border-primary"
@@ -1917,10 +1917,10 @@ export default function ProductsPage() {
                             value={formData.costPrice}
                             onChange={(e) => handleFieldChange('costPrice', e.target.value)}
                             className={cn(
-                              "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium",
+                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none focus:ring-2 transition-all bg-background hover:border-border font-medium",
                               errors.costPrice
                                 ? "border-error focus:ring-error focus:border-error"
-                                : "border-border focus:ring-orange-500 focus:border-warning"
+                                : "border-border focus:ring-ring focus:border-primary"
                             )}
                             placeholder="0.00"
                           />
@@ -1975,7 +1975,7 @@ export default function ProductsPage() {
                             value={formData.quantity}
                             onChange={(e) => handleFieldChange('quantity', parseInt(e.target.value) || 0)}
                             className={cn(
-                              "w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium",
+                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none focus:ring-2 transition-all bg-background hover:border-border font-medium",
                               errors.quantity
                                 ? "border-error focus:ring-error focus:border-error"
                                 : "border-border focus:ring-ring focus:border-primary"
@@ -1997,7 +1997,7 @@ export default function ProductsPage() {
                           type="number"
                           value={formData.minOrderQty}
                           onChange={(e) => setFormData({ ...formData, minOrderQty: parseInt(e.target.value) || 1 })}
-                          className="w-full px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
+                          className="w-full px-4 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium"
                           placeholder="1"
                         />
                       </div>
@@ -2008,7 +2008,7 @@ export default function ProductsPage() {
                           type="number"
                           value={formData.maxOrderQty || ''}
                           onChange={(e) => setFormData({ ...formData, maxOrderQty: e.target.value ? parseInt(e.target.value) : undefined })}
-                          className="w-full px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
+                          className="w-full px-4 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium"
                           placeholder="No limit"
                         />
                       </div>
@@ -2021,7 +2021,7 @@ export default function ProductsPage() {
                             type="number"
                             value={formData.lowStockThreshold}
                             onChange={(e) => setFormData({ ...formData, lowStockThreshold: parseInt(e.target.value) || 10 })}
-                            className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-warning focus:border-warning transition-all bg-white hover:border-border font-medium"
+                            className="w-full pl-10 pr-4 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium"
                             placeholder="10"
                           />
                         </div>
@@ -2037,7 +2037,7 @@ export default function ProductsPage() {
                             type="text"
                             value={formData.weight}
                             onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
-                            className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
+                            className="w-full pl-10 pr-4 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium"
                             placeholder="e.g., 250g, 1.5kg, 2lbs"
                           />
                         </div>
@@ -2053,7 +2053,7 @@ export default function ProductsPage() {
                             type="text"
                             value={formData.dimensions?.length}
                             onChange={(e) => setFormData({ ...formData, dimensions: { ...formData.dimensions, length: e.target.value } as any })}
-                            className="px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
+                            className="px-4 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium"
                             placeholder="Length"
                           />
                         </div>
@@ -2062,7 +2062,7 @@ export default function ProductsPage() {
                             type="text"
                             value={formData.dimensions?.width}
                             onChange={(e) => setFormData({ ...formData, dimensions: { ...formData.dimensions, width: e.target.value } as any })}
-                            className="px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
+                            className="px-4 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium"
                             placeholder="Width"
                           />
                         </div>
@@ -2071,7 +2071,7 @@ export default function ProductsPage() {
                             type="text"
                             value={formData.dimensions?.height}
                             onChange={(e) => setFormData({ ...formData, dimensions: { ...formData.dimensions, height: e.target.value } as any })}
-                            className="px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
+                            className="px-4 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium"
                             placeholder="Height"
                           />
                         </div>
@@ -2108,7 +2108,7 @@ export default function ProductsPage() {
                               type="text"
                               value={formData.warehouseName || ''}
                               onChange={(e) => setFormData({ ...formData, warehouseName: e.target.value })}
-                              className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-primary transition-all bg-white hover:border-border font-medium"
+                              className="w-full pl-10 pr-4 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium"
                               placeholder="e.g., Main Warehouse, NYC Fulfillment"
                             />
                           </div>
@@ -2123,7 +2123,7 @@ export default function ProductsPage() {
                               type="text"
                               value={formData.supplierName || ''}
                               onChange={(e) => setFormData({ ...formData, supplierName: e.target.value })}
-                              className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-primary transition-all bg-white hover:border-border font-medium"
+                              className="w-full pl-10 pr-4 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium"
                               placeholder="e.g., Acme Corp, Global Supplies"
                             />
                           </div>
@@ -2355,7 +2355,7 @@ export default function ProductsPage() {
                               });
                             }
                           }}
-                          className="w-full pl-12 pr-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium"
+                          className="w-full pl-10 pr-4 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium"
                           placeholder="Type a tag and press Enter or comma to add"
                         />
                       </div>

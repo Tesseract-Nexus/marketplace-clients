@@ -12,12 +12,15 @@ import {
   AlertTriangle,
   ChartNoAxesCombined,
   Loader2,
+  CreditCard,
+  LayoutGrid,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   XAxis,
   YAxis,
@@ -49,6 +52,14 @@ const dateRangeOptions = [
 ];
 
 const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#14b8a6'];
+
+type SalesTabId = 'products' | 'categories' | 'payments';
+
+const SALES_TABS: { id: SalesTabId; label: string; icon: React.ElementType }[] = [
+  { id: 'products', label: 'Products', icon: Package },
+  { id: 'categories', label: 'Categories', icon: LayoutGrid },
+  { id: 'payments', label: 'Payments', icon: CreditCard },
+];
 
 interface SalesData {
   totalRevenue: number;
@@ -93,7 +104,7 @@ interface SalesData {
 
 export default function SalesAnalyticsPage() {
   const [dateRange, setDateRange] = useState('last30days');
-  const [activeTab, setActiveTab] = useState<'products' | 'categories' | 'payments'>('products');
+  const [activeTab, setActiveTab] = useState<SalesTabId>('products');
   const { currency } = useTenantCurrency();
 
   // Use React Query for cached data fetching
@@ -470,28 +481,40 @@ export default function SalesAnalyticsPage() {
 
         {/* Data Tables with Tabs */}
         <div className="bg-card rounded-xl border border-border/60 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300 overflow-hidden">
-          <div className="border-b border-border">
-            <nav className="flex overflow-x-auto">
-              {['products', 'categories', 'payments'].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab as typeof activeTab)}
-                  className={`flex-1 min-w-[100px] py-3 sm:py-4 px-3 sm:px-6 text-xs sm:text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
-                    activeTab === tab
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {tab === 'products' ? 'Products' : tab === 'categories' ? 'Categories' : 'Payments'}
-                </button>
+          {/* Mobile Tab Selector */}
+          <div className="md:hidden p-4 border-b border-border">
+            <select
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value as SalesTabId)}
+              className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:border-primary"
+            >
+              {SALES_TABS.map((tab) => (
+                <option key={tab.id} value={tab.id}>
+                  {tab.label}
+                </option>
               ))}
-            </nav>
+            </select>
           </div>
 
-          {/* Mobile Card View for Products */}
-          {activeTab === 'products' && (
-            <>
-              <div className="sm:hidden divide-y divide-gray-100">
+          {/* Desktop Tabs */}
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as SalesTabId)}>
+            <TabsList className="hidden md:inline-flex h-auto w-full items-center justify-start rounded-none bg-card border-b border-border p-1">
+              {SALES_TABS.map((tab) => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="px-4 py-2.5 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+                >
+                  <tab.icon className="h-4 w-4 mr-2" />
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
+            {/* Products Tab Content */}
+            <TabsContent value="products" className="mt-0">
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-100">
                 {data?.topProducts?.slice(0, 10).map((product, index) => (
                   <div key={product.productId} className="p-4 hover:bg-muted transition-colors">
                     <div className="flex items-center justify-between mb-2">
@@ -510,12 +533,12 @@ export default function SalesAnalyticsPage() {
                 )}
               </div>
               {/* Desktop Table */}
-              <div className="hidden sm:block overflow-x-auto">
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-muted">
                     <tr>
                       <th className="px-4 lg:px-6 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">Product</th>
-                      <th className="px-4 lg:px-6 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden md:table-cell">SKU</th>
+                      <th className="px-4 lg:px-6 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">SKU</th>
                       <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Units</th>
                       <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider hidden lg:table-cell">Avg Price</th>
                       <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Revenue</th>
@@ -525,7 +548,7 @@ export default function SalesAnalyticsPage() {
                     {data?.topProducts?.slice(0, 10).map((product) => (
                       <tr key={product.productId} className="hover:bg-muted">
                         <td className="px-4 lg:px-6 py-4 font-medium text-foreground text-sm truncate max-w-[200px]">{product.productName}</td>
-                        <td className="px-4 lg:px-6 py-4 text-sm text-muted-foreground font-mono hidden md:table-cell">{product.sku}</td>
+                        <td className="px-4 lg:px-6 py-4 text-sm text-muted-foreground font-mono">{product.sku}</td>
                         <td className="px-4 lg:px-6 py-4 text-right text-sm text-foreground whitespace-nowrap">{formatNumber(product.unitsSold)}</td>
                         <td className="px-4 lg:px-6 py-4 text-right text-sm text-foreground whitespace-nowrap hidden lg:table-cell">{formatCurrency(product.averagePrice)}</td>
                         <td className="px-4 lg:px-6 py-4 text-right font-semibold text-foreground whitespace-nowrap">{formatCurrency(product.revenue)}</td>
@@ -537,13 +560,12 @@ export default function SalesAnalyticsPage() {
                   <div className="p-8 text-center text-muted-foreground text-sm">No products data available</div>
                 )}
               </div>
-            </>
-          )}
+            </TabsContent>
 
-          {/* Mobile Card View for Categories */}
-          {activeTab === 'categories' && (
-            <>
-              <div className="sm:hidden divide-y divide-gray-100">
+            {/* Categories Tab Content */}
+            <TabsContent value="categories" className="mt-0">
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-100">
                 {data?.topCategories?.map((category, index) => (
                   <div key={category.categoryId} className="p-4 hover:bg-muted transition-colors">
                     <div className="flex items-center justify-between mb-2">
@@ -562,12 +584,12 @@ export default function SalesAnalyticsPage() {
                 )}
               </div>
               {/* Desktop Table */}
-              <div className="hidden sm:block overflow-x-auto">
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-muted">
                     <tr>
                       <th className="px-4 lg:px-6 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">Category</th>
-                      <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider hidden md:table-cell">Products</th>
+                      <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Products</th>
                       <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Units</th>
                       <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider hidden lg:table-cell">Orders</th>
                       <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Revenue</th>
@@ -577,7 +599,7 @@ export default function SalesAnalyticsPage() {
                     {data?.topCategories?.map((category) => (
                       <tr key={category.categoryId} className="hover:bg-muted">
                         <td className="px-4 lg:px-6 py-4 font-medium text-foreground text-sm">{category.categoryName}</td>
-                        <td className="px-4 lg:px-6 py-4 text-right text-sm text-foreground hidden md:table-cell">{formatNumber(category.productCount)}</td>
+                        <td className="px-4 lg:px-6 py-4 text-right text-sm text-foreground">{formatNumber(category.productCount)}</td>
                         <td className="px-4 lg:px-6 py-4 text-right text-sm text-foreground">{formatNumber(category.unitsSold)}</td>
                         <td className="px-4 lg:px-6 py-4 text-right text-sm text-foreground hidden lg:table-cell">{formatNumber(category.orderCount)}</td>
                         <td className="px-4 lg:px-6 py-4 text-right font-semibold text-foreground whitespace-nowrap">{formatCurrency(category.revenue)}</td>
@@ -589,14 +611,13 @@ export default function SalesAnalyticsPage() {
                   <div className="p-8 text-center text-muted-foreground text-sm">No category data available</div>
                 )}
               </div>
-            </>
-          )}
+            </TabsContent>
 
-          {/* Mobile Card View for Payments */}
-          {activeTab === 'payments' && (
-            <>
-              <div className="sm:hidden divide-y divide-gray-100">
-                {data?.paymentMethods?.map((method, index) => (
+            {/* Payments Tab Content */}
+            <TabsContent value="payments" className="mt-0">
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-100">
+                {data?.paymentMethods?.map((method) => (
                   <div key={method.method} className="p-4 hover:bg-muted transition-colors">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium text-foreground text-sm capitalize">{method.method}</span>
@@ -619,14 +640,14 @@ export default function SalesAnalyticsPage() {
                 )}
               </div>
               {/* Desktop Table */}
-              <div className="hidden sm:block overflow-x-auto">
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-muted">
                     <tr>
                       <th className="px-4 lg:px-6 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">Method</th>
                       <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Orders</th>
                       <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Success</th>
-                      <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider hidden md:table-cell">Share</th>
+                      <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Share</th>
                       <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Amount</th>
                     </tr>
                   </thead>
@@ -644,7 +665,7 @@ export default function SalesAnalyticsPage() {
                             {method.successRate.toFixed(1)}%
                           </span>
                         </td>
-                        <td className="px-4 lg:px-6 py-4 text-right text-sm text-foreground hidden md:table-cell">{method.percentage.toFixed(1)}%</td>
+                        <td className="px-4 lg:px-6 py-4 text-right text-sm text-foreground">{method.percentage.toFixed(1)}%</td>
                         <td className="px-4 lg:px-6 py-4 text-right font-semibold text-foreground whitespace-nowrap">{formatCurrency(method.totalAmount)}</td>
                       </tr>
                     ))}
@@ -654,8 +675,8 @@ export default function SalesAnalyticsPage() {
                   <div className="p-8 text-center text-muted-foreground text-sm">No payment data available</div>
                 )}
               </div>
-            </>
-          )}
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>

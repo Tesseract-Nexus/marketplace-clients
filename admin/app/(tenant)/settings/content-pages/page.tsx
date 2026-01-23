@@ -1018,7 +1018,7 @@ export default function ContentPagesSettingsPage() {
                         Excerpt
                       </label>
                       <textarea
-                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                         rows={3}
                         placeholder="Short description of this page..."
                         value={createForm.excerpt}
@@ -1049,7 +1049,7 @@ export default function ContentPagesSettingsPage() {
                         Meta Description
                       </label>
                       <textarea
-                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                         rows={3}
                         placeholder="Meta description for search engines..."
                         value={createForm.metaDescription}
@@ -1257,7 +1257,7 @@ export default function ContentPagesSettingsPage() {
                         Excerpt
                       </label>
                       <textarea
-                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                         rows={3}
                         value={editForm.excerpt || ''}
                         onChange={(e) => setEditForm({ ...editForm, excerpt: e.target.value })}
@@ -1284,7 +1284,7 @@ export default function ContentPagesSettingsPage() {
                         Meta Description
                       </label>
                       <textarea
-                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                        className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                         rows={3}
                         value={editForm.metaDescription || ''}
                         onChange={(e) => setEditForm({ ...editForm, metaDescription: e.target.value })}

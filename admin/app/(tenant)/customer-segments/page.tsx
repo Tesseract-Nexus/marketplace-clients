@@ -484,7 +484,7 @@ export default function CustomerSegmentsPage() {
               <div>
                 <label className="block text-sm font-bold text-foreground mb-2">Description</label>
                 <textarea
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                   rows={2}
                   placeholder="Customers who have spent over $1000"
                   value={createForm.description}
@@ -615,7 +615,7 @@ export default function CustomerSegmentsPage() {
                   <div>
                     <label className="block text-sm font-bold text-foreground mb-2">Description</label>
                     <textarea
-                      className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                      className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                       rows={2}
                       value={createForm.description}
                       onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}

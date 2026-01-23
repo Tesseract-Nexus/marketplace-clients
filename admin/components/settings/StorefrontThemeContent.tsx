@@ -528,7 +528,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
           <select
             value={activeTab}
             onChange={(e) => setActiveTab(e.target.value as TabId)}
-            className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+            className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:border-primary"
           >
             {TABS.map((tab) => (
               <option key={tab.id} value={tab.id}>
@@ -692,7 +692,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                                 updateHomepageConfig({ heroTitle: e.target.value })
                               }
                               placeholder="Welcome to Our Store"
-                              className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                              className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                             />
                           </div>
                           <div>
@@ -706,7 +706,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                                 updateHomepageConfig({ heroSubtitle: e.target.value })
                               }
                               placeholder="Discover amazing products"
-                              className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                              className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                             />
                           </div>
                           <div>
@@ -720,7 +720,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                                 updateHomepageConfig({ heroCtaText: e.target.value })
                               }
                               placeholder="Shop Now"
-                              className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                              className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                             />
                           </div>
                           <div>
@@ -734,7 +734,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                                 updateHomepageConfig({ heroCtaLink: e.target.value })
                               }
                               placeholder="/products"
-                              className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                              className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                             />
                           </div>
                           <div className="md:col-span-2">
@@ -810,7 +810,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                                 updateHeaderConfig({ announcementText: e.target.value })
                               }
                               placeholder="Free shipping on orders over $50!"
-                              className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                              className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                             />
                           </div>
                           <div>
@@ -824,7 +824,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                                 updateHeaderConfig({ announcementLink: e.target.value })
                               }
                               placeholder="/shipping"
-                              className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                              className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                             />
                           </div>
                         </div>
@@ -938,7 +938,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                               gridColumns: parseInt(e.target.value) as 2 | 3 | 4,
                             })
                           }
-                          className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                          className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                         >
                           <option value={2}>2 Columns</option>
                           <option value={3}>3 Columns</option>
@@ -955,7 +955,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                           onChange={(e) =>
                             updateProductConfig({ cardStyle: e.target.value as any })
                           }
-                          className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                          className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                         >
                           <option value="default">Default</option>
                           <option value="minimal">Minimal</option>
@@ -973,7 +973,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                           onChange={(e) =>
                             updateProductConfig({ imageAspectRatio: e.target.value as any })
                           }
-                          className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                          className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                         >
                           <option value="square">Square (1:1)</option>
                           <option value="portrait">Portrait (3:4)</option>
@@ -990,7 +990,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                           onChange={(e) =>
                             updateProductConfig({ hoverEffect: e.target.value as any })
                           }
-                          className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                          className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                         >
                           <option value="none">None</option>
                           <option value="zoom">Zoom</option>
@@ -1193,7 +1193,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                               updateCheckoutConfig({ termsText: e.target.value })
                             }
                             placeholder="I agree to the terms and conditions"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                            className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                           />
                         </div>
                         <div>
@@ -1207,7 +1207,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                               updateCheckoutConfig({ termsLink: e.target.value })
                             }
                             placeholder="/terms"
-                            className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                            className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                           />
                         </div>
                       </div>

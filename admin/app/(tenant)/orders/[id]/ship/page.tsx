@@ -324,7 +324,7 @@ export default function CreateShipmentPage() {
                           type="number"
                           value={formData.length}
                           onChange={(e) => setFormData({ ...formData, length: parseFloat(e.target.value) || 0 })}
-                          className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                          className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                           placeholder="Length"
                           min="1"
                         />
@@ -335,7 +335,7 @@ export default function CreateShipmentPage() {
                           type="number"
                           value={formData.width}
                           onChange={(e) => setFormData({ ...formData, width: parseFloat(e.target.value) || 0 })}
-                          className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                          className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                           placeholder="Width"
                           min="1"
                         />
@@ -346,7 +346,7 @@ export default function CreateShipmentPage() {
                           type="number"
                           value={formData.height}
                           onChange={(e) => setFormData({ ...formData, height: parseFloat(e.target.value) || 0 })}
-                          className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                          className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                           placeholder="Height"
                           min="1"
                         />
@@ -365,7 +365,7 @@ export default function CreateShipmentPage() {
                       type="number"
                       value={formData.weight}
                       onChange={(e) => setFormData({ ...formData, weight: parseFloat(e.target.value) || 0 })}
-                      className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                      className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                       placeholder="Weight in kg"
                       min="0.1"
                       step="0.1"
@@ -410,7 +410,7 @@ export default function CreateShipmentPage() {
                     <textarea
                       value={formData.notes}
                       onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                      className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                      className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                       placeholder="Special instructions for shipping..."
                       rows={3}
                     />
@@ -556,7 +556,7 @@ export default function CreateShipmentPage() {
                         type="text"
                         value={fromAddress.name}
                         onChange={(e) => setFromAddress({ ...fromAddress, name: e.target.value })}
-                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                       />
                     </div>
                     <div>
@@ -565,7 +565,7 @@ export default function CreateShipmentPage() {
                         type="text"
                         value={fromAddress.company}
                         onChange={(e) => setFromAddress({ ...fromAddress, company: e.target.value })}
-                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                       />
                     </div>
                   </div>
@@ -575,7 +575,7 @@ export default function CreateShipmentPage() {
                       type="text"
                       value={fromAddress.street}
                       onChange={(e) => setFromAddress({ ...fromAddress, street: e.target.value })}
-                      className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                      className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
@@ -585,7 +585,7 @@ export default function CreateShipmentPage() {
                         type="text"
                         value={fromAddress.city}
                         onChange={(e) => setFromAddress({ ...fromAddress, city: e.target.value })}
-                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                       />
                     </div>
                     <div>
@@ -594,7 +594,7 @@ export default function CreateShipmentPage() {
                         type="text"
                         value={fromAddress.state}
                         onChange={(e) => setFromAddress({ ...fromAddress, state: e.target.value })}
-                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                       />
                     </div>
                   </div>
@@ -605,7 +605,7 @@ export default function CreateShipmentPage() {
                         type="text"
                         value={fromAddress.postalCode}
                         onChange={(e) => setFromAddress({ ...fromAddress, postalCode: e.target.value })}
-                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                       />
                     </div>
                     <div>
@@ -614,7 +614,7 @@ export default function CreateShipmentPage() {
                         type="text"
                         value={fromAddress.country}
                         onChange={(e) => setFromAddress({ ...fromAddress, country: e.target.value })}
-                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                       />
                     </div>
                   </div>
@@ -625,7 +625,7 @@ export default function CreateShipmentPage() {
                         type="text"
                         value={fromAddress.phone}
                         onChange={(e) => setFromAddress({ ...fromAddress, phone: e.target.value })}
-                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                       />
                     </div>
                     <div>
@@ -634,7 +634,7 @@ export default function CreateShipmentPage() {
                         type="text"
                         value={fromAddress.email}
                         onChange={(e) => setFromAddress({ ...fromAddress, email: e.target.value })}
-                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                        className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                       />
                     </div>
                   </div>

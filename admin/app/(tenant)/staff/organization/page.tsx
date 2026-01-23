@@ -408,7 +408,7 @@ export default function OrganizationPage() {
 
     return (
       <div key={dept.id} style={{ marginLeft: level * 24 }}>
-        <div className={cn("flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors group", level === 0 && "border-b")}>
+        <div className={cn("flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 transition-colors group", level === 0 && "border-b")}>
           <button
             onClick={() => hasChildren && toggleDeptExpansion(dept.id)}
             className={cn("w-6 h-6 flex items-center justify-center rounded text-muted-foreground", hasChildren ? "hover:bg-muted hover:text-foreground" : "invisible")}
@@ -462,7 +462,7 @@ export default function OrganizationPage() {
         {isExpanded && (
           <div className="ml-6">
             {hierarchyTeams.map(team => (
-              <div key={team.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-accent transition-colors group ml-6">
+              <div key={team.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-primary/10 transition-colors group ml-6">
                 <div className="w-6" />
                 <div className="w-8 h-8 rounded-lg bg-success-muted flex items-center justify-center">
                   <Users className="w-4 h-4 text-success" />
@@ -1017,7 +1017,7 @@ export default function OrganizationPage() {
             <select
               value={activeTab}
               onChange={(e) => handleTabChange(e.target.value)}
-              className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+              className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:border-primary"
             >
               <option value="hierarchy">Departments & Teams</option>
               <option value="teams">Teams</option>

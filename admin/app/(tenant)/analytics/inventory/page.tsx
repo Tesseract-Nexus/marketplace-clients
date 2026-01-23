@@ -17,6 +17,7 @@ import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/PageHeader';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
   BarChart,
   Bar,
@@ -39,6 +40,15 @@ import {
 import { cn } from '@/lib/utils';
 
 const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#14b8a6'];
+
+type InventoryTabId = 'low-stock' | 'out-of-stock' | 'fast-moving' | 'slow-moving';
+
+const INVENTORY_TABS: { id: InventoryTabId; label: string; icon: React.ElementType }[] = [
+  { id: 'low-stock', label: 'Low Stock', icon: AlertTriangle },
+  { id: 'out-of-stock', label: 'Out of Stock', icon: XCircle },
+  { id: 'fast-moving', label: 'Fast Moving', icon: ArrowUpRight },
+  { id: 'slow-moving', label: 'Slow Moving', icon: ArrowDownRight },
+];
 
 interface InventoryData {
   totalProducts: number;
@@ -98,7 +108,7 @@ interface InventoryData {
 }
 
 export default function InventoryAnalyticsPage() {
-  const [activeTab, setActiveTab] = useState<'low-stock' | 'out-of-stock' | 'fast-moving' | 'slow-moving'>('low-stock');
+  const [activeTab, setActiveTab] = useState<InventoryTabId>('low-stock');
   const { currency } = useTenantCurrency();
 
   // Use React Query for cached data fetching
@@ -314,116 +324,310 @@ export default function InventoryAnalyticsPage() {
 
         {/* Inventory Tables with Tabs */}
         <div className="bg-card rounded-xl border border-border/60 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
-          <div className="border-b border-border overflow-x-auto">
-            <nav className="flex min-w-max">
-              {[
-                { id: 'low-stock', label: 'Low Stock', icon: AlertTriangle, color: 'amber' },
-                { id: 'out-of-stock', label: 'Out of Stock', icon: XCircle, color: 'red' },
-                { id: 'fast-moving', label: 'Fast Moving', icon: ArrowUpRight, color: 'green' },
-                { id: 'slow-moving', label: 'Slow Moving', icon: ArrowDownRight, color: 'gray' },
-              ].map((tab) => (
-                <button
+          {/* Mobile Tab Selector */}
+          <div className="md:hidden p-4 border-b border-border">
+            <select
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value as InventoryTabId)}
+              className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+            >
+              {INVENTORY_TABS.map((tab) => (
+                <option key={tab.id} value={tab.id}>
+                  {tab.label}
+                  {tab.id === 'low-stock' && data?.lowStockCount ? ` (${data.lowStockCount})` : ''}
+                  {tab.id === 'out-of-stock' && data?.outOfStockCount ? ` (${data.outOfStockCount})` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Desktop Tabs */}
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as InventoryTabId)}>
+            <TabsList className="hidden md:inline-flex h-auto w-full items-center justify-start rounded-none bg-card border-b border-border p-1">
+              {INVENTORY_TABS.map((tab) => (
+                <TabsTrigger
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={cn(
-                    'flex items-center gap-2 py-4 px-6 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap',
-                    activeTab === tab.id
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-muted-foreground hover:text-foreground'
-                  )}
+                  value={tab.id}
+                  className="px-4 py-2.5 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
                 >
-                  <tab.icon className={cn('h-4 w-4', activeTab === tab.id ? `text-${tab.color}-600` : '')} />
+                  <tab.icon className="h-4 w-4 mr-2" />
                   {tab.label}
                   {tab.id === 'low-stock' && data?.lowStockCount ? (
-                    <span className="ml-1 px-2 py-0.5 text-xs font-medium bg-warning-muted text-warning-foreground rounded-full">
+                    <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-warning-muted text-warning-foreground rounded-full">
                       {data.lowStockCount}
                     </span>
                   ) : null}
                   {tab.id === 'out-of-stock' && data?.outOfStockCount ? (
-                    <span className="ml-1 px-2 py-0.5 text-xs font-medium bg-error-muted text-error rounded-full">
+                    <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-error-muted text-error rounded-full">
                       {data.outOfStockCount}
                     </span>
                   ) : null}
-                </button>
+                </TabsTrigger>
               ))}
-            </nav>
-          </div>
+            </TabsList>
 
-          <div className="overflow-x-auto">
-            {(activeTab === 'low-stock' || activeTab === 'out-of-stock') && (
-              <table className="w-full">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Product</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">SKU</th>
-                    <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Stock Level</th>
-                    <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Reorder Level</th>
-                    <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Value</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {(activeTab === 'low-stock' ? data?.lowStockProducts : data?.outOfStockProducts)?.map((product) => {
-                    const badge = getStockLevelBadge(product.stockLevel, product.reorderLevel);
-                    return (
+            {/* Low Stock Tab */}
+            <TabsContent value="low-stock" className="mt-0">
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-100">
+                {data?.lowStockProducts?.map((product) => {
+                  const badge = getStockLevelBadge(product.stockLevel, product.reorderLevel);
+                  return (
+                    <div key={product.productId} className="p-4 hover:bg-muted transition-colors">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-foreground text-sm truncate max-w-[180px]">{product.productName}</span>
+                        <span className={cn('inline-flex px-2 py-0.5 text-xs font-medium rounded-full border', badge.className)}>
+                          {badge.label}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                        <span className="font-mono">{product.sku}</span>
+                        <span className={cn('font-semibold', product.stockLevel === 0 ? 'text-error' : 'text-warning')}>
+                          {formatNumber(product.stockLevel)} / {formatNumber(product.reorderLevel)}
+                        </span>
+                      </div>
+                      <div className="text-right text-sm font-semibold text-foreground">{formatCurrency(product.value)}</div>
+                    </div>
+                  );
+                })}
+                {(!data?.lowStockProducts || data.lowStockProducts.length === 0) && (
+                  <div className="p-8 text-center text-muted-foreground text-sm">No low stock products</div>
+                )}
+              </div>
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Product</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">SKU</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Stock Level</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Reorder Level</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Value</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {data?.lowStockProducts?.map((product) => {
+                      const badge = getStockLevelBadge(product.stockLevel, product.reorderLevel);
+                      return (
+                        <tr key={product.productId} className="hover:bg-muted">
+                          <td className="px-6 py-4 font-medium text-foreground">{product.productName}</td>
+                          <td className="px-6 py-4 text-sm text-muted-foreground font-mono">{product.sku}</td>
+                          <td className="px-6 py-4 text-right">
+                            <span className={cn('font-semibold', product.stockLevel === 0 ? 'text-error' : 'text-warning')}>
+                              {formatNumber(product.stockLevel)}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right text-sm text-muted-foreground">{formatNumber(product.reorderLevel)}</td>
+                          <td className="px-6 py-4 text-right text-sm text-foreground">{formatCurrency(product.value)}</td>
+                          <td className="px-6 py-4">
+                            <span className={cn('inline-flex px-2 py-1 text-xs font-medium rounded-full border', badge.className)}>
+                              {badge.label}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
+
+            {/* Out of Stock Tab */}
+            <TabsContent value="out-of-stock" className="mt-0">
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-100">
+                {data?.outOfStockProducts?.map((product) => {
+                  const badge = getStockLevelBadge(product.stockLevel, product.reorderLevel);
+                  return (
+                    <div key={product.productId} className="p-4 hover:bg-muted transition-colors">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium text-foreground text-sm truncate max-w-[180px]">{product.productName}</span>
+                        <span className={cn('inline-flex px-2 py-0.5 text-xs font-medium rounded-full border', badge.className)}>
+                          {badge.label}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-xs text-muted-foreground mb-1">
+                        <span className="font-mono">{product.sku}</span>
+                        <span className="font-semibold text-error">{formatNumber(product.stockLevel)}</span>
+                      </div>
+                      <div className="text-right text-sm font-semibold text-foreground">{formatCurrency(product.value)}</div>
+                    </div>
+                  );
+                })}
+                {(!data?.outOfStockProducts || data.outOfStockProducts.length === 0) && (
+                  <div className="p-8 text-center text-muted-foreground text-sm">No out of stock products</div>
+                )}
+              </div>
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Product</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">SKU</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Stock Level</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Reorder Level</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Value</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {data?.outOfStockProducts?.map((product) => {
+                      const badge = getStockLevelBadge(product.stockLevel, product.reorderLevel);
+                      return (
+                        <tr key={product.productId} className="hover:bg-muted">
+                          <td className="px-6 py-4 font-medium text-foreground">{product.productName}</td>
+                          <td className="px-6 py-4 text-sm text-muted-foreground font-mono">{product.sku}</td>
+                          <td className="px-6 py-4 text-right">
+                            <span className="font-semibold text-error">{formatNumber(product.stockLevel)}</span>
+                          </td>
+                          <td className="px-6 py-4 text-right text-sm text-muted-foreground">{formatNumber(product.reorderLevel)}</td>
+                          <td className="px-6 py-4 text-right text-sm text-foreground">{formatCurrency(product.value)}</td>
+                          <td className="px-6 py-4">
+                            <span className={cn('inline-flex px-2 py-1 text-xs font-medium rounded-full border', badge.className)}>
+                              {badge.label}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
+
+            {/* Fast Moving Tab */}
+            <TabsContent value="fast-moving" className="mt-0">
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-100">
+                {data?.topMovingProducts?.map((product) => (
+                  <div key={product.productId} className="p-4 hover:bg-muted transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium text-foreground text-sm truncate max-w-[180px]">{product.productName}</span>
+                      <span className={cn(
+                        'inline-flex px-2 py-0.5 text-xs font-medium rounded-full',
+                        product.turnoverRate >= 2 ? 'bg-success-muted text-success-foreground' :
+                        product.turnoverRate >= 1 ? 'bg-warning-muted text-warning' :
+                        'bg-error-muted text-error'
+                      )}>
+                        {product.turnoverRate.toFixed(2)}x
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span className="font-mono">{product.sku}</span>
+                      <span>{formatNumber(product.unitsSold)} sold</span>
+                    </div>
+                  </div>
+                ))}
+                {(!data?.topMovingProducts || data.topMovingProducts.length === 0) && (
+                  <div className="p-8 text-center text-muted-foreground text-sm">No fast moving products</div>
+                )}
+              </div>
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Product</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">SKU</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Units Sold</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Current Stock</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Days in Stock</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Turnover Rate</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {data?.topMovingProducts?.map((product) => (
                       <tr key={product.productId} className="hover:bg-muted">
                         <td className="px-6 py-4 font-medium text-foreground">{product.productName}</td>
                         <td className="px-6 py-4 text-sm text-muted-foreground font-mono">{product.sku}</td>
+                        <td className="px-6 py-4 text-right text-sm text-foreground">{formatNumber(product.unitsSold)}</td>
+                        <td className="px-6 py-4 text-right text-sm text-foreground">{formatNumber(product.currentStock)}</td>
+                        <td className="px-6 py-4 text-right text-sm text-muted-foreground">{product.daysInStock}</td>
                         <td className="px-6 py-4 text-right">
-                          <span className={cn('font-semibold', product.stockLevel === 0 ? 'text-error' : 'text-warning')}>
-                            {formatNumber(product.stockLevel)}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm text-muted-foreground">{formatNumber(product.reorderLevel)}</td>
-                        <td className="px-6 py-4 text-right text-sm text-foreground">{formatCurrency(product.value)}</td>
-                        <td className="px-6 py-4">
-                          <span className={cn('inline-flex px-2 py-1 text-xs font-medium rounded-full border', badge.className)}>
-                            {badge.label}
+                          <span className={cn(
+                            'inline-flex px-2 py-1 text-xs font-medium rounded-full',
+                            product.turnoverRate >= 2 ? 'bg-success-muted text-success-foreground' :
+                            product.turnoverRate >= 1 ? 'bg-warning-muted text-warning' :
+                            'bg-error-muted text-error'
+                          )}>
+                            {product.turnoverRate.toFixed(2)}x
                           </span>
                         </td>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
 
-            {(activeTab === 'fast-moving' || activeTab === 'slow-moving') && (
-              <table className="w-full">
-                <thead className="bg-muted">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Product</th>
-                    <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">SKU</th>
-                    <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Units Sold</th>
-                    <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Current Stock</th>
-                    <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Days in Stock</th>
-                    <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Turnover Rate</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {(activeTab === 'fast-moving' ? data?.topMovingProducts : data?.slowMovingProducts)?.map((product) => (
-                    <tr key={product.productId} className="hover:bg-muted">
-                      <td className="px-6 py-4 font-medium text-foreground">{product.productName}</td>
-                      <td className="px-6 py-4 text-sm text-muted-foreground font-mono">{product.sku}</td>
-                      <td className="px-6 py-4 text-right text-sm text-foreground">{formatNumber(product.unitsSold)}</td>
-                      <td className="px-6 py-4 text-right text-sm text-foreground">{formatNumber(product.currentStock)}</td>
-                      <td className="px-6 py-4 text-right text-sm text-muted-foreground">{product.daysInStock}</td>
-                      <td className="px-6 py-4 text-right">
-                        <span className={cn(
-                          'inline-flex px-2 py-1 text-xs font-medium rounded-full',
-                          product.turnoverRate >= 2 ? 'bg-success-muted text-success-foreground' :
-                          product.turnoverRate >= 1 ? 'bg-warning-muted text-warning' :
-                          'bg-error-muted text-error'
-                        )}>
-                          {product.turnoverRate.toFixed(2)}x
-                        </span>
-                      </td>
+            {/* Slow Moving Tab */}
+            <TabsContent value="slow-moving" className="mt-0">
+              {/* Mobile Card View */}
+              <div className="md:hidden divide-y divide-gray-100">
+                {data?.slowMovingProducts?.map((product) => (
+                  <div key={product.productId} className="p-4 hover:bg-muted transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium text-foreground text-sm truncate max-w-[180px]">{product.productName}</span>
+                      <span className={cn(
+                        'inline-flex px-2 py-0.5 text-xs font-medium rounded-full',
+                        product.turnoverRate >= 2 ? 'bg-success-muted text-success-foreground' :
+                        product.turnoverRate >= 1 ? 'bg-warning-muted text-warning' :
+                        'bg-error-muted text-error'
+                      )}>
+                        {product.turnoverRate.toFixed(2)}x
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span className="font-mono">{product.sku}</span>
+                      <span>{formatNumber(product.unitsSold)} sold</span>
+                    </div>
+                  </div>
+                ))}
+                {(!data?.slowMovingProducts || data.slowMovingProducts.length === 0) && (
+                  <div className="p-8 text-center text-muted-foreground text-sm">No slow moving products</div>
+                )}
+              </div>
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-muted">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Product</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">SKU</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Units Sold</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Current Stock</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Days in Stock</th>
+                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Turnover Rate</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {data?.slowMovingProducts?.map((product) => (
+                      <tr key={product.productId} className="hover:bg-muted">
+                        <td className="px-6 py-4 font-medium text-foreground">{product.productName}</td>
+                        <td className="px-6 py-4 text-sm text-muted-foreground font-mono">{product.sku}</td>
+                        <td className="px-6 py-4 text-right text-sm text-foreground">{formatNumber(product.unitsSold)}</td>
+                        <td className="px-6 py-4 text-right text-sm text-foreground">{formatNumber(product.currentStock)}</td>
+                        <td className="px-6 py-4 text-right text-sm text-muted-foreground">{product.daysInStock}</td>
+                        <td className="px-6 py-4 text-right">
+                          <span className={cn(
+                            'inline-flex px-2 py-1 text-xs font-medium rounded-full',
+                            product.turnoverRate >= 2 ? 'bg-success-muted text-success-foreground' :
+                            product.turnoverRate >= 1 ? 'bg-warning-muted text-warning' :
+                            'bg-error-muted text-error'
+                          )}>
+                            {product.turnoverRate.toFixed(2)}x
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
 
         {/* Category Details */}

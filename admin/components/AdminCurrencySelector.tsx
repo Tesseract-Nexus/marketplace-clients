@@ -67,8 +67,8 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
               ? "bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary"
               : "bg-primary text-primary-foreground border-transparent hover:bg-primary/90"
             : compact
-              ? "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
-              : "bg-background hover:bg-muted text-foreground border-border"
+              ? "bg-muted text-muted-foreground hover:bg-primary/10 hover:text-foreground"
+              : "bg-background hover:bg-primary/10 text-foreground border-border"
         )}
       >
         {selectedCurrencyInfo?.flag && (
@@ -116,7 +116,7 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search currencies..."
-                className="w-full h-10 pl-10 pr-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                className="w-full h-10 pl-10 pr-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
               />
             </div>
           </div>
@@ -140,7 +140,7 @@ export function AdminCurrencySelector({ compact = false }: AdminCurrencySelector
                     "w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors",
                     selectedCurrency === currency.code
                       ? "bg-primary/10 text-primary"
-                      : "text-foreground hover:bg-muted"
+                      : "text-foreground hover:bg-primary/10 hover:text-primary"
                   )}
                 >
                   <div className="flex items-center gap-3">

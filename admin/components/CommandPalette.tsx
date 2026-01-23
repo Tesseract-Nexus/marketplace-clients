@@ -445,7 +445,7 @@ export function CommandPalette() {
       {/* Trigger Button */}
       <button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-2 h-9 px-3 text-sm font-medium rounded-lg border border-border bg-background hover:bg-accent transition-all duration-200 text-muted-foreground hover:text-foreground"
+        className="flex items-center gap-2 h-9 px-3 text-sm font-medium rounded-lg border border-border bg-background hover:bg-primary/10 transition-all duration-200 text-muted-foreground hover:text-foreground"
       >
         <Search className="w-4 h-4" />
         <span className="hidden sm:inline">Search...</span>
@@ -529,7 +529,7 @@ export function CommandPalette() {
                           onClick={() => setQuery(recent.query)}
                           className={cn(
                             'w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg transition-all duration-150',
-                            isSelected ? 'bg-primary/10' : 'hover:bg-muted'
+                            isSelected ? 'bg-primary/10 text-primary' : 'hover:bg-primary/10 hover:text-primary'
                           )}
                         >
                           <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-muted shrink-0">
@@ -654,8 +654,8 @@ function renderResultItem(
       className={cn(
         'w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-lg transition-all duration-150',
         isSelected
-          ? 'bg-primary/5 shadow-sm'
-          : 'hover:bg-muted'
+          ? 'bg-primary/10 text-primary shadow-sm'
+          : 'hover:bg-primary/10 hover:text-primary'
       )}
     >
       <div

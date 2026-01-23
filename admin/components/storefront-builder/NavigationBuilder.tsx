@@ -325,7 +325,7 @@ function NavItemEditor({
               <select
                 value={link.icon || ''}
                 onChange={(e) => onUpdate({ icon: e.target.value || undefined })}
-                className="w-full h-9 px-3 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                className="w-full h-9 px-3 text-sm border border-border rounded-md bg-background focus:outline-none focus:border-primary"
               >
                 <option value="">No icon</option>
                 {AVAILABLE_ICONS.map((icon) => (
@@ -356,7 +356,7 @@ function NavItemEditor({
                     <select
                       value={link.megaMenuColumns || 3}
                       onChange={(e) => onUpdate({ megaMenuColumns: parseInt(e.target.value) as 2 | 3 | 4 })}
-                      className="w-full h-9 px-3 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                      className="w-full h-9 px-3 text-sm border border-border rounded-md bg-background focus:outline-none focus:border-primary"
                     >
                       <option value={2}>2 Columns</option>
                       <option value={3}>3 Columns</option>
@@ -370,7 +370,7 @@ function NavItemEditor({
                       value={link.megaMenuImage || ''}
                       onChange={(e) => onUpdate({ megaMenuImage: e.target.value || undefined })}
                       placeholder="Image URL"
-                      className="w-full h-9 px-3 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                      className="w-full h-9 px-3 text-sm border border-border rounded-md bg-background focus:outline-none focus:border-primary"
                     />
                   </div>
                 </div>

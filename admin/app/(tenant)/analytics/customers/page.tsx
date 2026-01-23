@@ -11,12 +11,17 @@ import {
   RefreshCw,
   AlertTriangle,
   Loader2,
+  Crown,
+  PieChart as PieChartIcon,
+  Globe,
+  BarChart3,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { useTenantCurrency } from '@/hooks/useTenantCurrency';
 import { useCustomerAnalytics, useInvalidateAnalytics } from '@/hooks/useAnalyticsQueries';
@@ -39,6 +44,15 @@ const dateRangeOptions = [
   { value: 'thisMonth', label: 'This Month' },
   { value: 'lastMonth', label: 'Last Month' },
   { value: 'thisYear', label: 'This Year' },
+];
+
+type CustomerTabId = 'top-customers' | 'segmentation' | 'geography' | 'growth';
+
+const CUSTOMER_TABS: { id: CustomerTabId; label: string; icon: React.ElementType }[] = [
+  { id: 'top-customers', label: 'Top Customers', icon: Crown },
+  { id: 'segmentation', label: 'Segmentation', icon: PieChartIcon },
+  { id: 'geography', label: 'Geography', icon: Globe },
+  { id: 'growth', label: 'Cohort Analysis', icon: BarChart3 },
 ];
 
 interface CustomerAnalyticsData {
@@ -95,7 +109,7 @@ interface CustomerAnalyticsData {
 
 export default function CustomerAnalyticsPage() {
   const [dateRange, setDateRange] = useState('last30days');
-  const [activeTab, setActiveTab] = useState<'top-customers' | 'segmentation' | 'geography' | 'growth'>('top-customers');
+  const [activeTab, setActiveTab] = useState<CustomerTabId>('top-customers');
   const { currency } = useTenantCurrency();
 
   // Use React Query for cached data fetching
@@ -318,101 +332,116 @@ export default function CustomerAnalyticsPage() {
 
         {/* Tabs */}
         <div className="bg-card rounded-xl border border-border/60 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
-          <div className="border-b border-border">
-            <nav className="flex overflow-x-auto">
-              {[
-                { id: 'top-customers', label: 'Top Customers' },
-                { id: 'segmentation', label: 'Segmentation' },
-                { id: 'geography', label: 'Geography' },
-                { id: 'growth', label: 'Cohort Analysis' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as typeof activeTab)}
-                  className={cn(
-                    'flex-1 py-4 px-6 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap',
-                    activeTab === tab.id
-                      ? 'border-primary text-primary'
-                      : 'border-transparent text-muted-foreground hover:text-foreground'
-                  )}
-                >
+          {/* Mobile Tab Selector */}
+          <div className="md:hidden p-4 border-b border-border">
+            <select
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value as CustomerTabId)}
+              className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+            >
+              {CUSTOMER_TABS.map((tab) => (
+                <option key={tab.id} value={tab.id}>
                   {tab.label}
-                </button>
+                </option>
               ))}
-            </nav>
+            </select>
           </div>
 
-          <div className="p-6">
+          {/* Desktop Tabs */}
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as CustomerTabId)}>
+            <TabsList className="hidden md:inline-flex h-auto w-full items-center justify-start rounded-none bg-card border-b border-border p-1">
+              {CUSTOMER_TABS.map((tab) => (
+                <TabsTrigger
+                  key={tab.id}
+                  value={tab.id}
+                  className="px-4 py-2.5 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg"
+                >
+                  <tab.icon className="h-4 w-4 mr-2" />
+                  {tab.label}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+
             {/* Top Customers Tab */}
-            {activeTab === 'top-customers' && (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-muted border-b border-border">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">
-                        Customer
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">
-                        Orders
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">
-                        Total Spent
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">
-                        Avg Order
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">
-                        Last Order
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">
-                        Status
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {data?.topCustomers?.map((customer) => (
-                      <tr key={customer.customerId} className="hover:bg-muted transition-colors">
-                        <td className="px-6 py-4">
+            <TabsContent value="top-customers" className="mt-0">
+              <div className="p-4 md:p-6">
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-3">
+                  {data?.topCustomers?.map((customer) => (
+                    <div key={customer.customerId} className="p-4 bg-muted rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
                           <p className="font-semibold text-foreground">{customer.customerName}</p>
-                          <p className="text-sm text-muted-foreground">{customer.email}</p>
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm text-foreground">
-                          {formatNumber(customer.totalOrders)}
-                        </td>
-                        <td className="px-6 py-4 text-right font-semibold text-foreground">
-                          {formatCurrency(customer.totalSpent)}
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm text-foreground">
-                          {formatCurrency(customer.averageOrderValue)}
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm text-foreground">
-                          {customer.lastOrderDate ? new Date(customer.lastOrderDate).toLocaleDateString() : '-'}
-                        </td>
-                        <td className="px-6 py-4">
-                          <span
-                            className={cn(
-                              'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border',
-                              getRecencyBadgeClass(customer.daysSinceLastOrder)
-                            )}
-                          >
-                            {getRecencyLabel(customer.daysSinceLastOrder)}
-                          </span>
-                        </td>
+                          <p className="text-xs text-muted-foreground truncate max-w-[180px]">{customer.email}</p>
+                        </div>
+                        <span
+                          className={cn(
+                            'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border',
+                            getRecencyBadgeClass(customer.daysSinceLastOrder)
+                          )}
+                        >
+                          {getRecencyLabel(customer.daysSinceLastOrder)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">{formatNumber(customer.totalOrders)} orders</span>
+                        <span className="font-semibold text-primary">{formatCurrency(customer.totalSpent)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-muted border-b border-border">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Customer</th>
+                        <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Orders</th>
+                        <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Total Spent</th>
+                        <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase hidden lg:table-cell">Avg Order</th>
+                        <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase hidden lg:table-cell">Last Order</th>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Status</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {data?.topCustomers?.map((customer) => (
+                        <tr key={customer.customerId} className="hover:bg-muted transition-colors">
+                          <td className="px-6 py-4">
+                            <p className="font-semibold text-foreground">{customer.customerName}</p>
+                            <p className="text-sm text-muted-foreground">{customer.email}</p>
+                          </td>
+                          <td className="px-6 py-4 text-right text-sm text-foreground">{formatNumber(customer.totalOrders)}</td>
+                          <td className="px-6 py-4 text-right font-semibold text-foreground">{formatCurrency(customer.totalSpent)}</td>
+                          <td className="px-6 py-4 text-right text-sm text-foreground hidden lg:table-cell">{formatCurrency(customer.averageOrderValue)}</td>
+                          <td className="px-6 py-4 text-right text-sm text-foreground hidden lg:table-cell">
+                            {customer.lastOrderDate ? new Date(customer.lastOrderDate).toLocaleDateString() : '-'}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span
+                              className={cn(
+                                'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border',
+                                getRecencyBadgeClass(customer.daysSinceLastOrder)
+                              )}
+                            >
+                              {getRecencyLabel(customer.daysSinceLastOrder)}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            )}
+            </TabsContent>
 
             {/* Segmentation Tab */}
-            {activeTab === 'segmentation' && (
-              <div className="space-y-4">
+            <TabsContent value="segmentation" className="mt-0">
+              <div className="p-4 md:p-6 space-y-4">
                 <h3 className="text-lg font-bold text-foreground mb-4">Customers by Value</h3>
                 {data?.customersByValue?.map((segment, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-4 bg-muted rounded-lg"
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-muted rounded-lg gap-3"
                   >
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
@@ -423,132 +452,151 @@ export default function CustomerAnalyticsPage() {
                           {formatNumber(segment.customerCount)} customers
                         </span>
                       </div>
-                      <div className="w-full bg-muted h-2 rounded-full overflow-hidden">
-                        <div
-                          className="bg-primary h-full"
-                          style={{ width: `${segment.percentage}%` }}
-                        />
+                      <div className="w-full bg-background h-2 rounded-full overflow-hidden">
+                        <div className="bg-primary h-full" style={{ width: `${segment.percentage}%` }} />
                       </div>
                     </div>
-                    <div className="text-right ml-6">
-                      <p className="font-semibold text-foreground">
-                        {formatCurrency(segment.totalRevenue)}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {formatCurrency(segment.averageValue)} avg
-                      </p>
+                    <div className="text-right sm:ml-6">
+                      <p className="font-semibold text-foreground">{formatCurrency(segment.totalRevenue)}</p>
+                      <p className="text-sm text-muted-foreground">{formatCurrency(segment.averageValue)} avg</p>
                     </div>
                   </div>
                 ))}
               </div>
-            )}
+            </TabsContent>
 
             {/* Geography Tab */}
-            {activeTab === 'geography' && (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-muted border-b border-border">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">
-                        Location
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">
-                        Customers
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">
-                        Orders
-                      </th>
-                      <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">
-                        Revenue
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {data?.geographicDistribution?.map((location, index) => (
-                      <tr key={index} className="hover:bg-muted transition-colors">
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                            <div>
-                              <p className="font-semibold text-foreground">{location.country}</p>
-                              {location.state && (
-                                <p className="text-sm text-muted-foreground">{location.state}</p>
-                              )}
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm text-foreground">
-                          {formatNumber(location.customerCount)}
-                        </td>
-                        <td className="px-6 py-4 text-right text-sm text-foreground">
-                          {formatNumber(location.orderCount)}
-                        </td>
-                        <td className="px-6 py-4 text-right font-semibold text-foreground">
-                          {formatCurrency(location.revenue)}
-                        </td>
+            <TabsContent value="geography" className="mt-0">
+              <div className="p-4 md:p-6">
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-3">
+                  {data?.geographicDistribution?.map((location, index) => (
+                    <div key={index} className="p-4 bg-muted rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <MapPin className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <p className="font-semibold text-foreground">{location.country}</p>
+                          {location.state && <p className="text-xs text-muted-foreground">{location.state}</p>}
+                        </div>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">{formatNumber(location.customerCount)} customers</span>
+                        <span className="font-semibold text-primary">{formatCurrency(location.revenue)}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Desktop Table */}
+                <div className="hidden md:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-muted border-b border-border">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Location</th>
+                        <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Customers</th>
+                        <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Orders</th>
+                        <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Revenue</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {data?.geographicDistribution?.map((location, index) => (
+                        <tr key={index} className="hover:bg-muted transition-colors">
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              <MapPin className="h-4 w-4 text-muted-foreground" />
+                              <div>
+                                <p className="font-semibold text-foreground">{location.country}</p>
+                                {location.state && <p className="text-sm text-muted-foreground">{location.state}</p>}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-right text-sm text-foreground">{formatNumber(location.customerCount)}</td>
+                          <td className="px-6 py-4 text-right text-sm text-foreground">{formatNumber(location.orderCount)}</td>
+                          <td className="px-6 py-4 text-right font-semibold text-foreground">{formatCurrency(location.revenue)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            )}
+            </TabsContent>
 
             {/* Cohort Analysis Tab */}
-            {activeTab === 'growth' && (
-              <div className="space-y-4">
+            <TabsContent value="growth" className="mt-0">
+              <div className="p-4 md:p-6 space-y-4">
                 <h3 className="text-lg font-bold text-foreground mb-4">Customer Cohort Analysis</h3>
                 {data?.customerCohorts && data.customerCohorts.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-muted border-b border-border">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">
-                            Cohort
-                          </th>
-                          <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">
-                            Customers
-                          </th>
-                          <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">
-                            Month 1
-                          </th>
-                          <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">
-                            Month 2
-                          </th>
-                          <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">
-                            Month 3
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-200">
-                        {data.customerCohorts.map((cohort, index) => (
-                          <tr key={index} className="hover:bg-muted transition-colors">
-                            <td className="px-6 py-4 font-semibold text-foreground">{cohort.cohortMonth}</td>
-                            <td className="px-6 py-4 text-right text-sm text-foreground">{formatNumber(cohort.customerCount)}</td>
+                  <>
+                    {/* Mobile Card View */}
+                    <div className="md:hidden space-y-3">
+                      {data.customerCohorts.map((cohort, index) => (
+                        <div key={index} className="p-4 bg-muted rounded-lg">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="font-semibold text-foreground">{cohort.cohortMonth}</span>
+                            <span className="text-sm text-muted-foreground">{formatNumber(cohort.customerCount)} customers</span>
+                          </div>
+                          <div className="flex gap-2 flex-wrap">
                             {cohort.retentionRates?.slice(0, 3).map((rate, i) => (
-                              <td key={i} className="px-6 py-4 text-right">
-                                <span className={cn(
+                              <span
+                                key={i}
+                                className={cn(
                                   'inline-flex px-2 py-1 text-xs font-medium rounded',
                                   rate >= 50 ? 'bg-success-muted text-success-foreground' :
                                   rate >= 25 ? 'bg-warning-muted text-warning' :
                                   'bg-error-muted text-error'
-                                )}>
-                                  {rate.toFixed(1)}%
-                                </span>
-                              </td>
+                                )}
+                              >
+                                M{i + 1}: {rate.toFixed(1)}%
+                              </span>
                             ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    {/* Desktop Table */}
+                    <div className="hidden md:block overflow-x-auto">
+                      <table className="w-full">
+                        <thead className="bg-muted border-b border-border">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Cohort</th>
+                            <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Customers</th>
+                            <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Month 1</th>
+                            <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Month 2</th>
+                            <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Month 3</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200">
+                          {data.customerCohorts.map((cohort, index) => (
+                            <tr key={index} className="hover:bg-muted transition-colors">
+                              <td className="px-6 py-4 font-semibold text-foreground">{cohort.cohortMonth}</td>
+                              <td className="px-6 py-4 text-right text-sm text-foreground">{formatNumber(cohort.customerCount)}</td>
+                              {cohort.retentionRates?.slice(0, 3).map((rate, i) => (
+                                <td key={i} className="px-6 py-4 text-right">
+                                  <span
+                                    className={cn(
+                                      'inline-flex px-2 py-1 text-xs font-medium rounded',
+                                      rate >= 50 ? 'bg-success-muted text-success-foreground' :
+                                      rate >= 25 ? 'bg-warning-muted text-warning' :
+                                      'bg-error-muted text-error'
+                                    )}
+                                  >
+                                    {rate.toFixed(1)}%
+                                  </span>
+                                </td>
+                              ))}
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
                 ) : (
                   <div className="text-center py-12 text-muted-foreground">
                     <p>No cohort data available for this period</p>
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </div>

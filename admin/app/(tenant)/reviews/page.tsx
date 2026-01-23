@@ -822,7 +822,7 @@ export default function ReviewsPage() {
                   value={replyContent}
                   onChange={(e) => setReplyContent(e.target.value)}
                   placeholder="Type your reply here..."
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                   rows={4}
                 />
               </div>
@@ -967,7 +967,7 @@ export default function ReviewsPage() {
                   value={statusUpdate.moderationNotes || ''}
                   onChange={(e) => setStatusUpdate({ ...statusUpdate, moderationNotes: e.target.value })}
                   placeholder="Add notes about this moderation decision..."
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                   rows={4}
                 />
               </div>

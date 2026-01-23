@@ -149,7 +149,7 @@ export function StoreSelector({
             <button
               onClick={() => setIsOpen(!isOpen)}
               disabled={loading}
-              className="w-full flex items-center justify-between px-4 py-3 bg-card border border-border rounded-md hover:border-primary/60 focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all disabled:opacity-50"
+              className="w-full flex items-center justify-between px-4 py-3 bg-card border border-border rounded-md hover:border-primary/60 focus:outline-none focus:border-primary transition-all disabled:opacity-50"
             >
               {loading ? (
                 <div className="flex items-center gap-2 text-muted-foreground">
@@ -203,7 +203,7 @@ export function StoreSelector({
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search stores..."
-                        className="w-full h-10 pl-10 pr-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                        className="w-full h-10 pl-10 pr-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                       />
                     </div>
                   </div>

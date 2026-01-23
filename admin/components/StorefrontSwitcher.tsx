@@ -81,8 +81,8 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
         className={cn(
           'h-9 flex items-center gap-2 px-2 rounded-lg border transition-all duration-200',
           isOpen
-            ? 'bg-accent border-primary/30 shadow-md'
-            : 'bg-background border-border hover:border-primary/30 hover:bg-accent'
+            ? 'bg-primary/10 border-primary/30 shadow-md'
+            : 'bg-background border-border hover:border-primary/30 hover:bg-primary/10'
         )}
       >
         {/* Storefront Icon */}
@@ -131,7 +131,7 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
                   placeholder="Search storefronts..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-10 pl-10 pr-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                  className="w-full h-10 pl-10 pr-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                   autoFocus
                 />
               </div>
@@ -150,7 +150,7 @@ export function StorefrontSwitcher({ className }: StorefrontSwitcherProps) {
                   key={storefront.id}
                   onClick={() => handleSelectStorefront(storefront)}
                   className={cn(
-                    'w-full flex items-center justify-between px-4 py-3 hover:bg-accent transition-all duration-150 group',
+                    'w-full flex items-center justify-between px-4 py-3 hover:bg-primary/10 transition-all duration-150 group',
                     storefront.id === currentStorefront?.id && 'bg-primary/10'
                   )}
                 >

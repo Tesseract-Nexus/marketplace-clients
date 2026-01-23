@@ -48,6 +48,7 @@ import type {
 } from '@/lib/services/inventoryService';
 import type { Product, InventoryStatus } from '@/lib/api/types';
 import { BulkImportModal } from '@/components/BulkImportModal';
+import { Select } from '@/components/Select';
 import { WarehouseLogoUploader, MediaItem } from '@/components/MediaUploader';
 import { DefaultMediaURLs } from '@/lib/api/types';
 
@@ -870,7 +871,7 @@ export default function InventoryPage() {
               <select
                 value={activeTab}
                 onChange={(e) => navigateToTab(e.target.value as TabType)}
-                className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:border-primary"
               >
                 <option value="stock-levels">Stock Levels ({products.length})</option>
                 <option value="warehouses">Warehouses ({warehouses.length})</option>
@@ -927,16 +928,17 @@ export default function InventoryPage() {
                   {/* Stock level specific filters */}
                   {activeTab === 'stock-levels' && (
                     <>
-                      <select
+                      <Select
                         value={stockFilter}
-                        onChange={(e) => setStockFilter(e.target.value as StockFilter)}
-                        className="h-10 px-3 rounded-md border border-border bg-background text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <option value="all">All Stock</option>
-                        <option value="in_stock">In Stock</option>
-                        <option value="low_stock">Low Stock</option>
-                        <option value="out_of_stock">Out of Stock</option>
-                      </select>
+                        onChange={(value) => setStockFilter(value as StockFilter)}
+                        options={[
+                          { value: 'all', label: 'All Stock' },
+                          { value: 'in_stock', label: 'In Stock' },
+                          { value: 'low_stock', label: 'Low Stock' },
+                          { value: 'out_of_stock', label: 'Out of Stock' },
+                        ]}
+                        className="w-40"
+                      />
 
                       <label className="flex items-center gap-2 text-sm text-muted-foreground">
                         <input

@@ -41,7 +41,7 @@ export function SocialLinkEditor({ social, onUpdate, onDelete }: SocialLinkEdito
         <select
           value={social.platform}
           onChange={(e) => onUpdate({ platform: e.target.value as StorefrontSocialLink['platform'] })}
-          className="h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+          className="h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
         >
           {SOCIAL_PLATFORMS.map((platform) => (
             <option key={platform.value} value={platform.value}>
@@ -55,7 +55,7 @@ export function SocialLinkEditor({ social, onUpdate, onDelete }: SocialLinkEdito
           value={social.url}
           onChange={(e) => onUpdate({ url: e.target.value })}
           placeholder={platformInfo?.placeholder || 'https://...'}
-          className="col-span-2 w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+          className="col-span-2 w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
         />
       </div>
 

@@ -223,7 +223,7 @@ export default function CreateIndependentStorePage() {
                   value={formData.businessName}
                   onChange={(e) => handleBusinessNameChange(e.target.value)}
                   placeholder="e.g., Acme Electronics"
-                  className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                  className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                 />
               </div>
 
@@ -242,7 +242,7 @@ export default function CreateIndependentStorePage() {
                       onChange={(e) => setFormData({ ...formData, slug: generateSlug(e.target.value) })}
                       placeholder="acme-electronics"
                       className={cn(
-                        "flex-1 h-10 px-3 border rounded-r-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary",
+                        "flex-1 h-10 px-3 border rounded-r-md bg-background text-sm focus:outline-none focus:border-primary",
                         slugAvailable === true && "border-success/40 bg-success-muted",
                         slugAvailable === false && "border-error/30 bg-error-muted",
                         slugAvailable === null && "border-border"
@@ -374,7 +374,7 @@ export default function CreateIndependentStorePage() {
                       type="text"
                       value={formData.primaryColor}
                       onChange={(e) => setFormData({ ...formData, primaryColor: e.target.value })}
-                      className="flex-1 h-10 px-3 border border-border rounded-md bg-background text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                      className="flex-1 h-10 px-3 border border-border rounded-md bg-background text-sm font-mono focus:outline-none focus:border-primary"
                     />
                   </div>
                 </div>
@@ -393,7 +393,7 @@ export default function CreateIndependentStorePage() {
                       type="text"
                       value={formData.secondaryColor}
                       onChange={(e) => setFormData({ ...formData, secondaryColor: e.target.value })}
-                      className="flex-1 h-10 px-3 border border-border rounded-md bg-background text-sm font-mono focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                      className="flex-1 h-10 px-3 border border-border rounded-md bg-background text-sm font-mono focus:outline-none focus:border-primary"
                     />
                   </div>
                 </div>

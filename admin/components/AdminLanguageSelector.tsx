@@ -91,8 +91,8 @@ export function AdminLanguageSelector({ compact = false }: AdminLanguageSelector
               ? "bg-info-muted text-info hover:bg-info/20 hover:text-info"
               : "bg-primary text-primary-foreground border-transparent hover:bg-primary/90"
             : compact
-              ? "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
-              : "bg-background hover:bg-muted text-foreground border-border"
+              ? "bg-muted text-muted-foreground hover:bg-primary/10 hover:text-foreground"
+              : "bg-background hover:bg-primary/10 text-foreground border-border"
         )}
       >
         {selectedLanguageInfo?.flag && (
@@ -140,7 +140,7 @@ export function AdminLanguageSelector({ compact = false }: AdminLanguageSelector
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search languages..."
-                className="w-full h-10 pl-10 pr-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
+                className="w-full h-10 pl-10 pr-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
               />
             </div>
           </div>
@@ -175,7 +175,7 @@ export function AdminLanguageSelector({ compact = false }: AdminLanguageSelector
                           "w-full flex items-center justify-between px-4 py-2.5 text-sm transition-colors",
                           selectedLanguage === lang.code
                             ? "bg-primary/10 text-primary"
-                            : "text-foreground hover:bg-muted"
+                            : "text-foreground hover:bg-primary/10 hover:text-primary"
                         )}
                       >
                         <div className="flex items-center gap-3">
