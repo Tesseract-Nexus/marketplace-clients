@@ -2817,181 +2817,145 @@ export default function ProductsPage() {
               </div>
             )}
 
-            {/* Product Cards */}
-            <div className="grid gap-4">
-              {paginatedProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className={cn(
-                    "group bg-card rounded-lg border border-border overflow-hidden hover:border-primary/30 transition-colors",
-                    selectedProducts.has(product.id) && "ring-2 ring-primary border-primary/30 bg-primary/5"
-                  )}
-                >
-                  <div className="p-0 overflow-visible">
-                    <div className="flex items-stretch">
+            {/* Product Cards - Compact Layout */}
+            <div className="space-y-2">
+              {paginatedProducts.map((product) => {
+                const imageUrl = product.images?.[0]
+                  ? (typeof product.images[0] === 'string' ? product.images[0] : product.images[0]?.url)
+                  : null;
+                const isLowStock = product.lowStockThreshold && (product.quantity || 0) <= product.lowStockThreshold;
+                const isOutOfStock = (product.quantity || 0) === 0;
+
+                return (
+                  <div
+                    key={product.id}
+                    className={cn(
+                      "group bg-card rounded-lg border border-border hover:border-primary/30 transition-all",
+                      selectedProducts.has(product.id) && "ring-2 ring-primary border-primary/30 bg-primary/5"
+                    )}
+                  >
+                    <div className="flex items-center gap-3 p-3">
                       {/* Left accent bar */}
                       <div className={cn(
-                        "w-1.5 flex-shrink-0 rounded-l-lg transition-colors",
+                        "w-1 h-12 flex-shrink-0 rounded-full",
                         product.status === 'ACTIVE' ? "bg-success" :
                         product.status === 'DRAFT' ? "bg-muted-foreground" :
                         product.status === 'PENDING' ? "bg-warning" :
                         "bg-error"
                       )} />
 
-                      <div className="flex-1 p-5">
-                        <div className="flex items-start gap-4">
-                          {/* Checkbox */}
-                          <div className="pt-1">
-                            <input
-                              type="checkbox"
-                              checked={selectedProducts.has(product.id)}
-                              onChange={() => handleSelectProduct(product.id)}
-                              className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0 cursor-pointer"
-                            />
+                      {/* Checkbox */}
+                      <input
+                        type="checkbox"
+                        checked={selectedProducts.has(product.id)}
+                        onChange={() => handleSelectProduct(product.id)}
+                        className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0 cursor-pointer flex-shrink-0"
+                      />
+
+                      {/* Product Thumbnail */}
+                      <div className="w-10 h-10 flex-shrink-0 rounded-lg overflow-hidden border border-border bg-muted">
+                        {imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none';
+                              (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                            }}
+                          />
+                        ) : null}
+                        <div className={cn("w-full h-full flex items-center justify-center", imageUrl && "hidden")}>
+                          <ImageIcon className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                      </div>
+
+                      {/* Product Info - Main */}
+                      <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-[1fr,auto] gap-2 md:gap-4 items-center">
+                        {/* Left: Name, SKU, Brand */}
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <button
+                              onClick={() => handleViewProduct(product)}
+                              className="font-semibold text-foreground truncate hover:text-primary transition-colors text-left text-sm"
+                            >
+                              {product.name}
+                            </button>
+                            {getStatusBadge(product.status)}
                           </div>
-
-                          {/* Product Thumbnail */}
-                          <div className="w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden border-2 border-border bg-muted">
-                            {(() => {
-                              const imageUrl = product.images?.[0]
-                                ? (typeof product.images[0] === 'string' ? product.images[0] : product.images[0]?.url)
-                                : null;
-                              return imageUrl ? (
-                                <img
-                                  src={imageUrl}
-                                  alt={product.name}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    (e.target as HTMLImageElement).style.display = 'none';
-                                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                                  }}
-                                />
-                              ) : null;
-                            })()}
-                            <div className={cn("w-full h-full flex items-center justify-center", product.images?.[0] && "hidden")}>
-                              <ImageIcon className="w-6 h-6 text-muted-foreground" />
-                            </div>
-                          </div>
-
-                          {/* Product Info */}
-                          <div className="flex-1 min-w-0">
-                            {/* Header row */}
-                            <div className="flex items-center gap-3 mb-4">
-                              <button
-                                onClick={() => handleViewProduct(product)}
-                                className="text-lg font-bold text-foreground truncate hover:text-primary transition-colors text-left group-hover:text-primary"
-                              >
-                                {product.name}
-                              </button>
-                              {getStatusBadge(product.status)}
-                              {getInventoryBadge(product.inventoryStatus)}
-                            </div>
-
-                            {/* Info grid */}
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                              <div className="bg-muted rounded-xl p-3 border border-border">
-                                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">SKU</p>
-                                <p className="text-foreground font-mono font-semibold text-sm">{product.sku}</p>
-                              </div>
-
-                              <div className="bg-muted rounded-xl p-3 border border-border">
-                                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Brand</p>
-                                <p className="text-foreground font-semibold text-sm">{product.brand || 'N/A'}</p>
-                              </div>
-
-                              <div className="bg-success-muted rounded-xl p-3 border border-success/20">
-                                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Price</p>
-                                <p className="text-xl font-bold text-success">
-                                  {formatCurrency(product.price, product.currencyCode || storeCurrency)}
-                                </p>
-                                {product.comparePrice && (
-                                  <p className="text-xs text-muted-foreground line-through">
-                                    {formatCurrency(product.comparePrice, product.currencyCode || storeCurrency)}
-                                  </p>
-                                )}
-                              </div>
-
-                              <div className={cn(
-                                "rounded-xl p-3 border",
-                                product.lowStockThreshold && (product.quantity || 0) <= product.lowStockThreshold
-                                  ? "bg-warning-muted border-warning/30"
-                                  : "bg-info-muted border-info/30"
-                              )}>
-                                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Stock</p>
-                                <p className={cn(
-                                  "font-bold text-sm",
-                                  product.lowStockThreshold && (product.quantity || 0) <= product.lowStockThreshold
-                                    ? "text-warning"
-                                    : "text-info"
-                                )}>
-                                  {product.quantity || 0} units
-                                </p>
-                                {product.lowStockThreshold && (product.quantity || 0) <= product.lowStockThreshold && (
-                                  <p className="text-xs text-warning-muted-foreground font-medium flex items-center gap-1">
-                                    <AlertTriangle className="w-3 h-3" /> Low stock
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-
-                            {/* Description */}
-                            {product.description && (
-                              <p className="text-muted-foreground text-sm mb-3 line-clamp-2">{product.description}</p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span className="font-mono">{product.sku}</span>
+                            {product.brand && (
+                              <>
+                                <span className="text-border">•</span>
+                                <span>{product.brand}</span>
+                              </>
                             )}
-
-                            {/* Meta tags */}
-                            <div className="flex flex-wrap gap-2 text-xs">
-                              {product.weight && (
-                                <span className="px-2.5 py-1 bg-muted text-muted-foreground rounded-lg font-medium border border-border flex items-center gap-1">
-                                  <Scale className="w-3 h-3" /> {product.weight}
+                            {product.averageRating && (
+                              <>
+                                <span className="text-border">•</span>
+                                <span className="flex items-center gap-0.5 text-warning">
+                                  <Star className="w-3 h-3 fill-warning" /> {product.averageRating.toFixed(1)}
                                 </span>
-                              )}
-                              {product.currencyCode && (
-                                <span className="px-2.5 py-1 bg-success-muted text-success-muted-foreground rounded-lg font-medium border border-success/30">
-                                  {product.currencyCode}
-                                </span>
-                              )}
-                              {product.averageRating && (
-                                <span className="px-2.5 py-1 bg-warning-muted text-warning-muted-foreground rounded-lg font-medium border border-warning/30 flex items-center gap-1">
-                                  <Star className="w-3.5 h-3.5 fill-warning text-warning inline-block" aria-hidden="true" /> {product.averageRating.toFixed(1)} ({product.reviewCount})
-                                </span>
-                              )}
-                            </div>
+                              </>
+                            )}
                           </div>
-
                         </div>
 
-                        {/* Action Buttons - Horizontal row at bottom */}
-                        <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
-                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                            {product.createdAt && (
-                              <span className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                {new Date(product.createdAt).toLocaleDateString()}
-                              </span>
+                        {/* Right: Price, Stock, Actions */}
+                        <div className="flex items-center gap-3 md:gap-4">
+                          {/* Price */}
+                          <div className="text-right min-w-[80px]">
+                            <p className="font-bold text-success text-sm">
+                              {formatCurrency(product.price, product.currencyCode || storeCurrency)}
+                            </p>
+                            {product.comparePrice && (
+                              <p className="text-[10px] text-muted-foreground line-through">
+                                {formatCurrency(product.comparePrice, product.currencyCode || storeCurrency)}
+                              </p>
                             )}
                           </div>
-                          <div className="flex items-center gap-2">
+
+                          {/* Stock */}
+                          <div className={cn(
+                            "px-2 py-1 rounded-md text-xs font-semibold min-w-[60px] text-center",
+                            isOutOfStock ? "bg-error-muted text-error" :
+                            isLowStock ? "bg-warning-muted text-warning" :
+                            "bg-muted text-foreground"
+                          )}>
+                            {isOutOfStock ? (
+                              <span className="flex items-center justify-center gap-1">
+                                <PackageX className="w-3 h-3" /> 0
+                              </span>
+                            ) : isLowStock ? (
+                              <span className="flex items-center justify-center gap-1">
+                                <AlertTriangle className="w-3 h-3" /> {product.quantity}
+                              </span>
+                            ) : (
+                              <span>{product.quantity || 0}</span>
+                            )}
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleViewProduct(product)}
-                              className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
-                              title="View Details"
-                              aria-label="View product details"
+                              className="h-7 w-7 p-0 rounded-md hover:bg-primary/10"
+                              title="View"
                             >
-                              <Eye className="w-4 h-4 text-primary" aria-hidden="true" />
+                              <Eye className="w-3.5 h-3.5 text-primary" />
                             </Button>
                             <PermissionGate permission={Permission.PRODUCTS_UPDATE}>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleEdit(product)}
-                                className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
+                                className="h-7 w-7 p-0 rounded-md hover:bg-primary/10"
                                 title="Edit"
-                                aria-label="Edit product"
                               >
-                                <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
+                                <Edit className="w-3.5 h-3.5 text-primary" />
                               </Button>
                             </PermissionGate>
                             <PermissionGate permission={Permission.PRODUCTS_DELETE}>
@@ -2999,11 +2963,10 @@ export default function ProductsPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDeleteProduct(product.id)}
-                                className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
+                                className="h-7 w-7 p-0 rounded-md hover:bg-error-muted"
                                 title="Delete"
-                                aria-label="Delete product"
                               >
-                                <Trash2 className="w-4 h-4 text-error" aria-hidden="true" />
+                                <Trash2 className="w-3.5 h-3.5 text-error" />
                               </Button>
                             </PermissionGate>
                           </div>
@@ -3011,8 +2974,8 @@ export default function ProductsPage() {
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {paginatedProducts.length === 0 && (
