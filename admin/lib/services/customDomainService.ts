@@ -43,6 +43,11 @@ export interface CustomDomain {
   forceHTTPS: boolean;
   isPrimary: boolean;
 
+  // Cloudflare Tunnel (if enabled)
+  tunnelCNAMETarget?: string;
+  cloudflareTunnelConfigured?: boolean;
+  cloudflareDNSConfigured?: boolean;
+
   // Audit
   createdAt: string;
   updatedAt: string;

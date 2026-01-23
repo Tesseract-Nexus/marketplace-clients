@@ -442,6 +442,55 @@ function DomainCard({
   );
 }
 
+// Masked value display component with reveal functionality
+function MaskedValue({
+  value,
+  label,
+}: {
+  value: string;
+  label?: string;
+}) {
+  const [revealed, setRevealed] = useState(false);
+  const { showSuccess } = useDialog();
+
+  const maskedValue = value ? `${value.substring(0, 8)}${'•'.repeat(Math.min(value.length - 8, 24))}` : '—';
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value);
+    showSuccess('Copied', `${label || 'Value'} copied to clipboard`);
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <span className="font-mono text-xs break-all">
+        {revealed ? value : maskedValue}
+      </span>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-6 w-6 p-0 flex-shrink-0"
+        onClick={() => setRevealed(!revealed)}
+        title={revealed ? 'Hide' : 'Reveal'}
+      >
+        {revealed ? (
+          <XCircle className="h-3 w-3" />
+        ) : (
+          <ChevronRight className="h-3 w-3" />
+        )}
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        className="h-6 w-6 p-0 flex-shrink-0"
+        onClick={handleCopy}
+        title="Copy"
+      >
+        <Copy className="h-3 w-3" />
+      </Button>
+    </div>
+  );
+}
+
 // Custom Domain Enabled State Component
 // Shows when tenant was onboarded with a custom domain
 function CustomDomainEnabledState({
@@ -453,14 +502,38 @@ function CustomDomainEnabledState({
   adminUrl?: string;
   storefrontUrl?: string;
 }) {
-  const handleCopy = (text: string) => {
+  const { showSuccess } = useDialog();
+  const [domainDetails, setDomainDetails] = useState<CustomDomain[]>([]);
+  const [loadingDetails, setLoadingDetails] = useState(true);
+  const [showDnsConfig, setShowDnsConfig] = useState(false);
+
+  // Fetch domain details from custom-domain-service
+  useEffect(() => {
+    const fetchDomainDetails = async () => {
+      try {
+        const result = await customDomainService.listDomains(1, 10);
+        setDomainDetails(result.data || []);
+      } catch (err) {
+        console.error('Failed to fetch domain details:', err);
+      } finally {
+        setLoadingDetails(false);
+      }
+    };
+    fetchDomainDetails();
+  }, []);
+
+  const handleCopy = (text: string, label?: string) => {
     navigator.clipboard.writeText(text);
+    showSuccess('Copied', `${label || 'Value'} copied to clipboard`);
   };
 
   // Derive URLs from custom domain if not provided
   const derivedAdminUrl = adminUrl || `https://admin.${customDomain}`;
   const derivedStorefrontUrl = storefrontUrl || `https://${customDomain}`;
   const apiUrl = `https://api.${customDomain}`;
+
+  // Get primary domain details (storefront)
+  const primaryDomain = domainDetails.find(d => d.targetType === 'storefront' || d.domain === customDomain);
 
   return (
     <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
@@ -528,7 +601,7 @@ function CustomDomainEnabledState({
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 p-0"
-                  onClick={() => handleCopy(derivedStorefrontUrl)}
+                  onClick={() => handleCopy(derivedStorefrontUrl, 'Storefront URL')}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
@@ -557,7 +630,7 @@ function CustomDomainEnabledState({
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 p-0"
-                  onClick={() => handleCopy(derivedAdminUrl)}
+                  onClick={() => handleCopy(derivedAdminUrl, 'Admin URL')}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
@@ -586,13 +659,97 @@ function CustomDomainEnabledState({
                   variant="ghost"
                   size="sm"
                   className="h-8 w-8 p-0"
-                  onClick={() => handleCopy(apiUrl)}
+                  onClick={() => handleCopy(apiUrl, 'API URL')}
                 >
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           </div>
+        </div>
+
+        {/* DNS Configuration Section (Expandable) */}
+        <div className="space-y-3">
+          <button
+            onClick={() => setShowDnsConfig(!showDnsConfig)}
+            className="flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+          >
+            <ChevronRight className={`h-4 w-4 transition-transform ${showDnsConfig ? 'rotate-90' : ''}`} />
+            {showDnsConfig ? 'Hide' : 'Show'} DNS Configuration
+          </button>
+
+          {showDnsConfig && (
+            <div className="space-y-4 animate-in slide-in-from-top-2 duration-200">
+              {loadingDetails ? (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading DNS details...
+                </div>
+              ) : primaryDomain ? (
+                <div className="space-y-3">
+                  {/* Verification CNAME Record */}
+                  <div className="bg-muted/30 border border-border rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <CheckCircle2 className={`h-4 w-4 ${primaryDomain.dnsVerified ? 'text-success' : 'text-warning'}`} />
+                      <h5 className="font-medium text-foreground text-sm">Domain Verification CNAME</h5>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between p-3 bg-background rounded border border-border">
+                        <div className="flex-1">
+                          <div className="text-xs text-muted-foreground mb-1">Host</div>
+                          <div className="font-mono text-xs">
+                            {primaryDomain.verificationToken
+                              ? `_tesserix-${primaryDomain.verificationToken.substring(0, 8)}.${customDomain}`
+                              : `_tesserix-verify.${customDomain}`
+                            }
+                          </div>
+                        </div>
+                        <div className="px-4 text-muted-foreground">→</div>
+                        <div className="flex-1">
+                          <div className="text-xs text-muted-foreground mb-1">Value</div>
+                          <MaskedValue value="verify.tesserix.app" label="Verification Target" />
+                        </div>
+                      </div>
+                      {primaryDomain.verificationToken && (
+                        <div className="text-xs text-muted-foreground">
+                          Token: <MaskedValue value={primaryDomain.verificationToken} label="Verification Token" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* ACME Challenge CNAME Record */}
+                  <div className="bg-muted/30 border border-border rounded-lg p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Lock className="h-4 w-4 text-primary" />
+                      <h5 className="font-medium text-foreground text-sm">SSL Certificate ACME Challenge CNAME</h5>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-background rounded border border-border">
+                      <div className="flex-1">
+                        <div className="text-xs text-muted-foreground mb-1">Host</div>
+                        <div className="font-mono text-xs">_acme-challenge.{customDomain}</div>
+                      </div>
+                      <div className="px-4 text-muted-foreground">→</div>
+                      <div className="flex-1">
+                        <div className="text-xs text-muted-foreground mb-1">Value</div>
+                        <MaskedValue
+                          value={`${customDomain.replace(/\./g, '-')}.acme.tesserix.app`}
+                          label="ACME Target"
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      This enables automatic SSL certificate issuance and renewal.
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground">
+                  No additional DNS configuration details available.
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Info Note */}
