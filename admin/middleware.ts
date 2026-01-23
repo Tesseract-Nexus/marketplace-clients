@@ -26,15 +26,14 @@ if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_DEV_AUTH_BY
  * - admin.yahvismartfarm.com -> tenant: resolved via custom-domain-service
  */
 
-// Public paths that don't require tenant context
+// Public paths that don't require tenant validation (but still get tenant cookie set)
 const PUBLIC_PATHS = [
   '/api',
-  '/_next',
   '/favicon.ico',
   '/login',
   '/welcome',
   '/onboarding',
-  '/tenant-not-found', // Add the 404 page
+  '/tenant-not-found',
 ];
 
 // Root domain prefixes (these are NOT tenants)
@@ -339,15 +338,17 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const host = request.headers.get('host') || '';
 
-  // Skip middleware for public paths
-  if (PUBLIC_PATHS.some(path => pathname.startsWith(path))) {
-    return NextResponse.next();
-  }
-
-  // Skip static files
+  // Skip static files entirely - no processing needed
   if (pathname.match(/\.(ico|png|jpg|jpeg|gif|svg|css|js|woff|woff2|map)$/)) {
     return NextResponse.next();
   }
+
+  // Skip _next paths entirely
+  if (pathname.startsWith('/_next')) {
+    return NextResponse.next();
+  }
+
+  const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path));
 
   let tenantSlug: string | null = null;
   let tenantId: string | null = null;
@@ -405,7 +406,39 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // SECURITY: Validate that the tenant actually exists
+  // For public paths (login, welcome, etc.), skip tenant validation but still set cookies
+  // This allows the login page to know which tenant context it's in for custom domains
+  if (isPublicPath) {
+    const response = NextResponse.next();
+    response.headers.set('x-tenant-slug', tenantSlug);
+    response.headers.set('x-is-root-domain', 'false');
+    response.headers.set('x-is-custom-domain', isCustomDomainRequest ? 'true' : 'false');
+    if (tenantId) {
+      response.headers.set('x-tenant-id', tenantId);
+    }
+
+    // Set cookies for client-side access - CRITICAL for custom domain login
+    response.cookies.set('tenant-slug', tenantSlug, {
+      httpOnly: false, // Allow client-side access
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+    });
+
+    if (isCustomDomainRequest) {
+      response.cookies.set('is-custom-domain', 'true', {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
+      });
+    }
+
+    console.log('[Middleware] Public path, set tenant cookie:', tenantSlug, 'for path:', pathname);
+    return response;
+  }
+
+  // SECURITY: Validate that the tenant actually exists (only for protected paths)
   // This prevents access via arbitrary subdomains/domains
   const tenantExists = await validateTenantExists(tenantSlug);
 
