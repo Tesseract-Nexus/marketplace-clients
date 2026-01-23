@@ -20,6 +20,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { StatsGrid } from '@/components/data-listing/StatsGrid';
 import { cn } from '@/lib/utils';
 import { useTenant } from '@/contexts/TenantContext';
 
@@ -335,43 +336,14 @@ export default function CustomerSegmentsPage() {
         )}
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Total Segments</p>
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Target className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-primary">
-              {totalSegments}
-            </p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Active Segments</p>
-              <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-success" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-success">
-              {activeSegments}
-            </p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Total Members</p>
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-primary">
-              {formatNumber(totalMembers)}
-            </p>
-          </div>
-        </div>
+        <StatsGrid
+          stats={[
+            { label: 'Total Segments', value: totalSegments, icon: Target, color: 'primary' },
+            { label: 'Active Segments', value: activeSegments, icon: TrendingUp, color: 'success' },
+            { label: 'Total Members', value: formatNumber(totalMembers), icon: Users, color: 'primary' },
+          ]}
+          columns={3}
+        />
 
         {/* Filters */}
         <div className="bg-card rounded-lg border border-border p-6 shadow-sm">

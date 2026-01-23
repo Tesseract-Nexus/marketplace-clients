@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
+import { StatsGrid } from '@/components/data-listing/StatsGrid';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
 import { apiClient } from '@/lib/api/client';
@@ -233,63 +234,15 @@ export default function AbandonedCartsPage() {
         />
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Total Abandoned</p>
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <ShoppingCart className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-primary">
-              {formatNumber(stats?.totalAbandoned || 0)}
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              {formatCurrency(stats?.totalAbandonedValue || 0)} value
-            </p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Pending Recovery</p>
-              <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
-                <Mail className="h-6 w-6 text-warning" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-warning">
-              {formatNumber(stats?.pendingCount || 0)}
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">Need attention</p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Recovered</p>
-              <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-success" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-success">
-              {formatNumber(stats?.totalRecovered || 0)}
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              {(stats?.recoveryRate || 0).toFixed(1)}% recovery rate
-            </p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Recovered Value</p>
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-primary">
-              {formatCurrency(stats?.totalRecoveredValue || 0)}
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">Revenue recovered</p>
-          </div>
-        </div>
+        <StatsGrid
+          stats={[
+            { label: 'Total Abandoned', value: formatNumber(stats?.totalAbandoned || 0), icon: ShoppingCart, color: 'primary' },
+            { label: 'Pending Recovery', value: formatNumber(stats?.pendingCount || 0), icon: Mail, color: 'warning' },
+            { label: 'Recovered', value: formatNumber(stats?.totalRecovered || 0), icon: TrendingUp, color: 'success' },
+            { label: 'Recovered Value', value: formatCurrency(stats?.totalRecoveredValue || 0), icon: DollarSign, color: 'primary' },
+          ]}
+          columns={4}
+        />
 
         {/* Filters and Actions */}
         <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
