@@ -1,7 +1,7 @@
 'use client';
 
 // Orders page - Updated: 2025-12-31
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,7 @@ import {
   AdminMessage,
 } from '@/components/translation/AdminTranslatedText';
 import { Pagination } from '@/components/Pagination';
+import { StatsGrid, FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { orderService } from '@/lib/services/orderService';
 import {
   Order,
@@ -45,6 +46,7 @@ import {
   FileText,
   ChevronRight,
   AlertCircle,
+  CreditCard,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { StatusBadge, StatusType } from '@/components/ui/status-badge';
@@ -317,52 +319,56 @@ export default function OrdersPage() {
     return icons[status];
   };
 
-  const stats = [
-    {
-      labelKey: "Total Orders",
-      value: (orders || []).length,
-      icon: ShoppingCart,
-      textColor: "text-primary",
-      bgColor: "bg-primary/10"
-    },
-    {
-      labelKey: "Awaiting Payment",
-      value: (orders || []).filter(o => o.status === 'PLACED').length,
-      icon: Clock,
-      textColor: "text-warning",
-      bgColor: "bg-warning/10"
-    },
-    {
-      labelKey: "In Fulfillment",
-      value: (orders || []).filter(o =>
-        o.fulfillmentStatus === 'PROCESSING' ||
-        o.fulfillmentStatus === 'PACKED' ||
-        o.fulfillmentStatus === 'DISPATCHED' ||
-        o.fulfillmentStatus === 'IN_TRANSIT' ||
-        o.fulfillmentStatus === 'OUT_FOR_DELIVERY'
-      ).length,
-      icon: Truck,
-      textColor: "text-primary",
-      bgColor: "bg-primary/10"
-    },
-    {
-      labelKey: "Completed",
-      value: (orders || []).filter(o => o.status === 'COMPLETED').length,
-      icon: CheckCircle,
-      textColor: "text-success",
-      bgColor: "bg-success/10"
-    },
-    {
-      labelKey: "Revenue",
-      value: formatCurrency(
-        (orders || []).filter(o => o.paymentStatus === 'PAID').reduce((sum, o) => sum + parseFloat(o.total || '0'), 0),
-        orders[0]?.currencyCode || 'INR'
-      ),
-      icon: DollarSign,
-      textColor: "text-primary",
-      bgColor: "bg-primary/10"
+  // Calculate stats
+  const totalOrders = (orders || []).length;
+  const awaitingPayment = (orders || []).filter(o => o.status === 'PLACED').length;
+  const inFulfillment = (orders || []).filter(o =>
+    o.fulfillmentStatus === 'PROCESSING' ||
+    o.fulfillmentStatus === 'PACKED' ||
+    o.fulfillmentStatus === 'DISPATCHED' ||
+    o.fulfillmentStatus === 'IN_TRANSIT' ||
+    o.fulfillmentStatus === 'OUT_FOR_DELIVERY'
+  ).length;
+  const completedOrders = (orders || []).filter(o => o.status === 'COMPLETED').length;
+  const cancelledOrders = (orders || []).filter(o => o.status === 'CANCELLED').length;
+  const paidOrders = (orders || []).filter(o => o.paymentStatus === 'PAID').length;
+  const totalRevenue = (orders || []).filter(o => o.paymentStatus === 'PAID').reduce((sum, o) => sum + parseFloat(o.total || '0'), 0);
+
+  // Quick filters configuration
+  const quickFilters: QuickFilter[] = useMemo(() => [
+    { id: 'PLACED', label: 'Awaiting', icon: Clock, color: 'warning', count: awaitingPayment },
+    { id: 'PROCESSING', label: 'Processing', icon: Package, color: 'info', count: (orders || []).filter(o => o.status === 'PROCESSING').length },
+    { id: 'SHIPPED', label: 'Shipped', icon: Truck, color: 'info', count: (orders || []).filter(o => o.status === 'SHIPPED').length },
+    { id: 'COMPLETED', label: 'Completed', icon: CheckCircle, color: 'success', count: completedOrders },
+  ], [awaitingPayment, completedOrders, orders]);
+
+  // Active quick filter state
+  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
+
+  const handleQuickFilterToggle = (filterId: string) => {
+    if (statusFilter === filterId) {
+      setStatusFilter('ALL');
+      setActiveQuickFilters([]);
+    } else {
+      setStatusFilter(filterId as 'ALL' | OrderStatus);
+      setActiveQuickFilters([filterId]);
     }
-  ];
+  };
+
+  const clearAllFilters = () => {
+    setStatusFilter('ALL');
+    setPaymentStatusFilter('ALL');
+    setFulfillmentStatusFilter('ALL');
+    setSearchQuery('');
+    setActiveQuickFilters([]);
+    setShowFilters(false);
+  };
+
+  // Calculate active filter count
+  const activeFilterCount =
+    (statusFilter !== 'ALL' ? 1 : 0) +
+    (paymentStatusFilter !== 'ALL' ? 1 : 0) +
+    (fulfillmentStatusFilter !== 'ALL' ? 1 : 0);
 
   return (
     <PermissionGate
@@ -411,140 +417,95 @@ export default function OrdersPage() {
 
       {/* Stats */}
       {!loading && orders.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card
-                key={index}
-                className="border-border/50 hover:border-primary/50/50 transition-all duration-300 group overflow-hidden relative"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
-                {/* Decorative gradient background on hover */}
-                <div className={`absolute inset-0 ${stat.bgColor} opacity-0 group-hover:opacity-50 transition-opacity duration-300`} />
-                <CardContent className="p-6 relative">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors"><AdminUIText text={stat.labelKey} /></p>
-                      <p className={`text-3xl font-bold ${stat.textColor}`}>
-                        {stat.value}
-                      </p>
-                    </div>
-                    <div className={`p-4 rounded-2xl ${stat.bgColor} border border-border group-hover:scale-110 group-hover:shadow-lg group-hover:rotate-3 transition-all duration-300`}>
-                      <Icon className="w-7 h-7 text-foreground" />
-                    </div>
-                  </div>
-                  {/* Subtle bottom accent line */}
-                  <div className={`absolute bottom-0 left-0 right-0 h-1 ${stat.textColor} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left`} />
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
+        <StatsGrid
+          stats={[
+            { label: 'Total Orders', value: totalOrders, icon: ShoppingCart, color: 'primary' },
+            { label: 'Awaiting Payment', value: awaitingPayment, icon: Clock, color: 'warning' },
+            { label: 'In Fulfillment', value: inFulfillment, icon: Truck, color: 'primary' },
+            { label: 'Completed', value: completedOrders, icon: CheckCircle, color: 'success' },
+            { label: 'Revenue', value: formatCurrency(totalRevenue, orders[0]?.currencyCode || 'INR'), icon: DollarSign, color: 'primary' },
+          ]}
+          columns={5}
+          showMobileRow
+          className="mb-6"
+        />
       )}
 
       {/* Search and Filters */}
       {!loading && (
-        <Card className="border-border/50 overflow-visible relative z-40">
-          <CardContent className="p-6 overflow-visible relative">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Search by order number, customer name, or email..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring transition-all"
-                  />
-                </div>
-                <Button
-                  onClick={() => setShowFilters(!showFilters)}
-                  className={cn(
-                    "px-4 py-3 rounded-xl transition-all flex items-center gap-2",
-                    showFilters
-                      ? "bg-primary/20 text-primary border-2 border-primary/50"
-                      : "bg-muted text-foreground border-2 border-border hover:bg-muted"
-                  )}
-                  variant="ghost"
-                >
-                  <Filter className="w-5 h-5" />
-                  <AdminButtonText text="Filters" />
-                </Button>
-              </div>
-
-              {showFilters && (
-                <div className="flex flex-wrap gap-4 p-5 bg-white/80 rounded-xl border-2 border-border">
-                  <div className="flex-1 min-w-[180px]">
-                    <label className="text-xs font-bold text-foreground mb-2 block"><AdminFormLabel text="Order Status" as="span" /></label>
-                    <Select
-                      value={statusFilter}
-                      onChange={(value) => setStatusFilter(value as any)}
-                      options={[
-                        { value: 'ALL', label: 'All Status' },
-                        { value: 'PLACED', label: 'Placed' },
-                        { value: 'CONFIRMED', label: 'Confirmed' },
-                        { value: 'PROCESSING', label: 'Processing' },
-                        { value: 'COMPLETED', label: 'Completed' },
-                        { value: 'CANCELLED', label: 'Cancelled' },
-                      ]}
-                      variant="filter"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-[180px]">
-                    <label className="text-xs font-bold text-foreground mb-2 block"><AdminFormLabel text="Payment Status" as="span" /></label>
-                    <Select
-                      value={paymentStatusFilter}
-                      onChange={(value) => setPaymentStatusFilter(value as any)}
-                      options={[
-                        { value: 'ALL', label: 'All Status' },
-                        { value: 'PENDING', label: 'Pending' },
-                        { value: 'PAID', label: 'Paid' },
-                        { value: 'FAILED', label: 'Failed' },
-                        { value: 'PARTIALLY_REFUNDED', label: 'Partial Refund' },
-                        { value: 'REFUNDED', label: 'Refunded' },
-                      ]}
-                      variant="filter"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-[180px]">
-                    <label className="text-xs font-bold text-foreground mb-2 block"><AdminFormLabel text="Fulfillment Status" as="span" /></label>
-                    <Select
-                      value={fulfillmentStatusFilter}
-                      onChange={(value) => setFulfillmentStatusFilter(value as any)}
-                      options={[
-                        { value: 'ALL', label: 'All Status' },
-                        { value: 'UNFULFILLED', label: 'Unfulfilled' },
-                        { value: 'PROCESSING', label: 'Processing' },
-                        { value: 'PACKED', label: 'Packed' },
-                        { value: 'DISPATCHED', label: 'Dispatched' },
-                        { value: 'IN_TRANSIT', label: 'In Transit' },
-                        { value: 'OUT_FOR_DELIVERY', label: 'Out for Delivery' },
-                        { value: 'DELIVERED', label: 'Delivered' },
-                        { value: 'FAILED_DELIVERY', label: 'Failed Delivery' },
-                        { value: 'RETURNED', label: 'Returned' },
-                      ]}
-                      variant="filter"
-                    />
-                  </div>
-                  <Button
-                    onClick={() => {
-                      setStatusFilter('ALL');
-                      setPaymentStatusFilter('ALL');
-                      setFulfillmentStatusFilter('ALL');
-                      setSearchQuery('');
-                    }}
-                    className="px-5 py-2.5 bg-card border-2 border-border rounded-xl text-sm font-semibold hover:bg-muted transition-all self-end"
-                    variant="outline"
-                  >
-                    <AdminButtonText text="Clear All" />
-                  </Button>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        <FilterPanel
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Search by order number, customer name, or email..."
+          expanded={showFilters}
+          onExpandedChange={setShowFilters}
+          activeFilterCount={activeFilterCount}
+          onClearAll={clearAllFilters}
+          className="mb-6"
+          quickFilters={
+            <QuickFilters
+              filters={quickFilters}
+              activeFilters={activeQuickFilters}
+              onFilterToggle={handleQuickFilterToggle}
+              onClearAll={clearAllFilters}
+              showClearAll={false}
+              size="sm"
+            />
+          }
+        >
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Order Status</label>
+            <Select
+              value={statusFilter}
+              onChange={(value) => {
+                setStatusFilter(value as any);
+                setActiveQuickFilters(value !== 'ALL' ? [value] : []);
+              }}
+              options={[
+                { value: 'ALL', label: 'All Status' },
+                { value: 'PLACED', label: 'Placed' },
+                { value: 'CONFIRMED', label: 'Confirmed' },
+                { value: 'PROCESSING', label: 'Processing' },
+                { value: 'COMPLETED', label: 'Completed' },
+                { value: 'CANCELLED', label: 'Cancelled' },
+              ]}
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Payment Status</label>
+            <Select
+              value={paymentStatusFilter}
+              onChange={(value) => setPaymentStatusFilter(value as any)}
+              options={[
+                { value: 'ALL', label: 'All Status' },
+                { value: 'PENDING', label: 'Pending' },
+                { value: 'PAID', label: 'Paid' },
+                { value: 'FAILED', label: 'Failed' },
+                { value: 'PARTIALLY_REFUNDED', label: 'Partial Refund' },
+                { value: 'REFUNDED', label: 'Refunded' },
+              ]}
+            />
+          </div>
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Fulfillment Status</label>
+            <Select
+              value={fulfillmentStatusFilter}
+              onChange={(value) => setFulfillmentStatusFilter(value as any)}
+              options={[
+                { value: 'ALL', label: 'All Status' },
+                { value: 'UNFULFILLED', label: 'Unfulfilled' },
+                { value: 'PROCESSING', label: 'Processing' },
+                { value: 'PACKED', label: 'Packed' },
+                { value: 'DISPATCHED', label: 'Dispatched' },
+                { value: 'IN_TRANSIT', label: 'In Transit' },
+                { value: 'OUT_FOR_DELIVERY', label: 'Out for Delivery' },
+                { value: 'DELIVERED', label: 'Delivered' },
+                { value: 'FAILED_DELIVERY', label: 'Failed Delivery' },
+                { value: 'RETURNED', label: 'Returned' },
+              ]}
+            />
+          </div>
+        </FilterPanel>
       )}
 
       {/* Active Filters Chips */}

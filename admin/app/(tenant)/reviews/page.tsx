@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Search, Plus, Eye, CheckCircle, XCircle, Flag, Star, MessageSquare, Shield, AlertCircle, X, Loader2, Sparkles, ShieldCheck, Camera, ThumbsUp, Home, MessageCircle } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Search, Plus, Eye, CheckCircle, XCircle, Flag, Star, MessageSquare, Shield, AlertCircle, X, Loader2, Sparkles, ShieldCheck, Camera, ThumbsUp, Home, MessageCircle, Clock } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
 import { Pagination } from '@/components/Pagination';
+import { StatsGrid, FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { reviewService } from '@/lib/services/reviewService';
 import { productService } from '@/lib/services/productService';
 import type { Review, ReviewStatus, UpdateReviewStatusRequest, ReviewMedia, Product } from '@/lib/api/types';
@@ -278,7 +279,39 @@ export default function ReviewsPage() {
   const totalReviews = reviews.length;
   const pendingReviews = reviews.filter((r) => r.status === 'PENDING').length;
   const approvedReviews = reviews.filter((r) => r.status === 'APPROVED').length;
+  const rejectedReviews = reviews.filter((r) => r.status === 'REJECTED').length;
   const flaggedReviews = reviews.filter((r) => r.status === 'FLAGGED').length;
+
+  // Quick filters configuration
+  const quickFilters: QuickFilter[] = useMemo(() => [
+    { id: 'PENDING', label: 'Pending', icon: Clock, color: 'warning', count: pendingReviews },
+    { id: 'APPROVED', label: 'Approved', icon: CheckCircle, color: 'success', count: approvedReviews },
+    { id: 'REJECTED', label: 'Rejected', icon: XCircle, color: 'error', count: rejectedReviews },
+    { id: 'FLAGGED', label: 'Flagged', icon: Flag, color: 'error', count: flaggedReviews },
+  ], [pendingReviews, approvedReviews, rejectedReviews, flaggedReviews]);
+
+  // Active quick filter state
+  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
+
+  const handleQuickFilterToggle = (filterId: string) => {
+    if (statusFilter === filterId) {
+      setStatusFilter('ALL');
+      setActiveQuickFilters([]);
+    } else {
+      setStatusFilter(filterId);
+      setActiveQuickFilters([filterId]);
+    }
+  };
+
+  const clearAllFilters = () => {
+    setStatusFilter('ALL');
+    setTypeFilter('ALL');
+    setSearchQuery('');
+    setActiveQuickFilters([]);
+  };
+
+  // Calculate active filter count
+  const activeFilterCount = (statusFilter !== 'ALL' ? 1 : 0) + (typeFilter !== 'ALL' ? 1 : 0);
 
   return (
     <PermissionGate
@@ -304,93 +337,51 @@ export default function ReviewsPage() {
       <PageError error={error} onDismiss={() => setError(null)} />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
-        <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total Reviews</p>
-              <p className="text-2xl sm:text-3xl font-bold text-foreground mt-1 sm:mt-2">
-                {totalReviews}
-              </p>
-            </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-              <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium">Pending</p>
-              <p className="text-2xl sm:text-3xl font-bold text-warning mt-1 sm:mt-2">
-                {pendingReviews}
-              </p>
-            </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-warning/10 rounded-lg flex items-center justify-center">
-              <Star className="h-5 w-5 sm:h-6 sm:w-6 text-warning" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium">Approved</p>
-              <p className="text-2xl sm:text-3xl font-bold text-success mt-1 sm:mt-2">
-                {approvedReviews}
-              </p>
-            </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-success/10 rounded-lg flex items-center justify-center">
-              <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-success" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium">Flagged</p>
-              <p className="text-2xl sm:text-3xl font-bold text-error mt-1 sm:mt-2">
-                {flaggedReviews}
-              </p>
-            </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-error-muted rounded-lg flex items-center justify-center">
-              <Shield className="h-5 w-5 sm:h-6 sm:w-6 text-error" />
-            </div>
-          </div>
-        </div>
-      </div>
+      <StatsGrid
+        stats={[
+          { label: 'Total Reviews', value: totalReviews, icon: MessageSquare, color: 'primary' },
+          { label: 'Pending', value: pendingReviews, icon: Star, color: 'warning' },
+          { label: 'Approved', value: approvedReviews, icon: CheckCircle, color: 'success' },
+          { label: 'Flagged', value: flaggedReviews, icon: Shield, color: 'error' },
+        ]}
+        columns={4}
+        showMobileRow
+        className="mb-6"
+      />
 
       {/* Filters and Search */}
-      <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="sm:col-span-2 lg:col-span-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search reviews..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 w-full"
-              />
-            </div>
-          </div>
-
-          <Select
-            value={statusFilter}
-            onChange={(value) => setStatusFilter(value)}
-            options={statusOptions}
+      <FilterPanel
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Search reviews..."
+        activeFilterCount={activeFilterCount}
+        onClearAll={clearAllFilters}
+        className="mb-6"
+        quickFilters={
+          <QuickFilters
+            filters={quickFilters}
+            activeFilters={activeQuickFilters}
+            onFilterToggle={handleQuickFilterToggle}
+            onClearAll={clearAllFilters}
+            showClearAll={false}
+            size="sm"
           />
-
-          <Select
-            value={typeFilter}
-            onChange={(value) => setTypeFilter(value)}
-            options={typeOptions}
-          />
-        </div>
-      </div>
+        }
+      >
+        <Select
+          value={statusFilter}
+          onChange={(value) => {
+            setStatusFilter(value);
+            setActiveQuickFilters(value !== 'ALL' ? [value] : []);
+          }}
+          options={statusOptions}
+        />
+        <Select
+          value={typeFilter}
+          onChange={(value) => setTypeFilter(value)}
+          options={typeOptions}
+        />
+      </FilterPanel>
 
       {/* Bulk Actions Toolbar */}
       {selectedReviews.size > 0 && (
