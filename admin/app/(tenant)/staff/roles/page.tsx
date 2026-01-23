@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useTenant } from '@/contexts/TenantContext';
+import { useToast } from '@/contexts/ToastContext';
 import {
   Plus,
   Search,
@@ -74,6 +75,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
 export default function RolesPage() {
   const { currentTenant, isLoading: tenantLoading } = useTenant();
   const { canCreateRoles, canDeleteRoles } = useRoleCapabilities();
+  const toast = useToast();
 
   const [roles, setRoles] = useState<Role[]>([]);
   const [permissionCategories, setPermissionCategories] = useState<PermissionCategory[]>([]);
@@ -248,8 +250,11 @@ export default function RolesPage() {
           await roleService.delete(role.id);
           await loadData();
           setModalConfig({ ...modalConfig, isOpen: false });
+          toast.success('Role Deleted', `"${role.displayName}" has been successfully deleted.`);
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to delete role');
+          const errorMessage = err instanceof Error ? err.message : 'Failed to delete role';
+          setError(errorMessage);
+          toast.error('Delete Failed', errorMessage);
         }
       },
     });
@@ -268,6 +273,7 @@ export default function RolesPage() {
           permissionIds,
         };
         await roleService.create(createData);
+        toast.success('Role Created', `"${formData.displayName}" has been successfully created.`);
       } else if (viewMode === 'edit' && selectedRole) {
         const updateData: UpdateRoleRequest = {
           name: formData.name,
@@ -280,13 +286,16 @@ export default function RolesPage() {
         };
         await roleService.update(selectedRole.id, updateData);
         await roleService.setPermissions(selectedRole.id, { permissionIds });
+        toast.success('Role Updated', `"${formData.displayName}" has been successfully updated.`);
       }
 
       await loadData();
       setViewMode('list');
       setSelectedRole(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save role');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save role';
+      setError(errorMessage);
+      toast.error('Save Failed', errorMessage);
     } finally {
       setSaving(false);
     }

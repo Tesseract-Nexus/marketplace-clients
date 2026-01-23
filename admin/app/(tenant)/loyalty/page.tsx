@@ -9,6 +9,7 @@ import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { apiClient } from '@/lib/api/client';
 import type { LoyaltyProgram, LoyaltyTier } from '@/lib/api/types';
 
@@ -44,6 +45,7 @@ const DEFAULT_TIERS: LoyaltyTier[] = [
 
 export default function LoyaltyProgramPage() {
   const { showAlert, showConfirm } = useDialog();
+  const toast = useToast();
   const [activeTab, setActiveTab] = useState<TabType>('settings');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -218,16 +220,13 @@ export default function LoyaltyProgramPage() {
 
       if (response.success) {
         setProgramExists(true);
-        await showAlert({ title: 'Success', message: 'Loyalty program saved successfully!' });
+        toast.success('Success', 'Loyalty program saved successfully!');
       } else {
         throw new Error(response.error?.message || 'Failed to save loyalty program');
       }
     } catch (err) {
       console.error('Failed to save loyalty program:', err);
-      await showAlert({
-        title: 'Error',
-        message: err instanceof Error ? err.message : 'Failed to save loyalty program. Please try again.'
-      });
+      toast.error('Error', err instanceof Error ? err.message : 'Failed to save loyalty program. Please try again.');
     } finally {
       setSaving(false);
     }

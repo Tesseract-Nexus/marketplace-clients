@@ -23,6 +23,7 @@ import { ConfirmModal } from '@/components/ConfirmModal';
 import { StatsGrid } from '@/components/data-listing/StatsGrid';
 import { cn } from '@/lib/utils';
 import { useTenant } from '@/contexts/TenantContext';
+import { useToast } from '@/contexts/ToastContext';
 
 interface SegmentRule {
   field: string;
@@ -72,6 +73,7 @@ const segmentTypeOptions = [
 
 export default function CustomerSegmentsPage() {
   const { currentTenant } = useTenant();
+  const toast = useToast();
   const [segments, setSegments] = useState<CustomerSegment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -156,8 +158,11 @@ export default function CustomerSegmentsPage() {
       setShowCreateModal(false);
       resetForm();
       fetchSegments();
+      toast.success('Segment Created', `${createForm.name} has been created successfully`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create segment');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create segment';
+      setError(errorMessage);
+      toast.error('Creation Failed', errorMessage);
     } finally {
       setSaving(false);
     }
@@ -190,8 +195,11 @@ export default function CustomerSegmentsPage() {
       setSelectedSegment(null);
       resetForm();
       fetchSegments();
+      toast.success('Segment Updated', `${createForm.name} has been updated successfully`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update segment');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update segment';
+      setError(errorMessage);
+      toast.error('Update Failed', errorMessage);
     } finally {
       setSaving(false);
     }
@@ -201,6 +209,7 @@ export default function CustomerSegmentsPage() {
     if (!segmentToDelete) return;
 
     try {
+      const segmentName = segments.find(s => s.id === segmentToDelete)?.name || 'Segment';
       const res = await fetch(`/api/segments/${segmentToDelete}`, {
         method: 'DELETE',
         credentials: 'include',
@@ -211,8 +220,11 @@ export default function CustomerSegmentsPage() {
       setShowDeleteModal(false);
       setSegmentToDelete(null);
       fetchSegments();
+      toast.success('Segment Deleted', `${segmentName} has been deleted successfully`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete segment');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to delete segment';
+      setError(errorMessage);
+      toast.error('Deletion Failed', errorMessage);
     }
   };
 

@@ -26,6 +26,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { StoreSelector } from '@/components/settings/StoreSelector';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { settingsService } from '@/lib/services/settingsService';
 import { storefrontService } from '@/lib/services/storefrontService';
 import type { Storefront } from '@/lib/api/types';
@@ -63,6 +64,7 @@ const DEFAULT_CREATE_FORM = {
 
 export default function ContentPagesSettingsPage() {
   const { showConfirm, showSuccess, showError } = useDialog();
+  const toast = useToast();
 
   // Storefront state
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
@@ -439,9 +441,9 @@ export default function ContentPagesSettingsPage() {
       await savePages([...pages, newPage]);
       setShowCreateModal(false);
       setCreateForm(DEFAULT_CREATE_FORM);
-      showSuccess('Success', 'Page created successfully!');
+      toast.success('Success', 'Page created successfully!');
     } catch (error) {
-      showError('Error', 'Failed to create page');
+      toast.error('Error', 'Failed to create page');
     }
   };
 
@@ -463,9 +465,9 @@ export default function ContentPagesSettingsPage() {
       setShowEditModal(false);
       setEditForm(null);
       setSelectedPage(null);
-      showSuccess('Success', 'Page updated successfully!');
+      toast.success('Success', 'Page updated successfully!');
     } catch (error) {
-      showError('Error', 'Failed to update page');
+      toast.error('Error', 'Failed to update page');
     }
   };
 
@@ -483,9 +485,9 @@ export default function ContentPagesSettingsPage() {
 
     try {
       await savePages(updatedPages);
-      showSuccess('Success', 'Page published!');
+      toast.success('Success', 'Page published!');
     } catch (error) {
-      showError('Error', 'Failed to publish page');
+      toast.error('Error', 'Failed to publish page');
     }
   };
 
@@ -502,9 +504,9 @@ export default function ContentPagesSettingsPage() {
 
     try {
       await savePages(updatedPages);
-      showSuccess('Success', 'Page unpublished');
+      toast.success('Success', 'Page unpublished');
     } catch (error) {
-      showError('Error', 'Failed to unpublish page');
+      toast.error('Error', 'Failed to unpublish page');
     }
   };
 
@@ -520,9 +522,9 @@ export default function ContentPagesSettingsPage() {
       const updatedPages = pages.filter((p) => p.id !== id);
       try {
         await savePages(updatedPages);
-        showSuccess('Success', 'Page deleted');
+        toast.success('Success', 'Page deleted');
       } catch (error) {
-        showError('Error', 'Failed to delete page');
+        toast.error('Error', 'Failed to delete page');
       }
     }
   };

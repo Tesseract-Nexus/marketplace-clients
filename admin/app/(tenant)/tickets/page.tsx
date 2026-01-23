@@ -17,6 +17,7 @@ import { Pagination } from '@/components/Pagination';
 import { ticketService } from '@/lib/services/ticketService';
 import type { Ticket, TicketStatus, TicketPriority, TicketType, CreateTicketRequest } from '@/lib/api/types';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 
 const statusOptions = [
   { value: 'ALL', label: 'All Statuses' },
@@ -107,6 +108,7 @@ export default function TicketsPage() {
   const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
 
   const { showAlert } = useDialog();
+  const toast = useToast();
 
   // Validation functions
   const validateField = (name: string, value: any): string | null => {
@@ -222,6 +224,7 @@ export default function TicketsPage() {
     try {
       setError(null);
       await ticketService.updateTicketStatus(ticketId, status);
+      toast.success('Status Updated', `Ticket status changed to ${status.replace(/_/g, ' ')}`);
       loadTickets();
       if (selectedTicket && selectedTicket.id === ticketId) {
         setShowDetailModal(false);
@@ -229,7 +232,9 @@ export default function TicketsPage() {
       }
     } catch (error) {
       console.error('Error updating ticket status:', error);
-      setError(error instanceof Error ? error.message : 'Failed to update ticket status. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update ticket status. Please try again.';
+      setError(errorMessage);
+      toast.error('Update Failed', errorMessage);
       showAlert({
         title: 'Error',
         message: 'Failed to update ticket status',
@@ -249,6 +254,7 @@ export default function TicketsPage() {
     try {
       setError(null);
       await ticketService.createTicket(newTicket);
+      toast.success('Ticket Created', 'Your ticket has been created successfully');
       setShowCreateModal(false);
       setNewTicket({
         title: '',
@@ -260,7 +266,9 @@ export default function TicketsPage() {
       loadTickets();
     } catch (error) {
       console.error('Error creating ticket:', error);
-      setError(error instanceof Error ? error.message : 'Failed to create ticket. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create ticket. Please try again.';
+      setError(errorMessage);
+      toast.error('Creation Failed', errorMessage);
       showAlert({
         title: 'Error',
         message: 'Failed to create ticket',
@@ -275,12 +283,15 @@ export default function TicketsPage() {
       setAddingComment(true);
       setError(null);
       const response = await ticketService.addComment(selectedTicket.id, newComment);
+      toast.success('Comment Added', 'Your comment has been added successfully');
       setSelectedTicket(response.data);
       setNewComment('');
       loadTickets();
     } catch (error) {
       console.error('Error adding comment:', error);
-      setError(error instanceof Error ? error.message : 'Failed to add comment. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to add comment. Please try again.';
+      setError(errorMessage);
+      toast.error('Comment Failed', errorMessage);
       showAlert({
         title: 'Error',
         message: 'Failed to add comment',

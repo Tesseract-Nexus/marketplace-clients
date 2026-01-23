@@ -90,23 +90,25 @@ export default function ProductsPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [urlInitialized, setUrlInitialized] = useState(false);
 
-  // Filters
-  const [searchQuery, setSearchQuery] = useState('');
+  // Filters - initialized from URL params
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [statusFilter, setStatusFilter] = useState<ProductStatus | 'ALL'>(
-    'ALL'
+    (searchParams.get('status') as ProductStatus) || 'ALL'
   );
   const [inventoryStatusFilter, setInventoryStatusFilter] = useState<
     InventoryStatus | 'ALL'
-  >('ALL');
-  const [brandFilter, setBrandFilter] = useState('ALL');
-  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
+  >((searchParams.get('inventory') as InventoryStatus) || 'ALL');
+  const [brandFilter, setBrandFilter] = useState(searchParams.get('brand') || 'ALL');
+  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>(
+    searchParams.get('quick')?.split(',').filter(Boolean) || []
+  );
 
   // Bulk selection
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(25);
+  // Pagination - initialized from URL params
+  const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1', 10));
+  const [itemsPerPage, setItemsPerPage] = useState(parseInt(searchParams.get('limit') || '25', 10));
 
   // Form state - vendorId is automatically set from tenant context via API headers
   const [formData, setFormData] = useState<
@@ -428,6 +430,35 @@ export default function ProductsPage() {
   const navigateToCreate = useCallback(() => {
     router.push('/products?mode=create');
   }, [router]);
+
+  // Update URL params when filters change
+  const updateUrlParams = useCallback((params: Record<string, string>) => {
+    const url = new URL(window.location.href);
+    Object.entries(params).forEach(([key, value]) => {
+      // Only set non-default values
+      if (value && value !== 'ALL' && value !== '1' && value !== '25') {
+        url.searchParams.set(key, value);
+      } else {
+        url.searchParams.delete(key);
+      }
+    });
+    router.replace(url.pathname + url.search, { scroll: false });
+  }, [router]);
+
+  // Sync filter changes to URL (only when in list view)
+  useEffect(() => {
+    if (viewMode !== 'list' || !urlInitialized) return;
+
+    updateUrlParams({
+      q: searchQuery,
+      status: statusFilter,
+      inventory: inventoryStatusFilter,
+      brand: brandFilter,
+      quick: activeQuickFilters.join(','),
+      page: currentPage.toString(),
+      limit: itemsPerPage.toString(),
+    });
+  }, [searchQuery, statusFilter, inventoryStatusFilter, brandFilter, activeQuickFilters, currentPage, itemsPerPage, viewMode, urlInitialized, updateUrlParams]);
 
   const loadProducts = async () => {
     try {
@@ -862,19 +893,21 @@ export default function ProductsPage() {
           vendorId: currentTenant?.id || '',
         } as CreateProductRequest;
         await productService.createProduct(createData);
+        toast.success('Product Created', `${formData.name} has been created successfully`);
       } else if (viewMode === 'edit' && selectedProduct) {
         await productService.updateProduct(
           selectedProduct.id,
           formData as UpdateProductRequest
         );
+        toast.success('Product Updated', `${formData.name} has been updated successfully`);
       }
       await loadProducts();
       navigateToList();
       setErrors({});
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to save product'
-      );
+      const errorMsg = err instanceof Error ? err.message : 'Failed to save product';
+      toast.error('Failed to Save Product', errorMsg);
+      setError(errorMsg);
     }
   };
 
@@ -914,7 +947,10 @@ export default function ProductsPage() {
 
     // If partial success, show warning
     if (result.partialSuccess && result.errors?.length) {
+      toast.warning('Partial Success', `Deleted ${deletedItems.join(', ')}, but some operations failed`);
       setError(`Deleted ${deletedItems.join(', ')}, but some operations failed: ${result.errors.map(e => e.message).join(', ')}`);
+    } else {
+      toast.success('Products Deleted', `Successfully deleted ${deletedItems.join(', ')}`);
     }
   };
 

@@ -28,6 +28,7 @@ import { PageLoading } from '@/components/common';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenantCurrency } from '@/hooks/useTenantCurrency';
 import { apiClient } from '@/lib/api/client';
 import type { GiftCard, GiftCardStats, CreateGiftCardRequest } from '@/lib/api/types';
@@ -67,6 +68,7 @@ const DEFAULT_STATS: GiftCardStats = {
 
 export default function GiftCardsPage() {
   const { showAlert, showConfirm } = useDialog();
+  const toast = useToast();
   const { currency } = useTenantCurrency();
 
   // Data state
@@ -215,7 +217,7 @@ export default function GiftCardsPage() {
     e.preventDefault();
 
     if (!createForm.initialBalance || parseFloat(createForm.initialBalance) <= 0) {
-      await showAlert({ title: 'Error', message: 'Please enter a valid amount.' });
+      toast.error('Validation Error', 'Please enter a valid amount.');
       return;
     }
 
@@ -234,7 +236,7 @@ export default function GiftCardsPage() {
       const response = await apiClient.post<ApiResponse<GiftCard>>('/gift-cards', payload);
 
       if (response.success) {
-        await showAlert({ title: 'Success', message: 'Gift card created successfully!' });
+        toast.success('Gift Card Created', 'Gift card created successfully!');
         setShowCreateModal(false);
         setCreateForm({
           initialBalance: '',
@@ -251,10 +253,7 @@ export default function GiftCardsPage() {
       }
     } catch (err) {
       console.error('Failed to create gift card:', err);
-      await showAlert({
-        title: 'Error',
-        message: err instanceof Error ? err.message : 'Failed to create gift card. Please try again.'
-      });
+      toast.error('Creation Failed', err instanceof Error ? err.message : 'Failed to create gift card. Please try again.');
     } finally {
       setCreating(false);
     }

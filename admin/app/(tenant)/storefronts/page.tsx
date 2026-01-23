@@ -30,6 +30,7 @@ import { Pagination } from '@/components/Pagination';
 import { storefrontService } from '@/lib/services/storefrontService';
 import { Storefront } from '@/lib/api/types';
 import { useTenant } from '@/contexts/TenantContext';
+import { useToast } from '@/contexts/ToastContext';
 import { getStorefrontUrl } from '@/lib/utils/tenant';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 
@@ -37,6 +38,7 @@ type ViewMode = 'list' | 'detail';
 
 export default function StorefrontsPage() {
   const { currentTenant, isLoading: isTenantLoading } = useTenant();
+  const toast = useToast();
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedStorefront, setSelectedStorefront] = useState<Storefront | null>(null);
@@ -123,8 +125,11 @@ export default function StorefrontsPage() {
           await storefrontService.deleteStorefront(storefront.id);
           await loadStorefronts();
           setModalConfig({ ...modalConfig, isOpen: false });
+          toast.success('Storefront Deleted', 'The storefront has been deleted successfully');
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to delete storefront');
+          const errorMsg = err instanceof Error ? err.message : 'Failed to delete storefront';
+          toast.error('Failed to Delete Storefront', errorMsg);
+          setError(errorMsg);
         }
       },
     });

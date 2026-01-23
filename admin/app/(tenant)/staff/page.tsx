@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { useParams } from 'next/navigation';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTenant } from '@/contexts/TenantContext';
 import {
   Plus,
@@ -77,22 +77,24 @@ export default function StaffPage() {
   const tenantSlug = params?.slug as string;
   const { currentTenant, isLoading: tenantLoading } = useTenant();
   const toast = useToast();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [staff, setStaff] = useState<Staff[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [selectedStaff, setSelectedStaff] = useState<Staff | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
-  const [roleFilter, setRoleFilter] = useState<string>('ALL');
-  const [employmentTypeFilter, setEmploymentTypeFilter] = useState<string>('ALL');
-  const [statusFilter, setStatusFilter] = useState<string>('ALL');
+  const [roleFilter, setRoleFilter] = useState<string>(searchParams.get('role') || 'ALL');
+  const [employmentTypeFilter, setEmploymentTypeFilter] = useState<string>(searchParams.get('employment') || 'ALL');
+  const [statusFilter, setStatusFilter] = useState<string>(searchParams.get('status') || 'ALL');
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(25);
+  // Pagination - initialized from URL params
+  const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1', 10));
+  const [itemsPerPage, setItemsPerPage] = useState(parseInt(searchParams.get('limit') || '25', 10));
 
   // Stepper state
   const [currentStep, setCurrentStep] = useState(1);
@@ -195,6 +197,34 @@ export default function StaffPage() {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, roleFilter, employmentTypeFilter, statusFilter]);
+
+  // Update URL params when filters change
+  const updateUrlParams = useCallback((params: Record<string, string>) => {
+    const url = new URL(window.location.href);
+    Object.entries(params).forEach(([key, value]) => {
+      // Only set non-default values
+      if (value && value !== 'ALL' && value !== '1' && value !== '25') {
+        url.searchParams.set(key, value);
+      } else {
+        url.searchParams.delete(key);
+      }
+    });
+    router.replace(url.pathname + url.search, { scroll: false });
+  }, [router]);
+
+  // Sync filter changes to URL (only when in list view)
+  useEffect(() => {
+    if (viewMode !== 'list' || loading) return;
+
+    updateUrlParams({
+      q: searchQuery,
+      role: roleFilter,
+      employment: employmentTypeFilter,
+      status: statusFilter,
+      page: currentPage.toString(),
+      limit: itemsPerPage.toString(),
+    });
+  }, [searchQuery, roleFilter, employmentTypeFilter, statusFilter, currentPage, itemsPerPage, viewMode, loading, updateUrlParams]);
 
   // Stats calculations
   const statsData = useMemo(() => {

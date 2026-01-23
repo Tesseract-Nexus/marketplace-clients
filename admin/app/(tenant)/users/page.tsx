@@ -25,6 +25,7 @@ import { cn } from '@/lib/utils';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
+import { useToast } from '@/contexts/ToastContext';
 
 interface User {
   id: string;
@@ -114,6 +115,7 @@ const statusOptions = [
 ];
 
 export default function UsersHubPage() {
+  const toast = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -185,8 +187,10 @@ export default function UsersHubPage() {
       setUsers([...users, newUser]);
       setShowCreateModal(false);
       resetForm();
+      toast.success('User Created', `Successfully created user ${formData.displayName}`);
     } catch (error) {
       console.error('Error creating user:', error);
+      toast.error('Creation Failed', 'Failed to create user. Please try again.');
     }
   };
 
@@ -203,31 +207,42 @@ export default function UsersHubPage() {
       setShowEditModal(false);
       setSelectedUser(null);
       resetForm();
+      toast.success('User Updated', `Successfully updated user ${formData.displayName}`);
     } catch (error) {
       console.error('Error updating user:', error);
+      toast.error('Update Failed', 'Failed to update user. Please try again.');
     }
   };
 
   const handleDeleteUser = async () => {
     if (!selectedUser) return;
     try {
+      const userName = selectedUser.displayName;
       setUsers(users.filter((u) => u.id !== selectedUser.id));
       setShowDeleteModal(false);
       setSelectedUser(null);
+      toast.success('User Deleted', `Successfully deleted user ${userName}`);
     } catch (error) {
       console.error('Error deleting user:', error);
+      toast.error('Deletion Failed', 'Failed to delete user. Please try again.');
     }
   };
 
   const handleToggleStatus = async (user: User) => {
     try {
+      const newStatus = !user.accountEnabled;
       setUsers(
         users.map((u) =>
           u.id === user.id ? { ...u, accountEnabled: !u.accountEnabled } : u
         )
       );
+      toast.success(
+        'Status Updated',
+        `User ${user.displayName} has been ${newStatus ? 'enabled' : 'disabled'}`
+      );
     } catch (error) {
       console.error('Error toggling user status:', error);
+      toast.error('Status Update Failed', 'Failed to update user status. Please try again.');
     }
   };
 

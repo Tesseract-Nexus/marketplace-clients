@@ -43,6 +43,7 @@ import { PageLoading } from '@/components/common';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { apiClient } from '@/lib/api/client';
 import type {
   Campaign,
@@ -116,6 +117,7 @@ const DEFAULT_STATS: CampaignStats = {
 
 export default function CampaignsPage() {
   const { showAlert, showConfirm } = useDialog();
+  const toast = useToast();
 
   // Data state
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -371,7 +373,7 @@ export default function CampaignsPage() {
       // Handle both wrapped {success, data} and raw backend response (with id)
       const isSuccess = ('success' in response && response.success) || ('id' in response);
       if (isSuccess) {
-        await showAlert({ title: 'Success', message: 'Campaign created successfully!' });
+        toast.success('Campaign Created', 'Campaign created successfully!');
         setShowCreateModal(false);
         setCreateForm({
           name: '',
@@ -391,10 +393,7 @@ export default function CampaignsPage() {
       }
     } catch (err) {
       console.error('Failed to create campaign:', err);
-      await showAlert({
-        title: 'Error',
-        message: err instanceof Error ? err.message : 'Failed to create campaign. Please try again.'
-      });
+      toast.error('Creation Failed', err instanceof Error ? err.message : 'Failed to create campaign. Please try again.');
     } finally {
       setCreating(false);
     }
@@ -413,7 +412,7 @@ export default function CampaignsPage() {
       const response = await apiClient.post<ApiResponse<{ message: string }>>(`/campaigns/${campaignId}/send`, {});
 
       if (response.success) {
-        await showAlert({ title: 'Success', message: 'Campaign is being sent!' });
+        toast.success('Campaign Sent', 'Campaign is being sent!');
         fetchCampaigns();
         fetchStats();
       } else {
@@ -421,10 +420,7 @@ export default function CampaignsPage() {
       }
     } catch (err) {
       console.error('Failed to send campaign:', err);
-      await showAlert({
-        title: 'Error',
-        message: err instanceof Error ? err.message : 'Failed to send campaign. Please try again.'
-      });
+      toast.error('Send Failed', err instanceof Error ? err.message : 'Failed to send campaign. Please try again.');
     } finally {
       setSending(null);
     }
@@ -443,7 +439,7 @@ export default function CampaignsPage() {
       const response = await apiClient.put<ApiResponse<Campaign>>(`/campaigns/${campaignId}`, { status: 'PAUSED' });
 
       if (response.success || ('id' in response)) {
-        await showAlert({ title: 'Success', message: 'Campaign paused successfully!' });
+        toast.success('Campaign Paused', 'Campaign paused successfully!');
         fetchCampaigns();
         fetchStats();
       } else {
@@ -451,10 +447,7 @@ export default function CampaignsPage() {
       }
     } catch (err) {
       console.error('Failed to pause campaign:', err);
-      await showAlert({
-        title: 'Error',
-        message: err instanceof Error ? err.message : 'Failed to pause campaign. Please try again.'
-      });
+      toast.error('Pause Failed', err instanceof Error ? err.message : 'Failed to pause campaign. Please try again.');
     } finally {
       setPausingResuming(null);
     }
@@ -473,7 +466,7 @@ export default function CampaignsPage() {
       const response = await apiClient.put<ApiResponse<Campaign>>(`/campaigns/${campaignId}`, { status: 'SENDING' });
 
       if (response.success || ('id' in response)) {
-        await showAlert({ title: 'Success', message: 'Campaign resumed successfully!' });
+        toast.success('Campaign Resumed', 'Campaign resumed successfully!');
         fetchCampaigns();
         fetchStats();
       } else {
@@ -481,10 +474,7 @@ export default function CampaignsPage() {
       }
     } catch (err) {
       console.error('Failed to resume campaign:', err);
-      await showAlert({
-        title: 'Error',
-        message: err instanceof Error ? err.message : 'Failed to resume campaign. Please try again.'
-      });
+      toast.error('Resume Failed', err instanceof Error ? err.message : 'Failed to resume campaign. Please try again.');
     } finally {
       setPausingResuming(null);
     }
@@ -511,7 +501,7 @@ export default function CampaignsPage() {
       const response = await apiClient.put<ApiResponse<Campaign>>(`/campaigns/${editingCampaign.id}`, editForm);
 
       if (response.success || ('id' in response)) {
-        await showAlert({ title: 'Success', message: 'Campaign updated successfully!' });
+        toast.success('Campaign Updated', 'Campaign updated successfully!');
         setShowEditModal(false);
         setEditingCampaign(null);
         setEditForm({});
@@ -521,10 +511,7 @@ export default function CampaignsPage() {
       }
     } catch (err) {
       console.error('Failed to update campaign:', err);
-      await showAlert({
-        title: 'Error',
-        message: err instanceof Error ? err.message : 'Failed to update campaign. Please try again.'
-      });
+      toast.error('Update Failed', err instanceof Error ? err.message : 'Failed to update campaign. Please try again.');
     } finally {
       setSaving(false);
     }

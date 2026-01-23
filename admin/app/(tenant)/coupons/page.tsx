@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/contexts/ToastContext';
 import { Button } from '@/components/ui/button';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
@@ -50,6 +51,7 @@ import { PageLoading } from '@/components/common';
 
 export default function CouponsPage() {
   const router = useRouter();
+  const toast = useToast();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | CouponStatus>('ALL');
@@ -119,8 +121,11 @@ export default function CouponsPage() {
         try {
           await couponService.deleteCoupon(id);
           await loadCoupons();
+          toast.success('Coupon Deleted', 'The coupon has been deleted successfully');
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to delete coupon');
+          const errorMsg = err instanceof Error ? err.message : 'Failed to delete coupon';
+          toast.error('Failed to Delete Coupon', errorMsg);
+          setError(errorMsg);
         }
       },
     });
@@ -130,8 +135,11 @@ export default function CouponsPage() {
     try {
       await couponService.duplicateCoupon(id);
       await loadCoupons();
+      toast.success('Coupon Duplicated', 'The coupon has been duplicated successfully');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to duplicate coupon');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to duplicate coupon';
+      toast.error('Failed to Duplicate Coupon', errorMsg);
+      setError(errorMsg);
     }
   };
 

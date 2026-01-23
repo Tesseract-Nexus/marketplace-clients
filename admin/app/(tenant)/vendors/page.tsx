@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { useTenant } from '@/contexts/TenantContext';
+import { useToast } from '@/contexts/ToastContext';
 import {
   Plus,
   Search,
@@ -63,6 +64,7 @@ export default function VendorsPage() {
   const params = useParams();
   const tenantSlug = params?.slug as string;
   const { currentTenant, isLoading: tenantLoading } = useTenant();
+  const toast = useToast();
 
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -261,8 +263,11 @@ export default function VendorsPage() {
           await vendorService.deleteVendor(vendor.id);
           await loadVendors();
           setModalConfig({ ...modalConfig, isOpen: false });
+          toast.success('Vendor Deleted', 'The vendor has been deleted successfully');
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to delete vendor');
+          const errorMsg = err instanceof Error ? err.message : 'Failed to delete vendor';
+          toast.error('Failed to Delete Vendor', errorMsg);
+          setError(errorMsg);
         }
       },
     });
@@ -272,15 +277,23 @@ export default function VendorsPage() {
     try {
       if (viewMode === 'create') {
         await vendorService.createVendor(formData as CreateVendorRequest);
+        toast.success('Vendor Created', 'The vendor has been added successfully');
       } else if (viewMode === 'edit' && selectedVendor) {
         await vendorService.updateVendor(selectedVendor.id, formData as UpdateVendorRequest);
+        toast.success('Vendor Updated', 'The vendor has been updated successfully');
       }
       await loadVendors();
       setViewMode('list');
       setSelectedVendor(null);
       setCurrentStep(1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save vendor');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to save vendor';
+      if (viewMode === 'create') {
+        toast.error('Failed to Create Vendor', errorMsg);
+      } else {
+        toast.error('Failed to Update Vendor', errorMsg);
+      }
+      setError(errorMsg);
       console.error('Error saving vendor:', err);
     }
   };

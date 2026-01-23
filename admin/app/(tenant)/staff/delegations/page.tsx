@@ -11,6 +11,7 @@ import { PermissionGate, Permission } from '@/components/permission-gate';
 import { delegationService, workflowService, Delegation, ApprovalWorkflow } from '@/lib/services/approvalService';
 import { staffService } from '@/lib/services/staffService';
 import { Staff } from '@/lib/api/types';
+import { useToast } from '@/contexts/ToastContext';
 import {
   Select,
   SelectContent,
@@ -94,6 +95,7 @@ const getDelegationStatus = (delegation: Delegation): 'active' | 'pending' | 'ex
 };
 
 export default function DelegationsPage() {
+  const toast = useToast();
   const [outgoing, setOutgoing] = useState<Delegation[]>([]);
   const [incoming, setIncoming] = useState<Delegation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -199,8 +201,11 @@ export default function DelegationsPage() {
       });
       setCreateDialogOpen(false);
       await loadDelegations();
+      toast.success('Delegation Created', 'Approval authority has been successfully delegated');
     } catch (err) {
-      setFormError(err instanceof Error ? err.message : 'Failed to create delegation');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to create delegation';
+      setFormError(errorMessage);
+      toast.error('Creation Failed', errorMessage);
     } finally {
       setCreating(false);
     }
@@ -221,8 +226,11 @@ export default function DelegationsPage() {
       setSelectedDelegation(null);
       setRevokeReason('');
       await loadDelegations();
+      toast.success('Delegation Revoked', 'The delegation has been successfully revoked');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to revoke delegation');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to revoke delegation';
+      setError(errorMessage);
+      toast.error('Revoke Failed', errorMessage);
     } finally {
       setActionLoading(null);
     }

@@ -17,6 +17,7 @@ import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listin
 import { reviewService } from '@/lib/services/reviewService';
 import { productService } from '@/lib/services/productService';
 import type { Review, ReviewStatus, UpdateReviewStatusRequest, ReviewMedia, Product } from '@/lib/api/types';
+import { useToast } from '@/contexts/ToastContext';
 
 const statusOptions = [
   { value: 'ALL', label: 'All Statuses' },
@@ -35,6 +36,7 @@ const typeOptions = [
 ];
 
 export default function ReviewsPage() {
+  const toast = useToast();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,6 +71,7 @@ export default function ReviewsPage() {
     try {
       setError(null);
       await reviewService.addComment(selectedReview.id, replyContent, isInternalReply);
+      toast.success('Reply Sent', isInternalReply ? 'Internal note added successfully' : 'Reply posted successfully');
       setShowReplyModal(false);
       setSelectedReview(null);
       setReplyContent('');
@@ -76,7 +79,9 @@ export default function ReviewsPage() {
       loadReviews();
     } catch (error) {
       console.error('Error submitting reply:', error);
-      setError(error instanceof Error ? error.message : 'Failed to submit reply. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to submit reply. Please try again.';
+      setError(errorMessage);
+      toast.error('Reply Failed', errorMessage);
     }
   };
 
@@ -152,6 +157,7 @@ export default function ReviewsPage() {
     try {
       setError(null);
       await reviewService.updateReviewStatus(selectedReview.id, statusUpdate);
+      toast.success('Status Updated', `Review status updated to ${statusUpdate.status}`);
       setShowStatusModal(false);
       setSelectedReview(null);
       setStatusUpdate({
@@ -161,7 +167,9 @@ export default function ReviewsPage() {
       loadReviews();
     } catch (error) {
       console.error('Error updating review status:', error);
-      setError(error instanceof Error ? error.message : 'Failed to update review status. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update review status. Please try again.';
+      setError(errorMessage);
+      toast.error('Update Failed', errorMessage);
     }
   };
 
@@ -207,12 +215,21 @@ export default function ReviewsPage() {
           });
         }
       }
+      const actionLabels = {
+        approve: 'approved',
+        reject: 'rejected',
+        flag: 'flagged',
+        feature: 'featured status toggled'
+      };
+      toast.success('Bulk Action Complete', `${reviewIds.length} review${reviewIds.length !== 1 ? 's' : ''} ${actionLabels[action]}`);
       setSelectedReviews(new Set());
       setShowBulkActions(false);
       loadReviews();
     } catch (error) {
       console.error('Error performing bulk action:', error);
-      setError(error instanceof Error ? error.message : 'Failed to perform bulk action. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to perform bulk action. Please try again.';
+      setError(errorMessage);
+      toast.error('Bulk Action Failed', errorMessage);
     }
   };
 
@@ -674,10 +691,13 @@ export default function ReviewsPage() {
                                 status: 'APPROVED',
                                 moderationNotes: 'Quick approved',
                               });
+                              toast.success('Review Approved', 'Review has been approved successfully');
                               loadReviews();
                             } catch (error) {
                               console.error('Error approving review:', error);
-                              setError(error instanceof Error ? error.message : 'Failed to approve review. Please try again.');
+                              const errorMessage = error instanceof Error ? error.message : 'Failed to approve review. Please try again.';
+                              setError(errorMessage);
+                              toast.error('Approval Failed', errorMessage);
                             }
                           }}
                           className="hover:bg-success-muted hover:text-success"
@@ -695,10 +715,13 @@ export default function ReviewsPage() {
                                 status: 'REJECTED',
                                 moderationNotes: 'Quick rejected',
                               });
+                              toast.success('Review Rejected', 'Review has been rejected successfully');
                               loadReviews();
                             } catch (error) {
                               console.error('Error rejecting review:', error);
-                              setError(error instanceof Error ? error.message : 'Failed to reject review. Please try again.');
+                              const errorMessage = error instanceof Error ? error.message : 'Failed to reject review. Please try again.';
+                              setError(errorMessage);
+                              toast.error('Rejection Failed', errorMessage);
                             }
                           }}
                           className="hover:bg-error-muted hover:text-error"
@@ -718,10 +741,13 @@ export default function ReviewsPage() {
                             status: 'FLAGGED',
                             moderationNotes: 'Flagged for review',
                           });
+                          toast.success('Review Flagged', 'Review has been flagged for moderation');
                           loadReviews();
                         } catch (error) {
                           console.error('Error flagging review:', error);
-                          setError(error instanceof Error ? error.message : 'Failed to flag review. Please try again.');
+                          const errorMessage = error instanceof Error ? error.message : 'Failed to flag review. Please try again.';
+                          setError(errorMessage);
+                          toast.error('Flag Failed', errorMessage);
                         }
                       }}
                       className="hover:bg-warning-muted hover:text-warning"

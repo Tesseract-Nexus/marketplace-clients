@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTenant } from '@/contexts/TenantContext';
+import { useToast } from '@/contexts/ToastContext';
 import {
   Plus,
   Search,
@@ -52,9 +53,10 @@ import { Select } from '@/components/Select';
 import { WarehouseLogoUploader, MediaItem } from '@/components/MediaUploader';
 import { DefaultMediaURLs } from '@/lib/api/types';
 
-// Modal types
-type ModalType = 'create' | 'edit' | 'delete' | null;
+// Form mode types (inline forms instead of modals)
+type FormMode = 'create' | 'edit' | null;
 type EntityType = 'warehouse' | 'supplier' | 'purchase-order' | 'transfer';
+type DeleteModalType = { entityType: EntityType; id: string } | null;
 
 // Form state types
 interface WarehouseFormData {
@@ -93,6 +95,38 @@ interface SupplierFormData {
   notes: string;
 }
 
+interface PurchaseOrderFormItem {
+  productId: string;
+  productName: string;
+  sku: string;
+  quantity: number;
+  unitPrice: number;
+}
+
+interface PurchaseOrderFormData {
+  supplierId: string;
+  warehouseId: string;
+  orderDate: string;
+  expectedDeliveryDate: string;
+  currencyCode: string;
+  notes: string;
+  items: PurchaseOrderFormItem[];
+}
+
+interface TransferFormItem {
+  productId: string;
+  productName: string;
+  sku: string;
+  quantity: number;
+}
+
+interface TransferFormData {
+  fromWarehouseId: string;
+  toWarehouseId: string;
+  notes: string;
+  items: TransferFormItem[];
+}
+
 const initialWarehouseForm: WarehouseFormData = {
   code: '',
   name: '',
@@ -129,6 +163,23 @@ const initialSupplierForm: SupplierFormData = {
   notes: '',
 };
 
+const initialPurchaseOrderForm: PurchaseOrderFormData = {
+  supplierId: '',
+  warehouseId: '',
+  orderDate: new Date().toISOString().split('T')[0],
+  expectedDeliveryDate: '',
+  currencyCode: 'USD',
+  notes: '',
+  items: [],
+};
+
+const initialTransferForm: TransferFormData = {
+  fromWarehouseId: '',
+  toWarehouseId: '',
+  notes: '',
+  items: [],
+};
+
 type TabType = 'stock-levels' | 'warehouses' | 'suppliers' | 'purchase-orders' | 'transfers';
 
 // Stock level filter type
@@ -143,6 +194,7 @@ export default function InventoryPage() {
   const searchParams = useSearchParams();
   const tenantSlug = params?.slug as string;
   const { currentTenant, isLoading: tenantLoading } = useTenant();
+  const toast = useToast();
 
   const [activeTab, setActiveTab] = useState<TabType>('stock-levels');
   const [searchQuery, setSearchQuery] = useState('');
@@ -165,32 +217,41 @@ export default function InventoryPage() {
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
   const [transfers, setTransfers] = useState<InventoryTransfer[]>([]);
 
-  // Modal state
-  const [modalType, setModalType] = useState<ModalType>(null);
-  const [modalEntityType, setModalEntityType] = useState<EntityType>('warehouse');
+  // Inline form state (replaces modals)
+  const [formMode, setFormMode] = useState<FormMode>(null);
+  const [formEntityType, setFormEntityType] = useState<EntityType>('warehouse');
   const [selectedEntityId, setSelectedEntityId] = useState<string | null>(null);
   const [savingEntity, setSavingEntity] = useState(false);
-  const [deleteConfirmName, setDeleteConfirmName] = useState('');
+  const [deletingEntityId, setDeletingEntityId] = useState<string | null>(null);
 
   // Form state
   const [warehouseForm, setWarehouseForm] = useState<WarehouseFormData>(initialWarehouseForm);
   const [supplierForm, setSupplierForm] = useState<SupplierFormData>(initialSupplierForm);
+  const [purchaseOrderForm, setPurchaseOrderForm] = useState<PurchaseOrderFormData>(initialPurchaseOrderForm);
+  const [transferForm, setTransferForm] = useState<TransferFormData>(initialTransferForm);
 
-  // Modal handlers
-  const openCreateModal = (entityType: EntityType) => {
-    setModalEntityType(entityType);
-    setModalType('create');
+  // Inline form handlers (replaces modal handlers)
+  const openCreateForm = (entityType: EntityType) => {
+    setFormEntityType(entityType);
+    setFormMode('create');
     setSelectedEntityId(null);
     if (entityType === 'warehouse') {
       setWarehouseForm(initialWarehouseForm);
     } else if (entityType === 'supplier') {
       setSupplierForm(initialSupplierForm);
+    } else if (entityType === 'purchase-order') {
+      setPurchaseOrderForm({
+        ...initialPurchaseOrderForm,
+        orderDate: new Date().toISOString().split('T')[0],
+      });
+    } else if (entityType === 'transfer') {
+      setTransferForm(initialTransferForm);
     }
   };
 
-  const openEditModal = (entityType: EntityType, id: string) => {
-    setModalEntityType(entityType);
-    setModalType('edit');
+  const openEditForm = (entityType: EntityType, id: string) => {
+    setFormEntityType(entityType);
+    setFormMode('edit');
     setSelectedEntityId(id);
 
     if (entityType === 'warehouse') {
@@ -238,17 +299,23 @@ export default function InventoryPage() {
     }
   };
 
+  // Delete modal state
+  const [deleteModal, setDeleteModal] = useState<DeleteModalType>(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState('');
+
   const openDeleteModal = (entityType: EntityType, id: string) => {
-    setModalEntityType(entityType);
-    setModalType('delete');
-    setSelectedEntityId(id);
+    setDeleteModal({ entityType, id });
     setDeleteConfirmName('');
   };
 
-  const closeModal = () => {
-    setModalType(null);
-    setSelectedEntityId(null);
+  const closeDeleteModal = () => {
+    setDeleteModal(null);
     setDeleteConfirmName('');
+  };
+
+  const closeForm = () => {
+    setFormMode(null);
+    setSelectedEntityId(null);
   };
 
   // Helper: Convert URL string to MediaItem[] for the uploader
@@ -295,20 +362,24 @@ export default function InventoryPage() {
         priority: warehouseForm.priority,
       };
 
-      if (modalType === 'create') {
+      if (formMode === 'create') {
         const result = await inventoryService.createWarehouse(data);
         if (result.success && result.data) {
           setWarehouses(prev => [...prev, result.data!]);
+          toast.success('Warehouse Created', 'Warehouse has been created successfully');
         }
-      } else if (modalType === 'edit' && selectedEntityId) {
+      } else if (formMode === 'edit' && selectedEntityId) {
         const result = await inventoryService.updateWarehouse(selectedEntityId, data);
         if (result.success && result.data) {
           setWarehouses(prev => prev.map(w => w.id === selectedEntityId ? result.data! : w));
+          toast.success('Warehouse Updated', 'Warehouse has been updated successfully');
         }
       }
-      closeModal();
+      closeForm();
     } catch (err) {
       console.error('Error saving warehouse:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Failed to save warehouse';
+      toast.error('Failed to Save Warehouse', errorMsg);
     } finally {
       setSavingEntity(false);
     }
@@ -335,51 +406,60 @@ export default function InventoryPage() {
         notes: supplierForm.notes || undefined,
       };
 
-      if (modalType === 'create') {
+      if (formMode === 'create') {
         const result = await inventoryService.createSupplier(data);
         if (result.success && result.data) {
           setSuppliers(prev => [...prev, result.data!]);
+          toast.success('Supplier Created', 'Supplier has been created successfully');
         }
-      } else if (modalType === 'edit' && selectedEntityId) {
+      } else if (formMode === 'edit' && selectedEntityId) {
         const result = await inventoryService.updateSupplier(selectedEntityId, data);
         if (result.success && result.data) {
           setSuppliers(prev => prev.map(s => s.id === selectedEntityId ? result.data! : s));
+          toast.success('Supplier Updated', 'Supplier has been updated successfully');
         }
       }
-      closeModal();
+      closeForm();
     } catch (err) {
       console.error('Error saving supplier:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Failed to save supplier';
+      toast.error('Failed to Save Supplier', errorMsg);
     } finally {
       setSavingEntity(false);
     }
   };
 
   const handleDelete = async () => {
-    if (!selectedEntityId) return;
+    if (!deleteModal) return;
 
-    const entityName = getEntityName(modalEntityType, selectedEntityId);
+    const { entityType, id } = deleteModal;
+    const entityName = getEntityName(entityType, id);
     if (deleteConfirmName !== entityName) {
       return;
     }
 
-    setSavingEntity(true);
+    setDeletingEntityId(id);
     try {
-      if (modalEntityType === 'warehouse') {
-        const result = await inventoryService.deleteWarehouse(selectedEntityId);
+      if (entityType === 'warehouse') {
+        const result = await inventoryService.deleteWarehouse(id);
         if (result.success) {
-          setWarehouses(prev => prev.filter(w => w.id !== selectedEntityId));
+          setWarehouses(prev => prev.filter(w => w.id !== id));
+          toast.success('Warehouse Deleted', 'Warehouse has been deleted successfully');
         }
-      } else if (modalEntityType === 'supplier') {
-        const result = await inventoryService.deleteSupplier(selectedEntityId);
+      } else if (entityType === 'supplier') {
+        const result = await inventoryService.deleteSupplier(id);
         if (result.success) {
-          setSuppliers(prev => prev.filter(s => s.id !== selectedEntityId));
+          setSuppliers(prev => prev.filter(s => s.id !== id));
+          toast.success('Supplier Deleted', 'Supplier has been deleted successfully');
         }
       }
-      closeModal();
+      closeDeleteModal();
     } catch (err) {
       console.error('Error deleting entity:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Failed to delete';
+      toast.error('Failed to Delete', errorMsg);
     } finally {
-      setSavingEntity(false);
+      setDeletingEntityId(null);
     }
   };
 
@@ -390,9 +470,12 @@ export default function InventoryPage() {
         setPurchaseOrders(prev => prev.map(po =>
           po.id === id ? { ...po, status: status as PurchaseOrder['status'] } : po
         ));
+        toast.success('Purchase Order Updated', 'Purchase order status has been updated successfully');
       }
     } catch (err) {
       console.error('Error updating PO status:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update purchase order status';
+      toast.error('Failed to Update', errorMsg);
     }
   };
 
@@ -404,6 +487,7 @@ export default function InventoryPage() {
           setTransfers(prev => prev.map(t =>
             t.id === id ? { ...t, status: 'COMPLETED' as InventoryTransfer['status'] } : t
           ));
+          toast.success('Transfer Completed', 'Inventory transfer has been completed successfully');
         }
       } else {
         const result = await inventoryService.updateTransferStatus(id, status);
@@ -411,10 +495,13 @@ export default function InventoryPage() {
           setTransfers(prev => prev.map(t =>
             t.id === id ? { ...t, status: status as InventoryTransfer['status'] } : t
           ));
+          toast.success('Transfer Updated', 'Transfer status has been updated successfully');
         }
       }
     } catch (err) {
       console.error('Error updating transfer status:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update transfer status';
+      toast.error('Failed to Update', errorMsg);
     }
   };
 
@@ -532,9 +619,12 @@ export default function InventoryPage() {
             : p
         ));
         setEditingProductId(null);
+        toast.success('Inventory Updated', 'Stock levels have been updated successfully');
       }
     } catch (err) {
       console.error('Error updating stock:', err);
+      const errorMsg = err instanceof Error ? err.message : 'Failed to update inventory';
+      toast.error('Failed to Update', errorMsg);
     } finally {
       setSavingStock(false);
     }
@@ -1000,10 +1090,10 @@ export default function InventoryPage() {
                       <Button
                         size="sm"
                         onClick={() => {
-                          if (activeTab === 'warehouses') openCreateModal('warehouse');
-                          else if (activeTab === 'suppliers') openCreateModal('supplier');
-                          else if (activeTab === 'purchase-orders') openCreateModal('purchase-order');
-                          else if (activeTab === 'transfers') openCreateModal('transfer');
+                          if (activeTab === 'warehouses') openCreateForm('warehouse');
+                          else if (activeTab === 'suppliers') openCreateForm('supplier');
+                          else if (activeTab === 'purchase-orders') openCreateForm('purchase-order');
+                          else if (activeTab === 'transfers') openCreateForm('transfer');
                         }}
                         className="bg-primary text-primary-foreground"
                       >
@@ -1021,6 +1111,549 @@ export default function InventoryPage() {
               )}
             </div>
           </div>
+
+          {/* Inline Create/Edit Form */}
+          {formMode && (
+            <div className="mt-4 p-6 bg-card rounded-lg border border-border animate-in slide-in-from-top-2 duration-300">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-foreground">
+                  {formMode === 'create' ? 'New' : 'Edit'} {formEntityType === 'warehouse' ? 'Warehouse' : formEntityType === 'supplier' ? 'Supplier' : formEntityType === 'purchase-order' ? 'Purchase Order' : 'Transfer'}
+                </h2>
+                <Button variant="ghost" size="sm" onClick={closeForm}>
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+
+              {/* Warehouse Form */}
+              {formEntityType === 'warehouse' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Code *</label>
+                      <Input
+                        value={warehouseForm.code}
+                        onChange={(e) => setWarehouseForm({ ...warehouseForm, code: e.target.value })}
+                        placeholder="WH001"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Name *</label>
+                      <Input
+                        value={warehouseForm.name}
+                        onChange={(e) => setWarehouseForm({ ...warehouseForm, name: e.target.value })}
+                        placeholder="Main Warehouse"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Status</label>
+                      <select
+                        value={warehouseForm.status}
+                        onChange={(e) => setWarehouseForm({ ...warehouseForm, status: e.target.value as WarehouseFormData['status'] })}
+                        className="w-full h-10 px-3 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <option value="ACTIVE">Active</option>
+                        <option value="INACTIVE">Inactive</option>
+                        <option value="CLOSED">Closed</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Address Line 1 *</label>
+                      <Input
+                        value={warehouseForm.address1}
+                        onChange={(e) => setWarehouseForm({ ...warehouseForm, address1: e.target.value })}
+                        placeholder="123 Main St"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Address Line 2</label>
+                      <Input
+                        value={warehouseForm.address2}
+                        onChange={(e) => setWarehouseForm({ ...warehouseForm, address2: e.target.value })}
+                        placeholder="Suite 100"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">City *</label>
+                      <Input
+                        value={warehouseForm.city}
+                        onChange={(e) => setWarehouseForm({ ...warehouseForm, city: e.target.value })}
+                        placeholder="New York"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">State *</label>
+                      <Input
+                        value={warehouseForm.state}
+                        onChange={(e) => setWarehouseForm({ ...warehouseForm, state: e.target.value })}
+                        placeholder="NY"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Postal Code *</label>
+                      <Input
+                        value={warehouseForm.postalCode}
+                        onChange={(e) => setWarehouseForm({ ...warehouseForm, postalCode: e.target.value })}
+                        placeholder="10001"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Country</label>
+                      <Input
+                        value={warehouseForm.country}
+                        onChange={(e) => setWarehouseForm({ ...warehouseForm, country: e.target.value })}
+                        placeholder="US"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Phone</label>
+                      <Input
+                        value={warehouseForm.phone}
+                        onChange={(e) => setWarehouseForm({ ...warehouseForm, phone: e.target.value })}
+                        placeholder="+1 (555) 123-4567"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Email</label>
+                      <Input
+                        type="email"
+                        value={warehouseForm.email}
+                        onChange={(e) => setWarehouseForm({ ...warehouseForm, email: e.target.value })}
+                        placeholder="warehouse@example.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Manager</label>
+                      <Input
+                        value={warehouseForm.managerName}
+                        onChange={(e) => setWarehouseForm({ ...warehouseForm, managerName: e.target.value })}
+                        placeholder="John Doe"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="isDefault"
+                          checked={warehouseForm.isDefault}
+                          onChange={(e) => setWarehouseForm({ ...warehouseForm, isDefault: e.target.checked })}
+                          className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                        />
+                        <label htmlFor="isDefault" className="text-sm font-medium text-foreground">
+                          Default Warehouse
+                        </label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <label className="text-sm font-medium text-foreground">Priority:</label>
+                        <Input
+                          type="number"
+                          min={1}
+                          value={warehouseForm.priority}
+                          onChange={(e) => setWarehouseForm({ ...warehouseForm, priority: parseInt(e.target.value) || 1 })}
+                          className="w-20"
+                        />
+                      </div>
+                    </div>
+                    <div className="p-3 bg-muted rounded-lg border border-border">
+                      <WarehouseLogoUploader
+                        value={urlToMediaItems(warehouseForm.logoUrl)}
+                        onChange={(items) => setWarehouseForm(prev => ({ ...prev, logoUrl: items[0]?.url || '' }))}
+                        entityId={formMode === 'edit' ? selectedEntityId || undefined : undefined}
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                    <Button variant="outline" onClick={closeForm}>
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSaveWarehouse}
+                      disabled={savingEntity || !warehouseForm.code || !warehouseForm.name || !warehouseForm.address1 || !warehouseForm.city || !warehouseForm.state || !warehouseForm.postalCode}
+                      className="bg-primary text-primary-foreground"
+                    >
+                      {savingEntity ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4 mr-2" />
+                          {formMode === 'create' ? 'Create Warehouse' : 'Save Changes'}
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Supplier Form */}
+              {formEntityType === 'supplier' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Code *</label>
+                      <Input
+                        value={supplierForm.code}
+                        onChange={(e) => setSupplierForm({ ...supplierForm, code: e.target.value })}
+                        placeholder="SUP001"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Name *</label>
+                      <Input
+                        value={supplierForm.name}
+                        onChange={(e) => setSupplierForm({ ...supplierForm, name: e.target.value })}
+                        placeholder="Acme Supplies"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Status</label>
+                      <select
+                        value={supplierForm.status}
+                        onChange={(e) => setSupplierForm({ ...supplierForm, status: e.target.value as SupplierFormData['status'] })}
+                        className="w-full h-10 px-3 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <option value="ACTIVE">Active</option>
+                        <option value="INACTIVE">Inactive</option>
+                        <option value="BLACKLISTED">Blacklisted</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Contact Name</label>
+                      <Input
+                        value={supplierForm.contactName}
+                        onChange={(e) => setSupplierForm({ ...supplierForm, contactName: e.target.value })}
+                        placeholder="Jane Smith"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Email</label>
+                      <Input
+                        type="email"
+                        value={supplierForm.email}
+                        onChange={(e) => setSupplierForm({ ...supplierForm, email: e.target.value })}
+                        placeholder="contact@supplier.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Phone</label>
+                      <Input
+                        value={supplierForm.phone}
+                        onChange={(e) => setSupplierForm({ ...supplierForm, phone: e.target.value })}
+                        placeholder="+1 (555) 123-4567"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Website</label>
+                      <Input
+                        value={supplierForm.website}
+                        onChange={(e) => setSupplierForm({ ...supplierForm, website: e.target.value })}
+                        placeholder="https://supplier.com"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Address</label>
+                      <Input
+                        value={supplierForm.address1}
+                        onChange={(e) => setSupplierForm({ ...supplierForm, address1: e.target.value })}
+                        placeholder="123 Main St"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">City</label>
+                      <Input
+                        value={supplierForm.city}
+                        onChange={(e) => setSupplierForm({ ...supplierForm, city: e.target.value })}
+                        placeholder="New York"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">State</label>
+                      <Input
+                        value={supplierForm.state}
+                        onChange={(e) => setSupplierForm({ ...supplierForm, state: e.target.value })}
+                        placeholder="NY"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Payment Terms</label>
+                      <select
+                        value={supplierForm.paymentTerms}
+                        onChange={(e) => setSupplierForm({ ...supplierForm, paymentTerms: e.target.value })}
+                        className="w-full h-10 px-3 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <option value="Net 15">Net 15</option>
+                        <option value="Net 30">Net 30</option>
+                        <option value="Net 45">Net 45</option>
+                        <option value="Net 60">Net 60</option>
+                        <option value="Due on Receipt">Due on Receipt</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Lead Time (days)</label>
+                      <Input
+                        type="number"
+                        min={1}
+                        value={supplierForm.leadTimeDays}
+                        onChange={(e) => setSupplierForm({ ...supplierForm, leadTimeDays: parseInt(e.target.value) || 7 })}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1">Notes</label>
+                    <textarea
+                      value={supplierForm.notes}
+                      onChange={(e) => setSupplierForm({ ...supplierForm, notes: e.target.value })}
+                      placeholder="Additional notes about this supplier..."
+                      rows={2}
+                      className="w-full px-3 py-2 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                    <Button variant="outline" onClick={closeForm}>
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSaveSupplier}
+                      disabled={savingEntity || !supplierForm.code || !supplierForm.name}
+                      className="bg-primary text-primary-foreground"
+                    >
+                      {savingEntity ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4 mr-2" />
+                          {formMode === 'create' ? 'Create Supplier' : 'Save Changes'}
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Purchase Order Form */}
+              {formEntityType === 'purchase-order' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Supplier *</label>
+                      <select
+                        value={purchaseOrderForm.supplierId}
+                        onChange={(e) => setPurchaseOrderForm({ ...purchaseOrderForm, supplierId: e.target.value })}
+                        className="w-full h-10 px-3 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <option value="">Select Supplier</option>
+                        {suppliers.filter(s => s.status === 'ACTIVE').map(supplier => (
+                          <option key={supplier.id} value={supplier.id}>{supplier.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Warehouse *</label>
+                      <select
+                        value={purchaseOrderForm.warehouseId}
+                        onChange={(e) => setPurchaseOrderForm({ ...purchaseOrderForm, warehouseId: e.target.value })}
+                        className="w-full h-10 px-3 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <option value="">Select Warehouse</option>
+                        {warehouses.filter(w => w.status === 'ACTIVE').map(warehouse => (
+                          <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Order Date</label>
+                      <Input
+                        type="date"
+                        value={purchaseOrderForm.orderDate}
+                        onChange={(e) => setPurchaseOrderForm({ ...purchaseOrderForm, orderDate: e.target.value })}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Expected Delivery</label>
+                      <Input
+                        type="date"
+                        value={purchaseOrderForm.expectedDeliveryDate}
+                        onChange={(e) => setPurchaseOrderForm({ ...purchaseOrderForm, expectedDeliveryDate: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1">Notes</label>
+                    <textarea
+                      value={purchaseOrderForm.notes}
+                      onChange={(e) => setPurchaseOrderForm({ ...purchaseOrderForm, notes: e.target.value })}
+                      placeholder="Order notes..."
+                      rows={2}
+                      className="w-full px-3 py-2 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg border border-border">
+                    <p className="text-sm text-muted-foreground text-center">
+                      Purchase Order item management is available after creating the PO
+                    </p>
+                  </div>
+                  <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                    <Button variant="outline" onClick={closeForm}>
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={async () => {
+                        if (!purchaseOrderForm.supplierId || !purchaseOrderForm.warehouseId) return;
+                        setSavingEntity(true);
+                        try {
+                          const data: CreatePurchaseOrderRequest = {
+                            supplierId: purchaseOrderForm.supplierId,
+                            warehouseId: purchaseOrderForm.warehouseId,
+                            expectedDate: purchaseOrderForm.expectedDeliveryDate || undefined,
+                            notes: purchaseOrderForm.notes || undefined,
+                            items: [],
+                          };
+                          const result = await inventoryService.createPurchaseOrder(data);
+                          if (result.success && result.data) {
+                            setPurchaseOrders(prev => [...prev, result.data!]);
+                            toast.success('Purchase Order Created', 'Purchase order has been created successfully');
+                            closeForm();
+                          }
+                        } catch (err) {
+                          console.error('Error creating PO:', err);
+                          const errorMsg = err instanceof Error ? err.message : 'Failed to create purchase order';
+                          toast.error('Failed to Create PO', errorMsg);
+                        } finally {
+                          setSavingEntity(false);
+                        }
+                      }}
+                      disabled={savingEntity || !purchaseOrderForm.supplierId || !purchaseOrderForm.warehouseId}
+                      className="bg-primary text-primary-foreground"
+                    >
+                      {savingEntity ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4 mr-2" />
+                          Create Purchase Order
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Transfer Form */}
+              {formEntityType === 'transfer' && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">From Warehouse *</label>
+                      <select
+                        value={transferForm.fromWarehouseId}
+                        onChange={(e) => setTransferForm({ ...transferForm, fromWarehouseId: e.target.value })}
+                        className="w-full h-10 px-3 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <option value="">Select Source Warehouse</option>
+                        {warehouses.filter(w => w.status === 'ACTIVE' && w.id !== transferForm.toWarehouseId).map(warehouse => (
+                          <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">To Warehouse *</label>
+                      <select
+                        value={transferForm.toWarehouseId}
+                        onChange={(e) => setTransferForm({ ...transferForm, toWarehouseId: e.target.value })}
+                        className="w-full h-10 px-3 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <option value="">Select Destination Warehouse</option>
+                        {warehouses.filter(w => w.status === 'ACTIVE' && w.id !== transferForm.fromWarehouseId).map(warehouse => (
+                          <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-foreground mb-1">Notes</label>
+                    <textarea
+                      value={transferForm.notes}
+                      onChange={(e) => setTransferForm({ ...transferForm, notes: e.target.value })}
+                      placeholder="Transfer notes..."
+                      rows={2}
+                      className="w-full px-3 py-2 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                    />
+                  </div>
+                  <div className="p-4 bg-muted rounded-lg border border-border">
+                    <p className="text-sm text-muted-foreground text-center">
+                      Transfer item management is available after creating the transfer request
+                    </p>
+                  </div>
+                  <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                    <Button variant="outline" onClick={closeForm}>
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={async () => {
+                        if (!transferForm.fromWarehouseId || !transferForm.toWarehouseId) return;
+                        setSavingEntity(true);
+                        try {
+                          const data: CreateInventoryTransferRequest = {
+                            fromWarehouseId: transferForm.fromWarehouseId,
+                            toWarehouseId: transferForm.toWarehouseId,
+                            notes: transferForm.notes || undefined,
+                            items: [],
+                          };
+                          const result = await inventoryService.createTransfer(data);
+                          if (result.success && result.data) {
+                            setTransfers(prev => [...prev, result.data!]);
+                            toast.success('Transfer Created', 'Inventory transfer has been created successfully');
+                            closeForm();
+                          }
+                        } catch (err) {
+                          console.error('Error creating transfer:', err);
+                          const errorMsg = err instanceof Error ? err.message : 'Failed to create transfer';
+                          toast.error('Failed to Create Transfer', errorMsg);
+                        } finally {
+                          setSavingEntity(false);
+                        }
+                      }}
+                      disabled={savingEntity || !transferForm.fromWarehouseId || !transferForm.toWarehouseId || transferForm.fromWarehouseId === transferForm.toWarehouseId}
+                      className="bg-primary text-primary-foreground"
+                    >
+                      {savingEntity ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <Save className="h-4 w-4 mr-2" />
+                          Create Transfer
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
               {/* Tab Content */}
               <TabsContent value="stock-levels" className="mt-4">
@@ -1299,7 +1932,7 @@ export default function InventoryPage() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => openEditModal('warehouse', warehouse.id)}
+                                  onClick={() => openEditForm('warehouse', warehouse.id)}
                                   className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                                   title="Edit"
                                   aria-label="Edit warehouse"
@@ -1408,7 +2041,7 @@ export default function InventoryPage() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => openEditModal('supplier', supplier.id)}
+                                  onClick={() => openEditForm('supplier', supplier.id)}
                                   className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                                   title="Edit"
                                   aria-label="Edit supplier"
@@ -1653,363 +2286,8 @@ export default function InventoryPage() {
         </div>
       </div>
 
-      {/* Warehouse Modal */}
-      {modalType && modalEntityType === 'warehouse' && (modalType === 'create' || modalType === 'edit') && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-card rounded-lg border border-border max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-border">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-foreground">
-                  {modalType === 'create' ? 'New Warehouse' : 'Edit Warehouse'}
-                </h2>
-                <Button variant="ghost" size="sm" onClick={closeModal}>
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Code *</label>
-                  <Input
-                    value={warehouseForm.code}
-                    onChange={(e) => setWarehouseForm({ ...warehouseForm, code: e.target.value })}
-                    placeholder="WH001"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Name *</label>
-                  <Input
-                    value={warehouseForm.name}
-                    onChange={(e) => setWarehouseForm({ ...warehouseForm, name: e.target.value })}
-                    placeholder="Main Warehouse"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Status</label>
-                  <select
-                    value={warehouseForm.status}
-                    onChange={(e) => setWarehouseForm({ ...warehouseForm, status: e.target.value as WarehouseFormData['status'] })}
-                    className="w-full h-10 px-3 rounded-md border border-border bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  >
-                    <option value="ACTIVE">Active</option>
-                    <option value="INACTIVE">Inactive</option>
-                    <option value="CLOSED">Closed</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Priority</label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={warehouseForm.priority}
-                    onChange={(e) => setWarehouseForm({ ...warehouseForm, priority: parseInt(e.target.value) || 1 })}
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Address Line 1 *</label>
-                <Input
-                  value={warehouseForm.address1}
-                  onChange={(e) => setWarehouseForm({ ...warehouseForm, address1: e.target.value })}
-                  placeholder="123 Main St"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Address Line 2</label>
-                <Input
-                  value={warehouseForm.address2}
-                  onChange={(e) => setWarehouseForm({ ...warehouseForm, address2: e.target.value })}
-                  placeholder="Suite 100"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">City *</label>
-                  <Input
-                    value={warehouseForm.city}
-                    onChange={(e) => setWarehouseForm({ ...warehouseForm, city: e.target.value })}
-                    placeholder="New York"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">State *</label>
-                  <Input
-                    value={warehouseForm.state}
-                    onChange={(e) => setWarehouseForm({ ...warehouseForm, state: e.target.value })}
-                    placeholder="NY"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Postal Code *</label>
-                  <Input
-                    value={warehouseForm.postalCode}
-                    onChange={(e) => setWarehouseForm({ ...warehouseForm, postalCode: e.target.value })}
-                    placeholder="10001"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Country</label>
-                  <Input
-                    value={warehouseForm.country}
-                    onChange={(e) => setWarehouseForm({ ...warehouseForm, country: e.target.value })}
-                    placeholder="US"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Phone</label>
-                  <Input
-                    value={warehouseForm.phone}
-                    onChange={(e) => setWarehouseForm({ ...warehouseForm, phone: e.target.value })}
-                    placeholder="+1 (555) 123-4567"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Email</label>
-                  <Input
-                    type="email"
-                    value={warehouseForm.email}
-                    onChange={(e) => setWarehouseForm({ ...warehouseForm, email: e.target.value })}
-                    placeholder="warehouse@example.com"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Manager Name</label>
-                <Input
-                  value={warehouseForm.managerName}
-                  onChange={(e) => setWarehouseForm({ ...warehouseForm, managerName: e.target.value })}
-                  placeholder="John Doe"
-                />
-              </div>
-              {/* Warehouse Logo */}
-              <div className="p-4 bg-muted rounded-xl border border-border">
-                <WarehouseLogoUploader
-                  value={urlToMediaItems(warehouseForm.logoUrl)}
-                  onChange={(items) => setWarehouseForm(prev => ({ ...prev, logoUrl: items[0]?.url || '' }))}
-                  entityId={modalType === 'edit' ? selectedEntityId || undefined : undefined}
-                />
-                <p className="text-xs text-muted-foreground mt-2">
-                  Logo displayed in reports and warehouse identification
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="isDefault"
-                  checked={warehouseForm.isDefault}
-                  onChange={(e) => setWarehouseForm({ ...warehouseForm, isDefault: e.target.checked })}
-                  className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
-                />
-                <label htmlFor="isDefault" className="text-sm font-medium text-foreground">
-                  Set as default warehouse
-                </label>
-              </div>
-            </div>
-            <div className="p-6 border-t border-border flex justify-end gap-3">
-              <Button variant="outline" onClick={closeModal}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSaveWarehouse}
-                disabled={savingEntity || !warehouseForm.code || !warehouseForm.name || !warehouseForm.address1 || !warehouseForm.city || !warehouseForm.state || !warehouseForm.postalCode}
-                className="bg-primary text-primary-foreground"
-              >
-                {savingEntity ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    {modalType === 'create' ? 'Create Warehouse' : 'Save Changes'}
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Supplier Modal */}
-      {modalType && modalEntityType === 'supplier' && (modalType === 'create' || modalType === 'edit') && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-card rounded-lg border border-border max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-border">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold text-foreground">
-                  {modalType === 'create' ? 'New Supplier' : 'Edit Supplier'}
-                </h2>
-                <Button variant="ghost" size="sm" onClick={closeModal}>
-                  <X className="h-5 w-5" />
-                </Button>
-              </div>
-            </div>
-            <div className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Code *</label>
-                  <Input
-                    value={supplierForm.code}
-                    onChange={(e) => setSupplierForm({ ...supplierForm, code: e.target.value })}
-                    placeholder="SUP001"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Name *</label>
-                  <Input
-                    value={supplierForm.name}
-                    onChange={(e) => setSupplierForm({ ...supplierForm, name: e.target.value })}
-                    placeholder="Acme Supplies"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Status</label>
-                  <select
-                    value={supplierForm.status}
-                    onChange={(e) => setSupplierForm({ ...supplierForm, status: e.target.value as SupplierFormData['status'] })}
-                    className="w-full h-10 px-3 rounded-md border border-border bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  >
-                    <option value="ACTIVE">Active</option>
-                    <option value="INACTIVE">Inactive</option>
-                    <option value="BLACKLISTED">Blacklisted</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Contact Name</label>
-                  <Input
-                    value={supplierForm.contactName}
-                    onChange={(e) => setSupplierForm({ ...supplierForm, contactName: e.target.value })}
-                    placeholder="Jane Smith"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Email</label>
-                  <Input
-                    type="email"
-                    value={supplierForm.email}
-                    onChange={(e) => setSupplierForm({ ...supplierForm, email: e.target.value })}
-                    placeholder="contact@supplier.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Phone</label>
-                  <Input
-                    value={supplierForm.phone}
-                    onChange={(e) => setSupplierForm({ ...supplierForm, phone: e.target.value })}
-                    placeholder="+1 (555) 123-4567"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Website</label>
-                <Input
-                  value={supplierForm.website}
-                  onChange={(e) => setSupplierForm({ ...supplierForm, website: e.target.value })}
-                  placeholder="https://supplier.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Address</label>
-                <Input
-                  value={supplierForm.address1}
-                  onChange={(e) => setSupplierForm({ ...supplierForm, address1: e.target.value })}
-                  placeholder="123 Main St"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">City</label>
-                  <Input
-                    value={supplierForm.city}
-                    onChange={(e) => setSupplierForm({ ...supplierForm, city: e.target.value })}
-                    placeholder="New York"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">State</label>
-                  <Input
-                    value={supplierForm.state}
-                    onChange={(e) => setSupplierForm({ ...supplierForm, state: e.target.value })}
-                    placeholder="NY"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Payment Terms</label>
-                  <select
-                    value={supplierForm.paymentTerms}
-                    onChange={(e) => setSupplierForm({ ...supplierForm, paymentTerms: e.target.value })}
-                    className="w-full h-10 px-3 rounded-md border border-border bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                  >
-                    <option value="Net 15">Net 15</option>
-                    <option value="Net 30">Net 30</option>
-                    <option value="Net 45">Net 45</option>
-                    <option value="Net 60">Net 60</option>
-                    <option value="Due on Receipt">Due on Receipt</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-1">Lead Time (days)</label>
-                  <Input
-                    type="number"
-                    min={1}
-                    value={supplierForm.leadTimeDays}
-                    onChange={(e) => setSupplierForm({ ...supplierForm, leadTimeDays: parseInt(e.target.value) || 7 })}
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-1">Notes</label>
-                <textarea
-                  value={supplierForm.notes}
-                  onChange={(e) => setSupplierForm({ ...supplierForm, notes: e.target.value })}
-                  placeholder="Additional notes about this supplier..."
-                  rows={3}
-                  className="w-full px-3 py-2 rounded-md border border-border focus:outline-none focus:ring-2 focus:ring-violet-500"
-                />
-              </div>
-            </div>
-            <div className="p-6 border-t border-border flex justify-end gap-3">
-              <Button variant="outline" onClick={closeModal}>
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSaveSupplier}
-                disabled={savingEntity || !supplierForm.code || !supplierForm.name}
-                className="bg-primary text-primary-foreground"
-              >
-                {savingEntity ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4 mr-2" />
-                    {modalType === 'create' ? 'Create Supplier' : 'Save Changes'}
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Delete Confirmation Modal */}
-      {modalType === 'delete' && selectedEntityId && (
+      {deleteModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <div className="bg-card rounded-lg border border-border max-w-md w-full mx-4">
             <div className="p-6 border-b border-border">
@@ -2018,36 +2296,36 @@ export default function InventoryPage() {
                   <Trash2 className="h-5 w-5 text-error" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-foreground">Delete {modalEntityType}</h2>
+                  <h2 className="text-xl font-bold text-foreground">Delete {deleteModal.entityType}</h2>
                   <p className="text-sm text-muted-foreground">This action cannot be undone</p>
                 </div>
               </div>
             </div>
             <div className="p-6">
               <p className="text-muted-foreground mb-4">
-                Are you sure you want to delete <span className="font-semibold text-foreground">{getEntityName(modalEntityType, selectedEntityId)}</span>?
+                Are you sure you want to delete <span className="font-semibold text-foreground">{getEntityName(deleteModal.entityType, deleteModal.id)}</span>?
               </p>
               <p className="text-sm text-muted-foreground mb-4">
-                To confirm, type the {modalEntityType === 'warehouse' ? 'warehouse' : modalEntityType === 'supplier' ? 'supplier' : modalEntityType} name below:
+                To confirm, type the {deleteModal.entityType === 'warehouse' ? 'warehouse' : deleteModal.entityType === 'supplier' ? 'supplier' : deleteModal.entityType} name below:
               </p>
               <Input
                 value={deleteConfirmName}
                 onChange={(e) => setDeleteConfirmName(e.target.value)}
-                placeholder={getEntityName(modalEntityType, selectedEntityId)}
+                placeholder={getEntityName(deleteModal.entityType, deleteModal.id)}
                 className="mb-2"
               />
             </div>
             <div className="p-6 border-t border-border flex justify-end gap-3">
-              <Button variant="outline" onClick={closeModal}>
+              <Button variant="outline" onClick={closeDeleteModal}>
                 Cancel
               </Button>
               <Button
                 variant="destructive"
                 onClick={handleDelete}
-                disabled={savingEntity || deleteConfirmName !== getEntityName(modalEntityType, selectedEntityId)}
+                disabled={deletingEntityId === deleteModal.id || deleteConfirmName !== getEntityName(deleteModal.entityType, deleteModal.id)}
                 className="bg-error text-white hover:bg-error"
               >
-                {savingEntity ? (
+                {deletingEntityId === deleteModal.id ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                     Deleting...
