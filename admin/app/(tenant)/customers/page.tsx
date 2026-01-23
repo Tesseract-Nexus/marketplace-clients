@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, Plus, Eye, Edit, Trash2, Users, TrendingUp, DollarSign, ShoppingCart, AlertCircle, X, Loader2, Home, UserCircle, Sparkles, Crown, CheckCircle, XCircle } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import { PageLoading } from '@/components/common';
 import { Pagination } from '@/components/Pagination';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { customerService } from '@/lib/services/customerService';
+import { useToast } from '@/contexts/ToastContext';
 import type { Customer, CreateCustomerRequest, CustomerStatus, CustomerType } from '@/lib/api/types';
 
 const customerStatusOptions = [
@@ -41,19 +42,36 @@ const newCustomerTypeOptions = [
 
 export default function CustomersPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const toast = useToast();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('ALL');
-  const [typeFilter, setTypeFilter] = useState('ALL');
+
+  // Initialize filters from URL params
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const [statusFilter, setStatusFilter] = useState(searchParams.get('status') || 'ALL');
+  const [typeFilter, setTypeFilter] = useState(searchParams.get('type') || 'ALL');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(25);
+  // Pagination - also from URL
+  const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1', 10));
+  const [itemsPerPage, setItemsPerPage] = useState(parseInt(searchParams.get('limit') || '25', 10));
+
+  // Update URL when filters change
+  const updateUrlParams = useCallback((params: Record<string, string>) => {
+    const url = new URL(window.location.href);
+    Object.entries(params).forEach(([key, value]) => {
+      if (value && value !== 'ALL' && value !== '1' && value !== '25') {
+        url.searchParams.set(key, value);
+      } else {
+        url.searchParams.delete(key);
+      }
+    });
+    router.replace(url.pathname + url.search, { scroll: false });
+  }, [router]);
 
   // Create form state
   const [currentStep, setCurrentStep] = useState(1);
@@ -73,6 +91,17 @@ export default function CustomersPage() {
   useEffect(() => {
     loadCustomers();
   }, [statusFilter, typeFilter]);
+
+  // Sync filters to URL
+  useEffect(() => {
+    updateUrlParams({
+      q: searchQuery,
+      status: statusFilter,
+      type: typeFilter,
+      page: currentPage.toString(),
+      limit: itemsPerPage.toString(),
+    });
+  }, [searchQuery, statusFilter, typeFilter, currentPage, itemsPerPage, updateUrlParams]);
 
   const loadCustomers = async () => {
     try {
@@ -113,12 +142,15 @@ export default function CustomersPage() {
     try {
       setError(null);
       await customerService.createCustomer(formData);
+      toast.success('Customer Created', 'The customer has been added successfully');
       setShowCreateModal(false);
       resetForm();
       loadCustomers();
     } catch (error) {
       console.error('Error creating customer:', error);
-      setError(error instanceof Error ? error.message : 'Failed to create customer. Please try again.');
+      const errorMsg = error instanceof Error ? error.message : 'Failed to create customer. Please try again.';
+      toast.error('Failed to Create Customer', errorMsg);
+      setError(errorMsg);
     }
   };
 
@@ -127,12 +159,15 @@ export default function CustomersPage() {
     try {
       setError(null);
       await customerService.deleteCustomer(customerToDelete);
+      toast.success('Customer Deleted', 'The customer has been removed successfully');
       setShowDeleteModal(false);
       setCustomerToDelete(null);
       loadCustomers();
     } catch (error) {
       console.error('Error deleting customer:', error);
-      setError(error instanceof Error ? error.message : 'Failed to delete customer. Please try again.');
+      const errorMsg = error instanceof Error ? error.message : 'Failed to delete customer. Please try again.';
+      toast.error('Failed to Delete Customer', errorMsg);
+      setError(errorMsg);
     }
   };
 

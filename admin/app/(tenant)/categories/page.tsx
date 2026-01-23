@@ -54,6 +54,7 @@ import { FilterPanel } from '@/components/data-listing';
 import { Category, CreateCategoryRequest, UpdateCategoryRequest, DefaultMediaURLs } from '@/lib/api/types';
 import { BulkImportModal } from '@/components/BulkImportModal';
 import { CategoryIconUploader, CategoryBannerUploader, MediaItem } from '@/components/MediaUploader';
+import { useToast } from '@/contexts/ToastContext';
 
 type ViewMode = 'list' | 'create' | 'edit' | 'detail';
 
@@ -111,6 +112,7 @@ export default function CategoriesPage() {
   const { currentTenant, isLoading: tenantLoading } = useTenant();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const toast = useToast();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -398,14 +400,18 @@ export default function CategoriesPage() {
     try {
       if (viewMode === 'create') {
         await categoryService.createCategory(formData as CreateCategoryRequest);
+        toast.success('Category Created', 'The category has been created successfully');
       } else if (viewMode === 'edit' && selectedCategory) {
         await categoryService.updateCategory(selectedCategory.id, formData as UpdateCategoryRequest);
+        toast.success('Category Updated', 'Changes have been saved successfully');
       }
       await loadCategories();
       navigateToList();
       setErrors({});
     } catch (err) {
-      setError(getUserFriendlyError(err));
+      const errorMsg = getUserFriendlyError(err);
+      toast.error('Failed to Save Category', errorMsg);
+      setError(errorMsg);
       console.error('Error saving category:', err);
     }
   };
@@ -420,12 +426,15 @@ export default function CategoriesPage() {
       onConfirm: async () => {
         try {
           await categoryService.deleteCategory(id);
+          toast.success('Category Deleted', 'The category has been removed successfully');
           await loadCategories();
           if (selectedCategory?.id === id) {
             navigateToList();
           }
         } catch (err) {
-          setError(getUserFriendlyError(err));
+          const errorMsg = getUserFriendlyError(err);
+          toast.error('Failed to Delete Category', errorMsg);
+          setError(errorMsg);
           console.error('Error deleting category:', err);
         }
       },
@@ -434,18 +443,22 @@ export default function CategoriesPage() {
 
   const handleBulkDelete = () => {
     if (selectedCategories.size > 0) {
+      const count = selectedCategories.size;
       setModalConfig({
         isOpen: true,
         title: 'Delete Multiple Categories',
-        message: `Are you sure you want to delete ${selectedCategories.size} ${selectedCategories.size === 1 ? 'category' : 'categories'}? This action cannot be undone.`,
+        message: `Are you sure you want to delete ${count} ${count === 1 ? 'category' : 'categories'}? This action cannot be undone.`,
         variant: 'danger',
         onConfirm: async () => {
           try {
             await categoryService.bulkDeleteCategories(Array.from(selectedCategories));
+            toast.success('Categories Deleted', `${count} ${count === 1 ? 'category has' : 'categories have'} been removed`);
             await loadCategories();
             setSelectedCategories(new Set());
           } catch (err) {
-            setError(getUserFriendlyError(err));
+            const errorMsg = getUserFriendlyError(err);
+            toast.error('Failed to Delete Categories', errorMsg);
+            setError(errorMsg);
             console.error('Error bulk deleting categories:', err);
           }
         },
@@ -457,8 +470,13 @@ export default function CategoriesPage() {
     if (selectedCategories.size === 0) return;
 
     try {
+      const count = selectedCategories.size;
       const ids = Array.from(selectedCategories);
       await categoryService.bulkUpdateCategoryActiveStatus(ids, active);
+      toast.success(
+        active ? 'Categories Activated' : 'Categories Deactivated',
+        `${count} ${count === 1 ? 'category has' : 'categories have'} been ${active ? 'activated' : 'deactivated'}`
+      );
       // Update local state to reflect the change
       setCategories(categories.map(cat =>
         selectedCategories.has(cat.id) ? { ...cat, isActive: active } : cat
@@ -466,6 +484,7 @@ export default function CategoriesPage() {
       setSelectedCategories(new Set());
     } catch (error) {
       console.error('Failed to update category active status:', error);
+      toast.error('Failed to Update Categories', 'Unable to update category status. Please try again.');
       // Reload categories on error to ensure consistency
       await loadCategories();
     }

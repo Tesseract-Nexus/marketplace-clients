@@ -2,7 +2,7 @@
 
 // Orders page - Updated: 2025-12-31
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/Select';
@@ -58,20 +58,36 @@ const formatCurrency = (amount: string | number | null | undefined, currencyCode
 
 export default function OrdersPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [orders, setOrders] = useState<Order[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'ALL' | OrderStatus>('ALL');
-  const [paymentStatusFilter, setPaymentStatusFilter] = useState<'ALL' | PaymentStatus>('ALL');
-  const [fulfillmentStatusFilter, setFulfillmentStatusFilter] = useState<'ALL' | FulfillmentStatus>('ALL');
+
+  // Initialize filters from URL params
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | OrderStatus>((searchParams.get('status') as OrderStatus) || 'ALL');
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState<'ALL' | PaymentStatus>((searchParams.get('payment') as PaymentStatus) || 'ALL');
+  const [fulfillmentStatusFilter, setFulfillmentStatusFilter] = useState<'ALL' | FulfillmentStatus>((searchParams.get('fulfillment') as FulfillmentStatus) || 'ALL');
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  // Pagination
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(25);
+  // Pagination - also from URL
+  const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1', 10));
+  const [itemsPerPage, setItemsPerPage] = useState(parseInt(searchParams.get('limit') || '25', 10));
+
+  // Update URL when filters change
+  const updateUrlParams = useCallback((params: Record<string, string>) => {
+    const url = new URL(window.location.href);
+    Object.entries(params).forEach(([key, value]) => {
+      if (value && value !== 'ALL' && value !== '1' && value !== '25') {
+        url.searchParams.set(key, value);
+      } else {
+        url.searchParams.delete(key);
+      }
+    });
+    router.replace(url.pathname + url.search, { scroll: false });
+  }, [router]);
 
   // Quick actions menu
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -101,6 +117,18 @@ export default function OrdersPage() {
   useEffect(() => {
     loadOrders();
   }, [loadOrders]);
+
+  // Sync filters to URL
+  useEffect(() => {
+    updateUrlParams({
+      q: searchQuery,
+      status: statusFilter,
+      payment: paymentStatusFilter,
+      fulfillment: fulfillmentStatusFilter,
+      page: currentPage.toString(),
+      limit: itemsPerPage.toString(),
+    });
+  }, [searchQuery, statusFilter, paymentStatusFilter, fulfillmentStatusFilter, currentPage, itemsPerPage, updateUrlParams]);
 
   const formatLastUpdated = () => {
     if (!lastUpdated) return '';

@@ -68,6 +68,7 @@ import { BulkImportModal } from '@/components/BulkImportModal';
 import { Upload } from 'lucide-react';
 import { StaffFormStep1, StaffFormStep2, StaffFormStep3, StaffFormStep4, StaffFormData, initialFormData, QuickAddForm, QuickAddData } from './components';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
+import { useToast } from '@/contexts/ToastContext';
 
 type ViewMode = 'list' | 'create' | 'edit' | 'detail';
 
@@ -75,6 +76,7 @@ export default function StaffPage() {
   const params = useParams();
   const tenantSlug = params?.slug as string;
   const { currentTenant, isLoading: tenantLoading } = useTenant();
+  const toast = useToast();
 
   const [staff, setStaff] = useState<Staff[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
@@ -292,10 +294,13 @@ export default function StaffPage() {
       onConfirm: async () => {
         try {
           await staffService.deleteStaff(staffMember.id);
+          toast.success('Staff Member Deleted', `${staffMember.firstName} ${staffMember.lastName} has been removed`);
           await loadStaff();
           setModalConfig({ ...modalConfig, isOpen: false });
         } catch (err) {
-          setError(err instanceof Error ? err.message : 'Failed to delete staff member');
+          const errorMsg = err instanceof Error ? err.message : 'Failed to delete staff member';
+          toast.error('Failed to Delete', errorMsg);
+          setError(errorMsg);
         }
       },
     });
@@ -322,15 +327,19 @@ export default function StaffPage() {
 
       if (viewMode === 'create') {
         await staffService.createStaff(preparedData as CreateStaffRequest);
+        toast.success('Staff Member Created', `${formData.firstName} ${formData.lastName} has been added`);
       } else if (viewMode === 'edit' && selectedStaff) {
         await staffService.updateStaff(selectedStaff.id, preparedData as UpdateStaffRequest);
+        toast.success('Staff Member Updated', 'Changes have been saved successfully');
       }
       await loadStaff();
       setViewMode('list');
       setSelectedStaff(null);
       setCurrentStep(1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save staff member');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to save staff member';
+      toast.error('Failed to Save', errorMsg);
+      setError(errorMsg);
       console.error('Error saving staff member:', err);
     }
   };
@@ -371,10 +380,13 @@ export default function StaffPage() {
         activationBaseUrl: typeof window !== 'undefined' ? window.location.origin : undefined,
         businessName: currentTenant?.name || currentTenant?.displayName || undefined,
       } as CreateStaffRequest);
+      toast.success('Staff Member Added', `${data.firstName} ${data.lastName} has been invited`);
       await loadStaff();
       setViewMode('list');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create staff member');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to create staff member';
+      toast.error('Failed to Add Staff', errorMsg);
+      setError(errorMsg);
       console.error('Error creating staff member:', err);
     } finally {
       setIsSubmitting(false);
