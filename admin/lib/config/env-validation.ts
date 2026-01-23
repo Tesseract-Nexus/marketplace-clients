@@ -13,8 +13,16 @@ const REQUIRED_ENV_VARS = [
   'NEXT_PUBLIC_AUTH_SERVICE_URL',
 ] as const;
 
-// Required in production only
+// Required in production only (unless fetched from GCP Secret Manager)
+// Note: CSRF_SECRET is handled by lib/config/secrets.ts - fetched from GCP Secret Manager
+// when USE_GCP_SECRET_MANAGER=true, otherwise from CSRF_SECRET env var
 const PRODUCTION_REQUIRED_ENV_VARS = [
+  // CSRF_SECRET is no longer required as env var - handled by secrets.ts
+] as const;
+
+// Secrets that are fetched from GCP Secret Manager (when USE_GCP_SECRET_MANAGER=true)
+// or from environment variables (when USE_GCP_SECRET_MANAGER is not set)
+const GCP_MANAGED_SECRETS = [
   'CSRF_SECRET',
 ] as const;
 

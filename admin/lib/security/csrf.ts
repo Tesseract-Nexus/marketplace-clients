@@ -15,6 +15,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { generateSecureToken, generateHmacSignature, verifyHmacSignature, secureCompare } from './encryption';
+import { getSecretWithFallback, isGcpSecretManagerEnabled } from '../config/secrets';
+import { logger } from '../logger';
 
 // CSRF token configuration
 const CSRF_COOKIE_NAME = 'csrf-token';
@@ -22,11 +24,76 @@ const CSRF_HEADER_NAME = 'X-CSRF-Token';
 const CSRF_TOKEN_LENGTH = 32;
 const CSRF_TOKEN_MAX_AGE = 60 * 60; // 1 hour in seconds
 
+// Cached CSRF secret for performance (initialized lazily)
+let cachedCsrfSecret: string | null = null;
+let csrfSecretInitPromise: Promise<void> | null = null;
+
+/**
+ * Initialize CSRF secret from GCP Secret Manager or environment variable
+ * This should be called during app startup to pre-warm the cache
+ */
+export async function initializeCsrfSecret(): Promise<void> {
+  if (cachedCsrfSecret) {
+    return; // Already initialized
+  }
+
+  // Prevent concurrent initialization
+  if (csrfSecretInitPromise) {
+    return csrfSecretInitPromise;
+  }
+
+  csrfSecretInitPromise = (async () => {
+    try {
+      const secret = await getSecretWithFallback('csrf-secret', 'CSRF_SECRET');
+
+      if (!secret && process.env.NODE_ENV === 'production') {
+        throw new Error('SECURITY: CSRF_SECRET must be configured in production (via GCP Secret Manager or env var)');
+      }
+
+      cachedCsrfSecret = secret || 'dev-csrf-secret-not-for-production';
+
+      if (process.env.NODE_ENV !== 'production') {
+        logger.debug('CSRF secret initialized (development mode)');
+      } else {
+        const source = isGcpSecretManagerEnabled() ? 'GCP Secret Manager' : 'environment variable';
+        logger.info(`CSRF secret initialized from ${source}`);
+      }
+    } catch (error) {
+      logger.error('Failed to initialize CSRF secret:', error);
+      throw error;
+    }
+  })();
+
+  return csrfSecretInitPromise;
+}
+
 /**
  * Get CSRF secret with runtime validation
- * Deferred to runtime to avoid build-time errors when env vars aren't set
+ * Returns cached secret or throws if not initialized
+ */
+async function getCsrfSecretAsync(): Promise<string> {
+  if (!cachedCsrfSecret) {
+    await initializeCsrfSecret();
+  }
+
+  if (!cachedCsrfSecret) {
+    throw new Error('CSRF secret not initialized');
+  }
+
+  return cachedCsrfSecret;
+}
+
+/**
+ * Get CSRF secret synchronously (for backwards compatibility)
+ * Falls back to env var if not initialized
+ * @deprecated Use getCsrfSecretAsync for async operations
  */
 function getCsrfSecret(): string {
+  if (cachedCsrfSecret) {
+    return cachedCsrfSecret;
+  }
+
+  // Fallback to direct env var read (for backwards compatibility during startup)
   const secret = process.env.CSRF_SECRET;
   if (!secret && process.env.NODE_ENV === 'production') {
     throw new Error('SECURITY: CSRF_SECRET environment variable must be set in production');
