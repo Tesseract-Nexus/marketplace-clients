@@ -8,7 +8,7 @@ import { SearchableSelect, type SelectOption } from '../../components/Searchable
 import { DocumentsSection } from '../../components/DocumentsSection';
 import { VerificationScore, useVerificationScore } from '../../components/VerificationScore';
 import { type UploadedDocument } from '../../components/DocumentUpload';
-import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldCheck, ShieldAlert, Pencil, X } from 'lucide-react';
+import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldCheck, ShieldAlert, Pencil, X, Eye, EyeOff, Shield } from 'lucide-react';
 import { useOnboardingStore, type DetectedLocation, type PersistedDocument } from '../../lib/store/onboarding-store';
 import { businessInfoSchema, contactDetailsSchema, businessAddressSchema, storeSetupSchema, MARKETPLACE_PLATFORMS, type BusinessInfoForm, type ContactDetailsForm, type BusinessAddressForm, type StoreSetupForm } from '../../lib/validations/onboarding';
 import { onboardingApi, OnboardingAPIError } from '../../lib/api/onboarding';
@@ -177,6 +177,9 @@ export default function OnboardingPage() {
     message: '',
   });
   const customDomainValidationTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // State for showing/hiding sensitive DNS values (security feature)
+  const [showSensitiveDNS, setShowSensitiveDNS] = useState(false);
 
   // Domain verification state (for checking DNS propagation)
   const [domainVerification, setDomainVerification] = useState<{
@@ -2808,6 +2811,166 @@ export default function OnboardingPage() {
                                     <strong className="font-semibold text-foreground">Email Setup (Optional):</strong> Want to send emails from your custom domain (e.g., contact@{storeSetupForm.watch('customDomain')})? You can configure SPF, DKIM, and MX records later in Admin Settings → Domains.
                                   </p>
                                 </div>
+
+                                {/* Routing A Records Section */}
+                                {customDomainValidation.routingRecords && customDomainValidation.routingRecords.length > 0 && (
+                                  <div className="mt-4 p-4 bg-red-50 rounded-xl border-2 border-red-200">
+                                    <div className="flex items-center justify-between mb-3">
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                                          <AlertCircle className="w-4 h-4 text-red-600" />
+                                        </div>
+                                        <div>
+                                          <p className="text-sm font-semibold text-red-700">Step 2: Routing A Records (Required)</p>
+                                          <p className="text-xs text-red-600">Point your domain to our servers</p>
+                                        </div>
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={() => setShowSensitiveDNS(!showSensitiveDNS)}
+                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition-colors"
+                                      >
+                                        {showSensitiveDNS ? (
+                                          <>
+                                            <EyeOff className="w-3.5 h-3.5" />
+                                            Hide Values
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Eye className="w-3.5 h-3.5" />
+                                            Show Values
+                                          </>
+                                        )}
+                                      </button>
+                                    </div>
+
+                                    <div className="bg-white rounded-lg overflow-hidden border border-red-200">
+                                      <table className="w-full text-sm">
+                                        <thead>
+                                          <tr className="border-b border-red-100 bg-red-50">
+                                            <th className="text-left text-xs font-medium text-red-600 uppercase tracking-wide px-4 py-2 w-16">Type</th>
+                                            <th className="text-left text-xs font-medium text-red-600 uppercase tracking-wide px-4 py-2">Host</th>
+                                            <th className="text-left text-xs font-medium text-red-600 uppercase tracking-wide px-4 py-2">Value (IP Address)</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          {customDomainValidation.routingRecords.map((record, index) => (
+                                            <tr key={index} className={index % 2 === 0 ? '' : 'bg-red-50/50'}>
+                                              <td className="px-4 py-2">
+                                                <span className="inline-flex items-center px-2 py-0.5 rounded font-mono font-semibold text-xs bg-red-100 text-red-700">
+                                                  {record.type}
+                                                </span>
+                                              </td>
+                                              <td className="px-4 py-2">
+                                                <div className="flex items-center gap-2">
+                                                  <code className="font-mono text-sm text-foreground">{record.host}</code>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => navigator.clipboard.writeText(record.host)}
+                                                    className="p-1 text-muted-foreground hover:text-primary rounded transition-colors"
+                                                    title="Copy"
+                                                  >
+                                                    <Copy className="w-3.5 h-3.5" />
+                                                  </button>
+                                                </div>
+                                              </td>
+                                              <td className="px-4 py-2">
+                                                <div className="flex items-center gap-2">
+                                                  <code className={`font-mono text-sm ${showSensitiveDNS ? 'text-red-700 font-semibold' : 'text-muted-foreground'}`}>
+                                                    {showSensitiveDNS ? record.value : '••••••••••••'}
+                                                  </code>
+                                                  <button
+                                                    type="button"
+                                                    onClick={() => navigator.clipboard.writeText(record.value)}
+                                                    className="p-1 text-muted-foreground hover:text-primary rounded transition-colors"
+                                                    title="Copy (copies actual value)"
+                                                  >
+                                                    <Copy className="w-3.5 h-3.5" />
+                                                  </button>
+                                                </div>
+                                              </td>
+                                            </tr>
+                                          ))}
+                                        </tbody>
+                                      </table>
+                                    </div>
+
+                                    <p className="mt-2 text-xs text-red-600">
+                                      <strong>Security:</strong> Values are hidden by default. Click &quot;Show Values&quot; to reveal, or copy directly.
+                                    </p>
+                                  </div>
+                                )}
+
+                                {/* CNAME Delegation for Automatic SSL */}
+                                {customDomainValidation.cnameDelegationRecord && customDomainValidation.cnameDelegationEnabled && (
+                                  <div className="mt-4 p-4 bg-emerald-50 rounded-xl border-2 border-emerald-200">
+                                    <div className="flex items-center justify-between mb-3">
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
+                                          <Shield className="w-4 h-4 text-emerald-600" />
+                                        </div>
+                                        <div>
+                                          <p className="text-sm font-semibold text-emerald-700">Step 3: Automatic SSL Certificate (Recommended)</p>
+                                          <p className="text-xs text-emerald-600">Add once, certificates auto-renew forever</p>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div className="bg-white rounded-lg overflow-hidden border border-emerald-200">
+                                      <table className="w-full text-sm">
+                                        <thead>
+                                          <tr className="border-b border-emerald-100 bg-emerald-50">
+                                            <th className="text-left text-xs font-medium text-emerald-600 uppercase tracking-wide px-4 py-2 w-16">Type</th>
+                                            <th className="text-left text-xs font-medium text-emerald-600 uppercase tracking-wide px-4 py-2">Host</th>
+                                            <th className="text-left text-xs font-medium text-emerald-600 uppercase tracking-wide px-4 py-2">Value</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                          <tr>
+                                            <td className="px-4 py-2">
+                                              <span className="inline-flex items-center px-2 py-0.5 rounded font-mono font-semibold text-xs bg-emerald-100 text-emerald-700">
+                                                CNAME
+                                              </span>
+                                            </td>
+                                            <td className="px-4 py-2">
+                                              <div className="flex items-center gap-2">
+                                                <code className="font-mono text-sm text-foreground break-all">{customDomainValidation.cnameDelegationRecord.host}</code>
+                                                <button
+                                                  type="button"
+                                                  onClick={() => navigator.clipboard.writeText(customDomainValidation.cnameDelegationRecord?.host || '')}
+                                                  className="p-1 text-muted-foreground hover:text-primary rounded transition-colors flex-shrink-0"
+                                                  title="Copy"
+                                                >
+                                                  <Copy className="w-3.5 h-3.5" />
+                                                </button>
+                                              </div>
+                                            </td>
+                                            <td className="px-4 py-2">
+                                              <div className="flex items-center gap-2">
+                                                <code className="font-mono text-sm text-emerald-700 font-semibold break-all">{customDomainValidation.cnameDelegationRecord.value}</code>
+                                                <button
+                                                  type="button"
+                                                  onClick={() => navigator.clipboard.writeText(customDomainValidation.cnameDelegationRecord?.value || '')}
+                                                  className="p-1 text-muted-foreground hover:text-primary rounded transition-colors flex-shrink-0"
+                                                  title="Copy"
+                                                >
+                                                  <Copy className="w-3.5 h-3.5" />
+                                                </button>
+                                              </div>
+                                            </td>
+                                          </tr>
+                                        </tbody>
+                                      </table>
+                                    </div>
+
+                                    <div className="mt-2 flex items-start gap-2">
+                                      <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                                      <p className="text-xs text-emerald-600">
+                                        Certificates auto-renew. SSL can be issued before your domain points to us.
+                                      </p>
+                                    </div>
+                                  </div>
+                                )}
 
                                 {/* Domain Verification Section */}
                                 <div className="mt-4 p-4 bg-white rounded-xl border-2 border-warm-200">
