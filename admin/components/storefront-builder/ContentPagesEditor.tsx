@@ -433,7 +433,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
                   <select
                     value={editingPage.type}
                     onChange={(e) => setEditingPage({ ...editingPage, type: e.target.value as ContentPageType })}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                    className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                   >
                     {PAGE_TYPES.map((type) => (
                       <option key={type.value} value={type.value}>
@@ -447,7 +447,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
                   <select
                     value={editingPage.status}
                     onChange={(e) => setEditingPage({ ...editingPage, status: e.target.value as ContentPageStatus })}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                    className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                   >
                     <option value="DRAFT">Draft</option>
                     <option value="PUBLISHED">Published</option>

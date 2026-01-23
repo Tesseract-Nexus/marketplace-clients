@@ -18,6 +18,7 @@ interface SelectProps {
   leftIcon?: React.ReactNode;
   className?: string;
   variant?: 'default' | 'filter';
+  size?: 'default' | 'sm' | 'lg';
   disabled?: boolean;
 }
 
@@ -29,6 +30,7 @@ export function Select({
   leftIcon,
   className,
   variant = 'default',
+  size = 'default',
   disabled = false,
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -62,6 +64,13 @@ export function Select({
     setIsOpen(false);
   };
 
+  // Size classes matching Input and Button components
+  const sizeClasses = {
+    sm: 'h-9 px-3 text-sm',
+    default: 'h-10 px-3 text-sm',
+    lg: 'h-11 px-4 text-base',
+  };
+
   return (
     <div ref={containerRef} className="relative">
       {/* Select Button */}
@@ -70,18 +79,19 @@ export function Select({
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
         className={cn(
-          "w-full flex items-center justify-between gap-2 transition-all text-left",
-          variant === 'filter'
-            ? "px-4 py-2.5 border-2 border-border rounded-xl text-sm font-semibold bg-white hover:border-border shadow-sm"
-            : "pl-12 pr-10 py-3.5 border-2 border-border rounded-xl font-medium bg-white hover:border-border shadow-sm",
-          isOpen && "ring-2 ring-blue-500 border-primary",
+          "w-full flex items-center justify-between gap-2 transition-colors text-left",
+          "border border-border rounded-md bg-background",
+          "focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary",
+          sizeClasses[size],
+          leftIcon && "pl-9",
+          isOpen && "ring-2 ring-ring border-primary",
           disabled && "opacity-50 cursor-not-allowed bg-muted",
           className
         )}
       >
         {/* Left Icon */}
         {leftIcon && (
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground">
             {leftIcon}
           </div>
         )}
@@ -90,7 +100,7 @@ export function Select({
         <span className="flex-1 truncate">
           {selectedOption ? (
             <span className="flex items-center gap-2">
-              {selectedOption.icon && <span>{selectedOption.icon}</span>}
+              {selectedOption.icon && <span className="flex-shrink-0">{selectedOption.icon}</span>}
               {selectedOption.label}
             </span>
           ) : (
@@ -101,16 +111,16 @@ export function Select({
         {/* Chevron */}
         <ChevronDown
           className={cn(
-            "w-5 h-5 text-muted-foreground transition-transform duration-200 flex-shrink-0",
-            isOpen && "rotate-180 text-primary"
+            "h-4 w-4 text-muted-foreground transition-transform duration-200 flex-shrink-0",
+            isOpen && "rotate-180"
           )}
         />
       </button>
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="absolute z-[100] w-full mt-2 bg-white/95 backdrop-blur-xl border-2 border-primary/50 rounded-xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-          <div className="max-h-60 overflow-y-auto py-2 scrollbar-thin scrollbar-thumb-blue-300 scrollbar-track-transparent">
+        <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100">
+          <div className="max-h-60 overflow-y-auto py-1">
             {options.map((option) => {
               const isSelected = option.value === value;
               return (
@@ -119,18 +129,18 @@ export function Select({
                   type="button"
                   onClick={() => handleSelect(option.value)}
                   className={cn(
-                    "w-full flex items-center justify-between px-4 py-2.5 text-left transition-all",
+                    "w-full flex items-center justify-between px-3 py-2 text-sm text-left transition-colors",
                     isSelected
-                      ? "bg-muted text-primary font-semibold"
-                      : "text-foreground hover:hover:bg-muted"
+                      ? "bg-accent text-accent-foreground font-medium"
+                      : "text-foreground hover:bg-accent hover:text-accent-foreground"
                   )}
                 >
                   <span className="flex items-center gap-2">
-                    {option.icon && <span>{option.icon}</span>}
+                    {option.icon && <span className="flex-shrink-0">{option.icon}</span>}
                     {option.label}
                   </span>
                   {isSelected && (
-                    <Check className="w-4 h-4 text-primary flex-shrink-0" />
+                    <Check className="h-4 w-4 flex-shrink-0" />
                   )}
                 </button>
               );

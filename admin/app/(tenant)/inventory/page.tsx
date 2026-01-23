@@ -870,7 +870,7 @@ export default function InventoryPage() {
               <select
                 value={activeTab}
                 onChange={(e) => navigateToTab(e.target.value as TabType)}
-                className="w-full px-3 py-2 border border-border rounded-lg bg-card text-sm font-medium"
+                className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
               >
                 <option value="stock-levels">Stock Levels ({products.length})</option>
                 <option value="warehouses">Warehouses ({warehouses.length})</option>

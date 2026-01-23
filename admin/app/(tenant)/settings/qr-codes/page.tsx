@@ -528,7 +528,7 @@ export default function QRCodesPage() {
               <Label htmlFor="encryption">Encryption</Label>
               <select
                 id="encryption"
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="w-full h-10 rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                 value={wifiData.encryption}
                 onChange={(e) => setWifiData({ ...wifiData, encryption: e.target.value as 'WPA' | 'WEP' | 'nopass' })}
               >
@@ -783,7 +783,7 @@ export default function QRCodesPage() {
               <Label htmlFor="paymentType">Payment Type</Label>
               <select
                 id="paymentType"
-                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                className="w-full h-10 rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                 value={paymentData.type}
                 onChange={(e) => setPaymentData({ ...paymentData, type: e.target.value as 'upi' | 'bitcoin' | 'ethereum' })}
               >

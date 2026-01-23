@@ -408,7 +408,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                         <select
                           value={badge.icon || ''}
                           onChange={(e) => handleUpdateTrustBadge(badge.id, { icon: e.target.value || undefined })}
-                          className="px-2 py-1 text-sm border border-border rounded"
+                          className="h-9 px-3 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
                           disabled={disabled}
                         >
                           <option value="">No icon</option>
