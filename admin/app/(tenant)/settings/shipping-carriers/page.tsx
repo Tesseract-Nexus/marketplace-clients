@@ -5,14 +5,8 @@ import {
   Truck,
   Globe,
   Settings,
-  CheckCircle,
-  AlertCircle,
-  XCircle,
-  MapPin,
   Loader2,
-  ArrowRight,
   Zap,
-  Package,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/PageHeader';
@@ -26,74 +20,90 @@ import {
   shippingCarriersService,
   ShippingCarrierConfig,
   CarrierType,
-  getCarrierDisplayName,
-  isIndiaCarrier,
-  isGlobalCarrier,
 } from '@/lib/api/shippingCarriers';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { cn } from '@/lib/utils';
+
+type TabId = 'carriers' | 'regions' | 'settings';
+
+const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
+  { id: 'carriers', label: 'Carriers', icon: Truck },
+  { id: 'regions', label: 'Regions', icon: Globe },
+  { id: 'settings', label: 'Settings', icon: Settings },
+];
 
 // Country-specific carrier recommendations
 const CARRIER_RECOMMENDATIONS: Record<string, {
   primary: CarrierType;
   fallback?: CarrierType;
   countryName: string;
-  flag: string;
-  primaryName: string;
-  fallbackName?: string;
 }> = {
-  IN: {
-    primary: 'SHIPROCKET',
-    fallback: 'DELHIVERY',
-    countryName: 'India',
-    flag: '\u{1F1EE}\u{1F1F3}',
-    primaryName: 'Shiprocket',
-    fallbackName: 'Delhivery',
-  },
-  US: {
-    primary: 'SHIPPO',
-    fallback: 'FEDEX',
-    countryName: 'United States',
-    flag: '\u{1F1FA}\u{1F1F8}',
-    primaryName: 'Shippo',
-    fallbackName: 'FedEx',
-  },
-  GB: {
-    primary: 'SHIPPO',
-    fallback: 'DHL',
-    countryName: 'United Kingdom',
-    flag: '\u{1F1EC}\u{1F1E7}',
-    primaryName: 'Shippo',
-    fallbackName: 'DHL',
-  },
-  AU: {
-    primary: 'SHIPENGINE',
-    fallback: 'DHL',
-    countryName: 'Australia',
-    flag: '\u{1F1E6}\u{1F1FA}',
-    primaryName: 'ShipEngine',
-    fallbackName: 'DHL',
-  },
-  DEFAULT: {
-    primary: 'SHIPPO',
-    fallback: 'DHL',
-    countryName: 'Your Region',
-    flag: '\u{1F310}',
-    primaryName: 'Shippo',
-    fallbackName: 'DHL',
-  },
+  IN: { primary: 'SHIPROCKET', fallback: 'DELHIVERY', countryName: 'India' },
+  US: { primary: 'SHIPPO', fallback: 'FEDEX', countryName: 'United States' },
+  GB: { primary: 'SHIPPO', fallback: 'DHL', countryName: 'United Kingdom' },
+  AU: { primary: 'SHIPENGINE', fallback: 'DHL', countryName: 'Australia' },
+  DEFAULT: { primary: 'SHIPPO', fallback: 'DHL', countryName: 'Your Region' },
 };
 
-const tabs = [
-  { id: 'carriers', label: 'Shipping Carriers', icon: Truck },
-  { id: 'regions', label: 'Regional Settings', icon: Globe },
-  { id: 'settings', label: 'Settings', icon: Settings },
-];
+// Shipping Status Widget (inline, matching Payment pattern)
+function ShippingStatusWidget({
+  carriersConfigured,
+  hasLiveCarrier,
+  hasPrimaryCarrier,
+  hasFallbackCarrier,
+}: {
+  carriersConfigured: number;
+  hasLiveCarrier: boolean;
+  hasPrimaryCarrier: boolean;
+  hasFallbackCarrier: boolean;
+}) {
+  const steps = [
+    { done: carriersConfigured > 0, label: 'Carrier' },
+    { done: hasPrimaryCarrier, label: 'Primary' },
+    { done: hasFallbackCarrier, label: 'Fallback' },
+    { done: hasLiveCarrier, label: 'Live' },
+  ];
+  const completedCount = steps.filter(s => s.done).length;
+  const isReady = carriersConfigured > 0;
+
+  return (
+    <div className={cn(
+      "rounded-lg border p-3",
+      isReady ? "bg-success/5 border-success/20" : "bg-warning/5 border-warning/20"
+    )}>
+      <div className="flex items-center justify-between mb-2">
+        <span className={cn(
+          "text-xs font-medium",
+          isReady ? "text-success" : "text-warning"
+        )}>
+          {isReady ? 'Ready' : 'Setup Required'}
+        </span>
+        <span className="text-xs text-muted-foreground">{completedCount}/4</span>
+      </div>
+
+      <div className="flex gap-1">
+        {steps.map((step, i) => (
+          <div key={i} className="flex-1 group relative">
+            <div className={cn(
+              "h-1 rounded-full transition-colors",
+              step.done
+                ? isReady ? "bg-success" : "bg-warning"
+                : "bg-muted"
+            )} />
+            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              {step.label}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function ShippingCarriersSettingsPage() {
-  const [activeTab, setActiveTab] = useState('carriers');
+  const [activeTab, setActiveTab] = useState<TabId>('carriers');
   const [loading, setLoading] = useState(true);
   const [storeCountry, setStoreCountry] = useState<string | null>(null);
-  const [storeCountryName, setStoreCountryName] = useState<string>('');
   const [carriers, setCarriers] = useState<ShippingCarrierConfig[]>([]);
 
   useEffect(() => {
@@ -103,8 +113,6 @@ export default function ShippingCarriersSettingsPage() {
   const loadShippingStatus = async () => {
     try {
       setLoading(true);
-
-      // Load carriers and store location in parallel
       const [carriersData, storefronts] = await Promise.all([
         shippingCarriersService.getCarrierConfigs(),
         storefrontService.getStorefronts(),
@@ -112,7 +120,6 @@ export default function ShippingCarriersSettingsPage() {
 
       setCarriers(carriersData);
 
-      // Get store country
       if (storefronts.data && storefronts.data.length > 0) {
         const storefrontId = storefronts.data[0].id;
         const settings = await settingsService.getSettingsByContext({
@@ -123,17 +130,11 @@ export default function ShippingCarriersSettingsPage() {
 
         if (settings?.ecommerce?.store?.address?.country) {
           const countryName = settings.ecommerce.store.address.country;
-          setStoreCountryName(countryName);
-
           const countryMap: Record<string, string> = {
             'India': 'IN',
             'United States': 'US',
             'United Kingdom': 'GB',
             'Australia': 'AU',
-            'Canada': 'CA',
-            'Germany': 'DE',
-            'France': 'FR',
-            'Singapore': 'SG',
           };
           setStoreCountry(countryMap[countryName] || 'DEFAULT');
         }
@@ -152,23 +153,12 @@ export default function ShippingCarriersSettingsPage() {
   const enabledCarriers = carriers.filter(c => c.isEnabled);
   const hasPrimaryCarrier = recommendation && carriers.some(c => c.carrierType === recommendation.primary && c.isEnabled);
   const hasFallbackCarrier = recommendation?.fallback && carriers.some(c => c.carrierType === recommendation.fallback && c.isEnabled);
-  const isShippingReady = enabledCarriers.length > 0;
-  const hasTestModeOnly = enabledCarriers.length > 0 && enabledCarriers.every(c => c.isTestMode);
-
-  const getSetupProgress = () => {
-    let progress = 0;
-    if (enabledCarriers.length > 0) progress += 50;
-    if (hasPrimaryCarrier) progress += 25;
-    if (hasFallbackCarrier) progress += 25;
-    return progress;
-  };
+  const hasLiveCarrier = carriers.some(c => !c.isTestMode && c.isEnabled);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 text-primary animate-spin" />
-        </div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 text-primary animate-spin" />
       </div>
     );
   }
@@ -183,212 +173,124 @@ export default function ShippingCarriersSettingsPage() {
       <div className="min-h-screen bg-background">
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
-          title="Shipping Carriers"
-          description="Configure shipping carriers, regional settings, and shipping preferences"
-          breadcrumbs={[
-            { label: 'Home', href: '/' },
-            { label: 'Settings', href: '/settings' },
-            { label: 'Shipping Carriers' },
-          ]}
-        />
+            title="Shipping Carriers"
+            description="Configure shipping carriers and regional preferences"
+            breadcrumbs={[
+              { label: 'Home', href: '/' },
+              { label: 'Settings', href: '/settings' },
+              { label: 'Shipping Carriers' },
+            ]}
+          />
 
-        {/* Shipping Status Dashboard */}
-        <div className={`grid grid-cols-1 gap-6 ${recommendation ? 'lg:grid-cols-3' : ''}`}>
-          {/* Main Status Card */}
-          <div className={`bg-card rounded-xl border border-border shadow-sm overflow-hidden ${recommendation ? 'lg:col-span-2' : ''}`}>
-            <div className="p-6">
-              <div className="flex items-start justify-between mb-6">
-                <div className="flex items-center gap-4">
-                  <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${
-                    isShippingReady
-                      ? 'bg-success'
-                      : 'bg-warning'
-                  }`}>
-                    {isShippingReady ? (
-                      <CheckCircle className="h-7 w-7 text-white" />
-                    ) : (
-                      <AlertCircle className="h-7 w-7 text-white" />
-                    )}
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-foreground">
-                      {isShippingReady ? 'Shipping Ready' : 'Setup Required'}
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                      {isShippingReady
-                        ? `${enabledCarriers.length} carrier${enabledCarriers.length > 1 ? 's' : ''} configured`
-                        : 'Configure a shipping carrier to enable shipping'
-                      }
-                    </p>
-                  </div>
-                </div>
+          <div className="flex gap-6">
+            {/* Sidebar */}
+            <div className="w-56 flex-shrink-0 hidden lg:block">
+              <div className="sticky top-6 space-y-3">
+                <ShippingStatusWidget
+                  carriersConfigured={enabledCarriers.length}
+                  hasLiveCarrier={hasLiveCarrier}
+                  hasPrimaryCarrier={!!hasPrimaryCarrier}
+                  hasFallbackCarrier={!!hasFallbackCarrier}
+                />
 
-                {hasTestModeOnly && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-warning-muted text-warning-foreground border border-warning/30">
-                    <AlertCircle className="h-3 w-3 mr-1" />
-                    Test Mode
-                  </span>
-                )}
-              </div>
-
-              {/* Progress Bar */}
-              <div className="mb-6">
-                <div className="flex items-center justify-between text-sm mb-2">
-                  <span className="text-muted-foreground">Setup Progress</span>
-                  <span className="font-semibold text-foreground">{getSetupProgress()}%</span>
-                </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary transition-all duration-500"
-                    style={{ width: `${getSetupProgress()}%` }}
-                  />
-                </div>
-              </div>
-
-              {/* Carrier Status Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-4 rounded-lg bg-muted border border-border">
-                  <p className="text-2xl font-bold text-foreground">{enabledCarriers.length}</p>
-                  <p className="text-xs text-muted-foreground">Active Carriers</p>
-                </div>
-                <div className="p-4 rounded-lg bg-muted border border-border">
-                  <p className="text-2xl font-bold text-foreground">
-                    {carriers.filter(c => !c.isTestMode && c.isEnabled).length}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Live Mode</p>
-                </div>
-                <div className="p-4 rounded-lg bg-muted border border-border">
-                  <p className="text-2xl font-bold text-foreground">
-                    {carriers.filter(c => c.isTestMode && c.isEnabled).length}
-                  </p>
-                  <p className="text-xs text-muted-foreground">Test Mode</p>
-                </div>
-                <div className="p-4 rounded-lg bg-muted border border-border">
-                  <div className="flex items-center gap-1">
-                    {hasPrimaryCarrier ? (
-                      <CheckCircle className="h-5 w-5 text-success" />
-                    ) : (
-                      <XCircle className="h-5 w-5 text-muted-foreground" />
-                    )}
-                    {hasFallbackCarrier ? (
-                      <CheckCircle className="h-5 w-5 text-success" />
-                    ) : (
-                      <XCircle className="h-5 w-5 text-muted-foreground" />
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground">Primary + Fallback</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Setup Card */}
-          {recommendation && (
-            <div className="bg-primary rounded-xl shadow-lg overflow-hidden text-white">
-              <div className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <MapPin className="h-5 w-5" />
-                  <span className="text-sm font-medium opacity-90">
-                    {recommendation.flag} {storeCountryName || recommendation.countryName}
-                  </span>
-                </div>
-
-                <h3 className="text-lg font-bold mb-2">Recommended Setup</h3>
-                <p className="text-sm opacity-80 mb-6">
-                  {storeCountry === 'IN'
-                    ? 'Ship across India with Shiprocket - COD, prepaid, and tracking included'
-                    : 'Ship globally with competitive rates and tracking'
-                  }
-                </p>
-
-                <div className="space-y-3 mb-6">
-                  <div className="flex items-center justify-between bg-white/10 rounded-lg px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-card rounded flex items-center justify-center">
-                        <Package className="h-4 w-4 text-primary" />
-                      </div>
-                      <span className="font-medium">{recommendation.primaryName}</span>
-                    </div>
-                    {hasPrimaryCarrier ? (
-                      <CheckCircle className="h-5 w-5 text-success/60" />
-                    ) : (
-                      <span className="text-xs bg-white/20 px-2 py-1 rounded">Primary</span>
-                    )}
-                  </div>
-
-                  {recommendation.fallback && (
-                    <div className="flex items-center justify-between bg-white/10 rounded-lg px-4 py-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-card rounded flex items-center justify-center">
-                          <Truck className="h-4 w-4 text-primary" />
-                        </div>
-                        <span className="font-medium">{recommendation.fallbackName}</span>
-                      </div>
-                      {hasFallbackCarrier ? (
-                        <CheckCircle className="h-5 w-5 text-success/60" />
-                      ) : (
-                        <span className="text-xs bg-white/20 px-2 py-1 rounded">Fallback</span>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {(!hasPrimaryCarrier || !hasFallbackCarrier) && (
+                {/* Quick Links */}
+                <div className="flex gap-2">
                   <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 h-8 text-xs"
                     onClick={() => setActiveTab('carriers')}
-                    className="w-full bg-white text-primary hover:bg-muted"
                   >
-                    <Zap className="h-4 w-4 mr-2" />
-                    Quick Setup
-                    <ArrowRight className="h-4 w-4 ml-2" />
+                    <Zap className="h-3 w-3 mr-1" />
+                    Carriers
                   </Button>
-                )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 h-8 text-xs"
+                    onClick={() => setActiveTab('regions')}
+                  >
+                    <Globe className="h-3 w-3 mr-1" />
+                    Regions
+                  </Button>
+                </div>
 
-                {hasPrimaryCarrier && hasFallbackCarrier && (
-                  <div className="flex items-center justify-center gap-2 text-sm opacity-80">
-                    <CheckCircle className="h-4 w-4" />
-                    Setup Complete
+                {/* Stats */}
+                <div className="bg-card rounded-lg border border-border p-3 space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Active</span>
+                    <span className="font-medium">{enabledCarriers.length}</span>
                   </div>
-                )}
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Live</span>
+                    <span className="font-medium">{carriers.filter(c => !c.isTestMode && c.isEnabled).length}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Test</span>
+                    <span className="font-medium">{carriers.filter(c => c.isTestMode && c.isEnabled).length}</span>
+                  </div>
+                </div>
               </div>
             </div>
-          )}
-        </div>
 
-        {/* Tabs Section */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="inline-flex h-12 items-center justify-start rounded-xl bg-card border border-border p-1 shadow-sm">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <TabsTrigger
-                  key={tab.id}
-                  value={tab.id}
-                  className="inline-flex items-center justify-center whitespace-nowrap rounded-lg px-4 py-2.5 text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
+            {/* Main Content */}
+            <div className="flex-1 min-w-0">
+              {/* Mobile Status */}
+              <div className="lg:hidden mb-4">
+                <ShippingStatusWidget
+                  carriersConfigured={enabledCarriers.length}
+                  hasLiveCarrier={hasLiveCarrier}
+                  hasPrimaryCarrier={!!hasPrimaryCarrier}
+                  hasFallbackCarrier={!!hasFallbackCarrier}
+                />
+              </div>
+
+              {/* Mobile Tab Selector */}
+              <div className="md:hidden mb-4">
+                <select
+                  value={activeTab}
+                  onChange={(e) => setActiveTab(e.target.value as TabId)}
+                  className="w-full px-3 py-2 border border-border rounded-lg bg-card text-sm font-medium"
                 >
-                  <Icon className="h-4 w-4 mr-2" />
-                  {tab.label}
-                </TabsTrigger>
-              );
-            })}
-          </TabsList>
+                  {TABS.map((tab) => (
+                    <option key={tab.id} value={tab.id}>
+                      {tab.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          <div className="mt-6">
-            <TabsContent value="carriers" className="focus-visible:outline-none">
-              <CarrierConfigTab />
-            </TabsContent>
+              {/* Desktop Tabs */}
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabId)}>
+                <TabsList className="hidden md:inline-flex h-auto items-center justify-start rounded-xl bg-card border border-border p-1 shadow-sm mb-6">
+                  {TABS.map((tab) => (
+                    <TabsTrigger
+                      key={tab.id}
+                      value={tab.id}
+                      className="px-4 py-2 text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                    >
+                      <tab.icon className="h-4 w-4 mr-2" />
+                      {tab.label}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
 
-            <TabsContent value="regions" className="focus-visible:outline-none">
-              <CarrierRegionsTab />
-            </TabsContent>
+                <TabsContent value="carriers" className="mt-0">
+                  <CarrierConfigTab />
+                </TabsContent>
 
-            <TabsContent value="settings" className="focus-visible:outline-none">
-              <ShippingSettingsTab />
-            </TabsContent>
+                <TabsContent value="regions" className="mt-0">
+                  <CarrierRegionsTab />
+                </TabsContent>
+
+                <TabsContent value="settings" className="mt-0">
+                  <ShippingSettingsTab />
+                </TabsContent>
+              </Tabs>
+            </div>
           </div>
-        </Tabs>
+        </div>
       </div>
-    </div>
     </PermissionGate>
   );
 }
