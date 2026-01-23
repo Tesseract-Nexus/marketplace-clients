@@ -26,18 +26,18 @@ interface Storefront {
  * The tenant-service stores the storefront URL set during onboarding
  */
 async function fetchTenantStorefrontUrl(
-  tenantId: string,
-  headers: Record<string, string>
+  tenantId: string
 ): Promise<{ storefrontUrl?: string; customDomain?: string } | null> {
   try {
     // Use internal endpoint which returns full tenant data including URL fields
+    // Internal endpoints use X-Internal-Service header instead of user auth
     const response = await fetch(
       `${TENANT_SERVICE_URL}/internal/tenants/${tenantId}`,
       {
         method: 'GET',
         headers: {
-          ...headers,
           'Content-Type': 'application/json',
+          'X-Internal-Service': 'admin-portal',
         },
         cache: 'no-store',
       }
@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch tenant info to get the storefront URL
-    const domainInfo = await fetchTenantStorefrontUrl(tenantId, headers);
+    const domainInfo = await fetchTenantStorefrontUrl(tenantId);
 
     if (domainInfo?.storefrontUrl) {
       // Enrich storefronts with the custom domain URL
