@@ -73,62 +73,61 @@ export function SmartRegionalSettings({
   }));
 
   return (
-    <div className="space-y-3">
-      {/* Summary Row */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-sm">
-          {isAutoSynced && (
-            <Check className="h-3.5 w-3.5 text-success flex-shrink-0" />
-          )}
-          <span className="text-muted-foreground">
-            <span className="font-medium text-foreground">{data.currency}</span>
-            {' \u2022 '}
-            <span className="font-medium text-foreground">
-              {getTimezoneLabel(data.timezone)}
+    <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+      <div className="space-y-3">
+        {/* Summary Row */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-sm">
+            {isAutoSynced && (
+              <Check className="h-3.5 w-3.5 text-success flex-shrink-0" />
+            )}
+            <span className="text-muted-foreground">
+              <span className="font-medium text-foreground">{data.currency}</span>
+              {' \u2022 '}
+              <span className="font-medium text-foreground">
+                {getTimezoneLabel(data.timezone)}
+              </span>
+              {' \u2022 '}
+              <span className="font-medium text-foreground">{data.dateFormat}</span>
             </span>
-            {' \u2022 '}
-            <span className="font-medium text-foreground">{data.dateFormat}</span>
-          </span>
+          </div>
+          <div className="flex items-center gap-1">
+            {!isAutoSynced && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleResetToDefault}
+                className="h-7 text-xs text-muted-foreground hover:text-foreground"
+              >
+                <RefreshCw className="h-3 w-3 mr-1" />
+                Reset
+              </Button>
+            )}
+            <CollapsibleTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs"
+              >
+                {isExpanded ? 'Hide' : 'Override'}
+                {isExpanded ? (
+                  <ChevronUp className="h-3 w-3 ml-1" />
+                ) : (
+                  <ChevronDown className="h-3 w-3 ml-1" />
+                )}
+              </Button>
+            </CollapsibleTrigger>
+          </div>
         </div>
-        <div className="flex items-center gap-1">
-          {!isAutoSynced && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleResetToDefault}
-              className="h-7 text-xs text-muted-foreground hover:text-foreground"
-            >
-              <RefreshCw className="h-3 w-3 mr-1" />
-              Reset
-            </Button>
-          )}
-          <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="h-7 text-xs"
-            >
-              {isExpanded ? 'Hide' : 'Override'}
-              {isExpanded ? (
-                <ChevronUp className="h-3 w-3 ml-1" />
-              ) : (
-                <ChevronDown className="h-3 w-3 ml-1" />
-              )}
-            </Button>
-          </CollapsibleTrigger>
-        </div>
-      </div>
 
-      {/* Auto-sync indicator */}
-      {isAutoSynced && countryCode && (
-        <p className="text-xs text-muted-foreground">
-          Auto-synced with country selection
-        </p>
-      )}
+        {/* Auto-sync indicator */}
+        {isAutoSynced && countryCode && (
+          <p className="text-xs text-muted-foreground">
+            Auto-synced with country selection
+          </p>
+        )}
 
-      {/* Expanded Override Controls */}
-      <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
+        {/* Expanded Override Controls */}
         <CollapsibleContent className="space-y-3 pt-2">
           <div className="grid grid-cols-3 gap-3">
             {/* Currency */}
@@ -168,8 +167,8 @@ export function SmartRegionalSettings({
             </div>
           </div>
         </CollapsibleContent>
-      </Collapsible>
-    </div>
+      </div>
+    </Collapsible>
   );
 }
 
