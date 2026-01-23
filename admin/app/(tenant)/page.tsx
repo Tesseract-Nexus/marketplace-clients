@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { useOnRefresh } from '@/contexts/RefreshContext';
@@ -10,8 +10,23 @@ import { TestimonialPromptBanner } from '@/components/dashboard/TestimonialPromp
 import { useDashboardData, useRefreshDashboard } from '@/hooks/useDashboardData';
 import { DashboardData } from '@/lib/types/dashboard';
 
-function DashboardContent({ data, loading }: { data: DashboardData; loading: boolean }) {
+interface DashboardContentProps {
+  data: DashboardData;
+  loading: boolean;
+  isFetching: boolean;
+  dataUpdatedAt: number | undefined;
+}
+
+function DashboardContent({ data, loading, isFetching, dataUpdatedAt }: DashboardContentProps) {
   const { widgets, isLoaded } = useDashboardLayoutContext();
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  // Track when data was last updated
+  useEffect(() => {
+    if (dataUpdatedAt) {
+      setLastUpdated(new Date(dataUpdatedAt));
+    }
+  }, [dataUpdatedAt]);
 
   if (loading || !isLoaded) {
     return (
@@ -26,10 +41,10 @@ function DashboardContent({ data, loading }: { data: DashboardData; loading: boo
       {/* Testimonial Prompt Banner - shows for eligible tenants */}
       <TestimonialPromptBanner />
 
-      <DashboardToolbar />
+      <DashboardToolbar isFetching={isFetching} lastUpdated={lastUpdated} />
 
       {/* Responsive Grid Container for Widgets */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
         {widgets.map((widget) => (
           <DraggableWidget
             key={widget.id}
@@ -46,7 +61,7 @@ function DashboardContent({ data, loading }: { data: DashboardData; loading: boo
 
 export default function Dashboard() {
   // Use React Query for cached data fetching
-  const { data: dashboardData, isLoading, isFetching } = useDashboardData();
+  const { data: dashboardData, isLoading, isFetching, dataUpdatedAt } = useDashboardData();
   const refreshDashboard = useRefreshDashboard();
 
   // Subscribe to auto-refresh events (manual refresh button in RefreshContext)
@@ -60,7 +75,12 @@ export default function Dashboard() {
       fallbackDescription="You don't have the required permissions to view the dashboard. Please contact your administrator to request access."
     >
     <DashboardLayoutProvider>
-      <DashboardContent data={dashboardData!} loading={isLoading} />
+      <DashboardContent
+        data={dashboardData!}
+        loading={isLoading}
+        isFetching={isFetching}
+        dataUpdatedAt={dataUpdatedAt}
+      />
     </DashboardLayoutProvider>
     </PermissionGate>
   );
