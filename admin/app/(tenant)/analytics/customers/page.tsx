@@ -403,7 +403,7 @@ export default function CustomerAnalyticsPage() {
                         <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Status</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className="divide-y divide-border">
                       {data?.topCustomers?.map((customer) => (
                         <tr key={customer.customerId} className="hover:bg-muted transition-colors">
                           <td className="px-6 py-4">
@@ -497,7 +497,7 @@ export default function CustomerAnalyticsPage() {
                         <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Revenue</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className="divide-y divide-border">
                       {data?.geographicDistribution?.map((location, index) => (
                         <tr key={index} className="hover:bg-muted transition-colors">
                           <td className="px-6 py-4">
@@ -564,7 +564,7 @@ export default function CustomerAnalyticsPage() {
                             <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Month 3</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200">
+                        <tbody className="divide-y divide-border">
                           {data.customerCohorts.map((cohort, index) => (
                             <tr key={index} className="hover:bg-muted transition-colors">
                               <td className="px-6 py-4 font-semibold text-foreground">{cohort.cohortMonth}</td>

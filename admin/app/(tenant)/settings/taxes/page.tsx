@@ -1334,7 +1334,7 @@ export default function TaxSettingsPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   {taxFeatures.map((feature, index) => (
                     <tr key={index} className="hover:bg-muted transition-colors">
                       <td className="px-6 py-4">

@@ -343,7 +343,7 @@ function CascadeOption({
   return (
     <div
       className={cn(
-        "p-4 rounded-xl border-2 transition-all",
+        "p-4 rounded-lg border-2 transition-all",
         isBlocked
           ? "bg-warning-muted border-warning/30"
           : checked
@@ -395,7 +395,7 @@ function DeleteSummary({ summary, canDelete, blockedEntities }: DeleteSummaryPro
 
   return (
     <div className={cn(
-      "p-4 rounded-xl border-2",
+      "p-4 rounded-lg border-2",
       canDelete
         ? "bg-success-muted border-success/30"
         : "bg-destructive/10 border-destructive/30"

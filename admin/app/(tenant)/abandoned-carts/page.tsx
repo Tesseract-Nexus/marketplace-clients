@@ -351,7 +351,7 @@ export default function AbandonedCartsPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   {carts.length > 0 ? (
                     carts.map((cart) => {
                       const isEligible = cart.status === 'PENDING' || cart.status === 'REMINDED';
@@ -474,7 +474,7 @@ export default function AbandonedCartsPage() {
         {showDetailsModal && selectedCart && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-card rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-              <div className="border-b border-border px-6 py-4 sticky top-0 bg-white">
+              <div className="border-b border-border px-6 py-4 sticky top-0 bg-card">
                 <h2 className="text-2xl font-bold text-primary">
                   Abandoned Cart Details
                 </h2>
@@ -574,7 +574,7 @@ export default function AbandonedCartsPage() {
                 )}
               </div>
 
-              <div className="border-t border-border px-6 py-4 flex justify-end gap-3 sticky bottom-0 bg-white">
+              <div className="border-t border-border px-6 py-4 flex justify-end gap-3 sticky bottom-0 bg-card">
                 <Button onClick={() => setShowDetailsModal(false)} variant="outline">
                   Close
                 </Button>

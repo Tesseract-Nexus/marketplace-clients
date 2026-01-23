@@ -389,7 +389,7 @@ export default function CustomerSegmentsPage() {
                   <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-border">
                 {loading ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center">

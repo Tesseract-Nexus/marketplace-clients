@@ -1723,7 +1723,7 @@ export default function InventoryPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {filteredProducts.length === 0 ? (
                       <tr>
                         <td colSpan={8} className="px-6 py-12 text-center">
@@ -1907,7 +1907,7 @@ export default function InventoryPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {filteredWarehouses.length === 0 ? (
                       <tr>
                         <td colSpan={6} className="px-6 py-12 text-center">
@@ -2015,7 +2015,7 @@ export default function InventoryPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {filteredSuppliers.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="px-6 py-12 text-center">
@@ -2124,7 +2124,7 @@ export default function InventoryPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {filteredPurchaseOrders.length === 0 ? (
                       <tr>
                         <td colSpan={7} className="px-6 py-12 text-center">
@@ -2231,7 +2231,7 @@ export default function InventoryPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {filteredTransfers.length === 0 ? (
                       <tr>
                         <td colSpan={6} className="px-6 py-12 text-center">

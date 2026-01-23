@@ -450,7 +450,7 @@ export default function UsersHubPage() {
                     <th className="px-6 py-4 text-right text-sm font-bold text-foreground">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   {filteredUsers.map((user) => {
                     const userInitial = user.displayName.charAt(0).toUpperCase();
 
@@ -589,7 +589,7 @@ export default function UsersHubPage() {
         {(showCreateModal || showEditModal) && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-              <div className="border-b border-border px-6 py-4 sticky top-0 bg-white">
+              <div className="border-b border-border px-6 py-4 sticky top-0 bg-card">
                 <h2 className="text-2xl font-bold text-primary">
                   {showCreateModal ? 'Create New User' : 'Edit User'}
                 </h2>
@@ -708,7 +708,7 @@ export default function UsersHubPage() {
                 </div>
               </div>
 
-              <div className="border-t border-border px-6 py-4 flex justify-end gap-3 sticky bottom-0 bg-white">
+              <div className="border-t border-border px-6 py-4 flex justify-end gap-3 sticky bottom-0 bg-card">
                 <Button
                   onClick={() => {
                     if (showCreateModal) setShowCreateModal(false);

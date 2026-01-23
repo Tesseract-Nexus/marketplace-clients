@@ -407,7 +407,7 @@ export default function InventoryAnalyticsPage() {
                       <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {data?.lowStockProducts?.map((product) => {
                       const badge = getStockLevelBadge(product.stockLevel, product.reorderLevel);
                       return (
@@ -473,7 +473,7 @@ export default function InventoryAnalyticsPage() {
                       <th className="px-6 py-3 text-left text-xs font-bold text-foreground uppercase">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {data?.outOfStockProducts?.map((product) => {
                       const badge = getStockLevelBadge(product.stockLevel, product.reorderLevel);
                       return (
@@ -538,7 +538,7 @@ export default function InventoryAnalyticsPage() {
                       <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Turnover Rate</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {data?.topMovingProducts?.map((product) => (
                       <tr key={product.productId} className="hover:bg-muted">
                         <td className="px-6 py-4 font-medium text-foreground">{product.productName}</td>
@@ -603,7 +603,7 @@ export default function InventoryAnalyticsPage() {
                       <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Turnover Rate</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {data?.slowMovingProducts?.map((product) => (
                       <tr key={product.productId} className="hover:bg-muted">
                         <td className="px-6 py-4 font-medium text-foreground">{product.productName}</td>
@@ -647,7 +647,7 @@ export default function InventoryAnalyticsPage() {
                   <th className="px-6 py-3 text-right text-xs font-bold text-foreground uppercase">Low Stock Items</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-border">
                 {data?.inventoryByCategory?.map((category) => (
                   <tr key={category.categoryId} className="hover:bg-muted">
                     <td className="px-6 py-4 font-medium text-foreground">{category.categoryName}</td>

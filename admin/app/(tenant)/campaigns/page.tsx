@@ -711,7 +711,7 @@ export default function CampaignsPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   {campaigns.map((campaign) => {
                     const typeInfo = getCampaignTypeInfo(campaign.type);
                     const channelInfo = getChannelInfo(campaign.channel);

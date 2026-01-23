@@ -377,7 +377,7 @@ export default function InventoryReportsPage() {
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-border">
                         {MOCK_REPORT.lowStockProducts.map((product) => (
                           <tr key={product.productId} className="hover:bg-muted">
                             <td className="px-6 py-4">
@@ -431,7 +431,7 @@ export default function InventoryReportsPage() {
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-border">
                         {MOCK_REPORT.outOfStockProducts.map((product) => (
                           <tr key={product.productId} className="hover:bg-muted">
                             <td className="px-6 py-4">
@@ -485,7 +485,7 @@ export default function InventoryReportsPage() {
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-border">
                         {MOCK_REPORT.topMovingProducts.map((product) => (
                           <tr key={product.productId} className="hover:bg-muted">
                             <td className="px-6 py-4">
@@ -538,7 +538,7 @@ export default function InventoryReportsPage() {
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-border">
                         {MOCK_REPORT.slowMovingProducts.map((product) => (
                           <tr key={product.productId} className="hover:bg-muted">
                             <td className="px-6 py-4">
@@ -589,7 +589,7 @@ export default function InventoryReportsPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {MOCK_REPORT.inventoryByCategory.map((category) => (
                       <tr key={category.categoryId} className="hover:bg-muted">
                         <td className="px-6 py-4">

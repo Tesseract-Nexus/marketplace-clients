@@ -544,7 +544,7 @@ export default function SalesAnalyticsPage() {
                       <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Revenue</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {data?.topProducts?.slice(0, 10).map((product) => (
                       <tr key={product.productId} className="hover:bg-muted">
                         <td className="px-4 lg:px-6 py-4 font-medium text-foreground text-sm truncate max-w-[200px]">{product.productName}</td>
@@ -595,7 +595,7 @@ export default function SalesAnalyticsPage() {
                       <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Revenue</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {data?.topCategories?.map((category) => (
                       <tr key={category.categoryId} className="hover:bg-muted">
                         <td className="px-4 lg:px-6 py-4 font-medium text-foreground text-sm">{category.categoryName}</td>
@@ -651,7 +651,7 @@ export default function SalesAnalyticsPage() {
                       <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Amount</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-border">
                     {data?.paymentMethods?.map((method) => (
                       <tr key={method.method} className="hover:bg-muted">
                         <td className="px-4 lg:px-6 py-4 font-medium text-foreground capitalize text-sm">{method.method}</td>

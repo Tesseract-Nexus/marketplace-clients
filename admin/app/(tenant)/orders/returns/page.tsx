@@ -478,7 +478,7 @@ export default function ReturnsPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-border">
                 {paginatedReturns.length === 0 ? (
                   <tr>
                     <td colSpan={7} className="px-6 py-12 text-center text-muted-foreground">
@@ -573,7 +573,7 @@ export default function ReturnsPage() {
         {showDetails && selectedReturn && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowDetails(false)}>
             <div className="bg-card rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
-              <div className="p-6 border-b border-border flex justify-between items-center sticky top-0 bg-white">
+              <div className="p-6 border-b border-border flex justify-between items-center sticky top-0 bg-card">
                 <h2 className="text-2xl font-bold">Return Details</h2>
                 <Button onClick={() => setShowDetails(false)} className="p-2 hover:bg-muted rounded-lg" variant="ghost">
                   <X className="w-5 h-5" />

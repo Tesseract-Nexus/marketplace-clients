@@ -509,7 +509,7 @@ export default function AnalyticsOverviewPage() {
                     <th className="px-4 lg:px-6 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Revenue</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   {data.sales.topProducts.slice(0, 5).map((product, index) => (
                     <tr key={index} className="hover:bg-muted transition-colors">
                       <td className="px-4 lg:px-6 py-4">
