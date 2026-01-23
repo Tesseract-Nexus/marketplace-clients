@@ -38,6 +38,7 @@ import {
   Circle,
   CircleOff,
   FileUp,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
