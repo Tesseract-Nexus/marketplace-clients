@@ -391,9 +391,11 @@ export default function TicketsPage() {
         />
 
         {/* Error Alert */}
-        <PageError error={error} onDismiss={() => setError(null)} />
+        <PageError error={error} onDismiss={() => setError(null)} onRetry={loadTickets} />
 
-
+        {/* Hide content when there's a critical error */}
+        {error && (error.toLowerCase().includes('permission') || error.toLowerCase().includes('forbidden') || error.toLowerCase().includes('unauthorized') || error.toLowerCase().includes('access denied')) ? null : (
+        <>
         {/* Compact Stats Row */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
           <div className="bg-card rounded-lg border border-border p-3">
@@ -615,6 +617,8 @@ export default function TicketsPage() {
             onPageChange={setCurrentPage}
             onItemsPerPageChange={setItemsPerPage}
           />
+        )}
+        </>
         )}
 
         {/* Create Ticket Modal */}

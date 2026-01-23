@@ -370,6 +370,9 @@ export default function DelegationsPage() {
           {/* Error State - positioned above stats */}
           <PageError error={error} onRetry={loadDelegations} onDismiss={() => setError(null)} />
 
+          {/* Hide content when there's a critical error */}
+          {error && (error.toLowerCase().includes('permission') || error.toLowerCase().includes('forbidden') || error.toLowerCase().includes('unauthorized') || error.toLowerCase().includes('access denied')) ? null : (
+          <>
           {/* Compact Stats Row */}
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
             <div className="bg-card rounded-lg border border-border p-3">
@@ -466,6 +469,8 @@ export default function DelegationsPage() {
                 )}
               </TabsContent>
             </Tabs>
+          )}
+          </>
           )}
 
           {/* Create Delegation Dialog */}
