@@ -35,6 +35,12 @@ interface ValidateCustomDomainResponse {
   verification_token?: string; // Token for verifying ownership
   message?: string;
   suggestions?: string[];
+  // Routing records (A records for traffic routing)
+  routing_records?: DNSRecord[];
+  proxy_target?: string;
+  // CNAME delegation for automatic SSL
+  cname_delegation_record?: DNSRecord;
+  cname_delegation_enabled?: boolean;
 }
 
 export async function POST(request: NextRequest) {
@@ -220,6 +226,34 @@ export async function POST(request: NextRequest) {
             ttl: Number(rec.ttl) || 3600,
             purpose: String(rec.purpose || 'verification'),
           }));
+        }
+
+        // Include routing records (A records for traffic routing)
+        if (responseData.routing_records && Array.isArray(responseData.routing_records)) {
+          sanitizedData.routing_records = responseData.routing_records.map((rec: Record<string, unknown>) => ({
+            type: String(rec.record_type || rec.type || 'A'),
+            host: String(rec.host || ''),
+            value: String(rec.value || ''),
+            ttl: Number(rec.ttl) || 300,
+            purpose: String(rec.purpose || 'routing'),
+          }));
+        }
+        if (responseData.proxy_target) {
+          sanitizedData.proxy_target = String(responseData.proxy_target);
+        }
+
+        // Include CNAME delegation record for automatic SSL
+        if (responseData.cname_delegation_record) {
+          sanitizedData.cname_delegation_record = {
+            type: String(responseData.cname_delegation_record.record_type || responseData.cname_delegation_record.type || 'CNAME'),
+            host: String(responseData.cname_delegation_record.host || ''),
+            value: String(responseData.cname_delegation_record.value || ''),
+            ttl: Number(responseData.cname_delegation_record.ttl) || 3600,
+            purpose: String(responseData.cname_delegation_record.purpose || 'cname_delegation'),
+          };
+        }
+        if (responseData.cname_delegation_enabled !== undefined) {
+          sanitizedData.cname_delegation_enabled = Boolean(responseData.cname_delegation_enabled);
         }
 
         // CRITICAL FIX: If domain is valid, exists, and is available but no verification records returned,

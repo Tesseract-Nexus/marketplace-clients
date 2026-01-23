@@ -162,6 +162,12 @@ export default function OnboardingPage() {
     message: string;
     verificationRecord?: { type: string; host: string; value: string };
     verificationRecords?: { type: string; host: string; value: string; purpose?: string }[];
+    // A records for routing traffic to gateway
+    routingRecords?: { type: string; host: string; value: string; purpose?: string }[];
+    proxyTarget?: string;
+    // CNAME delegation for automatic SSL certificates
+    cnameDelegationRecord?: { type: string; host: string; value: string; purpose?: string };
+    cnameDelegationEnabled?: boolean;
     formatWarning?: string;
     suggestedDomain?: string;
   }>({
@@ -998,6 +1004,12 @@ export default function OnboardingPage() {
           message: validationMessage,
           verificationRecord: domainIsValid ? data.verification_record : undefined,
           verificationRecords: domainIsValid ? data.verification_records : undefined,
+          // Include routing records for A record setup
+          routingRecords: domainIsValid ? data.routing_records : undefined,
+          proxyTarget: domainIsValid ? data.proxy_target : undefined,
+          // Include CNAME delegation for automatic SSL
+          cnameDelegationRecord: domainIsValid ? data.cname_delegation_record : undefined,
+          cnameDelegationEnabled: domainIsValid ? data.cname_delegation_enabled : undefined,
           formatWarning: formatValidation.warning,
           suggestedDomain: formatValidation.suggestedRootDomain,
         });
