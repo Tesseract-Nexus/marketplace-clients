@@ -3,8 +3,9 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import {
   getCurrentTenantSlug,
-  navigateToTenant,
+  navigateToTenantWithUrl,
   isRootDomain,
+  buildAdminUrl,
 } from '@/lib/utils/tenant';
 
 export interface Tenant {
@@ -19,6 +20,10 @@ export interface Tenant {
   displayName?: string;
   businessModel?: 'ONLINE_STORE' | 'MARKETPLACE';
   createdAt?: string;
+  // Custom domain support
+  adminUrl?: string; // Full admin URL (e.g., https://admin.yahvismartfarm.com)
+  customDomain?: string; // Custom domain if configured
+  useCustomDomain?: boolean; // Whether custom domain is active
 }
 
 interface TenantContextType {
@@ -123,7 +128,7 @@ export function TenantProvider({ children }: TenantProviderProps) {
   // NOTE: Tenant ID is set on API client by TenantApiProvider (synchronously during render)
   // This ensures tenant ID is set BEFORE children render and make API requests
 
-  // Switch to a different tenant (navigates to new subdomain)
+  // Switch to a different tenant (navigates to new subdomain or custom domain)
   const switchTenant = useCallback((newSlug: string) => {
     const tenant = tenants.find((t) => t.slug === newSlug);
     if (!tenant) {
@@ -131,9 +136,25 @@ export function TenantProvider({ children }: TenantProviderProps) {
       return;
     }
 
-    // Navigate to the new tenant's subdomain
-    // This will cause a full page reload with the new subdomain
-    navigateToTenant(newSlug, window.location.pathname);
+    // Get the current path to preserve navigation context
+    const currentPath = window.location.pathname;
+
+    // Determine the target URL:
+    // 1. If tenant has a custom adminUrl, use it
+    // 2. Otherwise, build standard admin URL
+    let targetUrl: string;
+    if (tenant.adminUrl) {
+      // Use the custom admin URL (e.g., https://admin.yahvismartfarm.com)
+      targetUrl = tenant.adminUrl + currentPath;
+      console.log('[Tenant] Switching to custom domain:', targetUrl);
+    } else {
+      // Use standard pattern (e.g., https://{slug}-admin.tesserix.app)
+      targetUrl = buildAdminUrl(tenant.slug, currentPath);
+      console.log('[Tenant] Switching to standard domain:', targetUrl);
+    }
+
+    // Navigate to the new tenant (full page reload)
+    navigateToTenantWithUrl(targetUrl);
   }, [tenants]);
 
   const refreshTenants = useCallback(async () => {

@@ -125,6 +125,7 @@ export function getCurrentTenantSlug(): string | null {
  * URL patterns:
  * - Cloud: {tenant}-admin.tesserix.app
  * - Local: {tenant}.localhost:3001
+ * - Custom domain: Falls back to standard tesserix.app pattern
  */
 export function buildAdminUrl(tenantSlug: string, path: string = ''): string {
   if (typeof window === 'undefined') {
@@ -141,9 +142,16 @@ export function buildAdminUrl(tenantSlug: string, path: string = ''): string {
     return `${protocol}//${tenantSlug}-admin.tesserix.app${path}`;
   }
 
-  // Local: {tenant}.localhost
-  const portPart = port ? `:${port}` : '';
-  return `${protocol}//${tenantSlug}.localhost${portPart}${path}`;
+  // Local development: {tenant}.localhost
+  if (hostname === 'localhost' || hostname.endsWith('.localhost')) {
+    const portPart = port ? `:${port}` : '';
+    return `${protocol}//${tenantSlug}.localhost${portPart}${path}`;
+  }
+
+  // Custom domain (e.g., admin.yahvismartfarm.com):
+  // When switching from a custom domain to a standard tenant,
+  // use the tesserix.app pattern since we can't infer the target's custom domain
+  return `https://${tenantSlug}-admin.tesserix.app${path}`;
 }
 
 /**
@@ -235,5 +243,13 @@ export function isRootDomain(): boolean {
  */
 export function navigateToTenant(tenantSlug: string, path: string = ''): void {
   const url = buildAdminUrl(tenantSlug, path);
+  window.location.href = url;
+}
+
+/**
+ * Navigate to a specific admin URL
+ * Used when tenant has a custom domain or explicit admin URL
+ */
+export function navigateToTenantWithUrl(url: string): void {
   window.location.href = url;
 }

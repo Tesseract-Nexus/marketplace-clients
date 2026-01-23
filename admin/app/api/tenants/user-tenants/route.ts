@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getProxyHeaders, handleApiError } from '@/lib/utils/api-route-handler';
 
-// Tenant Service URL - connects to the backend Go service
+// Service URLs
 const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8082';
+const CUSTOM_DOMAIN_SERVICE_URL = process.env.CUSTOM_DOMAIN_SERVICE_URL || 'http://custom-domain-service.marketplace.svc.cluster.local:8093';
 
 interface Tenant {
   id: string;
@@ -16,6 +17,18 @@ interface Tenant {
   displayName?: string;
   businessModel?: 'ONLINE_STORE' | 'MARKETPLACE';
   createdAt?: string;
+  // Custom domain support
+  adminUrl?: string;
+  customDomain?: string;
+  useCustomDomain?: boolean;
+}
+
+interface CustomDomain {
+  id: string;
+  domain: string;
+  target_type: 'admin' | 'storefront' | 'api';
+  status: string;
+  tenant_id: string;
 }
 
 interface ApiResponse {
@@ -25,8 +38,60 @@ interface ApiResponse {
 }
 
 /**
+ * Fetch admin domain for a tenant from the custom-domain-service
+ * Returns the admin URL if a custom admin domain is configured and active
+ */
+async function fetchAdminDomainForTenant(
+  tenantId: string,
+  headers: Record<string, string>
+): Promise<{ adminUrl?: string; customDomain?: string } | null> {
+  try {
+    const response = await fetch(
+      `${CUSTOM_DOMAIN_SERVICE_URL}/api/v1/domains?limit=10`,
+      {
+        method: 'GET',
+        headers: {
+          ...headers,
+          'X-Tenant-ID': tenantId,
+          'x-tenant-id': tenantId,
+          'Content-Type': 'application/json',
+        },
+        // Don't cache custom domain lookups during tenant switching
+        cache: 'no-store',
+      }
+    );
+
+    if (!response.ok) {
+      console.log(`[user-tenants] No custom domains found for tenant ${tenantId}`);
+      return null;
+    }
+
+    const result = await response.json();
+    // Find an active admin domain
+    const domains: CustomDomain[] = result.domains || result.data?.domains || [];
+
+    const adminDomain = domains.find(
+      (d) => d.target_type === 'admin' && d.status === 'active'
+    );
+
+    if (adminDomain) {
+      return {
+        adminUrl: `https://${adminDomain.domain}`,
+        customDomain: adminDomain.domain,
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.error(`[user-tenants] Error fetching admin domain for tenant ${tenantId}:`, error);
+    return null;
+  }
+}
+
+/**
  * GET /api/tenants/user-tenants
  * Get all tenants accessible by the current user
+ * Enriches tenant data with custom admin domain URLs if configured
  */
 export async function GET(request: NextRequest): Promise<NextResponse<ApiResponse>> {
   try {
@@ -73,11 +138,40 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
           displayName: t.display_name,
           businessModel: t.business_model as 'ONLINE_STORE' | 'MARKETPLACE' | undefined,
           createdAt: t.created_at as string | undefined,
+          // Custom domain support - map from backend fields (if available)
+          adminUrl: t.admin_url as string | undefined,
+          customDomain: t.custom_domain as string | undefined,
+          useCustomDomain: t.use_custom_domain as boolean | undefined,
         }));
+
+        // Enrich tenants with custom admin domain URLs
+        // Fetch custom domains for each tenant in parallel
+        const enrichedTenants = await Promise.all(
+          tenants.map(async (tenant) => {
+            // Skip if tenant already has an admin URL from backend
+            if (tenant.adminUrl) {
+              return tenant;
+            }
+
+            // Fetch admin domain from custom-domain-service
+            const domainInfo = await fetchAdminDomainForTenant(tenant.id, headers);
+
+            if (domainInfo) {
+              return {
+                ...tenant,
+                adminUrl: domainInfo.adminUrl,
+                customDomain: domainInfo.customDomain,
+                useCustomDomain: true,
+              };
+            }
+
+            return tenant;
+          })
+        );
 
         return NextResponse.json({
           success: true,
-          tenants,
+          tenants: enrichedTenants,
         });
       }
     }
