@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Truck, CheckCircle, Building, Key, MapPin } from 'lucide-react';
+import { CheckCircle, Circle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface ShippingStatusWidgetProps {
@@ -11,76 +11,51 @@ interface ShippingStatusWidgetProps {
   trackingEnabled: boolean;
 }
 
-function StatusItem({ label, completed }: { label: string; completed: boolean }) {
-  return (
-    <div className="flex items-center gap-2 text-sm">
-      {completed ? (
-        <CheckCircle className="h-4 w-4 text-success flex-shrink-0" />
-      ) : (
-        <div className="h-4 w-4 rounded-full border-2 border-muted flex-shrink-0" />
-      )}
-      <span className={cn(
-        "text-sm",
-        completed ? "text-foreground" : "text-muted-foreground"
-      )}>
-        {label}
-      </span>
-    </div>
-  );
-}
-
 export function ShippingStatusWidget({
   shippingEnabled,
   warehouseConfigured,
   carrierConfigured,
   trackingEnabled,
 }: ShippingStatusWidgetProps) {
-  const completedCount = [shippingEnabled, warehouseConfigured, carrierConfigured, trackingEnabled].filter(Boolean).length;
-  const isReady = completedCount >= 3; // At least 3 of 4 configured
+  const steps = [
+    { done: shippingEnabled, label: 'Methods' },
+    { done: warehouseConfigured, label: 'Warehouse' },
+    { done: carrierConfigured, label: 'Carrier' },
+    { done: trackingEnabled, label: 'Tracking' },
+  ];
+  const completedCount = steps.filter(s => s.done).length;
+  const isReady = completedCount >= 3;
 
   return (
-    <div className="bg-card rounded-xl border border-border p-5 shadow-sm">
-      <div className="flex items-center gap-3 mb-4">
-        <div className={cn(
-          "w-10 h-10 rounded-lg flex items-center justify-center",
-          isReady ? "bg-success/10" : "bg-warning/10"
+    <div className={cn(
+      "rounded-lg border p-3",
+      isReady ? "bg-success/5 border-success/20" : "bg-warning/5 border-warning/20"
+    )}>
+      <div className="flex items-center justify-between mb-2">
+        <span className={cn(
+          "text-xs font-medium",
+          isReady ? "text-success" : "text-warning"
         )}>
-          <Truck className={cn(
-            "h-5 w-5",
-            isReady ? "text-success" : "text-warning"
-          )} />
-        </div>
-        <div>
-          <h3 className="font-semibold text-sm">Shipping Status</h3>
-          <p className="text-xs text-muted-foreground">
-            {isReady ? 'Ready to ship' : 'Setup needed'}
-          </p>
-        </div>
+          {isReady ? 'Ready' : 'Setup Required'}
+        </span>
+        <span className="text-xs text-muted-foreground">{completedCount}/4</span>
       </div>
 
-      {/* Progress */}
-      <div className="mb-4">
-        <div className="flex items-center justify-between text-xs mb-1.5">
-          <span className="text-muted-foreground">Setup Progress</span>
-          <span className="font-semibold text-foreground">{completedCount}/4</span>
-        </div>
-        <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-          <div
-            className={cn(
-              "h-full transition-all duration-500",
-              isReady ? "bg-success" : "bg-warning"
-            )}
-            style={{ width: `${(completedCount / 4) * 100}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Status Checklist */}
-      <div className="space-y-2">
-        <StatusItem label="Methods enabled" completed={shippingEnabled} />
-        <StatusItem label="Warehouse address" completed={warehouseConfigured} />
-        <StatusItem label="Carrier configured" completed={carrierConfigured} />
-        <StatusItem label="Tracking enabled" completed={trackingEnabled} />
+      {/* Compact step indicators */}
+      <div className="flex gap-1">
+        {steps.map((step, i) => (
+          <div key={i} className="flex-1 group relative">
+            <div className={cn(
+              "h-1 rounded-full transition-colors",
+              step.done
+                ? isReady ? "bg-success" : "bg-warning"
+                : "bg-muted"
+            )} />
+            <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              {step.label}
+            </span>
+          </div>
+        ))}
       </div>
     </div>
   );

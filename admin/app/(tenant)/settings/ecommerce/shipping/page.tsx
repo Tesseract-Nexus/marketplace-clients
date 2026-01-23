@@ -404,8 +404,8 @@ export default function ShippingSettingsPage() {
           ) : (
             <div className="flex gap-6">
               {/* Sidebar */}
-              <div className="w-72 flex-shrink-0 hidden lg:block">
-                <div className="sticky top-6 space-y-4">
+              <div className="w-56 flex-shrink-0 hidden lg:block">
+                <div className="sticky top-6 space-y-3">
                   <ShippingStatusWidget
                     shippingEnabled={shippingData.general.enabled}
                     warehouseConfigured={warehouseConfigured}
@@ -413,28 +413,25 @@ export default function ShippingSettingsPage() {
                     trackingEnabled={shippingData.tracking.enabled}
                   />
 
-                  {/* Quick Actions */}
-                  <div className="bg-muted/50 rounded-xl p-4 space-y-2">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Quick Actions
-                    </p>
+                  {/* Quick Links */}
+                  <div className="flex gap-2">
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      className="w-full justify-start"
+                      className="flex-1 h-8 text-xs"
                       onClick={() => setActiveTab('carriers')}
                     >
-                      <Key className="h-4 w-4 mr-2" />
-                      Configure Carriers
+                      <Key className="h-3 w-3 mr-1" />
+                      Carriers
                     </Button>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="sm"
-                      className="w-full justify-start"
+                      className="flex-1 h-8 text-xs"
                       onClick={() => setActiveTab('warehouse')}
                     >
-                      <Building className="h-4 w-4 mr-2" />
-                      Set Warehouse
+                      <Building className="h-3 w-3 mr-1" />
+                      Warehouse
                     </Button>
                   </div>
                 </div>
