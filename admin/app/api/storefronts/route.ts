@@ -109,13 +109,16 @@ export async function GET(request: NextRequest) {
 
     if (domainInfo?.storefrontUrl) {
       // Enrich storefronts with the custom domain URL
-      // IMPORTANT: Only apply to storefronts belonging to the current tenant
-      // to avoid cross-tenant URL contamination
+      // SECURITY: Only apply to storefronts confirmed to belong to the current tenant
+      // to prevent cross-tenant URL contamination
       result.data = result.data.map((storefront: Storefront) => {
-        // Only enrich if storefront belongs to the current tenant
-        // Check by tenantId if available, otherwise skip enrichment for safety
-        if (storefront.tenantId && storefront.tenantId !== tenantId) {
-          // Different tenant - don't apply custom domain URL
+        // SECURITY: Only enrich if storefront explicitly belongs to current tenant
+        // If tenantId is missing, we cannot confirm ownership - skip enrichment for safety
+        // This ensures we never leak custom domain URLs to other tenants' storefronts
+        const storefrontTenantId = storefront.tenantId || (storefront as Record<string, unknown>).tenant_id;
+        if (!storefrontTenantId || storefrontTenantId !== tenantId) {
+          // Cannot confirm tenant ownership or different tenant - don't apply custom domain URL
+          // The storefront will fall back to computing URL from slug
           return storefront;
         }
         return {

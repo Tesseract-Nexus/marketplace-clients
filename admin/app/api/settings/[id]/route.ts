@@ -58,9 +58,10 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    // Get tenant ID from JWT claims
+    // Get tenant ID from JWT claims only - NEVER trust client-provided tenant ID
+    // SECURITY: Tenant ID must come from authenticated JWT, not request body
     const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
-    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'] || body?.context?.tenantId;
+    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
 
     if (!tenantId) {
       return NextResponse.json(

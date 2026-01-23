@@ -398,6 +398,7 @@ export interface UpdateVendorRequest {
 export interface Storefront {
   id: string;
   vendorId: string;
+  tenantId?: string;  // Tenant that owns this storefront - used for multi-tenant isolation
   slug: string;
   name: string;
   description?: string;
