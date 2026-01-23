@@ -62,7 +62,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttribu
     return (
       <textarea
         className={cn(
-          "flex min-h-[80px] w-full rounded-md border border-border bg-background px-4 py-2 text-sm transition-colors focus:border-primary/70 focus:ring-2 focus:ring-ring focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+          "flex min-h-[80px] w-full rounded-md border border-border bg-background px-4 py-2 text-sm transition-colors focus:border-primary focus:outline-none disabled:cursor-not-allowed disabled:opacity-50",
           className
         )}
         ref={ref}
@@ -1596,10 +1596,10 @@ export default function ProductsPage() {
                             value={formData.name}
                             onChange={(e) => handleFieldChange('name', e.target.value)}
                             className={cn(
-                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none focus:ring-2 transition-all bg-background hover:border-border font-medium",
+                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none transition-all bg-background font-medium",
                               errors.name
-                                ? "border-error focus:ring-error focus:border-error"
-                                : "border-border focus:ring-ring focus:border-primary"
+                                ? "border-error focus:border-error"
+                                : "border-border focus:border-primary"
                             )}
                             placeholder="e.g., iPhone 15 Pro Max"
                           />
@@ -1623,10 +1623,10 @@ export default function ProductsPage() {
                             value={formData.sku}
                             onChange={(e) => handleFieldChange('sku', e.target.value)}
                             className={cn(
-                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none focus:ring-2 transition-all bg-background hover:border-border font-mono font-medium",
+                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none transition-all bg-background font-mono font-medium",
                               errors.sku
-                                ? "border-error focus:ring-error focus:border-error"
-                                : "border-border focus:ring-ring focus:border-primary"
+                                ? "border-error focus:border-error"
+                                : "border-border focus:border-primary"
                             )}
                             placeholder="APL-IP15PM-256"
                           />
@@ -1861,10 +1861,10 @@ export default function ProductsPage() {
                             value={formData.price}
                             onChange={(e) => handleFieldChange('price', e.target.value)}
                             className={cn(
-                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none focus:ring-2 transition-all bg-background hover:border-border font-medium",
+                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none transition-all bg-background font-medium",
                               errors.price
-                                ? "border-error focus:ring-error focus:border-error"
-                                : "border-border focus:ring-ring focus:border-primary"
+                                ? "border-error focus:border-error"
+                                : "border-border focus:border-primary"
                             )}
                             placeholder="0.00"
                           />
@@ -1889,10 +1889,10 @@ export default function ProductsPage() {
                             value={formData.comparePrice}
                             onChange={(e) => handleFieldChange('comparePrice', e.target.value)}
                             className={cn(
-                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none focus:ring-2 transition-all bg-background hover:border-border font-medium",
+                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none transition-all bg-background font-medium",
                               errors.comparePrice
-                                ? "border-error focus:ring-error focus:border-error"
-                                : "border-border focus:ring-ring focus:border-primary"
+                                ? "border-error focus:border-error"
+                                : "border-border focus:border-primary"
                             )}
                             placeholder="0.00"
                           />
@@ -1917,10 +1917,10 @@ export default function ProductsPage() {
                             value={formData.costPrice}
                             onChange={(e) => handleFieldChange('costPrice', e.target.value)}
                             className={cn(
-                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none focus:ring-2 transition-all bg-background hover:border-border font-medium",
+                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none transition-all bg-background font-medium",
                               errors.costPrice
-                                ? "border-error focus:ring-error focus:border-error"
-                                : "border-border focus:ring-ring focus:border-primary"
+                                ? "border-error focus:border-error"
+                                : "border-border focus:border-primary"
                             )}
                             placeholder="0.00"
                           />
@@ -1975,10 +1975,10 @@ export default function ProductsPage() {
                             value={formData.quantity}
                             onChange={(e) => handleFieldChange('quantity', parseInt(e.target.value) || 0)}
                             className={cn(
-                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none focus:ring-2 transition-all bg-background hover:border-border font-medium",
+                              "w-full pl-10 pr-4 h-10 border rounded-md focus:outline-none transition-all bg-background font-medium",
                               errors.quantity
-                                ? "border-error focus:ring-error focus:border-error"
-                                : "border-border focus:ring-ring focus:border-primary"
+                                ? "border-error focus:border-error"
+                                : "border-border focus:border-primary"
                             )}
                             placeholder="0"
                           />
