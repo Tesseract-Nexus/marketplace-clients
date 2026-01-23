@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { ChevronDown, Phone } from 'lucide-react';
+import { ChevronDown, Phone, Loader2 } from 'lucide-react';
 
 // Country data with dial codes
 const COUNTRIES = [
@@ -215,7 +215,7 @@ export function PhoneInput({
           />
           {isDetecting && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin text-primary" />
             </div>
           )}
         </div>

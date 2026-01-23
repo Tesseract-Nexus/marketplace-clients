@@ -447,13 +447,13 @@ export default function GiftCardsPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   {giftCards.map((card) => {
                     const balancePercentage = getBalancePercentage(card.currentBalance, card.initialBalance);
                     const expiryBadge = getExpiryBadge(card.expiresAt);
 
                     return (
-                    <tr key={card.id} className="hover:bg-muted/80 transition-colors group">
+                    <tr key={card.id} className="hover:bg-muted/50 transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {/* Mini gift card visual */}

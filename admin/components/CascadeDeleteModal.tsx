@@ -276,7 +276,7 @@ export function CascadeDeleteModal({
             <button
               onClick={onClose}
               disabled={deleting}
-              className="flex-1 px-4 py-3 bg-muted text-foreground rounded-xl hover:bg-muted transition-all font-semibold border-2 border-border hover:border-border disabled:opacity-50"
+              className="flex-1 px-4 py-3 bg-muted text-foreground rounded-md hover:bg-muted transition-all font-semibold border-2 border-border hover:border-border disabled:opacity-50"
             >
               Cancel
             </button>
@@ -284,7 +284,7 @@ export function CascadeDeleteModal({
               onClick={handleDelete}
               disabled={validating || deleting || !validation?.canDelete}
               className={cn(
-                "flex-1 px-4 py-3 text-white rounded-xl transition-all font-semibold shadow-lg hover:shadow-xl flex items-center justify-center gap-2",
+                "flex-1 px-4 py-3 text-white rounded-md transition-all font-semibold shadow-lg hover:shadow-xl flex items-center justify-center gap-2",
                 validation?.canDelete
                   ? "bg-destructive hover:bg-destructive/90"
                   : "bg-muted-foreground cursor-not-allowed"

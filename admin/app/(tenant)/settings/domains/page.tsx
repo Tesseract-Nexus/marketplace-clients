@@ -31,8 +31,8 @@ import {
   type DomainStats,
 } from '@/lib/services/customDomainService';
 
-// Status badge component
-function StatusBadge({ status }: { status: string }) {
+// Domain-specific status badge (renamed to avoid collision with global StatusBadge component)
+function DomainStatusBadge({ status }: { status: string }) {
   const config: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
     pending: { color: 'bg-warning-muted text-warning-muted-foreground', icon: <Clock className="h-3 w-3" />, label: 'Pending' },
     verifying: { color: 'bg-info-muted text-info-muted-foreground', icon: <RefreshCw className="h-3 w-3 animate-spin" />, label: 'Verifying' },
@@ -305,7 +305,7 @@ function DomainCard({
               </p>
             </div>
           </div>
-          <StatusBadge status={domain.status} />
+          <DomainStatusBadge status={domain.status} />
         </div>
       </div>
 

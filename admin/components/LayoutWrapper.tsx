@@ -26,7 +26,7 @@ export function LayoutWrapper({ children, sidebar, header }: LayoutWrapperProps)
       {sidebar}
       <div className="lg:ml-72">
         {header(setSidebarOpen)}
-        <main className="p-6">{children}</main>
+        <main className="p-4 md:p-6">{children}</main>
       </div>
     </div>
   );

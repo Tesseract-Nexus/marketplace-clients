@@ -490,7 +490,7 @@ export default function SalesDashboardPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   {dashboard.topProducts.map((product) => (
                     <tr key={product.productId} className="hover:bg-muted transition-colors">
                       <td className="px-6 py-4">
@@ -531,7 +531,7 @@ export default function SalesDashboardPage() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-200">
+                <tbody className="divide-y divide-border">
                   {dashboard.topCategories.map((category) => (
                     <tr key={category.categoryId} className="hover:bg-muted transition-colors">
                       <td className="px-6 py-4">

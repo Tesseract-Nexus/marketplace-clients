@@ -375,7 +375,7 @@ export default function CustomersPage() {
                 <th className="px-4 lg:px-6 py-4 text-right text-sm font-semibold text-foreground">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-border">
               {loading ? (
                 <tr>
                   <td colSpan={8} className="px-6 py-12 text-center">
@@ -596,7 +596,7 @@ export default function CustomersPage() {
               <div className="mt-8">
                 {currentStep === 1 && (
                   <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-foreground mb-2">
                           First Name *
@@ -729,7 +729,7 @@ export default function CustomersPage() {
                     <div className="bg-primary/5 rounded-lg p-6 border border-primary/30">
                       <h3 className="text-lg font-semibold text-foreground mb-4">Review Customer Details</h3>
 
-                      <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                         <div>
                           <span className="text-muted-foreground font-medium">Name:</span>
                           <p className="text-foreground font-semibold">{formData.firstName} {formData.lastName}</p>

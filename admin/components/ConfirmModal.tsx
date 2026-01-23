@@ -121,7 +121,7 @@ export function ConfirmModal({
             <button
               onClick={onClose}
               disabled={isLoading}
-              className="flex-1 px-4 py-3 bg-muted text-foreground rounded-xl hover:bg-muted transition-all font-semibold border-2 border-border hover:border-border disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-3 bg-muted text-foreground rounded-md hover:bg-muted transition-all font-semibold border-2 border-border hover:border-border disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {cancelText}
             </button>
@@ -129,7 +129,7 @@ export function ConfirmModal({
               onClick={handleConfirm}
               disabled={isLoading}
               className={cn(
-                "flex-1 px-4 py-3 text-white rounded-xl transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed",
+                "flex-1 px-4 py-3 text-white rounded-md transition-all font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed",
                 styles.confirmButton
               )}
             >

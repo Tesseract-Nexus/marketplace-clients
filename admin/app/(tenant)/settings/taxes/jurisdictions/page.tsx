@@ -277,7 +277,7 @@ export default function TaxJurisdictionsPage() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-200">
+              <tbody className="divide-y divide-border">
                 {jurisdictions.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-6 py-12 text-center text-muted-foreground">

@@ -164,7 +164,7 @@ export function RegionalSettingsTab() {
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-border">
               {Object.entries(matrix).length > 0 ? (
                 Object.entries(matrix).map(([countryCode, countryGateways]) => (
                   <tr key={countryCode} className="hover:bg-muted">

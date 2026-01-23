@@ -732,7 +732,7 @@ export default function ContentPagesSettingsPage() {
                           </th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-border">
                         {filteredPages.map((page) => (
                           <tr key={page.id} className="hover:bg-muted transition-colors">
                             <td className="px-6 py-4">

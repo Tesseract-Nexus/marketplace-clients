@@ -11,7 +11,17 @@ import {
 // Re-export currency utilities for use in widgets
 export { getCurrencySymbol };
 
-// Custom styled Card components for dashboard widgets
+/**
+ * Dashboard-specific Card Components
+ *
+ * These components use enhanced styling compared to standard cards:
+ * - rounded-2xl (vs rounded-lg for standard cards) - more prominent visual presence
+ * - shadow-lg with hover:shadow-xl - elevated, interactive feel
+ * - backdrop-blur-sm + bg-white/80 - glassmorphism effect for modern look
+ *
+ * This intentional deviation from the standard card styles (rounded-lg, shadow-sm)
+ * creates visual hierarchy and makes the dashboard feel special/premium.
+ */
 export const DashboardCard = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("rounded-2xl border bg-white/80 backdrop-blur-sm text-card-foreground shadow-lg hover:shadow-xl transition-all duration-300", className)} {...props}>
     {children}

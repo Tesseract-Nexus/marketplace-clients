@@ -31,6 +31,7 @@ import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/PageHeader';
+import { StatusBadge, getStatusFromMapping } from '@/components/ui/status-badge';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
 import { useTenant } from '@/contexts/TenantContext';
@@ -407,22 +408,14 @@ export default function CustomerDetailPage() {
     setShowAddressModal(true);
   };
 
-  const getStatusBadge = (status: CustomerStatus) => {
-    const styles = {
-      ACTIVE: 'bg-success-muted text-success-foreground border-success/30',
-      INACTIVE: 'bg-muted text-foreground border-border',
-      BLOCKED: 'bg-error-muted text-error border-error/30',
+  // Customer type to status mapping for StatusBadge
+  const customerTypeToStatus = (type: CustomerType) => {
+    const mapping: Record<CustomerType, 'success' | 'warning' | 'info' | 'neutral'> = {
+      RETAIL: 'info',
+      WHOLESALE: 'info',
+      VIP: 'warning',
     };
-    return styles[status] || styles.ACTIVE;
-  };
-
-  const getTypeBadge = (type: CustomerType) => {
-    const styles = {
-      RETAIL: 'bg-primary/20 text-primary border-primary/30',
-      WHOLESALE: 'bg-primary/10 text-primary border-primary/30',
-      VIP: 'bg-warning-muted text-warning-foreground border-warning/30',
-    };
-    return styles[type] || styles.RETAIL;
+    return mapping[type] || 'neutral';
   };
 
   const getOrderStatusBadge = (status: string) => {
@@ -523,12 +516,12 @@ export default function CustomerDetailPage() {
           ]}
           actions={
             <div className="flex items-center gap-3">
-              <span className={cn('px-3 py-1 rounded-full text-sm font-medium border', getStatusBadge(customer.status))}>
+              <StatusBadge status={getStatusFromMapping('user', customer.status)}>
                 {customer.status}
-              </span>
-              <span className={cn('px-3 py-1 rounded-full text-sm font-medium border', getTypeBadge(customer.customerType))}>
+              </StatusBadge>
+              <StatusBadge status={customerTypeToStatus(customer.customerType)}>
                 {customer.customerType}
-              </span>
+              </StatusBadge>
               {!isEditing && (
                 <Button onClick={handleEdit} variant="outline">
                   <Edit2 className="h-4 w-4 mr-2" />
@@ -800,7 +793,7 @@ export default function CustomerDetailPage() {
                           <th className="px-4 py-3 text-right text-sm font-semibold text-foreground">Total</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-gray-200">
+                      <tbody className="divide-y divide-border">
                         {orders.map((order) => (
                           <tr
                             key={order.id}
