@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { Search, Plus, Eye, Edit, Trash2, Users, TrendingUp, DollarSign, ShoppingCart, AlertCircle, X, Loader2, Home, UserCircle, Sparkles, Crown } from 'lucide-react';
+import { Search, Plus, Eye, Edit, Trash2, Users, TrendingUp, DollarSign, ShoppingCart, AlertCircle, X, Loader2, Home, UserCircle, Sparkles, Crown, CheckCircle, XCircle } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
 import { Pagination } from '@/components/Pagination';
+import { StatsGrid, FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { customerService } from '@/lib/services/customerService';
 import type { Customer, CreateCustomerRequest, CustomerStatus, CustomerType } from '@/lib/api/types';
 
@@ -197,8 +198,55 @@ export default function CustomersPage() {
   // Calculate summary metrics
   const totalCustomers = (customers || []).length;
   const activeCustomers = (customers || []).filter((c) => c.status === 'ACTIVE').length;
+  const inactiveCustomers = (customers || []).filter((c) => c.status === 'INACTIVE').length;
+  const blockedCustomers = (customers || []).filter((c) => c.status === 'BLOCKED').length;
   const totalRevenue = (customers || []).reduce((sum, c) => sum + (c.totalSpent || 0), 0);
   const totalOrders = (customers || []).reduce((sum, c) => sum + (c.totalOrders || 0), 0);
+  const vipCustomers = (customers || []).filter((c) => c.customerType === 'VIP').length;
+
+  // Quick filters configuration
+  const quickFilters: QuickFilter[] = useMemo(() => [
+    { id: 'ACTIVE', label: 'Active', icon: CheckCircle, color: 'success', count: activeCustomers },
+    { id: 'INACTIVE', label: 'Inactive', icon: XCircle, color: 'warning', count: inactiveCustomers },
+    { id: 'BLOCKED', label: 'Blocked', icon: XCircle, color: 'error', count: blockedCustomers },
+    { id: 'VIP', label: 'VIP', icon: Crown, color: 'info', count: vipCustomers },
+  ], [activeCustomers, inactiveCustomers, blockedCustomers, vipCustomers]);
+
+  // Active quick filter state
+  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
+
+  const handleQuickFilterToggle = (filterId: string) => {
+    // For status filters (ACTIVE, INACTIVE, BLOCKED), set the status filter
+    if (['ACTIVE', 'INACTIVE', 'BLOCKED'].includes(filterId)) {
+      if (statusFilter === filterId) {
+        setStatusFilter('ALL');
+        setActiveQuickFilters([]);
+      } else {
+        setStatusFilter(filterId);
+        setActiveQuickFilters([filterId]);
+      }
+    }
+    // For type filters (VIP), set the type filter
+    else if (filterId === 'VIP') {
+      if (typeFilter === 'VIP') {
+        setTypeFilter('ALL');
+        setActiveQuickFilters(prev => prev.filter(f => f !== 'VIP'));
+      } else {
+        setTypeFilter('VIP');
+        setActiveQuickFilters(prev => [...prev.filter(f => !['ACTIVE', 'INACTIVE', 'BLOCKED'].includes(f)), 'VIP']);
+      }
+    }
+  };
+
+  const clearAllFilters = () => {
+    setStatusFilter('ALL');
+    setTypeFilter('ALL');
+    setSearchQuery('');
+    setActiveQuickFilters([]);
+  };
+
+  // Calculate active filter count
+  const activeFilterCount = (statusFilter !== 'ALL' ? 1 : 0) + (typeFilter !== 'ALL' ? 1 : 0);
 
   const steps: Step[] = [
     { number: 1, title: 'Basic Info', description: 'Customer details' },
@@ -238,96 +286,58 @@ export default function CustomersPage() {
       <PageError error={error} onDismiss={() => setError(null)} />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
-        <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate">Total Customers</p>
-              <p className="text-xl sm:text-3xl font-bold text-primary mt-1 sm:mt-2">
-                {totalCustomers}
-              </p>
-            </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-              <Users className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate">Active Customers</p>
-              <p className="text-xl sm:text-3xl font-bold text-success mt-1 sm:mt-2">
-                {activeCustomers}
-              </p>
-            </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-success/10 rounded-lg flex items-center justify-center flex-shrink-0">
-              <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-success" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate">Total Revenue</p>
-              <p className="text-xl sm:text-3xl font-bold text-primary mt-1 sm:mt-2">
-                ${totalRevenue.toFixed(2)}
-              </p>
-            </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-              <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium truncate">Total Orders</p>
-              <p className="text-xl sm:text-3xl font-bold text-warning mt-1 sm:mt-2">
-                {totalOrders}
-              </p>
-            </div>
-            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-warning/10 rounded-lg flex items-center justify-center flex-shrink-0">
-              <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6 text-warning" />
-            </div>
-          </div>
-        </div>
-      </div>
+      <StatsGrid
+        stats={[
+          { label: 'Total Customers', value: totalCustomers, icon: Users, color: 'primary' },
+          { label: 'Active Customers', value: activeCustomers, icon: TrendingUp, color: 'success' },
+          { label: 'Total Revenue', value: `$${totalRevenue.toFixed(2)}`, icon: DollarSign, color: 'primary' },
+          { label: 'Total Orders', value: totalOrders, icon: ShoppingCart, color: 'warning' },
+        ]}
+        columns={4}
+        showMobileRow
+        className="mb-6"
+      />
 
       {/* Filters and Search */}
-      <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm mb-4 sm:mb-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-          <div className="sm:col-span-2 md:col-span-2">
-            <div className="relative">
-              <label htmlFor="customer-search" className="sr-only">Search customers by name or email</label>
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" aria-hidden="true" />
-              <Input
-                id="customer-search"
-                type="text"
-                placeholder="Search by name or email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-                aria-label="Search customers"
-              />
-            </div>
-          </div>
-
-          <Select
-            value={statusFilter}
-            onChange={(value) => setStatusFilter(value)}
-            options={customerStatusOptions}
+      <FilterPanel
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Search by name or email..."
+        activeFilterCount={activeFilterCount}
+        onClearAll={clearAllFilters}
+        className="mb-4 sm:mb-6"
+        quickFilters={
+          <QuickFilters
+            filters={quickFilters}
+            activeFilters={activeQuickFilters}
+            onFilterToggle={handleQuickFilterToggle}
+            onClearAll={clearAllFilters}
+            showClearAll={false}
+            size="sm"
           />
-
-          <Select
-            value={typeFilter}
-            onChange={(value) => setTypeFilter(value)}
-            options={customerTypeOptions}
-          />
-        </div>
-      </div>
+        }
+      >
+        <Select
+          value={statusFilter}
+          onChange={(value) => {
+            setStatusFilter(value);
+            setActiveQuickFilters(value !== 'ALL' ? [value] : []);
+          }}
+          options={customerStatusOptions}
+        />
+        <Select
+          value={typeFilter}
+          onChange={(value) => {
+            setTypeFilter(value);
+            if (value === 'VIP') {
+              setActiveQuickFilters(prev => [...prev.filter(f => !['VIP'].includes(f)), 'VIP']);
+            } else {
+              setActiveQuickFilters(prev => prev.filter(f => f !== 'VIP'));
+            }
+          }}
+          options={customerTypeOptions}
+        />
+      </FilterPanel>
 
       {/* Customers Table - Desktop */}
       <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
