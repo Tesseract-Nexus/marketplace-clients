@@ -17,6 +17,9 @@ import {
   Info,
   ChevronRight,
   Zap,
+  Lock,
+  Server,
+  Link2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -439,10 +442,180 @@ function DomainCard({
   );
 }
 
+// Custom Domain Enabled State Component
+// Shows when tenant was onboarded with a custom domain
+function CustomDomainEnabledState({
+  customDomain,
+  adminUrl,
+  storefrontUrl,
+}: {
+  customDomain: string;
+  adminUrl?: string;
+  storefrontUrl?: string;
+}) {
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+  };
+
+  // Derive URLs from custom domain if not provided
+  const derivedAdminUrl = adminUrl || `https://admin.${customDomain}`;
+  const derivedStorefrontUrl = storefrontUrl || `https://${customDomain}`;
+  const apiUrl = `https://api.${customDomain}`;
+
+  return (
+    <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden">
+      {/* Success Header */}
+      <div className="bg-gradient-to-r from-success/10 to-primary/10 border-b border-success/20 p-6">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-success/20 rounded-full">
+            <CheckCircle2 className="h-8 w-8 text-success" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-foreground">Custom Domain Enabled</h3>
+            <p className="text-muted-foreground">
+              Your store is running on <span className="font-semibold text-foreground">{customDomain}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Domain Information */}
+      <div className="p-6 space-y-6">
+        {/* Status Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* SSL Status */}
+          <div className="flex items-center gap-4 p-4 bg-success/5 rounded-lg border border-success/20">
+            <div className="p-2 bg-success/20 rounded-lg">
+              <Lock className="h-5 w-5 text-success" />
+            </div>
+            <div>
+              <div className="font-semibold text-foreground">SSL Enabled</div>
+              <div className="text-sm text-muted-foreground">HTTPS secured with auto-renewal</div>
+            </div>
+          </div>
+
+          {/* Routing Status */}
+          <div className="flex items-center gap-4 p-4 bg-primary/5 rounded-lg border border-primary/20">
+            <div className="p-2 bg-primary/20 rounded-lg">
+              <Server className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <div className="font-semibold text-foreground">Routing Active</div>
+              <div className="text-sm text-muted-foreground">Traffic is being served</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Domain URLs */}
+        <div className="space-y-3">
+          <h4 className="font-semibold text-foreground flex items-center gap-2">
+            <Link2 className="h-4 w-4" />
+            Your Domain URLs
+          </h4>
+
+          <div className="space-y-2">
+            {/* Storefront */}
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border border-border">
+              <div className="flex items-center gap-3">
+                <Globe className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <div className="text-xs text-muted-foreground">Storefront</div>
+                  <div className="font-mono text-sm">{derivedStorefrontUrl}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => handleCopy(derivedStorefrontUrl)}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => window.open(derivedStorefrontUrl, '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* Admin */}
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border border-border">
+              <div className="flex items-center gap-3">
+                <Shield className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <div className="text-xs text-muted-foreground">Admin Panel</div>
+                  <div className="font-mono text-sm">{derivedAdminUrl}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => handleCopy(derivedAdminUrl)}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => window.open(derivedAdminUrl, '_blank')}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {/* API */}
+            <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border border-border">
+              <div className="flex items-center gap-3">
+                <Server className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <div className="text-xs text-muted-foreground">API</div>
+                  <div className="font-mono text-sm">{apiUrl}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => handleCopy(apiUrl)}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Info Note */}
+        <div className="bg-muted/50 border border-border rounded-lg p-4">
+          <div className="flex gap-3">
+            <Info className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-0.5" />
+            <div className="text-sm text-muted-foreground">
+              <p>
+                Your custom domain was configured during onboarding. SSL certificates are automatically
+                managed and renewed. If you need to change your domain, please contact support.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Main Page Component
 export default function DomainsSettingsPage() {
   const { showSuccess, showError, showConfirm } = useDialog();
-  const { currentTenant } = useTenant();
+  const { currentTenant, isLoading: tenantLoading } = useTenant();
   const [domains, setDomains] = useState<CustomDomain[]>([]);
   const [stats, setStats] = useState<DomainStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -450,6 +623,13 @@ export default function DomainsSettingsPage() {
   const [verifyingDomains, setVerifyingDomains] = useState<Set<string>>(new Set());
 
   const loadDomains = useCallback(async () => {
+    // Skip loading domains from service if tenant has custom domain from onboarding
+    // The custom domain info comes from the tenant record itself
+    if (currentTenant?.useCustomDomain && currentTenant?.customDomain) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       const [domainsResult, statsResult] = await Promise.all([
@@ -464,11 +644,14 @@ export default function DomainsSettingsPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [currentTenant?.useCustomDomain, currentTenant?.customDomain]);
 
   useEffect(() => {
-    loadDomains();
-  }, [loadDomains]);
+    // Wait for tenant context to be loaded before fetching domains
+    if (currentTenant !== null) {
+      loadDomains();
+    }
+  }, [currentTenant, loadDomains]);
 
   const handleDomainAdded = (domain: CustomDomain) => {
     setDomains((prev) => [domain, ...prev]);
@@ -546,7 +729,7 @@ export default function DomainsSettingsPage() {
     showSuccess('Copied', 'Value copied to clipboard');
   };
 
-  if (loading) {
+  if (loading || tenantLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
@@ -556,6 +739,9 @@ export default function DomainsSettingsPage() {
       </div>
     );
   }
+
+  // Check if tenant was onboarded with a custom domain
+  const hasOnboardedCustomDomain = currentTenant?.useCustomDomain && currentTenant?.customDomain;
 
   return (
     <PermissionGate
@@ -568,105 +754,121 @@ export default function DomainsSettingsPage() {
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
             title="Custom Domains"
-            description="Connect your own domain to your storefront"
+            description={hasOnboardedCustomDomain
+              ? "Your store is running on a custom domain"
+              : "Connect your own domain to your storefront"
+            }
             breadcrumbs={[
               { label: 'Home', href: '/' },
               { label: 'Settings', href: '/settings' },
               { label: 'Domains' },
             ]}
             actions={
-              <Button
-                onClick={() => setShowAddModal(true)}
-                className="bg-primary text-primary-foreground hover:opacity-90"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Domain
-              </Button>
+              // Only show Add Domain button if not using onboarded custom domain
+              !hasOnboardedCustomDomain ? (
+                <Button
+                  onClick={() => setShowAddModal(true)}
+                  className="bg-primary text-primary-foreground hover:opacity-90"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Domain
+                </Button>
+              ) : undefined
             }
           />
 
-          {/* Stats Overview */}
-          {stats && stats.totalDomains > 0 && (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="bg-card rounded-lg border border-border p-4">
-                <div className="text-2xl font-bold text-foreground">{stats.totalDomains}</div>
-                <div className="text-sm text-muted-foreground">Total Domains</div>
-              </div>
-              <div className="bg-card rounded-lg border border-border p-4">
-                <div className="text-2xl font-bold text-success">{stats.activeDomains}</div>
-                <div className="text-sm text-muted-foreground">Active</div>
-              </div>
-              <div className="bg-card rounded-lg border border-border p-4">
-                <div className="text-2xl font-bold text-warning">{stats.pendingDomains}</div>
-                <div className="text-sm text-muted-foreground">Pending</div>
-              </div>
-              <div className="bg-card rounded-lg border border-border p-4">
-                <div className="text-2xl font-bold text-warning">{stats.expiringCertificates}</div>
-                <div className="text-sm text-muted-foreground">Expiring Soon</div>
-              </div>
-            </div>
-          )}
-
-          {/* Domain List */}
-          {domains.length > 0 ? (
-            <div className="space-y-4">
-              {domains.map((domain) => (
-                <DomainCard
-                  key={domain.id}
-                  domain={domain}
-                  onVerify={() => handleVerifyDomain(domain.id)}
-                  onDelete={() => handleDeleteDomain(domain)}
-                  onCopy={handleCopy}
-                  isVerifying={verifyingDomains.has(domain.id)}
-                />
-              ))}
-            </div>
+          {/* Show Custom Domain Enabled state if tenant was onboarded with custom domain */}
+          {hasOnboardedCustomDomain ? (
+            <CustomDomainEnabledState
+              customDomain={currentTenant.customDomain!}
+              adminUrl={currentTenant.adminUrl}
+            />
           ) : (
-            /* Empty State */
-            <div className="bg-card rounded-xl border border-border p-12 text-center">
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Globe className="h-8 w-8 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
-                No Custom Domains Yet
-              </h3>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Add your own domain to give your store a professional look.
-                Your customers will see your brand, not ours.
-              </p>
-              <Button
-                onClick={() => setShowAddModal(true)}
-                className="bg-primary text-white"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Your First Domain
-              </Button>
+            <>
+              {/* Stats Overview */}
+              {stats && stats.totalDomains > 0 && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-card rounded-lg border border-border p-4">
+                    <div className="text-2xl font-bold text-foreground">{stats.totalDomains}</div>
+                    <div className="text-sm text-muted-foreground">Total Domains</div>
+                  </div>
+                  <div className="bg-card rounded-lg border border-border p-4">
+                    <div className="text-2xl font-bold text-success">{stats.activeDomains}</div>
+                    <div className="text-sm text-muted-foreground">Active</div>
+                  </div>
+                  <div className="bg-card rounded-lg border border-border p-4">
+                    <div className="text-2xl font-bold text-warning">{stats.pendingDomains}</div>
+                    <div className="text-sm text-muted-foreground">Pending</div>
+                  </div>
+                  <div className="bg-card rounded-lg border border-border p-4">
+                    <div className="text-2xl font-bold text-warning">{stats.expiringCertificates}</div>
+                    <div className="text-sm text-muted-foreground">Expiring Soon</div>
+                  </div>
+                </div>
+              )}
 
-              {/* Benefits */}
-              <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-left max-w-2xl mx-auto">
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <Shield className="h-5 w-5 text-success mb-2" />
-                  <h4 className="font-medium text-foreground">Free SSL</h4>
-                  <p className="text-xs text-muted-foreground">
-                    Automatic HTTPS with Let&apos;s Encrypt
-                  </p>
+              {/* Domain List */}
+              {domains.length > 0 ? (
+                <div className="space-y-4">
+                  {domains.map((domain) => (
+                    <DomainCard
+                      key={domain.id}
+                      domain={domain}
+                      onVerify={() => handleVerifyDomain(domain.id)}
+                      onDelete={() => handleDeleteDomain(domain)}
+                      onCopy={handleCopy}
+                      isVerifying={verifyingDomains.has(domain.id)}
+                    />
+                  ))}
                 </div>
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <Zap className="h-5 w-5 text-primary mb-2" />
-                  <h4 className="font-medium text-foreground">Fast Setup</h4>
-                  <p className="text-xs text-muted-foreground">
-                    Usually active within 15 minutes
+              ) : (
+                /* Empty State */
+                <div className="bg-card rounded-xl border border-border p-12 text-center">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Globe className="h-8 w-8 text-primary" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">
+                    No Custom Domains Yet
+                  </h3>
+                  <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                    Add your own domain to give your store a professional look.
+                    Your customers will see your brand, not ours.
                   </p>
+                  <Button
+                    onClick={() => setShowAddModal(true)}
+                    className="bg-primary text-white"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Your First Domain
+                  </Button>
+
+                  {/* Benefits */}
+                  <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 text-left max-w-2xl mx-auto">
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <Shield className="h-5 w-5 text-success mb-2" />
+                      <h4 className="font-medium text-foreground">Free SSL</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Automatic HTTPS with Let&apos;s Encrypt
+                      </p>
+                    </div>
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <Zap className="h-5 w-5 text-primary mb-2" />
+                      <h4 className="font-medium text-foreground">Fast Setup</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Usually active within 15 minutes
+                      </p>
+                    </div>
+                    <div className="p-4 bg-muted/50 rounded-lg">
+                      <Globe className="h-5 w-5 text-primary mb-2" />
+                      <h4 className="font-medium text-foreground">Your Brand</h4>
+                      <p className="text-xs text-muted-foreground">
+                        Customers see your domain, not ours
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <div className="p-4 bg-muted/50 rounded-lg">
-                  <Globe className="h-5 w-5 text-primary mb-2" />
-                  <h4 className="font-medium text-foreground">Your Brand</h4>
-                  <p className="text-xs text-muted-foreground">
-                    Customers see your domain, not ours
-                  </p>
-                </div>
-              </div>
-            </div>
+              )}
+            </>
           )}
         </div>
 
