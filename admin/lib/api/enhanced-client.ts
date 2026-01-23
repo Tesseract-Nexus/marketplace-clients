@@ -4,6 +4,7 @@
 
 import { API_CONFIG } from '../config/api';
 import { ApiException, ERROR_CODES, parseApiError, isRetryableError } from '../utils/api-error';
+import { getCsrfTokenFromCookie, fetchCsrfToken, getCsrfHeaderName, requiresCsrfProtection } from '../utils/csrf-client';
 
 type RequestInterceptor = (config: RequestInit) => RequestInit | Promise<RequestInit>;
 type ResponseInterceptor = (response: Response) => Response | Promise<Response>;
@@ -223,6 +224,7 @@ export class EnhancedApiClient {
    */
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
+    const method = options.method || 'GET';
 
     // Build headers - directly add auth and tenant headers for reliability
     const headers: Record<string, string> = {
@@ -254,6 +256,18 @@ export class EnhancedApiClient {
     // Note: User role should come from Istio JWT validation, not client headers
     if (this.userEmail) {
       headers['x-jwt-claim-email'] = this.userEmail;
+    }
+
+    // CSRF Protection: Add token for state-changing requests
+    if (requiresCsrfProtection(method)) {
+      let csrfToken = getCsrfTokenFromCookie();
+      if (!csrfToken) {
+        // Token not in cookie, fetch a new one
+        csrfToken = await fetchCsrfToken();
+      }
+      if (csrfToken) {
+        headers[getCsrfHeaderName()] = csrfToken;
+      }
     }
 
     // Merge with any additional headers from options

@@ -4,6 +4,7 @@ import { DialogProvider } from "@/contexts/DialogContext";
 import { ToastProvider } from "@/contexts/ToastContext";
 import { QueryProvider } from "@/contexts/QueryProvider";
 import { AuthProvider } from "@/lib/auth";
+import { CsrfTokenInitializer } from "@/hooks/useCsrfToken";
 
 export const metadata = {
   title: "Admin Panel - Ecommerce Hub",
@@ -20,13 +21,15 @@ export default function RootLayout({
       <body className="antialiased">
         <QueryProvider>
           <AuthProvider>
-            <ThemeProvider>
-              <DialogProvider>
-                <ToastProvider>
-                  {children}
-                </ToastProvider>
-              </DialogProvider>
-            </ThemeProvider>
+            <CsrfTokenInitializer>
+              <ThemeProvider>
+                <DialogProvider>
+                  <ToastProvider>
+                    {children}
+                  </ToastProvider>
+                </DialogProvider>
+              </ThemeProvider>
+            </CsrfTokenInitializer>
           </AuthProvider>
         </QueryProvider>
       </body>

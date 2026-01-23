@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ERROR_CODES } from './api-error';
 import { getAccessTokenFromBFF } from '@/app/api/lib/auth-helper';
 import { logger } from '../logger';
+import { validateCsrfRequest, createCsrfErrorResponse, requiresCsrfProtection } from '../security/csrf';
 
 const AUTH_BFF_INTERNAL_URL =
   process.env.AUTH_BFF_INTERNAL_URL || 'http://auth-bff.marketplace.svc.cluster.local:8080';
@@ -637,15 +638,35 @@ export async function proxyGet(
 }
 
 /**
+ * Validate CSRF token for mutation requests
+ * Returns error response if validation fails, null if valid
+ */
+async function validateCsrf(request: NextRequest): Promise<NextResponse | null> {
+  const csrfResult = await validateCsrfRequest(request);
+  if (!csrfResult.valid) {
+    logger.warn('[CSRF] Validation failed:', csrfResult.error);
+    return createCsrfErrorResponse(csrfResult.error || 'CSRF validation failed');
+  }
+  return null;
+}
+
+/**
  * Proxy POST request to backend
  * Note: Mutations always use no-cache headers
  */
 export async function proxyPost(
   serviceUrl: string,
   path: string,
-  request: NextRequest
+  request: NextRequest,
+  options?: { skipCsrf?: boolean }
 ): Promise<NextResponse> {
   try {
+    // CSRF validation for mutations (unless explicitly skipped)
+    if (!options?.skipCsrf) {
+      const csrfError = await validateCsrf(request);
+      if (csrfError) return csrfError;
+    }
+
     const body = await request.json().catch(() => undefined);
     const response = await proxyToBackend(serviceUrl, path, {
       method: 'POST',
@@ -673,9 +694,16 @@ export async function proxyPost(
 export async function proxyPut(
   serviceUrl: string,
   path: string,
-  request: NextRequest
+  request: NextRequest,
+  options?: { skipCsrf?: boolean }
 ): Promise<NextResponse> {
   try {
+    // CSRF validation for mutations (unless explicitly skipped)
+    if (!options?.skipCsrf) {
+      const csrfError = await validateCsrf(request);
+      if (csrfError) return csrfError;
+    }
+
     const body = await request.json().catch(() => undefined);
     const response = await proxyToBackend(serviceUrl, path, {
       method: 'PUT',
@@ -701,9 +729,16 @@ export async function proxyPut(
 export async function proxyPatch(
   serviceUrl: string,
   path: string,
-  request: NextRequest
+  request: NextRequest,
+  options?: { skipCsrf?: boolean }
 ): Promise<NextResponse> {
   try {
+    // CSRF validation for mutations (unless explicitly skipped)
+    if (!options?.skipCsrf) {
+      const csrfError = await validateCsrf(request);
+      if (csrfError) return csrfError;
+    }
+
     const body = await request.json().catch(() => undefined);
     const response = await proxyToBackend(serviceUrl, path, {
       method: 'PATCH',
@@ -729,9 +764,16 @@ export async function proxyPatch(
 export async function proxyDelete(
   serviceUrl: string,
   path: string,
-  request: NextRequest
+  request: NextRequest,
+  options?: { skipCsrf?: boolean }
 ): Promise<NextResponse> {
   try {
+    // CSRF validation for mutations (unless explicitly skipped)
+    if (!options?.skipCsrf) {
+      const csrfError = await validateCsrf(request);
+      if (csrfError) return csrfError;
+    }
+
     const body = await request.json().catch(() => undefined);
     const response = await proxyToBackend(serviceUrl, path, {
       method: 'DELETE',
