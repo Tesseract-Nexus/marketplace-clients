@@ -3,10 +3,13 @@
 
 const isDev = process.env.NODE_ENV === 'development';
 const isBuildTime = process.env.NEXT_PHASE === 'phase-production-build';
+// Check if we're running on the client side (browser)
+const isClient = typeof window !== 'undefined';
 
 // Helper to get env var with fallback
 // During build time: always use fallback to allow build to complete
-// During runtime in production: throw error if using localhost fallback
+// On client-side: return placeholder (client should use Next.js API routes, not direct service calls)
+// During runtime in production server: throw error if using localhost fallback
 function getEnv(serverKey: string, publicKey: string, devFallback: string): string {
   const value = process.env[serverKey] || process.env[publicKey];
   if (value) return value;
@@ -16,13 +19,19 @@ function getEnv(serverKey: string, publicKey: string, devFallback: string): stri
     return devFallback;
   }
 
-  // In development, use fallback with warning
+  // On client-side, don't throw - client code should use Next.js API routes
+  // Return empty string as placeholder (direct service calls won't work from browser anyway)
+  if (isClient) {
+    return '';
+  }
+
+  // In development server-side, use fallback with warning
   if (isDev) {
     console.warn(`[Config] Missing ${serverKey}/${publicKey}, using dev fallback: ${devFallback}`);
     return devFallback;
   }
 
-  // SECURITY: In production runtime, fail fast - no localhost fallbacks allowed
+  // SECURITY: In production server-side runtime, fail fast - no localhost fallbacks allowed
   throw new Error(
     `Missing required environment variable: ${serverKey} or ${publicKey}. ` +
     `Production deployments must have all service URLs configured.`
