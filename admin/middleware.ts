@@ -263,13 +263,22 @@ async function fetchTenantValidation(slug: string): Promise<boolean> {
   if (response.ok) {
     const result = await response.json();
     // Tenant exists if we got a successful response with tenant data
-    // Also check that tenant status is 'active' to exclude failed/creating tenants
+    // Check that tenant status is 'active' or 'creating' (onboarding in progress)
+    // 'creating' status is allowed so users can access the admin during final setup
+    // 'failed' or 'inactive' tenants are excluded
+    const status = result.data?.status;
     const exists =
       result.success &&
       result.data &&
       result.data.id &&
-      result.data.status === 'active';
+      (status === 'active' || status === 'creating');
     validatedTenants.set(slug, { exists, timestamp: now, validatedAt: now });
+
+    // Log if tenant is still creating - this helps debug timing issues
+    if (status === 'creating') {
+      console.log('[Middleware] Tenant still creating (onboarding in progress):', slug);
+    }
+
     return exists;
   }
 
