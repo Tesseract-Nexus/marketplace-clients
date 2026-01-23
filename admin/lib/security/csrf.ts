@@ -44,9 +44,7 @@ export async function initializeCsrfSecret(): Promise<void> {
 
   csrfSecretInitPromise = (async () => {
     try {
-      // Use jwt-secret for CSRF (same as auth-bff for consistency)
-      // Falls back to CSRF_SECRET env var if GCP Secret Manager unavailable
-      const secret = await getSecretWithFallback('jwt-secret', 'CSRF_SECRET');
+      const secret = await getSecretWithFallback('csrf-secret', 'CSRF_SECRET');
 
       if (!secret && process.env.NODE_ENV === 'production') {
         throw new Error('SECURITY: CSRF_SECRET must be configured in production (via GCP Secret Manager or env var)');
