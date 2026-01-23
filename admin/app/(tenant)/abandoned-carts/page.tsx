@@ -21,6 +21,7 @@ import { StatsGrid } from '@/components/data-listing/StatsGrid';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
 import { apiClient } from '@/lib/api/client';
+import { useTenantCurrency } from '@/hooks/useTenantCurrency';
 import type {
   AbandonedCart,
   AbandonedCartStats,
@@ -38,6 +39,7 @@ const statusOptions = [
 
 export default function AbandonedCartsPage() {
   const { showAlert, showConfirm } = useDialog();
+  const { currency } = useTenantCurrency();
 
   const [carts, setCarts] = useState<AbandonedCart[]>([]);
   const [stats, setStats] = useState<AbandonedCartStats | null>(null);
@@ -79,7 +81,7 @@ export default function AbandonedCartsPage() {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: currency,
     }).format(amount);
   };
 

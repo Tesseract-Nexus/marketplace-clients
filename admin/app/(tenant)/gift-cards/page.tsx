@@ -28,6 +28,7 @@ import { PageLoading } from '@/components/common';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
+import { useTenantCurrency } from '@/hooks/useTenantCurrency';
 import { apiClient } from '@/lib/api/client';
 import type { GiftCard, GiftCardStats, CreateGiftCardRequest } from '@/lib/api/types';
 
@@ -66,6 +67,7 @@ const DEFAULT_STATS: GiftCardStats = {
 
 export default function GiftCardsPage() {
   const { showAlert, showConfirm } = useDialog();
+  const { currency } = useTenantCurrency();
 
   // Data state
   const [giftCards, setGiftCards] = useState<GiftCard[]>([]);
@@ -155,7 +157,7 @@ export default function GiftCardsPage() {
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: currency,
     }).format(amount);
   };
 

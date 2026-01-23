@@ -15,6 +15,7 @@ import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageHeader } from '@/components/PageHeader';
 import { cn } from '@/lib/utils';
+import { useTenantCurrency } from '@/hooks/useTenantCurrency';
 
 interface InventoryItem {
   productId: string;
@@ -179,12 +180,13 @@ const MOCK_REPORT = {
 };
 
 export default function InventoryReportsPage() {
+  const { currency } = useTenantCurrency();
   const [activeTab, setActiveTab] = useState<'alerts' | 'movement' | 'categories' | 'turnover'>('alerts');
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'USD',
+      currency: currency,
     }).format(amount);
   };
 
