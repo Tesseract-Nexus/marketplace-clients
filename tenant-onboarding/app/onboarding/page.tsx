@@ -961,12 +961,16 @@ export default function OnboardingPage() {
           // localStorage not available
         }
 
+        // Get the store slug for unique ACME CNAME target
+        const storeSlug = storeSetupForm.getValues('subdomain') || generateSlugFromName(businessForm.getValues('businessName') || '');
+
         const response = await fetch('/api/onboarding/validate/custom-domain', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             domain: normalized,
             session_id: sessionId,
+            tenant_slug: storeSlug, // Pass unique store slug for ACME CNAME target
             verification_token: storedToken, // Pass stored token so backend can reuse it
           }),
         });

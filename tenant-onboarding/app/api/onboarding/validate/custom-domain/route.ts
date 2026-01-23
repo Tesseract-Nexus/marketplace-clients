@@ -13,6 +13,7 @@ import { SERVICES, validateRequest, errorResponse, generateRequestId } from '../
 interface ValidateCustomDomainRequest {
   domain: string;
   session_id?: string;
+  tenant_slug?: string; // Unique store slug for ACME CNAME target
   verification_token?: string; // Pass stored token to reuse
 }
 
@@ -191,6 +192,7 @@ export async function POST(request: NextRequest) {
         body: JSON.stringify({
           domain: cleanDomain,
           session_id: body.session_id,
+          tenant_slug: body.tenant_slug, // Pass unique store slug for ACME CNAME target
           verification_token: body.verification_token, // Pass stored token to reuse
           check_dns: false, // Don't check DNS during initial validation - user clicks "Verify Now" for that
         }),
