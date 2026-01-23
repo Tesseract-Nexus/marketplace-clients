@@ -300,6 +300,39 @@ export function MediaUploader({
     if (isSingle && value.length > 0) return null;
     if (!isSingle && value.length >= maxItems) return null;
 
+    // Compact mode for category uploaders in forms
+    const isCompactMode = className?.includes('w-full');
+
+    if (isCompactMode) {
+      return (
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          className={cn(
+            'relative border border-dashed rounded-lg cursor-pointer transition-all duration-200 py-2 px-3',
+            isDragging
+              ? 'border-primary bg-primary/10'
+              : 'border-border hover:border-primary/60 hover:bg-muted',
+            disabled && 'opacity-50 cursor-not-allowed'
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Upload className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-medium text-foreground truncate">
+                {placeholder || 'Click to upload'}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                Max {formatFileSize(maxSizeBytes)}
+              </p>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div
         onClick={() => fileInputRef.current?.click()}
@@ -543,13 +576,15 @@ export function ProductVideoUploader(props: Omit<MediaUploaderProps, 'type' | 'e
 }
 
 export function CategoryIconUploader(props: Omit<MediaUploaderProps, 'type' | 'entityType' | 'maxItems'>) {
+  // Remove label and description if className includes w-full (compact mode)
+  const isCompact = props.className?.includes('w-full');
   return (
     <MediaUploader
       type="icon"
       entityType="category"
       maxItems={1}
-      label="Category Icon"
-      description="Square icon for category navigation"
+      label={isCompact ? undefined : "Category Icon"}
+      description={isCompact ? undefined : "Square icon for category navigation"}
       defaultUrl={DefaultMediaURLs.categoryIcon}
       {...props}
     />
@@ -557,13 +592,15 @@ export function CategoryIconUploader(props: Omit<MediaUploaderProps, 'type' | 'e
 }
 
 export function CategoryBannerUploader(props: Omit<MediaUploaderProps, 'type' | 'entityType' | 'maxItems'>) {
+  // Remove label and description if className includes w-full (compact mode)
+  const isCompact = props.className?.includes('w-full');
   return (
     <MediaUploader
       type="banner"
       entityType="category"
       maxItems={1}
-      label="Category Banner"
-      description="Wide banner for category pages"
+      label={isCompact ? undefined : "Category Banner"}
+      description={isCompact ? undefined : "Wide banner for category pages"}
       defaultUrl={DefaultMediaURLs.categoryBanner}
       {...props}
     />

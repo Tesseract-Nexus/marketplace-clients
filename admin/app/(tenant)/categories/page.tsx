@@ -1111,101 +1111,79 @@ export default function CategoriesPage() {
                 </div>
               </div>
             ) : (
-              <div className="space-y-6">
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-3">
-                    <AdminFormLabel text="Category Name" as="span" /> <span className="text-error">*</span>
-                  </label>
-                  <div className="relative">
-                    <Tags className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
-                    <input
-                      type="text"
-                      value={formData.name}
-                      onChange={(e) => handleNameChange(e.target.value)}
-                      className={cn(
-                        "w-full pl-12 pr-4 py-3.5 border rounded-lg focus:outline-none focus:ring-2 transition-colors bg-background hover:border-primary/30 font-medium",
-                        errors.name
-                          ? "border-error focus:ring-red-500 focus:border-error"
-                          : "border-border focus:ring-ring focus:border-primary"
-                      )}
-                      placeholder="Enter category name..."
-                    />
-                  </div>
-                  {errors.name && (
-                    <div className="flex items-center gap-1 mt-1 text-error text-sm">
-                      <AlertCircle className="h-4 w-4" />
-                      <span>{errors.name}</span>
+              <div className="space-y-5">
+                {/* Basic Information Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-foreground mb-2">
+                      <AdminFormLabel text="Category Name" as="span" /> <span className="text-error">*</span>
+                    </label>
+                    <div className="relative">
+                      <Tags className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                      <input
+                        type="text"
+                        value={formData.name}
+                        onChange={(e) => handleNameChange(e.target.value)}
+                        className={cn(
+                          "w-full pl-10 pr-3 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-colors bg-background hover:border-primary/30",
+                          errors.name
+                            ? "border-error focus:ring-red-500 focus:border-error"
+                            : "border-border focus:ring-ring focus:border-primary"
+                        )}
+                        placeholder="Enter category name..."
+                      />
                     </div>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-3">
-                    <AdminFormLabel text="Slug" as="span" /> <span className="text-error">*</span>
-                  </label>
-                  <div className="relative">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none font-mono text-sm">#</div>
-                    <input
-                      type="text"
-                      value={formData.slug}
-                      onChange={(e) => handleFieldChange('slug', e.target.value)}
-                      className={cn(
-                        "w-full pl-10 pr-4 py-3.5 border rounded-lg focus:outline-none focus:ring-2 transition-colors bg-background hover:border-primary/30 font-mono font-medium",
-                        errors.slug
-                          ? "border-error focus:ring-red-500 focus:border-error"
-                          : "border-border focus:ring-violet-500 focus:border-primary"
-                      )}
-                      placeholder="category-slug"
-                    />
+                    {errors.name && (
+                      <div className="flex items-center gap-1 mt-1 text-error text-xs">
+                        <AlertCircle className="h-3 w-3" />
+                        <span>{errors.name}</span>
+                      </div>
+                    )}
                   </div>
-                  {errors.slug && (
-                    <div className="flex items-center gap-1 mt-1 text-error text-sm">
-                      <AlertCircle className="h-4 w-4" />
-                      <span>{errors.slug}</span>
+
+                  <div>
+                    <label className="block text-sm font-bold text-foreground mb-2">
+                      <AdminFormLabel text="Slug" as="span" /> <span className="text-error">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none font-mono text-sm">#</div>
+                      <input
+                        type="text"
+                        value={formData.slug}
+                        onChange={(e) => handleFieldChange('slug', e.target.value)}
+                        className={cn(
+                          "w-full pl-9 pr-3 py-2.5 border rounded-lg focus:outline-none focus:ring-2 transition-colors bg-background hover:border-primary/30 font-mono",
+                          errors.slug
+                            ? "border-error focus:ring-red-500 focus:border-error"
+                            : "border-border focus:ring-violet-500 focus:border-primary"
+                        )}
+                        placeholder="category-slug"
+                      />
                     </div>
-                  )}
+                    {errors.slug && (
+                      <div className="flex items-center gap-1 mt-1 text-error text-xs">
+                        <AlertCircle className="h-3 w-3" />
+                        <span>{errors.slug}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-bold text-foreground mb-3"><AdminFormLabel text="Description" as="span" /></label>
-                  <div className="relative">
-                    <textarea
-                      value={formData.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full px-4 py-3.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-colors bg-background hover:border-primary/30 font-medium resize-none"
-                      rows={4}
-                      placeholder="Enter a detailed description of this category..."
-                    />
-                  </div>
+                  <label className="block text-sm font-bold text-foreground mb-2"><AdminFormLabel text="Description" as="span" /></label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    className="w-full px-3 py-2.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-colors bg-background hover:border-primary/30 resize-none"
+                    rows={3}
+                    placeholder="Enter a detailed description of this category..."
+                  />
                 </div>
 
-                {/* Category Media Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-muted rounded-lg border border-border">
+                {/* Hierarchy and Status Section */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <CategoryIconUploader
-                      value={urlToMediaItems(formData.imageUrl)}
-                      onChange={(items) => setFormData(prev => ({ ...prev, imageUrl: items[0]?.url || '' }))}
-                      entityId={selectedCategory?.id}
-                    />
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Displays in navigation menus and category listings
-                    </p>
-                  </div>
-                  <div>
-                    <CategoryBannerUploader
-                      value={urlToMediaItems(formData.bannerUrl)}
-                      onChange={(items) => setFormData(prev => ({ ...prev, bannerUrl: items[0]?.url || '' }))}
-                      entityId={selectedCategory?.id}
-                    />
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Shown at the top of category pages (1920x480 recommended)
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-bold text-foreground mb-3"><AdminFormLabel text="Parent Category" as="span" /></label>
+                    <label className="block text-sm font-bold text-foreground mb-2"><AdminFormLabel text="Parent Category" as="span" /></label>
                     <Select
                       value={formData.parentId || ''}
                       onChange={(value) => setFormData({ ...formData, parentId: value || null })}
@@ -1224,7 +1202,7 @@ export default function CategoriesPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-bold text-foreground mb-3"><AdminFormLabel text="Status" as="span" /></label>
+                    <label className="block text-sm font-bold text-foreground mb-2"><AdminFormLabel text="Status" as="span" /></label>
                     <Select
                       value={formData.status}
                       onChange={(value) => setFormData({ ...formData, status: value as any })}
@@ -1239,31 +1217,116 @@ export default function CategoriesPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                {/* Category Media Section - Compact Layout */}
+                <div className="border-t border-border pt-4">
+                  <h4 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4" />
+                    <AdminFormLabel text="Category Images" as="span" />
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0">
+                          {formData.imageUrl ? (
+                            <div className="relative group">
+                              <img
+                                src={formData.imageUrl}
+                                alt="Category icon"
+                                className="w-20 h-20 object-cover rounded-lg border-2 border-border"
+                              />
+                              <button
+                                onClick={() => setFormData(prev => ({ ...prev, imageUrl: '' }))}
+                                className="absolute -top-2 -right-2 bg-error text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="w-20 h-20 border-2 border-dashed border-border rounded-lg flex items-center justify-center bg-background">
+                              <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <CategoryIconUploader
+                            value={urlToMediaItems(formData.imageUrl)}
+                            onChange={(items) => setFormData(prev => ({ ...prev, imageUrl: items[0]?.url || '' }))}
+                            entityId={selectedCategory?.id}
+                            className="w-full"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1.5">
+                            Square icon for navigation menus
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0">
+                          {formData.bannerUrl ? (
+                            <div className="relative group">
+                              <img
+                                src={formData.bannerUrl}
+                                alt="Category banner"
+                                className="w-20 h-20 object-cover rounded-lg border-2 border-border"
+                              />
+                              <button
+                                onClick={() => setFormData(prev => ({ ...prev, bannerUrl: '' }))}
+                                className="absolute -top-2 -right-2 bg-error text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="w-20 h-20 border-2 border-dashed border-border rounded-lg flex items-center justify-center bg-background">
+                              <ImageIcon className="w-6 h-6 text-muted-foreground" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <CategoryBannerUploader
+                            value={urlToMediaItems(formData.bannerUrl)}
+                            onChange={(items) => setFormData(prev => ({ ...prev, bannerUrl: items[0]?.url || '' }))}
+                            entityId={selectedCategory?.id}
+                            className="w-full"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1.5">
+                            Wide banner for category pages
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Active Status */}
+                <div className="flex items-center gap-2 pt-2">
                   <input
                     type="checkbox"
                     id="isActive"
                     checked={formData.isActive}
                     onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    className="w-5 h-5 rounded border-border text-primary focus:ring-ring"
+                    className="w-4 h-4 rounded border-border text-primary focus:ring-ring"
                   />
                   <label htmlFor="isActive" className="text-sm font-semibold text-foreground">
                     <AdminFormLabel text="Active Category" as="span" />
                   </label>
                 </div>
 
-                <div className="flex gap-3 pt-4">
+                {/* Form Actions */}
+                <div className="flex gap-3 pt-3 border-t border-border">
                   <Button
                     onClick={handleSaveCategory}
                     disabled={!formData.name || !formData.slug}
-                    className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Save className="w-5 h-5" />
+                    <Save className="w-4 h-4" />
                     {viewMode === 'create' ? <AdminButtonText text="Create Category" /> : <AdminButtonText text="Save Changes" />}
                   </Button>
                   <Button
                     onClick={navigateToList}
-                    className="px-6 py-3 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-colors"
+                    className="px-5 py-2.5 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
                   >
                     <AdminButtonText text="Cancel" />
                   </Button>
