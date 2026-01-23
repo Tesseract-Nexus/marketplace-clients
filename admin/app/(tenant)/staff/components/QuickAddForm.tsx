@@ -471,7 +471,7 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
             type="button"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="flex-1 px-6 py-3 bg-muted text-foreground rounded-md hover:bg-muted/80 transition-all font-semibold border-2 border-border disabled:opacity-50"
+            className="flex-1 px-6 py-3 bg-muted text-foreground rounded-md hover:bg-muted/50 transition-all font-semibold border-2 border-border disabled:opacity-50"
           >
             Cancel
           </button>

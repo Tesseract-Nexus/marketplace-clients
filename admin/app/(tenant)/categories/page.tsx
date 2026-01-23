@@ -1327,7 +1327,7 @@ export default function CategoriesPage() {
                   </Button>
                   <Button
                     onClick={navigateToList}
-                    className="px-5 py-2.5 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-colors"
+                    className="px-5 py-2.5 bg-muted text-foreground rounded-lg hover:bg-muted/50 transition-colors"
                   >
                     <AdminButtonText text="Cancel" />
                   </Button>

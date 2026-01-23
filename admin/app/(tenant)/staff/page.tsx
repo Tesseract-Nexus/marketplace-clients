@@ -502,7 +502,7 @@ export default function StaffPage() {
               )}
               <Button
                 onClick={() => setViewMode('list')}
-                className="flex items-center gap-2 px-4 py-2.5 bg-muted text-foreground rounded-md hover:bg-muted/80 transition-colors"
+                className="flex items-center gap-2 px-4 py-2.5 bg-muted text-foreground rounded-md hover:bg-muted/50 transition-colors"
               >
                 <X className="w-5 h-5" />
                 Close

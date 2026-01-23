@@ -299,7 +299,7 @@ export function CreateTeamModal({
               type="button"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="flex-1 px-4 py-2.5 bg-muted text-foreground rounded-lg hover:bg-muted/80 transition-all font-medium border border-border disabled:opacity-50"
+              className="flex-1 px-4 py-2.5 bg-muted text-foreground rounded-lg hover:bg-muted/50 transition-all font-medium border border-border disabled:opacity-50"
             >
               Cancel
             </button>

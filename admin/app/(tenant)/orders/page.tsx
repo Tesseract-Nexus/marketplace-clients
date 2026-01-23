@@ -660,7 +660,7 @@ export default function OrdersPage() {
                           "h-10 w-10 rounded-lg flex items-center justify-center transition-colors border",
                           openMenuId === order.id
                             ? "bg-muted border-border"
-                            : "bg-muted border-border hover:bg-muted/80"
+                            : "bg-muted border-border hover:bg-muted/50"
                         )}
                       >
                         <MoreVertical className="w-4 h-4 text-muted-foreground" />

@@ -734,7 +734,7 @@ export default function CampaignsPage() {
                     const clickRate = parseFloat(calculateClickRate(campaign));
 
                     return (
-                    <tr key={campaign.id} className="hover:bg-muted/80 transition-colors group">
+                    <tr key={campaign.id} className="hover:bg-muted/50 transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className={cn(
