@@ -3,14 +3,12 @@ import { getServiceUrl } from '@/lib/config/api';
 import { proxyGet, proxyPost, getProxyHeaders, handleApiError } from '@/lib/utils/api-route-handler';
 
 const VENDORS_SERVICE_URL = getServiceUrl('VENDORS');
-const CUSTOM_DOMAIN_SERVICE_URL = process.env.CUSTOM_DOMAIN_SERVICE_URL || 'http://custom-domain-service.marketplace.svc.cluster.local:8093';
+const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://tenant-service.marketplace.svc.cluster.local:8082';
 
-interface CustomDomain {
-  id: string;
-  domain: string;
-  target_type: 'admin' | 'storefront' | 'api';
-  status: string;
-  tenant_id: string;
+interface TenantInfo {
+  storefront_url?: string;
+  custom_domain?: string;
+  use_custom_domain?: boolean;
 }
 
 interface Storefront {
@@ -24,22 +22,20 @@ interface Storefront {
 }
 
 /**
- * Fetch storefront domain for a tenant from the custom-domain-service
- * Returns the storefront URL if a custom storefront domain is configured and active
+ * Fetch tenant info from tenant-service to get the storefront_url
+ * The tenant-service stores the storefront URL set during onboarding
  */
-async function fetchStorefrontDomainForTenant(
+async function fetchTenantStorefrontUrl(
   tenantId: string,
   headers: Record<string, string>
 ): Promise<{ storefrontUrl?: string; customDomain?: string } | null> {
   try {
     const response = await fetch(
-      `${CUSTOM_DOMAIN_SERVICE_URL}/api/v1/domains?limit=10`,
+      `${TENANT_SERVICE_URL}/api/v1/tenants/${tenantId}`,
       {
         method: 'GET',
         headers: {
           ...headers,
-          'X-Tenant-ID': tenantId,
-          'x-tenant-id': tenantId,
           'Content-Type': 'application/json',
         },
         cache: 'no-store',
@@ -47,28 +43,26 @@ async function fetchStorefrontDomainForTenant(
     );
 
     if (!response.ok) {
-      console.log(`[storefronts] No custom domains found for tenant ${tenantId}`);
+      console.log(`[storefronts] Failed to fetch tenant ${tenantId}: ${response.status}`);
       return null;
     }
 
     const result = await response.json();
-    const domains: CustomDomain[] = result.domains || result.data?.domains || [];
+    const tenant: TenantInfo = result.data || result;
 
-    // Find an active storefront domain
-    const storefrontDomain = domains.find(
-      (d) => d.target_type === 'storefront' && d.status === 'active'
-    );
+    console.log(`[storefronts] Tenant ${tenantId} - storefront_url: ${tenant.storefront_url}, custom_domain: ${tenant.custom_domain}, use_custom_domain: ${tenant.use_custom_domain}`);
 
-    if (storefrontDomain) {
+    // Only use custom domain URL if use_custom_domain is true and storefront_url is set
+    if (tenant.use_custom_domain && tenant.storefront_url) {
       return {
-        storefrontUrl: `https://${storefrontDomain.domain}`,
-        customDomain: storefrontDomain.domain,
+        storefrontUrl: tenant.storefront_url,
+        customDomain: tenant.custom_domain,
       };
     }
 
     return null;
   } catch (error) {
-    console.error(`[storefronts] Error fetching storefront domain for tenant ${tenantId}:`, error);
+    console.error(`[storefronts] Error fetching tenant ${tenantId}:`, error);
     return null;
   }
 }
@@ -108,8 +102,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(result);
     }
 
-    // Fetch custom storefront domain for the current tenant
-    const domainInfo = await fetchStorefrontDomainForTenant(tenantId, headers);
+    // Fetch tenant info to get the storefront URL
+    const domainInfo = await fetchTenantStorefrontUrl(tenantId, headers);
 
     if (domainInfo?.storefrontUrl) {
       // Enrich storefronts with the custom domain URL
