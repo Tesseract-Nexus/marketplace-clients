@@ -45,6 +45,7 @@ import { UserProvider, useUser } from "@/contexts/UserContext";
 import { DialogProvider } from "@/contexts/DialogContext";
 import { PermissionProvider, usePermissions } from "@/contexts/PermissionContext";
 import { CommandPalette } from "@/components/CommandPalette";
+import { SetupWizardProvider, SetupWizard } from "@/components/setup-wizard";
 import { SidebarMenuSearch } from "@/components/SidebarMenuSearch";
 import { AdminUIText } from "@/components/translation/AdminTranslatedText";
 import { useAuth } from "@/lib/auth";
@@ -576,6 +577,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
       {/* Sidebar - z-[110] to be above header z-[100] and overlay z-[105] */}
       <aside
+        data-tour="sidebar"
         className={cn(
           "fixed top-0 left-0 z-[110] h-screen w-72 border-r border-sidebar-border/50 transform transition-transform duration-300 ease-in-out lg:translate-x-0 shadow-2xl bg-sidebar",
           isOpen ? "translate-x-0" : "-translate-x-full"
@@ -693,7 +695,9 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
           <StorefrontSwitcher />
 
           {/* Global Search - Command Palette */}
-          <CommandPalette />
+          <div data-tour="command-palette">
+            <CommandPalette />
+          </div>
 
           {/* Refresh Selector - Quick access to manual refresh and auto-refresh settings */}
           <div className="hidden md:block">
@@ -701,7 +705,9 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
           </div>
 
           {/* Notifications */}
-          <NotificationBell />
+          <div data-tour="notifications">
+            <NotificationBell />
+          </div>
 
           {/* User Avatar with Dropdown */}
           <div className="relative">
@@ -1055,9 +1061,12 @@ export default function TenantLayout({
                 <AdminCurrencyProvider>
                   <AdminLanguageProvider>
                     <DialogProvider>
-                      <TenantLayoutInner sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
-                        {children}
-                      </TenantLayoutInner>
+                      <SetupWizardProvider>
+                        <TenantLayoutInner sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
+                          {children}
+                        </TenantLayoutInner>
+                        <SetupWizard />
+                      </SetupWizardProvider>
                     </DialogProvider>
                   </AdminLanguageProvider>
                 </AdminCurrencyProvider>
