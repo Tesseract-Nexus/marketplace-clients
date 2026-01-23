@@ -1,11 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getServiceUrl } from '@/lib/config/api';
-import { proxyToBackend, handleApiError } from '@/lib/utils/api-route-handler';
-import {
-  requireAdminPortalAccess,
-  createAuthorizationErrorResponse,
-  getAuthorizedHeaders,
-} from '@/lib/security/authorization';
+import { proxyGet } from '@/lib/utils/api-route-handler';
 
 const APPROVAL_SERVICE_URL = getServiceUrl('APPROVAL');
 
@@ -16,24 +11,9 @@ interface RouteParams {
 /**
  * GET /api/approvals/delegations/:id
  * Get a single delegation
+ * Authorization is handled by the backend service via RBAC
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
-  const auth = requireAdminPortalAccess(request);
-  if (!auth.authorized) {
-    return createAuthorizationErrorResponse(auth.error!);
-  }
-
-  try {
-    const { id } = await params;
-    const response = await proxyToBackend(APPROVAL_SERVICE_URL, `delegations/${id}`, {
-      method: 'GET',
-      headers: getAuthorizedHeaders(request),
-      incomingRequest: request,
-    });
-
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
-  } catch (error) {
-    return handleApiError(error, 'GET delegation');
-  }
+  const { id } = await params;
+  return proxyGet(APPROVAL_SERVICE_URL, `delegations/${id}`, request);
 }

@@ -1,11 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getServiceUrl } from '@/lib/config/api';
-import { proxyToBackend, handleApiError } from '@/lib/utils/api-route-handler';
-import {
-  requireAdminPortalAccess,
-  createAuthorizationErrorResponse,
-  getAuthorizedHeaders,
-} from '@/lib/security/authorization';
+import { proxyPost } from '@/lib/utils/api-route-handler';
 
 const APPROVAL_SERVICE_URL = getServiceUrl('APPROVAL');
 
@@ -16,27 +11,9 @@ interface RouteParams {
 /**
  * POST /api/approvals/delegations/:id/revoke
  * Revoke a delegation
+ * Authorization is handled by the backend service via RBAC
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
-  const auth = requireAdminPortalAccess(request);
-  if (!auth.authorized) {
-    return createAuthorizationErrorResponse(auth.error!);
-  }
-
-  try {
-    const { id } = await params;
-    const body = await request.json().catch(() => ({}));
-
-    const response = await proxyToBackend(APPROVAL_SERVICE_URL, `delegations/${id}/revoke`, {
-      method: 'POST',
-      body,
-      headers: getAuthorizedHeaders(request),
-      incomingRequest: request,
-    });
-
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
-  } catch (error) {
-    return handleApiError(error, 'POST revoke delegation');
-  }
+  const { id } = await params;
+  return proxyPost(APPROVAL_SERVICE_URL, `delegations/${id}/revoke`, request);
 }

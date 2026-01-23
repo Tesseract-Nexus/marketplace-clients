@@ -1,37 +1,14 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getServiceUrl } from '@/lib/config/api';
-import { proxyToBackend, handleApiError } from '@/lib/utils/api-route-handler';
-import {
-  requireAdminPortalAccess,
-  createAuthorizationErrorResponse,
-  getAuthorizedHeaders,
-} from '@/lib/security/authorization';
+import { proxyPost } from '@/lib/utils/api-route-handler';
 
 const APPROVAL_SERVICE_URL = getServiceUrl('APPROVAL');
 
 /**
  * POST /api/approvals/delegations
  * Create a new delegation
+ * Authorization is handled by the backend service via RBAC
  */
 export async function POST(request: NextRequest) {
-  const auth = requireAdminPortalAccess(request);
-  if (!auth.authorized) {
-    return createAuthorizationErrorResponse(auth.error!);
-  }
-
-  try {
-    const body = await request.json();
-
-    const response = await proxyToBackend(APPROVAL_SERVICE_URL, 'delegations', {
-      method: 'POST',
-      body,
-      headers: getAuthorizedHeaders(request),
-      incomingRequest: request,
-    });
-
-    const data = await response.json();
-    return NextResponse.json(data, { status: response.status });
-  } catch (error) {
-    return handleApiError(error, 'POST delegation');
-  }
+  return proxyPost(APPROVAL_SERVICE_URL, 'delegations', request);
 }
