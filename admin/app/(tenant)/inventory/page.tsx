@@ -1256,33 +1256,33 @@ export default function InventoryPage() {
                       />
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          id="isDefault"
-                          checked={warehouseForm.isDefault}
-                          onChange={(e) => setWarehouseForm({ ...warehouseForm, isDefault: e.target.checked })}
-                          className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
-                        />
-                        <label htmlFor="isDefault" className="text-sm font-medium text-foreground">
-                          Default Warehouse
-                        </label>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <label className="text-sm font-medium text-foreground">Priority:</label>
-                        <Input
-                          type="number"
-                          min={1}
-                          value={warehouseForm.priority}
-                          onChange={(e) => setWarehouseForm({ ...warehouseForm, priority: parseInt(e.target.value) || 1 })}
-                          className="w-20"
-                        />
-                      </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="isDefault"
+                        checked={warehouseForm.isDefault}
+                        onChange={(e) => setWarehouseForm({ ...warehouseForm, isDefault: e.target.checked })}
+                        className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                      />
+                      <label htmlFor="isDefault" className="text-sm font-medium text-foreground">
+                        Default Warehouse
+                      </label>
                     </div>
-                    <div className="p-3 bg-muted rounded-lg border border-border">
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium text-foreground">Priority:</label>
+                      <Input
+                        type="number"
+                        min={1}
+                        value={warehouseForm.priority}
+                        onChange={(e) => setWarehouseForm({ ...warehouseForm, priority: parseInt(e.target.value) || 1 })}
+                        className="w-20"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Logo</label>
                       <WarehouseLogoUploader
+                        compact
                         value={urlToMediaItems(warehouseForm.logoUrl)}
                         onChange={(items) => setWarehouseForm(prev => ({ ...prev, logoUrl: items[0]?.url || '' }))}
                         entityId={formMode === 'edit' ? selectedEntityId || undefined : undefined}

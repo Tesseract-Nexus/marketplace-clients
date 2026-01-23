@@ -621,7 +621,23 @@ export function CategoryGalleryUploader(props: Omit<MediaUploaderProps, 'type' |
   );
 }
 
-export function WarehouseLogoUploader(props: Omit<MediaUploaderProps, 'type' | 'entityType' | 'maxItems'>) {
+export function WarehouseLogoUploader(props: Omit<MediaUploaderProps, 'type' | 'entityType' | 'maxItems'> & { compact?: boolean }) {
+  const { compact, className, ...rest } = props;
+
+  if (compact) {
+    return (
+      <MediaUploader
+        type="logo"
+        entityType="warehouse"
+        maxItems={1}
+        placeholder="Upload logo"
+        defaultUrl={DefaultMediaURLs.warehouseLogo}
+        className={cn('w-full', className)}
+        {...rest}
+      />
+    );
+  }
+
   return (
     <MediaUploader
       type="logo"
@@ -630,7 +646,8 @@ export function WarehouseLogoUploader(props: Omit<MediaUploaderProps, 'type' | '
       label="Warehouse Logo"
       description="Logo for warehouse identification"
       defaultUrl={DefaultMediaURLs.warehouseLogo}
-      {...props}
+      className={className}
+      {...rest}
     />
   );
 }
