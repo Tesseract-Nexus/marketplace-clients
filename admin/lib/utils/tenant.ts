@@ -75,15 +75,44 @@ export function getTenantFromWindow(): string | null {
 }
 
 /**
+ * Check if current hostname is a custom domain (not tesserix.app or localhost)
+ */
+export function isCustomDomain(): boolean {
+  if (typeof window === 'undefined') return false;
+  const hostname = window.location.hostname;
+  return (
+    !hostname.endsWith('.tesserix.app') &&
+    hostname !== 'tesserix.app' &&
+    !hostname.endsWith('.localhost') &&
+    hostname !== 'localhost'
+  );
+}
+
+/**
  * Get tenant slug from window location
  *
- * Note: We ONLY use window.location for tenant detection.
- * Cookies are not used as fallback because they can be stale
- * when navigating between root domain and tenant subdomains.
+ * For tesserix.app and localhost domains, extract tenant from hostname pattern.
+ * For custom domains, read from the tenant-slug cookie set by middleware.
  */
 export function getCurrentTenantSlug(): string | null {
-  // Only use window location - it's the source of truth
-  return getTenantFromWindow();
+  // First try to get tenant from URL pattern (tesserix.app or localhost)
+  const fromWindow = getTenantFromWindow();
+  if (fromWindow) {
+    return fromWindow;
+  }
+
+  // For custom domains, the middleware sets a tenant-slug cookie
+  // This is the source of truth for custom domain tenant resolution
+  if (isCustomDomain()) {
+    const fromCookie = getTenantFromCookie();
+    if (fromCookie) {
+      console.log('[Tenant] Custom domain detected, tenant from cookie:', fromCookie);
+      return fromCookie;
+    }
+    console.log('[Tenant] Custom domain detected but no tenant-slug cookie found');
+  }
+
+  return null;
 }
 
 /**
@@ -189,9 +218,14 @@ export function getStorefrontUrl(
 
 /**
  * Check if we're on a root domain (no tenant in subdomain)
+ * For custom domains, we're never on the root domain - the tenant is resolved via cookie
  */
 export function isRootDomain(): boolean {
   if (typeof window === 'undefined') return true;
+  // If on a custom domain with a tenant cookie, it's not a root domain
+  if (isCustomDomain() && getTenantFromCookie()) {
+    return false;
+  }
   return getCurrentTenantSlug() === null;
 }
 
