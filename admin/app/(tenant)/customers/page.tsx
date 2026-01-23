@@ -599,7 +599,7 @@ export default function CustomersPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-foreground mb-2">
-                          First Name *
+                          First Name <span className="text-error">*</span>
                         </label>
                         <Input
                           value={formData.firstName}
@@ -609,7 +609,7 @@ export default function CustomersPage() {
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-foreground mb-2">
-                          Last Name *
+                          Last Name <span className="text-error">*</span>
                         </label>
                         <Input
                           value={formData.lastName}
@@ -621,7 +621,7 @@ export default function CustomersPage() {
 
                     <div>
                       <label className="block text-sm font-semibold text-foreground mb-2">
-                        Email *
+                        Email <span className="text-error">*</span>
                       </label>
                       <Input
                         type="email"
