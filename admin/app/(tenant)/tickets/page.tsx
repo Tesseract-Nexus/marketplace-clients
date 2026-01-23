@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'next/navigation';
-import { Search, Plus, Eye, CheckCircle, Clock, XCircle, AlertTriangle, Ticket as TicketIcon, User, MessageSquare, AlertCircle, X, Loader2 } from 'lucide-react';
+import { Plus, Eye, CheckCircle, Clock, XCircle, AlertTriangle, Ticket as TicketIcon, User, MessageSquare, AlertCircle, Loader2 } from 'lucide-react';
+import { StatsGrid, FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
@@ -182,12 +183,24 @@ export default function TicketsPage() {
   const filteredTickets = tickets.filter((ticket) => {
     const searchLower = searchQuery.toLowerCase();
     const tags = tagsToArray(ticket.tags);
-    return (
+
+    // Search filter
+    const matchesSearch =
       ticket.title.toLowerCase().includes(searchLower) ||
       ticket.description.toLowerCase().includes(searchLower) ||
       ticket.createdBy.toLowerCase().includes(searchLower) ||
-      tags.some((tag) => tag.toLowerCase().includes(searchLower))
-    );
+      tags.some((tag) => tag.toLowerCase().includes(searchLower));
+
+    // Quick filters (if any are active, ticket must match at least one)
+    const matchesQuickFilters = activeQuickFilters.length === 0 ||
+      activeQuickFilters.some(filterId => {
+        if (filterId === 'CRITICAL') {
+          return ticket.priority === 'CRITICAL' || ticket.priority === 'URGENT';
+        }
+        return ticket.status === filterId;
+      });
+
+    return matchesSearch && matchesQuickFilters;
   });
 
   // Pagination calculations
@@ -200,7 +213,7 @@ export default function TicketsPage() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, statusFilter, priorityFilter, typeFilter]);
+  }, [searchQuery, statusFilter, priorityFilter, typeFilter, activeQuickFilters]);
 
   const handleUpdateStatus = async (ticketId: string, status: TicketStatus) => {
     try {
@@ -307,6 +320,54 @@ export default function TicketsPage() {
   const resolvedTickets = tickets.filter((t) => t.status === 'RESOLVED').length;
   const urgentTickets = tickets.filter((t) => t.priority === 'URGENT' || t.priority === 'CRITICAL').length;
 
+  // Stats for StatsGrid
+  const stats = useMemo(() => [
+    { label: 'Total Tickets', value: totalTickets, icon: TicketIcon, color: 'primary' as const },
+    { label: 'Open', value: openTickets, icon: AlertCircle, color: 'warning' as const },
+    { label: 'In Progress', value: inProgressTickets, icon: Clock, color: 'info' as const },
+    { label: 'Resolved', value: resolvedTickets, icon: CheckCircle, color: 'success' as const },
+    { label: 'Critical/Urgent', value: urgentTickets, icon: AlertTriangle, color: 'error' as const },
+  ], [totalTickets, openTickets, inProgressTickets, resolvedTickets, urgentTickets]);
+
+  // Quick filters configuration
+  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
+
+  const quickFilters: QuickFilter[] = useMemo(() => [
+    { id: 'OPEN', label: 'Open', icon: AlertCircle, color: 'warning', count: openTickets },
+    { id: 'IN_PROGRESS', label: 'In Progress', icon: Clock, color: 'info', count: inProgressTickets },
+    { id: 'RESOLVED', label: 'Resolved', icon: CheckCircle, color: 'success', count: resolvedTickets },
+    { id: 'CRITICAL', label: 'Critical', icon: AlertTriangle, color: 'error', count: urgentTickets },
+  ], [openTickets, inProgressTickets, resolvedTickets, urgentTickets]);
+
+  const handleQuickFilterToggle = (filterId: string) => {
+    setActiveQuickFilters(prev =>
+      prev.includes(filterId)
+        ? prev.filter(id => id !== filterId)
+        : [...prev, filterId]
+    );
+  };
+
+  const handleClearQuickFilters = () => {
+    setActiveQuickFilters([]);
+  };
+
+  // Count active dropdown filters
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (statusFilter !== 'ALL') count++;
+    if (priorityFilter !== 'ALL') count++;
+    if (typeFilter !== 'ALL') count++;
+    return count;
+  }, [statusFilter, priorityFilter, typeFilter]);
+
+  const handleClearAllFilters = () => {
+    setStatusFilter('ALL');
+    setPriorityFilter('ALL');
+    setTypeFilter('ALL');
+    setSearchQuery('');
+    setActiveQuickFilters([]);
+  };
+
   return (
     <PermissionGate
       permission={Permission.TICKETS_READ}
@@ -341,114 +402,50 @@ export default function TicketsPage() {
         <PageError error={error} onDismiss={() => setError(null)} />
 
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 mb-8">
-          <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Total Tickets</p>
-                <p className="text-2xl sm:text-3xl font-bold text-primary mt-1 sm:mt-2">
-                  {totalTickets}
-                </p>
-              </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <TicketIcon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Open</p>
-                <p className="text-2xl sm:text-3xl font-bold text-primary mt-1 sm:mt-2">
-                  {openTickets}
-                </p>
-              </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <MessageSquare className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">In Progress</p>
-                <p className="text-2xl sm:text-3xl font-bold text-warning mt-1 sm:mt-2">
-                  {inProgressTickets}
-                </p>
-              </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-warning/10 rounded-lg flex items-center justify-center">
-                <Clock className="h-5 w-5 sm:h-6 sm:w-6 text-warning" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Resolved</p>
-                <p className="text-2xl sm:text-3xl font-bold text-success mt-1 sm:mt-2">
-                  {resolvedTickets}
-                </p>
-              </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-success/10 rounded-lg flex items-center justify-center">
-                <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-success" />
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium">Critical/Urgent</p>
-                <p className="text-2xl sm:text-3xl font-bold text-error mt-1 sm:mt-2">
-                  {urgentTickets}
-                </p>
-              </div>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-error-muted rounded-lg flex items-center justify-center">
-                <AlertTriangle className="h-5 w-5 sm:h-6 sm:w-6 text-error" />
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Summary Stats */}
+        <StatsGrid
+          stats={stats}
+          columns={5}
+          showMobileRow
+          className="mb-6"
+        />
 
         {/* Filters and Search */}
-        <div className="bg-card rounded-lg border border-border p-4 sm:p-6 shadow-sm mb-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="sm:col-span-2 lg:col-span-1">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search tickets..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 w-full"
-                />
-              </div>
-            </div>
-
-            <Select
-              value={statusFilter}
-              onChange={(value) => setStatusFilter(value)}
-              options={statusOptions}
+        <FilterPanel
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Search tickets..."
+          activeFilterCount={activeFilterCount}
+          onClearAll={handleClearAllFilters}
+          className="mb-6"
+          quickFilters={
+            <QuickFilters
+              filters={quickFilters}
+              activeFilters={activeQuickFilters}
+              onFilterToggle={handleQuickFilterToggle}
+              onClearAll={handleClearQuickFilters}
+              showClearAll
             />
+          }
+        >
+          <Select
+            value={statusFilter}
+            onChange={(value) => setStatusFilter(value)}
+            options={statusOptions}
+          />
 
-            <Select
-              value={priorityFilter}
-              onChange={(value) => setPriorityFilter(value)}
-              options={priorityOptions}
-            />
+          <Select
+            value={priorityFilter}
+            onChange={(value) => setPriorityFilter(value)}
+            options={priorityOptions}
+          />
 
-            <Select
-              value={typeFilter}
-              onChange={(value) => setTypeFilter(value)}
-              options={typeOptions}
-            />
-          </div>
-        </div>
+          <Select
+            value={typeFilter}
+            onChange={(value) => setTypeFilter(value)}
+            options={typeOptions}
+          />
+        </FilterPanel>
 
         {/* Tickets List */}
         <div className="space-y-4">

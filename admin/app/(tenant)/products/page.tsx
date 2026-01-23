@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -36,6 +36,7 @@ import {
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
+import { StatsGrid, FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { Badge } from '@/components/ui/badge';
 import { BulkImportModal } from '@/components/BulkImportModal';
 import { CascadeDeleteModal } from '@/components/CascadeDeleteModal';
@@ -1108,6 +1109,90 @@ export default function ProductsPage() {
   const uniqueBrands = Array.from(
     new Set(products.map((p) => p.brand).filter(Boolean))
   ).sort();
+
+  // Stats calculations for StatsGrid
+  const productStats = useMemo(() => {
+    const totalProducts = products.length;
+    const publishedProducts = products.filter(p => p.status === 'ACTIVE').length;
+    const draftProducts = products.filter(p => p.status === 'DRAFT').length;
+    const outOfStockProducts = products.filter(p => p.inventoryStatus === 'OUT_OF_STOCK').length;
+
+    return {
+      total: totalProducts,
+      published: publishedProducts,
+      draft: draftProducts,
+      outOfStock: outOfStockProducts,
+    };
+  }, [products]);
+
+  // Quick filters for product status
+  const productQuickFilters: QuickFilter[] = useMemo(() => [
+    {
+      id: 'ACTIVE',
+      label: 'Published',
+      icon: CheckCircle2,
+      color: 'success',
+      count: productStats.published,
+    },
+    {
+      id: 'DRAFT',
+      label: 'Draft',
+      icon: FileEdit,
+      color: 'default',
+      count: productStats.draft,
+    },
+    {
+      id: 'PENDING',
+      label: 'Pending',
+      icon: Clock,
+      color: 'warning',
+      count: products.filter(p => p.status === 'PENDING').length,
+    },
+    {
+      id: 'OUT_OF_STOCK',
+      label: 'Out of Stock',
+      icon: PackageX,
+      color: 'error',
+      count: productStats.outOfStock,
+    },
+  ], [products, productStats]);
+
+  // Active quick filters state
+  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
+
+  // Handle quick filter toggle
+  const handleQuickFilterToggle = useCallback((filterId: string) => {
+    setActiveQuickFilters(prev => {
+      if (prev.includes(filterId)) {
+        return prev.filter(id => id !== filterId);
+      }
+      return [...prev, filterId];
+    });
+  }, []);
+
+  // Clear all quick filters
+  const handleClearQuickFilters = useCallback(() => {
+    setActiveQuickFilters([]);
+  }, []);
+
+  // Count active filters for FilterPanel
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (statusFilter !== 'ALL') count++;
+    if (inventoryStatusFilter !== 'ALL') count++;
+    if (brandFilter !== 'ALL') count++;
+    count += activeQuickFilters.length;
+    return count;
+  }, [statusFilter, inventoryStatusFilter, brandFilter, activeQuickFilters]);
+
+  // Clear all filters
+  const handleClearAllFilters = useCallback(() => {
+    setSearchQuery('');
+    setStatusFilter('ALL');
+    setInventoryStatusFilter('ALL');
+    setBrandFilter('ALL');
+    setActiveQuickFilters([]);
+  }, []);
 
   // Product Detail View
   if (viewMode === 'detail' && selectedProduct) {

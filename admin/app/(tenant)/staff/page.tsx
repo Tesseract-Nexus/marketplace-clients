@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { useTenant } from '@/contexts/TenantContext';
 import {
@@ -66,6 +66,7 @@ import { ACCOUNT_STATUS_LABELS, AUTH_METHOD_LABELS } from '@/lib/api/staffAuthTy
 import { BulkImportModal } from '@/components/BulkImportModal';
 import { Upload } from 'lucide-react';
 import { StaffFormStep1, StaffFormStep2, StaffFormStep3, StaffFormStep4, StaffFormData, initialFormData, QuickAddForm, QuickAddData } from './components';
+import { StatsGrid, FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 
 const Card = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("rounded-2xl border bg-white/80 backdrop-blur-sm text-card-foreground shadow-lg hover:shadow-xl transition-all duration-300", className)} {...props}>
@@ -204,7 +205,9 @@ export default function StaffPage() {
     const matchesEmploymentType = employmentTypeFilter === 'ALL' || s.employmentType === employmentTypeFilter;
     const matchesStatus = statusFilter === 'ALL' ||
       (statusFilter === 'ACTIVE' && s.isActive) ||
-      (statusFilter === 'INACTIVE' && !s.isActive);
+      (statusFilter === 'INACTIVE' && !s.isActive) ||
+      (statusFilter === 'INVITED' && s.accountStatus === 'pending_activation') ||
+      (statusFilter === 'SUSPENDED' && s.accountStatus === 'suspended');
     return matchesSearch && matchesRole && matchesEmploymentType && matchesStatus;
   });
 
@@ -219,6 +222,44 @@ export default function StaffPage() {
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, roleFilter, employmentTypeFilter, statusFilter]);
+
+  // Stats calculations
+  const statsData = useMemo(() => {
+    const totalCount = staff.length;
+    const activeCount = staff.filter(s => s.isActive).length;
+    const invitedCount = staff.filter(s => s.accountStatus === 'pending_activation').length;
+    const suspendedCount = staff.filter(s => s.accountStatus === 'suspended').length;
+    return { totalCount, activeCount, invitedCount, suspendedCount };
+  }, [staff]);
+
+  // Quick filters configuration
+  const quickFilters: QuickFilter[] = useMemo(() => [
+    { id: 'ACTIVE', label: 'Active', icon: CheckCircle, color: 'success', count: statsData.activeCount },
+    { id: 'INVITED', label: 'Invited', icon: Send, color: 'warning', count: statsData.invitedCount },
+    { id: 'SUSPENDED', label: 'Suspended', icon: XCircle, color: 'error', count: statsData.suspendedCount },
+  ], [statsData.activeCount, statsData.invitedCount, statsData.suspendedCount]);
+
+  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
+
+  const handleQuickFilterToggle = (filterId: string) => {
+    if (statusFilter === filterId) {
+      setStatusFilter('ALL');
+      setActiveQuickFilters([]);
+    } else {
+      setStatusFilter(filterId);
+      setActiveQuickFilters([filterId]);
+    }
+  };
+
+  const clearAllFilters = () => {
+    setStatusFilter('ALL');
+    setRoleFilter('ALL');
+    setEmploymentTypeFilter('ALL');
+    setSearchQuery('');
+    setActiveQuickFilters([]);
+  };
+
+  const activeFilterCount = (statusFilter !== 'ALL' ? 1 : 0) + (roleFilter !== 'ALL' ? 1 : 0) + (employmentTypeFilter !== 'ALL' ? 1 : 0);
 
   const handleCreateStaff = () => {
     setFormData(initialFormData);
@@ -893,120 +934,106 @@ export default function StaffPage() {
 
       <PageError error={error} onDismiss={() => setError(null)} />
 
+      {/* Stats Grid */}
+      <StatsGrid
+        stats={[
+          { label: 'Total Staff', value: statsData.totalCount, icon: Users, color: 'primary' },
+          { label: 'Active', value: statsData.activeCount, icon: CheckCircle, color: 'success' },
+          { label: 'Pending Invite', value: statsData.invitedCount, icon: Send, color: 'warning' },
+          { label: 'Suspended', value: statsData.suspendedCount, icon: XCircle, color: 'error' },
+        ]}
+        columns={4}
+        showMobileRow
+        className="mb-6"
+      />
+
+      {/* Filter Panel with Quick Filters */}
+      <FilterPanel
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Search staff by name, email, or employee ID..."
+        expanded={showFilters}
+        onExpandedChange={setShowFilters}
+        activeFilterCount={activeFilterCount}
+        onClearAll={clearAllFilters}
+        quickFilters={
+          <QuickFilters
+            filters={quickFilters}
+            activeFilters={activeQuickFilters}
+            onFilterToggle={handleQuickFilterToggle}
+            onClearAll={() => {
+              setStatusFilter('ALL');
+              setActiveQuickFilters([]);
+            }}
+            showClearAll
+          />
+        }
+        className="mb-6"
+      >
+        <div className="flex-1 min-w-[200px]">
+          <label className="text-xs font-bold text-foreground mb-2 block uppercase tracking-wider">Role</label>
+          <Select
+            value={roleFilter}
+            onChange={setRoleFilter}
+            options={[
+              { value: 'ALL', label: 'All Roles', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
+              { value: 'super_admin', label: 'Super Admin', icon: <Crown className="w-4 h-4 text-primary" /> },
+              { value: 'admin', label: 'Admin', icon: <Shield className="w-4 h-4 text-primary" /> },
+              { value: 'manager', label: 'Manager', icon: <UserCog className="w-4 h-4 text-primary" /> },
+              { value: 'senior_employee', label: 'Senior Employee', icon: <Star className="w-4 h-4 text-warning" /> },
+              { value: 'employee', label: 'Employee', icon: <UserCheck className="w-4 h-4 text-success" /> },
+              { value: 'intern', label: 'Intern', icon: <GraduationCap className="w-4 h-4 text-accent-foreground" /> },
+              { value: 'contractor', label: 'Contractor', icon: <Hammer className="w-4 h-4 text-warning" /> },
+            ]}
+            variant="filter"
+          />
+        </div>
+
+        <div className="flex-1 min-w-[200px]">
+          <label className="text-xs font-bold text-foreground mb-2 block uppercase tracking-wider">Employment Type</label>
+          <Select
+            value={employmentTypeFilter}
+            onChange={setEmploymentTypeFilter}
+            options={[
+              { value: 'ALL', label: 'All Types', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
+              { value: 'full_time', label: 'Full Time', icon: <Briefcase className="w-4 h-4 text-primary" /> },
+              { value: 'part_time', label: 'Part Time', icon: <Clock className="w-4 h-4 text-warning" /> },
+              { value: 'contract', label: 'Contract', icon: <FileText className="w-4 h-4 text-primary" /> },
+              { value: 'temporary', label: 'Temporary', icon: <Hourglass className="w-4 h-4 text-warning" /> },
+              { value: 'intern', label: 'Intern', icon: <GraduationCap className="w-4 h-4 text-accent-foreground" /> },
+              { value: 'consultant', label: 'Consultant', icon: <HelpCircle className="w-4 h-4 text-primary" /> },
+            ]}
+            variant="filter"
+          />
+        </div>
+
+        <div className="flex-1 min-w-[200px]">
+          <label className="text-xs font-bold text-foreground mb-2 block uppercase tracking-wider">Status</label>
+          <Select
+            value={statusFilter}
+            onChange={(value) => {
+              setStatusFilter(value);
+              // Sync with quick filters
+              if (value === 'ACTIVE' || value === 'INVITED' || value === 'SUSPENDED') {
+                setActiveQuickFilters([value]);
+              } else {
+                setActiveQuickFilters([]);
+              }
+            }}
+            options={[
+              { value: 'ALL', label: 'All Statuses', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
+              { value: 'ACTIVE', label: 'Active', icon: <Circle className="w-4 h-4 text-success fill-success" /> },
+              { value: 'INACTIVE', label: 'Inactive', icon: <CircleOff className="w-4 h-4 text-error" /> },
+              { value: 'INVITED', label: 'Invited', icon: <Send className="w-4 h-4 text-warning" /> },
+              { value: 'SUSPENDED', label: 'Suspended', icon: <XCircle className="w-4 h-4 text-error" /> },
+            ]}
+            variant="filter"
+          />
+        </div>
+      </FilterPanel>
+
       <Card className="border-border/50 overflow-visible relative z-40">
         <CardContent className="p-6 overflow-visible relative">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search staff by name, email, or employee ID..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-10 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
-                />
-                {searchQuery && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 h-auto hover:bg-muted rounded-full transition-colors"
-                    aria-label="Clear search"
-                  >
-                    <X className="w-4 h-4 text-muted-foreground" />
-                  </Button>
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                onClick={() => setShowFilters(!showFilters)}
-                className={cn(
-                  "px-4 py-3 rounded-xl transition-all flex items-center gap-2",
-                  showFilters
-                    ? "bg-primary/20 text-primary border-2 border-primary/50"
-                    : "bg-muted text-foreground border-2 border-border hover:bg-muted"
-                )}
-              >
-                <Filter className="w-5 h-5" />
-                Filters
-                {(roleFilter !== 'ALL' || employmentTypeFilter !== 'ALL' || statusFilter !== 'ALL') && (
-                  <Badge className="bg-primary/20 text-primary border-primary/30">
-                    {(roleFilter !== 'ALL' ? 1 : 0) + (employmentTypeFilter !== 'ALL' ? 1 : 0) + (statusFilter !== 'ALL' ? 1 : 0)}
-                  </Badge>
-                )}
-              </Button>
-            </div>
-
-          {showFilters && (
-            <div className="flex flex-wrap gap-4 mt-4 p-5 bg-white/80 backdrop-blur-sm rounded-xl border-2 border-border shadow-sm animate-in slide-in-from-top-2 duration-200 relative z-50">
-              <div className="flex-1 min-w-[200px]">
-                <label className="text-xs font-bold text-foreground mb-2 block uppercase tracking-wider">Role</label>
-                <Select
-                  value={roleFilter}
-                  onChange={setRoleFilter}
-                  options={[
-                    { value: 'ALL', label: 'All Roles', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'super_admin', label: 'Super Admin', icon: <Crown className="w-4 h-4 text-primary" /> },
-                    { value: 'admin', label: 'Admin', icon: <Shield className="w-4 h-4 text-primary" /> },
-                    { value: 'manager', label: 'Manager', icon: <UserCog className="w-4 h-4 text-primary" /> },
-                    { value: 'senior_employee', label: 'Senior Employee', icon: <Star className="w-4 h-4 text-warning" /> },
-                    { value: 'employee', label: 'Employee', icon: <UserCheck className="w-4 h-4 text-success" /> },
-                    { value: 'intern', label: 'Intern', icon: <GraduationCap className="w-4 h-4 text-accent-foreground" /> },
-                    { value: 'contractor', label: 'Contractor', icon: <Hammer className="w-4 h-4 text-warning" /> },
-                  ]}
-                  variant="filter"
-                />
-              </div>
-
-              <div className="flex-1 min-w-[200px]">
-                <label className="text-xs font-bold text-foreground mb-2 block uppercase tracking-wider">Employment Type</label>
-                <Select
-                  value={employmentTypeFilter}
-                  onChange={setEmploymentTypeFilter}
-                  options={[
-                    { value: 'ALL', label: 'All Types', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'full_time', label: 'Full Time', icon: <Briefcase className="w-4 h-4 text-primary" /> },
-                    { value: 'part_time', label: 'Part Time', icon: <Clock className="w-4 h-4 text-warning" /> },
-                    { value: 'contract', label: 'Contract', icon: <FileText className="w-4 h-4 text-primary" /> },
-                    { value: 'temporary', label: 'Temporary', icon: <Hourglass className="w-4 h-4 text-warning" /> },
-                    { value: 'intern', label: 'Intern', icon: <GraduationCap className="w-4 h-4 text-accent-foreground" /> },
-                    { value: 'consultant', label: 'Consultant', icon: <HelpCircle className="w-4 h-4 text-primary" /> },
-                  ]}
-                  variant="filter"
-                />
-              </div>
-
-              <div className="flex-1 min-w-[200px]">
-                <label className="text-xs font-bold text-foreground mb-2 block uppercase tracking-wider">Status</label>
-                <Select
-                  value={statusFilter}
-                  onChange={setStatusFilter}
-                  options={[
-                    { value: 'ALL', label: 'All Statuses', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'ACTIVE', label: 'Active', icon: <Circle className="w-4 h-4 text-success fill-success" /> },
-                    { value: 'INACTIVE', label: 'Inactive', icon: <CircleOff className="w-4 h-4 text-error" /> },
-                  ]}
-                  variant="filter"
-                />
-              </div>
-
-              <Button
-                variant="ghost"
-                onClick={() => {
-                  setRoleFilter('ALL');
-                  setEmploymentTypeFilter('ALL');
-                  setStatusFilter('ALL');
-                  setSearchQuery('');
-                }}
-                className="px-5 py-2.5 bg-card border-2 border-border rounded-xl text-sm font-semibold text-foreground hover:bg-muted hover:border-border transition-all self-end shadow-sm hover:shadow-md"
-              >
-                Clear All
-              </Button>
-            </div>
-          )}
-          </div>
-
           {loading ? (
             <div className="text-center py-12">
               <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
