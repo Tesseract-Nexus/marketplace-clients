@@ -25,6 +25,7 @@ import {
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
 import { useHasPermission, Permissions } from '@/hooks/usePermission';
+import { StatsGrid } from '@/components/data-listing';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ConfirmModal } from '@/components/ConfirmModal';
@@ -41,30 +42,6 @@ import type {
   CreateTeamRequest,
   UpdateTeamRequest,
 } from '@/lib/api/rbacTypes';
-
-const Card = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("rounded-2xl border bg-white/80 backdrop-blur-sm text-card-foreground shadow-lg hover:shadow-xl transition-all duration-300", className)} {...props}>
-    {children}
-  </div>
-);
-
-const CardHeader = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col space-y-1.5 p-6", className)} {...props}>
-    {children}
-  </div>
-);
-
-const CardTitle = ({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-  <h3 className={cn("font-semibold leading-none tracking-tight", className)} {...props}>
-    {children}
-  </h3>
-);
-
-const CardContent = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("p-6 pt-0", className)} {...props}>
-    {children}
-  </div>
-);
 
 const Badge = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors", className)} {...props}>
@@ -737,14 +714,14 @@ export default function DepartmentsPage() {
             </div>
           )}
 
-          <Card className="max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <div className="bg-card rounded-lg border border-border overflow-hidden max-w-2xl mx-auto">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-primary" />
                 Department Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Department Name <span className="text-error">*</span>
@@ -813,14 +790,14 @@ export default function DepartmentsPage() {
                 <Button
                   onClick={handleSaveDepartment}
                   disabled={saving || !deptFormData.name}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                   {viewMode === 'create-dept' ? 'Create' : 'Save'}
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -848,14 +825,14 @@ export default function DepartmentsPage() {
             </div>
           )}
 
-          <Card className="max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <div className="bg-card rounded-lg border border-border overflow-hidden max-w-2xl mx-auto">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                 <Users className="w-5 h-5 text-success" />
                 Team Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Team Name <span className="text-error">*</span>
@@ -942,14 +919,14 @@ export default function DepartmentsPage() {
                 <Button
                   onClick={handleSaveTeam}
                   disabled={saving || !teamFormData.name || !teamFormData.departmentId}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-all duration-200 shadow-lg disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-success text-success-foreground rounded-xl hover:bg-success/90 transition-all duration-200 disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                   {viewMode === 'create-team' ? 'Create' : 'Save'}
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -974,14 +951,14 @@ export default function DepartmentsPage() {
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            <div className="bg-card rounded-lg border border-border overflow-hidden">
+              <div className="flex flex-col space-y-1.5 p-6">
+                <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                   <Building2 className="w-5 h-5 text-primary" />
                   Department Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </h3>
+              </div>
+              <div className="p-6 pt-0 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Name</p>
@@ -1008,45 +985,47 @@ export default function DepartmentsPage() {
                     <p className="font-medium">{selectedDepartment.description}</p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            <div className="bg-card rounded-lg border border-border overflow-hidden">
+              <div className="flex flex-col space-y-1.5 p-6">
+                <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                   <Users className="w-5 h-5 text-success" />
                   Teams ({deptTeams.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </h3>
+              </div>
+              <div className="p-6 pt-0">
                 {deptTeams.length > 0 ? (
                   <div className="space-y-2">
                     {deptTeams.map(team => (
                       <div
                         key={team.id}
-                        className="flex items-center justify-between p-3 rounded-lg bg-muted hover:bg-muted cursor-pointer transition-colors"
+                        className="bg-card rounded-lg border border-border p-4 hover:border-primary/30 transition-colors cursor-pointer"
                         onClick={() => handleViewTeam(team)}
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-success-muted flex items-center justify-center">
-                            <Users className="w-4 h-4 text-success" />
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-success-muted flex items-center justify-center">
+                              <Users className="w-4 h-4 text-success" />
+                            </div>
+                            <div>
+                              <p className="font-medium">{team.name}</p>
+                              {team.code && <p className="text-sm text-muted-foreground">{team.code}</p>}
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium">{team.name}</p>
-                            {team.code && <p className="text-sm text-muted-foreground">{team.code}</p>}
-                          </div>
+                          <Badge className="bg-success-muted text-success-muted-foreground">
+                            {team.staffCount || 0} members
+                          </Badge>
                         </div>
-                        <Badge className="bg-success-muted text-success-muted-foreground">
-                          {team.staffCount || 0} members
-                        </Badge>
                       </div>
                     ))}
                   </div>
                 ) : (
                   <p className="text-muted-foreground text-center py-4">No teams in this department</p>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -1089,14 +1068,14 @@ export default function DepartmentsPage() {
             ]}
           />
 
-          <Card className="max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <div className="bg-card rounded-lg border border-border overflow-hidden max-w-2xl mx-auto">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                 <Users className="w-5 h-5 text-success" />
                 Team Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Name</p>
@@ -1140,8 +1119,8 @@ export default function DepartmentsPage() {
                   <p className="font-medium text-muted-foreground">No default role assigned</p>
                 )}
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           <div className="flex items-center gap-3">
             <Button
@@ -1260,7 +1239,7 @@ export default function DepartmentsPage() {
               {canCreateDepartments && (
                 <Button
                   onClick={handleCreateDepartment}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
                 >
                   <Plus className="w-5 h-5" />
                   Add Department
@@ -1278,52 +1257,17 @@ export default function DepartmentsPage() {
         )}
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                  <Building2 className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Departments</p>
-                  <p className="text-2xl font-bold">{departments.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-success-muted flex items-center justify-center">
-                  <Users className="w-6 h-6 text-success" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Teams</p>
-                  <p className="text-2xl font-bold">{teams.length}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <UserCircle className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Staff</p>
-                  <p className="text-2xl font-bold">
-                    {departments.reduce((acc, d) => acc + (d.staffCount || 0), 0)}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        <StatsGrid
+          stats={[
+            { label: 'Departments', value: departments.length, icon: Building2, color: 'primary' },
+            { label: 'Teams', value: teams.length, icon: Users, color: 'success' },
+            { label: 'Total Staff', value: departments.reduce((acc, d) => acc + (d.staffCount || 0), 0), icon: UserCircle, color: 'primary' },
+          ]}
+          columns={3}
+        />
 
-        <Card>
-          <CardContent className="p-6">
+        <div className="bg-card rounded-lg border border-border overflow-hidden">
+          <div className="p-6">
             {/* Search */}
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
               <div className="flex-1 relative">
@@ -1390,7 +1334,7 @@ export default function DepartmentsPage() {
                       return (
                         <tr
                           key={dept.id}
-                          className="border-b border-border hover:bg-primary/10/50 transition-colors"
+                          className="border-b border-border hover:bg-muted/50 transition-colors"
                         >
                           <td className="p-4">
                             <div className="flex items-center gap-3">
@@ -1485,8 +1429,8 @@ export default function DepartmentsPage() {
                 </table>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         <ConfirmModal
           isOpen={modalConfig.isOpen}

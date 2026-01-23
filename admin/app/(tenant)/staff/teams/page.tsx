@@ -4,11 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useTenant } from '@/contexts/TenantContext';
 import {
   Plus,
-  Search,
   Edit,
   Trash2,
   Eye,
-  X,
   Save,
   Building2,
   Users,
@@ -17,7 +15,6 @@ import {
   XCircle,
   Shield,
   UserCircle,
-  Filter,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
@@ -27,6 +24,7 @@ import { Button } from '@/components/ui/button';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
+import { StatsGrid, FilterPanel } from '@/components/data-listing';
 import { departmentService, teamService, roleService } from '@/lib/api/rbac';
 import type {
   Department,
@@ -35,30 +33,6 @@ import type {
   CreateTeamRequest,
   UpdateTeamRequest,
 } from '@/lib/api/rbacTypes';
-
-const Card = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("rounded-2xl border bg-white/80 backdrop-blur-sm text-card-foreground shadow-lg hover:shadow-xl transition-all duration-300", className)} {...props}>
-    {children}
-  </div>
-);
-
-const CardHeader = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col space-y-1.5 p-6", className)} {...props}>
-    {children}
-  </div>
-);
-
-const CardTitle = ({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-  <h3 className={cn("font-semibold leading-none tracking-tight", className)} {...props}>
-    {children}
-  </h3>
-);
-
-const CardContent = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("p-6 pt-0", className)} {...props}>
-    {children}
-  </div>
-);
 
 const Badge = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors", className)} {...props}>
@@ -277,14 +251,14 @@ export default function TeamsPage() {
             </div>
           )}
 
-          <Card className="max-w-2xl mx-auto">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <div className="bg-card rounded-lg border border-border overflow-hidden max-w-2xl mx-auto">
+            <div className="flex flex-col space-y-1.5 p-6">
+              <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                 <Users className="w-5 h-5 text-success" />
                 Team Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+              </h3>
+            </div>
+            <div className="p-6 pt-0 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">
                   Team Name <span className="text-error">*</span>
@@ -385,14 +359,14 @@ export default function TeamsPage() {
                 <Button
                   onClick={handleSave}
                   disabled={saving || !formData.name || !formData.departmentId}
-                  className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 disabled:opacity-50"
                 >
                   {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                   {viewMode === 'create' ? 'Create Team' : 'Save Changes'}
                 </Button>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -417,14 +391,14 @@ export default function TeamsPage() {
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            <div className="bg-card rounded-lg border border-border overflow-hidden">
+              <div className="flex flex-col space-y-1.5 p-6">
+                <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                   <Users className="w-5 h-5 text-success" />
                   Team Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </h3>
+              </div>
+              <div className="p-6 pt-0 space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">Name</p>
@@ -459,17 +433,17 @@ export default function TeamsPage() {
                     <p className="font-medium">{selectedTeam.maxCapacity || 'No limit'}</p>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            <div className="bg-card rounded-lg border border-border overflow-hidden">
+              <div className="flex flex-col space-y-1.5 p-6">
+                <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                   <Shield className="w-5 h-5 text-primary" />
                   RBAC Configuration
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </h3>
+              </div>
+              <div className="p-6 pt-0 space-y-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Default Role</p>
                   {defaultRole ? (
@@ -496,8 +470,8 @@ export default function TeamsPage() {
                       : 'No automatic permission inheritance. Team members only have individually assigned permissions.'}
                   </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
@@ -555,7 +529,7 @@ export default function TeamsPage() {
                 {canCreateTeams && (
                   <Button
                     onClick={handleCreate}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
                   >
                     <Plus className="w-5 h-5" />
                     Add Team
@@ -573,87 +547,35 @@ export default function TeamsPage() {
           )}
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-success-muted flex items-center justify-center">
-                    <Users className="w-6 h-6 text-success" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Teams</p>
-                    <p className="text-2xl font-bold">{teams.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <Shield className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">With Default Roles</p>
-                    <p className="text-2xl font-bold">{teams.filter(t => t.defaultRoleId).length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                    <UserCircle className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Members</p>
-                    <p className="text-2xl font-bold">
-                      {teams.reduce((acc, t) => acc + (t.staffCount || 0), 0)}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <StatsGrid
+            stats={[
+              { label: 'Total Teams', value: teams.length, icon: Users, color: 'success' },
+              { label: 'With Default Roles', value: teams.filter(t => t.defaultRoleId).length, icon: Shield, color: 'primary' },
+              { label: 'Total Members', value: teams.reduce((acc, t) => acc + (t.staffCount || 0), 0), icon: UserCircle, color: 'primary' },
+            ]}
+            columns={3}
+          />
 
-          <Card>
-            <CardContent className="p-6">
-              {/* Search and Filter */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-6">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                  <input
-                    type="text"
-                    placeholder="Search teams..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-10 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
-                  />
-                  {searchQuery && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSearchQuery('')}
-                      className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 h-auto hover:bg-muted rounded-full"
-                    >
-                      <X className="w-4 h-4 text-muted-foreground" />
-                    </Button>
-                  )}
-                </div>
-                <div className="w-full sm:w-64">
-                  <Select
-                    value={filterDepartmentId}
-                    onChange={setFilterDepartmentId}
-                    options={[
-                      { value: '', label: 'All Departments' },
-                      ...departments.map(d => ({ value: d.id, label: d.name }))
-                    ]}
-                    placeholder="Filter by Department"
-                    className="w-full"
-                  />
-                </div>
-              </div>
+          <FilterPanel
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Search teams..."
+            showFilterToggle={false}
+          >
+            <Select
+              value={filterDepartmentId}
+              onChange={setFilterDepartmentId}
+              options={[
+                { value: '', label: 'All Departments' },
+                ...departments.map(d => ({ value: d.id, label: d.name }))
+              ]}
+              placeholder="Filter by Department"
+              className="w-full"
+            />
+          </FilterPanel>
+
+          <div className="bg-card rounded-lg border border-border overflow-hidden">
+            <div className="p-6">
 
               {loading ? (
                 <div className="text-center py-12">
@@ -770,8 +692,8 @@ export default function TeamsPage() {
                   </table>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           <ConfirmModal
             isOpen={modalConfig.isOpen}

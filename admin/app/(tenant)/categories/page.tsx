@@ -25,7 +25,6 @@ import {
   XCircle,
   X,
   Save,
-  Filter,
   Folder,
   FolderOpen,
   RefreshCw,
@@ -50,33 +49,10 @@ import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select, SelectOption } from '@/components/Select';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { categoryService } from '@/lib/services/categoryService';
+import { StatsGrid, FilterPanel } from '@/components/data-listing';
 import { Category, CreateCategoryRequest, UpdateCategoryRequest, DefaultMediaURLs } from '@/lib/api/types';
 import { BulkImportModal } from '@/components/BulkImportModal';
 import { CategoryIconUploader, CategoryBannerUploader, MediaItem } from '@/components/MediaUploader';
-
-const Card = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("rounded-2xl border bg-white/80 backdrop-blur-sm text-card-foreground shadow-lg hover:shadow-xl transition-all duration-300", className)} {...props}>
-    {children}
-  </div>
-);
-
-const CardHeader = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col space-y-1.5 p-6", className)} {...props}>
-    {children}
-  </div>
-);
-
-const CardTitle = ({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-  <h3 className={cn("font-semibold leading-none tracking-tight", className)} {...props}>
-    {children}
-  </h3>
-);
-
-const CardContent = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("p-6 pt-0", className)} {...props}>
-    {children}
-  </div>
-);
 
 type ViewMode = 'list' | 'create' | 'edit' | 'detail';
 
@@ -570,7 +546,7 @@ export default function CategoriesPage() {
           <div
             className={cn(
               "group flex items-center justify-between p-3 rounded-xl border transition-all duration-200 mb-2 cursor-pointer",
-              isSelected && "bg-primary/10 border-primary/50 shadow-sm",
+              isSelected && "bg-primary/10 border-primary/50",
               !isSelected && "bg-card border-border hover:border-primary/30 hover:bg-muted"
             )}
             style={{ marginLeft: `${level * 24}px` }}
@@ -727,37 +703,6 @@ export default function CategoriesPage() {
     });
   };
 
-  const stats = [
-    {
-      labelKey: "Total Categories",
-      value: categories.length,
-      icon: FolderTree,
-      textColor: "text-primary",
-      bgColor: "bg-primary/10"
-    },
-    {
-      labelKey: "Active",
-      value: categories.filter(c => c.isActive).length,
-      icon: CheckCircle,
-      textColor: "text-success",
-      bgColor: "bg-success/10"
-    },
-    {
-      labelKey: "Inactive",
-      value: categories.filter(c => !c.isActive).length,
-      icon: XCircle,
-      textColor: "text-error",
-      bgColor: "bg-error-muted"
-    },
-    {
-      labelKey: "Top Level",
-      value: categories.filter(c => c.level === 0).length,
-      icon: Tags,
-      textColor: "text-primary",
-      bgColor: "bg-primary/10"
-    }
-  ];
-
   return (
     <PermissionGate
       permission={Permission.CATEGORIES_READ}
@@ -779,7 +724,7 @@ export default function CategoriesPage() {
       />
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-border/50 shadow-lg">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card rounded-lg border border-border p-6">
         <div>
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl font-bold text-foreground">
@@ -812,7 +757,7 @@ export default function CategoriesPage() {
             <PermissionGate permission={Permission.CATEGORIES_CREATE}>
               <Button
                 onClick={handleCreateCategory}
-                className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+                className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
               >
                 <Plus className="w-5 h-5" />
                 <AdminButtonText text="Add Category" />
@@ -827,135 +772,78 @@ export default function CategoriesPage() {
 
       {/* Loading State */}
       {loading && categories.length === 0 && (
-        <Card className="border-border/50">
-          <CardContent className="p-12 text-center">
+        <div className="bg-card rounded-lg border border-border overflow-hidden">
+          <div className="p-12 text-center">
             <Loader2 className="w-16 h-16 mx-auto text-primary animate-spin mb-4" />
             <p className="text-foreground font-semibold text-lg mb-2"><AdminUIText text="Loading categories..." /></p>
             <p className="text-muted-foreground text-sm"><AdminUIText text="Please wait while we fetch your data" /></p>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Stats */}
       {!loading && categories.length > 0 && (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, index) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={index} className="border-border/50 hover:border-primary/50/50 transition-all duration-300 group">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground"><AdminUIText text={stat.labelKey} /></p>
-                    <p className={`text-3xl font-bold ${stat.textColor} mt-2 group-hover:scale-105 transition-transform`}>
-                      {stat.value}
-                    </p>
-                  </div>
-                  <div className={`p-3 rounded-xl ${stat.bgColor} border border-border group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
-                    <Icon className="w-6 h-6 text-muted-foreground" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+        <StatsGrid
+          stats={[
+            { label: 'Total Categories', value: categories.length, icon: FolderTree, color: 'primary' },
+            { label: 'Active', value: categories.filter(c => c.isActive).length, icon: CheckCircle, color: 'success' },
+            { label: 'Inactive', value: categories.filter(c => !c.isActive).length, icon: XCircle, color: 'error' },
+            { label: 'Top Level', value: categories.filter(c => c.level === 0).length, icon: Tags, color: 'primary' },
+          ]}
+          columns={4}
+        />
       )}
 
       {/* Search and Filters */}
       {!loading && (
-      <Card className="border-border/50 overflow-visible relative z-40">
-        <CardContent className="p-6 overflow-visible relative">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                <input
-                  type="text"
-                  placeholder="Search categories..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-10 py-3 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition-all"
-                />
-                {searchQuery && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setSearchQuery('')}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 h-auto hover:bg-muted rounded-full transition-colors"
-                    aria-label="Clear search"
-                  >
-                    <X className="w-4 h-4 text-muted-foreground" />
-                  </Button>
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                onClick={() => setShowFilters(!showFilters)}
-                className={cn(
-                  "px-4 py-3 rounded-xl transition-all flex items-center gap-2",
-                  showFilters
-                    ? "bg-primary/20 text-primary border-2 border-primary/50"
-                    : "bg-muted text-foreground border-2 border-border hover:bg-muted"
-                )}
-              >
-                <Filter className="w-5 h-5" />
-                <AdminButtonText text="Filters" />
-              </Button>
-            </div>
-
-            {showFilters && (
-              <div className="flex flex-wrap gap-4 p-5 bg-white/80 backdrop-blur-sm rounded-xl border-2 border-border shadow-sm animate-in slide-in-from-top-2 duration-200 relative z-50">
-                <div className="flex-1 min-w-[200px]">
-                  <label className="text-xs font-bold text-foreground mb-2 block uppercase tracking-wider"><AdminFormLabel text="Status" as="span" /></label>
-                  <Select
-                    value={statusFilter}
-                    onChange={(value) => setStatusFilter(value as any)}
-                    options={[
-                      { value: 'ALL', label: 'All Status', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                      { value: 'DRAFT', label: 'Draft', icon: <FileEdit className="w-4 h-4 text-muted-foreground" /> },
-                      { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-warning" /> },
-                      { value: 'APPROVED', label: 'Approved', icon: <CheckCircle2 className="w-4 h-4 text-success" /> },
-                      { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-error" /> },
-                    ]}
-                    variant="filter"
-                  />
-                </div>
-                <div className="flex-1 min-w-[200px]">
-                  <label className="text-xs font-bold text-foreground mb-2 block uppercase tracking-wider"><AdminFormLabel text="Active State" as="span" /></label>
-                  <Select
-                    value={activeFilter}
-                    onChange={(value) => setActiveFilter(value as any)}
-                    options={[
-                      { value: 'ALL', label: 'All States', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                      { value: 'ACTIVE', label: 'Active Only', icon: <Circle className="w-4 h-4 text-success fill-green-500" /> },
-                      { value: 'INACTIVE', label: 'Inactive Only', icon: <CircleOff className="w-4 h-4 text-error" /> },
-                    ]}
-                    variant="filter"
-                  />
-                </div>
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setStatusFilter('ALL');
-                    setActiveFilter('ALL');
-                    setSearchQuery('');
-                  }}
-                  className="px-5 py-2.5 bg-card border-2 border-border rounded-xl text-sm font-semibold text-foreground hover:bg-muted hover:border-border transition-all self-end shadow-sm hover:shadow-md"
-                >
-                  <AdminButtonText text="Clear All" />
-                </Button>
-              </div>
-            )}
+        <FilterPanel
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Search categories..."
+          expanded={showFilters}
+          onExpandedChange={setShowFilters}
+          activeFilterCount={(statusFilter !== 'ALL' ? 1 : 0) + (activeFilter !== 'ALL' ? 1 : 0)}
+          onClearAll={() => {
+            setStatusFilter('ALL');
+            setActiveFilter('ALL');
+            setSearchQuery('');
+          }}
+        >
+          <div>
+            <label className="text-xs font-bold text-foreground mb-2 block uppercase tracking-wider"><AdminFormLabel text="Status" as="span" /></label>
+            <Select
+              value={statusFilter}
+              onChange={(value) => setStatusFilter(value as any)}
+              options={[
+                { value: 'ALL', label: 'All Status', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
+                { value: 'DRAFT', label: 'Draft', icon: <FileEdit className="w-4 h-4 text-muted-foreground" /> },
+                { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-warning" /> },
+                { value: 'APPROVED', label: 'Approved', icon: <CheckCircle2 className="w-4 h-4 text-success" /> },
+                { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-error" /> },
+              ]}
+              variant="filter"
+            />
           </div>
-        </CardContent>
-      </Card>
+          <div>
+            <label className="text-xs font-bold text-foreground mb-2 block uppercase tracking-wider"><AdminFormLabel text="Active State" as="span" /></label>
+            <Select
+              value={activeFilter}
+              onChange={(value) => setActiveFilter(value as any)}
+              options={[
+                { value: 'ALL', label: 'All States', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
+                { value: 'ACTIVE', label: 'Active Only', icon: <Circle className="w-4 h-4 text-success fill-green-500" /> },
+                { value: 'INACTIVE', label: 'Inactive Only', icon: <CircleOff className="w-4 h-4 text-error" /> },
+              ]}
+              variant="filter"
+            />
+          </div>
+        </FilterPanel>
       )}
 
       {/* Bulk Actions Bar */}
       {selectedCategories.size > 0 && (
-        <Card className="border-primary/30 bg-muted">
-          <CardContent className="py-3 px-6">
+        <div className="bg-card rounded-lg border border-primary/30 overflow-hidden">
+          <div className="py-3 px-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <span className="text-sm font-semibold text-primary">
@@ -1024,19 +912,19 @@ export default function CategoriesPage() {
                 </PermissionGate>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Main Content */}
       {!loading && viewMode === 'list' ? (
         /* Categories Tree */
-        <Card className="border-border/50">
-          <CardHeader className="border-b border-border">
+        <div className="bg-card rounded-lg border border-border overflow-hidden">
+          <div className="flex flex-col space-y-1.5 p-6 border-b border-border">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-xl font-bold text-primary">
+              <h3 className="font-semibold leading-none tracking-tight text-xl text-primary">
                 <AdminUIText text="Category Hierarchy" />
-              </CardTitle>
+              </h3>
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
@@ -1056,8 +944,8 @@ export default function CategoriesPage() {
                 </Button>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-6">
+          </div>
+          <div className="p-6">
             {/* Select All Header */}
             {filteredCategories.length > 0 && (
               <div className="flex items-center gap-3 px-2 mb-4">
@@ -1096,7 +984,7 @@ export default function CategoriesPage() {
                 {!searchQuery && statusFilter === 'ALL' && activeFilter === 'ALL' && (
                   <Button
                     onClick={handleCreateCategory}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
                   >
                     <Plus className="w-5 h-5" />
                     <AdminButtonText text="Create Your First Category" />
@@ -1108,28 +996,28 @@ export default function CategoriesPage() {
                 {renderCategoryTree()}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ) : !loading ? (
         /* Create/Edit Form */
-        <Card className="border-primary/50/50 bg-primary/5">
-          <CardHeader className="border-b border-primary/20">
+        <div className="bg-card rounded-lg border border-border overflow-hidden">
+          <div className="flex flex-col space-y-1.5 p-6 border-b border-border">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-xl font-bold text-primary">
+              <h3 className="font-semibold leading-none tracking-tight text-xl text-primary">
                 {viewMode === 'create' ? <AdminUIText text="Create Category" /> : viewMode === 'edit' ? <AdminUIText text="Edit Category" /> : <AdminUIText text="Category Details" />}
-              </CardTitle>
+              </h3>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={navigateToList}
-                className="p-2 h-auto hover:bg-card rounded-lg transition-colors"
+                className="p-2 h-auto hover:bg-muted rounded-lg transition-colors"
                 aria-label="Close form"
               >
                 <X className="w-5 h-5 text-muted-foreground" aria-hidden="true" />
               </Button>
             </div>
-          </CardHeader>
-          <CardContent className="p-6">
+          </div>
+          <div className="p-6">
             {viewMode === 'detail' && selectedCategory ? (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -1162,13 +1050,13 @@ export default function CategoriesPage() {
                   <p className="text-foreground">{selectedCategory.description || <AdminUIText text="No description available" />}</p>
                 </div>
                 {/* Category Images */}
-                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted rounded-xl border border-border">
+                <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-muted rounded-lg border border-border">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground mb-2"><AdminFormLabel text="Category Icon" as="span" /></p>
                     <img
                       src={selectedCategory.imageUrl || DefaultMediaURLs.categoryIcon}
                       alt={`${selectedCategory.name} icon`}
-                      className="w-24 h-24 object-cover rounded-xl border-2 border-border shadow-sm"
+                      className="w-24 h-24 object-cover rounded-lg border border-border"
                     />
                   </div>
                   <div>
@@ -1176,7 +1064,7 @@ export default function CategoriesPage() {
                     <img
                       src={selectedCategory.bannerUrl || DefaultMediaURLs.categoryBanner}
                       alt={`${selectedCategory.name} banner`}
-                      className="w-full h-24 object-cover rounded-xl border-2 border-border shadow-sm"
+                      className="w-full h-24 object-cover rounded-lg border border-border"
                     />
                   </div>
                 </div>
@@ -1214,7 +1102,7 @@ export default function CategoriesPage() {
                       value={formData.name}
                       onChange={(e) => handleNameChange(e.target.value)}
                       className={cn(
-                        "w-full pl-12 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-medium shadow-sm",
+                        "w-full pl-12 pr-4 py-3.5 border rounded-lg focus:outline-none focus:ring-2 transition-colors bg-background hover:border-primary/30 font-medium",
                         errors.name
                           ? "border-error focus:ring-red-500 focus:border-error"
                           : "border-border focus:ring-ring focus:border-primary"
@@ -1241,7 +1129,7 @@ export default function CategoriesPage() {
                       value={formData.slug}
                       onChange={(e) => handleFieldChange('slug', e.target.value)}
                       className={cn(
-                        "w-full pl-10 pr-4 py-3.5 border-2 rounded-xl focus:outline-none focus:ring-2 transition-all bg-white hover:border-border font-mono font-medium shadow-sm",
+                        "w-full pl-10 pr-4 py-3.5 border rounded-lg focus:outline-none focus:ring-2 transition-colors bg-background hover:border-primary/30 font-mono font-medium",
                         errors.slug
                           ? "border-error focus:ring-red-500 focus:border-error"
                           : "border-border focus:ring-violet-500 focus:border-primary"
@@ -1263,7 +1151,7 @@ export default function CategoriesPage() {
                     <textarea
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="w-full px-4 py-3.5 border-2 border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all bg-white hover:border-border font-medium shadow-sm resize-none"
+                      className="w-full px-4 py-3.5 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-colors bg-background hover:border-primary/30 font-medium resize-none"
                       rows={4}
                       placeholder="Enter a detailed description of this category..."
                     />
@@ -1271,7 +1159,7 @@ export default function CategoriesPage() {
                 </div>
 
                 {/* Category Media Section */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-muted rounded-xl border-2 border-border">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-5 bg-muted rounded-lg border border-border">
                   <div>
                     <CategoryIconUploader
                       value={urlToMediaItems(formData.imageUrl)}
@@ -1347,22 +1235,22 @@ export default function CategoriesPage() {
                   <Button
                     onClick={handleSaveCategory}
                     disabled={!formData.name || !formData.slug}
-                    className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+                    className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Save className="w-5 h-5" />
                     {viewMode === 'create' ? <AdminButtonText text="Create Category" /> : <AdminButtonText text="Save Changes" />}
                   </Button>
                   <Button
                     onClick={navigateToList}
-                    className="px-6 py-3 bg-muted text-foreground rounded-xl hover:bg-muted transition-all"
+                    className="px-6 py-3 bg-muted text-foreground rounded-xl hover:bg-muted/80 transition-colors"
                   >
                     <AdminButtonText text="Cancel" />
                   </Button>
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       ) : null}
 
       {/* Confirm Modal */}

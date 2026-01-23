@@ -51,30 +51,6 @@ import type {
 } from '@/lib/api/rbacTypes';
 import { getRolePriorityCategory, ROLE_PRIORITY_COLORS } from '@/lib/api/rbacTypes';
 
-const Card = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("rounded-2xl border bg-white/80 backdrop-blur-sm text-card-foreground shadow-lg hover:shadow-xl transition-all duration-300", className)} {...props}>
-    {children}
-  </div>
-);
-
-const CardHeader = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("flex flex-col space-y-1.5 p-6", className)} {...props}>
-    {children}
-  </div>
-);
-
-const CardTitle = ({ className, children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
-  <h3 className={cn("font-semibold leading-none tracking-tight", className)} {...props}>
-    {children}
-  </h3>
-);
-
-const CardContent = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("p-6 pt-0", className)} {...props}>
-    {children}
-  </div>
-);
-
 const Badge = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors", className)} {...props}>
     {children}
@@ -409,7 +385,7 @@ export default function RolesPage() {
                 {!selectedRole.isSystem && (
                   <Button
                     onClick={() => handleEditRole(selectedRole)}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
                   >
                     <Edit className="w-5 h-5" />
                     Edit Role
@@ -428,14 +404,14 @@ export default function RolesPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Role Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            <div className="bg-card rounded-lg border border-border overflow-hidden">
+              <div className="flex flex-col space-y-1.5 p-6">
+                <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                   <Shield className="w-5 h-5 text-primary" />
                   Role Information
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </h3>
+              </div>
+              <div className="p-6 pt-0 space-y-4">
                 <div>
                   <p className="text-sm text-muted-foreground">Name</p>
                   <p className="font-semibold">{selectedRole.name}</p>
@@ -472,18 +448,18 @@ export default function RolesPage() {
                     </p>
                   </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Permissions */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            <div className="bg-card rounded-lg border border-border overflow-hidden lg:col-span-2">
+              <div className="flex flex-col space-y-1.5 p-6">
+                <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                   <CheckCircle className="w-5 h-5 text-success" />
                   Permissions ({selectedPermissionIds.size})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </h3>
+              </div>
+              <div className="p-6 pt-0">
                 <div className="space-y-4 max-h-[500px] overflow-y-auto">
                   {permissionCategories.map(category => {
                     const categoryPerms = allPermissions.filter(p => p.categoryId === category.id);
@@ -518,8 +494,8 @@ export default function RolesPage() {
                     <p className="text-muted-foreground text-center py-8">No permissions assigned to this role.</p>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -550,14 +526,14 @@ export default function RolesPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Role Details */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+            <div className="bg-card rounded-lg border border-border overflow-hidden">
+              <div className="flex flex-col space-y-1.5 p-6">
+                <h3 className="font-semibold leading-none tracking-tight flex items-center gap-2">
                   <Shield className="w-5 h-5 text-primary" />
                   Role Details
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+                </h3>
+              </div>
+              <div className="p-6 pt-0 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Role Name <span className="text-error">*</span>
@@ -662,20 +638,20 @@ export default function RolesPage() {
                     </div>
                   </label>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
 
             {/* Permission Matrix */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
+            <div className="bg-card rounded-lg border border-border overflow-hidden lg:col-span-2">
+              <div className="flex flex-col space-y-1.5 p-6">
+                <h3 className="font-semibold leading-none tracking-tight flex items-center justify-between">
                   <span className="flex items-center gap-2">
                     <CheckCircle className="w-5 h-5 text-success" />
                     Permissions ({selectedPermissionIds.size} selected)
                   </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+                </h3>
+              </div>
+              <div className="p-6 pt-0">
                 <div className="space-y-2 max-h-[600px] overflow-y-auto">
                   {permissionCategories.map(category => {
                     const categoryPerms = allPermissions.filter(p => p.categoryId === category.id);
@@ -750,8 +726,8 @@ export default function RolesPage() {
                     );
                   })}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
           {/* Actions */}
@@ -766,7 +742,7 @@ export default function RolesPage() {
             <Button
               onClick={handleSaveRole}
               disabled={saving || !formData.name || !formData.displayName}
-              className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50"
             >
               {saving ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -832,7 +808,7 @@ export default function RolesPage() {
                   </Button>
                   <Button
                     onClick={handleCreateRole}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-xl hover:bg-primary/90 transition-colors"
                   >
                     <Plus className="w-5 h-5" />
                     Create Role
@@ -850,8 +826,8 @@ export default function RolesPage() {
           </div>
         )}
 
-        <Card>
-          <CardContent className="p-6">
+        <div className="bg-card rounded-lg border border-border overflow-hidden">
+          <div className="p-6">
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -1001,8 +977,8 @@ export default function RolesPage() {
                 </table>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {!loading && filteredRoles.length > 0 && (
           <Pagination

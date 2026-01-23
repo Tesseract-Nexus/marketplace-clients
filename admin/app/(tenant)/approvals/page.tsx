@@ -4,7 +4,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/PageHeader';
 import { PermissionGate, Permission } from '@/components/permission-gate';
@@ -226,8 +225,8 @@ export default function ApprovalsPage() {
           />
 
           {/* Filters */}
-          <Card>
-            <CardContent className="py-4">
+          <div className="bg-card rounded-lg border border-border overflow-hidden">
+            <div className="p-4">
               <div className="flex flex-wrap gap-4 items-center">
                 <div className="flex items-center gap-2">
                   <Filter className="w-4 h-4 text-muted-foreground" />
@@ -266,8 +265,8 @@ export default function ApprovalsPage() {
                   </Select>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Error State */}
           <PageError
@@ -283,117 +282,115 @@ export default function ApprovalsPage() {
 
           {/* Empty State */}
           {!loading && approvals.length === 0 && (
-            <Card>
-              <CardContent className="py-12">
+            <div className="bg-card rounded-lg border border-border overflow-hidden">
+              <div className="py-12">
                 <EmptyState
                   icon={CheckCircle}
                   title="No Pending Approvals"
                   message="All approval requests have been processed."
                 />
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )}
 
           {!loading && approvals.length > 0 && (
             <div className="space-y-4">
               {approvals.map((approval) => (
-                <Card key={approval.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="py-4">
-                    <div className="flex flex-col md:flex-row md:items-center gap-4">
-                      {/* Left: Icon and Info */}
-                      <div className="flex items-start gap-4 flex-1">
-                        <div className={cn(
-                          "p-3 rounded-xl",
-                          approval.status === 'pending' ? "bg-secondary" :
-                          approval.status === 'approved' ? "bg-primary/10" :
-                          approval.status === 'rejected' ? "bg-error-muted" : "bg-muted"
-                        )}>
-                          {getTypeIcon(approval.approvalType)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex flex-wrap items-center gap-2 mb-1">
-                            {getTypeBadge(approval.approvalType)}
-                            {getStatusBadge(approval.status)}
-                            {approval.amount && (
-                              <span className="text-lg font-bold text-foreground">
-                                {formatCurrency(approval.amount, approval.currency)}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm text-foreground mb-1">
-                            <span className="font-medium">{approval.entityReference}</span>
-                            {approval.reason && (
-                              <span className="text-muted-foreground"> - {approval.reason}</span>
-                            )}
-                          </p>
-                          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                            <span className="flex items-center gap-1">
-                              <User className="w-3 h-3" />
-                              Requested by {approval.requestedByName}
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Calendar className="w-3 h-3" />
-                              {formatDate(approval.createdAt)}
-                            </span>
-                            {approval.expiresAt && approval.status === 'pending' && (
-                              <span className="flex items-center gap-1 text-error">
-                                <Clock className="w-3 h-3" />
-                                Expires {formatDate(approval.expiresAt)}
-                              </span>
-                            )}
-                          </div>
-                          {approval.status === 'rejected' && approval.rejectionReason && (
-                            <p className="mt-2 text-sm text-error bg-error-muted px-3 py-1 rounded-lg inline-block">
-                              Reason: {approval.rejectionReason}
-                            </p>
-                          )}
-                        </div>
+                <div key={approval.id} className="bg-card rounded-lg border border-border p-4 hover:border-primary/30 transition-colors">
+                  <div className="flex flex-col md:flex-row md:items-center gap-4">
+                    {/* Left: Icon and Info */}
+                    <div className="flex items-start gap-4 flex-1">
+                      <div className={cn(
+                        "p-3 rounded-xl",
+                        approval.status === 'pending' ? "bg-secondary" :
+                        approval.status === 'approved' ? "bg-primary/10" :
+                        approval.status === 'rejected' ? "bg-error-muted" : "bg-muted"
+                      )}>
+                        {getTypeIcon(approval.approvalType)}
                       </div>
-
-                      {/* Right: Actions */}
-                      <div className="flex items-center gap-2 shrink-0">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => navigateToEntity(approval)}
-                        >
-                          <Eye className="w-4 h-4 mr-1" />
-                          View
-                        </Button>
-                        <PermissionGate permission={Permission.APPROVALS_APPROVE}>
-                          {approval.status === 'pending' && (
-                            <>
-                              <Button
-                                variant="default"
-                                size="sm"
-                                onClick={() => handleApprove(approval)}
-                                disabled={actionLoading === approval.id}
-                              >
-                                {actionLoading === approval.id ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <>
-                                    <ThumbsUp className="w-4 h-4 mr-1" />
-                                    Approve
-                                  </>
-                                )}
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => openRejectDialog(approval)}
-                                disabled={actionLoading === approval.id}
-                              >
-                                <ThumbsDown className="w-4 h-4 mr-1" />
-                                Reject
-                              </Button>
-                            </>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-1">
+                          {getTypeBadge(approval.approvalType)}
+                          {getStatusBadge(approval.status)}
+                          {approval.amount && (
+                            <span className="text-lg font-bold text-foreground">
+                              {formatCurrency(approval.amount, approval.currency)}
+                            </span>
                           )}
-                        </PermissionGate>
+                        </div>
+                        <p className="text-sm text-foreground mb-1">
+                          <span className="font-medium">{approval.entityReference}</span>
+                          {approval.reason && (
+                            <span className="text-muted-foreground"> - {approval.reason}</span>
+                          )}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <User className="w-3 h-3" />
+                            Requested by {approval.requestedByName}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {formatDate(approval.createdAt)}
+                          </span>
+                          {approval.expiresAt && approval.status === 'pending' && (
+                            <span className="flex items-center gap-1 text-error">
+                              <Clock className="w-3 h-3" />
+                              Expires {formatDate(approval.expiresAt)}
+                            </span>
+                          )}
+                        </div>
+                        {approval.status === 'rejected' && approval.rejectionReason && (
+                          <p className="mt-2 text-sm text-error bg-error-muted px-3 py-1 rounded-lg inline-block">
+                            Reason: {approval.rejectionReason}
+                          </p>
+                        )}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+
+                    {/* Right: Actions */}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigateToEntity(approval)}
+                      >
+                        <Eye className="w-4 h-4 mr-1" />
+                        View
+                      </Button>
+                      <PermissionGate permission={Permission.APPROVALS_APPROVE}>
+                        {approval.status === 'pending' && (
+                          <>
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => handleApprove(approval)}
+                              disabled={actionLoading === approval.id}
+                            >
+                              {actionLoading === approval.id ? (
+                                <Loader2 className="w-4 h-4 animate-spin" />
+                              ) : (
+                                <>
+                                  <ThumbsUp className="w-4 h-4 mr-1" />
+                                  Approve
+                                </>
+                              )}
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              onClick={() => openRejectDialog(approval)}
+                              disabled={actionLoading === approval.id}
+                            >
+                              <ThumbsDown className="w-4 h-4 mr-1" />
+                              Reject
+                            </Button>
+                          </>
+                        )}
+                      </PermissionGate>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           )}

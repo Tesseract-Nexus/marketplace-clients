@@ -697,7 +697,7 @@ export default function InventoryPage() {
         {activeTab === 'stock-levels' && !loading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div
-              className="bg-card rounded-xl border border-border p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-primary/30 hover:-translate-y-1 hover:scale-[1.02] group"
+              className="bg-card rounded-lg border border-border p-4 cursor-pointer hover:border-primary/30 transition-colors group"
               onClick={() => setStockFilter('all')}
             >
               <div className="flex items-center justify-between">
@@ -711,7 +711,7 @@ export default function InventoryPage() {
               </div>
             </div>
             <div
-              className="bg-card rounded-xl border border-border p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-success/30 hover:-translate-y-1 hover:scale-[1.02] group"
+              className="bg-card rounded-lg border border-border p-4 cursor-pointer hover:border-success/30 transition-colors group"
               onClick={() => setStockFilter('in_stock')}
             >
               <div className="flex items-center justify-between">
@@ -725,7 +725,7 @@ export default function InventoryPage() {
               </div>
             </div>
             <div
-              className="bg-card rounded-xl border border-border p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-warning/30 hover:-translate-y-1 hover:scale-[1.02] group"
+              className="bg-card rounded-lg border border-border p-4 cursor-pointer hover:border-warning/30 transition-colors group"
               onClick={() => setStockFilter('low_stock')}
             >
               <div className="flex items-center justify-between">
@@ -739,7 +739,7 @@ export default function InventoryPage() {
               </div>
             </div>
             <div
-              className="bg-card rounded-xl border border-border p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-error/30 hover:-translate-y-1 hover:scale-[1.02] group"
+              className="bg-card rounded-lg border border-border p-4 cursor-pointer hover:border-error/30 transition-colors group"
               onClick={() => setStockFilter('out_of_stock')}
             >
               <div className="flex items-center justify-between">
@@ -753,7 +753,7 @@ export default function InventoryPage() {
               </div>
             </div>
             <div
-              className="bg-card rounded-xl border border-border p-4 shadow-sm cursor-pointer transition-all duration-300 ease-in-out hover:shadow-lg hover:border-primary/30 hover:-translate-y-1 hover:scale-[1.02] group"
+              className="bg-card rounded-lg border border-border p-4 cursor-pointer hover:border-primary/30 transition-colors group"
               onClick={() => setStockFilter('all')}
             >
               <div className="flex items-center justify-between">
@@ -770,7 +770,7 @@ export default function InventoryPage() {
         )}
 
         {/* Tabs */}
-        <div className="bg-card rounded-lg border border-border shadow-sm">
+        <div className="bg-card rounded-lg border border-border overflow-hidden">
           <div className="border-b border-border">
             <nav className="flex">
               <Button
@@ -1557,7 +1557,7 @@ export default function InventoryPage() {
       {/* Warehouse Modal */}
       {modalType && modalEntityType === 'warehouse' && (modalType === 'create' || modalType === 'edit') && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-card rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-card rounded-lg border border-border max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-border">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-foreground">
@@ -1742,7 +1742,7 @@ export default function InventoryPage() {
       {/* Supplier Modal */}
       {modalType && modalEntityType === 'supplier' && (modalType === 'create' || modalType === 'edit') && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-card rounded-xl shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-card rounded-lg border border-border max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-border">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold text-foreground">
@@ -1912,7 +1912,7 @@ export default function InventoryPage() {
       {/* Delete Confirmation Modal */}
       {modalType === 'delete' && selectedEntityId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-card rounded-xl shadow-xl max-w-md w-full mx-4">
+          <div className="bg-card rounded-lg border border-border max-w-md w-full mx-4">
             <div className="p-6 border-b border-border">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-full bg-error-muted flex items-center justify-center">

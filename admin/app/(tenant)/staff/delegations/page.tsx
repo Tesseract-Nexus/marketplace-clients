@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatsGrid } from '@/components/data-listing';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
@@ -237,8 +237,8 @@ export default function DelegationsPage() {
     const isRevocable = type === 'outgoing' && status === 'active';
 
     return (
-      <Card key={delegation.id} className="hover:shadow-lg transition-shadow">
-        <CardContent className="py-4">
+      <div key={delegation.id} className="bg-card rounded-lg border border-border p-4 hover:border-primary/30 transition-colors">
+        <div>
           <div className="flex flex-col md:flex-row md:items-center gap-4">
             {/* Left: Icon and Info */}
             <div className="flex items-start gap-4 flex-1">
@@ -327,8 +327,8 @@ export default function DelegationsPage() {
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   };
 
@@ -372,64 +372,29 @@ export default function DelegationsPage() {
           <PageError error={error} onRetry={loadDelegations} onDismiss={() => setError(null)} />
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardContent className="py-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <ArrowUpRight className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Outgoing Active</p>
-                    <p className="text-2xl font-bold text-foreground">{activeOutgoing}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="py-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-secondary">
-                    <ArrowDownLeft className="w-5 h-5 text-foreground" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Incoming Active</p>
-                    <p className="text-2xl font-bold text-foreground">{activeIncoming}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="py-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-muted">
-                    <UserCheck className="w-5 h-5 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Delegations</p>
-                    <p className="text-2xl font-bold text-foreground">{outgoing.length + incoming.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <StatsGrid
+            stats={[
+              { label: 'Outgoing Active', value: activeOutgoing, icon: ArrowUpRight, color: 'primary' },
+              { label: 'Incoming Active', value: activeIncoming, icon: ArrowDownLeft, color: 'muted' },
+              { label: 'Total Delegations', value: outgoing.length + incoming.length, icon: UserCheck, color: 'muted' },
+            ]}
+            columns={3}
+          />
 
           {/* Filters */}
-          <Card>
-            <CardContent className="py-4">
-              <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={includeExpired}
-                    onChange={(e) => setIncludeExpired(e.target.checked)}
-                    className="h-4 w-4 rounded border-input"
-                  />
-                  <span className="text-sm text-foreground">Include expired & revoked</span>
-                </label>
-              </div>
-            </CardContent>
-          </Card>
+          <div className="bg-card rounded-lg border border-border p-4">
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={includeExpired}
+                  onChange={(e) => setIncludeExpired(e.target.checked)}
+                  className="h-4 w-4 rounded border-input"
+                />
+                <span className="text-sm text-foreground">Include expired & revoked</span>
+              </label>
+            </div>
+          </div>
 
           {/* Loading State */}
           {loading && (
@@ -457,19 +422,17 @@ export default function DelegationsPage() {
 
               <TabsContent value="outgoing" className="mt-4 space-y-4">
                 {outgoing.length === 0 ? (
-                  <Card>
-                    <CardContent className="py-12 text-center">
-                      <ArrowUpRight className="w-16 h-16 mx-auto text-primary/60 mb-4" />
-                      <h3 className="text-lg font-semibold text-foreground mb-2">No Outgoing Delegations</h3>
-                      <p className="text-muted-foreground mb-4">
-                        You haven't delegated your approval authority to anyone.
-                      </p>
-                      <Button onClick={openCreateDialog}>
-                        <Plus className="w-4 h-4 mr-2" />
-                        Create Delegation
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-card rounded-lg border border-border p-12 text-center">
+                    <ArrowUpRight className="w-16 h-16 mx-auto text-primary/60 mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">No Outgoing Delegations</h3>
+                    <p className="text-muted-foreground mb-4">
+                      You haven't delegated your approval authority to anyone.
+                    </p>
+                    <Button onClick={openCreateDialog}>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Delegation
+                    </Button>
+                  </div>
                 ) : (
                   outgoing.map((d) => renderDelegationCard(d, 'outgoing'))
                 )}
@@ -477,15 +440,13 @@ export default function DelegationsPage() {
 
               <TabsContent value="incoming" className="mt-4 space-y-4">
                 {incoming.length === 0 ? (
-                  <Card>
-                    <CardContent className="py-12 text-center">
-                      <ArrowDownLeft className="w-16 h-16 mx-auto text-secondary/60 mb-4" />
-                      <h3 className="text-lg font-semibold text-foreground mb-2">No Incoming Delegations</h3>
-                      <p className="text-muted-foreground">
-                        No one has delegated their approval authority to you.
-                      </p>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-card rounded-lg border border-border p-12 text-center">
+                    <ArrowDownLeft className="w-16 h-16 mx-auto text-secondary/60 mb-4" />
+                    <h3 className="text-lg font-semibold text-foreground mb-2">No Incoming Delegations</h3>
+                    <p className="text-muted-foreground">
+                      No one has delegated their approval authority to you.
+                    </p>
+                  </div>
                 ) : (
                   incoming.map((d) => renderDelegationCard(d, 'incoming'))
                 )}
