@@ -8,6 +8,7 @@ import {
   Store,
   Loader2,
   Plus,
+  Palette,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -707,20 +708,22 @@ export default function GeneralSettingsPage() {
               )}
             </div>
 
-            {/* Compact Tabs */}
-            <div className="px-6 pb-2">
+            {/* Tabs */}
+            <div className="px-6 pb-4">
               <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'general' | 'theme')}>
-                <TabsList className="h-9 bg-muted/50 p-1">
+                <TabsList className="inline-flex h-auto items-center justify-start rounded-xl bg-card border border-border p-1 shadow-sm">
                   <TabsTrigger
                     value="general"
-                    className="text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                    className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                   >
+                    <Store className="h-4 w-4" />
                     General
                   </TabsTrigger>
                   <TabsTrigger
                     value="theme"
-                    className="text-sm data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                    className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
                   >
+                    <Palette className="h-4 w-4" />
                     Theme & Design
                   </TabsTrigger>
                 </TabsList>
