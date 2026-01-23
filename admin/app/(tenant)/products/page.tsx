@@ -124,6 +124,7 @@ export default function ProductsPage() {
     InventoryStatus | 'ALL'
   >('ALL');
   const [brandFilter, setBrandFilter] = useState('ALL');
+  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
 
   // Bulk selection
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
@@ -1042,8 +1043,23 @@ export default function ProductsPage() {
     const matchesBrand =
       brandFilter === 'ALL' || product.brand === brandFilter;
 
+    // Quick filters - if any are active, product must match at least one
+    const matchesQuickFilters =
+      activeQuickFilters.length === 0 ||
+      activeQuickFilters.some((filter) => {
+        // Status-based quick filters
+        if (filter === 'ACTIVE' || filter === 'DRAFT' || filter === 'PENDING') {
+          return product.status === filter;
+        }
+        // Inventory-based quick filters
+        if (filter === 'OUT_OF_STOCK') {
+          return product.inventoryStatus === filter;
+        }
+        return false;
+      });
+
     return (
-      matchesSearch && matchesStatus && matchesInventoryStatus && matchesBrand
+      matchesSearch && matchesStatus && matchesInventoryStatus && matchesBrand && matchesQuickFilters
     );
   });
 
@@ -1057,7 +1073,7 @@ export default function ProductsPage() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, statusFilter, inventoryStatusFilter, brandFilter]);
+  }, [searchQuery, statusFilter, inventoryStatusFilter, brandFilter, activeQuickFilters]);
 
   const getStatusBadge = (status: ProductStatus) => {
     const styles: Record<ProductStatus, string> = {
@@ -1156,9 +1172,6 @@ export default function ProductsPage() {
       count: productStats.outOfStock,
     },
   ], [products, productStats]);
-
-  // Active quick filters state
-  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
 
   // Handle quick filter toggle
   const handleQuickFilterToggle = useCallback((filterId: string) => {
@@ -2565,137 +2578,120 @@ export default function ProductsPage() {
         {/* Error Alert */}
         <PageError error={error} onDismiss={() => setError(null)} />
 
-        {/* Stats Cards */}
+        {/* Stats Grid */}
         {!loading && products.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
-            {[
+          <StatsGrid
+            stats={[
               {
                 label: "Total Products",
-                value: products.length,
+                value: productStats.total,
                 icon: Package,
-                textColor: "text-primary",
-                bgColor: "bg-primary/10",
+                color: "primary",
               },
               {
-                label: "Active",
-                value: products.filter(p => p.status === 'ACTIVE').length,
+                label: "Published",
+                value: productStats.published,
                 icon: CheckCircle,
-                textColor: "text-success",
-                bgColor: "bg-success/10",
+                color: "success",
               },
               {
-                label: "Low Stock",
-                value: products.filter(p => p.inventoryStatus === 'LOW_STOCK').length,
-                icon: AlertTriangle,
-                textColor: "text-warning",
-                bgColor: "bg-warning/10",
+                label: "Draft",
+                value: productStats.draft,
+                icon: FileEdit,
+                color: "muted",
               },
               {
                 label: "Out of Stock",
-                value: products.filter(p => p.inventoryStatus === 'OUT_OF_STOCK').length,
+                value: productStats.outOfStock,
                 icon: PackageX,
-                textColor: "text-error",
-                bgColor: "bg-error-muted",
+                color: "error",
               },
-            ].map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <Card key={index} className="border-border/50 hover:border-primary/30 transition-all duration-300 group cursor-default">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                        <p className={`text-3xl font-bold ${stat.textColor} mt-2 group-hover:scale-105 transition-transform origin-left`}>
-                          {stat.value}
-                        </p>
-                      </div>
-                      <div className={`p-3 rounded-xl ${stat.bgColor} border border-border group-hover:scale-110 group-hover:rotate-6 transition-all duration-300`}>
-                        <Icon className="w-6 h-6 text-muted-foreground" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
+            ]}
+            columns={4}
+            showMobileRow
+            className="mb-6"
+          />
         )}
 
-        {/* Filters */}
-        <Card className="mb-6 border-border/50 shadow-lg overflow-visible relative z-40">
-          <CardContent className="p-6 overflow-visible relative">
-            <div className="grid grid-cols-5 gap-4">
-              <div className="col-span-2">
-                <Label className="text-foreground font-semibold mb-2 block">
-                  Search
-                </Label>
-                <Input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search by name, SKU, or brand..."
-                  className="border-border focus:border-primary/70"
-                />
-              </div>
+        {/* Filter Panel */}
+        <FilterPanel
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Search by name, SKU, or brand..."
+          activeFilterCount={activeFilterCount}
+          onClearAll={handleClearAllFilters}
+          className="mb-6 overflow-visible relative z-40"
+          quickFilters={
+            <QuickFilters
+              filters={productQuickFilters}
+              activeFilters={activeQuickFilters}
+              onFilterToggle={handleQuickFilterToggle}
+              onClearAll={handleClearQuickFilters}
+              showClearAll
+            />
+          }
+        >
+          {/* Status Filter */}
+          <div>
+            <Label className="text-foreground font-semibold mb-2 block text-xs">
+              Status
+            </Label>
+            <Select
+              value={statusFilter}
+              onChange={(value) => setStatusFilter(value as any)}
+              options={[
+                { value: 'ALL', label: 'All Status', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
+                { value: 'ACTIVE', label: 'Active', icon: <CheckCircle2 className="w-4 h-4 text-success" /> },
+                { value: 'DRAFT', label: 'Draft', icon: <FileEdit className="w-4 h-4 text-muted-foreground" /> },
+                { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-warning" /> },
+                { value: 'INACTIVE', label: 'Inactive', icon: <CircleOff className="w-4 h-4 text-error" /> },
+                { value: 'ARCHIVED', label: 'Archived', icon: <Archive className="w-4 h-4 text-neutral" /> },
+                { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-error" /> },
+              ]}
+              variant="filter"
+            />
+          </div>
 
-              <div>
-                <Label className="text-foreground font-semibold mb-2 block">
-                  Status
-                </Label>
-                <Select
-                  value={statusFilter}
-                  onChange={(value) => setStatusFilter(value as any)}
-                  options={[
-                    { value: 'ALL', label: 'All Status', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'ACTIVE', label: 'Active', icon: <CheckCircle2 className="w-4 h-4 text-success" /> },
-                    { value: 'DRAFT', label: 'Draft', icon: <FileEdit className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'PENDING', label: 'Pending', icon: <Clock className="w-4 h-4 text-warning" /> },
-                    { value: 'INACTIVE', label: 'Inactive', icon: <CircleOff className="w-4 h-4 text-error" /> },
-                    { value: 'ARCHIVED', label: 'Archived', icon: <Archive className="w-4 h-4 text-neutral" /> },
-                    { value: 'REJECTED', label: 'Rejected', icon: <XCircle className="w-4 h-4 text-error" /> },
-                  ]}
-                  variant="filter"
-                />
-              </div>
+          {/* Inventory Filter */}
+          <div>
+            <Label className="text-foreground font-semibold mb-2 block text-xs">
+              Inventory
+            </Label>
+            <Select
+              value={inventoryStatusFilter}
+              onChange={(value) => setInventoryStatusFilter(value as any)}
+              options={[
+                { value: 'ALL', label: 'All Inventory', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
+                { value: 'IN_STOCK', label: 'In Stock', icon: <PackageCheck className="w-4 h-4 text-success" /> },
+                { value: 'LOW_STOCK', label: 'Low Stock', icon: <AlertTriangle className="w-4 h-4 text-warning" /> },
+                { value: 'OUT_OF_STOCK', label: 'Out of Stock', icon: <PackageX className="w-4 h-4 text-error" /> },
+                { value: 'BACK_ORDER', label: 'Back Order', icon: <RotateCcw className="w-4 h-4 text-primary" /> },
+                { value: 'DISCONTINUED', label: 'Discontinued', icon: <Ban className="w-4 h-4 text-muted-foreground" /> },
+              ]}
+              variant="filter"
+            />
+          </div>
 
-              <div>
-                <Label className="text-foreground font-semibold mb-2 block">
-                  Inventory
-                </Label>
-                <Select
-                  value={inventoryStatusFilter}
-                  onChange={(value) => setInventoryStatusFilter(value as any)}
-                  options={[
-                    { value: 'ALL', label: 'All Inventory', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                    { value: 'IN_STOCK', label: 'In Stock', icon: <PackageCheck className="w-4 h-4 text-success" /> },
-                    { value: 'LOW_STOCK', label: 'Low Stock', icon: <AlertTriangle className="w-4 h-4 text-warning" /> },
-                    { value: 'OUT_OF_STOCK', label: 'Out of Stock', icon: <PackageX className="w-4 h-4 text-error" /> },
-                    { value: 'BACK_ORDER', label: 'Back Order', icon: <RotateCcw className="w-4 h-4 text-primary" /> },
-                    { value: 'DISCONTINUED', label: 'Discontinued', icon: <Ban className="w-4 h-4 text-muted-foreground" /> },
-                  ]}
-                  variant="filter"
-                />
-              </div>
-
-              <div>
-                <Label className="text-foreground font-semibold mb-2 block">
-                  Brand
-                </Label>
-                <Select
-                  value={brandFilter}
-                  onChange={(value) => setBrandFilter(value)}
-                  options={[
-                    { value: 'ALL', label: 'All Brands', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-                    ...uniqueBrands.map((brand) => ({
-                      value: brand!,
-                      label: brand!,
-                      icon: <Tag className="w-4 h-4 text-primary" />,
-                    })),
-                  ]}
-                  variant="filter"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+          {/* Brand Filter */}
+          <div>
+            <Label className="text-foreground font-semibold mb-2 block text-xs">
+              Brand
+            </Label>
+            <Select
+              value={brandFilter}
+              onChange={(value) => setBrandFilter(value)}
+              options={[
+                { value: 'ALL', label: 'All Brands', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
+                ...uniqueBrands.map((brand) => ({
+                  value: brand!,
+                  label: brand!,
+                  icon: <Tag className="w-4 h-4 text-primary" />,
+                })),
+              ]}
+              variant="filter"
+            />
+          </div>
+        </FilterPanel>
 
         {/* Bulk Actions Bar */}
         {selectedProducts.size > 0 && (

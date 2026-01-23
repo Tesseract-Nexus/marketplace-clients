@@ -103,6 +103,9 @@ export default function TicketsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
 
+  // Quick filters state
+  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
+
   const { showAlert } = useDialog();
 
   // Validation functions
@@ -330,8 +333,6 @@ export default function TicketsPage() {
   ], [totalTickets, openTickets, inProgressTickets, resolvedTickets, urgentTickets]);
 
   // Quick filters configuration
-  const [activeQuickFilters, setActiveQuickFilters] = useState<string[]>([]);
-
   const quickFilters: QuickFilter[] = useMemo(() => [
     { id: 'OPEN', label: 'Open', icon: AlertCircle, color: 'warning', count: openTickets },
     { id: 'IN_PROGRESS', label: 'In Progress', icon: Clock, color: 'info', count: inProgressTickets },
