@@ -1,5 +1,6 @@
 // API handler utilities for Next.js API routes
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 // Configuration
 const LOCATION_SERVICE_URL = process.env.LOCATION_SERVICE_URL || 'http://localhost:8080';
@@ -88,9 +89,7 @@ export async function proxyRequest(
   }
 
   // Log request (in development)
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`[API] ${method} ${url} [${requestId}]`);
-  }
+  logger.debug(`[API] ${method} ${url} [${requestId}]`);
 
   try {
     const fetchOptions: RequestInit = {
@@ -112,9 +111,7 @@ export async function proxyRequest(
     const data = await response.json().catch(() => ({}));
 
     // Log response status (in development)
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`[API] Response ${response.status} [${requestId}]`);
-    }
+    logger.debug(`[API] Response ${response.status} [${requestId}]`);
 
     // If backend returned an error
     if (!response.ok) {
@@ -128,7 +125,7 @@ export async function proxyRequest(
     // Return backend response directly
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    console.error(`[API Error] ${method} ${url}:`, error);
+    logger.error(`[API Error] ${method} ${url}:`, error);
     return errorResponse(
       'Failed to communicate with backend service',
       503,

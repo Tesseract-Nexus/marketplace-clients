@@ -13,9 +13,18 @@ const REQUIRED_ENV_VARS = [
   'NEXT_PUBLIC_AUTH_SERVICE_URL',
 ] as const;
 
+// Required in production only
+const PRODUCTION_REQUIRED_ENV_VARS = [
+  'CSRF_SECRET',
+] as const;
+
 // Optional but recommended environment variables
 const RECOMMENDED_ENV_VARS = [
   'NEXT_PUBLIC_API_BASE_URL',
+  'CATEGORIES_SERVICE_URL',
+  'PRODUCTS_SERVICE_URL',
+  'ORDERS_SERVICE_URL',
+  'CUSTOMERS_SERVICE_URL',
 ] as const;
 
 export interface EnvValidationResult {
@@ -48,6 +57,17 @@ export function validateEnv(): EnvValidationResult {
     } else if (isProduction && value.includes('localhost')) {
       result.localhostInProduction.push(key);
       result.valid = false;
+    }
+  }
+
+  // Check production-only required variables
+  if (isProduction) {
+    for (const key of PRODUCTION_REQUIRED_ENV_VARS) {
+      const value = process.env[key];
+      if (!value) {
+        result.missing.push(key);
+        result.valid = false;
+      }
     }
   }
 

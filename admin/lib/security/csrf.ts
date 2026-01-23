@@ -22,8 +22,17 @@ const CSRF_HEADER_NAME = 'X-CSRF-Token';
 const CSRF_TOKEN_LENGTH = 32;
 const CSRF_TOKEN_MAX_AGE = 60 * 60; // 1 hour in seconds
 
-// Secret key for HMAC signing (should be from environment in production)
-const CSRF_SECRET = process.env.CSRF_SECRET || 'csrf-secret-key-change-in-production';
+/**
+ * Get CSRF secret with runtime validation
+ * Deferred to runtime to avoid build-time errors when env vars aren't set
+ */
+function getCsrfSecret(): string {
+  const secret = process.env.CSRF_SECRET;
+  if (!secret && process.env.NODE_ENV === 'production') {
+    throw new Error('SECURITY: CSRF_SECRET environment variable must be set in production');
+  }
+  return secret || 'dev-csrf-secret-not-for-production';
+}
 
 /**
  * Generate a new CSRF token
@@ -33,7 +42,7 @@ export async function generateCsrfToken(): Promise<string> {
   const randomPart = generateSecureToken(CSRF_TOKEN_LENGTH);
   const timestamp = Date.now().toString();
   const data = `${randomPart}.${timestamp}`;
-  const signature = await generateHmacSignature(data, CSRF_SECRET);
+  const signature = await generateHmacSignature(data, getCsrfSecret());
   return `${data}.${signature}`;
 }
 
@@ -50,7 +59,7 @@ export async function validateCsrfToken(token: string): Promise<boolean> {
   const data = `${randomPart}.${timestamp}`;
 
   // Verify HMAC signature
-  const isValidSignature = await verifyHmacSignature(data, providedSignature, CSRF_SECRET);
+  const isValidSignature = await verifyHmacSignature(data, providedSignature, getCsrfSecret());
   if (!isValidSignature) {
     return false;
   }

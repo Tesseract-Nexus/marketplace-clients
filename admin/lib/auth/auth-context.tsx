@@ -28,6 +28,7 @@ import {
 } from './auth-client';
 import { authConfig } from './config';
 import { SESSION_CONFIG, IDLE_CONFIG } from '../polling/config';
+import { logger } from '../logger';
 
 // =============================================================================
 // DEV AUTH BYPASS
@@ -102,8 +103,8 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
   // Log dev bypass mode on first render
   useEffect(() => {
     if (DEV_AUTH_BYPASS) {
-      console.log('[Auth] 🔓 DEV AUTH BYPASS ENABLED - Using mock session');
-      console.log('[Auth] Mock user:', DEV_MOCK_SESSION.user?.email);
+      logger.debug('[Auth] DEV AUTH BYPASS ENABLED - Using mock session');
+      logger.debug('[Auth] Mock user:', DEV_MOCK_SESSION.user?.email);
     }
   }, []);
 
@@ -133,13 +134,13 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
 
     // Request deduplication
     if (isRefreshingRef.current) {
-      console.log('[Auth] Skipping check - refresh in progress');
+      logger.debug('[Auth] Skipping check - refresh in progress');
       return null;
     }
 
     // Network check
     if (!isOnlineRef.current) {
-      console.log('[Auth] Skipping check - offline');
+      logger.debug('[Auth] Skipping check - offline');
       return null;
     }
 
@@ -158,7 +159,7 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
 
       return session;
     } catch (err) {
-      console.error('[Auth] Session check failed:', err);
+      logger.error('[Auth] Session check failed:', err);
       consecutiveFailuresRef.current++;
       setIsAuthenticated(false);
       setUser(null);
@@ -179,13 +180,13 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
 
     // Request deduplication
     if (isRefreshingRef.current) {
-      console.log('[Auth] Skipping refresh - already in progress');
+      logger.debug('[Auth] Skipping refresh - already in progress');
       return false;
     }
 
     // Network check
     if (!isOnlineRef.current) {
-      console.log('[Auth] Skipping refresh - offline');
+      logger.debug('[Auth] Skipping refresh - offline');
       return false;
     }
 
@@ -194,7 +195,7 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
       // expiresAt is in SECONDS, convert to ms for comparison
       const timeUntilExpiry = (expiresAt * 1000) - Date.now();
       if (timeUntilExpiry > 60000) { // More than 1 minute left
-        console.log('[Auth] Deferring refresh - user idle with time remaining');
+        logger.debug('[Auth] Deferring refresh - user idle with time remaining');
         return true; // Return true to not trigger logout
       }
     }
@@ -248,13 +249,13 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
         MAX_BACKOFF_MS
       );
       timeUntilRefresh = Math.max(timeUntilRefresh, backoffMs);
-      console.log(`[Auth] Backoff applied: ${backoffMs}ms (failures: ${consecutiveFailuresRef.current})`);
+      logger.debug(`[Auth] Backoff applied: ${backoffMs}ms (failures: ${consecutiveFailuresRef.current})`);
     }
 
     // Ensure we don't schedule in the past
     if (timeUntilRefresh <= 0) {
       // Session is already expiring or expired, refresh immediately
-      console.log('[Auth] Session expiring, refreshing now');
+      logger.debug('[Auth] Session expiring, refreshing now');
       handleRefresh().then(success => {
         if (!success) {
           setIsAuthenticated(false);
@@ -268,13 +269,13 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
     const maxScheduleTime = SESSION_CONFIG.CHECK_INTERVAL;
     const scheduledTime = Math.min(timeUntilRefresh, maxScheduleTime);
 
-    console.log(`[Auth] Smart scheduling: refresh in ${Math.round(scheduledTime / 1000)}s (expiry in ${Math.round(timeUntilExpiry / 1000)}s)`);
+    logger.debug(`[Auth] Smart scheduling: refresh in ${Math.round(scheduledTime / 1000)}s (expiry in ${Math.round(timeUntilExpiry / 1000)}s)`);
 
     refreshTimerRef.current = setTimeout(async () => {
       if (isSessionExpiring(expiresAt, authConfig.sessionRefreshThreshold)) {
         const success = await handleRefresh();
         if (!success && consecutiveFailuresRef.current >= MAX_CONSECUTIVE_FAILURES) {
-          console.error('[Auth] Max refresh failures reached, logging out');
+          logger.error('[Auth] Max refresh failures reached, logging out');
           setIsAuthenticated(false);
           setUser(null);
           return;
@@ -294,7 +295,7 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
     const resetIdleTimer = () => {
       if (isIdleRef.current) {
         isIdleRef.current = false;
-        console.log('[Auth] User active');
+        logger.debug('[Auth] User active');
         // Reschedule refresh when user becomes active
         if (isAuthenticated) {
           scheduleSmartRefresh();
@@ -307,7 +308,7 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
 
       idleTimerRef.current = setTimeout(() => {
         isIdleRef.current = true;
-        console.log('[Auth] User idle');
+        logger.debug('[Auth] User idle');
       }, IDLE_CONFIG.TIMEOUT);
     };
 
@@ -338,7 +339,7 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
 
     const handleOnline = () => {
       isOnlineRef.current = true;
-      console.log('[Auth] Network online');
+      logger.debug('[Auth] Network online');
       // Reschedule refresh when coming back online
       if (isAuthenticated) {
         scheduleSmartRefresh();
@@ -347,7 +348,7 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
 
     const handleOffline = () => {
       isOnlineRef.current = false;
-      console.log('[Auth] Network offline');
+      logger.debug('[Auth] Network offline');
     };
 
     window.addEventListener('online', handleOnline);
@@ -410,14 +411,14 @@ export function AuthProvider({ children, initialSession }: AuthProviderProps) {
         if (timeSinceLastCheck >= MIN_CHECK_INTERVAL_MS) {
           // Network check
           if (!isOnlineRef.current) {
-            console.log('[Auth] Tab visible but offline, skipping check');
+            logger.debug('[Auth] Tab visible but offline, skipping check');
             return;
           }
 
-          console.log('[Auth] Tab visible, checking session');
+          logger.debug('[Auth] Tab visible, checking session');
           checkSession();
         } else {
-          console.log(`[Auth] Tab visible but debounced (${Math.round((MIN_CHECK_INTERVAL_MS - timeSinceLastCheck) / 1000)}s remaining)`);
+          logger.debug(`[Auth] Tab visible but debounced (${Math.round((MIN_CHECK_INTERVAL_MS - timeSinceLastCheck) / 1000)}s remaining)`);
         }
       }
     };

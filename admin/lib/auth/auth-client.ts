@@ -10,6 +10,7 @@
  */
 
 import { authConfig } from './config';
+import { logger } from '../logger';
 
 /**
  * Session user information returned by BFF
@@ -71,7 +72,7 @@ export async function getSession(): Promise<SessionResponse> {
       }
       // Handle rate limit - don't throw, just return current state (unknown)
       if (response.status === 429) {
-        console.warn('Rate limited - will retry later');
+        logger.warn('[Auth] Rate limited - will retry later');
         return { authenticated: false, error: 'rate_limited' };
       }
       throw new AuthError(
@@ -88,7 +89,7 @@ export async function getSession(): Promise<SessionResponse> {
       throw error;
     }
     // Network error - assume not authenticated
-    console.error('Session check failed:', error);
+    logger.error('[Auth] Session check failed:', error);
     return { authenticated: false, error: 'network_error' };
   }
 }
@@ -315,7 +316,7 @@ export async function lookupTenants(email: string): Promise<LookupTenantsRespons
     const data = await response.json();
     return data as LookupTenantsResponse;
   } catch (error) {
-    console.error('Tenant lookup failed:', error);
+    logger.error('[Auth] Tenant lookup failed:', error);
     return {
       success: false,
       error: 'NETWORK_ERROR',
@@ -401,7 +402,7 @@ export async function directLogin(
     // Success
     return data as DirectLoginResponse;
   } catch (error) {
-    console.error('Direct login failed:', error);
+    logger.error('[Auth] Direct login failed:', error);
     return {
       success: false,
       error: 'NETWORK_ERROR',
@@ -431,7 +432,7 @@ export async function checkAccountStatus(
     const data = await response.json();
     return data as AccountStatusResponse;
   } catch (error) {
-    console.error('Account status check failed:', error);
+    logger.error('[Auth] Account status check failed:', error);
     return {
       success: false,
       account_locked: false,
@@ -465,7 +466,7 @@ export async function verifyMfa(
     const data = await response.json();
     return data as DirectLoginResponse;
   } catch (error) {
-    console.error('MFA verification failed:', error);
+    logger.error('[Auth] MFA verification failed:', error);
     return {
       success: false,
       error: 'NETWORK_ERROR',
@@ -498,7 +499,7 @@ export async function sendMfaCode(
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('MFA code send failed:', error);
+    logger.error('[Auth] MFA code send failed:', error);
     return {
       success: false,
       message: 'Unable to send code. Please try again.',

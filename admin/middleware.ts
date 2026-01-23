@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { logger } from '@/lib/logger';
 
 // SECURITY: Production runtime assertion - fail fast if dev bypass is enabled in production
 if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true') {
@@ -103,7 +104,7 @@ function extractBaseDomain(host: string): string {
 async function resolveCustomDomain(domain: string): Promise<{ tenantSlug: string; tenantId: string } | null> {
   // DEV MODE: Skip resolution
   if (DEV_AUTH_BYPASS) {
-    console.log('[Middleware] 🔓 DEV AUTH BYPASS - skipping domain resolution for:', domain);
+    logger.debug('[Middleware] DEV AUTH BYPASS - skipping domain resolution for:', domain);
     return null;
   }
 
@@ -112,7 +113,7 @@ async function resolveCustomDomain(domain: string): Promise<{ tenantSlug: string
   // Check cache first
   const cached = resolvedDomains.get(domain);
   if (cached && now - cached.timestamp < DOMAIN_CACHE_TTL) {
-    console.log('[Middleware] Custom domain resolved from cache:', domain, '->', cached.tenantSlug);
+    logger.debug('[Middleware] Custom domain resolved from cache:', domain, '->', cached.tenantSlug);
     return { tenantSlug: cached.tenantSlug, tenantId: cached.tenantId };
   }
 
@@ -138,23 +139,23 @@ async function resolveCustomDomain(domain: string): Promise<{ tenantSlug: string
           tenantId: result.tenant_id,
           timestamp: now,
         });
-        console.log('[Middleware] Custom domain resolved via API:', domain, '->', result.tenant_slug);
+        logger.debug('[Middleware] Custom domain resolved via API:', domain, '->', result.tenant_slug);
         return { tenantSlug: result.tenant_slug, tenantId: result.tenant_id };
       }
     }
 
     if (response.status === 404) {
-      console.log('[Middleware] Custom domain not found:', domain);
+      logger.debug('[Middleware] Custom domain not found:', domain);
       return null;
     }
 
-    console.error('[Middleware] Custom domain resolution failed:', response.status);
+    logger.error('[Middleware] Custom domain resolution failed:', response.status);
     return null;
   } catch (error) {
-    console.error('[Middleware] Custom domain resolution error:', error);
+    logger.error('[Middleware] Custom domain resolution error:', error);
     // Return cached value if available (even if stale)
     if (cached) {
-      console.log('[Middleware] Using stale cache for domain:', domain);
+      logger.debug('[Middleware] Using stale cache for domain:', domain);
       return { tenantSlug: cached.tenantSlug, tenantId: cached.tenantId };
     }
     return null;
@@ -231,7 +232,7 @@ function extractTenantFromHeaders(request: NextRequest): string | null {
 function validateTenantInBackground(slug: string): void {
   // Fire and forget - don't await
   fetchTenantValidation(slug).catch((err) => {
-    console.warn('[Middleware] Background validation failed:', err);
+    logger.warn('[Middleware] Background validation failed:', err);
   });
 }
 
@@ -276,7 +277,7 @@ async function fetchTenantValidation(slug: string): Promise<boolean> {
 
     // Log if tenant is still creating - this helps debug timing issues
     if (status === 'creating') {
-      console.log('[Middleware] Tenant still creating (onboarding in progress):', slug);
+      logger.debug('[Middleware] Tenant still creating (onboarding in progress):', slug);
     }
 
     return exists;
@@ -304,7 +305,7 @@ async function validateTenantExists(slug: string): Promise<boolean> {
   // DEV MODE: Skip tenant validation entirely
   // This allows running locally without tenant-service
   if (DEV_AUTH_BYPASS) {
-    console.log('[Middleware] 🔓 DEV AUTH BYPASS - skipping tenant validation for:', slug);
+    logger.debug('[Middleware] DEV AUTH BYPASS - skipping tenant validation for:', slug);
     return true;
   }
 
@@ -330,7 +331,7 @@ async function validateTenantExists(slug: string): Promise<boolean> {
     // FAIL-OPEN: If we have any cached data (even very stale), use it
     // This prioritizes availability over strict security for better UX
     if (cached) {
-      console.warn('[Middleware] Validation failed, using stale cache for:', slug);
+      logger.warn('[Middleware] Validation failed, using stale cache for:', slug);
       // Update timestamp to prevent repeated failed validations
       validatedTenants.set(slug, { ...cached, timestamp: now });
       return cached.exists;
@@ -338,7 +339,7 @@ async function validateTenantExists(slug: string): Promise<boolean> {
 
     // No cache at all - this is a new/unknown tenant
     // For security, deny access to completely unknown tenants
-    console.error('[Middleware] Tenant validation failed, no cache available:', error);
+    logger.error('[Middleware] Tenant validation failed, no cache available:', error);
     return false;
   }
 }
@@ -367,20 +368,20 @@ export async function middleware(request: NextRequest) {
   if (isCustomDomain(host)) {
     isCustomDomainRequest = true;
     const baseDomain = extractBaseDomain(host);
-    console.log('[Middleware] Detected custom domain request:', host, '-> base domain:', baseDomain);
+    logger.debug('[Middleware] Detected custom domain request:', host, '-> base domain:', baseDomain);
 
     // Resolve the custom domain to get tenant info
     const resolved = await resolveCustomDomain(baseDomain);
     if (resolved) {
       tenantSlug = resolved.tenantSlug;
       tenantId = resolved.tenantId;
-      console.log('[Middleware] Custom domain resolved:', baseDomain, '-> tenant:', tenantSlug);
+      logger.debug('[Middleware] Custom domain resolved:', baseDomain, '-> tenant:', tenantSlug);
     } else {
       // Fallback: Check if VirtualService injected headers
       tenantSlug = extractTenantFromHeaders(request);
       tenantId = request.headers.get('x-tenant-id');
       if (tenantSlug) {
-        console.log('[Middleware] Custom domain fallback - tenant from headers:', tenantSlug);
+        logger.debug('[Middleware] Custom domain fallback - tenant from headers:', tenantSlug);
       }
     }
   } else {
@@ -392,7 +393,7 @@ export async function middleware(request: NextRequest) {
       tenantSlug = extractTenantFromHeaders(request);
       tenantId = request.headers.get('x-tenant-id');
       if (tenantSlug) {
-        console.log('[Middleware] Tenant resolved from headers:', tenantSlug);
+        logger.debug('[Middleware] Tenant resolved from headers:', tenantSlug);
       }
     }
   }
@@ -400,7 +401,7 @@ export async function middleware(request: NextRequest) {
   // DEV MODE: Use mock tenant when no tenant found
   if (!tenantSlug && DEV_AUTH_BYPASS) {
     tenantSlug = 'dev-tenant';
-    console.log('[Middleware] 🔓 DEV AUTH BYPASS - using mock tenant: dev-tenant');
+    logger.debug('[Middleware] DEV AUTH BYPASS - using mock tenant: dev-tenant');
   }
 
   // If on root domain without tenant, let the app handle it
@@ -443,7 +444,7 @@ export async function middleware(request: NextRequest) {
       });
     }
 
-    console.log('[Middleware] Public path, set tenant cookie:', tenantSlug, 'for path:', pathname);
+    logger.debug('[Middleware] Public path, set tenant cookie:', tenantSlug, 'for path:', pathname);
     return response;
   }
 

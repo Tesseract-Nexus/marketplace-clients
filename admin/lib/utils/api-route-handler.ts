@@ -11,6 +11,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ERROR_CODES } from './api-error';
 import { getAccessTokenFromBFF } from '@/app/api/lib/auth-helper';
+import { logger } from '../logger';
 
 const AUTH_BFF_INTERNAL_URL =
   process.env.AUTH_BFF_INTERNAL_URL || 'http://auth-bff.marketplace.svc.cluster.local:8080';
@@ -185,7 +186,7 @@ async function getBffAccessToken(incomingRequest?: Request): Promise<BffTokenRes
 
     return data as BffTokenResponse;
   } catch (error) {
-    console.warn('[BFF] Failed to retrieve access token:', error);
+    logger.warn('[BFF] Failed to retrieve access token:', error);
     return null;
   }
 }
@@ -347,22 +348,22 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
 
   // First try to get Authorization from the incoming request
   let authHeader = incomingRequest?.headers.get('Authorization') || incomingRequest?.headers.get('authorization');
-  console.log('[Proxy Headers] Incoming auth header present:', !!authHeader);
+  logger.debug('[Proxy Headers] Incoming auth header present:', !!authHeader);
 
   // If no Authorization header, try to get token from BFF session
   if (!authHeader) {
-    console.log('[Proxy Headers] No auth header, trying BFF session...');
+    logger.debug('[Proxy Headers] No auth header, trying BFF session...');
     const bffToken = await getAccessTokenFromBFF();
     if (bffToken?.access_token) {
       authHeader = `Bearer ${bffToken.access_token}`;
-      console.log('[Proxy Headers] Got token from BFF, tenant_id:', bffToken.tenant_id || 'none');
+      logger.debug('[Proxy Headers] Got token from BFF, tenant_id:', bffToken.tenant_id || 'none');
 
       // Also set tenant context from BFF session
       if (bffToken.tenant_id) {
         headers['x-jwt-claim-tenant-id'] = bffToken.tenant_id;
       }
     } else {
-      console.log('[Proxy Headers] No token from BFF session');
+      logger.debug('[Proxy Headers] No token from BFF session');
     }
   }
 
@@ -414,18 +415,18 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
     if (incomingTenantId) {
       const jwtTenant = headers['x-jwt-claim-tenant-id'];
       if (jwtTenant && jwtTenant !== incomingTenantId) {
-        console.log('[Proxy Headers] Tenant override - JWT:', jwtTenant, '-> Incoming:', incomingTenantId);
+        logger.debug('[Proxy Headers] Tenant override - JWT:', jwtTenant, '-> Incoming:', incomingTenantId);
       }
       headers['x-jwt-claim-tenant-id'] = incomingTenantId;
     }
   }
 
   if (!headers['x-jwt-claim-tenant-id']) {
-    console.log('[Proxy Headers] WARNING: No tenant ID available');
+    logger.warn('[Proxy Headers] No tenant ID available');
   }
 
   // Debug: Log final headers being set
-  console.log('[Proxy Headers] Final headers - sub:', headers['x-jwt-claim-sub'] || 'MISSING',
+  logger.debug('[Proxy Headers] Final headers - sub:', headers['x-jwt-claim-sub'] || 'MISSING',
     'x-jwt-claim-tenant-id:', headers['x-jwt-claim-tenant-id'] || 'MISSING');
 
   return {
@@ -438,7 +439,7 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
  * Handle API route errors consistently
  */
 export function handleApiError<T = unknown>(error: any, context?: string): NextResponse<T> {
-  console.error(`[API Error]${context ? ` ${context}:` : ''}`, error);
+  logger.error(`[API Error]${context ? ` ${context}:` : ''}`, error);
 
   // Parse error
   let statusCode = 500;
