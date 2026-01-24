@@ -686,9 +686,9 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
         </div>
       </div>
 
-      {/* Enhanced Sticky Add to Cart (Mobile) - Shows when main button not visible */}
+      {/* Enhanced Sticky Add to Cart (Mobile) - Shows when main button not visible and setting enabled */}
       <AnimatePresence>
-        {isTouchDevice && showStickyBar && (
+        {isTouchDevice && showStickyBar && mobileConfig?.stickyAddToCart !== false && (
           <motion.div
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}

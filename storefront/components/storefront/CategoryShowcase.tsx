@@ -17,6 +17,7 @@ interface CategoryShowcaseProps {
   subtitle?: string;
   categories: Category[];
   isLoading?: boolean;
+  showViewAll?: boolean;
 }
 
 export function CategoryShowcase({
@@ -24,6 +25,7 @@ export function CategoryShowcase({
   subtitle,
   categories,
   isLoading = false,
+  showViewAll = true,
 }: CategoryShowcaseProps) {
   const getNavPath = useNavPath();
 
@@ -115,7 +117,7 @@ export function CategoryShowcase({
         )}
 
         {/* View All */}
-        {topCategories.length > 0 && (
+        {showViewAll && topCategories.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Product } from '@/types/storefront';
-import { useTenant, useProductConfig, useNavPath } from '@/context/TenantContext';
+import { useTenant, useProductConfig, useNavPath, useMobileConfig } from '@/context/TenantContext';
 import { useCartStore } from '@/store/cart';
 import { useListsStore, List } from '@/store/lists';
 import { useAuthStore } from '@/store/auth';
@@ -34,6 +34,7 @@ import { getProductShippingData } from '@/lib/utils/product-shipping';
 import { TranslatedProductName, TranslatedText } from '@/components/translation';
 import { PriceDisplay, PriceWithDiscount } from '@/components/currency/PriceDisplay';
 import { ImageLightbox } from '@/components/ui/ImageLightbox';
+import { QuickViewModal } from './QuickViewModal';
 
 // Low-quality image placeholder for blur effect
 const BLUR_DATA_URL = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMCwsLCgwMDQ4OCwwNDQ4QDw8RDwwQEBEREQ0NDg8QEBEQEP/2wBDAQMEBAUEBQkFBQkRDA0MERAREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREP/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAkH/8QAIhAAAgEEAQUBAAAAAAAAAAAAAQIDAAQFERIGByExQVH/xAAVAQEBAAAAAAAAAAAAAAAAAAAAAf/EABgRAAMBAQAAAAAAAAAAAAAAAAACAwEh/9oADAMBAAIRAxEAPwCwu5nUGZwtpBHh8PKJ5pC3NmQAKAOo8+Ttv7pSlKFYiLP/2Q==';
@@ -64,8 +65,10 @@ export function ProductCard({
   priority = false,
   loading = 'lazy',
 }: ProductCardProps) {
-  const { tenant } = useTenant();
+  const { tenant, settings } = useTenant();
   const baseProductConfig = useProductConfig();
+  const mobileConfig = useMobileConfig();
+  const hoverEffectsEnabled = settings.spacingStyleConfig?.hoverEffects !== false;
 
   // Merge block overrides with tenant config
   const productConfig = {
@@ -89,6 +92,7 @@ export function ProductCard({
   const [isCreatingList, setIsCreatingList] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
   const imageIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -181,6 +185,13 @@ export function ProductCard({
     setIsLightboxOpen(true);
   }, []);
 
+  // Open quick view modal
+  const openQuickView = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsQuickViewOpen(true);
+  }, []);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -217,13 +228,28 @@ export function ProductCard({
     landscape: 'aspect-[4/3]',
   }[productConfig.imageAspectRatio];
 
-  // Editorial design: clean, minimal cards with subtle borders
-  const cardStyleClass = {
-    default: 'bg-white',
-    minimal: 'bg-transparent',
-    bordered: 'bg-white',
-    elevated: 'bg-white',
-  }[productConfig.cardStyle];
+  // Card styles with proper differentiation
+  const cardStyleClasses = {
+    default: {
+      card: 'bg-background border border-[var(--border-default)] hover:border-[var(--border-strong)] hover:shadow-sm',
+      padding: 'p-4',
+    },
+    minimal: {
+      card: 'bg-transparent border-none shadow-none hover:bg-muted/30',
+      padding: 'p-2',
+    },
+    bordered: {
+      card: 'bg-background border-2 border-[var(--border-strong)] hover:border-[var(--tenant-primary)]/50',
+      padding: 'p-4',
+    },
+    elevated: {
+      card: 'bg-background border-none shadow-md hover:shadow-xl transition-shadow duration-300',
+      padding: 'p-4',
+    },
+  }[productConfig.cardStyle] || {
+    card: 'bg-background border border-[var(--border-default)] hover:border-[var(--border-strong)] hover:shadow-sm',
+    padding: 'p-4',
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -404,10 +430,7 @@ export function ProductCard({
       className={cn(
         'group relative overflow-hidden transition-all duration-200',
         'rounded-md',
-        'border border-[var(--border-default)]',
-        'hover:border-[var(--border-strong)]',
-        'hover:shadow-sm',
-        cardStyleClass,
+        cardStyleClasses.card,
         className
       )}
       onMouseEnter={!isTouchDevice ? handleMouseEnter : undefined}
@@ -466,8 +489,8 @@ export function ProductCard({
               fill
               className={cn(
                 'object-cover transition-transform duration-300',
-                productConfig.hoverEffect === 'zoom' && imageCount <= 1 && !isTouchDevice && 'group-hover:scale-[1.02]',
-                productConfig.hoverEffect === 'fade' && imageCount <= 1 && !isTouchDevice && 'group-hover:opacity-90',
+                hoverEffectsEnabled && productConfig.hoverEffect === 'zoom' && imageCount <= 1 && !isTouchDevice && 'group-hover:scale-[1.02]',
+                hoverEffectsEnabled && productConfig.hoverEffect === 'fade' && imageCount <= 1 && !isTouchDevice && 'group-hover:opacity-90',
                 imageError && 'object-contain p-8'
               )}
               placeholder="blur"
@@ -731,21 +754,33 @@ export function ProductCard({
                 </Button>
               )}
               {/* Quick View / Expand Image */}
-              <Button
-                variant="tenant-glass"
-                size="sm"
-                className="px-3"
-                onClick={openLightbox}
-                title="View larger image"
-              >
-                <Expand className="h-4 w-4" />
-              </Button>
+              {productConfig.showQuickView ? (
+                <Button
+                  variant="tenant-glass"
+                  size="sm"
+                  className="px-3"
+                  onClick={openQuickView}
+                  title="Quick view"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+              ) : (
+                <Button
+                  variant="tenant-glass"
+                  size="sm"
+                  className="px-3"
+                  onClick={openLightbox}
+                  title="View larger image"
+                >
+                  <Expand className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </motion.div>
         </div>
 
         {/* Content */}
-        <div className="p-4">
+        <div className={cardStyleClasses.padding}>
           {/* Category/Brand */}
           {product.brand && (
             <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-1.5 font-medium">
@@ -869,7 +904,17 @@ export function ProductCard({
         initialIndex={currentImageIndex}
         isOpen={isLightboxOpen}
         onClose={() => setIsLightboxOpen(false)}
+        enablePinchToZoom={mobileConfig?.pinchToZoom !== false}
       />
+
+      {/* Quick View Modal */}
+      {productConfig.showQuickView && (
+        <QuickViewModal
+          product={product}
+          isOpen={isQuickViewOpen}
+          onClose={() => setIsQuickViewOpen(false)}
+        />
+      )}
     </motion.div>
   );
 }

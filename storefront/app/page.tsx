@@ -6,6 +6,7 @@ import { FeaturedProducts } from '@/components/storefront/FeaturedProducts';
 import { CategoryShowcase } from '@/components/storefront/CategoryShowcase';
 import { NewsletterSection } from '@/components/storefront/NewsletterSection';
 import { PersonalizedOffers } from '@/components/marketing/PersonalizedOffers';
+import { DynamicHomeSections } from '@/components/storefront/DynamicHomeSections';
 import { getFeaturedProducts, getCategories } from '@/lib/api/storefront';
 import { resolveTenantId } from '@/lib/tenant';
 import type { LayoutTemplate, PageLayout } from '@/types/blocks';
@@ -56,7 +57,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     );
   }
 
-  // Legacy layout: Use traditional components
+  // Legacy layout: Use traditional components with dynamic section rendering
   const [products, categories] = await Promise.all([
     getFeaturedProducts(tenantId, tenantId, 8).catch(() => []),
     getCategories(tenantId, tenantId).catch(() => []),
@@ -64,15 +65,18 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   return (
     <>
+      {/* Hero Section - handles its own visibility based on homepageConfig.heroEnabled */}
       <HeroSection />
-      <FeaturedProducts products={products || []} />
+
+      {/* Dynamic sections from homepageConfig.sections */}
+      <DynamicHomeSections products={products || []} categories={categories || []} />
+
+      {/* Personalized offers - always shown if available */}
       <section className="py-12 bg-muted/30">
         <div className="container-tenant">
           <PersonalizedOffers limit={4} />
         </div>
       </section>
-      <CategoryShowcase categories={categories || []} />
-      <NewsletterSection />
     </>
   );
 }

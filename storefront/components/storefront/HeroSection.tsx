@@ -10,10 +10,18 @@ import { useTenant, useHomepageConfig, useNavPath } from '@/context/TenantContex
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 import { AnimatedCounter } from '@/components/ui/AnimatedCounter';
 import { type StoreStats, getEmptyStats, getDisplayStats } from '@/lib/api/stats';
+import { cn } from '@/lib/utils';
+import type { HomepageLayout } from '@/types/storefront';
 
-export function HeroSection() {
-  const { tenant } = useTenant();
+interface HeroSectionProps {
+  variant?: HomepageLayout;
+}
+
+export function HeroSection({ variant }: HeroSectionProps) {
+  const { tenant, settings } = useTenant();
   const homepageConfig = useHomepageConfig();
+  // Use prop variant or fall back to settings
+  const layoutVariant = variant || settings.layoutConfig?.homepageLayout || 'hero-grid';
   const getNavPath = useNavPath();
   const [stats, setStats] = useState<StoreStats>(getEmptyStats());
   const [statsLoaded, setStatsLoaded] = useState(false);
@@ -54,8 +62,22 @@ export function HeroSection() {
 
   const hasMedia = homepageConfig.heroImage || homepageConfig.heroVideo;
 
+  // Get height classes based on layout variant
+  const heightClasses = {
+    'hero-grid': 'min-h-[60vh] sm:min-h-[70vh] md:min-h-[85vh]',
+    'carousel': 'min-h-[60vh] sm:min-h-[70vh] md:min-h-[85vh]',
+    'minimal': 'min-h-[40vh] sm:min-h-[45vh] md:min-h-[50vh]',
+    'magazine': 'min-h-[50vh] sm:min-h-[55vh] md:min-h-[65vh]',
+  }[layoutVariant];
+
+  const showStats = layoutVariant !== 'minimal';
+  const showScrollIndicator = layoutVariant === 'hero-grid' || layoutVariant === 'carousel';
+
   return (
-    <section className="relative min-h-[60vh] sm:min-h-[70vh] md:min-h-[85vh] flex items-center overflow-hidden">
+    <section className={cn(
+      "relative flex items-center overflow-hidden",
+      heightClasses
+    )}>
       {/* Background */}
       <div className="absolute inset-0">
         {homepageConfig.heroVideo ? (
@@ -210,21 +232,22 @@ export function HeroSection() {
             </Button>
           </motion.div>
 
-          {/* Stats with animated counters - Always show with real data or placeholders */}
-          {!statsLoaded ? (
-            /* Loading skeleton while fetching stats */
-            <div className="grid grid-cols-3 gap-4 sm:flex sm:flex-wrap sm:gap-6 md:gap-10 mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-current/20 animate-pulse">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3">
-                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/10" />
-                  <div className="text-center sm:text-left">
-                    <div className="h-6 sm:h-8 w-12 sm:w-16 bg-white/10 rounded mb-1 mx-auto sm:mx-0" />
-                    <div className="h-3 sm:h-4 w-16 sm:w-20 bg-white/10 rounded mx-auto sm:mx-0" />
+          {/* Stats with animated counters - show based on layout variant */}
+          {showStats && (
+            !statsLoaded ? (
+              /* Loading skeleton while fetching stats */
+              <div className="grid grid-cols-3 gap-4 sm:flex sm:flex-wrap sm:gap-6 md:gap-10 mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-current/20 animate-pulse">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="flex flex-col sm:flex-row items-center sm:items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/10" />
+                    <div className="text-center sm:text-left">
+                      <div className="h-6 sm:h-8 w-12 sm:w-16 bg-white/10 rounded mb-1 mx-auto sm:mx-0" />
+                      <div className="h-3 sm:h-4 w-16 sm:w-20 bg-white/10 rounded mx-auto sm:mx-0" />
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
+                ))}
+              </div>
+            ) : (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -270,29 +293,31 @@ export function HeroSection() {
                 </div>
               </div>
             </motion.div>
-          )}
+          ))}
         </div>
       </div>
 
       {/* Bottom gradient fade */}
       <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent pointer-events-none" />
 
-      {/* Scroll indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 0.5 }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:block"
-      >
+      {/* Scroll indicator - only for hero-grid and carousel layouts */}
+      {showScrollIndicator && (
         <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-          className="w-6 h-10 border-2 rounded-full flex items-start justify-center p-2"
-          style={{ borderColor: 'var(--tenant-gradient-text)', opacity: 0.5 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5, duration: 0.5 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:block"
         >
-          <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--tenant-gradient-text)' }} />
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ repeat: Infinity, duration: 1.5 }}
+            className="w-6 h-10 border-2 rounded-full flex items-start justify-center p-2"
+            style={{ borderColor: 'var(--tenant-gradient-text)', opacity: 0.5 }}
+          >
+            <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: 'var(--tenant-gradient-text)' }} />
+          </motion.div>
         </motion.div>
-      </motion.div>
+      )}
     </section>
   );
 }

@@ -8,7 +8,12 @@ import { Input } from '@/components/ui/input';
 import { useHomepageConfig } from '@/context/TenantContext';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 
-export function NewsletterSection() {
+interface NewsletterSectionProps {
+  title?: string;
+  subtitle?: string;
+}
+
+export function NewsletterSection({ title, subtitle }: NewsletterSectionProps) {
   const homepageConfig = useHomepageConfig();
   const [email, setEmail] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -52,7 +57,7 @@ export function NewsletterSection() {
               viewport={{ once: true }}
               className="text-2xl md:text-3xl font-bold mb-4"
             >
-              <TranslatedUIText text={homepageConfig.newsletterTitle || 'Subscribe to our newsletter'} />
+              <TranslatedUIText text={title || homepageConfig.newsletterTitle || 'Subscribe to our newsletter'} />
             </motion.h2>
 
             <motion.p
@@ -63,7 +68,7 @@ export function NewsletterSection() {
               className="text-muted-foreground mb-8"
             >
               <TranslatedUIText
-                text={homepageConfig.newsletterSubtitle ||
+                text={subtitle || homepageConfig.newsletterSubtitle ||
                   'Get updates on new products and exclusive offers'}
               />
             </motion.p>

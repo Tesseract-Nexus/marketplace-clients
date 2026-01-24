@@ -19,7 +19,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useTenant, useHeaderConfig, useNavPath } from '@/context/TenantContext';
+import { useTenant, useHeaderConfig, useNavPath, useMobileConfig } from '@/context/TenantContext';
 import { useCartStore } from '@/store/cart';
 import { useListsStore } from '@/store/lists';
 import { useAuthStore } from '@/store/auth';
@@ -34,7 +34,17 @@ export function Header() {
   const router = useRouter();
   const { tenant, settings } = useTenant();
   const headerConfig = useHeaderConfig();
+  const mobileConfig = useMobileConfig();
   const getNavPath = useNavPath();
+  const mobileMenuStyle = mobileConfig?.mobileMenuStyle || 'slide';
+  const mobileHeaderStyle = mobileConfig?.mobileHeaderStyle || 'standard';
+
+  // Get mobile header classes based on style
+  const mobileHeaderClasses = {
+    compact: 'md:hidden py-1',
+    standard: 'md:hidden py-2',
+    minimal: 'md:hidden py-1',
+  }[mobileHeaderStyle];
   const cartItems = useCartStore((state) => state.items);
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const lists = useListsStore((state) => state.lists);
@@ -126,7 +136,15 @@ export function Header() {
                   <span className="sr-only">Toggle menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-[300px] sm:w-[350px] p-0">
+              <SheetContent
+                side={mobileMenuStyle === 'dropdown' ? 'top' : 'left'}
+                className={cn(
+                  'p-0',
+                  mobileMenuStyle === 'slide' && 'w-[300px] sm:w-[350px]',
+                  mobileMenuStyle === 'fullscreen' && 'w-full max-w-full sm:w-full sm:max-w-full',
+                  mobileMenuStyle === 'dropdown' && 'h-auto max-h-[85vh] rounded-b-2xl'
+                )}
+              >
                 <SheetHeader className="p-4 border-b">
                   <SheetTitle className="text-left">
                     {settings.logoUrl ? (

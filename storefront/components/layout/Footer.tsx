@@ -142,10 +142,29 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
   const hasSocialLinks = footerConfig.showSocialIcons && socialLinks.length > 0;
   const hasContactInfo = footerConfig.showContactInfo && (footerConfig.contactEmail || footerConfig.contactPhone || footerConfig.contactAddress);
+  const hasCustomColors = !!(footerConfig.footerBgColor || footerConfig.footerTextColor);
+
+  // Use inherit for text when custom colors are set, otherwise use theme colors
+  const textMutedClass = hasCustomColors ? 'opacity-70' : 'text-muted-foreground';
+  const textForegroundClass = hasCustomColors ? '' : 'text-foreground';
+
+  // Apply custom footer colors if set - uses CSS custom properties to cascade to children
+  const footerStyles: React.CSSProperties = {
+    ...(footerConfig.footerBgColor && {
+      backgroundColor: footerConfig.footerBgColor,
+      '--footer-bg': footerConfig.footerBgColor,
+    } as React.CSSProperties),
+    ...(footerConfig.footerTextColor && {
+      color: footerConfig.footerTextColor,
+      '--footer-text': footerConfig.footerTextColor,
+      '--footer-text-muted': `color-mix(in srgb, ${footerConfig.footerTextColor} 70%, transparent)`,
+    } as React.CSSProperties),
+  };
 
   return (
     <footer
-      className="relative border-t border-[var(--border-default)] bg-[var(--surface-default)]"
+      className={`relative border-t border-[var(--border-default)] ${footerConfig.footerBgColor ? '' : 'bg-[var(--surface-default)]'}`}
+      style={footerStyles}
     >
       {/* Solid accent line at top - editorial style (no gradient) */}
       <div

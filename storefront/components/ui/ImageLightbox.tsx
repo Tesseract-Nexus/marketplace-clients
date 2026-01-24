@@ -22,6 +22,7 @@ interface ImageLightboxProps {
   initialIndex?: number;
   isOpen: boolean;
   onClose: () => void;
+  enablePinchToZoom?: boolean;
 }
 
 export function ImageLightbox({
@@ -29,6 +30,7 @@ export function ImageLightbox({
   initialIndex = 0,
   isOpen,
   onClose,
+  enablePinchToZoom = true,
 }: ImageLightboxProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [scale, setScale] = useState(1);
@@ -189,8 +191,8 @@ export function ImageLightbox({
           x: lastPosition.current.x + deltaX,
           y: lastPosition.current.y + deltaY,
         });
-      } else if (e.touches.length === 2 && touchStart.current.distance) {
-        // Pinch zoom
+      } else if (e.touches.length === 2 && touchStart.current.distance && enablePinchToZoom) {
+        // Pinch zoom - only if enabled
         const newDistance = Math.hypot(
           (e.touches[0]?.clientX ?? 0) - (e.touches[1]?.clientX ?? 0),
           (e.touches[0]?.clientY ?? 0) - (e.touches[1]?.clientY ?? 0)
