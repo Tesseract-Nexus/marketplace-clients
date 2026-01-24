@@ -13,8 +13,8 @@ import {
   ArrowRight,
   RefreshCw,
   ChartNoAxesCombined,
-  Loader2,
 } from 'lucide-react';
+import { LastUpdatedStatus } from '@/components/LastUpdatedStatus';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
 import { Button } from '@/components/ui/button';
@@ -83,7 +83,7 @@ export default function AnalyticsOverviewPage() {
   const { currency } = useTenantCurrency();
 
   // Use React Query for cached data fetching
-  const { data, isLoading, error, refetch, isFetching } = useAnalyticsOverview(dateRange);
+  const { data, isLoading, error, refetch, isFetching, dataUpdatedAt } = useAnalyticsOverview(dateRange);
   const { invalidateOverview } = useInvalidateAnalytics();
 
   // Refresh handler that invalidates cache and refetches
@@ -164,6 +164,12 @@ export default function AnalyticsOverviewPage() {
             { label: 'Analytics', href: '/analytics' },
             { label: 'Overview' },
           ]}
+          status={
+            <LastUpdatedStatus
+              lastUpdated={dataUpdatedAt ? new Date(dataUpdatedAt) : null}
+              isFetching={isFetching}
+            />
+          }
           actions={
             <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-border rounded-md p-1.5 shadow-sm">
               <Select

@@ -11,8 +11,8 @@ import {
   RefreshCw,
   ArrowUpRight,
   ArrowDownRight,
-  Loader2,
 } from 'lucide-react';
+import { LastUpdatedStatus } from '@/components/LastUpdatedStatus';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
 import { Button } from '@/components/ui/button';
@@ -112,7 +112,7 @@ export default function InventoryAnalyticsPage() {
   const { currency } = useTenantCurrency();
 
   // Use React Query for cached data fetching
-  const { data, isLoading, error, refetch, isFetching } = useInventoryAnalytics();
+  const { data, isLoading, error, refetch, isFetching, dataUpdatedAt } = useInventoryAnalytics();
   const { invalidateInventory } = useInvalidateAnalytics();
 
   // Refresh handler that invalidates cache and refetches
@@ -177,6 +177,12 @@ export default function InventoryAnalyticsPage() {
             { label: 'Analytics', href: '/analytics' },
             { label: 'Inventory' },
           ]}
+          status={
+            <LastUpdatedStatus
+              lastUpdated={dataUpdatedAt ? new Date(dataUpdatedAt) : null}
+              isFetching={isFetching}
+            />
+          }
           actions={
             <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-border rounded-xl p-1.5 shadow-sm">
               <Button

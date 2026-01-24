@@ -10,12 +10,12 @@ import {
   MapPin,
   RefreshCw,
   AlertTriangle,
-  Loader2,
   Crown,
   PieChart as PieChartIcon,
   Globe,
   BarChart3,
 } from 'lucide-react';
+import { LastUpdatedStatus } from '@/components/LastUpdatedStatus';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
 import { Button } from '@/components/ui/button';
@@ -113,7 +113,7 @@ export default function CustomerAnalyticsPage() {
   const { currency } = useTenantCurrency();
 
   // Use React Query for cached data fetching
-  const { data, isLoading, error, refetch, isFetching } = useCustomerAnalytics(dateRange);
+  const { data, isLoading, error, refetch, isFetching, dataUpdatedAt } = useCustomerAnalytics(dateRange);
   const { invalidateCustomers } = useInvalidateAnalytics();
 
   // Refresh handler that invalidates cache and refetches
@@ -182,6 +182,12 @@ export default function CustomerAnalyticsPage() {
             { label: 'Analytics', href: '/analytics' },
             { label: 'Customers', href: '/customers' },
           ]}
+          status={
+            <LastUpdatedStatus
+              lastUpdated={dataUpdatedAt ? new Date(dataUpdatedAt) : null}
+              isFetching={isFetching}
+            />
+          }
           actions={
             <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-border rounded-md p-1.5 shadow-sm">
               <Select
