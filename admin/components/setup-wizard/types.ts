@@ -177,28 +177,10 @@ export const TOUR_STEPS: SpotlightStep[] = [
   },
 ];
 
-// Form data types for wizard steps
-export interface CategoryFormData {
-  name: string;
-  description: string;
-}
-
-export interface ProductFormData {
-  name: string;
-  price: string;
-  categoryId: string;
-  sku?: string;
-}
-
-export interface StaffFormData {
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: 'admin' | 'manager' | 'employee' | 'readonly';
-}
-
-export interface SettingsFormData {
-  contactEmail: string;
-  contactPhone: string;
-  timezone: string;
-}
+// Navigation destinations for wizard steps
+export const WIZARD_DESTINATIONS = {
+  category: '/categories',
+  product: '/products',
+  staff: '/staff',
+  settings: '/settings/general',
+} as const;

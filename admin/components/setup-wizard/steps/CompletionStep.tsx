@@ -10,6 +10,7 @@ import {
   Settings,
   ArrowRight,
   SkipForward,
+  ExternalLink,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSetupWizard } from '../SetupWizardProvider';
@@ -22,14 +23,7 @@ interface CompletionStepProps {
 
 export function CompletionStep({ onFinish }: CompletionStepProps) {
   const { currentTenant } = useTenant();
-  const {
-    createdCategory,
-    createdProduct,
-    invitedStaff,
-    completedSteps,
-    skippedSteps,
-    markStepComplete,
-  } = useSetupWizard();
+  const { completedSteps, skippedSteps, markStepComplete } = useSetupWizard();
   const [showConfetti, setShowConfetti] = useState(false);
 
   // Mark completion step as complete and trigger celebration
@@ -48,39 +42,39 @@ export function CompletionStep({ onFinish }: CompletionStepProps) {
   const completionItems = [
     {
       icon: FolderPlus,
-      label: 'Category',
-      value: createdCategory?.name,
+      label: 'Categories',
+      href: '/categories',
       completed: completedSteps.includes('category'),
       skipped: skippedSteps.includes('category'),
     },
     {
       icon: Package,
-      label: 'Product',
-      value: createdProduct?.name,
+      label: 'Products',
+      href: '/products',
       completed: completedSteps.includes('product'),
       skipped: skippedSteps.includes('product'),
     },
     {
       icon: UserPlus,
-      label: 'Team Member',
-      value: invitedStaff?.email,
+      label: 'Team Members',
+      href: '/staff',
       completed: completedSteps.includes('staff'),
       skipped: skippedSteps.includes('staff'),
     },
     {
       icon: Settings,
-      label: 'Settings',
-      value: 'Configured',
+      label: 'Store Settings',
+      href: '/settings/general',
       completed: completedSteps.includes('settings'),
       skipped: false,
     },
   ];
 
   const nextSteps = [
-    { label: 'Add more products to your catalog', href: '/products' },
-    { label: 'Set up shipping and payments', href: '/settings/shipping-carriers' },
+    { label: 'Set up payment methods', href: '/settings/payments' },
+    { label: 'Configure shipping options', href: '/settings/shipping-carriers' },
     { label: 'Customize your storefront', href: '/storefronts' },
-    { label: 'View your analytics dashboard', href: '/analytics' },
+    { label: 'View analytics dashboard', href: '/analytics' },
   ];
 
   return (
@@ -115,10 +109,10 @@ export function CompletionStep({ onFinish }: CompletionStepProps) {
             <PartyPopper className="w-8 h-8 text-success" />
           </div>
           <h2 className="text-2xl font-bold text-foreground mb-2">
-            Congratulations!
+            You're All Set!
           </h2>
           <p className="text-muted-foreground">
-            {currentTenant?.name || 'Your store'} is ready to go. Here's what was set up:
+            {currentTenant?.name || 'Your store'} is ready. Here's a summary of what you've explored:
           </p>
         </div>
 
@@ -126,15 +120,16 @@ export function CompletionStep({ onFinish }: CompletionStepProps) {
         <div className="px-6 pb-6">
           <div className="space-y-2 mb-6">
             {completionItems.map((item, index) => (
-              <div
+              <a
                 key={index}
+                href={item.href}
                 className={cn(
-                  'flex items-center gap-3 p-3 rounded-lg border',
+                  'flex items-center gap-3 p-3 rounded-lg border transition-colors',
                   item.completed
-                    ? 'border-success/30 bg-success/5'
+                    ? 'border-success/30 bg-success/5 hover:bg-success/10'
                     : item.skipped
-                    ? 'border-border bg-muted/30'
-                    : 'border-border bg-card'
+                    ? 'border-border bg-muted/30 hover:bg-muted/50'
+                    : 'border-border bg-card hover:bg-muted/50'
                 )}
               >
                 <div
@@ -157,26 +152,22 @@ export function CompletionStep({ onFinish }: CompletionStepProps) {
                 </div>
                 <div className="flex-1">
                   <span className="text-sm font-medium text-foreground">{item.label}</span>
-                  {item.value && (
-                    <span className="text-sm text-muted-foreground ml-2">
-                      {item.value}
-                    </span>
-                  )}
                 </div>
                 {item.completed && (
-                  <span className="text-xs text-success font-medium">Completed</span>
+                  <span className="text-xs text-success font-medium">Visited</span>
                 )}
                 {item.skipped && (
                   <span className="text-xs text-muted-foreground">Skipped</span>
                 )}
-              </div>
+                <ExternalLink className="w-4 h-4 text-muted-foreground" />
+              </a>
             ))}
           </div>
 
           {/* Next Steps */}
           <div className="border-t border-border pt-6">
             <h3 className="text-sm font-semibold text-foreground mb-3">
-              Suggested Next Steps
+              Recommended Next Steps
             </h3>
             <div className="space-y-2">
               {nextSteps.map((step, index) => (
@@ -201,7 +192,7 @@ export function CompletionStep({ onFinish }: CompletionStepProps) {
       {/* Actions */}
       <div className="border-t border-border px-6 py-4 bg-muted/30">
         <Button onClick={onFinish} className="w-full h-12 text-base" variant="success">
-          Explore Your Dashboard
+          Close & Explore Dashboard
           <ArrowRight className="w-4 h-4 ml-2" />
         </Button>
       </div>
