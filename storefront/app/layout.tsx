@@ -53,15 +53,18 @@ export const metadata: Metadata = {
 };
 
 // Get default settings with theme preset
-function getDefaultSettings(slug: string, tenantId?: string): StorefrontSettings {
-  const vibrantTheme = THEME_PRESETS.find(t => t.id === 'vibrant') ?? THEME_PRESETS[0];
+function getDefaultSettings(slug: string, tenantId?: string, themeTemplate?: string): StorefrontSettings {
+  // Use the specified themeTemplate, or fall back to 'vibrant' as default
+  const templateId = themeTemplate || 'vibrant';
+  const theme = THEME_PRESETS.find(t => t.id === templateId) ?? THEME_PRESETS.find(t => t.id === 'vibrant') ?? THEME_PRESETS[0];
   return {
     ...DEFAULT_STOREFRONT_SETTINGS,
     id: slug,
     tenantId: tenantId || slug,
-    primaryColor: vibrantTheme?.primaryColor ?? '#8B5CF6',
-    secondaryColor: vibrantTheme?.secondaryColor ?? '#EC4899',
-    accentColor: vibrantTheme?.accentColor ?? '#F59E0B',
+    themeTemplate: templateId,
+    primaryColor: theme?.primaryColor ?? '#8B5CF6',
+    secondaryColor: theme?.secondaryColor ?? '#EC4899',
+    accentColor: theme?.accentColor ?? '#F59E0B',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   } as StorefrontSettings;
@@ -129,9 +132,26 @@ function mergeLayoutConfig(
 function mergeWithDefaults(apiSettings: Partial<StorefrontSettings> | null, defaults: StorefrontSettings): StorefrontSettings {
   if (!apiSettings) return defaults;
 
+  // If themeTemplate is set, derive colors from the preset if not explicitly provided
+  let themeColors: { primaryColor?: string; secondaryColor?: string; accentColor?: string } = {};
+  if (apiSettings.themeTemplate) {
+    const preset = THEME_PRESETS.find(t => t.id === apiSettings.themeTemplate);
+    if (preset) {
+      themeColors = {
+        primaryColor: preset.primaryColor,
+        secondaryColor: preset.secondaryColor,
+        accentColor: preset.accentColor,
+      };
+    }
+  }
+
   return {
     ...defaults,
     ...apiSettings,
+    // Use API colors if provided, otherwise use theme preset colors, then defaults
+    primaryColor: apiSettings.primaryColor || themeColors.primaryColor || defaults.primaryColor,
+    secondaryColor: apiSettings.secondaryColor || themeColors.secondaryColor || defaults.secondaryColor,
+    accentColor: apiSettings.accentColor || themeColors.accentColor || defaults.accentColor,
     // Ensure fonts are always set (even if API returns empty strings)
     fontPrimary: apiSettings.fontPrimary || defaults.fontPrimary,
     fontSecondary: apiSettings.fontSecondary || defaults.fontSecondary,
@@ -224,7 +244,8 @@ export default async function RootLayout({
     getStoreLocalization(storefrontId, tenantId),
   ]);
 
-  const defaults = getDefaultSettings(slug, tenantId);
+  // Pass themeTemplate to get correct default colors based on the selected theme
+  const defaults = getDefaultSettings(slug, tenantId, themeSettings?.themeTemplate);
   const settings = mergeWithDefaults(
     { ...themeSettings, contentPages, marketingConfig: marketingConfig || undefined },
     defaults

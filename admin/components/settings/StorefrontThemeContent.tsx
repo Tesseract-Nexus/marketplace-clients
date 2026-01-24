@@ -577,11 +577,17 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                       selectedTheme={settings.themeTemplate}
                       onThemeSelect={(theme) => {
                         const preset = THEME_PRESETS.find((p) => p.id === theme);
-                        updateSettings({
-                          themeTemplate: theme,
-                          primaryColor: preset?.primaryColor || settings.primaryColor,
-                          secondaryColor: preset?.secondaryColor || settings.secondaryColor,
-                        });
+                        if (preset) {
+                          // Always save all colors from the preset when changing theme
+                          updateSettings({
+                            themeTemplate: theme,
+                            primaryColor: preset.primaryColor,
+                            secondaryColor: preset.secondaryColor,
+                            accentColor: preset.accentColor,
+                          });
+                        } else {
+                          updateSettings({ themeTemplate: theme });
+                        }
                       }}
                     />
                   </div>
