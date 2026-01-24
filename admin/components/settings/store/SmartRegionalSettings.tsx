@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Check, ChevronDown, ChevronUp, RefreshCw } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, RefreshCw, Globe } from 'lucide-react';
 import { Select } from '@/components/Select';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,12 +15,15 @@ import {
   DATE_FORMAT_OPTIONS,
   getTimezoneLabel,
   getAutoSyncedSettings,
+  getLanguageOptionsForCountry,
+  getLanguageByCode,
 } from '@/lib/constants/settings';
 
 interface RegionalData {
   currency: string;
   timezone: string;
   dateFormat: string;
+  language?: string;
 }
 
 interface SmartRegionalSettingsProps {
@@ -41,18 +44,34 @@ export function SmartRegionalSettings({
     return getAutoSyncedSettings(countryCode);
   }, [countryCode]);
 
+  // Get language options for the country - English always first
+  const languageOptions = useMemo(() => {
+    return getLanguageOptionsForCountry(countryCode).map((l) => ({
+      value: l.value,
+      label: `${l.label} (${l.nativeName})`,
+    }));
+  }, [countryCode]);
+
+  // Current language value - default to English if not set
+  const currentLanguage = data.language || 'en';
+  const currentLanguageInfo = getLanguageByCode(currentLanguage);
+
   // Check if current values match auto-synced values
   const isAutoSynced = useMemo(() => {
     return (
       data.currency === autoSyncedValues.currency &&
       data.timezone === autoSyncedValues.timezone &&
-      data.dateFormat === autoSyncedValues.dateFormat
+      data.dateFormat === autoSyncedValues.dateFormat &&
+      (data.language === 'en' || !data.language) // English is always the default
     );
   }, [data, autoSyncedValues]);
 
   // Reset to auto-synced values
   const handleResetToDefault = () => {
-    onChange(autoSyncedValues);
+    onChange({
+      ...autoSyncedValues,
+      language: 'en', // Always reset to English
+    });
     setIsExpanded(false);
   };
 
@@ -89,6 +108,11 @@ export function SmartRegionalSettings({
               </span>
               {' \u2022 '}
               <span className="font-medium text-foreground">{data.dateFormat}</span>
+              {' \u2022 '}
+              <Globe className="h-3 w-3 inline-block mx-0.5" />
+              <span className="font-medium text-foreground">
+                {currentLanguageInfo?.label || 'English'}
+              </span>
             </span>
           </div>
           <div className="flex items-center gap-1">
@@ -123,13 +147,13 @@ export function SmartRegionalSettings({
         {/* Auto-sync indicator */}
         {isAutoSynced && countryCode && (
           <p className="text-xs text-muted-foreground">
-            Auto-synced with country selection
+            Auto-synced with country selection (English default)
           </p>
         )}
 
         {/* Expanded Override Controls */}
         <CollapsibleContent className="space-y-3 pt-2">
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {/* Currency */}
             <div data-field="business.currency">
               <label className="block text-xs font-medium text-muted-foreground mb-1.5">
@@ -164,6 +188,23 @@ export function SmartRegionalSettings({
                 onChange={(value) => onChange({ dateFormat: value })}
                 options={dateFormatSelectOptions}
               />
+            </div>
+
+            {/* Language */}
+            <div>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                Language
+              </label>
+              <Select
+                value={currentLanguage}
+                onChange={(value) => onChange({ language: value })}
+                options={languageOptions}
+              />
+              {languageOptions.length > 1 && (
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  Regional languages available for your country
+                </p>
+              )}
             </div>
           </div>
         </CollapsibleContent>
