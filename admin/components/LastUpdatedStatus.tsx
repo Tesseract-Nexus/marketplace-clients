@@ -17,7 +17,7 @@ interface LastUpdatedStatusProps {
 /**
  * Formats a date to a human-readable "time ago" string
  */
-function formatLastUpdated(date: Date | null): string {
+function formatLastUpdated(date: Date | null | undefined): string {
   if (!date) return 'Never';
 
   const now = new Date();
