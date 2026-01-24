@@ -19,10 +19,14 @@ import {
   BarChart3,
   ShoppingCart,
   Megaphone,
+  Sparkles,
+  PlayCircle,
+  RotateCcw,
 } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useSetupWizard } from '@/components/setup-wizard';
 
 // Getting Started Steps
 interface SetupStep {
@@ -200,6 +204,18 @@ function FAQAccordion({ items }: { items: FAQItem[] }) {
 }
 
 export default function SupportPage() {
+  const { openWizard, resetWizard, completedAt, phase } = useSetupWizard();
+  const hasCompletedWizard = !!completedAt;
+
+  const handleOpenWizard = () => {
+    openWizard();
+  };
+
+  const handleRestartWizard = () => {
+    resetWizard();
+    openWizard();
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
@@ -211,6 +227,49 @@ export default function SupportPage() {
             { label: 'Support' },
           ]}
         />
+
+        {/* Interactive Setup Wizard Card */}
+        <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-lg p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Interactive Setup Wizard</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {hasCompletedWizard
+                    ? 'You\'ve completed the setup wizard. Want to go through it again?'
+                    : 'New to the admin portal? Take a guided tour and set up your store step by step.'}
+                </p>
+                {hasCompletedWizard && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Completed on {new Date(completedAt).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {hasCompletedWizard ? (
+                <>
+                  <Button variant="outline" onClick={handleOpenWizard}>
+                    <PlayCircle className="h-4 w-4 mr-2" />
+                    Resume
+                  </Button>
+                  <Button onClick={handleRestartWizard}>
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Start Over
+                  </Button>
+                </>
+              ) : (
+                <Button onClick={handleOpenWizard}>
+                  <PlayCircle className="h-4 w-4 mr-2" />
+                  Start Setup Wizard
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
 
         {/* Contact Support Banner */}
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
