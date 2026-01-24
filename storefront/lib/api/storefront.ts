@@ -35,14 +35,20 @@ export interface StorefrontResolution {
 export async function resolveStorefront(slug: string): Promise<StorefrontResolution | null> {
   try {
     // Use public endpoint for anonymous storefront access
+    const url = `${serviceUrls.vendors}/public/storefronts/resolve/by-slug/${slug}`;
+    console.log(`[resolveStorefront] Fetching from: ${url}`);
+
     const response = await apiRequest<ApiResponse<any>>(
-      `${serviceUrls.vendors}/public/storefronts/resolve/by-slug/${slug}`,
+      url,
       { cache: 'no-store' }
     );
 
     const data = response.data || response;
+    const resolvedId = data.storefrontId || data.id;
+    console.log(`[resolveStorefront] Resolved: storefrontId=${resolvedId}, tenantId=${data.tenantId || data.vendorId}, isActive=${data.isActive}`);
+
     return {
-      id: data.storefrontId || data.id,
+      id: resolvedId,
       tenantId: data.tenantId || data.vendorId,
       isActive: data.isActive ?? true, // Default to true for backward compatibility
       name: data.name,
@@ -50,7 +56,7 @@ export async function resolveStorefront(slug: string): Promise<StorefrontResolut
       themeConfig: data.themeConfig,
     };
   } catch (error) {
-    console.error('Failed to resolve storefront:', error);
+    console.error('[resolveStorefront] Failed to resolve storefront:', error);
   }
   return null;
 }
@@ -115,15 +121,19 @@ export async function getStorefrontTheme(
 ): Promise<Partial<StorefrontSettings> | null> {
   try {
     // Use public endpoint for anonymous storefront access
+    const url = `${serviceUrls.settings}/api/v1/public/storefront-theme/${storefrontId}`;
+    console.log(`[getStorefrontTheme] Fetching from: ${url}, storefrontId=${storefrontId}, tenantId=${tenantId}`);
+
     const response = await apiRequest<ApiResponse<any>>(
-      `${serviceUrls.settings}/api/v1/public/storefront-theme/${storefrontId}`,
+      url,
       { tenantId, storefrontId, cache: 'no-store' }
     );
 
     const rawData = response.data || response;
+    console.log(`[getStorefrontTheme] Received settings: themeTemplate=${rawData?.themeTemplate}, primaryColor=${rawData?.primaryColor}`);
     return transformBackendSettings(rawData);
   } catch (error) {
-    console.error('Failed to fetch storefront theme:', error);
+    console.error('[getStorefrontTheme] Failed to fetch storefront theme:', error);
     return null;
   }
 }

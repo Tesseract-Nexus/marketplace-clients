@@ -207,6 +207,12 @@ export default async function RootLayout({
   const storefrontId = resolution?.id || tenantHost.storefront_id || tenantHost.tenant_id;
   const tenantId = resolution?.tenantId || tenantHost.tenant_id;
 
+  // Log ID resolution for debugging theme settings issues
+  console.log(`[RootLayout] Tenant slug: ${slug}`);
+  console.log(`[RootLayout] Resolution from vendor-service: id=${resolution?.id}, tenantId=${resolution?.tenantId}`);
+  console.log(`[RootLayout] TenantHost from router: storefront_id=${tenantHost.storefront_id}, tenant_id=${tenantHost.tenant_id}`);
+  console.log(`[RootLayout] Final IDs: storefrontId=${storefrontId}, tenantId=${tenantId}`);
+
   // Fetch theme settings, content pages, marketing settings, and localization in parallel
   const [themeSettings, contentPages, marketingConfig, localization] = await Promise.all([
     getStorefrontTheme(storefrontId, tenantId),
