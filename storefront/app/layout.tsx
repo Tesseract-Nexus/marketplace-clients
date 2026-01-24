@@ -19,6 +19,8 @@ import { generateCssVariables, generateCssString } from '@/lib/theme/theme-utils
 import { resolveStorefront, getContentPages, getStorefrontTheme, getMarketingSettings, getStoreLocalization } from '@/lib/api/storefront';
 import { resolveTenantInfo } from '@/lib/tenant';
 import { ComingSoonPage } from '@/components/ComingSoonPage';
+import { OrganizationJsonLd, WebSiteJsonLd } from '@/components/seo/JsonLd';
+import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider';
 
 // Generate Google Fonts URL for preloading
 function getGoogleFontsUrl(fonts: string[]): string | null {
@@ -227,6 +229,11 @@ export default async function RootLayout({
     defaults
   );
 
+  // Construct base URL for SEO schemas
+  const host = headersList.get('host') || '';
+  const protocol = host.includes('localhost') ? 'http' : 'https';
+  const baseUrl = `${protocol}://${host}`;
+
   // Generate CSS variables server-side to prevent FOUC
   const cssVariables = generateCssVariables(settings);
   const cssString = generateCssString(cssVariables);
@@ -310,6 +317,8 @@ export default async function RootLayout({
         )}
         {/* Fallback: Inject CSS variables as style tag */}
         <style dangerouslySetInnerHTML={{ __html: `:root { ${cssString} }` }} />
+        {/* AI Crawler Guidance */}
+        <link rel="ai-guidance" href="/llms.txt" />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         {/* Preview Mode Banner for unpublished stores */}
@@ -325,6 +334,20 @@ export default async function RootLayout({
         <a href="#main-content" className="skip-to-content">
           Skip to main content
         </a>
+        {/* Organization and WebSite JSON-LD for brand identity and search */}
+        <OrganizationJsonLd
+          organization={{
+            name: storeName,
+            url: baseUrl,
+            logo: settings.logoUrl,
+            sameAs: settings.footerConfig?.socialLinks?.map(s => s.url) || [],
+          }}
+        />
+        <WebSiteJsonLd
+          name={storeName}
+          url={baseUrl}
+          searchUrl={`${baseUrl}/search`}
+        />
         <QueryProvider>
           <TenantProvider tenant={tenant} settings={settings} localization={localization}>
             <CurrencyProvider>
@@ -333,12 +356,14 @@ export default async function RootLayout({
                   <AuthSessionProvider>
                     <CartSyncProvider>
                       <PushNotificationProvider>
-                        <RoutePrefetcher />
-                        <NavigationLayout navigationStyle={settings.layoutConfig?.navigationStyle || 'header'}>
-                          <main id="main-content" tabIndex={-1}>
-                            {children}
-                          </main>
-                        </NavigationLayout>
+                        <AnalyticsProvider>
+                          <RoutePrefetcher />
+                          <NavigationLayout navigationStyle={settings.layoutConfig?.navigationStyle || 'header'}>
+                            <main id="main-content" tabIndex={-1}>
+                              {children}
+                            </main>
+                          </NavigationLayout>
+                        </AnalyticsProvider>
                       </PushNotificationProvider>
                     </CartSyncProvider>
                   </AuthSessionProvider>

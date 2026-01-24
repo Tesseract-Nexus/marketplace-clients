@@ -1,12 +1,30 @@
+import { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { searchProductsWithFacets, ProductSearchResult } from '@/lib/api/search';
-import { searchProducts as fallbackSearch } from '@/lib/api/storefront';
+import { searchProducts as fallbackSearch, resolveStorefront } from '@/lib/api/storefront';
 import { SearchClient } from './SearchClient';
 import { resolveTenantId } from '@/lib/tenant';
 import { Product } from '@/types/storefront';
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string; sort?: string }>;
+}
+
+export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
+  const headersList = await headers();
+  const slug = headersList.get('x-tenant-slug') || 'demo-store';
+  const { q: query } = await searchParams;
+
+  const resolution = await resolveStorefront(slug);
+  const storeName = resolution?.name || 'Store';
+
+  return {
+    title: query ? `Search: "${query}" | ${storeName}` : `Search | ${storeName}`,
+    description: query
+      ? `Search results for "${query}" at ${storeName}`
+      : `Search our product catalog at ${storeName}`,
+    robots: 'noindex, follow', // Search results should not be indexed
+  };
 }
 
 /**

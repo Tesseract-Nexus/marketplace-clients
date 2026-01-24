@@ -1,5 +1,6 @@
+import { Metadata } from 'next';
 import { headers } from 'next/headers';
-import { getProducts, getCategories } from '@/lib/api/storefront';
+import { getProducts, getCategories, resolveStorefront } from '@/lib/api/storefront';
 import { ProductsClient } from './ProductsClient';
 import { resolveTenantId } from '@/lib/tenant';
 
@@ -10,6 +11,29 @@ interface ProductsPageProps {
     sort?: string;
     page?: string;
   }>;
+}
+
+export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
+  const headersList = await headers();
+  const host = headersList.get('host') || '';
+  const slug = headersList.get('x-tenant-slug') || 'demo-store';
+  const protocol = host.includes('localhost') ? 'http' : 'https';
+  const baseUrl = `${protocol}://${host}`;
+
+  const search = await searchParams;
+  const page = search.page ? parseInt(search.page) : 1;
+
+  const resolution = await resolveStorefront(slug);
+  const storeName = resolution?.name || 'Store';
+
+  return {
+    title: `All Products${page > 1 ? ` - Page ${page}` : ''} | ${storeName}`,
+    description: `Browse our complete product catalog at ${storeName}. Find the best products with great prices and fast shipping.`,
+    robots: page > 1 ? 'noindex, follow' : 'index, follow', // Prevent duplicate content for paginated pages
+    alternates: {
+      canonical: `${baseUrl}/products`,
+    },
+  };
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {

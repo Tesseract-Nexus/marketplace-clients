@@ -1,7 +1,27 @@
+import { Metadata } from 'next';
 import { headers } from 'next/headers';
-import { getCategories } from '@/lib/api/storefront';
+import { getCategories, resolveStorefront } from '@/lib/api/storefront';
 import { resolveTenantId } from '@/lib/tenant';
 import { CategoriesClient } from './CategoriesClient';
+
+export async function generateMetadata(): Promise<Metadata> {
+  const headersList = await headers();
+  const host = headersList.get('host') || '';
+  const slug = headersList.get('x-tenant-slug') || 'demo-store';
+  const protocol = host.includes('localhost') ? 'http' : 'https';
+  const baseUrl = `${protocol}://${host}`;
+
+  const resolution = await resolveStorefront(slug);
+  const storeName = resolution?.name || 'Store';
+
+  return {
+    title: `Shop by Category | ${storeName}`,
+    description: `Browse products by category at ${storeName}. Find exactly what you're looking for organized by department.`,
+    alternates: {
+      canonical: `${baseUrl}/categories`,
+    },
+  };
+}
 
 export default async function CategoriesPage() {
   const headersList = await headers();

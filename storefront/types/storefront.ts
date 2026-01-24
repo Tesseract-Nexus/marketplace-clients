@@ -180,6 +180,7 @@ export interface StorefrontSettings {
   marketingConfig?: StorefrontMarketingConfig;
   localization?: LocalizationConfig;
   contentPages?: ContentPage[];
+  analyticsConfig?: AnalyticsConfig;
   customCss?: string;
   createdAt: string;
   updatedAt: string;
@@ -817,6 +818,25 @@ export const DEFAULT_MOBILE_CONFIG: MobileConfig = {
   reducedMotion: false,
   lowDataMode: false,
 };
+
+// ========================================
+// Analytics Configuration
+// ========================================
+
+export interface AnalyticsConfig {
+  // Google
+  googleAnalyticsId?: string;      // G-XXXXXXXXXX
+  googleTagManagerId?: string;     // GTM-XXXXXXX
+  // Meta
+  facebookPixelId?: string;
+  // Social Platforms
+  tiktokPixelId?: string;
+  pinterestTagId?: string;
+  snapchatPixelId?: string;
+  // Settings
+  enableEnhancedEcommerce?: boolean;
+  cookieConsentRequired?: boolean;
+}
 
 export const DEFAULT_ADVANCED_CONFIG: AdvancedConfig = {
   customCss: '',
