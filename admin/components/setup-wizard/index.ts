@@ -64,11 +64,7 @@ export type {
   CreatedCategory,
   CreatedProduct,
   InvitedStaff,
-  CategoryFormData,
-  ProductFormData,
-  StaffFormData,
-  SettingsFormData,
 } from './types';
 
 // Constants
-export { WIZARD_STEPS, TOUR_STEPS, STORAGE_PREFIX, STORAGE_KEYS } from './types';
+export { WIZARD_STEPS, TOUR_STEPS, STORAGE_PREFIX, STORAGE_KEYS, WIZARD_DESTINATIONS } from './types';
