@@ -762,6 +762,7 @@ export default function CategoriesPage() {
               className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all disabled:opacity-50 disabled:cursor-not-allowed border-2 border-border"
               title="Refresh"
               aria-label="Refresh categories list"
+              data-tour="refresh-categories"
             >
               <RefreshCw className={cn("w-5 h-5 text-muted-foreground", loading && "animate-spin")} aria-hidden="true" />
             </Button>
@@ -769,6 +770,7 @@ export default function CategoriesPage() {
               <Button
                 onClick={() => setShowBulkImport(true)}
                 className="flex items-center gap-2 px-4 py-2.5 bg-card border-2 border-border text-foreground rounded-md hover:bg-muted hover:border-primary/50 transition-all duration-200"
+                data-tour="bulk-import"
               >
                 <FileUp className="w-4 h-4" />
                 <AdminButtonText text="Bulk Import" />
@@ -778,6 +780,7 @@ export default function CategoriesPage() {
               <Button
                 onClick={handleCreateCategory}
                 className="flex items-center gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                data-tour="add-category"
               >
                 <Plus className="w-5 h-5" />
                 <AdminButtonText text="Add Category" />
@@ -849,6 +852,8 @@ export default function CategoriesPage() {
             setActiveFilter('ALL');
             setSearchQuery('');
           }}
+          searchDataTour="search-categories"
+          filterDataTour="category-filters"
         >
           <div>
             <label className="text-xs font-bold text-foreground mb-2 block uppercase tracking-wider"><AdminFormLabel text="Status" as="span" /></label>
@@ -960,7 +965,7 @@ export default function CategoriesPage() {
       {/* Main Content */}
       {!loading && viewMode === 'list' ? (
         /* Categories Tree */
-        <div className="bg-card rounded-lg border border-border overflow-hidden">
+        <div className="bg-card rounded-lg border border-border overflow-hidden" data-tour="category-hierarchy">
           <div className="flex flex-col space-y-1.5 p-6 border-b border-border">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold leading-none tracking-tight text-xl text-primary">

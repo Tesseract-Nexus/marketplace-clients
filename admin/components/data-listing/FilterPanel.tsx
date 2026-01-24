@@ -31,6 +31,10 @@ export interface FilterPanelProps {
   showFilterToggle?: boolean;
   /** Quick filter chips to show (optional) */
   quickFilters?: React.ReactNode;
+  /** data-tour attribute for search input (for page tours) */
+  searchDataTour?: string;
+  /** data-tour attribute for filter button (for page tours) */
+  filterDataTour?: string;
 }
 
 /**
@@ -64,6 +68,8 @@ export function FilterPanel({
   defaultExpanded = false,
   showFilterToggle = true,
   quickFilters,
+  searchDataTour,
+  filterDataTour,
 }: FilterPanelProps) {
   const [internalExpanded, setInternalExpanded] = useState(defaultExpanded);
 
@@ -91,7 +97,7 @@ export function FilterPanel({
         <div className="flex flex-col sm:flex-row sm:items-center gap-3">
           {/* Search */}
           {onSearchChange && (
-            <div className="relative flex-1">
+            <div className="relative flex-1" data-tour={searchDataTour}>
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
@@ -114,6 +120,7 @@ export function FilterPanel({
                   'h-9 gap-2',
                   isExpanded && 'bg-muted'
                 )}
+                data-tour={filterDataTour}
               >
                 <Filter className="h-4 w-4" />
                 <span className="hidden sm:inline">Filters</span>

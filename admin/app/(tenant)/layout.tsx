@@ -47,6 +47,7 @@ import { DialogProvider } from "@/contexts/DialogContext";
 import { PermissionProvider, usePermissions } from "@/contexts/PermissionContext";
 import { CommandPalette } from "@/components/CommandPalette";
 import { SetupWizardProvider, SetupWizard, useSetupWizard } from "@/components/setup-wizard";
+import { PageTourProvider, PageTour } from "@/components/page-tour";
 import { SidebarMenuSearch } from "@/components/SidebarMenuSearch";
 import { AdminUIText } from "@/components/translation/AdminTranslatedText";
 import { useAuth } from "@/lib/auth";
@@ -473,8 +474,10 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     if (item.children) {
       const isExpanded = expandedItems.includes(itemKey);
       const menuId = `sidebar-menu-${itemKey.replace(/\s+/g, '-').toLowerCase()}`;
+      // Generate data-tour attribute for sidebar items
+      const tourId = item.key ? `sidebar-${item.key}` : undefined;
       return (
-        <div key={itemKey}>
+        <div key={itemKey} data-tour={tourId}>
           <button
             type="button"
             onClick={() => toggleExpanded(itemKey)}
@@ -592,6 +595,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               prefetch={false}
               onClick={(e) => handleNavClick(e, '/')}
               aria-label="Go to dashboard"
+              data-tour="sidebar-logo"
               className="flex items-center gap-3 rounded-lg transition-all duration-200 hover:opacity-80"
             >
               {currentTenant?.logoUrl ? (
@@ -626,7 +630,9 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           </div>
 
           {/* Menu Search */}
-          <SidebarMenuSearch navigation={filteredNavigation} />
+          <div data-tour="sidebar-search">
+            <SidebarMenuSearch navigation={filteredNavigation} />
+          </div>
 
           {/* Navigation */}
           <nav className="flex-1 overflow-y-auto p-4 space-y-1 sidebar-scrollbar">
@@ -634,7 +640,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           </nav>
 
           {/* Bottom: Tenant Switcher + Sign Out */}
-          <div className="p-3 border-t border-sidebar-border">
+          <div className="p-3 border-t border-sidebar-border" data-tour="business-switcher">
             <div className="flex items-center gap-2">
               <TenantSwitcher variant="compact" className="flex-1 min-w-0" />
               <Button
@@ -1078,10 +1084,13 @@ export default function TenantLayout({
                   <AdminLanguageProvider>
                     <DialogProvider>
                       <SetupWizardProvider>
-                        <TenantLayoutInner sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
-                          {children}
-                        </TenantLayoutInner>
-                        <SetupWizard />
+                        <PageTourProvider>
+                          <TenantLayoutInner sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
+                            {children}
+                          </TenantLayoutInner>
+                          <SetupWizard />
+                          <PageTour />
+                        </PageTourProvider>
                       </SetupWizardProvider>
                     </DialogProvider>
                   </AdminLanguageProvider>
