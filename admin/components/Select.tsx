@@ -119,7 +119,7 @@ export function Select({
 
       {/* Dropdown Panel */}
       {isOpen && (
-        <div className="absolute z-50 w-full mt-1 bg-popover border border-border rounded-md shadow-md overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100">
+        <div className="absolute z-[100] w-full mt-1 bg-popover border border-border rounded-md shadow-lg overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100">
           <div className="max-h-60 overflow-y-auto py-1">
             {options.map((option) => {
               const isSelected = option.value === value;

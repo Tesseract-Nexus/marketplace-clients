@@ -70,7 +70,7 @@ export function PageHeader({
         </div>
 
         {actions && (
-          <div className="flex flex-wrap gap-2 sm:gap-3 sm:ml-4 md:ml-6 sm:flex-nowrap">
+          <div className="relative z-20 flex flex-wrap gap-2 sm:gap-3 sm:ml-4 md:ml-6 sm:flex-nowrap">
             {actions}
           </div>
         )}
