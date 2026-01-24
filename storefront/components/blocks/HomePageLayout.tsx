@@ -64,7 +64,7 @@ export function HomePageLayout({
   return (
     <div className="home-page-layout" data-device={device}>
       {editMode && (
-        <div className="fixed top-20 right-4 z-50 flex items-center gap-2 bg-background/95 backdrop-blur-sm border rounded-lg px-4 py-2 shadow-lg">
+        <div className="fixed top-20 right-4 z-[var(--z-sticky)] flex items-center gap-2 bg-background/95 backdrop-blur-sm border rounded-lg px-4 py-2 shadow-lg">
           <span className="text-xs text-muted-foreground">
             {visibleSections.length} sections visible on {device}
           </span>

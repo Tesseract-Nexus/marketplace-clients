@@ -413,7 +413,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50"
+        className="fixed inset-0 z-[var(--z-modal)]"
         onClick={onClose}
       >
         {/* Backdrop with blur */}

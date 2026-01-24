@@ -36,7 +36,7 @@ export function ComingSoonPage({
       {/* Preview Mode Banner */}
       {isPreviewMode && (
         <div
-          className="fixed top-0 left-0 right-0 py-2 px-4 text-center text-sm font-medium text-white z-50"
+          className="fixed top-0 left-0 right-0 py-2 px-4 text-center text-sm font-medium text-white z-[var(--z-sticky)]"
           style={{ backgroundColor: accentColor }}
         >
           Preview Mode - This store is not yet published. Only you can see this preview.

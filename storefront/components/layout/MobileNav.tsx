@@ -77,7 +77,7 @@ export function MobileNav() {
       <div className="h-[calc(var(--mobile-nav-height,64px)+env(safe-area-inset-bottom,0px))] md:hidden" />
 
       <nav
-        className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-t md:hidden"
+        className="fixed bottom-0 left-0 right-0 z-[var(--z-sticky)] bg-background/95 backdrop-blur-lg border-t md:hidden"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         <div className="flex items-stretch justify-around" style={{ height: 'var(--mobile-nav-height, 64px)' }}>

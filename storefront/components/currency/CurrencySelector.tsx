@@ -89,7 +89,7 @@ export function CurrencySelector({ variant = 'compact', className = '' }: Curren
       {/* Dropdown */}
       {isOpen && (
         <div
-          className="absolute right-0 top-full z-50 mt-1 w-64 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-900"
+          className="absolute right-0 top-full z-[var(--z-dropdown)] mt-1 w-64 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-900"
           role="listbox"
           aria-label="Select display currency"
         >

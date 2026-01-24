@@ -47,7 +47,7 @@ export function BackToTop({ showAfter = 400, className }: BackToTopProps) {
       aria-label="Scroll to top"
       className={cn(
         // Base styles
-        'fixed bottom-6 right-6 z-50',
+        'fixed bottom-6 right-6 z-[var(--z-sticky)]',
         'w-12 h-12 rounded-full',
         'flex items-center justify-center',
         // Colors and effects

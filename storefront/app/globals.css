@@ -38,7 +38,18 @@
   /* Typography */
   --font-sans: var(--font-body);
   --font-heading: var(--font-heading);
+  --font-body: var(--font-body);
+  --font-display: var(--font-display);
   --font-mono: var(--font-geist-mono);
+
+  /* Z-Index Scale */
+  --z-index-dropdown: var(--z-dropdown);
+  --z-index-sticky: var(--z-sticky);
+  --z-index-overlay: var(--z-overlay);
+  --z-index-modal: var(--z-modal);
+  --z-index-popover: var(--z-popover);
+  --z-index-tooltip: var(--z-tooltip);
+  --z-index-toast: var(--z-toast);
 
   /* Radius */
   --radius-sm: calc(var(--radius) - 4px);

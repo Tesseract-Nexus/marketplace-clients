@@ -72,7 +72,7 @@ export function ReviewImageGallery({ media, className }: ReviewImageGalleryProps
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
+            className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center bg-black/90"
             onClick={() => setSelectedIndex(null)}
             onKeyDown={handleKeyDown}
             tabIndex={0}

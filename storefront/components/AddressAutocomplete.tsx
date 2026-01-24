@@ -325,7 +325,7 @@ export function AddressAutocomplete({
 
       {/* Suggestions Dropdown */}
       {isOpen && (suggestions.length > 0 || showCurrentLocation) && (
-        <div className="absolute z-50 mt-2 w-full rounded-lg border bg-card shadow-lg">
+        <div className="absolute z-[var(--z-dropdown)] mt-2 w-full rounded-lg border bg-card shadow-lg">
           <div className="max-h-80 overflow-auto p-2">
             {/* Use Current Location Option */}
             {showCurrentLocation && (
@@ -380,7 +380,7 @@ export function AddressAutocomplete({
 
       {/* No Results + Manual Entry Option */}
       {isOpen && suggestions.length === 0 && inputValue.length >= 3 && !isLoading && !showCurrentLocation && (
-        <div className="absolute z-50 mt-2 w-full rounded-lg border bg-card shadow-lg p-4">
+        <div className="absolute z-[var(--z-dropdown)] mt-2 w-full rounded-lg border bg-card shadow-lg p-4">
           <div className="text-center">
             <MapPin className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
             <p className="text-muted-foreground mb-3">

@@ -125,7 +125,7 @@ export function PullToRefresh({
       <div
         className={cn(
           'pull-refresh-indicator',
-          'absolute left-1/2 -translate-x-1/2 z-50',
+          'absolute left-1/2 -translate-x-1/2 z-[var(--z-overlay)]',
           'flex items-center justify-center',
           'w-10 h-10 rounded-full',
           'bg-white dark:bg-stone-800',

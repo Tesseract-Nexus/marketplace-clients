@@ -384,7 +384,7 @@ export function SidebarNav({ position = 'left' }: SidebarNavProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm"
+            className="fixed inset-0 z-[var(--z-modal)] bg-background/80 backdrop-blur-sm"
             onClick={() => setSearchOpen(false)}
           >
             <motion.div

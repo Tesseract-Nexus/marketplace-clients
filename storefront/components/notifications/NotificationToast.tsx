@@ -101,7 +101,7 @@ export function NotificationToast() {
   }
 
   return (
-    <div className="fixed top-20 right-4 z-50 space-y-2 max-w-sm">
+    <div className="fixed top-20 right-4 z-[var(--z-toast)] space-y-2 max-w-sm">
       <AnimatePresence mode="popLayout">
         {notifications.map((notification) => (
           <motion.div

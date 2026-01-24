@@ -259,7 +259,7 @@ export function SearchSuggestions({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.15 }}
-            className="absolute top-full left-0 right-0 mt-2 bg-background border rounded-xl shadow-lg overflow-hidden z-50"
+            className="absolute top-full left-0 right-0 mt-2 bg-background border rounded-xl shadow-lg overflow-hidden z-[var(--z-dropdown)]"
           >
             {/* Recent Searches Section */}
             {recentSearches.length > 0 && !query && (

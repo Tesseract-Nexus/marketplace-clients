@@ -89,7 +89,7 @@ export function MinimalNav() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-background/95 backdrop-blur-md"
+              className="fixed inset-0 z-[var(--z-modal)] bg-background/95 backdrop-blur-md"
               onClick={() => setMenuOpen(false)}
             />
 
@@ -98,7 +98,7 @@ export function MinimalNav() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="fixed inset-0 z-50 flex items-center justify-center p-6"
+              className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center p-6"
               onClick={() => setMenuOpen(false)}
             >
               <div
@@ -281,7 +281,7 @@ export function MinimalNav() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm"
+            className="fixed inset-0 z-[var(--z-modal)] bg-background/80 backdrop-blur-sm"
             onClick={() => setSearchOpen(false)}
           >
             <motion.div

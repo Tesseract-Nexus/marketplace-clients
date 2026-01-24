@@ -108,7 +108,7 @@ export function Header() {
       {/* Main Header */}
       <header
         className={cn(
-          'w-full z-50 transition-all duration-200',
+          'w-full z-[var(--z-sticky)] transition-all duration-200',
           headerConfig.stickyHeader && 'sticky top-0',
           isScrolled
             ? 'bg-background shadow-sm border-b border-[var(--border-default)]'

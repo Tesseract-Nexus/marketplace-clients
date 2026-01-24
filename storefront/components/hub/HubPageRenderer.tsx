@@ -349,7 +349,7 @@ function ArticleMeta({ page, onBookmark, isBookmarked }: ArticleMetaProps) {
             Share
           </Button>
           {showShareMenu && (
-            <div className="absolute right-0 top-full mt-2 bg-background border rounded-lg shadow-lg p-2 z-50">
+            <div className="absolute right-0 top-full mt-2 bg-background border rounded-lg shadow-lg p-2 z-[var(--z-dropdown)]">
               <button
                 onClick={() => handleShare('twitter')}
                 className="flex items-center gap-2 w-full px-3 py-2 text-sm hover:bg-muted rounded"

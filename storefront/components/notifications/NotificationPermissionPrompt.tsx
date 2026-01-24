@@ -88,7 +88,7 @@ export function NotificationPermissionPrompt({
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md z-50"
+            className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md z-[var(--z-toast)]"
           >
             <div className="bg-card border rounded-xl shadow-lg p-4">
               <div className="flex items-start gap-3">
