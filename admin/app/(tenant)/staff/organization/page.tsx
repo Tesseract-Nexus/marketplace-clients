@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useTenant } from '@/contexts/TenantContext';
+import { useToast } from '@/contexts/ToastContext';
 import {
   Plus,
   Search,
@@ -59,6 +60,7 @@ export default function OrganizationPage() {
   const { currentTenant, isLoading: tenantLoading } = useTenant();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const toast = useToast();
 
   // Determine initial tab from URL query param
   const initialTab = searchParams?.get('tab') === 'teams' ? 'teams' : 'hierarchy';
@@ -239,9 +241,11 @@ export default function OrganizationPage() {
         try {
           await departmentService.delete(dept.id);
           await loadData();
+          toast.success('Department Deleted', `"${dept.name}" has been successfully deleted.`);
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to delete department';
           setError(errorMessage);
+          toast.error('Delete Failed', errorMessage);
           throw err;
         }
       },
@@ -262,6 +266,7 @@ export default function OrganizationPage() {
           departmentHeadId: deptFormData.departmentHeadId || undefined,
         };
         await departmentService.create(createData);
+        toast.success('Department Created', `"${deptFormData.name}" has been successfully created.`);
       } else if (viewMode === 'edit-dept' && selectedDepartment) {
         const updateData: UpdateDepartmentRequest = {
           name: deptFormData.name,
@@ -271,13 +276,16 @@ export default function OrganizationPage() {
           departmentHeadId: deptFormData.departmentHeadId || undefined,
         };
         await departmentService.update(selectedDepartment.id, updateData);
+        toast.success('Department Updated', `"${deptFormData.name}" has been successfully updated.`);
       }
 
       await loadData();
       setViewMode('list');
       setSelectedDepartment(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save department');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save department';
+      setError(errorMessage);
+      toast.error('Save Failed', errorMessage);
     } finally {
       setSaving(false);
     }
@@ -324,9 +332,11 @@ export default function OrganizationPage() {
         try {
           await teamService.delete(team.id);
           await loadData();
+          toast.success('Team Deleted', `"${team.name}" has been successfully deleted.`);
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to delete team';
           setError(errorMessage);
+          toast.error('Delete Failed', errorMessage);
           throw err;
         }
       },
@@ -348,6 +358,7 @@ export default function OrganizationPage() {
           maxCapacity: teamFormData.maxCapacity,
         };
         await teamService.create(createData);
+        toast.success('Team Created', `"${teamFormData.name}" has been successfully created.`);
       } else if (viewMode === 'edit-team' && selectedTeam) {
         const updateData: UpdateTeamRequest = {
           name: teamFormData.name,
@@ -358,13 +369,16 @@ export default function OrganizationPage() {
           maxCapacity: teamFormData.maxCapacity,
         };
         await teamService.update(selectedTeam.id, updateData);
+        toast.success('Team Updated', `"${teamFormData.name}" has been successfully updated.`);
       }
 
       await loadData();
       setViewMode('list');
       setSelectedTeam(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save team');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save team';
+      setError(errorMessage);
+      toast.error('Save Failed', errorMessage);
     } finally {
       setSaving(false);
     }

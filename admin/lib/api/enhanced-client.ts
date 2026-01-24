@@ -299,6 +299,7 @@ export class EnhancedApiClient {
         ...interceptedConfig,
         signal: controller.signal,
         credentials: 'include', // Include cookies for BFF session auth
+        cache: 'no-store', // Disable Next.js fetch caching to ensure fresh data
       });
 
       clearTimeout(timeoutId);
