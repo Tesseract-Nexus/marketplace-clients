@@ -130,7 +130,7 @@ export async function getStorefrontTheme(
     );
 
     const rawData = response.data || response;
-    console.log(`[getStorefrontTheme] Received settings: themeTemplate=${rawData?.themeTemplate}, primaryColor=${rawData?.primaryColor}`);
+    console.log(`[getStorefrontTheme] Received settings: themeTemplate=${rawData?.themeTemplate}, primaryColor=${rawData?.primaryColor}, colorMode=${rawData?.colorMode}`);
     return transformBackendSettings(rawData);
   } catch (error) {
     console.error('[getStorefrontTheme] Failed to fetch storefront theme:', error);

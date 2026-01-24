@@ -21,6 +21,15 @@ interface ThemeProviderProps {
 // ========================================
 
 export function ThemeProvider({ children, settings }: ThemeProviderProps) {
+  // Debug: Log theme settings for troubleshooting
+  useEffect(() => {
+    console.log('[ThemeProvider] Settings received:', {
+      colorMode: settings.colorMode,
+      themeTemplate: settings.themeTemplate,
+      primaryColor: settings.primaryColor,
+    });
+  }, [settings.colorMode, settings.themeTemplate, settings.primaryColor]);
+
   // Generate CSS variables from settings
   const cssVariables = useMemo(() => generateCssVariables(settings), [settings]);
 
@@ -30,14 +39,32 @@ export function ThemeProvider({ children, settings }: ThemeProviderProps) {
   }, [settings.themeTemplate]);
 
   // Determine theme configuration
+  // Explicit colorMode settings take precedence over themeTemplate
   const defaultTheme = useMemo(() => {
-    if (settings.colorMode === 'dark' || isDarkTheme(settings.themeTemplate)) {
-      return 'dark';
-    }
+    let result: 'light' | 'dark' | 'system';
+    // Explicit light mode always wins
     if (settings.colorMode === 'light') {
-      return 'light';
+      result = 'light';
     }
-    return 'system';
+    // Explicit dark mode always wins
+    else if (settings.colorMode === 'dark') {
+      result = 'dark';
+    }
+    // For 'system' or 'both', use theme template's dark-ness as default
+    else if (isDarkTheme(settings.themeTemplate)) {
+      result = 'dark';
+    }
+    else {
+      result = 'system';
+    }
+
+    console.log('[ThemeProvider] Computed defaultTheme:', result, {
+      colorMode: settings.colorMode,
+      themeTemplate: settings.themeTemplate,
+      isDarkTemplate: isDarkTheme(settings.themeTemplate),
+    });
+
+    return result;
   }, [settings.colorMode, settings.themeTemplate]);
 
   // Critical CSS variables that need !important to override globals.css defaults

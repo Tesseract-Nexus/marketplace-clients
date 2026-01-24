@@ -249,7 +249,10 @@ export function generateCssVariables(settings: StorefrontSettings): Record<strin
   const layout = settings.layoutConfig;
   const spacing = settings.spacingStyleConfig;
   const headingScales = typography ? HEADING_SCALE_VALUES[typography.headingScale] : HEADING_SCALE_VALUES.default;
-  const isDark = isDarkTheme(settings.themeTemplate) || settings.colorMode === 'dark';
+  // Explicit colorMode takes precedence over themeTemplate
+  // This ensures user-set light/dark mode overrides template defaults
+  const isDark = settings.colorMode === 'dark' ||
+    (settings.colorMode !== 'light' && isDarkTheme(settings.themeTemplate));
 
   return {
     // Theme Colors
