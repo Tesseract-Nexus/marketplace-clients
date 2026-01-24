@@ -80,41 +80,63 @@ export function HeroSection({ variant }: HeroSectionProps) {
     )}>
       {/* Background */}
       <div className="absolute inset-0">
-        {homepageConfig.heroVideo ? (
-          <video
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover"
-          >
-            <source src={homepageConfig.heroVideo} type="video/mp4" />
-          </video>
-        ) : homepageConfig.heroImage ? (
-          <Image
-            src={homepageConfig.heroImage}
-            alt="Hero background"
-            fill
-            priority
-            className="object-cover"
-          />
-        ) : (
-          /* Stunning Animated Gradient Background when no media */
-          <div className="w-full h-full animated-gradient-bg" />
-        )}
+        {/* Determine background type - use heroBackgroundType if set, otherwise infer from media */}
+        {(() => {
+          const bgType = homepageConfig.heroBackgroundType ||
+            (homepageConfig.heroVideo ? 'video' : homepageConfig.heroImage ? 'image' : 'animated');
 
-        {/* Aurora Effect Overlay for dramatic visual */}
-        {!hasMedia && (
+          switch (bgType) {
+            case 'video':
+              return homepageConfig.heroVideo ? (
+                <video
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="w-full h-full object-cover"
+                >
+                  <source src={homepageConfig.heroVideo} type="video/mp4" />
+                </video>
+              ) : <div className="w-full h-full bg-tenant-gradient" />;
+
+            case 'image':
+              return homepageConfig.heroImage ? (
+                <Image
+                  src={homepageConfig.heroImage}
+                  alt="Hero background"
+                  fill
+                  priority
+                  className="object-cover"
+                />
+              ) : <div className="w-full h-full bg-tenant-gradient" />;
+
+            case 'static':
+              // Static gradient - no animation
+              return <div className="w-full h-full bg-tenant-gradient" />;
+
+            case 'color':
+              // Solid primary color
+              return <div className="w-full h-full" style={{ background: 'var(--tenant-primary)' }} />;
+
+            case 'animated':
+            default:
+              // Animated gradient background
+              return <div className="w-full h-full animated-gradient-bg" />;
+          }
+        })()}
+
+        {/* Aurora Effect Overlay - only for animated or static gradient */}
+        {(!hasMedia && (homepageConfig.heroBackgroundType === 'animated' || !homepageConfig.heroBackgroundType)) && (
           <div className="absolute inset-0 aurora-bg" />
         )}
 
-        {/* Particles Effect */}
-        {!hasMedia && (
+        {/* Particles Effect - only for animated gradient */}
+        {(!hasMedia && (homepageConfig.heroBackgroundType === 'animated' || !homepageConfig.heroBackgroundType)) && (
           <div className="absolute inset-0 particles-bg opacity-40" />
         )}
 
-        {/* Overlay */}
-        {hasMedia && (
+        {/* Overlay for media backgrounds */}
+        {(homepageConfig.heroBackgroundType === 'image' || homepageConfig.heroBackgroundType === 'video') && (
           <div
             className="absolute inset-0 bg-black"
             style={{ opacity: homepageConfig.heroOverlayOpacity || 0.4 }}

@@ -1385,6 +1385,7 @@ export interface StorefrontNavLink {
 
 export interface StorefrontHomepageConfig {
   heroEnabled: boolean;
+  heroBackgroundType?: 'animated' | 'static' | 'image' | 'video' | 'color';
   heroImage?: string;
   heroVideo?: string;
   heroTitle?: string;
@@ -2569,6 +2570,7 @@ export const DEFAULT_STOREFRONT_SETTINGS: Omit<StorefrontSettings, 'id' | 'tenan
 
   homepageConfig: {
     heroEnabled: true,
+    heroBackgroundType: 'animated',
     heroTitle: 'Welcome to Our Store',
     heroSubtitle: 'Discover amazing products',
     heroCtaText: 'Shop Now',

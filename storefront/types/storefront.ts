@@ -234,6 +234,7 @@ export interface StorefrontNavLink {
 
 export interface StorefrontHomepageConfig {
   heroEnabled: boolean;
+  heroBackgroundType?: 'animated' | 'static' | 'image' | 'video' | 'color'; // Background type selector
   heroImage?: string;
   heroVideo?: string;
   heroTitle?: string;
@@ -241,6 +242,7 @@ export interface StorefrontHomepageConfig {
   heroCtaText?: string;
   heroCtaLink?: string;
   heroOverlayOpacity: number;
+  heroAnimatedBackground?: boolean; // Enable/disable animated gradient background (legacy, use heroBackgroundType)
   sections: StorefrontSection[];
   featuredProductIds?: string[];
   featuredCategoryIds?: string[];
@@ -872,6 +874,8 @@ export const DEFAULT_STOREFRONT_SETTINGS: Omit<StorefrontSettings, 'id' | 'tenan
   },
   homepageConfig: {
     heroEnabled: true,
+    heroBackgroundType: 'animated',
+    heroAnimatedBackground: true,
     heroTitle: 'Welcome to Our Store',
     heroSubtitle: 'Discover amazing products',
     heroCtaText: 'Shop Now',

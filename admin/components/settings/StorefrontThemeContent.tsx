@@ -743,17 +743,56 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                               className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                             />
                           </div>
+                          {/* Hero Background Type Selector */}
                           <div className="md:col-span-2">
-                            <AssetUploader
-                              type="hero"
-                              label="Hero Background Image"
-                              description="Recommended: 1920x800px"
-                              currentUrl={settings.homepageConfig.heroImage}
-                              onUpload={(url) => updateHomepageConfig({ heroImage: url })}
-                              onRemove={() => updateHomepageConfig({ heroImage: undefined })}
-                              aspectRatio="banner"
-                            />
+                            <label className="block text-sm font-medium text-foreground mb-2">
+                              Background Type
+                            </label>
+                            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                              {[
+                                { id: 'animated', label: 'Animated Gradient' },
+                                { id: 'static', label: 'Static Gradient' },
+                                { id: 'image', label: 'Custom Image' },
+                                { id: 'video', label: 'Video' },
+                                { id: 'color', label: 'Solid Color' },
+                              ].map((type) => (
+                                <button
+                                  key={type.id}
+                                  type="button"
+                                  onClick={() => updateHomepageConfig({ heroBackgroundType: type.id as 'animated' | 'static' | 'image' | 'video' | 'color' })}
+                                  className={`p-3 rounded-lg border text-center transition-all ${
+                                    (settings.homepageConfig.heroBackgroundType || 'animated') === type.id
+                                      ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+                                      : 'border-border hover:border-primary/50'
+                                  }`}
+                                >
+                                  <span className="text-sm font-medium">{type.label}</span>
+                                </button>
+                              ))}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-2">
+                              {(settings.homepageConfig.heroBackgroundType || 'animated') === 'animated' && 'Animated gradient using your theme colors with particle effects'}
+                              {settings.homepageConfig.heroBackgroundType === 'static' && 'Static gradient using your theme colors without animation'}
+                              {settings.homepageConfig.heroBackgroundType === 'image' && 'Upload a custom background image for your hero section'}
+                              {settings.homepageConfig.heroBackgroundType === 'video' && 'Use a video as your hero background (coming soon)'}
+                              {settings.homepageConfig.heroBackgroundType === 'color' && 'Solid primary color background for a clean minimal look'}
+                            </p>
                           </div>
+
+                          {/* Hero Background Image - only show when image type selected */}
+                          {settings.homepageConfig.heroBackgroundType === 'image' && (
+                            <div className="md:col-span-2">
+                              <AssetUploader
+                                type="hero"
+                                label="Hero Background Image"
+                                description="Recommended: 1920x800px"
+                                currentUrl={settings.homepageConfig.heroImage}
+                                onUpload={(url) => updateHomepageConfig({ heroImage: url })}
+                                onRemove={() => updateHomepageConfig({ heroImage: undefined })}
+                                aspectRatio="banner"
+                              />
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
