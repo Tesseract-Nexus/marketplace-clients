@@ -21,7 +21,9 @@ function transformHomepageConfig(backendConfig: Record<string, unknown> | null):
 
   return {
     heroEnabled: (backendConfig.showHero as boolean) ?? (backendConfig.heroEnabled as boolean) ?? DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroEnabled,
+    heroBackgroundType: (backendConfig.heroBackgroundType as StorefrontSettings['homepageConfig']['heroBackgroundType']) || DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroBackgroundType,
     heroImage: backendConfig.heroImage as string | undefined,
+    heroVideo: backendConfig.heroVideo as string | undefined,
     heroTitle: (backendConfig.heroTitle as string) || DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroTitle,
     heroSubtitle: (backendConfig.heroSubtitle as string) || DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroSubtitle,
     heroCtaText: (backendConfig.heroCtaText as string) || DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroCtaText,
