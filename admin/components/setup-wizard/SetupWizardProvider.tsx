@@ -7,6 +7,7 @@ import React, {
   useCallback,
   useMemo,
   useEffect,
+  useRef,
   ReactNode,
 } from 'react';
 import {
@@ -21,6 +22,7 @@ import {
   WIZARD_STEPS,
 } from './types';
 import { useTenant } from '@/contexts/TenantContext';
+import { useUser } from '@/contexts/UserContext';
 
 const SetupWizardContext = createContext<SetupWizardContextValue | undefined>(undefined);
 
@@ -45,18 +47,25 @@ interface SetupWizardProviderProps {
 
 export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
   const { currentTenant } = useTenant();
+  const { user } = useUser();
   const [state, setState] = useState<SetupWizardState>(INITIAL_STATE);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
 
-  // Generate storage key based on tenant ID
+  // Track if we've already shown the wizard this session to prevent re-opening
+  const hasShownWizardThisSession = useRef(false);
+
+  // Generate storage key based on tenant ID and user ID for per-user tracking
   const getStorageKey = useCallback(() => {
-    return `${STORAGE_PREFIX}_${currentTenant?.id || 'default'}`;
-  }, [currentTenant?.id]);
+    const tenantPart = currentTenant?.id || 'default';
+    const userPart = user?.id || 'anonymous';
+    return `${STORAGE_PREFIX}_${tenantPart}_${userPart}`;
+  }, [currentTenant?.id, user?.id]);
 
   // Load state from localStorage on mount
   useEffect(() => {
-    if (!currentTenant?.id) return;
+    // Wait for both tenant and user to be available
+    if (!currentTenant?.id || !user?.id) return;
 
     const storageKey = getStorageKey();
     try {
@@ -80,11 +89,11 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
       console.error('Failed to load wizard state from localStorage:', error);
     }
     setHasInitialized(true);
-  }, [currentTenant?.id, getStorageKey]);
+  }, [currentTenant?.id, user?.id, getStorageKey]);
 
   // Save state to localStorage when it changes
   useEffect(() => {
-    if (!currentTenant?.id || !hasInitialized) return;
+    if (!currentTenant?.id || !user?.id || !hasInitialized) return;
 
     const storageKey = getStorageKey();
     try {
@@ -98,12 +107,12 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
     } catch (error) {
       console.error('Failed to save wizard state to localStorage:', error);
     }
-  }, [state, currentTenant?.id, hasInitialized, getStorageKey]);
+  }, [state, currentTenant?.id, user?.id, hasInitialized, getStorageKey]);
 
-  // Detect first-time user based on heuristics
+  // Detect first-time user based on multiple heuristics
   // This runs after state is loaded from localStorage
   useEffect(() => {
-    if (!hasInitialized || !currentTenant?.id) return;
+    if (!hasInitialized || !currentTenant?.id || !user?.id) return;
 
     // If already completed or dismissed, not a first-time user
     if (state.completedAt || state.neverShowAgain) {
@@ -111,27 +120,64 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
       return;
     }
 
-    // Heuristic: Check tenant creation date (within last 7 days)
-    // and whether they have any setup progress
-    const tenantCreatedAt = currentTenant.createdAt
-      ? new Date(currentTenant.createdAt)
-      : null;
-    const now = new Date();
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    // If wizard was dismissed this session, don't show again
+    if (state.dismissedAt) {
+      setIsFirstTimeUser(false);
+      return;
+    }
 
-    const isNewTenant = tenantCreatedAt && tenantCreatedAt > sevenDaysAgo;
+    // If we've already shown the wizard this session, don't show again
+    if (hasShownWizardThisSession.current) {
+      return;
+    }
+
+    // Check if user has any wizard progress (completed or skipped steps)
     const hasNoProgress =
       state.completedSteps.length === 0 && state.skippedSteps.length === 0;
 
-    // Consider them a first-time user if tenant is new and no wizard progress
-    const shouldShowWizard = Boolean(isNewTenant && hasNoProgress);
+    // Primary heuristic: No wizard progress means first-time user for this tenant
+    // This works for:
+    // - New tenants with new users
+    // - New users joining existing tenants
+    // - Users who haven't interacted with the wizard yet
+    let shouldShowWizard = hasNoProgress;
+
+    // Additional heuristic: Check if user account is recent (within 30 days)
+    // This helps identify truly new users even if they somehow have no localStorage
+    if (user.createdAt) {
+      const userCreatedAt = new Date(user.createdAt);
+      const now = new Date();
+      const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+      const isNewUser = userCreatedAt > thirtyDaysAgo;
+
+      // Show wizard if: no progress AND (new user OR no localStorage data existed)
+      shouldShowWizard = hasNoProgress && isNewUser;
+    }
+
+    // Fallback: If we have no user.createdAt, rely solely on localStorage state
+    // If there's no localStorage data and no progress, assume first-time user
+    if (!user.createdAt && hasNoProgress) {
+      shouldShowWizard = true;
+    }
+
     setIsFirstTimeUser(shouldShowWizard);
 
-    // Auto-open wizard for first-time users
-    if (shouldShowWizard && !state.dismissedAt) {
+    // Auto-open wizard for first-time users (only once per session)
+    if (shouldShowWizard) {
+      hasShownWizardThisSession.current = true;
       setState((prev) => ({ ...prev, isOpen: true }));
     }
-  }, [hasInitialized, currentTenant?.id, currentTenant?.createdAt, state.completedAt, state.neverShowAgain, state.completedSteps.length, state.skippedSteps.length, state.dismissedAt]);
+  }, [
+    hasInitialized,
+    currentTenant?.id,
+    user?.id,
+    user?.createdAt,
+    state.completedAt,
+    state.neverShowAgain,
+    state.dismissedAt,
+    state.completedSteps.length,
+    state.skippedSteps.length,
+  ]);
 
   // Actions
   const openWizard = useCallback(() => {
@@ -260,7 +306,9 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
   // Reset
   const resetWizard = useCallback(() => {
     setState(INITIAL_STATE);
-    if (currentTenant?.id) {
+    // Reset the session flag so wizard can show again
+    hasShownWizardThisSession.current = false;
+    if (currentTenant?.id && user?.id) {
       const storageKey = getStorageKey();
       try {
         localStorage.removeItem(storageKey);
@@ -269,7 +317,7 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
       }
     }
     setIsFirstTimeUser(true);
-  }, [currentTenant?.id, getStorageKey]);
+  }, [currentTenant?.id, user?.id, getStorageKey]);
 
   // Memoize context value
   const contextValue = useMemo<SetupWizardContextValue>(
