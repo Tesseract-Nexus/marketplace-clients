@@ -1037,6 +1037,61 @@ export default function ProductsPage() {
     }
   };
 
+  // Submit single product for approval
+  const handleSubmitForApproval = async (productId: string) => {
+    try {
+      setLoading(true);
+      const response = await productService.submitForApproval(productId);
+
+      if (response.success) {
+        toast.success('Submitted for Approval', 'Product has been submitted for approval');
+        await loadProducts();
+      } else {
+        toast.error('Submission Failed', 'Failed to submit product for approval');
+      }
+    } catch (error) {
+      console.error('Submit for approval error:', error);
+      toast.error('Error', 'An error occurred while submitting for approval');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Bulk submit products for approval
+  const handleBulkSubmitForApproval = async () => {
+    // Filter to only draft products
+    const draftProductIds = Array.from(selectedProducts).filter(id => {
+      const product = products.find(p => p.id === id);
+      return product?.status === 'DRAFT';
+    });
+
+    if (draftProductIds.length === 0) {
+      toast.warning('No Draft Products', 'Only draft products can be submitted for approval');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await productService.bulkSubmitForApproval(draftProductIds);
+
+      if (response.success && response.data) {
+        toast.success(
+          'Submitted for Approval',
+          `${response.data.submitted} product(s) submitted for approval${response.data.failed > 0 ? `, ${response.data.failed} failed` : ''}`
+        );
+        setSelectedProducts(new Set());
+        await loadProducts();
+      } else {
+        toast.error('Submission Failed', 'Failed to submit products for approval');
+      }
+    } catch (error) {
+      console.error('Bulk submit for approval error:', error);
+      toast.error('Error', 'An error occurred while submitting for approval');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredProducts = products.filter((product) => {
     const matchesSearch =
       searchQuery === '' ||
@@ -2724,6 +2779,20 @@ export default function ProductsPage() {
                   </Button>
                 </div>
                 <div className="flex items-center gap-2">
+                  {/* Submit for Approval Button - only show if any draft products are selected */}
+                  {Array.from(selectedProducts).some(id => products.find(p => p.id === id)?.status === 'DRAFT') && (
+                    <PermissionGate permission={Permission.PRODUCTS_UPDATE}>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleBulkSubmitForApproval}
+                        className="bg-primary/10 border-primary/40 text-primary hover:bg-primary/20"
+                      >
+                        <ClipboardList className="w-4 h-4 mr-2" />
+                        Submit for Approval
+                      </Button>
+                    </PermissionGate>
+                  )}
                   {/* Status Change Buttons */}
                   <PermissionGate permission={Permission.PRODUCTS_UPDATE}>
                     <Button
@@ -2958,6 +3027,20 @@ export default function ProductsPage() {
                                 <Edit className="w-3.5 h-3.5 text-primary" />
                               </Button>
                             </PermissionGate>
+                            {/* Submit for Approval - only for draft products */}
+                            {product.status === 'DRAFT' && (
+                              <PermissionGate permission={Permission.PRODUCTS_UPDATE}>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleSubmitForApproval(product.id)}
+                                  className="h-7 w-7 p-0 rounded-md hover:bg-primary/10"
+                                  title="Submit for Approval"
+                                >
+                                  <ClipboardList className="w-3.5 h-3.5 text-primary" />
+                                </Button>
+                              </PermissionGate>
+                            )}
                             <PermissionGate permission={Permission.PRODUCTS_DELETE}>
                               <Button
                                 variant="ghost"

@@ -453,5 +453,36 @@ export const categoryService = {
     return MediaLimits.maxCategoryImages;
   },
 
+  /**
+   * Submit a draft category for approval
+   */
+  submitForApproval: async (id: string) => {
+    if (USE_MOCK_DATA) {
+      return {
+        success: true,
+        data: { approvalId: `mock-approval-${id}`, message: 'Submitted for approval' },
+      };
+    }
+    return categoriesService.submitForApproval(id);
+  },
+
+  /**
+   * Bulk submit draft categories for approval
+   */
+  bulkSubmitForApproval: async (categoryIds: string[]) => {
+    if (USE_MOCK_DATA) {
+      return {
+        success: true,
+        data: {
+          submitted: categoryIds.length,
+          failed: 0,
+          approvalIds: categoryIds.map(id => `mock-approval-${id}`),
+        },
+        message: `Submitted ${categoryIds.length} category(ies) for approval`,
+      };
+    }
+    return categoriesService.bulkSubmitForApproval(categoryIds);
+  },
+
   isMockMode: () => USE_MOCK_DATA,
 };

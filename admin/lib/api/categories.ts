@@ -193,6 +193,52 @@ export class CategoriesService {
   }
 
   /**
+   * Submit a draft category for approval
+   * Creates an approval request for the category to be published
+   */
+  async submitForApproval(
+    id: string
+  ): Promise<ApiResponse<{ approvalId: string; message: string }>> {
+    return apiClient.post<ApiResponse<{ approvalId: string; message: string }>>(
+      `/categories/${id}/submit-for-approval`,
+      {}
+    );
+  }
+
+  /**
+   * Bulk submit draft categories for approval
+   * Creates approval requests for multiple categories
+   */
+  async bulkSubmitForApproval(
+    categoryIds: string[]
+  ): Promise<ApiResponse<{ submitted: number; failed: number; approvalIds: string[] }>> {
+    const results = await Promise.allSettled(
+      categoryIds.map(id => this.submitForApproval(id))
+    );
+
+    const approvalIds: string[] = [];
+    let submitted = 0;
+    let failed = 0;
+
+    results.forEach((result) => {
+      if (result.status === 'fulfilled' && result.value.success) {
+        submitted++;
+        if (result.value.data?.approvalId) {
+          approvalIds.push(result.value.data.approvalId);
+        }
+      } else {
+        failed++;
+      }
+    });
+
+    return {
+      success: submitted > 0,
+      data: { submitted, failed, approvalIds },
+      message: `Submitted ${submitted} category(ies) for approval${failed > 0 ? `, ${failed} failed` : ''}`,
+    };
+  }
+
+  /**
    * Upload a category image
    * Supports icon, banner, and gallery image types
    * Maximum 3 images per category

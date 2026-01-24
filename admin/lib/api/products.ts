@@ -126,6 +126,53 @@ export class ProductsService {
     return apiClient.get<ApiResponse<ProductsAnalytics>>('/products/analytics');
   }
 
+  /**
+   * Submit a draft product for approval
+   * Creates an approval request for the product to be published
+   */
+  async submitForApproval(
+    id: string
+  ): Promise<ApiResponse<{ approvalId: string; message: string }>> {
+    return apiClient.post<ApiResponse<{ approvalId: string; message: string }>>(
+      `/products/${id}/submit-for-approval`,
+      {}
+    );
+  }
+
+  /**
+   * Bulk submit draft products for approval
+   * Creates approval requests for multiple products
+   */
+  async bulkSubmitForApproval(
+    productIds: string[]
+  ): Promise<ApiResponse<{ submitted: number; failed: number; approvalIds: string[] }>> {
+    // Submit each product individually and aggregate results
+    const results = await Promise.allSettled(
+      productIds.map(id => this.submitForApproval(id))
+    );
+
+    const approvalIds: string[] = [];
+    let submitted = 0;
+    let failed = 0;
+
+    results.forEach((result) => {
+      if (result.status === 'fulfilled' && result.value.success) {
+        submitted++;
+        if (result.value.data?.approvalId) {
+          approvalIds.push(result.value.data.approvalId);
+        }
+      } else {
+        failed++;
+      }
+    });
+
+    return {
+      success: submitted > 0,
+      data: { submitted, failed, approvalIds },
+      message: `Submitted ${submitted} product(s) for approval${failed > 0 ? `, ${failed} failed` : ''}`,
+    };
+  }
+
   // ============================================================================
   // Cascade Delete Operations
   // ============================================================================

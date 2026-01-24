@@ -373,5 +373,37 @@ export const productService = {
     return productsService.bulkUpdateProductStatus(productIds, status, notes);
   },
 
+  /**
+   * Submit a draft product for approval
+   */
+  submitForApproval: async (id: string) => {
+    if (USE_MOCK_DATA) {
+      // Mock implementation - just return success
+      return {
+        success: true,
+        data: { approvalId: `mock-approval-${id}`, message: 'Submitted for approval' },
+      };
+    }
+    return productsService.submitForApproval(id);
+  },
+
+  /**
+   * Bulk submit draft products for approval
+   */
+  bulkSubmitForApproval: async (productIds: string[]) => {
+    if (USE_MOCK_DATA) {
+      return {
+        success: true,
+        data: {
+          submitted: productIds.length,
+          failed: 0,
+          approvalIds: productIds.map(id => `mock-approval-${id}`),
+        },
+        message: `Submitted ${productIds.length} product(s) for approval`,
+      };
+    }
+    return productsService.bulkSubmitForApproval(productIds);
+  },
+
   isMockMode: () => USE_MOCK_DATA,
 };

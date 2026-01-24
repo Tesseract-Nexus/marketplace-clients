@@ -39,6 +39,7 @@ import {
   CircleOff,
   FileUp,
   Image as ImageIcon,
+  ClipboardList,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
@@ -515,6 +516,50 @@ export default function CategoriesPage() {
     }
   };
 
+  // Submit single category for approval
+  const handleSubmitForApproval = async (categoryId: string) => {
+    try {
+      setLoading(true);
+      const response = await categoryService.submitForApproval(categoryId);
+
+      if (response.success) {
+        // Show success toast or notification
+        await loadCategories();
+      }
+    } catch (error) {
+      console.error('Submit for approval error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Bulk submit categories for approval
+  const handleBulkSubmitForApproval = async () => {
+    // Filter to only draft categories
+    const draftCategoryIds = Array.from(selectedCategories).filter(id => {
+      const category = categories.find(c => c.id === id);
+      return category?.status === 'DRAFT';
+    });
+
+    if (draftCategoryIds.length === 0) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await categoryService.bulkSubmitForApproval(draftCategoryIds);
+
+      if (response.success) {
+        setSelectedCategories(new Set());
+        await loadCategories();
+      }
+    } catch (error) {
+      console.error('Bulk submit for approval error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const toggleSelectCategory = (id: string) => {
     const newSelected = new Set(selectedCategories);
     if (newSelected.has(id)) {
@@ -700,6 +745,24 @@ export default function CategoriesPage() {
                   <Edit className="w-4 h-4 text-primary" aria-hidden="true" />
                 </Button>
               </PermissionGate>
+              {/* Submit for Approval - only for draft categories */}
+              {category.status === 'DRAFT' && (
+                <PermissionGate permission={Permission.CATEGORIES_UPDATE}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSubmitForApproval(category.id);
+                    }}
+                    className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
+                    title="Submit for Approval"
+                    aria-label="Submit category for approval"
+                  >
+                    <ClipboardList className="w-4 h-4 text-primary" aria-hidden="true" />
+                  </Button>
+                </PermissionGate>
+              )}
               <PermissionGate permission={Permission.CATEGORIES_DELETE}>
                 <Button
                   variant="ghost"
@@ -905,6 +968,20 @@ export default function CategoriesPage() {
                 </Button>
               </div>
               <div className="flex items-center gap-2">
+                {/* Submit for Approval Button - only show if any draft categories are selected */}
+                {Array.from(selectedCategories).some(id => categories.find(c => c.id === id)?.status === 'DRAFT') && (
+                  <PermissionGate permission={Permission.CATEGORIES_UPDATE}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleBulkSubmitForApproval}
+                      className="bg-primary/10 border-primary/40 text-primary hover:bg-primary/20"
+                    >
+                      <ClipboardList className="w-4 h-4 mr-2" />
+                      <AdminButtonText text="Submit for Approval" />
+                    </Button>
+                  </PermissionGate>
+                )}
                 {/* Status Change Buttons */}
                 <PermissionGate permission={Permission.CATEGORIES_UPDATE}>
                   <Button
