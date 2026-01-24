@@ -307,14 +307,6 @@ export default function CustomersPage() {
             { label: 'Home', href: '/', icon: Home },
             { label: 'Customers', icon: Users },
           ]}
-          actions={
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="bg-primary text-primary-foreground hover:opacity-90 transition-colors"
-          >
-            <Plus className="mr-2 h-4 w-4" /> Add Customer
-          </Button>
-        }
       />
 
       {/* Error Alert */}
