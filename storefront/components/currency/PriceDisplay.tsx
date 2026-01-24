@@ -90,7 +90,7 @@ export function PriceDisplay({
 interface PriceRangeProps {
   minAmount: number;
   maxAmount: number;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
 }
 
@@ -114,7 +114,7 @@ export function PriceRange({ minAmount, maxAmount, size = 'md', className = '' }
 interface PriceWithDiscountProps {
   originalAmount: number;
   saleAmount: number;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
   className?: string;
   showPercentage?: boolean;
 }

@@ -17,7 +17,7 @@ export async function GET() {
   ]);
 
   const storeName = resolution?.name || tenantHost?.name || 'Store';
-  const storeDescription = resolution?.description || `${storeName} is an e-commerce storefront powered by Tesserix.`;
+  const storeDescription = `${storeName} is an e-commerce storefront powered by Tesserix.`;
 
   const content = `# ${storeName}
 

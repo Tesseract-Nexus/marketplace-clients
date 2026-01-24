@@ -83,7 +83,7 @@ export interface ReturnPolicy {
 export interface OrganizationSchema {
   name: string;
   url: string;
-  logo: string;
+  logo?: string;
   description?: string;
   sameAs?: string[];
   contactPoint?: {
@@ -369,9 +369,9 @@ export function generateOrganizationSchema(org: OrganizationSchema): object {
     '@type': 'Organization',
     name: org.name,
     url: org.url,
-    logo: org.logo,
   };
 
+  if (org.logo) schema.logo = org.logo;
   if (org.description) schema.description = org.description;
   if (org.sameAs) schema.sameAs = org.sameAs;
 
