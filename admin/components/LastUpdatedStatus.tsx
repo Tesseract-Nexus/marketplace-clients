@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 interface LastUpdatedStatusProps {
   /** Last updated date */
-  lastUpdated: Date | null;
+  lastUpdated?: Date | null;
   /** Whether data is currently being fetched */
   isFetching?: boolean;
   /** Size variant */
