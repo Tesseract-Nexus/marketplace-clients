@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Globe, Plus, Edit, Trash2, MapPin, Loader2, RefreshCw, AlertCircle, Clock } from 'lucide-react';
+import { Globe, Plus, Edit, Trash2, MapPin, Loader2, RefreshCw, AlertCircle } from 'lucide-react';
+import { LastUpdatedStatus } from '@/components/LastUpdatedStatus';
 import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Input } from '@/components/ui/input';
@@ -159,11 +160,6 @@ export default function TaxJurisdictionsPage() {
     return jurisdiction.taxRates?.length || 0;
   };
 
-  const formatLastUpdated = () => {
-    if (!lastUpdated) return '';
-    return lastUpdated.toLocaleTimeString();
-  };
-
   if (loading && jurisdictions.length === 0) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -213,19 +209,11 @@ export default function TaxJurisdictionsPage() {
             label: `${jurisdictions.length} Jurisdictions`,
             variant: 'default'
           }}
+          status={
+            <LastUpdatedStatus lastUpdated={lastUpdated} isFetching={refreshing} />
+          }
           actions={
             <div className="flex items-center gap-2">
-              {/* Last Updated indicator */}
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mr-2">
-                {refreshing && <Loader2 className="h-3 w-3 animate-spin" />}
-                {lastUpdated && (
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {formatLastUpdated()}
-                  </span>
-                )}
-              </div>
-
               <Button
                 variant="outline"
                 onClick={() => fetchJurisdictions()}

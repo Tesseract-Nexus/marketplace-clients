@@ -29,6 +29,7 @@ import {
   Ban,
   Check,
 } from 'lucide-react';
+import { LastUpdatedStatus } from '@/components/LastUpdatedStatus';
 
 // Return status types
 type ReturnStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED';
@@ -173,10 +174,6 @@ export default function ReturnsPage() {
     loadReturns();
   }, [loadReturns]);
 
-  const formatLastUpdated = () => {
-    if (!lastUpdated) return '';
-    return lastUpdated.toLocaleTimeString();
-  };
 
   const filteredReturns = returns.filter(ret => {
     const matchesSearch = ret.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -336,27 +333,18 @@ export default function ReturnsPage() {
             label: `${returns.length} Returns`,
             variant: 'default',
           }}
+          status={
+            <LastUpdatedStatus lastUpdated={lastUpdated} isFetching={refreshing} />
+          }
           actions={
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mr-2">
-                {refreshing && <Loader2 className="h-3 w-3 animate-spin" />}
-                {lastUpdated && (
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {formatLastUpdated()}
-                  </span>
-                )}
-              </div>
-
-              <Button
-                variant="outline"
-                onClick={() => loadReturns()}
-                disabled={loading || refreshing}
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${(loading || refreshing) ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              onClick={() => loadReturns()}
+              disabled={loading || refreshing}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${(loading || refreshing) ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
           }
         />
 

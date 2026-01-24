@@ -25,6 +25,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import { LastUpdatedStatus } from '@/components/LastUpdatedStatus';
 
 const dateRangeOptions = [
   { value: 'today', label: 'Today' },
@@ -56,18 +57,6 @@ export function DashboardToolbar({ isFetching, lastUpdated }: DashboardToolbarPr
     refreshDashboard();
   };
 
-  const formatLastUpdated = () => {
-    if (!lastUpdated) return null;
-    const now = new Date();
-    const diffMs = now.getTime() - lastUpdated.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins === 1) return '1 min ago';
-    if (diffMins < 60) return `${diffMins} mins ago`;
-    return lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  };
-
   const visibleWidgetIds = widgets.map(w => w.id);
 
   return (
@@ -78,6 +67,11 @@ export function DashboardToolbar({ isFetching, lastUpdated }: DashboardToolbarPr
         { label: 'Home', href: '/' },
         { label: 'Dashboard' },
       ]}
+      status={
+        !isEditMode && (
+          <LastUpdatedStatus lastUpdated={lastUpdated} isFetching={isFetching} />
+        )
+      }
       actions={
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
           {/* Edit Mode Indicator */}
@@ -87,13 +81,6 @@ export function DashboardToolbar({ isFetching, lastUpdated }: DashboardToolbarPr
               <span className="text-primary font-medium hidden sm:inline">Drag widgets to reorder</span>
               <span className="text-primary font-medium sm:hidden">Edit Mode</span>
             </div>
-          )}
-
-          {/* Last Updated */}
-          {lastUpdated && !isEditMode && (
-            <span className="text-xs text-muted-foreground hidden lg:inline">
-              Updated {formatLastUpdated()}
-            </span>
           )}
 
           <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-border rounded-lg p-1.5 shadow-sm">

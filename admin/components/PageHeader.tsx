@@ -14,6 +14,8 @@ interface PageHeaderProps {
     icon?: string;
     variant?: 'default' | 'success' | 'warning' | 'info';
   };
+  /** Status indicator shown below description (e.g., "Updated just now") */
+  status?: React.ReactNode;
   className?: string;
 }
 
@@ -23,6 +25,7 @@ export function PageHeader({
   breadcrumbs,
   actions,
   badge,
+  status,
   className,
 }: PageHeaderProps) {
   const badgeStyles = {
@@ -58,6 +61,11 @@ export function PageHeader({
           </div>
           {description && (
             <p className="text-muted-foreground mt-1.5 md:mt-2 text-sm sm:text-base md:text-lg line-clamp-2 sm:line-clamp-none">{description}</p>
+          )}
+          {status && (
+            <div className="mt-2">
+              {status}
+            </div>
           )}
         </div>
 

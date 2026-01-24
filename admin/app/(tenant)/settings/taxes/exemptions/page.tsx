@@ -12,8 +12,8 @@ import {
   RefreshCw,
   AlertCircle,
   Trash2,
-  Clock,
 } from 'lucide-react';
+import { LastUpdatedStatus } from '@/components/LastUpdatedStatus';
 import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Input } from '@/components/ui/input';
@@ -220,11 +220,6 @@ export default function TaxExemptionsPage() {
     label: `${j.name} (${j.type})`,
   }));
 
-  const formatLastUpdated = () => {
-    if (!lastUpdated) return '';
-    return lastUpdated.toLocaleTimeString();
-  };
-
   if (loading && certificates.length === 0) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -276,19 +271,11 @@ export default function TaxExemptionsPage() {
             label: `${certificates.length} Certificates`,
             variant: 'default',
           }}
+          status={
+            <LastUpdatedStatus lastUpdated={lastUpdated} isFetching={refreshing} />
+          }
           actions={
             <div className="flex items-center gap-2">
-              {/* Last Updated indicator */}
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mr-2">
-                {refreshing && <Loader2 className="h-3 w-3 animate-spin" />}
-                {lastUpdated && (
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {formatLastUpdated()}
-                  </span>
-                )}
-              </div>
-
               <Button
                 variant="outline"
                 onClick={() => fetchData()}

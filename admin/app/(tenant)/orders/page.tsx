@@ -47,6 +47,7 @@ import {
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { StatusBadge, StatusType } from '@/components/ui/status-badge';
+import { LastUpdatedStatus } from '@/components/LastUpdatedStatus';
 
 // Currency formatting helper
 const formatCurrency = (amount: string | number | null | undefined, currencyCode: string = 'INR'): string => {
@@ -130,10 +131,6 @@ export default function OrdersPage() {
     });
   }, [searchQuery, statusFilter, paymentStatusFilter, fulfillmentStatusFilter, currentPage, itemsPerPage, updateUrlParams]);
 
-  const formatLastUpdated = () => {
-    if (!lastUpdated) return '';
-    return lastUpdated.toLocaleTimeString();
-  };
 
   const navigateToOrder = (orderId: string) => {
     router.push(`/orders/${orderId}`);
@@ -382,28 +379,18 @@ export default function OrdersPage() {
             { label: 'Home', href: '/' },
             { label: 'Orders', href: '/orders' },
           ]}
+          status={
+            <LastUpdatedStatus lastUpdated={lastUpdated} isFetching={refreshing} />
+          }
           actions={
-            <div className="flex items-center gap-2">
-              {/* Last Updated & Auto-refresh indicator */}
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mr-2">
-                {refreshing && <Loader2 className="h-3 w-3 animate-spin" />}
-                {lastUpdated && (
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {formatLastUpdated()}
-                  </span>
-                )}
-              </div>
-
-              <Button
-                variant="outline"
-                onClick={() => loadOrders()}
-                disabled={loading || refreshing}
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${(loading || refreshing) ? 'animate-spin' : ''}`} />
-                <AdminButtonText text="Refresh" />
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              onClick={() => loadOrders()}
+              disabled={loading || refreshing}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${(loading || refreshing) ? 'animate-spin' : ''}`} />
+              <AdminButtonText text="Refresh" />
+            </Button>
           }
         />
 

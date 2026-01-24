@@ -29,6 +29,7 @@ import {
   Trash2,
   Package,
 } from 'lucide-react';
+import { LastUpdatedStatus } from '@/components/LastUpdatedStatus';
 
 // Abandoned cart status types
 type CartStatus = 'ABANDONED' | 'RECOVERED' | 'EXPIRED' | 'CONTACTED';
@@ -139,10 +140,6 @@ export default function AbandonedCartsPage() {
     loadCarts();
   }, [loadCarts]);
 
-  const formatLastUpdated = () => {
-    if (!lastUpdated) return '';
-    return lastUpdated.toLocaleTimeString();
-  };
 
   const formatTimeAgo = (date: string) => {
     const now = new Date();
@@ -292,27 +289,18 @@ export default function AbandonedCartsPage() {
             label: `${carts.filter(c => c.status === 'ABANDONED').length} Active`,
             variant: 'warning',
           }}
+          status={
+            <LastUpdatedStatus lastUpdated={lastUpdated} isFetching={refreshing} />
+          }
           actions={
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mr-2">
-                {refreshing && <Loader2 className="h-3 w-3 animate-spin" />}
-                {lastUpdated && (
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    {formatLastUpdated()}
-                  </span>
-                )}
-              </div>
-
-              <Button
-                variant="outline"
-                onClick={() => loadCarts()}
-                disabled={loading || refreshing}
-              >
-                <RefreshCw className={`h-4 w-4 mr-2 ${(loading || refreshing) ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
-            </div>
+            <Button
+              variant="outline"
+              onClick={() => loadCarts()}
+              disabled={loading || refreshing}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${(loading || refreshing) ? 'animate-spin' : ''}`} />
+              Refresh
+            </Button>
           }
         />
 
