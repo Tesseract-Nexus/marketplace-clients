@@ -26,6 +26,7 @@ import {
   Sliders,
   HelpCircle,
   Star,
+  Wand2,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationBell";
 import { RefreshSelector } from "@/components/RefreshSelector";
@@ -45,7 +46,7 @@ import { UserProvider, useUser } from "@/contexts/UserContext";
 import { DialogProvider } from "@/contexts/DialogContext";
 import { PermissionProvider, usePermissions } from "@/contexts/PermissionContext";
 import { CommandPalette } from "@/components/CommandPalette";
-import { SetupWizardProvider, SetupWizard } from "@/components/setup-wizard";
+import { SetupWizardProvider, SetupWizard, useSetupWizard } from "@/components/setup-wizard";
 import { SidebarMenuSearch } from "@/components/SidebarMenuSearch";
 import { AdminUIText } from "@/components/translation/AdminTranslatedText";
 import { useAuth } from "@/lib/auth";
@@ -665,6 +666,7 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
   const [showUserMenu, setShowUserMenu] = useState(false);
   const { user } = useUser();
   const { logout } = useAuth();
+  const { openWizard, resetWizard } = useSetupWizard();
 
   const displayName = user?.displayName || user?.firstName || user?.email?.split('@')[0] || 'User';
   const email = user?.email || '';
@@ -673,6 +675,13 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
   const handleLogout = () => {
     // BFF handles session cleanup - no need to clear localStorage
     logout({ returnTo: '/login' });
+  };
+
+  // Handle opening setup wizard
+  const handleOpenWizard = () => {
+    setShowUserMenu(false);
+    resetWizard();
+    openWizard();
   };
 
   return (
@@ -770,6 +779,13 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
                       <Star className="w-4 h-4" />
                       <AdminUIText text="Your Testimonial" />
                     </Link>
+                    <button
+                      onClick={handleOpenWizard}
+                      className="flex items-center gap-2 px-4 py-2 text-sm text-primary hover:bg-primary/10 transition-colors w-full"
+                    >
+                      <Wand2 className="w-4 h-4" />
+                      <AdminUIText text="Setup Wizard" />
+                    </button>
                   </div>
                   {/* Preferences Section */}
                   <div className="border-t border-border py-2 px-4">

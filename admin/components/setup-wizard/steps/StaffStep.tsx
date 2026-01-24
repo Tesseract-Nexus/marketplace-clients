@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { UserPlus, ExternalLink, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSetupWizard } from '../SetupWizardProvider';
+import { WIZARD_ROUTES } from '@/lib/routes';
 
 interface StaffStepProps {
   onComplete: () => void;
@@ -19,7 +20,7 @@ export function StaffStep({ onComplete, onSkip, onBack }: StaffStepProps) {
   const handleGoToStaff = () => {
     markStepComplete('staff');
     closeWizard();
-    router.push('/staff');
+    router.push(WIZARD_ROUTES.staff);
   };
 
   const handleSkip = () => {

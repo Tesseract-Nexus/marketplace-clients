@@ -178,9 +178,5 @@ export const TOUR_STEPS: SpotlightStep[] = [
 ];
 
 // Navigation destinations for wizard steps
-export const WIZARD_DESTINATIONS = {
-  category: '/categories',
-  product: '/products',
-  staff: '/staff',
-  settings: '/settings/general',
-} as const;
+// Re-exported from centralized routes for backward compatibility
+export { WIZARD_ROUTES as WIZARD_DESTINATIONS } from '@/lib/routes';

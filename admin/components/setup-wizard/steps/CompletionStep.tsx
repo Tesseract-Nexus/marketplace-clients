@@ -16,10 +16,19 @@ import { Button } from '@/components/ui/button';
 import { useSetupWizard } from '../SetupWizardProvider';
 import { useTenant } from '@/contexts/TenantContext';
 import { cn } from '@/lib/utils';
+import { WIZARD_COMPLETION_ITEMS, WIZARD_NEXT_STEPS } from '@/lib/routes';
 
 interface CompletionStepProps {
   onFinish: () => void;
 }
+
+// Icon mapping for completion items
+const STEP_ICONS = {
+  category: FolderPlus,
+  product: Package,
+  staff: UserPlus,
+  settings: Settings,
+} as const;
 
 export function CompletionStep({ onFinish }: CompletionStepProps) {
   const { currentTenant } = useTenant();
@@ -39,43 +48,17 @@ export function CompletionStep({ onFinish }: CompletionStepProps) {
     return () => clearTimeout(timer);
   }, [markStepComplete]);
 
-  const completionItems = [
-    {
-      icon: FolderPlus,
-      label: 'Categories',
-      href: '/categories',
-      completed: completedSteps.includes('category'),
-      skipped: skippedSteps.includes('category'),
-    },
-    {
-      icon: Package,
-      label: 'Products',
-      href: '/products',
-      completed: completedSteps.includes('product'),
-      skipped: skippedSteps.includes('product'),
-    },
-    {
-      icon: UserPlus,
-      label: 'Team Members',
-      href: '/staff',
-      completed: completedSteps.includes('staff'),
-      skipped: skippedSteps.includes('staff'),
-    },
-    {
-      icon: Settings,
-      label: 'Store Settings',
-      href: '/settings/general',
-      completed: completedSteps.includes('settings'),
-      skipped: false,
-    },
-  ];
+  // Build completion items from centralized config
+  const completionItems = WIZARD_COMPLETION_ITEMS.map((item) => ({
+    icon: STEP_ICONS[item.stepId as keyof typeof STEP_ICONS],
+    label: item.label,
+    href: item.href,
+    completed: completedSteps.includes(item.stepId as any),
+    skipped: item.stepId !== 'settings' && skippedSteps.includes(item.stepId as any),
+  }));
 
-  const nextSteps = [
-    { label: 'Set up payment methods', href: '/settings/payments' },
-    { label: 'Configure shipping options', href: '/settings/shipping-carriers' },
-    { label: 'Customize your storefront', href: '/storefronts' },
-    { label: 'View analytics dashboard', href: '/analytics' },
-  ];
+  // Use centralized next steps
+  const nextSteps = WIZARD_NEXT_STEPS;
 
   return (
     <div className="flex flex-col h-full relative overflow-hidden">

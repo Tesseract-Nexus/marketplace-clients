@@ -6,6 +6,7 @@ import { Settings, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSetupWizard } from '../SetupWizardProvider';
 import { useTenant } from '@/contexts/TenantContext';
+import { WIZARD_ROUTES } from '@/lib/routes';
 
 interface SettingsStepProps {
   onComplete: () => void;
@@ -20,7 +21,7 @@ export function SettingsStep({ onComplete, onBack }: SettingsStepProps) {
   const handleGoToSettings = () => {
     markStepComplete('settings');
     closeWizard();
-    router.push('/settings/general');
+    router.push(WIZARD_ROUTES.settings);
   };
 
   return (

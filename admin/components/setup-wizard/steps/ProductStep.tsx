@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Package, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSetupWizard } from '../SetupWizardProvider';
+import { WIZARD_ROUTES } from '@/lib/routes';
 
 interface ProductStepProps {
   onComplete: () => void;
@@ -19,7 +20,7 @@ export function ProductStep({ onComplete, onSkip, onBack }: ProductStepProps) {
   const handleGoToProducts = () => {
     markStepComplete('product');
     closeWizard();
-    router.push('/products');
+    router.push(WIZARD_ROUTES.product);
   };
 
   const handleSkip = () => {

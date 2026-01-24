@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FolderPlus, ArrowRight, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSetupWizard } from '../SetupWizardProvider';
+import { WIZARD_ROUTES } from '@/lib/routes';
 
 interface CategoryStepProps {
   onComplete: () => void;
@@ -19,7 +20,7 @@ export function CategoryStep({ onComplete, onSkip, onBack }: CategoryStepProps) 
   const handleGoToCategories = () => {
     markStepComplete('category');
     closeWizard();
-    router.push('/categories');
+    router.push(WIZARD_ROUTES.category);
   };
 
   const handleSkip = () => {
