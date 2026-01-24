@@ -186,10 +186,9 @@ function EditorialHero({ slide, config, getNavPath }: VariantProps) {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
             className={cn(
-              'font-serif text-4xl sm:text-5xl md:text-6xl font-normal leading-tight tracking-tight mb-6',
-              slide.textColor === 'dark' ? 'text-stone-900' : 'text-white'
+              'font-heading text-4xl sm:text-5xl md:text-6xl font-normal leading-tight tracking-tight mb-6',
+              slide.textColor === 'dark' ? 'text-[var(--text-primary)]' : 'text-white'
             )}
-            style={{ fontFamily: "'Playfair Display', Georgia, serif" }}
           >
             <TranslatedUIText text={slide.headline} />
           </motion.h1>
@@ -201,7 +200,7 @@ function EditorialHero({ slide, config, getNavPath }: VariantProps) {
               transition={{ delay: 0.25, duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
               className={cn(
                 'text-lg leading-relaxed mb-8 max-w-md',
-                slide.textColor === 'dark' ? 'text-stone-500' : 'text-white/80'
+                slide.textColor === 'dark' ? 'text-[var(--text-muted)]' : 'text-white/80'
               )}
             >
               <TranslatedUIText text={slide.subheadline} />

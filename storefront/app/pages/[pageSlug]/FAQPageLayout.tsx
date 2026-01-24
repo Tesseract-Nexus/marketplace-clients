@@ -214,7 +214,7 @@ export function FAQPageLayout({ page }: FAQPageLayoutProps) {
           <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-tenant-primary/10 flex items-center justify-center">
             <MessageCircle className="w-7 h-7 text-tenant-primary" />
           </div>
-          <h3 className="text-xl font-semibold text-stone-900 dark:text-stone-50 mb-2" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+          <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2 font-heading">
             Still have questions?
           </h3>
           <p className="text-stone-600 dark:text-stone-400 mb-6 max-w-md mx-auto">

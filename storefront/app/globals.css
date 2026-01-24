@@ -159,6 +159,76 @@
   --tenant-gradient-subtle: linear-gradient(135deg, var(--tenant-primary-light), var(--tenant-secondary-light));
 
   /* ============================================
+     SEMANTIC COLOR TOKENS
+     Feedback colors for status and states
+     ============================================ */
+  --color-success: #10B981;
+  --color-success-light: #D1FAE5;
+  --color-success-foreground: #FFFFFF;
+
+  --color-warning: #F59E0B;
+  --color-warning-light: #FEF3C7;
+  --color-warning-foreground: #000000;
+
+  --color-error: #EF4444;
+  --color-error-light: #FEE2E2;
+  --color-error-foreground: #FFFFFF;
+
+  --color-info: var(--tenant-primary);
+  --color-info-light: var(--tenant-primary-light);
+
+  /* ============================================
+     NEUTRAL PALETTE
+     Replacing hardcoded stone-* colors
+     ============================================ */
+  --color-neutral-50: #FAFAFA;
+  --color-neutral-100: #F5F5F4;
+  --color-neutral-200: #E7E5E4;
+  --color-neutral-300: #D6D3D1;
+  --color-neutral-400: #A8A29E;
+  --color-neutral-500: #78716C;
+  --color-neutral-600: #57534E;
+  --color-neutral-700: #44403C;
+  --color-neutral-800: #292524;
+  --color-neutral-900: #1C1917;
+
+  /* ============================================
+     SEMANTIC SURFACE TOKENS
+     Surfaces, borders, and text colors
+     ============================================ */
+  --surface-default: var(--color-neutral-50);
+  --surface-muted: var(--color-neutral-100);
+  --border-default: var(--color-neutral-200);
+  --border-strong: var(--color-neutral-400);
+  --text-primary: var(--color-neutral-900);
+  --text-secondary: var(--color-neutral-600);
+  --text-muted: var(--color-neutral-500);
+
+  /* ============================================
+     Z-INDEX SCALE
+     Consistent stacking context
+     ============================================ */
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-overlay: 1200;
+  --z-modal: 1300;
+  --z-popover: 1400;
+  --z-tooltip: 1500;
+  --z-toast: 1600;
+
+  /* ============================================
+     COMPONENT-SPECIFIC TOKENS
+     Product badges, wishlist, ratings, loyalty
+     ============================================ */
+  --badge-sale-bg: var(--color-error);
+  --badge-sale-text: var(--color-error-foreground);
+  --badge-stock-bg: var(--color-warning-light);
+  --badge-stock-text: var(--color-warning);
+  --wishlist-active: var(--color-error);
+  --rating-star: #F59E0B;
+  --loyalty-accent: #F59E0B;
+
+  /* ============================================
      EDITORIAL DESIGN SYSTEM
      Clean, typography-first aesthetic
      ============================================ */
@@ -171,8 +241,8 @@
   --editorial-border: #E7E5E4;
   --editorial-accent: #292524;
 
-  /* Editorial Typography */
-  --font-display: 'Playfair Display', Georgia, serif;
+  /* Editorial Typography - Maps to tenant heading font */
+  --font-display: var(--font-heading);
   --heading-h1-editorial: clamp(2.5rem, 6vw, 4.5rem);
   --heading-h2-editorial: clamp(2rem, 5vw, 3.5rem);
   --heading-h3-editorial: clamp(1.5rem, 4vw, 2.5rem);
@@ -236,6 +306,35 @@
   --tenant-background: #09090B;
   --tenant-foreground: #FAFAFA;
   */
+
+  /* ============================================
+     DARK MODE SEMANTIC TOKENS
+     ============================================ */
+  /* Neutral palette inverted */
+  --color-neutral-50: #18181B;
+  --color-neutral-100: #27272A;
+  --color-neutral-200: #3F3F46;
+  --color-neutral-300: #52525B;
+  --color-neutral-400: #71717A;
+  --color-neutral-500: #A1A1AA;
+  --color-neutral-600: #D4D4D8;
+  --color-neutral-700: #E4E4E7;
+  --color-neutral-800: #E4E4E7;
+  --color-neutral-900: #FAFAFA;
+
+  /* Semantic surfaces */
+  --surface-default: var(--color-neutral-100);
+  --surface-muted: var(--color-neutral-200);
+  --border-default: var(--color-neutral-200);
+  --border-strong: var(--color-neutral-400);
+  --text-primary: var(--color-neutral-900);
+  --text-secondary: var(--color-neutral-600);
+  --text-muted: var(--color-neutral-500);
+
+  /* Feedback colors (lighter variants for dark mode) */
+  --color-success-light: #064E3B;
+  --color-warning-light: #78350F;
+  --color-error-light: #7F1D1D;
 }
 
 /* Responsive Layout Overrides */
@@ -509,32 +608,51 @@
     100% { background-position: 0% 50%; }
   }
 
-  /* @deprecated - Use solid colors in editorial mode */
-  /* Glass Morphism */
+  /* Theme-Aware Glass Morphism Effects */
   .glass {
-    background: rgba(255, 255, 255, 0.1);
+    background: color-mix(in srgb, var(--tenant-background) 10%, transparent);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid color-mix(in srgb, var(--tenant-foreground) 20%, transparent);
   }
 
   .glass-dark {
-    background: rgba(0, 0, 0, 0.2);
+    background: color-mix(in srgb, var(--tenant-foreground) 20%, transparent);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid color-mix(in srgb, var(--tenant-background) 10%, transparent);
   }
 
   .glass-card {
-    background: rgba(255, 255, 255, 0.7);
+    background: color-mix(in srgb, var(--tenant-background) 70%, transparent);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    border: 1px solid color-mix(in srgb, var(--tenant-background) 30%, transparent);
   }
 
   .dark .glass-card {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: color-mix(in srgb, var(--tenant-foreground) 40%, transparent);
+    border: 1px solid color-mix(in srgb, var(--tenant-foreground) 10%, transparent);
+  }
+
+  /* Fallback for older browsers that don't support color-mix() */
+  @supports not (background: color-mix(in srgb, white 50%, black)) {
+    .glass {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .glass-dark {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    .dark .glass-card {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
   }
 
   /* ============================================
@@ -584,7 +702,7 @@
 
   /* Headings */
   .prose-editorial h1 {
-    font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+    font-family: var(--font-display);
     font-size: clamp(2rem, 5vw, 2.75rem);
     font-weight: 700;
     letter-spacing: -0.02em;
@@ -595,7 +713,7 @@
   }
 
   .prose-editorial h2 {
-    font-family: var(--font-display, 'Playfair Display', Georgia, serif);
+    font-family: var(--font-display);
     font-size: clamp(1.5rem, 4vw, 2rem);
     font-weight: 600;
     letter-spacing: -0.02em;
@@ -819,6 +937,13 @@
   .prose-editorial td {
     padding: 0.75rem 1rem;
     border-bottom: 1px solid var(--prose-td-borders);
+  }
+
+  /* Small prose variant for compact editorial text */
+  .prose-editorial-sm {
+    font-size: 0.875rem;
+    line-height: 1.625;
+    color: var(--text-secondary);
   }
 
   /* Special section styles */

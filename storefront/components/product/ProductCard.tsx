@@ -404,8 +404,8 @@ export function ProductCard({
       className={cn(
         'group relative overflow-hidden transition-all duration-200',
         'rounded-md',
-        'border border-stone-200',
-        'hover:border-stone-400',
+        'border border-[var(--border-default)]',
+        'hover:border-[var(--border-strong)]',
         'hover:shadow-sm',
         cardStyleClass,
         className
@@ -417,7 +417,7 @@ export function ProductCard({
       <Link href={getNavPath(`/products/${product.id}`)}>
         {/* Image Container */}
         <div className={cn(
-          'relative overflow-hidden bg-stone-50',
+          'relative overflow-hidden bg-[var(--surface-default)]',
           aspectRatioClass,
           isOutOfStock && 'opacity-75'
         )}>
@@ -551,23 +551,23 @@ export function ProductCard({
 
           {/* Subtle overlay on hover */}
           <div
-            className="absolute inset-0 bg-stone-900/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10"
+            className="absolute inset-0 bg-[var(--text-primary)]/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10"
           />
 
           {/* Badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1.5">
             {productConfig.showSaleBadge && hasDiscount && (
-              <Badge className="bg-red-600 text-white border-0 text-xs font-semibold">
+              <Badge variant="sale" className="text-xs">
                 -{discountPercent}%
               </Badge>
             )}
             {productConfig.showStockStatus && product.inventoryStatus === 'LOW_STOCK' && (
-              <Badge variant="secondary" className="bg-stone-100 text-stone-500 border border-stone-200">
+              <Badge variant="low-stock">
                 Low Stock
               </Badge>
             )}
             {productConfig.showStockStatus && product.inventoryStatus === 'OUT_OF_STOCK' && (
-              <Badge variant="destructive" className="shadow-lg">Sold Out</Badge>
+              <Badge variant="out-of-stock" className="shadow-lg">Sold Out</Badge>
             )}
           </div>
 
@@ -582,8 +582,8 @@ export function ProductCard({
                     'flex items-center justify-center',
                     'focus:outline-none focus:ring-2 focus:ring-offset-1',
                     isInList
-                      ? 'bg-red-500 text-white hover:bg-red-600 focus:ring-red-500'
-                      : 'bg-white text-stone-500 hover:text-red-500 shadow-sm border border-stone-200 focus:ring-red-400'
+                      ? 'bg-[var(--wishlist-active)] text-white hover:opacity-90 focus:ring-[var(--wishlist-active)]'
+                      : 'bg-white text-[var(--text-muted)] hover:text-[var(--wishlist-active)] shadow-sm border border-[var(--border-default)] focus:ring-[var(--wishlist-active)]'
                   )}
                   onClick={(e) => {
                     e.preventDefault();
@@ -635,13 +635,13 @@ export function ProductCard({
                           disabled={isAddingToList === list.id}
                           className={cn(
                             "flex items-center gap-2 py-2.5 px-2 rounded-md cursor-pointer",
-                            inList && "bg-green-50"
+                            inList && "bg-[var(--color-success-light)]"
                           )}
                         >
                           {isAddingToList === list.id ? (
                             <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                           ) : inList ? (
-                            <Check className="h-4 w-4 text-green-600" />
+                            <Check className="h-4 w-4 text-[var(--color-success)]" />
                           ) : (
                             <Bookmark className="h-4 w-4 text-muted-foreground" />
                           )}
@@ -680,7 +680,7 @@ export function ProductCard({
               opacity: isTouchDevice ? 1 : (isHovered ? 1 : 0),
               y: isTouchDevice ? 0 : (isHovered ? 0 : 10)
             }}
-            className="absolute inset-x-0 bottom-0 p-3 bg-white/95 backdrop-blur-sm border-t border-stone-100"
+            className="absolute inset-x-0 bottom-0 p-3 bg-white/95 backdrop-blur-sm border-t border-[var(--border-default)]"
           >
             <div className="flex gap-2">
               <Button
@@ -715,10 +715,10 @@ export function ProductCard({
                   variant="secondary"
                   size="sm"
                   className={cn(
-                    "h-10 px-3 gap-1.5 font-medium border border-stone-200",
+                    "h-10 px-3 gap-1.5 font-medium",
                     isInList
-                      ? "bg-red-50 text-red-600 border-red-200"
-                      : "bg-white text-stone-600"
+                      ? "bg-[var(--color-error-light)] text-[var(--wishlist-active)] border-[var(--wishlist-active)]/30"
+                      : "bg-white text-[var(--text-secondary)]"
                   )}
                   onClick={handleQuickAddToDefault}
                 >
@@ -748,13 +748,13 @@ export function ProductCard({
         <div className="p-4">
           {/* Category/Brand */}
           {product.brand && (
-            <p className="text-xs text-stone-500 uppercase tracking-wider mb-1.5 font-medium">
+            <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-1.5 font-medium">
               <TranslatedText text={product.brand} context="brand name" />
             </p>
           )}
 
           {/* Title */}
-          <h3 className="font-medium text-stone-900 text-sm md:text-base line-clamp-2 group-hover:text-stone-700 transition-colors duration-200">
+          <h3 className="font-medium text-[var(--text-primary)] text-sm md:text-base line-clamp-2 group-hover:text-[var(--text-secondary)] transition-colors duration-200">
             <TranslatedProductName name={product.name} />
           </h3>
 
@@ -768,8 +768,8 @@ export function ProductCard({
                     className={cn(
                       'h-3.5 w-3.5 transition-colors',
                       i < Math.round(product.averageRating || 0)
-                        ? 'fill-amber-400 text-amber-400'
-                        : 'text-gray-200'
+                        ? 'fill-[var(--rating-star)] text-[var(--rating-star)]'
+                        : 'text-[var(--border-default)]'
                     )}
                   />
                 ))}

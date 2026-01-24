@@ -63,7 +63,7 @@ export function ContactPageLayout({ page }: ContactPageLayoutProps) {
           {/* Left Column - Contact Info */}
           <div className="lg:col-span-2 space-y-8">
             <div>
-              <h2 className="text-2xl font-semibold text-stone-900 dark:text-stone-50 mb-4" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+              <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4 font-heading">
                 Get in Touch
               </h2>
               <p className="text-stone-600 dark:text-stone-400 leading-relaxed">

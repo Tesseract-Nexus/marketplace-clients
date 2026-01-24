@@ -249,6 +249,7 @@ export function generateCssVariables(settings: StorefrontSettings): Record<strin
   const layout = settings.layoutConfig;
   const spacing = settings.spacingStyleConfig;
   const headingScales = typography ? HEADING_SCALE_VALUES[typography.headingScale] : HEADING_SCALE_VALUES.default;
+  const isDark = isDarkTheme(settings.themeTemplate) || settings.colorMode === 'dark';
 
   return {
     // Theme Colors
@@ -307,6 +308,47 @@ export function generateCssVariables(settings: StorefrontSettings): Record<strin
     // Gradients
     '--tenant-gradient': `linear-gradient(135deg, ${settings.primaryColor || preset.primaryColor}, ${settings.secondaryColor || preset.secondaryColor})`,
     '--tenant-gradient-subtle': `linear-gradient(135deg, ${lightenColor(settings.primaryColor || preset.primaryColor, 40)}, ${lightenColor(settings.secondaryColor || preset.secondaryColor, 40)})`,
+
+    // Semantic surface tokens (mode-aware)
+    '--surface-default': isDark ? '#27272A' : '#FAFAFA',
+    '--surface-muted': isDark ? '#3F3F46' : '#F5F5F4',
+    '--border-default': isDark ? '#3F3F46' : '#E7E5E4',
+    '--border-strong': isDark ? '#52525B' : '#A8A29E',
+    '--text-primary': isDark ? '#FAFAFA' : '#1C1917',
+    '--text-secondary': isDark ? '#A1A1AA' : '#57534E',
+    '--text-muted': isDark ? '#71717A' : '#78716C',
+
+    // Feedback colors (semantic)
+    '--color-success': '#10B981',
+    '--color-success-light': isDark ? '#064E3B' : '#D1FAE5',
+    '--color-success-foreground': '#FFFFFF',
+    '--color-warning': '#F59E0B',
+    '--color-warning-light': isDark ? '#78350F' : '#FEF3C7',
+    '--color-warning-foreground': '#000000',
+    '--color-error': '#EF4444',
+    '--color-error-light': isDark ? '#7F1D1D' : '#FEE2E2',
+    '--color-error-foreground': '#FFFFFF',
+
+    // Component tokens
+    '--badge-sale-bg': 'var(--color-error)',
+    '--badge-sale-text': 'var(--color-error-foreground)',
+    '--badge-stock-bg': 'var(--color-warning-light)',
+    '--badge-stock-text': 'var(--color-warning)',
+    '--wishlist-active': 'var(--color-error)',
+    '--rating-star': '#F59E0B',
+    '--loyalty-accent': '#F59E0B',
+
+    // Z-index scale
+    '--z-dropdown': '1000',
+    '--z-sticky': '1100',
+    '--z-overlay': '1200',
+    '--z-modal': '1300',
+    '--z-popover': '1400',
+    '--z-tooltip': '1500',
+    '--z-toast': '1600',
+
+    // Editorial - maps font-display to tenant heading font
+    '--font-display': 'var(--font-heading)',
   };
 }
 

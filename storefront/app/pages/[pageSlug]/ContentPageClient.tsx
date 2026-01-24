@@ -98,7 +98,7 @@ export function ContentPageClient({ page }: ContentPageClientProps) {
             </div>
 
             {/* Title */}
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-stone-900 dark:text-stone-50" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-[var(--text-primary)] font-heading">
               {page.title}
             </h1>
 

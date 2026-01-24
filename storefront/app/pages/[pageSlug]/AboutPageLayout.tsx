@@ -107,7 +107,7 @@ export function AboutPageLayout({ page }: AboutPageLayoutProps) {
                   <div className="w-10 h-10 rounded-lg bg-tenant-primary/10 flex items-center justify-center">
                     <Users className="w-5 h-5 text-tenant-primary" />
                   </div>
-                  <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-50" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+                  <h2 className="text-xl font-semibold text-[var(--text-primary)] font-heading">
                     {storySection.title}
                   </h2>
                 </div>
@@ -125,7 +125,7 @@ export function AboutPageLayout({ page }: AboutPageLayoutProps) {
                   <div className="w-10 h-10 rounded-lg bg-tenant-primary/10 flex items-center justify-center">
                     <Target className="w-5 h-5 text-tenant-primary" />
                   </div>
-                  <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-50" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+                  <h2 className="text-xl font-semibold text-[var(--text-primary)] font-heading">
                     {missionSection.title}
                   </h2>
                 </div>
@@ -144,7 +144,7 @@ export function AboutPageLayout({ page }: AboutPageLayoutProps) {
         <section className="bg-stone-100 dark:bg-stone-900/50 py-16 md:py-20 mb-16 md:mb-20">
           <div className="max-w-6xl mx-auto px-6">
             <div className="text-center mb-10">
-              <h2 className="text-2xl md:text-3xl font-semibold text-stone-900 dark:text-stone-50 mb-3" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+              <h2 className="text-2xl md:text-3xl font-semibold text-[var(--text-primary)] mb-3 font-heading">
                 {valuesSection?.title || 'What Sets Us Apart'}
               </h2>
               <p className="text-stone-600 dark:text-stone-400 max-w-2xl mx-auto">
@@ -189,7 +189,7 @@ export function AboutPageLayout({ page }: AboutPageLayoutProps) {
         <div className="relative bg-tenant-primary/5 dark:bg-tenant-primary/10 rounded-2xl p-8 md:p-12">
           <Quote className="absolute top-6 left-6 w-8 h-8 text-tenant-primary/30" />
           <blockquote className="text-center">
-            <p className="text-xl md:text-2xl text-stone-700 dark:text-stone-300 italic leading-relaxed mb-4" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+            <p className="text-xl md:text-2xl text-[var(--text-secondary)] italic leading-relaxed mb-4 font-heading">
               &ldquo;Our goal is to make every customer feel valued and every purchase feel special.&rdquo;
             </p>
             <footer className="text-stone-600 dark:text-stone-400">
@@ -206,7 +206,7 @@ export function AboutPageLayout({ page }: AboutPageLayoutProps) {
             <div className="w-14 h-14 mx-auto mb-6 rounded-2xl bg-tenant-primary/10 flex items-center justify-center">
               <Heart className="w-7 h-7 text-tenant-primary" />
             </div>
-            <h2 className="text-2xl font-semibold text-stone-900 dark:text-stone-50 mb-3" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+            <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-3 font-heading">
               {communitySection.title}
             </h2>
             <div

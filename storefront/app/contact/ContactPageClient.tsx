@@ -185,7 +185,7 @@ export function ContactPageClient({ page, tenantName }: ContactPageClientProps) 
                 <Mail className="w-6 h-6 text-tenant-primary" />
               </div>
 
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-stone-900 dark:text-stone-50" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-[var(--text-primary)] font-heading">
                 {page.title || 'Contact Us'}
               </h1>
 
@@ -214,7 +214,7 @@ export function ContactPageClient({ page, tenantName }: ContactPageClientProps) 
               {/* Left Column - Contact Info */}
               <div className="lg:col-span-2 space-y-8">
                 <div>
-                  <h2 className="text-2xl font-semibold text-stone-900 dark:text-stone-50 mb-4" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+                  <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4 font-heading">
                     Get in Touch
                   </h2>
                   <p className="text-stone-600 dark:text-stone-400 leading-relaxed">

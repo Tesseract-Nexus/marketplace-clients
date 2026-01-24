@@ -7,36 +7,36 @@ import { Input } from '@/components/ui/input';
 import { useTenant, useFooterConfig, useNavPath } from '@/context/TenantContext';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 
-// Social icon components with brand colors on hover
+// Social icon components with tenant theme colors on hover for consistent branding
 const SOCIAL_ICONS: Record<string, { icon: React.ComponentType<{ className?: string }> | (() => React.JSX.Element); hoverColor: string; label: string }> = {
   facebook: {
     icon: Facebook,
-    hoverColor: 'hover:bg-[#1877F2] hover:border-[#1877F2]',
+    hoverColor: 'hover:bg-[var(--tenant-primary)] hover:border-[var(--tenant-primary)] hover:text-[var(--tenant-primary-foreground)]',
     label: 'Facebook'
   },
   twitter: {
     icon: Twitter,
-    hoverColor: 'hover:bg-[#1DA1F2] hover:border-[#1DA1F2]',
+    hoverColor: 'hover:bg-[var(--tenant-primary)] hover:border-[var(--tenant-primary)] hover:text-[var(--tenant-primary-foreground)]',
     label: 'Twitter / X'
   },
   x: {
     icon: Twitter,
-    hoverColor: 'hover:bg-[#000000] hover:border-[#000000]',
+    hoverColor: 'hover:bg-[var(--tenant-primary)] hover:border-[var(--tenant-primary)] hover:text-[var(--tenant-primary-foreground)]',
     label: 'X'
   },
   instagram: {
     icon: Instagram,
-    hoverColor: 'hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#FD1D1D] hover:to-[#F77737] hover:border-[#E1306C]',
+    hoverColor: 'hover:bg-[var(--tenant-primary)] hover:border-[var(--tenant-primary)] hover:text-[var(--tenant-primary-foreground)]',
     label: 'Instagram'
   },
   linkedin: {
     icon: Linkedin,
-    hoverColor: 'hover:bg-[#0A66C2] hover:border-[#0A66C2]',
+    hoverColor: 'hover:bg-[var(--tenant-primary)] hover:border-[var(--tenant-primary)] hover:text-[var(--tenant-primary-foreground)]',
     label: 'LinkedIn'
   },
   youtube: {
     icon: Youtube,
-    hoverColor: 'hover:bg-[#FF0000] hover:border-[#FF0000]',
+    hoverColor: 'hover:bg-[var(--tenant-primary)] hover:border-[var(--tenant-primary)] hover:text-[var(--tenant-primary-foreground)]',
     label: 'YouTube'
   },
   tiktok: {
@@ -45,7 +45,7 @@ const SOCIAL_ICONS: Record<string, { icon: React.ComponentType<{ className?: str
         <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
       </svg>
     ),
-    hoverColor: 'hover:bg-[#000000] hover:border-[#000000]',
+    hoverColor: 'hover:bg-[var(--tenant-primary)] hover:border-[var(--tenant-primary)] hover:text-[var(--tenant-primary-foreground)]',
     label: 'TikTok'
   },
   pinterest: {
@@ -54,7 +54,7 @@ const SOCIAL_ICONS: Record<string, { icon: React.ComponentType<{ className?: str
         <path d="M12 0a12 12 0 0 0-4.37 23.17c-.1-.94-.2-2.4.04-3.44l1.46-6.2s-.37-.74-.37-1.84c0-1.72 1-3 2.25-3 1.06 0 1.57.8 1.57 1.75 0 1.07-.68 2.66-1.03 4.14-.3 1.25.63 2.27 1.86 2.27 2.23 0 3.94-2.35 3.94-5.75 0-3-2.16-5.1-5.23-5.1a5.42 5.42 0 0 0-5.66 5.44c0 1.08.42 2.23.94 2.86.1.13.12.24.08.37l-.35 1.42c-.06.22-.18.27-.42.16-1.56-.72-2.54-3-2.54-4.81 0-3.92 2.85-7.52 8.21-7.52 4.31 0 7.67 3.07 7.67 7.18 0 4.28-2.7 7.72-6.45 7.72-1.26 0-2.44-.65-2.85-1.43l-.77 2.95c-.28 1.08-1.04 2.43-1.55 3.26A12 12 0 1 0 12 0z"/>
       </svg>
     ),
-    hoverColor: 'hover:bg-[#BD081C] hover:border-[#BD081C]',
+    hoverColor: 'hover:bg-[var(--tenant-primary)] hover:border-[var(--tenant-primary)] hover:text-[var(--tenant-primary-foreground)]',
     label: 'Pinterest'
   },
 };
@@ -145,11 +145,11 @@ export function Footer() {
 
   return (
     <footer
-      className="relative border-t border-stone-200 bg-stone-50"
+      className="relative border-t border-[var(--border-default)] bg-[var(--surface-default)]"
     >
       {/* Solid accent line at top - editorial style (no gradient) */}
       <div
-        className="absolute top-0 left-0 right-0 h-px bg-stone-300"
+        className="absolute top-0 left-0 right-0 h-px bg-[var(--border-strong)]"
       />
 
       <div className="container-tenant py-8 sm:py-12 md:py-16">

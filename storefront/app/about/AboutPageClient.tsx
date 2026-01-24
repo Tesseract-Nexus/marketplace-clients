@@ -150,7 +150,7 @@ export function AboutPageClient({ page, tenantName }: AboutPageClientProps) {
                 <Building2 className="w-6 h-6 text-tenant-primary" />
               </div>
 
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-stone-900 dark:text-stone-50" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-[var(--text-primary)] font-heading">
                 {page.title || 'About Us'}
               </h1>
 
@@ -197,7 +197,7 @@ export function AboutPageClient({ page, tenantName }: AboutPageClientProps) {
                       <div className="w-10 h-10 rounded-lg bg-tenant-primary/10 flex items-center justify-center">
                         <Users className="w-5 h-5 text-tenant-primary" />
                       </div>
-                      <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-50" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+                      <h2 className="text-xl font-semibold text-[var(--text-primary)] font-heading">
                         {storySection.title}
                       </h2>
                     </div>
@@ -214,7 +214,7 @@ export function AboutPageClient({ page, tenantName }: AboutPageClientProps) {
                       <div className="w-10 h-10 rounded-lg bg-tenant-primary/10 flex items-center justify-center">
                         <Target className="w-5 h-5 text-tenant-primary" />
                       </div>
-                      <h2 className="text-xl font-semibold text-stone-900 dark:text-stone-50" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+                      <h2 className="text-xl font-semibold text-[var(--text-primary)] font-heading">
                         {missionSection.title}
                       </h2>
                     </div>
@@ -233,7 +233,7 @@ export function AboutPageClient({ page, tenantName }: AboutPageClientProps) {
             <section className="bg-stone-100 dark:bg-stone-900/50 py-16 md:py-20 mb-16 md:mb-20">
               <div className="max-w-6xl mx-auto px-6">
                 <div className="text-center mb-10">
-                  <h2 className="text-2xl md:text-3xl font-semibold text-stone-900 dark:text-stone-50 mb-3" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+                  <h2 className="text-2xl md:text-3xl font-semibold text-[var(--text-primary)] mb-3 font-heading">
                     {valuesSection?.title || 'What Sets Us Apart'}
                   </h2>
                 </div>
@@ -276,7 +276,7 @@ export function AboutPageClient({ page, tenantName }: AboutPageClientProps) {
                 <div className="w-14 h-14 mx-auto mb-6 rounded-2xl bg-tenant-primary/10 flex items-center justify-center">
                   <Heart className="w-7 h-7 text-tenant-primary" />
                 </div>
-                <h2 className="text-2xl font-semibold text-stone-900 dark:text-stone-50 mb-3" style={{ fontFamily: 'var(--font-display, Georgia, serif)' }}>
+                <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-3 font-heading">
                   {communitySection.title}
                 </h2>
                 <div

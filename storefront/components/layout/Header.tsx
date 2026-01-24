@@ -111,7 +111,7 @@ export function Header() {
           'w-full z-50 transition-all duration-200',
           headerConfig.stickyHeader && 'sticky top-0',
           isScrolled
-            ? 'bg-background shadow-sm border-b border-stone-200'
+            ? 'bg-background shadow-sm border-b border-[var(--border-default)]'
             : 'bg-background border-b border-transparent'
         )}
         style={{ height: 'var(--header-height)' }}
@@ -161,16 +161,16 @@ export function Header() {
                     {isProgramActive && isEnrolled && (
                       <Link
                         href={getNavPath('/account/loyalty')}
-                        className="flex items-center justify-between mt-3 p-2 rounded-lg bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200"
+                        className="flex items-center justify-between mt-3 p-2 rounded-lg bg-[var(--loyalty-accent)]/10 border border-[var(--loyalty-accent)]/30"
                         onClick={() => setMobileMenuOpen(false)}
                       >
                         <div className="flex items-center gap-2">
-                          <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
-                          <span className="text-sm font-medium text-yellow-700">
+                          <Star className="h-4 w-4 fill-[var(--loyalty-accent)] text-[var(--loyalty-accent)]" />
+                          <span className="text-sm font-medium text-[var(--loyalty-accent)]">
                             <TranslatedUIText text="Loyalty Points" />
                           </span>
                         </div>
-                        <span className="text-sm font-bold text-yellow-700">{pointsBalance.toLocaleString()}</span>
+                        <span className="text-sm font-bold text-[var(--loyalty-accent)]">{pointsBalance.toLocaleString()}</span>
                       </Link>
                     )}
                   </div>
@@ -309,7 +309,7 @@ export function Header() {
                   {isAuthenticated ? (
                     <Button
                       variant="outline"
-                      className="w-full justify-start gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      className="w-full justify-start gap-2 text-[var(--color-error)] hover:text-[var(--color-error)] hover:bg-[var(--color-error-light)]"
                       onClick={() => {
                         handleLogout();
                         setMobileMenuOpen(false);
@@ -408,11 +408,11 @@ export function Header() {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="flex items-center gap-1.5 h-9 px-3 bg-gradient-to-r from-yellow-50 to-amber-50 hover:from-yellow-100 hover:to-amber-100 border border-yellow-200 text-yellow-700"
+                    className="flex items-center gap-1.5 h-9 px-3 bg-[var(--loyalty-accent)]/10 hover:bg-[var(--loyalty-accent)]/20 border border-[var(--loyalty-accent)]/30 text-[var(--loyalty-accent)]"
                   >
-                    <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
+                    <Star className="h-4 w-4 fill-[var(--loyalty-accent)] text-[var(--loyalty-accent)]" />
                     <span className="text-sm font-semibold">{pointsBalance.toLocaleString()}</span>
-                    <span className="text-xs text-yellow-600">pts</span>
+                    <span className="text-xs opacity-80">pts</span>
                   </Button>
                 </Link>
               )}
@@ -423,7 +423,7 @@ export function Header() {
                   <Heart className="h-5 w-5" />
                   {listsCount > 0 && (
                     <Badge
-                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-red-500 text-white"
+                      className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs bg-[var(--wishlist-active)] text-white"
                     >
                       {listsCount > 99 ? '99+' : listsCount}
                     </Badge>
@@ -500,7 +500,7 @@ export function Header() {
                               <Star className="h-4 w-4" />
                               <TranslatedUIText text="Loyalty Points" />
                               {isEnrolled && (
-                                <span className="ml-auto text-xs text-yellow-600 font-medium">
+                                <span className="ml-auto text-xs text-[var(--loyalty-accent)] font-medium">
                                   {pointsBalance.toLocaleString()}
                                 </span>
                               )}
@@ -522,7 +522,7 @@ export function Header() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={handleLogout}
-                          className="flex items-center gap-2 text-red-600 focus:text-red-600"
+                          className="flex items-center gap-2 text-[var(--color-error)] focus:text-[var(--color-error)]"
                         >
                           <LogOut className="h-4 w-4" />
                           <TranslatedUIText text="Sign Out" />

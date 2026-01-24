@@ -13,7 +13,7 @@ const buttonVariants = cva(
         // Core variants (8 total - simplified from 16)
         default: "bg-tenant-primary text-white shadow-sm hover:opacity-90",
         secondary:
-          "border border-stone-200 text-stone-800 bg-transparent hover:bg-stone-50 hover:border-stone-400",
+          "border border-[var(--border-default)] text-[var(--text-primary)] bg-transparent hover:bg-[var(--surface-muted)] hover:border-[var(--border-strong)]",
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-tenant-primary underline-offset-4 hover:underline",

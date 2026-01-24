@@ -17,6 +17,13 @@ const badgeVariants = cva(
           "border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
           "text-foreground [a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
+        // Product badge variants using semantic tokens
+        sale:
+          "border-transparent bg-[var(--badge-sale-bg)] text-[var(--badge-sale-text)] font-semibold",
+        "low-stock":
+          "bg-[var(--badge-stock-bg)] text-[var(--badge-stock-text)] border border-[var(--color-warning)]",
+        "out-of-stock":
+          "border-transparent bg-[var(--color-error)] text-[var(--color-error-foreground)]",
       },
     },
     defaultVariants: {
