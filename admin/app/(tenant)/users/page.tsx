@@ -49,7 +49,7 @@ const MOCK_USERS: User[] = [
     id: '1',
     displayName: 'Admin User',
     email: 'admin@tesseract-hub.com',
-    role: 'Super Administrator',
+    role: 'Store Owner',
     jobTitle: 'System Administrator',
     department: 'IT Operations',
     officeLocation: 'Main Office',
@@ -63,7 +63,7 @@ const MOCK_USERS: User[] = [
     id: '2',
     displayName: 'John Smith',
     email: 'john.smith@tesseract-hub.com',
-    role: 'Administrator',
+    role: 'Store Admin',
     jobTitle: 'Operations Manager',
     department: 'Operations',
     officeLocation: 'Main Office',
@@ -76,7 +76,7 @@ const MOCK_USERS: User[] = [
     id: '3',
     displayName: 'Sarah Johnson',
     email: 'sarah.johnson@tesseract-hub.com',
-    role: 'Manager',
+    role: 'Store Manager',
     jobTitle: 'Customer Success Manager',
     department: 'Customer Success',
     officeLocation: 'Branch Office',
@@ -101,9 +101,9 @@ const MOCK_USERS: User[] = [
 
 const roleOptions = [
   { value: 'ALL', label: 'All Roles' },
-  { value: 'Super Administrator', label: 'Super Administrator' },
-  { value: 'Administrator', label: 'Administrator' },
-  { value: 'Manager', label: 'Manager' },
+  { value: 'Store Owner', label: 'Store Owner' },
+  { value: 'Store Admin', label: 'Store Admin' },
+  { value: 'Store Manager', label: 'Store Manager' },
   { value: 'Staff', label: 'Staff' },
   { value: 'Viewer', label: 'Viewer' },
 ];
@@ -275,9 +275,9 @@ export default function UsersHubPage() {
 
   const getRoleBadgeClass = (role: string) => {
     const classes: Record<string, string> = {
-      'Super Administrator': 'bg-primary/10 text-primary border-primary/30',
-      Administrator: 'bg-primary/20 text-primary border-primary/30',
-      Manager: 'bg-success-muted text-success-foreground border-success/30',
+      'Store Owner': 'bg-primary/10 text-primary border-primary/30',
+      'Store Admin': 'bg-primary/20 text-primary border-primary/30',
+      'Store Manager': 'bg-success-muted text-success-foreground border-success/30',
       Staff: 'bg-muted text-foreground border-border',
       Viewer: 'bg-warning-muted text-warning-foreground border-warning/30',
     };

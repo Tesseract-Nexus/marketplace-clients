@@ -440,7 +440,19 @@ export default function StaffPage() {
       guest: 'bg-primary/10 text-primary border-primary/30',
       readonly: 'bg-neutral-muted text-neutral-muted-foreground border-neutral/30',
     };
-    return <Badge className={styles[role]}>{role.replace('_', ' ').toUpperCase()}</Badge>;
+    // Map legacy role names to RBAC-consistent display names
+    const roleDisplayNames: Record<StaffRole, string> = {
+      super_admin: 'STORE OWNER',
+      admin: 'STORE ADMIN',
+      manager: 'STORE MANAGER',
+      senior_employee: 'SENIOR EMPLOYEE',
+      employee: 'EMPLOYEE',
+      intern: 'INTERN',
+      contractor: 'CONTRACTOR',
+      guest: 'GUEST',
+      readonly: 'VIEWER',
+    };
+    return <Badge className={styles[role]}>{roleDisplayNames[role]}</Badge>;
   };
 
   const getEmploymentTypeBadge = (type: EmploymentType) => {
@@ -1009,9 +1021,9 @@ export default function StaffPage() {
             onChange={setRoleFilter}
             options={[
               { value: 'ALL', label: 'All Roles', icon: <Search className="w-4 h-4 text-muted-foreground" /> },
-              { value: 'super_admin', label: 'Super Admin', icon: <Crown className="w-4 h-4 text-primary" /> },
-              { value: 'admin', label: 'Admin', icon: <Shield className="w-4 h-4 text-primary" /> },
-              { value: 'manager', label: 'Manager', icon: <UserCog className="w-4 h-4 text-primary" /> },
+              { value: 'super_admin', label: 'Store Owner', icon: <Crown className="w-4 h-4 text-primary" /> },
+              { value: 'admin', label: 'Store Admin', icon: <Shield className="w-4 h-4 text-primary" /> },
+              { value: 'manager', label: 'Store Manager', icon: <UserCog className="w-4 h-4 text-primary" /> },
               { value: 'senior_employee', label: 'Senior Employee', icon: <Star className="w-4 h-4 text-warning" /> },
               { value: 'employee', label: 'Employee', icon: <UserCheck className="w-4 h-4 text-success" /> },
               { value: 'intern', label: 'Intern', icon: <GraduationCap className="w-4 h-4 text-accent-foreground" /> },

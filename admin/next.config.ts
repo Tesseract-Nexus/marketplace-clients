@@ -22,7 +22,8 @@ const nextConfig: NextConfig = {
     const cspDirectives = [
       "default-src 'self'",
       // Scripts: Required for Next.js - unsafe-inline and unsafe-eval are needed
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+      // Added cloudflareinsights.com for analytics
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com",
       // Styles: Required for Tailwind and inline styles
       "style-src 'self' 'unsafe-inline'",
       // Images: Allow data URIs, blobs, and trusted CDNs

@@ -204,34 +204,62 @@ export function PageTour() {
   return (
     <>
       {/* Overlay with cutout for target element */}
-      <div className="fixed inset-0 z-[300] pointer-events-auto">
-        {/* Semi-transparent overlay */}
-        <svg className="absolute inset-0 w-full h-full">
-          <defs>
-            <mask id="tour-spotlight-mask">
-              <rect x="0" y="0" width="100%" height="100%" fill="white" />
-              {targetRect && (
-                <rect
-                  x={targetRect.left - 8}
-                  y={targetRect.top - 8}
-                  width={targetRect.width + 16}
-                  height={targetRect.height + 16}
-                  rx="8"
-                  fill="black"
-                />
-              )}
-            </mask>
-          </defs>
-          <rect
-            x="0"
-            y="0"
-            width="100%"
-            height="100%"
-            fill="rgba(0, 0, 0, 0.7)"
-            mask="url(#tour-spotlight-mask)"
+      <div className="fixed inset-0 z-[300] pointer-events-none">
+        {/* Semi-transparent overlay using 4 rectangles to leave the target clickable */}
+        {targetRect ? (
+          <>
+            {/* Top rectangle */}
+            <div
+              className="absolute bg-black/70 pointer-events-auto cursor-pointer"
+              style={{
+                top: 0,
+                left: 0,
+                right: 0,
+                height: Math.max(0, targetRect.top - 8),
+              }}
+              onClick={skipTour}
+            />
+            {/* Bottom rectangle */}
+            <div
+              className="absolute bg-black/70 pointer-events-auto cursor-pointer"
+              style={{
+                top: targetRect.bottom + 8,
+                left: 0,
+                right: 0,
+                bottom: 0,
+              }}
+              onClick={skipTour}
+            />
+            {/* Left rectangle */}
+            <div
+              className="absolute bg-black/70 pointer-events-auto cursor-pointer"
+              style={{
+                top: targetRect.top - 8,
+                left: 0,
+                width: Math.max(0, targetRect.left - 8),
+                height: targetRect.height + 16,
+              }}
+              onClick={skipTour}
+            />
+            {/* Right rectangle */}
+            <div
+              className="absolute bg-black/70 pointer-events-auto cursor-pointer"
+              style={{
+                top: targetRect.top - 8,
+                left: targetRect.right + 8,
+                right: 0,
+                height: targetRect.height + 16,
+              }}
+              onClick={skipTour}
+            />
+          </>
+        ) : (
+          /* Full overlay when no target */
+          <div
+            className="absolute inset-0 bg-black/70 pointer-events-auto cursor-pointer"
             onClick={skipTour}
           />
-        </svg>
+        )}
 
         {/* Highlight ring around target */}
         {targetRect && (
