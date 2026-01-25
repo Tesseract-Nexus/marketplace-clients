@@ -9,6 +9,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading, PageError, EmptyState } from '@/components/common';
 import { approvalService, ApprovalRequest, ApprovalStatus, ApprovalType } from '@/lib/services/approvalService';
+import { useToast } from '@/contexts/ToastContext';
 import {
   Select,
   SelectContent,
@@ -132,6 +133,7 @@ const getTypeIcon = (type: ApprovalType) => {
 
 export default function ApprovalsPage() {
   const router = useRouter();
+  const toast = useToast();
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -174,9 +176,12 @@ export default function ApprovalsPage() {
     try {
       setActionLoading(approval.id);
       await approvalService.approve(approval.id);
+      toast.success('Request Approved', `${approval.title} has been approved successfully`);
       await loadApprovals();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to approve');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to approve';
+      toast.error('Approval Failed', errorMsg);
+      setError(errorMsg);
     } finally {
       setActionLoading(null);
     }
@@ -202,10 +207,13 @@ export default function ApprovalsPage() {
 
       if (actionType === 'approve') {
         await approvalService.approve(selectedApproval.id, actionComment ? { comment: actionComment } : undefined);
+        toast.success('Request Approved', `${selectedApproval.title} has been approved successfully`);
       } else if (actionType === 'request_changes') {
         await approvalService.requestChanges(selectedApproval.id, { comment: actionComment });
+        toast.info('Changes Requested', `Changes requested for ${selectedApproval.title}`);
       } else {
         await approvalService.reject(selectedApproval.id, { comment: actionComment });
+        toast.warning('Request Rejected', `${selectedApproval.title} has been rejected`);
       }
 
       setActionDialogOpen(false);
@@ -213,7 +221,9 @@ export default function ApprovalsPage() {
       setActionComment('');
       await loadApprovals();
     } catch (err) {
-      setError(err instanceof Error ? err.message : `Failed to ${actionType === 'approve' ? 'approve' : 'reject'}`);
+      const errorMsg = err instanceof Error ? err.message : `Failed to ${actionType === 'approve' ? 'approve' : 'reject'}`;
+      toast.error('Action Failed', errorMsg);
+      setError(errorMsg);
     } finally {
       setActionLoading(null);
     }
@@ -350,126 +360,154 @@ export default function ApprovalsPage() {
             </div>
           )}
 
+          {/* Approvals Table */}
           {!loading && approvals.length > 0 && (
-            <div className="space-y-4">
-              {approvals.map((approval) => (
-                <div key={approval.id} className="bg-card rounded-lg border border-border p-4 hover:border-primary/30 transition-colors">
-                  <div className="flex flex-col md:flex-row md:items-center gap-4">
-                    {/* Left: Icon and Info */}
-                    <div className="flex items-start gap-4 flex-1">
-                      <div className={cn(
-                        "p-3 rounded-xl",
-                        approval.status === 'pending' ? "bg-secondary" :
-                        approval.status === 'approved' ? "bg-primary/10" :
-                        approval.status === 'rejected' ? "bg-error-muted" : "bg-muted"
-                      )}>
-                        {getTypeIcon(approval.approvalType)}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex flex-wrap items-center gap-2 mb-1">
-                          {getTypeBadge(approval.approvalType)}
-                          {getStatusBadge(approval.status)}
-                          {approval.amount && (
-                            <span className="text-lg font-bold text-foreground">
-                              {formatCurrency(approval.amount, approval.currency)}
-                            </span>
-                          )}
+            <div className="bg-card rounded-lg border border-border overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-muted border-b border-border">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">
+                      Request
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">
+                      Type
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">
+                      Requester
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider hidden md:table-cell">
+                      Amount
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden lg:table-cell">
+                      Date
+                    </th>
+                    <th className="px-4 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {approvals.map((approval) => (
+                    <tr
+                      key={approval.id}
+                      className={cn(
+                        'hover:bg-muted/50 transition-colors',
+                        approval.status === 'pending' && 'bg-warning-muted/20',
+                        approval.status === 'rejected' && 'bg-error-muted/20'
+                      )}
+                    >
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className={cn(
+                            "p-2 rounded-lg flex-shrink-0",
+                            approval.status === 'pending' ? "bg-warning-muted" :
+                            approval.status === 'approved' ? "bg-success-muted" :
+                            approval.status === 'rejected' ? "bg-error-muted" : "bg-muted"
+                          )}>
+                            {getTypeIcon(approval.approvalType)}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-foreground text-sm truncate max-w-[200px]">
+                              {approval.title || approval.entityReference}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate max-w-[200px]">
+                              {approval.reason || `ID: ${approval.id.slice(0, 8)}...`}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-sm text-foreground mb-1">
-                          <span className="font-medium">{approval.entityReference}</span>
-                          {approval.reason && (
-                            <span className="text-muted-foreground"> - {approval.reason}</span>
-                          )}
-                        </p>
-                        <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <User className="w-3 h-3" />
-                            Requested by {approval.requestedByName || 'Unknown'}
+                      </td>
+                      <td className="px-4 py-3">
+                        {getTypeBadge(approval.approvalType)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2">
+                          <User className="w-3.5 h-3.5 text-muted-foreground" />
+                          <span className="text-sm text-foreground">{approval.requestedByName || 'Unknown'}</span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        {getStatusBadge(approval.status)}
+                      </td>
+                      <td className="px-4 py-3 text-right hidden md:table-cell">
+                        {approval.amount ? (
+                          <span className="font-semibold text-foreground">
+                            {formatCurrency(approval.amount, approval.currency)}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {formatDate(approval.createdAt)}
-                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 hidden lg:table-cell">
+                        <div className="text-sm">
+                          <p className="text-foreground">{formatDate(approval.createdAt)}</p>
                           {approval.expiresAt && approval.status === 'pending' && (
-                            <span className="flex items-center gap-1 text-error">
+                            <p className="text-xs text-error flex items-center gap-1 mt-0.5">
                               <Clock className="w-3 h-3" />
                               Expires {formatDate(approval.expiresAt)}
-                            </span>
+                            </p>
                           )}
                         </div>
-                        {approval.status === 'rejected' && approval.rejectionReason && (
-                          <p className="mt-2 text-sm text-error bg-error-muted px-3 py-1 rounded-lg inline-block">
-                            Reason: {approval.rejectionReason}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Right: Actions */}
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => openViewDialog(approval)}
-                      >
-                        <Eye className="w-4 h-4 mr-1" />
-                        View
-                      </Button>
-                      <PermissionGate permission={Permission.APPROVALS_APPROVE}>
-                        {approval.status === 'pending' && (
-                          <div className="flex flex-wrap items-center gap-2">
-                            {/* Approve dropdown with quick approve and approve with comment */}
-                            <div className="flex">
-                              <Button
-                                size="sm"
-                                className="rounded-r-none bg-green-600 hover:bg-green-700 text-white"
-                                onClick={() => handleQuickApprove(approval)}
-                                disabled={actionLoading === approval.id}
-                              >
-                                {actionLoading === approval.id ? (
-                                  <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                  <>
-                                    <ThumbsUp className="w-4 h-4 mr-1" />
-                                    Approve
-                                  </>
-                                )}
-                              </Button>
-                              <Button
-                                size="sm"
-                                className="rounded-l-none border-l border-green-500/30 px-2 bg-green-600 hover:bg-green-700 text-white"
-                                onClick={() => openActionDialog(approval, 'approve')}
-                                disabled={actionLoading === approval.id}
-                                title="Approve with comment"
-                              >
-                                +
-                              </Button>
-                            </div>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => openActionDialog(approval, 'request_changes')}
-                              disabled={actionLoading === approval.id}
-                            >
-                              <Clock className="w-4 h-4 mr-1" />
-                              Review
-                            </Button>
-                            <Button
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => openActionDialog(approval, 'reject')}
-                              disabled={actionLoading === approval.id}
-                            >
-                              <ThumbsDown className="w-4 h-4 mr-1" />
-                              Reject
-                            </Button>
-                          </div>
-                        )}
-                      </PermissionGate>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => openViewDialog(approval)}
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10"
+                            title="View Details"
+                          >
+                            <Eye className="w-4 h-4 text-primary" />
+                          </Button>
+                          <PermissionGate permission={Permission.APPROVALS_APPROVE}>
+                            {approval.status === 'pending' && (
+                              <>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 rounded-lg hover:bg-success-muted"
+                                  onClick={() => handleQuickApprove(approval)}
+                                  disabled={actionLoading === approval.id}
+                                  title="Approve"
+                                >
+                                  {actionLoading === approval.id ? (
+                                    <Loader2 className="w-4 h-4 animate-spin text-success" />
+                                  ) : (
+                                    <ThumbsUp className="w-4 h-4 text-success" />
+                                  )}
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 rounded-lg hover:bg-warning-muted"
+                                  onClick={() => openActionDialog(approval, 'request_changes')}
+                                  disabled={actionLoading === approval.id}
+                                  title="Request Changes"
+                                >
+                                  <Clock className="w-4 h-4 text-warning" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted"
+                                  onClick={() => openActionDialog(approval, 'reject')}
+                                  disabled={actionLoading === approval.id}
+                                  title="Reject"
+                                >
+                                  <ThumbsDown className="w-4 h-4 text-error" />
+                                </Button>
+                              </>
+                            )}
+                          </PermissionGate>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
 

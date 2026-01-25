@@ -2859,7 +2859,7 @@ export default function ProductsPage() {
           </div>
         )}
 
-        {/* Products List */}
+        {/* Products List - Table Layout */}
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="text-center">
@@ -2868,176 +2868,195 @@ export default function ProductsPage() {
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
-            {/* Select All Header */}
-            {paginatedProducts.length > 0 && (
-              <div className="flex items-center gap-3 px-2">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedProducts.size === paginatedProducts.length && paginatedProducts.length > 0}
-                    onChange={handleSelectAll}
-                    className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
-                  />
-                  <span className="text-sm text-muted-foreground font-medium">
-                    Select all ({paginatedProducts.length})
-                  </span>
-                </label>
-              </div>
-            )}
+          <div className="bg-card rounded-lg border border-border overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-muted border-b border-border">
+                <tr>
+                  <th className="px-4 py-3 text-left">
+                    <input
+                      type="checkbox"
+                      checked={selectedProducts.size === paginatedProducts.length && paginatedProducts.length > 0}
+                      onChange={handleSelectAll}
+                      className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                    />
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">
+                    Product
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">
+                    SKU
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden md:table-cell">
+                    Brand
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">
+                    Price
+                  </th>
+                  <th className="px-4 py-3 text-center text-xs font-bold text-foreground uppercase tracking-wider">
+                    Stock
+                  </th>
+                  <th className="px-4 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {paginatedProducts.length === 0 ? (
+                  <tr>
+                    <td colSpan={8} className="px-6 py-12 text-center">
+                      <Package className="mx-auto h-12 w-12 text-muted-foreground" />
+                      <h3 className="mt-2 text-sm font-medium text-foreground">
+                        {products.length === 0 ? 'No products found' : 'No matching products'}
+                      </h3>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {products.length === 0
+                          ? 'Get started by creating your first product.'
+                          : 'Try adjusting your search or filter criteria.'}
+                      </p>
+                      {products.length === 0 && (
+                        <PermissionGate permission={Permission.PRODUCTS_CREATE}>
+                          <Button
+                            onClick={handleCreateNew}
+                            className="mt-4 inline-flex items-center gap-2"
+                          >
+                            <Plus className="w-4 h-4" />
+                            Create Product
+                          </Button>
+                        </PermissionGate>
+                      )}
+                    </td>
+                  </tr>
+                ) : (
+                  paginatedProducts.map((product) => {
+                    const imageUrl = product.images?.[0]
+                      ? (typeof product.images[0] === 'string' ? product.images[0] : product.images[0]?.url)
+                      : null;
+                    const isLowStock = product.lowStockThreshold && (product.quantity || 0) <= product.lowStockThreshold && (product.quantity || 0) > 0;
+                    const isOutOfStock = (product.quantity || 0) === 0;
 
-            {/* Product Cards - Compact Layout */}
-            <div className="space-y-2">
-              {paginatedProducts.map((product) => {
-                const imageUrl = product.images?.[0]
-                  ? (typeof product.images[0] === 'string' ? product.images[0] : product.images[0]?.url)
-                  : null;
-                const isLowStock = product.lowStockThreshold && (product.quantity || 0) <= product.lowStockThreshold;
-                const isOutOfStock = (product.quantity || 0) === 0;
-
-                return (
-                  <div
-                    key={product.id}
-                    className={cn(
-                      "group bg-card rounded-lg border border-border hover:border-primary/30 transition-all",
-                      selectedProducts.has(product.id) && "ring-2 ring-primary border-primary/30 bg-primary/5"
-                    )}
-                  >
-                    <div className="flex items-center gap-3 p-3">
-                      {/* Left accent bar */}
-                      <div className={cn(
-                        "w-1 h-12 flex-shrink-0 rounded-full",
-                        product.status === 'ACTIVE' ? "bg-success" :
-                        product.status === 'DRAFT' ? "bg-muted-foreground" :
-                        product.status === 'PENDING' ? "bg-warning" :
-                        "bg-error"
-                      )} />
-
-                      {/* Checkbox */}
-                      <input
-                        type="checkbox"
-                        checked={selectedProducts.has(product.id)}
-                        onChange={() => handleSelectProduct(product.id)}
-                        className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0 cursor-pointer flex-shrink-0"
-                      />
-
-                      {/* Product Thumbnail */}
-                      <div className="w-10 h-10 flex-shrink-0 rounded-lg overflow-hidden border border-border bg-muted">
-                        {imageUrl ? (
-                          <img
-                            src={imageUrl}
-                            alt={product.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none';
-                              (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
-                            }}
+                    return (
+                      <tr
+                        key={product.id}
+                        className={cn(
+                          'hover:bg-muted/50 transition-colors group',
+                          isOutOfStock && 'bg-error-muted/30',
+                          isLowStock && !isOutOfStock && 'bg-warning-muted/30',
+                          selectedProducts.has(product.id) && 'bg-primary/5'
+                        )}
+                      >
+                        <td className="px-4 py-3">
+                          <input
+                            type="checkbox"
+                            checked={selectedProducts.has(product.id)}
+                            onChange={() => handleSelectProduct(product.id)}
+                            className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0 cursor-pointer"
                           />
-                        ) : null}
-                        <div className={cn("w-full h-full flex items-center justify-center", imageUrl && "hidden")}>
-                          <ImageIcon className="w-4 h-4 text-muted-foreground" />
-                        </div>
-                      </div>
-
-                      {/* Product Info - Main */}
-                      <div className="flex-1 min-w-0 grid grid-cols-1 md:grid-cols-[1fr,auto] gap-2 md:gap-4 items-center">
-                        {/* Left: Name, SKU, Brand */}
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <button
-                              onClick={() => handleViewProduct(product)}
-                              className="font-semibold text-foreground truncate hover:text-primary transition-colors text-left text-sm"
-                            >
-                              {product.name}
-                            </button>
-                            {getStatusBadge(product.status)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 flex-shrink-0 rounded-lg overflow-hidden border border-border bg-muted">
+                              {imageUrl ? (
+                                <img
+                                  src={imageUrl}
+                                  alt={product.name}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).style.display = 'none';
+                                    (e.target as HTMLImageElement).nextElementSibling?.classList.remove('hidden');
+                                  }}
+                                />
+                              ) : null}
+                              <div className={cn("w-full h-full flex items-center justify-center", imageUrl && "hidden")}>
+                                <Package className="w-4 h-4 text-muted-foreground" />
+                              </div>
+                            </div>
+                            <div className="min-w-0">
+                              <button
+                                onClick={() => handleViewProduct(product)}
+                                className="font-semibold text-foreground hover:text-primary transition-colors text-left text-sm truncate max-w-[200px] block"
+                              >
+                                {product.name}
+                              </button>
+                              <p className="text-xs text-muted-foreground">ID: {product.id.slice(0, 8)}...</p>
+                            </div>
                           </div>
-                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                            <span className="font-mono">{product.sku}</span>
-                            {product.brand && (
-                              <>
-                                <span className="text-border">•</span>
-                                <span>{product.brand}</span>
-                              </>
-                            )}
-                            {product.averageRating && (
-                              <>
-                                <span className="text-border">•</span>
-                                <span className="flex items-center gap-0.5 text-warning">
-                                  <Star className="w-3 h-3 fill-warning" /> {product.averageRating.toFixed(1)}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Right: Price, Stock, Actions */}
-                        <div className="flex items-center gap-3 md:gap-4">
-                          {/* Price */}
-                          <div className="text-right min-w-[80px]">
-                            <p className="font-bold text-success text-sm">
-                              {formatCurrency(product.price, product.currencyCode || storeCurrency)}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="font-mono text-sm text-foreground">{product.sku}</span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground hidden md:table-cell">
+                          {product.brand || '—'}
+                        </td>
+                        <td className="px-4 py-3">
+                          {getStatusBadge(product.status)}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <p className="font-bold text-success text-sm">
+                            {formatCurrency(product.price, product.currencyCode || storeCurrency)}
+                          </p>
+                          {product.comparePrice && (
+                            <p className="text-[10px] text-muted-foreground line-through">
+                              {formatCurrency(product.comparePrice, product.currencyCode || storeCurrency)}
                             </p>
-                            {product.comparePrice && (
-                              <p className="text-[10px] text-muted-foreground line-through">
-                                {formatCurrency(product.comparePrice, product.currencyCode || storeCurrency)}
-                              </p>
-                            )}
-                          </div>
-
-                          {/* Stock */}
-                          <div className={cn(
-                            "px-2 py-1 rounded-md text-xs font-semibold min-w-[60px] text-center",
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          <span className={cn(
+                            "inline-flex items-center justify-center gap-1 px-2 py-1 rounded-md text-xs font-semibold min-w-[50px]",
                             isOutOfStock ? "bg-error-muted text-error" :
                             isLowStock ? "bg-warning-muted text-warning" :
-                            "bg-muted text-foreground"
+                            "bg-success-muted text-success"
                           )}>
                             {isOutOfStock ? (
-                              <span className="flex items-center justify-center gap-1">
-                                <PackageX className="w-3 h-3" /> 0
-                              </span>
+                              <>
+                                <XCircle className="w-3 h-3" /> 0
+                              </>
                             ) : isLowStock ? (
-                              <span className="flex items-center justify-center gap-1">
+                              <>
                                 <AlertTriangle className="w-3 h-3" /> {product.quantity}
-                              </span>
+                              </>
                             ) : (
-                              <span>{product.quantity || 0}</span>
+                              <>
+                                <CheckCircle className="w-3 h-3" /> {product.quantity || 0}
+                              </>
                             )}
-                          </div>
-
-                          {/* Actions */}
-                          <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center justify-end gap-1">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => handleViewProduct(product)}
-                              className="h-7 w-7 p-0 rounded-md hover:bg-primary/10"
-                              title="View"
+                              className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
+                              title="View Details"
                             >
-                              <Eye className="w-3.5 h-3.5 text-primary" />
+                              <Eye className="w-4 h-4 text-primary" />
                             </Button>
                             <PermissionGate permission={Permission.PRODUCTS_UPDATE}>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleEdit(product)}
-                                className="h-7 w-7 p-0 rounded-md hover:bg-primary/10"
+                                className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                                 title="Edit"
                               >
-                                <Edit className="w-3.5 h-3.5 text-primary" />
+                                <Edit className="w-4 h-4 text-primary" />
                               </Button>
                             </PermissionGate>
-                            {/* Submit for Approval - only for draft products */}
                             {product.status === 'DRAFT' && (
                               <PermissionGate permission={Permission.PRODUCTS_UPDATE}>
                                 <Button
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleSubmitForApproval(product.id)}
-                                  className="h-7 w-7 p-0 rounded-md hover:bg-primary/10"
+                                  className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                                   title="Submit for Approval"
                                 >
-                                  <ClipboardList className="w-3.5 h-3.5 text-primary" />
+                                  <ClipboardList className="w-4 h-4 text-primary" />
                                 </Button>
                               </PermissionGate>
                             )}
@@ -3046,29 +3065,20 @@ export default function ProductsPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDeleteProduct(product.id)}
-                                className="h-7 w-7 p-0 rounded-md hover:bg-error-muted"
+                                className="h-8 w-8 p-0 rounded-lg hover:bg-error-muted transition-colors"
                                 title="Delete"
                               >
-                                <Trash2 className="w-3.5 h-3.5 text-error" />
+                                <Trash2 className="w-4 h-4 text-error" />
                               </Button>
                             </PermissionGate>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {paginatedProducts.length === 0 && (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground text-lg">No products found</p>
-                <p className="text-muted-foreground text-sm mt-2">
-                  Try adjusting your filters or create a new product
-                </p>
-              </div>
-            )}
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
           </div>
         )}
 
