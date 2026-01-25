@@ -32,6 +32,8 @@ import {
   ShoppingCart,
   Ban,
   Loader2,
+  Box,
+  FolderTree,
 } from 'lucide-react';
 import {
   Dialog,
@@ -81,6 +83,10 @@ const getStatusBadge = (status: ApprovalStatus) => {
 
 const getTypeBadge = (type: ApprovalType) => {
   const labels: Record<ApprovalType, string> = {
+    product_creation: 'New Product',
+    product_update: 'Product Update',
+    category_creation: 'New Category',
+    category_update: 'Category Update',
     order_refund: 'Refund',
     order_cancel: 'Cancellation',
     vendor_payout: 'Vendor Payout',
@@ -96,6 +102,12 @@ const getTypeBadge = (type: ApprovalType) => {
 
 const getTypeIcon = (type: ApprovalType) => {
   switch (type) {
+    case 'product_creation':
+    case 'product_update':
+      return <Box className="w-4 h-4" />;
+    case 'category_creation':
+    case 'category_update':
+      return <FolderTree className="w-4 h-4" />;
     case 'order_refund':
       return <DollarSign className="w-4 h-4" />;
     case 'order_cancel':
@@ -187,8 +199,19 @@ export default function ApprovalsPage() {
   };
 
   const navigateToEntity = (approval: ApprovalRequest) => {
-    if (approval.entityType === 'order') {
-      router.push(`/orders/${approval.entityId}`);
+    switch (approval.entityType) {
+      case 'order':
+        router.push(`/orders/${approval.entityId}`);
+        break;
+      case 'product':
+        router.push(`/catalog/products/${approval.entityId}`);
+        break;
+      case 'category':
+        router.push(`/catalog/categories/${approval.entityId}`);
+        break;
+      default:
+        // For unknown entity types, do nothing
+        break;
     }
   };
 
@@ -252,6 +275,10 @@ export default function ApprovalsPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All Types</SelectItem>
+                      <SelectItem value="product_creation">New Products</SelectItem>
+                      <SelectItem value="product_update">Product Updates</SelectItem>
+                      <SelectItem value="category_creation">New Categories</SelectItem>
+                      <SelectItem value="category_update">Category Updates</SelectItem>
                       <SelectItem value="order_refund">Refunds</SelectItem>
                       <SelectItem value="order_cancel">Cancellations</SelectItem>
                       <SelectItem value="vendor_payout">Vendor Payouts</SelectItem>

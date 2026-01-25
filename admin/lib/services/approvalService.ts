@@ -8,6 +8,10 @@ import { apiClient } from '../api/client';
 
 // Approval types
 export type ApprovalType =
+  | 'product_creation'
+  | 'product_update'
+  | 'category_creation'
+  | 'category_update'
   | 'order_refund'
   | 'order_cancel'
   | 'vendor_payout'
