@@ -144,6 +144,8 @@ export default function ApprovalsPage() {
   const [actionType, setActionType] = useState<'approve' | 'reject' | 'request_changes'>('approve');
   const [selectedApproval, setSelectedApproval] = useState<ApprovalRequest | null>(null);
   const [actionComment, setActionComment] = useState('');
+  const [viewDialogOpen, setViewDialogOpen] = useState(false);
+  const [viewApproval, setViewApproval] = useState<ApprovalRequest | null>(null);
 
   const loadApprovals = useCallback(async () => {
     try {
@@ -219,21 +221,29 @@ export default function ApprovalsPage() {
     }
   };
 
-  const navigateToEntity = (approval: ApprovalRequest) => {
+  const getEntityUrl = (approval: ApprovalRequest): string | null => {
     switch (approval.entityType) {
       case 'order':
-        router.push(`/orders/${approval.entityId}`);
-        break;
+        return `/orders/${approval.entityId}`;
       case 'product':
-        router.push(`/catalog/products/${approval.entityId}`);
-        break;
+        return `/catalog/products/${approval.entityId}`;
       case 'category':
-        router.push(`/catalog/categories/${approval.entityId}`);
-        break;
+        return `/catalog/categories/${approval.entityId}`;
       default:
-        // For unknown entity types, do nothing
-        break;
+        return null;
     }
+  };
+
+  const navigateToEntity = (approval: ApprovalRequest) => {
+    const url = getEntityUrl(approval);
+    if (url) {
+      router.push(url);
+    }
+  };
+
+  const openViewDialog = (approval: ApprovalRequest) => {
+    setViewApproval(approval);
+    setViewDialogOpen(true);
   };
 
   const pendingCount = approvals.filter((a) => a.status === 'pending').length;
@@ -402,7 +412,7 @@ export default function ApprovalsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => navigateToEntity(approval)}
+                        onClick={() => openViewDialog(approval)}
                       >
                         <Eye className="w-4 h-4 mr-1" />
                         View
@@ -540,6 +550,148 @@ export default function ApprovalsPage() {
                   {actionType === 'approve' && 'Approve'}
                   {actionType === 'reject' && 'Reject'}
                   {actionType === 'request_changes' && 'Request Changes'}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          {/* View Dialog - Show request details */}
+          <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  {viewApproval && getTypeIcon(viewApproval.approvalType)}
+                  Approval Request Details
+                </DialogTitle>
+                <DialogDescription>
+                  Review the details of this approval request
+                </DialogDescription>
+              </DialogHeader>
+
+              {viewApproval && (
+                <div className="space-y-4">
+                  {/* Status and Type */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {getTypeBadge(viewApproval.approvalType)}
+                    {getStatusBadge(viewApproval.status)}
+                    {viewApproval.amount && (
+                      <span className="text-lg font-bold">
+                        {formatCurrency(viewApproval.amount, viewApproval.currency)}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Entity Reference */}
+                  <div className="bg-muted rounded-lg p-4 space-y-3">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        {viewApproval.entityType === 'product' ? 'Product' :
+                         viewApproval.entityType === 'category' ? 'Category' :
+                         viewApproval.entityType === 'order' ? 'Order' : 'Entity'}
+                      </label>
+                      <p className="font-semibold text-lg">{viewApproval.entityReference}</p>
+                    </div>
+
+                    {viewApproval.reason && (
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          Reason
+                        </label>
+                        <p className="text-sm">{viewApproval.reason}</p>
+                      </div>
+                    )}
+
+                    {/* Request metadata if available */}
+                    {viewApproval.metadata && Object.keys(viewApproval.metadata).length > 0 && (
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          Details
+                        </label>
+                        <div className="mt-1 text-sm bg-background rounded p-2 overflow-auto max-h-40">
+                          <pre className="whitespace-pre-wrap text-xs">
+                            {JSON.stringify(viewApproval.metadata, null, 2)}
+                          </pre>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Requester and Dates */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Requested By
+                      </label>
+                      <p className="text-sm flex items-center gap-1">
+                        <User className="w-3 h-3" />
+                        {viewApproval.requestedByName}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Created At
+                      </label>
+                      <p className="text-sm flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {formatDate(viewApproval.createdAt)}
+                      </p>
+                    </div>
+                    {viewApproval.expiresAt && (
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          Expires At
+                        </label>
+                        <p className={cn(
+                          "text-sm flex items-center gap-1",
+                          viewApproval.status === 'pending' && new Date(viewApproval.expiresAt) < new Date() && "text-error"
+                        )}>
+                          <Clock className="w-3 h-3" />
+                          {formatDate(viewApproval.expiresAt)}
+                        </p>
+                      </div>
+                    )}
+                    {viewApproval.approvedByName && (
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          {viewApproval.status === 'approved' ? 'Approved By' : 'Actioned By'}
+                        </label>
+                        <p className="text-sm flex items-center gap-1">
+                          <User className="w-3 h-3" />
+                          {viewApproval.approvedByName}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Rejection reason */}
+                  {viewApproval.rejectionReason && (
+                    <div className="bg-error-muted rounded-lg p-4">
+                      <label className="text-xs font-medium text-error uppercase tracking-wide">
+                        Rejection Reason
+                      </label>
+                      <p className="text-sm mt-1">{viewApproval.rejectionReason}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <DialogFooter className="gap-2 sm:gap-0">
+                {viewApproval && getEntityUrl(viewApproval) && (
+                  <Button
+                    variant="default"
+                    onClick={() => {
+                      navigateToEntity(viewApproval);
+                      setViewDialogOpen(false);
+                    }}
+                  >
+                    <Eye className="w-4 h-4 mr-2" />
+                    View {viewApproval.entityType === 'product' ? 'Product' :
+                          viewApproval.entityType === 'category' ? 'Category' :
+                          viewApproval.entityType === 'order' ? 'Order' : 'Entity'}
+                  </Button>
+                )}
+                <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
+                  Close
                 </Button>
               </DialogFooter>
             </DialogContent>
