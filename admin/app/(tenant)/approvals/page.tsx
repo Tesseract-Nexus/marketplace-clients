@@ -177,7 +177,7 @@ export default function ApprovalsPage() {
     try {
       setActionLoading(approval.id);
       await approvalService.approve(approval.id);
-      toast.success('Request Approved', `${approval.entityReference} has been approved successfully`);
+      toast.success('Request Approved', `${approval.entityReference || 'Request'} has been approved successfully`);
       await loadApprovals();
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to approve';
@@ -206,15 +206,16 @@ export default function ApprovalsPage() {
     try {
       setActionLoading(selectedApproval.id);
 
+      const entityName = selectedApproval.entityReference || 'Request';
       if (actionType === 'approve') {
         await approvalService.approve(selectedApproval.id, actionComment ? { comment: actionComment } : undefined);
-        toast.success('Request Approved', `${selectedApproval.entityReference} has been approved successfully`);
+        toast.success('Request Approved', `${entityName} has been approved successfully`);
       } else if (actionType === 'request_changes') {
         await approvalService.requestChanges(selectedApproval.id, { comment: actionComment });
-        toast.info('Changes Requested', `Changes requested for ${selectedApproval.entityReference}`);
+        toast.info('Changes Requested', `Changes requested for ${entityName}`);
       } else {
         await approvalService.reject(selectedApproval.id, { comment: actionComment });
-        toast.warning('Request Rejected', `${selectedApproval.entityReference} has been rejected`);
+        toast.warning('Request Rejected', `${entityName} has been rejected`);
       }
 
       setActionDialogOpen(false);
