@@ -9,13 +9,26 @@ export async function GET(request: NextRequest) {
   const status = searchParams.get('status');
 
   // Route to the correct backend endpoint based on status
-  // approval-service has /approvals/pending and /approvals/my-requests, not a generic /approvals
-  let path = 'approvals/pending'; // default to pending
+  // approval-service uses /approvals/pending endpoint which now supports status filtering
+  let path = 'approvals/pending';
   if (status === 'my-requests') {
     path = 'approvals/my-requests';
   }
 
-  return proxyGet(APPROVAL_SERVICE_URL, path, request);
+  // Build query string with all params (status, limit, offset, etc.)
+  // The backend now accepts status filter as query param
+  const queryParams = new URLSearchParams();
+  searchParams.forEach((value, key) => {
+    // Pass through all query params except 'my-requests' which is a special path
+    if (key !== 'status' || (value !== 'my-requests')) {
+      queryParams.append(key, value);
+    }
+  });
+
+  const queryString = queryParams.toString();
+  const fullPath = queryString ? `${path}?${queryString}` : path;
+
+  return proxyGet(APPROVAL_SERVICE_URL, fullPath, request);
 }
 
 export async function POST(request: NextRequest) {
