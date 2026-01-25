@@ -386,7 +386,7 @@ export default function ApprovalsPage() {
                         <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <User className="w-3 h-3" />
-                            Requested by {approval.requestedByName}
+                            Requested by {approval.requestedByName || 'Unknown'}
                           </span>
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
@@ -510,7 +510,7 @@ export default function ApprovalsPage() {
                     <p className="text-sm text-muted-foreground">{selectedApproval.reason}</p>
                   )}
                   <p className="text-xs text-muted-foreground">
-                    Requested by {selectedApproval.requestedByName} on {formatDate(selectedApproval.createdAt)}
+                    Requested by {selectedApproval.requestedByName || 'Unknown'} on {formatDate(selectedApproval.createdAt)}
                   </p>
                 </div>
               )}
@@ -624,7 +624,7 @@ export default function ApprovalsPage() {
                       </label>
                       <p className="text-sm flex items-center gap-1">
                         <User className="w-3 h-3" />
-                        {viewApproval.requestedByName}
+                        {viewApproval.requestedByName || 'Unknown'}
                       </p>
                     </div>
                     <div>
