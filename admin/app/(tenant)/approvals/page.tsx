@@ -176,7 +176,7 @@ export default function ApprovalsPage() {
     try {
       setActionLoading(approval.id);
       await approvalService.approve(approval.id);
-      toast.success('Request Approved', `${approval.title} has been approved successfully`);
+      toast.success('Request Approved', `${approval.entityReference} has been approved successfully`);
       await loadApprovals();
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : 'Failed to approve';
@@ -207,13 +207,13 @@ export default function ApprovalsPage() {
 
       if (actionType === 'approve') {
         await approvalService.approve(selectedApproval.id, actionComment ? { comment: actionComment } : undefined);
-        toast.success('Request Approved', `${selectedApproval.title} has been approved successfully`);
+        toast.success('Request Approved', `${selectedApproval.entityReference} has been approved successfully`);
       } else if (actionType === 'request_changes') {
         await approvalService.requestChanges(selectedApproval.id, { comment: actionComment });
-        toast.info('Changes Requested', `Changes requested for ${selectedApproval.title}`);
+        toast.info('Changes Requested', `Changes requested for ${selectedApproval.entityReference}`);
       } else {
         await approvalService.reject(selectedApproval.id, { comment: actionComment });
-        toast.warning('Request Rejected', `${selectedApproval.title} has been rejected`);
+        toast.warning('Request Rejected', `${selectedApproval.entityReference} has been rejected`);
       }
 
       setActionDialogOpen(false);
@@ -411,7 +411,7 @@ export default function ApprovalsPage() {
                           </div>
                           <div className="min-w-0">
                             <p className="font-semibold text-foreground text-sm truncate max-w-[200px]">
-                              {approval.title || approval.entityReference}
+                              {approval.entityReference}
                             </p>
                             <p className="text-xs text-muted-foreground truncate max-w-[200px]">
                               {approval.reason || `ID: ${approval.id.slice(0, 8)}...`}
