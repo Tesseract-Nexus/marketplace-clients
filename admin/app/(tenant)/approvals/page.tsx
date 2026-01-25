@@ -262,9 +262,9 @@ export default function ApprovalsPage() {
   const totalCount = approvals.length;
 
   // Product vs other type counts
-  const productCount = approvals.filter((a) => a.approvalType.includes('product')).length;
-  const categoryCount = approvals.filter((a) => a.approvalType.includes('category')).length;
-  const orderCount = approvals.filter((a) => a.approvalType.includes('order')).length;
+  const productCount = approvals.filter((a) => a.approvalType?.includes('product')).length;
+  const categoryCount = approvals.filter((a) => a.approvalType?.includes('category')).length;
+  const orderCount = approvals.filter((a) => a.approvalType?.includes('order')).length;
 
   // Sidebar configuration
   const sidebarConfig = useMemo(() => {
