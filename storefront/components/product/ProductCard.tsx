@@ -39,8 +39,8 @@ import { QuickViewModal } from './QuickViewModal';
 // Low-quality image placeholder for blur effect
 const BLUR_DATA_URL = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgMCAgMDAwMEAwMEBQgFBQQEBQoHBwYIDAoMCwsLCgwMDQ4OCwwNDQ4QDw8RDwwQEBEREQ0NDg8QEBEQEP/2wBDAQMEBAUEBQkFBQkRDA0MERAREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREREP/wAARCAAIAAoDASIAAhEBAxEB/8QAFgABAQEAAAAAAAAAAAAAAAAAAAkH/8QAIhAAAgEEAQUBAAAAAAAAAAAAAQIDAAQFERIGByExQVH/xAAVAQEBAAAAAAAAAAAAAAAAAAAAAf/EABgRAAMBAQAAAAAAAAAAAAAAAAACAwEh/9oADAMBAAIRAxEAPwCwu5nUGZwtpBHh8PKJ5pC3NmQAKAOo8+Ttv7pSlKFYiLP/2Q==';
 
-// Professional placeholder SVG for failed images
-const FALLBACK_PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Crect fill='%23f8f8f8' width='400' height='400'/%3E%3Cg fill='%23e0e0e0'%3E%3Crect x='170' y='130' width='60' height='80' rx='4'/%3E%3Ccircle cx='200' cy='190' r='35'/%3E%3Cpath d='M145 260h110v10H145z'/%3E%3Cpath d='M165 280h70v6H165z'/%3E%3C/g%3E%3C/svg%3E";
+// Professional placeholder SVG for failed images - improved design with gradient
+const FALLBACK_PLACEHOLDER = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 400 400'%3E%3Cdefs%3E%3ClinearGradient id='grad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23f5f5f5'/%3E%3Cstop offset='100%25' style='stop-color:%23e5e5e5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23grad)' width='400' height='400'/%3E%3Cg fill='%23d4d4d4'%3E%3Crect x='150' y='140' width='100' height='80' rx='8'/%3E%3Ccircle cx='200' cy='155' r='15'/%3E%3Cpath d='M150 200 l30 -25 l25 15 l20 -10 l25 20 h-100z'/%3E%3C/g%3E%3Ctext x='200' y='260' font-family='system-ui, sans-serif' font-size='14' fill='%23a3a3a3' text-anchor='middle'%3ENo Image%3C/text%3E%3C/svg%3E";
 
 export interface ProductCardProps {
   product: Product;
@@ -228,26 +228,26 @@ export function ProductCard({
     landscape: 'aspect-[4/3]',
   }[productConfig.imageAspectRatio];
 
-  // Card styles with proper differentiation
+  // Card styles with proper differentiation - improved visual design
   const cardStyleClasses = {
     default: {
-      card: 'bg-background border border-[var(--border-default)] hover:border-[var(--border-strong)] hover:shadow-sm',
+      card: 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-lg hover:shadow-zinc-200/50 dark:hover:shadow-zinc-900/50',
       padding: 'p-4',
     },
     minimal: {
-      card: 'bg-transparent border-none shadow-none hover:bg-muted/30',
-      padding: 'p-2',
+      card: 'bg-white dark:bg-zinc-900 border-none shadow-sm hover:shadow-md',
+      padding: 'p-3',
     },
     bordered: {
-      card: 'bg-background border-2 border-[var(--border-strong)] hover:border-[var(--tenant-primary)]/50',
+      card: 'bg-white dark:bg-zinc-900 border-2 border-zinc-200 dark:border-zinc-700 hover:border-[var(--tenant-primary)] hover:shadow-lg',
       padding: 'p-4',
     },
     elevated: {
-      card: 'bg-background border-none shadow-md hover:shadow-xl transition-shadow duration-300',
+      card: 'bg-white dark:bg-zinc-900 border-none shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300',
       padding: 'p-4',
     },
   }[productConfig.cardStyle] || {
-    card: 'bg-background border border-[var(--border-default)] hover:border-[var(--border-strong)] hover:shadow-sm',
+    card: 'bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-lg hover:shadow-zinc-200/50 dark:hover:shadow-zinc-900/50',
     padding: 'p-4',
   };
 
@@ -428,8 +428,8 @@ export function ProductCard({
         perspective: isTouchDevice ? undefined : 1000,
       }}
       className={cn(
-        'group relative overflow-hidden transition-all duration-200',
-        'rounded-md',
+        'group relative overflow-hidden transition-all duration-300',
+        'rounded-xl',
         cardStyleClasses.card,
         className
       )}
@@ -440,7 +440,7 @@ export function ProductCard({
       <Link href={getNavPath(`/products/${product.id}`)}>
         {/* Image Container */}
         <div className={cn(
-          'relative overflow-hidden bg-[var(--surface-default)]',
+          'relative overflow-hidden bg-zinc-100 dark:bg-zinc-800',
           aspectRatioClass,
           isOutOfStock && 'opacity-75'
         )}>
@@ -574,23 +574,25 @@ export function ProductCard({
 
           {/* Subtle overlay on hover */}
           <div
-            className="absolute inset-0 bg-[var(--text-primary)]/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10"
+            className="absolute inset-0 bg-black/[0.03] dark:bg-white/[0.02] opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10"
           />
 
           {/* Badges */}
-          <div className="absolute top-2 left-2 flex flex-col gap-1.5">
+          <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
             {productConfig.showSaleBadge && hasDiscount && (
-              <Badge variant="sale" className="text-xs">
+              <Badge className="bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold px-2 py-0.5 shadow-md">
                 -{discountPercent}%
               </Badge>
             )}
             {productConfig.showStockStatus && product.inventoryStatus === 'LOW_STOCK' && (
-              <Badge variant="low-stock">
+              <Badge className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold px-2 py-0.5 shadow-md">
                 Low Stock
               </Badge>
             )}
             {productConfig.showStockStatus && product.inventoryStatus === 'OUT_OF_STOCK' && (
-              <Badge variant="out-of-stock" className="shadow-lg">Sold Out</Badge>
+              <Badge className="bg-zinc-700 text-white text-xs font-semibold px-2 py-0.5 shadow-lg">
+                Sold Out
+              </Badge>
             )}
           </div>
 
@@ -605,8 +607,8 @@ export function ProductCard({
                     'flex items-center justify-center',
                     'focus:outline-none focus:ring-2 focus:ring-offset-1',
                     isInList
-                      ? 'bg-[var(--wishlist-active)] text-white hover:opacity-90 focus:ring-[var(--wishlist-active)]'
-                      : 'bg-white text-[var(--text-muted)] hover:text-[var(--wishlist-active)] shadow-sm border border-[var(--border-default)] focus:ring-[var(--wishlist-active)]'
+                      ? 'bg-rose-500 text-white hover:bg-rose-600 focus:ring-rose-500'
+                      : 'bg-white/90 backdrop-blur-sm text-zinc-600 hover:text-rose-500 shadow-md border border-zinc-200/50 focus:ring-rose-500'
                   )}
                   onClick={(e) => {
                     e.preventDefault();
@@ -703,7 +705,7 @@ export function ProductCard({
               opacity: isTouchDevice ? 1 : (isHovered ? 1 : 0),
               y: isTouchDevice ? 0 : (isHovered ? 0 : 10)
             }}
-            className="absolute inset-x-0 bottom-0 p-3 bg-white/95 backdrop-blur-sm border-t border-[var(--border-default)]"
+            className="absolute inset-x-0 bottom-0 p-3 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm border-t border-zinc-200 dark:border-zinc-700"
           >
             <div className="flex gap-2">
               <Button
@@ -780,16 +782,16 @@ export function ProductCard({
         </div>
 
         {/* Content */}
-        <div className={cardStyleClasses.padding}>
+        <div className={cn(cardStyleClasses.padding, "bg-white dark:bg-zinc-900")}>
           {/* Category/Brand */}
           {product.brand && (
-            <p className="text-xs text-[var(--text-muted)] uppercase tracking-wider mb-1.5 font-medium">
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400 uppercase tracking-widest mb-1 font-semibold">
               <TranslatedText text={product.brand} context="brand name" />
             </p>
           )}
 
-          {/* Title */}
-          <h3 className="font-medium text-[var(--text-primary)] text-sm md:text-base line-clamp-2 group-hover:text-[var(--text-secondary)] transition-colors duration-200">
+          {/* Title - Enhanced visibility */}
+          <h3 className="font-semibold text-zinc-900 dark:text-white text-sm md:text-base leading-snug line-clamp-2 group-hover:text-[var(--tenant-primary)] transition-colors duration-200">
             <TranslatedProductName name={product.name} />
           </h3>
 
@@ -803,30 +805,35 @@ export function ProductCard({
                     className={cn(
                       'h-3.5 w-3.5 transition-colors',
                       i < Math.round(product.averageRating || 0)
-                        ? 'fill-[var(--rating-star)] text-[var(--rating-star)]'
-                        : 'text-[var(--border-default)]'
+                        ? 'fill-amber-400 text-amber-400'
+                        : 'text-zinc-200 dark:text-zinc-700'
                     )}
                   />
                 ))}
               </div>
               {product.reviewCount && (
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
                   ({product.reviewCount})
                 </span>
               )}
             </div>
           )}
 
-          {/* Price */}
-          <div className="mt-3">
+          {/* Price - Enhanced styling */}
+          <div className="mt-3 flex items-baseline gap-2">
             {hasDiscount && comparePrice ? (
-              <PriceWithDiscount
-                originalAmount={comparePrice}
-                saleAmount={price}
-                size="md"
-              />
+              <>
+                <span className="text-lg md:text-xl font-bold text-zinc-900 dark:text-white">
+                  <PriceDisplay amount={price} size="lg" />
+                </span>
+                <span className="text-sm text-zinc-400 line-through">
+                  <PriceDisplay amount={comparePrice} size="sm" />
+                </span>
+              </>
             ) : (
-              <PriceDisplay amount={price} size="lg" />
+              <span className="text-lg md:text-xl font-bold text-zinc-900 dark:text-white">
+                <PriceDisplay amount={price} size="lg" />
+              </span>
             )}
           </div>
         </div>
