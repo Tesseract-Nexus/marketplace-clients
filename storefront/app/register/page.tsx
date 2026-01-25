@@ -184,8 +184,9 @@ export default function RegisterPage() {
           });
         }
 
-        // Redirect to account page
-        router.push(getNavPath('/account'));
+        // Redirect to email verification page
+        const verifyUrl = getNavPath('/verify-email') + '?email=' + encodeURIComponent(formData.email);
+        router.push(verifyUrl);
       } else {
         // Registration failed - show error message
         setError(result.message || 'Registration failed. Please try again.');
