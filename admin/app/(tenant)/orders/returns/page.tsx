@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
@@ -30,6 +30,7 @@ import {
   Check,
 } from 'lucide-react';
 import { LastUpdatedStatus } from '@/components/LastUpdatedStatus';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 
 // Return status types
 type ReturnStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'PROCESSING' | 'COMPLETED' | 'CANCELLED';
@@ -254,36 +255,102 @@ export default function ReturnsPage() {
     }
   };
 
-  const stats = [
-    {
-      label: "Total Returns",
-      value: returns.length,
-      icon: RotateCcw,
-      textColor: "text-primary",
-      bgColor: "bg-primary/10"
-    },
-    {
-      label: "Pending",
-      value: returns.filter(r => r.status === 'PENDING').length,
-      icon: Clock,
-      textColor: "text-warning",
-      bgColor: "bg-warning/10"
-    },
-    {
-      label: "Completed",
-      value: returns.filter(r => r.status === 'COMPLETED').length,
-      icon: CheckCircle,
-      textColor: "text-success",
-      bgColor: "bg-success/10"
-    },
-    {
-      label: "Total Refunded",
-      value: `$${returns.filter(r => r.refundStatus === 'COMPLETED').reduce((sum, r) => sum + parseFloat(r.refundAmount), 0).toFixed(2)}`,
-      icon: DollarSign,
-      textColor: "text-primary",
-      bgColor: "bg-primary/10"
-    }
-  ];
+  // Calculate stats
+  const totalReturns = returns.length;
+  const pendingReturns = returns.filter(r => r.status === 'PENDING').length;
+  const approvedReturns = returns.filter(r => r.status === 'APPROVED').length;
+  const completedReturns = returns.filter(r => r.status === 'COMPLETED').length;
+  const rejectedReturns = returns.filter(r => r.status === 'REJECTED').length;
+  const totalRefunded = returns.filter(r => r.refundStatus === 'COMPLETED').reduce((sum, r) => sum + parseFloat(r.refundAmount), 0);
+
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Returns Health',
+      currentValue: completedReturns,
+      totalValue: totalReturns || 1,
+      status: pendingReturns > 10 ? 'critical' : pendingReturns > 5 ? 'attention' : 'healthy',
+      segments: [
+        { value: completedReturns, color: 'success' },
+        { value: approvedReturns, color: 'primary' },
+        { value: pendingReturns, color: 'warning' },
+        { value: rejectedReturns, color: 'error' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Return Status',
+        items: [
+          {
+            id: 'total',
+            label: 'Total',
+            value: totalReturns,
+            icon: RotateCcw,
+            color: 'default',
+          },
+          {
+            id: 'pending',
+            label: 'Pending',
+            value: pendingReturns,
+            icon: Clock,
+            color: 'warning',
+            onClick: () => setStatusFilter('PENDING'),
+            isActive: statusFilter === 'PENDING',
+          },
+          {
+            id: 'approved',
+            label: 'Approved',
+            value: approvedReturns,
+            icon: CheckCircle,
+            color: 'primary',
+            onClick: () => setStatusFilter('APPROVED'),
+            isActive: statusFilter === 'APPROVED',
+          },
+          {
+            id: 'completed',
+            label: 'Completed',
+            value: completedReturns,
+            icon: CheckCircle,
+            color: 'success',
+            onClick: () => setStatusFilter('COMPLETED'),
+            isActive: statusFilter === 'COMPLETED',
+          },
+          {
+            id: 'rejected',
+            label: 'Rejected',
+            value: rejectedReturns,
+            icon: XCircle,
+            color: 'error',
+            onClick: () => setStatusFilter('REJECTED'),
+            isActive: statusFilter === 'REJECTED',
+          },
+        ],
+      },
+      {
+        title: 'Refund Summary',
+        items: [
+          {
+            id: 'refunded',
+            label: 'Total Refunded',
+            value: `$${totalRefunded.toFixed(0)}`,
+            icon: DollarSign,
+            color: 'success',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [totalReturns, pendingReturns, approvedReturns, completedReturns, rejectedReturns, totalRefunded, statusFilter]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = useMemo(() => [
+    { id: 'total', label: 'Total', value: totalReturns, icon: RotateCcw, color: 'default' },
+    { id: 'pending', label: 'Pending', value: pendingReturns, icon: Clock, color: 'warning' },
+    { id: 'completed', label: 'Completed', value: completedReturns, icon: CheckCircle, color: 'success' },
+    { id: 'refunded', label: 'Refunded', value: `$${totalRefunded.toFixed(0)}`, icon: DollarSign, color: 'primary' },
+  ], [totalReturns, pendingReturns, completedReturns, totalRefunded]);
 
   if (loading && returns.length === 0) {
     return (
@@ -348,30 +415,10 @@ export default function ReturnsPage() {
           }
         />
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={index} className="border-border/50 hover:border-primary/50/50 transition-all duration-300 group">
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                      <p className={`text-3xl font-bold ${stat.textColor} mt-2`}>
-                        {stat.value}
-                      </p>
-                    </div>
-                    <div className={`p-3 rounded-xl ${stat.bgColor} border border-border group-hover:scale-110 transition-transform`}>
-                      <Icon className="w-6 h-6 text-muted-foreground" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
+        <DataPageLayout
+          sidebar={sidebarConfig}
+          mobileStats={mobileStats}
+        >
         {/* Search and Filters */}
         <Card className="border-border/50">
           <CardContent>
@@ -556,6 +603,7 @@ export default function ReturnsPage() {
             onItemsPerPageChange={setItemsPerPage}
           />
         )}
+        </DataPageLayout>
 
         {/* Details Modal */}
         {showDetails && selectedReturn && (

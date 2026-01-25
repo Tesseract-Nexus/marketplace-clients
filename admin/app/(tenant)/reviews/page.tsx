@@ -14,6 +14,7 @@ import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
 import { Pagination } from '@/components/Pagination';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { reviewService } from '@/lib/services/reviewService';
 import { productService } from '@/lib/services/productService';
 import type { Review, ReviewStatus, UpdateReviewStatusRequest, ReviewMedia, Product } from '@/lib/api/types';
@@ -339,6 +340,107 @@ export default function ReviewsPage() {
   // Calculate active filter count
   const activeFilterCount = (statusFilter !== 'ALL' ? 1 : 0) + (typeFilter !== 'ALL' ? 1 : 0);
 
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Review Health',
+      currentValue: approvedReviews,
+      totalValue: totalReviews || 1,
+      status: pendingReviews > 20 ? 'critical' : pendingReviews > 10 ? 'attention' : flaggedReviews > 5 ? 'attention' : 'healthy',
+      segments: [
+        { value: approvedReviews, color: 'success' },
+        { value: pendingReviews, color: 'warning' },
+        { value: rejectedReviews, color: 'error' },
+        { value: flaggedReviews, color: 'error' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Review Status',
+        items: [
+          {
+            id: 'total',
+            label: 'Total',
+            value: totalReviews,
+            icon: Star,
+            color: 'default',
+          },
+          {
+            id: 'pending',
+            label: 'Pending',
+            value: pendingReviews,
+            icon: Clock,
+            color: 'warning',
+            onClick: () => {
+              setStatusFilter('PENDING');
+              setActiveQuickFilters(['PENDING']);
+            },
+            isActive: statusFilter === 'PENDING',
+          },
+          {
+            id: 'approved',
+            label: 'Approved',
+            value: approvedReviews,
+            icon: CheckCircle,
+            color: 'success',
+            onClick: () => {
+              setStatusFilter('APPROVED');
+              setActiveQuickFilters(['APPROVED']);
+            },
+            isActive: statusFilter === 'APPROVED',
+          },
+          {
+            id: 'rejected',
+            label: 'Rejected',
+            value: rejectedReviews,
+            icon: XCircle,
+            color: 'error',
+            onClick: () => {
+              setStatusFilter('REJECTED');
+              setActiveQuickFilters(['REJECTED']);
+            },
+            isActive: statusFilter === 'REJECTED',
+          },
+          {
+            id: 'flagged',
+            label: 'Flagged',
+            value: flaggedReviews,
+            icon: Flag,
+            color: 'error',
+            onClick: () => {
+              setStatusFilter('FLAGGED');
+              setActiveQuickFilters(['FLAGGED']);
+            },
+            isActive: statusFilter === 'FLAGGED',
+          },
+        ],
+      },
+      {
+        title: 'Ratings',
+        items: [
+          {
+            id: 'avg-rating',
+            label: 'Avg Rating',
+            value: averageRating.toFixed(1),
+            icon: TrendingUp,
+            color: 'warning',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [totalReviews, pendingReviews, approvedReviews, rejectedReviews, flaggedReviews, averageRating, statusFilter]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = useMemo(() => [
+    { id: 'total', label: 'Total', value: totalReviews, icon: Star, color: 'default' },
+    { id: 'avg-rating', label: 'Avg Rating', value: averageRating.toFixed(1), icon: TrendingUp, color: 'warning' },
+    { id: 'pending', label: 'Pending', value: pendingReviews, icon: Clock, color: 'warning' },
+    { id: 'approved', label: 'Approved', value: approvedReviews, icon: CheckCircle, color: 'success' },
+  ], [totalReviews, averageRating, pendingReviews, approvedReviews]);
+
   return (
     <PermissionGate
       permission={Permission.REVIEWS_READ}
@@ -362,38 +464,10 @@ export default function ReviewsPage() {
       {/* Error Alert */}
       <PageError error={error} onDismiss={() => setError(null)} />
 
-      {/* Compact Stats Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-            <Star className="h-3.5 w-3.5" />
-            Total
-          </div>
-          <p className="text-xl font-bold text-foreground">{totalReviews}</p>
-        </div>
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-            <TrendingUp className="h-3.5 w-3.5" />
-            Avg Rating
-          </div>
-          <p className="text-xl font-bold text-warning">{averageRating.toFixed(1)}</p>
-        </div>
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-            <Clock className="h-3.5 w-3.5" />
-            Pending
-          </div>
-          <p className="text-xl font-bold text-warning">{pendingReviews}</p>
-        </div>
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-            <CheckCircle className="h-3.5 w-3.5" />
-            Approved
-          </div>
-          <p className="text-xl font-bold text-success">{approvedReviews}</p>
-        </div>
-      </div>
-
+      <DataPageLayout
+        sidebar={sidebarConfig}
+        mobileStats={mobileStats}
+      >
       {/* Filters and Search */}
       <FilterPanel
         searchValue={searchQuery}
@@ -487,130 +561,102 @@ export default function ReviewsPage() {
         </div>
       )}
 
-      {/* Select All */}
-      {paginatedReviews.length > 0 && (
-        <div className="bg-card rounded-lg border border-border p-4 mb-4">
-          <label className="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={paginatedReviews.every(r => selectedReviews.has(r.id)) && paginatedReviews.length > 0}
-              onChange={() => {
-                if (paginatedReviews.every(r => selectedReviews.has(r.id))) {
-                  setSelectedReviews(new Set(Array.from(selectedReviews).filter(id => !paginatedReviews.find(r => r.id === id))));
-                } else {
-                  setSelectedReviews(new Set([...Array.from(selectedReviews), ...paginatedReviews.map(r => r.id)]));
-                }
-              }}
-              className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
-            />
-            <span className="text-sm font-semibold text-foreground">
-              Select all reviews on this page
-            </span>
-          </label>
-        </div>
-      )}
-
-      {/* Reviews List */}
-      <div className="space-y-4">
+      {/* Reviews Table */}
+      <div className="bg-card rounded-lg border border-border overflow-x-auto">
         {loading ? (
-          <div className="bg-card rounded-lg border border-border p-12 text-center">
+          <div className="p-12 text-center">
             <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
             <p className="mt-3 text-muted-foreground">Loading reviews...</p>
           </div>
         ) : paginatedReviews.length === 0 ? (
-          <div className="bg-card rounded-lg border border-border p-12 text-center text-muted-foreground">
+          <div className="p-12 text-center text-muted-foreground">
             No reviews found
           </div>
         ) : (
-          paginatedReviews.map((review) => {
-            const avgRating = getAverageRating(review);
-
-            return (
-              <div
-                key={review.id}
-                className={cn(
-                  "bg-card rounded-lg border border-border p-4 sm:p-5 hover:border-primary/30 transition-colors",
-                  selectedReviews.has(review.id) && "ring-2 ring-primary border-primary"
-                )}
-              >
-                <div className="flex items-start gap-4 mb-4">
+          <table className="w-full">
+            <thead className="bg-muted border-b border-border">
+              <tr>
+                <th className="px-4 py-3 text-left">
                   <input
                     type="checkbox"
-                    checked={selectedReviews.has(review.id)}
-                    onChange={() => toggleReviewSelection(review.id)}
-                    className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0 cursor-pointer"
+                    checked={paginatedReviews.every(r => selectedReviews.has(r.id)) && paginatedReviews.length > 0}
+                    onChange={() => {
+                      if (paginatedReviews.every(r => selectedReviews.has(r.id))) {
+                        setSelectedReviews(new Set(Array.from(selectedReviews).filter(id => !paginatedReviews.find(r => r.id === id))));
+                      } else {
+                        setSelectedReviews(new Set([...Array.from(selectedReviews), ...paginatedReviews.map(r => r.id)]));
+                      }
+                    }}
+                    className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
                   />
-                  <div className="flex-1 flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className={cn(
-                        'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border',
-                        getStatusBadgeClass(review.status)
-                      )}>
-                        {review.status}
-                      </span>
-                      <span className="text-xs px-3 py-1 rounded-full bg-muted text-foreground border border-border font-semibold">
-                        {review.type}
-                      </span>
-                      {review.featured && (
-                        <span className="text-xs px-3 py-1 rounded-full bg-warning-muted text-warning-muted-foreground border-transparent font-semibold inline-flex items-center gap-1">
-                          <Sparkles className="w-3 h-3" aria-hidden="true" /> Featured
-                        </span>
-                      )}
-                      {review.verifiedPurchase && (
-                        <span className="text-xs px-3 py-1 rounded-full bg-success-muted text-success-muted-foreground border-transparent font-semibold inline-flex items-center gap-1">
-                          <ShieldCheck className="w-3 h-3" aria-hidden="true" /> Verified Purchase
-                        </span>
-                      )}
-                    </div>
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">Review</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden md:table-cell">Target</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">Rating</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden lg:table-cell">Author</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden sm:table-cell">Date</th>
+                <th className="px-4 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {paginatedReviews.map((review) => {
+                const avgRating = getAverageRating(review);
 
-                    {avgRating && (
-                      <div className="flex items-center gap-2 mb-2">
-                        {renderStars(Math.round(avgRating))}
-                        <span className="text-sm text-muted-foreground font-medium">
-                          {avgRating.toFixed(1)} / 5
-                        </span>
-                      </div>
+                return (
+                  <tr
+                    key={review.id}
+                    className={cn(
+                      "hover:bg-muted/50 transition-colors group",
+                      selectedReviews.has(review.id) && "bg-primary/5"
                     )}
-
-                    {review.title && (
-                      <h3 className="text-lg font-bold text-foreground mb-2">{review.title}</h3>
-                    )}
-
-                    <p className="text-foreground mb-4 line-clamp-3">{review.content}</p>
-
-                    {/* Review Images */}
-                    {review.media && (() => {
-                      const mediaList = Array.isArray(review.media)
-                        ? review.media
-                        : Object.values(review.media as Record<string, ReviewMedia>);
-                      const images = mediaList.filter((m) => m.type === 'IMAGE');
-                      return images.length > 0 ? (
-                        <div className="mt-3 mb-4">
-                          <p className="text-sm text-muted-foreground mb-2 flex items-center gap-1"><Camera className="w-4 h-4" aria-hidden="true" /> {images.length} image{images.length > 1 ? 's' : ''} attached</p>
-                          <div className="flex flex-wrap gap-3">
-                            {images.map((img) => (
-                              <a
-                                key={img.id}
-                                href={img.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="relative w-24 h-24 rounded-lg overflow-hidden border border-border hover:border-primary/70 hover:shadow-md transition-all"
-                              >
-                                <img
-                                  src={img.thumbnailUrl || img.url}
-                                  alt={img.caption || 'Review image'}
-                                  className="w-full h-full object-cover"
-                                />
-                              </a>
-                            ))}
-                          </div>
+                  >
+                    <td className="px-4 py-4">
+                      <input
+                        type="checkbox"
+                        checked={selectedReviews.has(review.id)}
+                        onChange={() => toggleReviewSelection(review.id)}
+                        className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0 cursor-pointer"
+                      />
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="min-w-0 max-w-[350px]">
+                        {review.title && (
+                          <p className="font-semibold text-foreground truncate" title={review.title}>
+                            {review.title}
+                          </p>
+                        )}
+                        <p className="text-sm text-muted-foreground line-clamp-2" title={review.content}>
+                          {review.content}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1 flex-wrap">
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-muted text-foreground border border-border font-medium">
+                            {review.type}
+                          </span>
+                          {review.featured && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-warning-muted text-warning inline-flex items-center gap-1">
+                              <Sparkles className="w-3 h-3" /> Featured
+                            </span>
+                          )}
+                          {review.verifiedPurchase && (
+                            <span className="text-xs px-2 py-0.5 rounded-full bg-success-muted text-success inline-flex items-center gap-1">
+                              <ShieldCheck className="w-3 h-3" /> Verified
+                            </span>
+                          )}
+                          {review.helpfulCount > 0 && (
+                            <span className="text-xs text-primary inline-flex items-center gap-1">
+                              <ThumbsUp className="w-3 h-3" /> {review.helpfulCount}
+                            </span>
+                          )}
+                          {review.reportCount > 0 && (
+                            <span className="text-xs text-error inline-flex items-center gap-1">
+                              <Flag className="w-3 h-3" /> {review.reportCount}
+                            </span>
+                          )}
                         </div>
-                      ) : null;
-                    })()}
-
-                    <div className="flex items-center gap-6 text-sm text-muted-foreground">
-                      <span>By: {review.userName || review.userId}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-4 hidden md:table-cell">
                       {review.targetType === 'PRODUCT' && productsCache[review.targetId] ? (() => {
                         const product = productsCache[review.targetId];
                         const firstImage = product.images?.[0];
@@ -619,193 +665,169 @@ export default function ReviewsPage() {
                           : null;
                         return (
                           <div className="flex items-center gap-2">
-                            <span className="text-muted-foreground">Product:</span>
                             {imageUrl && (
                               <img
                                 src={imageUrl}
                                 alt={product.name}
-                                className="w-6 h-6 rounded object-cover border border-border"
+                                className="w-8 h-8 rounded object-cover border border-border"
                               />
                             )}
-                            <a
-                              href={`/products/${review.targetId}`}
-                              className="text-primary hover:text-primary hover:underline font-medium"
-                            >
+                            <span className="text-sm text-foreground truncate max-w-[120px]" title={product.name}>
                               {product.name}
-                            </a>
+                            </span>
                           </div>
                         );
                       })() : (
-                        <span>Target: {review.targetType} #{review.targetId.substring(0, 8)}...</span>
+                        <span className="text-sm text-muted-foreground">
+                          {review.targetType}
+                        </span>
                       )}
-                      <span>{new Date(review.createdAt).toLocaleDateString()}</span>
-                      {review.helpfulCount > 0 && (
-                        <span className="text-primary inline-flex items-center gap-1"><ThumbsUp className="w-3.5 h-3.5" aria-hidden="true" /> {review.helpfulCount} helpful</span>
-                      )}
-                      {review.reportCount > 0 && (
-                        <span className="text-error inline-flex items-center gap-1"><Flag className="w-3.5 h-3.5" aria-hidden="true" /> {review.reportCount} reports</span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2 ml-4">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedReview(review);
-                        setReplyContent('');
-                        setIsInternalReply(false);
-                        setShowReplyModal(true);
-                      }}
-                      className="hover:bg-primary/10 hover:text-primary"
-                      aria-label="Reply to review"
-                    >
-                      <MessageSquare className="h-4 w-4" aria-hidden="true" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedReview(review);
-                        setStatusUpdate({
-                          status: 'APPROVED' as ReviewStatus,
-                          moderationNotes: '',
-                        });
-                        setShowStatusModal(true);
-                      }}
-                      className="hover:bg-primary/10 hover:text-primary"
-                      aria-label="View review details"
-                    >
-                      <Eye className="h-4 w-4" aria-hidden="true" />
-                    </Button>
-                    {review.status === 'PENDING' && (
-                      <>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={async () => {
-                            try {
-                              setError(null);
-                              await reviewService.updateReviewStatus(review.id, {
-                                status: 'APPROVED',
-                                moderationNotes: 'Quick approved',
-                              });
-                              toast.success('Review Approved', 'Review has been approved successfully');
-                              loadReviews();
-                            } catch (error) {
-                              console.error('Error approving review:', error);
-                              const errorMessage = error instanceof Error ? error.message : 'Failed to approve review. Please try again.';
-                              setError(errorMessage);
-                              toast.error('Approval Failed', errorMessage);
-                            }
-                          }}
-                          className="hover:bg-success-muted hover:text-success"
-                          aria-label="Approve review"
-                        >
-                          <CheckCircle className="h-4 w-4" aria-hidden="true" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={async () => {
-                            try {
-                              setError(null);
-                              await reviewService.updateReviewStatus(review.id, {
-                                status: 'REJECTED',
-                                moderationNotes: 'Quick rejected',
-                              });
-                              toast.success('Review Rejected', 'Review has been rejected successfully');
-                              loadReviews();
-                            } catch (error) {
-                              console.error('Error rejecting review:', error);
-                              const errorMessage = error instanceof Error ? error.message : 'Failed to reject review. Please try again.';
-                              setError(errorMessage);
-                              toast.error('Rejection Failed', errorMessage);
-                            }
-                          }}
-                          className="hover:bg-error-muted hover:text-error"
-                          aria-label="Reject review"
-                        >
-                          <XCircle className="h-4 w-4" aria-hidden="true" />
-                        </Button>
-                      </>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={async () => {
-                        try {
-                          setError(null);
-                          await reviewService.updateReviewStatus(review.id, {
-                            status: 'FLAGGED',
-                            moderationNotes: 'Flagged for review',
-                          });
-                          toast.success('Review Flagged', 'Review has been flagged for moderation');
-                          loadReviews();
-                        } catch (error) {
-                          console.error('Error flagging review:', error);
-                          const errorMessage = error instanceof Error ? error.message : 'Failed to flag review. Please try again.';
-                          setError(errorMessage);
-                          toast.error('Flag Failed', errorMessage);
-                        }
-                      }}
-                      className="hover:bg-warning-muted hover:text-warning"
-                      aria-label="Flag review for moderation"
-                    >
-                      <Flag className="h-4 w-4" aria-hidden="true" />
-                    </Button>
-                  </div>
-                </div>
-                </div>
-
-                {/* Comments Section */}
-                {review.comments && (Array.isArray(review.comments) ? review.comments.length > 0 : Object.keys(review.comments).length > 0) && (
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <p className="text-sm font-semibold text-foreground mb-2">Replies & Comments:</p>
-                    <div className="space-y-3">
-                      {(Array.isArray(review.comments)
-                        ? review.comments
-                        : Object.entries(review.comments as unknown as Record<string, any>).map(([id, c]) => ({ id, ...c }))
-                      ).map((comment: any) => (
-                        <div key={comment.id} className={cn("text-sm p-3 rounded-lg", comment.isInternal ? "bg-warning-muted border border-warning/20" : "bg-muted border border-border")}>
-                          <div className="flex justify-between items-start mb-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold">{comment.userName}</span>
-                              {comment.isInternal && (
-                                <span className="text-xs bg-warning/20 text-warning px-1.5 py-0.5 rounded">Internal Note</span>
-                              )}
-                            </div>
-                            <span className="text-xs text-muted-foreground">{new Date(comment.createdAt).toLocaleDateString()}</span>
-                          </div>
-                          <p className="text-foreground">{comment.content}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {review.ratings && (Array.isArray(review.ratings) ? review.ratings.length > 0 : Object.keys(review.ratings).length > 0) && (
-                  <div className="mt-4 pt-4 border-t border-border">
-                    <p className="text-sm font-semibold text-foreground mb-2">Detailed Ratings:</p>
-                    <div className="flex flex-wrap gap-3">
-                      {(Array.isArray(review.ratings)
-                        ? review.ratings
-                        : Object.entries(review.ratings as unknown as Record<string, any>).map(([aspect, r]) => ({ id: aspect, aspect, ...r }))
-                      ).map((rating: any) => (
-                        <div key={rating.id || rating.aspect} className="flex items-center gap-2 text-sm">
-                          <span className="text-muted-foreground">{rating.aspect}:</span>
-                          <span className="font-semibold text-foreground">
-                            {rating.score}/{rating.maxScore}
+                    </td>
+                    <td className="px-4 py-4">
+                      {avgRating ? (
+                        <div className="flex items-center gap-1">
+                          {renderStars(Math.round(avgRating))}
+                          <span className="text-sm text-muted-foreground ml-1">
+                            {avgRating.toFixed(1)}
                           </span>
                         </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })
+                      ) : (
+                        <span className="text-sm text-muted-foreground">-</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-4">
+                      <span className={cn(
+                        'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border',
+                        getStatusBadgeClass(review.status)
+                      )}>
+                        {review.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 hidden lg:table-cell">
+                      <span className="text-sm text-foreground truncate max-w-[100px] block" title={review.userName || review.userId}>
+                        {review.userName || review.userId}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 hidden sm:table-cell">
+                      <span className="text-sm text-muted-foreground whitespace-nowrap">
+                        {new Date(review.createdAt).toLocaleDateString()}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedReview(review);
+                            setReplyContent('');
+                            setIsInternalReply(false);
+                            setShowReplyModal(true);
+                          }}
+                          className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                          title="Reply to review"
+                        >
+                          <MessageSquare className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedReview(review);
+                            setStatusUpdate({
+                              status: 'APPROVED' as ReviewStatus,
+                              moderationNotes: '',
+                            });
+                            setShowStatusModal(true);
+                          }}
+                          className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                          title="View details"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        {review.status === 'PENDING' && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={async () => {
+                                try {
+                                  setError(null);
+                                  await reviewService.updateReviewStatus(review.id, {
+                                    status: 'APPROVED',
+                                    moderationNotes: 'Quick approved',
+                                  });
+                                  toast.success('Review Approved', 'Review has been approved successfully');
+                                  loadReviews();
+                                } catch (error) {
+                                  console.error('Error approving review:', error);
+                                  const errorMessage = error instanceof Error ? error.message : 'Failed to approve review. Please try again.';
+                                  setError(errorMessage);
+                                  toast.error('Approval Failed', errorMessage);
+                                }
+                              }}
+                              className="h-8 w-8 p-0 hover:bg-success-muted hover:text-success"
+                              title="Approve"
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={async () => {
+                                try {
+                                  setError(null);
+                                  await reviewService.updateReviewStatus(review.id, {
+                                    status: 'REJECTED',
+                                    moderationNotes: 'Quick rejected',
+                                  });
+                                  toast.success('Review Rejected', 'Review has been rejected successfully');
+                                  loadReviews();
+                                } catch (error) {
+                                  console.error('Error rejecting review:', error);
+                                  const errorMessage = error instanceof Error ? error.message : 'Failed to reject review. Please try again.';
+                                  setError(errorMessage);
+                                  toast.error('Rejection Failed', errorMessage);
+                                }
+                              }}
+                              className="h-8 w-8 p-0 hover:bg-error-muted hover:text-error"
+                              title="Reject"
+                            >
+                              <XCircle className="h-4 w-4" />
+                            </Button>
+                          </>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={async () => {
+                            try {
+                              setError(null);
+                              await reviewService.updateReviewStatus(review.id, {
+                                status: 'FLAGGED',
+                                moderationNotes: 'Flagged for review',
+                              });
+                              toast.success('Review Flagged', 'Review has been flagged for moderation');
+                              loadReviews();
+                            } catch (error) {
+                              console.error('Error flagging review:', error);
+                              const errorMessage = error instanceof Error ? error.message : 'Failed to flag review. Please try again.';
+                              setError(errorMessage);
+                              toast.error('Flag Failed', errorMessage);
+                            }
+                          }}
+                          className="h-8 w-8 p-0 hover:bg-warning-muted hover:text-warning"
+                          title="Flag for moderation"
+                        >
+                          <Flag className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         )}
       </div>
 
@@ -820,6 +842,7 @@ export default function ReviewsPage() {
           onItemsPerPageChange={setItemsPerPage}
         />
       )}
+      </DataPageLayout>
 
       {/* Reply Modal */}
       {showReplyModal && selectedReview && (

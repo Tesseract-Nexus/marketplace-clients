@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { PageHeader } from '@/components/PageHeader';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading, PageError, EmptyState } from '@/components/common';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { approvalService, ApprovalRequest, ApprovalStatus, ApprovalType } from '@/lib/services/approvalService';
 import { useToast } from '@/contexts/ToastContext';
 import {
@@ -255,6 +256,118 @@ export default function ApprovalsPage() {
   };
 
   const pendingCount = approvals.filter((a) => a.status === 'pending').length;
+  const approvedCount = approvals.filter((a) => a.status === 'approved').length;
+  const rejectedCount = approvals.filter((a) => a.status === 'rejected').length;
+  const changesCount = approvals.filter((a) => a.status === 'request_changes').length;
+  const totalCount = approvals.length;
+
+  // Product vs other type counts
+  const productCount = approvals.filter((a) => a.approvalType.includes('product')).length;
+  const categoryCount = approvals.filter((a) => a.approvalType.includes('category')).length;
+  const orderCount = approvals.filter((a) => a.approvalType.includes('order')).length;
+
+  // Sidebar configuration
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Approval Health',
+      currentValue: approvedCount,
+      totalValue: totalCount || 1,
+      status: pendingCount === 0 ? 'healthy' : pendingCount > 10 ? 'critical' : 'attention',
+      segments: [
+        { value: approvedCount, color: 'success' },
+        { value: pendingCount, color: 'warning' },
+        { value: rejectedCount, color: 'error' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Status Overview',
+        items: [
+          {
+            id: 'all',
+            label: 'Total Requests',
+            value: totalCount,
+            icon: Clock,
+            color: 'muted',
+            onClick: () => setStatusFilter('all'),
+            isActive: statusFilter === 'all',
+          },
+          {
+            id: 'pending',
+            label: 'Pending',
+            value: pendingCount,
+            icon: Clock,
+            color: 'warning',
+            onClick: () => setStatusFilter('pending'),
+            isActive: statusFilter === 'pending',
+          },
+          {
+            id: 'approved',
+            label: 'Approved',
+            value: approvedCount,
+            icon: CheckCircle,
+            color: 'success',
+            onClick: () => setStatusFilter('approved'),
+            isActive: statusFilter === 'approved',
+          },
+          {
+            id: 'rejected',
+            label: 'Rejected',
+            value: rejectedCount,
+            icon: XCircle,
+            color: 'error',
+            onClick: () => setStatusFilter('rejected'),
+            isActive: statusFilter === 'rejected',
+          },
+          {
+            id: 'request_changes',
+            label: 'Needs Review',
+            value: changesCount,
+            icon: Clock,
+            color: 'primary',
+            onClick: () => setStatusFilter('request_changes'),
+            isActive: statusFilter === 'request_changes',
+          },
+        ],
+      },
+      {
+        title: 'By Type',
+        items: [
+          {
+            id: 'products',
+            label: 'Products',
+            value: productCount,
+            icon: Box,
+            color: 'muted',
+          },
+          {
+            id: 'categories',
+            label: 'Categories',
+            value: categoryCount,
+            icon: FolderTree,
+            color: 'muted',
+          },
+          {
+            id: 'orders',
+            label: 'Orders',
+            value: orderCount,
+            icon: ShoppingCart,
+            color: 'muted',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [totalCount, pendingCount, approvedCount, rejectedCount, changesCount, productCount, categoryCount, orderCount, statusFilter]);
+
+  const mobileStats: SidebarStatItem[] = useMemo(() => [
+    { id: 'total', label: 'Total', value: totalCount, icon: Clock, color: 'default', onClick: () => setStatusFilter('all') },
+    { id: 'pending', label: 'Pending', value: pendingCount, icon: Clock, color: 'warning', onClick: () => setStatusFilter('pending') },
+    { id: 'approved', label: 'Approved', value: approvedCount, icon: CheckCircle, color: 'success', onClick: () => setStatusFilter('approved') },
+    { id: 'rejected', label: 'Rejected', value: rejectedCount, icon: XCircle, color: 'error', onClick: () => setStatusFilter('rejected') },
+  ], [totalCount, pendingCount, approvedCount, rejectedCount]);
 
   return (
     <PermissionGate
@@ -286,8 +399,12 @@ export default function ApprovalsPage() {
             }
           />
 
+          <DataPageLayout
+            sidebar={sidebarConfig}
+            mobileStats={mobileStats}
+          >
           {/* Filters */}
-          <div className="bg-card rounded-lg border border-border overflow-hidden">
+          <div className="bg-card rounded-lg border border-border overflow-hidden mb-6">
             <div className="p-4">
               <div className="flex flex-wrap gap-4 items-center">
                 <div className="flex items-center gap-2">
@@ -510,6 +627,7 @@ export default function ApprovalsPage() {
               </table>
             </div>
           )}
+          </DataPageLayout>
 
           {/* Action Dialog - Approve/Reject/Review */}
           <Dialog open={actionDialogOpen} onOpenChange={setActionDialogOpen}>

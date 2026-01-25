@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
@@ -30,6 +30,7 @@ import {
   Package,
 } from 'lucide-react';
 import { LastUpdatedStatus } from '@/components/LastUpdatedStatus';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 
 // Abandoned cart status types
 type CartStatus = 'ABANDONED' | 'RECOVERED' | 'EXPIRED' | 'CONTACTED';
@@ -210,36 +211,95 @@ export default function AbandonedCartsPage() {
     }
   };
 
-  const stats = [
-    {
-      label: "Abandoned Carts",
-      value: carts.filter(c => c.status === 'ABANDONED').length,
-      icon: ShoppingCart,
-      textColor: "text-warning",
-      bgColor: "bg-warning/10"
-    },
-    {
-      label: "Contacted",
-      value: carts.filter(c => c.status === 'CONTACTED').length,
-      icon: Mail,
-      textColor: "text-primary",
-      bgColor: "bg-primary/10"
-    },
-    {
-      label: "Recovered",
-      value: carts.filter(c => c.status === 'RECOVERED').length,
-      icon: CheckCircle,
-      textColor: "text-success",
-      bgColor: "bg-success/10"
-    },
-    {
-      label: "Potential Revenue",
-      value: `$${carts.filter(c => c.status !== 'RECOVERED' && c.status !== 'EXPIRED').reduce((sum, c) => sum + parseFloat(c.subtotal), 0).toFixed(2)}`,
-      icon: DollarSign,
-      textColor: "text-primary",
-      bgColor: "bg-primary/10"
-    }
-  ];
+  // Calculate stats
+  const totalCarts = carts.length;
+  const abandonedCount = carts.filter(c => c.status === 'ABANDONED').length;
+  const contactedCount = carts.filter(c => c.status === 'CONTACTED').length;
+  const recoveredCount = carts.filter(c => c.status === 'RECOVERED').length;
+  const expiredCount = carts.filter(c => c.status === 'EXPIRED').length;
+  const potentialRevenue = carts.filter(c => c.status !== 'RECOVERED' && c.status !== 'EXPIRED').reduce((sum, c) => sum + parseFloat(c.subtotal), 0);
+
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Recovery Health',
+      currentValue: recoveredCount,
+      totalValue: totalCarts || 1,
+      status: abandonedCount > 20 ? 'critical' : abandonedCount > 10 ? 'attention' : 'healthy',
+      segments: [
+        { value: recoveredCount, color: 'success' },
+        { value: contactedCount, color: 'primary' },
+        { value: abandonedCount, color: 'warning' },
+        { value: expiredCount, color: 'muted' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Cart Status',
+        items: [
+          {
+            id: 'abandoned',
+            label: 'Abandoned',
+            value: abandonedCount,
+            icon: ShoppingCart,
+            color: 'warning',
+            onClick: () => setStatusFilter('ABANDONED'),
+            isActive: statusFilter === 'ABANDONED',
+          },
+          {
+            id: 'contacted',
+            label: 'Contacted',
+            value: contactedCount,
+            icon: Mail,
+            color: 'primary',
+            onClick: () => setStatusFilter('CONTACTED'),
+            isActive: statusFilter === 'CONTACTED',
+          },
+          {
+            id: 'recovered',
+            label: 'Recovered',
+            value: recoveredCount,
+            icon: CheckCircle,
+            color: 'success',
+            onClick: () => setStatusFilter('RECOVERED'),
+            isActive: statusFilter === 'RECOVERED',
+          },
+          {
+            id: 'expired',
+            label: 'Expired',
+            value: expiredCount,
+            icon: XCircle,
+            color: 'muted',
+            onClick: () => setStatusFilter('EXPIRED'),
+            isActive: statusFilter === 'EXPIRED',
+          },
+        ],
+      },
+      {
+        title: 'Revenue',
+        items: [
+          {
+            id: 'potential',
+            label: 'Potential',
+            value: `$${potentialRevenue.toFixed(0)}`,
+            icon: DollarSign,
+            color: 'warning',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [totalCarts, abandonedCount, contactedCount, recoveredCount, expiredCount, potentialRevenue, statusFilter]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = useMemo(() => [
+    { id: 'abandoned', label: 'Abandoned', value: abandonedCount, icon: ShoppingCart, color: 'warning' },
+    { id: 'contacted', label: 'Contacted', value: contactedCount, icon: Mail, color: 'primary' },
+    { id: 'recovered', label: 'Recovered', value: recoveredCount, icon: CheckCircle, color: 'success' },
+    { id: 'potential', label: 'Potential', value: `$${potentialRevenue.toFixed(0)}`, icon: DollarSign, color: 'primary' },
+  ], [abandonedCount, contactedCount, recoveredCount, potentialRevenue]);
 
   if (loading && carts.length === 0) {
     return (
@@ -304,30 +364,10 @@ export default function AbandonedCartsPage() {
           }
         />
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {stats.map((stat, index) => {
-            const Icon = stat.icon;
-            return (
-              <Card key={index} className="border-border/50 hover:border-primary/50/50 transition-all duration-300 group">
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                      <p className={`text-3xl font-bold ${stat.textColor} mt-2`}>
-                        {stat.value}
-                      </p>
-                    </div>
-                    <div className={`p-3 rounded-xl ${stat.bgColor} border border-border group-hover:scale-110 transition-transform`}>
-                      <Icon className="w-6 h-6 text-muted-foreground" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
+        <DataPageLayout
+          sidebar={sidebarConfig}
+          mobileStats={mobileStats}
+        >
         {/* Search and Filters */}
         <Card className="border-border/50">
           <CardContent>
@@ -509,6 +549,7 @@ export default function AbandonedCartsPage() {
             onItemsPerPageChange={setItemsPerPage}
           />
         )}
+        </DataPageLayout>
 
         {/* Details Modal */}
         {showDetails && selectedCart && (

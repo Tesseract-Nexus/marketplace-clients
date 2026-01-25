@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Plus,
   Users,
@@ -13,6 +13,8 @@ import {
   RefreshCw,
   Edit2,
   Save,
+  CheckCircle,
+  XCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
@@ -20,7 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { ConfirmModal } from '@/components/ConfirmModal';
-import { StatsGrid } from '@/components/data-listing/StatsGrid';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { cn } from '@/lib/utils';
 import { useTenant } from '@/contexts/TenantContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -298,7 +300,124 @@ export default function CustomerSegmentsPage() {
   // Calculate summary
   const totalSegments = segments.length;
   const activeSegments = segments.filter((s) => s.isActive).length;
+  const inactiveSegments = segments.filter((s) => !s.isActive).length;
+  const dynamicSegments = segments.filter((s) => s.type === 'DYNAMIC').length;
+  const staticSegments = segments.filter((s) => s.type === 'STATIC').length;
   const totalMembers = segments.reduce((sum, s) => sum + (s.memberCount || 0), 0);
+
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Segment Health',
+      currentValue: activeSegments,
+      totalValue: totalSegments || 1,
+      status: inactiveSegments === 0 ? 'healthy' : inactiveSegments > totalSegments * 0.5 ? 'critical' : 'attention',
+      segments: [
+        { value: activeSegments, color: 'success' },
+        { value: inactiveSegments, color: 'warning' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Segment Status',
+        items: [
+          {
+            id: 'total',
+            label: 'Total Segments',
+            value: totalSegments,
+            icon: Target,
+            color: 'muted',
+            onClick: () => setTypeFilter(''),
+            isActive: typeFilter === '',
+          },
+          {
+            id: 'active',
+            label: 'Active',
+            value: activeSegments,
+            icon: CheckCircle,
+            color: 'success',
+          },
+          {
+            id: 'inactive',
+            label: 'Inactive',
+            value: inactiveSegments,
+            icon: XCircle,
+            color: 'warning',
+          },
+        ],
+      },
+      {
+        title: 'Segment Types',
+        items: [
+          {
+            id: 'dynamic',
+            label: 'Dynamic',
+            value: dynamicSegments,
+            icon: TrendingUp,
+            color: 'primary',
+            onClick: () => setTypeFilter('DYNAMIC'),
+            isActive: typeFilter === 'DYNAMIC',
+          },
+          {
+            id: 'static',
+            label: 'Static',
+            value: staticSegments,
+            icon: Target,
+            color: 'muted',
+            onClick: () => setTypeFilter('STATIC'),
+            isActive: typeFilter === 'STATIC',
+          },
+        ],
+      },
+      {
+        title: 'Members',
+        items: [
+          {
+            id: 'members',
+            label: 'Total Members',
+            value: new Intl.NumberFormat('en-US').format(totalMembers),
+            icon: Users,
+            color: 'primary',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [totalSegments, activeSegments, inactiveSegments, dynamicSegments, staticSegments, totalMembers, typeFilter]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = useMemo(() => [
+    {
+      id: 'total',
+      label: 'Total',
+      value: totalSegments,
+      icon: Target,
+      color: 'default',
+    },
+    {
+      id: 'active',
+      label: 'Active',
+      value: activeSegments,
+      icon: CheckCircle,
+      color: 'success',
+    },
+    {
+      id: 'dynamic',
+      label: 'Dynamic',
+      value: dynamicSegments,
+      icon: TrendingUp,
+      color: 'primary',
+    },
+    {
+      id: 'members',
+      label: 'Members',
+      value: totalMembers,
+      icon: Users,
+      color: 'primary',
+    },
+  ], [totalSegments, activeSegments, dynamicSegments, totalMembers]);
 
   return (
     <PermissionGate
@@ -347,18 +466,9 @@ export default function CustomerSegmentsPage() {
           </div>
         )}
 
-        {/* Summary Cards */}
-        <StatsGrid
-          stats={[
-            { label: 'Total Segments', value: totalSegments, icon: Target, color: 'primary' },
-            { label: 'Active Segments', value: activeSegments, icon: TrendingUp, color: 'success' },
-            { label: 'Total Members', value: formatNumber(totalMembers), icon: Users, color: 'primary' },
-          ]}
-          columns={3}
-        />
-
+        <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
         {/* Filters */}
-        <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
+        <div className="bg-card rounded-lg border border-border p-4 shadow-sm mb-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">Search</label>
@@ -472,6 +582,7 @@ export default function CustomerSegmentsPage() {
             </table>
           </div>
         </div>
+        </DataPageLayout>
       </div>
 
       {/* Create Segment Modal */}

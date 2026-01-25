@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useTenant } from '@/contexts/TenantContext';
 import {
@@ -52,6 +52,7 @@ import { Select, SelectOption } from '@/components/Select';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { categoryService } from '@/lib/services/categoryService';
 import { FilterPanel } from '@/components/data-listing';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { Category, CreateCategoryRequest, UpdateCategoryRequest, DefaultMediaURLs } from '@/lib/api/types';
 import { BulkImportModal } from '@/components/BulkImportModal';
 import { CategoryIconUploader, CategoryBannerUploader, MediaItem } from '@/components/MediaUploader';
@@ -598,6 +599,112 @@ export default function CategoriesPage() {
     }));
   };
 
+  // Calculate stats for sidebar
+  const totalCategories = categories.length;
+  const activeCategories = categories.filter(c => c.isActive).length;
+  const inactiveCategories = categories.filter(c => !c.isActive).length;
+  const topLevelCategories = categories.filter(c => c.level === 0).length;
+  const draftCategories = categories.filter(c => c.status === 'DRAFT').length;
+  const pendingCategories = categories.filter(c => c.status === 'PENDING').length;
+  const approvedCategories = categories.filter(c => c.status === 'APPROVED').length;
+
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Category Health',
+      currentValue: activeCategories,
+      totalValue: totalCategories || 1,
+      status: inactiveCategories > totalCategories * 0.3 ? 'attention' : pendingCategories > 5 ? 'attention' : 'healthy',
+      segments: [
+        { value: approvedCategories, color: 'success' },
+        { value: pendingCategories, color: 'warning' },
+        { value: draftCategories, color: 'muted' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Category Status',
+        items: [
+          {
+            id: 'total',
+            label: 'Total',
+            value: totalCategories,
+            icon: Folder,
+            color: 'default',
+          },
+          {
+            id: 'active',
+            label: 'Active',
+            value: activeCategories,
+            icon: CheckCircle,
+            color: 'success',
+            onClick: () => setActiveFilter('ACTIVE'),
+            isActive: activeFilter === 'ACTIVE',
+          },
+          {
+            id: 'inactive',
+            label: 'Inactive',
+            value: inactiveCategories,
+            icon: XCircle,
+            color: 'error',
+            onClick: () => setActiveFilter('INACTIVE'),
+            isActive: activeFilter === 'INACTIVE',
+          },
+          {
+            id: 'top-level',
+            label: 'Top Level',
+            value: topLevelCategories,
+            icon: Tags,
+            color: 'default',
+          },
+        ],
+      },
+      {
+        title: 'Approval Status',
+        items: [
+          {
+            id: 'approved',
+            label: 'Approved',
+            value: approvedCategories,
+            icon: CheckCircle2,
+            color: 'success',
+            onClick: () => setStatusFilter('APPROVED'),
+            isActive: statusFilter === 'APPROVED',
+          },
+          {
+            id: 'pending',
+            label: 'Pending',
+            value: pendingCategories,
+            icon: Clock,
+            color: 'warning',
+            onClick: () => setStatusFilter('PENDING'),
+            isActive: statusFilter === 'PENDING',
+          },
+          {
+            id: 'draft',
+            label: 'Draft',
+            value: draftCategories,
+            icon: FileEdit,
+            color: 'muted',
+            onClick: () => setStatusFilter('DRAFT'),
+            isActive: statusFilter === 'DRAFT',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [totalCategories, activeCategories, inactiveCategories, topLevelCategories, draftCategories, pendingCategories, approvedCategories, statusFilter, activeFilter]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = useMemo(() => [
+    { id: 'total', label: 'Total', value: totalCategories, icon: Folder, color: 'default' },
+    { id: 'active', label: 'Active', value: activeCategories, icon: CheckCircle, color: 'success' },
+    { id: 'pending', label: 'Pending', value: pendingCategories, icon: Clock, color: 'warning' },
+    { id: 'top-level', label: 'Top Level', value: topLevelCategories, icon: Tags, color: 'default' },
+  ], [totalCategories, activeCategories, pendingCategories, topLevelCategories]);
+
   const renderCategoryTree = (parentId: string | null = null, level: number = 0) => {
     const children = getCategoryChildren(parentId);
 
@@ -867,40 +974,10 @@ export default function CategoriesPage() {
         </div>
       )}
 
-      {/* Compact Stats Row */}
-      {!loading && categories.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-          <div className="bg-card rounded-lg border border-border p-3">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <Folder className="h-3.5 w-3.5" />
-              Total
-            </div>
-            <p className="text-xl font-bold text-foreground">{categories.length}</p>
-          </div>
-          <div className="bg-card rounded-lg border border-border p-3">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <CheckCircle className="h-3.5 w-3.5" />
-              Active
-            </div>
-            <p className="text-xl font-bold text-success">{categories.filter(c => c.isActive).length}</p>
-          </div>
-          <div className="bg-card rounded-lg border border-border p-3">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <XCircle className="h-3.5 w-3.5" />
-              Inactive
-            </div>
-            <p className="text-xl font-bold text-error">{categories.filter(c => !c.isActive).length}</p>
-          </div>
-          <div className="bg-card rounded-lg border border-border p-3">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <Tags className="h-3.5 w-3.5" />
-              Top Level
-            </div>
-            <p className="text-xl font-bold text-foreground">{categories.filter(c => c.level === 0).length}</p>
-          </div>
-        </div>
-      )}
-
+      <DataPageLayout
+        sidebar={!loading && categories.length > 0 ? sidebarConfig : undefined}
+        mobileStats={!loading && categories.length > 0 ? mobileStats : undefined}
+      >
       {/* Search and Filters */}
       {!loading && (
         <FilterPanel
@@ -1438,6 +1515,7 @@ export default function CategoriesPage() {
           </div>
         </div>
       ) : null}
+      </DataPageLayout>
 
       {/* Confirm Modal */}
       <ConfirmModal

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'next/navigation';
 import { Plus, Eye, CheckCircle, Clock, XCircle, AlertTriangle, Ticket as TicketIcon, User, MessageSquare, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
@@ -371,6 +372,101 @@ export default function TicketsPage() {
     setActiveQuickFilters([]);
   };
 
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Ticket Health',
+      currentValue: resolvedTickets,
+      totalValue: totalTickets || 1,
+      status: urgentTickets > 5 ? 'critical' : openTickets > 20 ? 'attention' : 'healthy',
+      segments: [
+        { value: resolvedTickets, color: 'success' },
+        { value: inProgressTickets, color: 'primary' },
+        { value: openTickets, color: 'warning' },
+        { value: urgentTickets, color: 'error' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Ticket Status',
+        items: [
+          {
+            id: 'total',
+            label: 'Total',
+            value: totalTickets,
+            icon: TicketIcon,
+            color: 'default',
+          },
+          {
+            id: 'open',
+            label: 'Open',
+            value: openTickets,
+            icon: AlertCircle,
+            color: 'warning',
+            onClick: () => {
+              setStatusFilter('OPEN');
+              setActiveQuickFilters(['OPEN']);
+            },
+            isActive: statusFilter === 'OPEN',
+          },
+          {
+            id: 'in-progress',
+            label: 'In Progress',
+            value: inProgressTickets,
+            icon: Clock,
+            color: 'primary',
+            onClick: () => {
+              setStatusFilter('IN_PROGRESS');
+              setActiveQuickFilters(['IN_PROGRESS']);
+            },
+            isActive: statusFilter === 'IN_PROGRESS',
+          },
+          {
+            id: 'resolved',
+            label: 'Resolved',
+            value: resolvedTickets,
+            icon: CheckCircle,
+            color: 'success',
+            onClick: () => {
+              setStatusFilter('RESOLVED');
+              setActiveQuickFilters(['RESOLVED']);
+            },
+            isActive: statusFilter === 'RESOLVED',
+          },
+        ],
+      },
+      {
+        title: 'Priority',
+        items: [
+          {
+            id: 'urgent',
+            label: 'Critical/Urgent',
+            value: urgentTickets,
+            icon: AlertTriangle,
+            color: 'error',
+            onClick: () => {
+              setPriorityFilter('CRITICAL');
+              setActiveQuickFilters(['CRITICAL']);
+            },
+            isActive: priorityFilter === 'CRITICAL' || priorityFilter === 'URGENT',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [totalTickets, openTickets, inProgressTickets, resolvedTickets, urgentTickets, statusFilter, priorityFilter]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = useMemo(() => [
+    { id: 'total', label: 'Total', value: totalTickets, icon: TicketIcon, color: 'default' },
+    { id: 'open', label: 'Open', value: openTickets, icon: AlertCircle, color: 'warning' },
+    { id: 'in-progress', label: 'In Progress', value: inProgressTickets, icon: Clock, color: 'primary' },
+    { id: 'resolved', label: 'Resolved', value: resolvedTickets, icon: CheckCircle, color: 'success' },
+    { id: 'urgent', label: 'Critical', value: urgentTickets, icon: AlertTriangle, color: 'error' },
+  ], [totalTickets, openTickets, inProgressTickets, resolvedTickets, urgentTickets]);
+
   return (
     <PermissionGate
       permission={Permission.TICKETS_READ}
@@ -419,45 +515,10 @@ export default function TicketsPage() {
         {/* Hide content when there's a critical error */}
         {error && (error.toLowerCase().includes('permission') || error.toLowerCase().includes('forbidden') || error.toLowerCase().includes('unauthorized') || error.toLowerCase().includes('access denied') || error.toLowerCase().includes('admin portal')) ? null : (
         <>
-        {/* Compact Stats Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
-          <div className="bg-card rounded-lg border border-border p-3">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <TicketIcon className="h-3.5 w-3.5" />
-              Total
-            </div>
-            <p className="text-xl font-bold text-foreground">{totalTickets}</p>
-          </div>
-          <div className="bg-card rounded-lg border border-border p-3">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <AlertCircle className="h-3.5 w-3.5" />
-              Open
-            </div>
-            <p className="text-xl font-bold text-warning">{openTickets}</p>
-          </div>
-          <div className="bg-card rounded-lg border border-border p-3">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <Clock className="h-3.5 w-3.5" />
-              In Progress
-            </div>
-            <p className="text-xl font-bold text-info">{inProgressTickets}</p>
-          </div>
-          <div className="bg-card rounded-lg border border-border p-3">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <CheckCircle className="h-3.5 w-3.5" />
-              Resolved
-            </div>
-            <p className="text-xl font-bold text-success">{resolvedTickets}</p>
-          </div>
-          <div className="bg-card rounded-lg border border-border p-3">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <AlertTriangle className="h-3.5 w-3.5" />
-              Critical/Urgent
-            </div>
-            <p className="text-xl font-bold text-error">{urgentTickets}</p>
-          </div>
-        </div>
-
+        <DataPageLayout
+          sidebar={sidebarConfig}
+          mobileStats={mobileStats}
+        >
         {/* Filters and Search */}
         <FilterPanel
           searchValue={searchQuery}
@@ -495,138 +556,172 @@ export default function TicketsPage() {
           />
         </FilterPanel>
 
-        {/* Tickets List */}
-        <div className="space-y-4">
+        {/* Tickets Table */}
+        <div className="bg-card rounded-lg border border-border overflow-x-auto">
           {loading ? (
-            <div className="bg-card rounded-lg border border-border p-12 text-center">
+            <div className="p-12 text-center">
               <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
               <p className="mt-3 text-muted-foreground">Loading tickets...</p>
             </div>
           ) : paginatedTickets.length === 0 ? (
-            <div className="bg-card rounded-lg border border-border p-12 text-center text-muted-foreground">
+            <div className="p-12 text-center text-muted-foreground">
               No tickets found
             </div>
           ) : (
-            paginatedTickets.map((ticket) => {
-              const tags = tagsToArray(ticket.tags);
-              const comments = getComments(ticket.comments);
-              const assignees = getAssignees(ticket.assignees);
+            <table className="w-full">
+              <thead className="bg-muted border-b border-border">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">Ticket</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden md:table-cell">Type</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">Priority</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden lg:table-cell">Created By</th>
+                  <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden sm:table-cell">Date</th>
+                  <th className="px-4 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {paginatedTickets.map((ticket) => {
+                  const tags = tagsToArray(ticket.tags);
+                  const comments = getComments(ticket.comments);
+                  const assignees = getAssignees(ticket.assignees);
 
-              return (
-                <div
-                  key={ticket.id}
-                  className="bg-card rounded-lg border border-border p-4 hover:border-primary/30 transition-colors"
-                >
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 sm:gap-3 mb-2 flex-wrap">
-                        <span className={cn(
-                          'inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-semibold border',
-                          getStatusBadgeClass(ticket.status)
-                        )}>
-                          {ticket.status.replace(/_/g, ' ')}
+                  return (
+                    <tr
+                      key={ticket.id}
+                      className="hover:bg-muted/50 transition-colors group"
+                    >
+                      <td className="px-4 py-4">
+                        <div className="min-w-0">
+                          <p className="font-semibold text-foreground truncate max-w-[300px]" title={ticket.title}>
+                            {ticket.title}
+                          </p>
+                          <p className="text-sm text-muted-foreground truncate max-w-[300px]" title={ticket.description}>
+                            {ticket.description}
+                          </p>
+                          {tags.length > 0 && (
+                            <div className="flex gap-1 mt-1 flex-wrap">
+                              {tags.slice(0, 3).map((tag, index) => (
+                                <span
+                                  key={index}
+                                  className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary"
+                                >
+                                  {tag}
+                                </span>
+                              ))}
+                              {tags.length > 3 && (
+                                <span className="text-xs text-muted-foreground">+{tags.length - 3}</span>
+                              )}
+                            </div>
+                          )}
+                          {(comments.length > 0 || assignees.length > 0) && (
+                            <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                              {comments.length > 0 && (
+                                <span className="flex items-center gap-1">
+                                  <MessageSquare className="h-3 w-3" />
+                                  {comments.length}
+                                </span>
+                              )}
+                              {assignees.length > 0 && (
+                                <span className="truncate max-w-[150px]" title={assignees.join(', ')}>
+                                  Assigned: {assignees[0]}{assignees.length > 1 && ` +${assignees.length - 1}`}
+                                </span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 hidden md:table-cell">
+                        <span className="text-xs px-2 py-1 rounded-full bg-muted text-foreground border border-border font-medium">
+                          {ticket.type.replace(/_/g, ' ')}
                         </span>
+                      </td>
+                      <td className="px-4 py-4">
                         <span className={cn(
-                          'inline-flex items-center px-2 sm:px-3 py-1 rounded-full text-xs font-semibold border',
+                          'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border',
                           getPriorityBadgeClass(ticket.priority)
                         )}>
                           {ticket.priority}
                         </span>
-                        <span className="text-xs px-2 sm:px-3 py-1 rounded-full bg-muted text-foreground border border-border font-semibold">
-                          {ticket.type.replace(/_/g, ' ')}
+                      </td>
+                      <td className="px-4 py-4">
+                        <span className={cn(
+                          'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold border',
+                          getStatusBadgeClass(ticket.status)
+                        )}>
+                          {ticket.status.replace(/_/g, ' ')}
                         </span>
-                      </div>
-
-                      <h3 className="text-base sm:text-lg font-bold text-foreground mb-2">{ticket.title}</h3>
-                      <p className="text-sm sm:text-base text-foreground mb-4 line-clamp-2">{ticket.description}</p>
-
-                      <div className="flex items-center gap-3 sm:gap-6 text-xs sm:text-sm text-muted-foreground flex-wrap">
-                        <span className="flex items-center gap-1">
-                          <User className="h-3 w-3 sm:h-4 sm:w-4" />
-                          <span className="truncate max-w-[120px] sm:max-w-none">{ticket.createdByName || ticket.createdBy}</span>
+                      </td>
+                      <td className="px-4 py-4 hidden lg:table-cell">
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm text-foreground truncate max-w-[120px]" title={ticket.createdByName || ticket.createdBy}>
+                            {ticket.createdByName || ticket.createdBy}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-4 hidden sm:table-cell">
+                        <span className="text-sm text-muted-foreground whitespace-nowrap">
+                          {new Date(ticket.createdAt).toLocaleDateString()}
                         </span>
-                        <span>{new Date(ticket.createdAt).toLocaleDateString()}</span>
-                        {assignees.length > 0 && (
-                          <span className="text-primary truncate">
-                            <span className="hidden sm:inline">Assigned to: </span>{assignees.join(', ')}
-                          </span>
-                        )}
-                        {comments.length > 0 && (
-                          <span className="flex items-center gap-1">
-                            <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
-                            {comments.length}
-                          </span>
-                        )}
                         {ticket.estimatedTime && (
-                          <span>Est: {ticket.estimatedTime}m</span>
+                          <p className="text-xs text-muted-foreground">Est: {ticket.estimatedTime}m</p>
                         )}
-                      </div>
-                    </div>
-
-                    <div className="flex gap-2 sm:ml-4 justify-end sm:justify-start">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedTicket(ticket);
-                          setShowDetailModal(true);
-                        }}
-                        className="hover:bg-primary/10 hover:text-primary"
-                        title="View Details"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      {ticket.status === 'OPEN' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleUpdateStatus(ticket.id, 'IN_PROGRESS')}
-                          className="hover:bg-warning-muted hover:text-warning"
-                          title="Start Progress"
-                        >
-                          <Clock className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {(ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS') && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleUpdateStatus(ticket.id, 'RESOLVED')}
-                          className="hover:bg-success-muted hover:text-success"
-                          title="Mark Resolved"
-                        >
-                          <CheckCircle className="h-4 w-4" />
-                        </Button>
-                      )}
-                      {ticket.status === 'RESOLVED' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleUpdateStatus(ticket.id, 'CLOSED')}
-                          className="hover:bg-muted hover:text-muted-foreground"
-                          title="Close Ticket"
-                        >
-                          <XCircle className="h-4 w-4" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  {tags.length > 0 && (
-                    <div className="flex gap-2 flex-wrap">
-                      {tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="text-xs px-2 py-1 rounded bg-primary/10 text-primary border border-primary/30"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })
+                      </td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedTicket(ticket);
+                              setShowDetailModal(true);
+                            }}
+                            className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                            title="View Details"
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          {ticket.status === 'OPEN' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleUpdateStatus(ticket.id, 'IN_PROGRESS')}
+                              className="h-8 w-8 p-0 hover:bg-warning-muted hover:text-warning"
+                              title="Start Progress"
+                            >
+                              <Clock className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {(ticket.status === 'OPEN' || ticket.status === 'IN_PROGRESS') && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleUpdateStatus(ticket.id, 'RESOLVED')}
+                              className="h-8 w-8 p-0 hover:bg-success-muted hover:text-success"
+                              title="Mark Resolved"
+                            >
+                              <CheckCircle className="h-4 w-4" />
+                            </Button>
+                          )}
+                          {ticket.status === 'RESOLVED' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleUpdateStatus(ticket.id, 'CLOSED')}
+                              className="h-8 w-8 p-0 hover:bg-muted hover:text-muted-foreground"
+                              title="Close Ticket"
+                            >
+                              <XCircle className="h-4 w-4" />
+                            </Button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           )}
         </div>
 
@@ -641,6 +736,7 @@ export default function TicketsPage() {
             onItemsPerPageChange={setItemsPerPage}
           />
         )}
+        </DataPageLayout>
         </>
         )}
 

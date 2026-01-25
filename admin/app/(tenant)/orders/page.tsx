@@ -17,6 +17,7 @@ import {
 } from '@/components/translation/AdminTranslatedText';
 import { Pagination } from '@/components/Pagination';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { orderService } from '@/lib/services/orderService';
 import {
   Order,
@@ -362,6 +363,130 @@ export default function OrdersPage() {
     (paymentStatusFilter !== 'ALL' ? 1 : 0) +
     (fulfillmentStatusFilter !== 'ALL' ? 1 : 0);
 
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Order Health',
+      currentValue: completedOrders,
+      totalValue: totalOrders || 1,
+      status: cancelledOrders === 0 && completedOrders > 0 ? 'healthy' : cancelledOrders > 5 ? 'attention' : 'normal',
+      segments: [
+        { value: completedOrders, color: 'success' },
+        { value: inFulfillment, color: 'primary' },
+        { value: awaitingPayment, color: 'warning' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Order Status',
+        items: [
+          {
+            id: 'total',
+            label: 'Total Orders',
+            value: totalOrders,
+            icon: ShoppingCart,
+            color: 'muted',
+            onClick: () => { setStatusFilter('ALL'); setPaymentStatusFilter('ALL'); setFulfillmentStatusFilter('ALL'); setActiveQuickFilters([]); },
+            isActive: statusFilter === 'ALL' && paymentStatusFilter === 'ALL' && fulfillmentStatusFilter === 'ALL',
+          },
+          {
+            id: 'awaiting',
+            label: 'Awaiting Payment',
+            value: awaitingPayment,
+            icon: Clock,
+            color: 'warning',
+            onClick: () => { setStatusFilter('PLACED'); setPaymentStatusFilter('ALL'); setFulfillmentStatusFilter('ALL'); setActiveQuickFilters(['PLACED']); },
+            isActive: statusFilter === 'PLACED',
+          },
+          {
+            id: 'fulfilling',
+            label: 'In Fulfillment',
+            value: inFulfillment,
+            icon: Package,
+            color: 'primary',
+            onClick: () => { setStatusFilter('ALL'); setPaymentStatusFilter('ALL'); setFulfillmentStatusFilter('PROCESSING'); setActiveQuickFilters([]); },
+            isActive: fulfillmentStatusFilter === 'PROCESSING',
+          },
+          {
+            id: 'completed',
+            label: 'Completed',
+            value: completedOrders,
+            icon: CheckCircle,
+            color: 'success',
+            onClick: () => { setStatusFilter('COMPLETED'); setPaymentStatusFilter('ALL'); setFulfillmentStatusFilter('ALL'); setActiveQuickFilters(['COMPLETED']); },
+            isActive: statusFilter === 'COMPLETED',
+          },
+          {
+            id: 'cancelled',
+            label: 'Cancelled',
+            value: cancelledOrders,
+            icon: XCircle,
+            color: 'error',
+            onClick: () => { setStatusFilter('CANCELLED'); setPaymentStatusFilter('ALL'); setFulfillmentStatusFilter('ALL'); setActiveQuickFilters([]); },
+            isActive: statusFilter === 'CANCELLED',
+          },
+        ],
+      },
+      {
+        title: 'Revenue',
+        items: [
+          {
+            id: 'revenue',
+            label: 'Total Revenue',
+            value: formatCurrency(totalRevenue, 'INR'),
+            icon: DollarSign,
+            color: 'success',
+          },
+          {
+            id: 'paid',
+            label: 'Paid Orders',
+            value: paidOrders,
+            icon: CheckCircle,
+            color: 'success',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [totalOrders, awaitingPayment, inFulfillment, completedOrders, cancelledOrders, paidOrders, totalRevenue, statusFilter, paymentStatusFilter, fulfillmentStatusFilter]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = useMemo(() => [
+    {
+      id: 'total',
+      label: 'Total',
+      value: totalOrders,
+      icon: ShoppingCart,
+      color: 'default',
+      onClick: () => { setStatusFilter('ALL'); setActiveQuickFilters([]); },
+    },
+    {
+      id: 'awaiting',
+      label: 'Awaiting',
+      value: awaitingPayment,
+      icon: Clock,
+      color: 'warning',
+      onClick: () => { setStatusFilter('PLACED'); setActiveQuickFilters(['PLACED']); },
+    },
+    {
+      id: 'fulfilling',
+      label: 'Fulfilling',
+      value: inFulfillment,
+      icon: Package,
+      color: 'primary',
+    },
+    {
+      id: 'completed',
+      label: 'Complete',
+      value: completedOrders,
+      icon: CheckCircle,
+      color: 'success',
+      onClick: () => { setStatusFilter('COMPLETED'); setActiveQuickFilters(['COMPLETED']); },
+    },
+  ], [totalOrders, awaitingPayment, inFulfillment, completedOrders]);
+
   return (
     <PermissionGate
       permission={Permission.ORDERS_READ}
@@ -397,47 +522,7 @@ export default function OrdersPage() {
       {/* Error Alert */}
       <PageError error={error} onDismiss={() => setError(null)} />
 
-      {/* Compact Stats Row */}
-      {!loading && orders.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
-          <div className="bg-card rounded-lg border border-border p-3">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <ShoppingCart className="h-3.5 w-3.5" />
-              Total
-            </div>
-            <p className="text-xl font-bold text-foreground">{totalOrders}</p>
-          </div>
-          <div className="bg-card rounded-lg border border-border p-3">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <Clock className="h-3.5 w-3.5" />
-              Pending
-            </div>
-            <p className="text-xl font-bold text-warning">{awaitingPayment}</p>
-          </div>
-          <div className="bg-card rounded-lg border border-border p-3">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <Truck className="h-3.5 w-3.5" />
-              Fulfilling
-            </div>
-            <p className="text-xl font-bold text-primary">{inFulfillment}</p>
-          </div>
-          <div className="bg-card rounded-lg border border-border p-3">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <CheckCircle className="h-3.5 w-3.5" />
-              Completed
-            </div>
-            <p className="text-xl font-bold text-success">{completedOrders}</p>
-          </div>
-          <div className="bg-card rounded-lg border border-border p-3">
-            <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-              <DollarSign className="h-3.5 w-3.5" />
-              Revenue
-            </div>
-            <p className="text-xl font-bold text-primary">{formatCurrency(totalRevenue, orders[0]?.currencyCode || 'INR')}</p>
-          </div>
-        </div>
-      )}
-
+      <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
       {/* Search and Filters */}
       {!loading && (
         <FilterPanel
@@ -567,123 +652,157 @@ export default function OrdersPage() {
         </div>
       )}
 
-      {/* Orders List */}
-      {loading ? (
-        <div className="bg-card rounded-lg border border-border p-12 text-center">
-          <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin mb-4" />
-          <p className="text-muted-foreground font-medium"><AdminUIText text="Loading orders..." /></p>
-          <p className="text-muted-foreground text-sm mt-1"><AdminUIText text="Please wait while we fetch your data" /></p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {paginatedOrders.map((order, idx) => (
-            <div
-              key={order.id}
-              className="bg-card rounded-lg border border-border p-4 hover:border-primary/30 transition-colors group cursor-pointer overflow-hidden"
-              onClick={() => navigateToOrder(order.id)}
-            >
-              {/* Mini Fulfillment Progress Bar at top of card */}
-              {order.fulfillmentStatus && order.fulfillmentStatus !== 'UNFULFILLED' && (
-                <div className="h-1 bg-muted -mt-4 -mx-4 mb-4">
-                  <div
-                    className={cn(
-                      "h-full",
-                      order.fulfillmentStatus === 'DELIVERED' && "bg-success",
-                      order.fulfillmentStatus === 'FAILED_DELIVERY' && "bg-error",
-                      order.fulfillmentStatus === 'RETURNED' && "bg-warning",
-                      !['DELIVERED', 'FAILED_DELIVERY', 'RETURNED'].includes(order.fulfillmentStatus) && "bg-primary"
-                    )}
-                    style={{ width: `${getFulfillmentProgress(order.fulfillmentStatus)}%` }}
-                  />
-                </div>
-              )}
-
-              <div>
-                <div className="flex flex-col lg:flex-row justify-between gap-4">
-                  <div className="flex-1 space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="flex items-center gap-3 mb-2 flex-wrap">
-                          {/* Order Status Icon */}
-                          <div className={cn(
-                            "p-2 rounded-lg",
-                            order.status === 'COMPLETED' && "bg-success/10 text-success",
-                            order.status === 'CANCELLED' && "bg-error-muted text-error",
-                            order.status === 'PROCESSING' && "bg-primary/10 text-primary",
-                            order.status === 'CONFIRMED' && "bg-primary/20 text-primary",
-                            order.status === 'PLACED' && "bg-warning-muted text-warning"
-                          )}>
-                            {getStatusIcon(order.status)}
-                          </div>
-                          <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">{order.orderNumber}</h3>
-                          <div className="flex gap-2 flex-wrap">
-                            {getStatusBadge(order.status)}
-                            {getPaymentBadge(order.paymentStatus)}
-                            {order.fulfillmentStatus && getFulfillmentBadge(order.fulfillmentStatus)}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
-                          <span className="flex items-center gap-1.5">
-                            <User className="w-4 h-4 text-muted-foreground" />
-                            {order.customerName}
-                          </span>
-                          <span className="flex items-center gap-1.5">
-                            <Calendar className="w-4 h-4 text-muted-foreground" />
-                            {new Date(order.orderDate).toLocaleDateString()}
-                          </span>
-                          <span className="flex items-center gap-1.5">
-                            <Package className="w-4 h-4 text-muted-foreground" />
-                            {order.totalItems} items
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-3 border-t border-border">
-                      <div>
-                        <p className="text-xs text-muted-foreground font-semibold">Subtotal</p>
-                        <p className="text-sm font-bold text-foreground">{formatCurrency(order.subtotal, order.currencyCode)}</p>
+      {/* Orders Table */}
+      <div className="bg-card rounded-lg border border-border overflow-x-auto">
+        {loading ? (
+          <div className="p-12 text-center">
+            <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin mb-4" />
+            <p className="text-muted-foreground font-medium"><AdminUIText text="Loading orders..." /></p>
+            <p className="text-muted-foreground text-sm mt-1"><AdminUIText text="Please wait while we fetch your data" /></p>
+          </div>
+        ) : paginatedOrders.length === 0 ? (
+          <div className="p-16 text-center">
+            <div className="bg-muted p-8 rounded-full border border-border inline-block">
+              <ShoppingCart className="w-16 h-16 text-muted-foreground" />
+            </div>
+            <h3 className="text-xl font-bold text-foreground mt-6">No Orders Found</h3>
+            <p className="text-muted-foreground mt-2 max-w-md mx-auto">
+              {searchQuery || statusFilter !== 'ALL' || paymentStatusFilter !== 'ALL' || fulfillmentStatusFilter !== 'ALL'
+                ? "Try adjusting your search criteria or filters to find what you're looking for."
+                : "Orders will appear here once customers start placing them."}
+            </p>
+            {(searchQuery || statusFilter !== 'ALL' || paymentStatusFilter !== 'ALL' || fulfillmentStatusFilter !== 'ALL') && (
+              <Button
+                onClick={() => {
+                  setSearchQuery('');
+                  setStatusFilter('ALL');
+                  setPaymentStatusFilter('ALL');
+                  setFulfillmentStatusFilter('ALL');
+                }}
+                className="mt-4 px-6 py-2 bg-primary text-white rounded-lg"
+              >
+                Clear All Filters
+              </Button>
+            )}
+          </div>
+        ) : (
+          <table className="w-full">
+            <thead className="bg-muted border-b border-border">
+              <tr>
+                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">Order</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden md:table-cell">Customer</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden lg:table-cell">Payment</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden lg:table-cell">Fulfillment</th>
+                <th className="px-4 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Total</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden sm:table-cell">Date</th>
+                <th className="px-4 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {paginatedOrders.map((order) => (
+                <tr
+                  key={order.id}
+                  className="hover:bg-muted/50 transition-colors group cursor-pointer"
+                  onClick={() => navigateToOrder(order.id)}
+                >
+                  <td className="px-4 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "p-2 rounded-lg",
+                        order.status === 'COMPLETED' && "bg-success/10 text-success",
+                        order.status === 'CANCELLED' && "bg-error-muted text-error",
+                        order.status === 'PROCESSING' && "bg-primary/10 text-primary",
+                        order.status === 'CONFIRMED' && "bg-primary/20 text-primary",
+                        order.status === 'PLACED' && "bg-warning-muted text-warning"
+                      )}>
+                        {getStatusIcon(order.status)}
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground font-semibold">Tax</p>
-                        <p className="text-sm font-bold text-foreground">{formatCurrency(order.tax, order.currencyCode)}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground font-semibold">Shipping</p>
-                        <p className="text-sm font-bold text-foreground">{formatCurrency(order.shippingCost, order.currencyCode)}</p>
-                      </div>
-                      <div className="bg-primary/5 -m-2 p-2 rounded-lg border border-primary/20">
-                        <p className="text-xs text-primary font-semibold">Total</p>
-                        <p className="text-xl font-bold text-primary">
-                          {formatCurrency(order.total, order.currencyCode)}
+                        <p className="font-semibold text-foreground group-hover:text-primary transition-colors">
+                          {order.orderNumber}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {order.totalItems} items
                         </p>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="flex lg:flex-col gap-2 items-center justify-center relative">
-                    {/* View button */}
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors border border-primary/20">
-                      <Eye className="w-4 h-4 text-primary" />
+                  </td>
+                  <td className="px-4 py-4 hidden md:table-cell">
+                    <div className="flex items-center gap-2">
+                      <User className="w-4 h-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm text-foreground truncate max-w-[150px]" title={order.customerName}>
+                          {order.customerName}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate max-w-[150px]" title={order.customerEmail}>
+                          {order.customerEmail}
+                        </p>
+                      </div>
                     </div>
-
-                    {/* Quick actions menu */}
-                    <div className="relative">
-                      <button
+                  </td>
+                  <td className="px-4 py-4">
+                    {getStatusBadge(order.status)}
+                  </td>
+                  <td className="px-4 py-4 hidden lg:table-cell">
+                    {getPaymentBadge(order.paymentStatus)}
+                  </td>
+                  <td className="px-4 py-4 hidden lg:table-cell">
+                    <div className="space-y-1">
+                      {order.fulfillmentStatus && getFulfillmentBadge(order.fulfillmentStatus)}
+                      {order.fulfillmentStatus && order.fulfillmentStatus !== 'UNFULFILLED' && (
+                        <div className="w-24 h-1 bg-muted rounded-full overflow-hidden">
+                          <div
+                            className={cn(
+                              "h-full",
+                              order.fulfillmentStatus === 'DELIVERED' && "bg-success",
+                              order.fulfillmentStatus === 'FAILED_DELIVERY' && "bg-error",
+                              order.fulfillmentStatus === 'RETURNED' && "bg-warning",
+                              !['DELIVERED', 'FAILED_DELIVERY', 'RETURNED'].includes(order.fulfillmentStatus) && "bg-primary"
+                            )}
+                            style={{ width: `${getFulfillmentProgress(order.fulfillmentStatus)}%` }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-4 text-right">
+                    <p className="text-lg font-bold text-primary">
+                      {formatCurrency(order.total, order.currencyCode)}
+                    </p>
+                  </td>
+                  <td className="px-4 py-4 hidden sm:table-cell">
+                    <span className="text-sm text-muted-foreground whitespace-nowrap">
+                      {new Date(order.orderDate).toLocaleDateString()}
+                    </span>
+                  </td>
+                  <td className="px-4 py-4">
+                    <div className="flex items-center justify-end gap-1 relative">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => { e.stopPropagation(); navigateToOrder(order.id); }}
+                        className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                        title="View order"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={(e) => toggleMenu(e, order.id)}
                         className={cn(
-                          "h-10 w-10 rounded-lg flex items-center justify-center transition-colors border",
-                          openMenuId === order.id
-                            ? "bg-muted border-border"
-                            : "bg-muted border-border hover:bg-muted/50"
+                          "h-8 w-8 p-0",
+                          openMenuId === order.id ? "bg-muted" : "hover:bg-muted"
                         )}
+                        title="More actions"
                       >
-                        <MoreVertical className="w-4 h-4 text-muted-foreground" />
-                      </button>
+                        <MoreVertical className="h-4 w-4 text-muted-foreground" />
+                      </Button>
 
                       {/* Dropdown menu */}
                       {openMenuId === order.id && (
-                        <div className="absolute right-0 top-12 w-48 bg-card rounded-lg border border-border py-1 z-50">
+                        <div className="absolute right-0 top-10 w-48 bg-card rounded-lg border border-border py-1 z-50 shadow-lg">
                           <button
                             onClick={(e) => handleCopyOrderNumber(e, order.orderNumber)}
                             className="w-full px-4 py-2.5 text-left text-sm text-foreground hover:bg-muted flex items-center gap-3 transition-colors"
@@ -700,18 +819,7 @@ export default function OrdersPage() {
                               </>
                             )}
                           </button>
-
                           <div className="h-px bg-muted my-1" />
-
-                          <button
-                            onClick={(e) => handleQuickAction(e, 'view', order)}
-                            className="w-full px-4 py-2.5 text-left text-sm text-foreground hover:bg-muted flex items-center gap-3 transition-colors"
-                          >
-                            <Eye className="w-4 h-4 text-muted-foreground" />
-                            <span>View Details</span>
-                            <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto" />
-                          </button>
-
                           {order.paymentStatus === 'PAID' && order.fulfillmentStatus === 'UNFULFILLED' && (
                             <button
                               onClick={(e) => handleQuickAction(e, 'ship', order)}
@@ -721,9 +829,6 @@ export default function OrdersPage() {
                               <span className="text-primary font-medium">Create Shipment</span>
                             </button>
                           )}
-
-                          <div className="h-px bg-muted my-1" />
-
                           <button
                             onClick={(e) => handleQuickAction(e, 'email', order)}
                             className="w-full px-4 py-2.5 text-left text-sm text-foreground hover:bg-muted flex items-center gap-3 transition-colors"
@@ -732,7 +837,6 @@ export default function OrdersPage() {
                             <Mail className="w-4 h-4 text-muted-foreground" />
                             <span>Email Customer</span>
                           </button>
-
                           <button
                             onClick={(e) => handleQuickAction(e, 'invoice', order)}
                             className="w-full px-4 py-2.5 text-left text-sm text-foreground hover:bg-muted flex items-center gap-3 transition-colors"
@@ -743,40 +847,13 @@ export default function OrdersPage() {
                         </div>
                       )}
                     </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {paginatedOrders.length === 0 && (
-            <div className="bg-card rounded-lg border border-dashed border-border p-16 text-center">
-              <div className="bg-muted p-8 rounded-full border border-border inline-block">
-                <ShoppingCart className="w-16 h-16 text-muted-foreground" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground mt-6">No Orders Found</h3>
-              <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-                {searchQuery || statusFilter !== 'ALL' || paymentStatusFilter !== 'ALL' || fulfillmentStatusFilter !== 'ALL'
-                  ? "Try adjusting your search criteria or filters to find what you're looking for."
-                  : "Orders will appear here once customers start placing them."}
-              </p>
-              {(searchQuery || statusFilter !== 'ALL' || paymentStatusFilter !== 'ALL' || fulfillmentStatusFilter !== 'ALL') && (
-                <Button
-                  onClick={() => {
-                    setSearchQuery('');
-                    setStatusFilter('ALL');
-                    setPaymentStatusFilter('ALL');
-                    setFulfillmentStatusFilter('ALL');
-                  }}
-                  className="mt-4 px-6 py-2 bg-primary text-white rounded-lg"
-                >
-                  Clear All Filters
-                </Button>
-              )}
-            </div>
-          )}
-        </div>
-      )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
 
       {/* Pagination */}
       {!loading && filteredOrders.length > 0 && (
@@ -789,6 +866,7 @@ export default function OrdersPage() {
           onItemsPerPageChange={setItemsPerPage}
         />
       )}
+      </DataPageLayout>
       </div>
     </div>
     </PermissionGate>

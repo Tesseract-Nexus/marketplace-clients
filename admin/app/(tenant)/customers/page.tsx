@@ -16,6 +16,7 @@ import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
 import { Pagination } from '@/components/Pagination';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { customerService } from '@/lib/services/customerService';
 import { useToast } from '@/contexts/ToastContext';
 import type { Customer, CreateCustomerRequest, CustomerStatus, CustomerType } from '@/lib/api/types';
@@ -283,6 +284,113 @@ export default function CustomersPage() {
   // Calculate active filter count
   const activeFilterCount = (statusFilter !== 'ALL' ? 1 : 0) + (typeFilter !== 'ALL' ? 1 : 0);
 
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Customer Health',
+      currentValue: activeCustomers,
+      totalValue: totalCustomers || 1,
+      status: blockedCustomers > 5 ? 'critical' : inactiveCustomers > totalCustomers * 0.3 ? 'attention' : 'healthy',
+      segments: [
+        { value: activeCustomers, color: 'success' },
+        { value: inactiveCustomers, color: 'warning' },
+        { value: blockedCustomers, color: 'error' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Customer Status',
+        items: [
+          {
+            id: 'total',
+            label: 'Total',
+            value: totalCustomers,
+            icon: Users,
+            color: 'default',
+          },
+          {
+            id: 'active',
+            label: 'Active',
+            value: activeCustomers,
+            icon: CheckCircle,
+            color: 'success',
+            onClick: () => {
+              setStatusFilter('ACTIVE');
+              setActiveQuickFilters(['ACTIVE']);
+            },
+            isActive: statusFilter === 'ACTIVE',
+          },
+          {
+            id: 'inactive',
+            label: 'Inactive',
+            value: inactiveCustomers,
+            icon: XCircle,
+            color: 'warning',
+            onClick: () => {
+              setStatusFilter('INACTIVE');
+              setActiveQuickFilters(['INACTIVE']);
+            },
+            isActive: statusFilter === 'INACTIVE',
+          },
+          {
+            id: 'blocked',
+            label: 'Blocked',
+            value: blockedCustomers,
+            icon: XCircle,
+            color: 'error',
+            onClick: () => {
+              setStatusFilter('BLOCKED');
+              setActiveQuickFilters(['BLOCKED']);
+            },
+            isActive: statusFilter === 'BLOCKED',
+          },
+        ],
+      },
+      {
+        title: 'Customer Value',
+        items: [
+          {
+            id: 'revenue',
+            label: 'Revenue',
+            value: `$${totalRevenue.toFixed(0)}`,
+            icon: DollarSign,
+            color: 'primary',
+          },
+          {
+            id: 'orders',
+            label: 'Orders',
+            value: totalOrders,
+            icon: ShoppingCart,
+            color: 'default',
+          },
+          {
+            id: 'vip',
+            label: 'VIP',
+            value: vipCustomers,
+            icon: Crown,
+            color: 'warning',
+            onClick: () => {
+              setTypeFilter('VIP');
+              setActiveQuickFilters(prev => [...prev.filter(f => !['ACTIVE', 'INACTIVE', 'BLOCKED'].includes(f)), 'VIP']);
+            },
+            isActive: typeFilter === 'VIP',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [totalCustomers, activeCustomers, inactiveCustomers, blockedCustomers, totalRevenue, totalOrders, vipCustomers, statusFilter, typeFilter]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = useMemo(() => [
+    { id: 'total', label: 'Total', value: totalCustomers, icon: Users, color: 'default' },
+    { id: 'active', label: 'Active', value: activeCustomers, icon: CheckCircle, color: 'success' },
+    { id: 'revenue', label: 'Revenue', value: `$${totalRevenue.toFixed(0)}`, icon: DollarSign, color: 'primary' },
+    { id: 'orders', label: 'Orders', value: totalOrders, icon: ShoppingCart, color: 'default' },
+  ], [totalCustomers, activeCustomers, totalRevenue, totalOrders]);
+
   const steps: Step[] = [
     { number: 1, title: 'Basic Info', description: 'Customer details' },
     { number: 2, title: 'Type & Tags', description: 'Classification' },
@@ -312,38 +420,10 @@ export default function CustomersPage() {
       {/* Error Alert */}
       <PageError error={error} onDismiss={() => setError(null)} />
 
-      {/* Compact Stats Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-            <Users className="h-3.5 w-3.5" />
-            Total
-          </div>
-          <p className="text-xl font-bold text-foreground">{totalCustomers}</p>
-        </div>
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-            <TrendingUp className="h-3.5 w-3.5" />
-            Active
-          </div>
-          <p className="text-xl font-bold text-success">{activeCustomers}</p>
-        </div>
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-            <DollarSign className="h-3.5 w-3.5" />
-            Revenue
-          </div>
-          <p className="text-xl font-bold text-primary">${totalRevenue.toFixed(2)}</p>
-        </div>
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-            <ShoppingCart className="h-3.5 w-3.5" />
-            Orders
-          </div>
-          <p className="text-xl font-bold text-warning">{totalOrders}</p>
-        </div>
-      </div>
-
+      <DataPageLayout
+        sidebar={sidebarConfig}
+        mobileStats={mobileStats}
+      >
       {/* Filters and Search */}
       <FilterPanel
         searchValue={searchQuery}
@@ -593,8 +673,9 @@ export default function CustomersPage() {
             </div>
           )}
         </div>
+      </div>
 
-        {/* Pagination */}
+      {/* Pagination */}
         {!loading && filteredCustomers.length > 0 && (
           <Pagination
             currentPage={currentPage}
@@ -605,7 +686,7 @@ export default function CustomersPage() {
             onItemsPerPageChange={setItemsPerPage}
           />
         )}
-      </div>
+      </DataPageLayout>
 
       {/* Create Customer Modal */}
       {showCreateModal && (

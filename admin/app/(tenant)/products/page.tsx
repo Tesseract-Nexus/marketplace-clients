@@ -37,6 +37,7 @@ import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { Badge } from '@/components/ui/badge';
 import { BulkImportModal } from '@/components/BulkImportModal';
 import { CascadeDeleteModal } from '@/components/CascadeDeleteModal';
@@ -1197,6 +1198,7 @@ export default function ProductsPage() {
     const totalProducts = products.length;
     const publishedProducts = products.filter(p => p.status === 'ACTIVE').length;
     const draftProducts = products.filter(p => p.status === 'DRAFT').length;
+    const pendingProducts = products.filter(p => p.status === 'PENDING').length;
     const lowStockProducts = products.filter(p => p.inventoryStatus === 'LOW_STOCK').length;
     const outOfStockProducts = products.filter(p => p.inventoryStatus === 'OUT_OF_STOCK').length;
 
@@ -1204,10 +1206,131 @@ export default function ProductsPage() {
       total: totalProducts,
       published: publishedProducts,
       draft: draftProducts,
+      pending: pendingProducts,
       lowStock: lowStockProducts,
       outOfStock: outOfStockProducts,
     };
   }, [products]);
+
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Product Health',
+      currentValue: productStats.published,
+      totalValue: productStats.total || 1,
+      status: productStats.outOfStock === 0 ? 'healthy' : productStats.outOfStock > 5 ? 'critical' : 'attention',
+      segments: [
+        { value: productStats.published, color: 'success' },
+        { value: productStats.lowStock, color: 'warning' },
+        { value: productStats.outOfStock, color: 'error' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Product Overview',
+        items: [
+          {
+            id: 'total',
+            label: 'Total Products',
+            value: productStats.total,
+            icon: Package,
+            color: 'muted',
+            onClick: () => { setStatusFilter('ALL'); setInventoryStatusFilter('ALL'); },
+            isActive: statusFilter === 'ALL' && inventoryStatusFilter === 'ALL',
+          },
+          {
+            id: 'active',
+            label: 'Active',
+            value: productStats.published,
+            icon: CheckCircle,
+            color: 'success',
+            onClick: () => { setStatusFilter('ACTIVE'); setInventoryStatusFilter('ALL'); },
+            isActive: statusFilter === 'ACTIVE',
+          },
+          {
+            id: 'draft',
+            label: 'Draft',
+            value: productStats.draft,
+            icon: FileEdit,
+            color: 'muted',
+            onClick: () => { setStatusFilter('DRAFT'); setInventoryStatusFilter('ALL'); },
+            isActive: statusFilter === 'DRAFT',
+          },
+          {
+            id: 'pending',
+            label: 'Pending',
+            value: productStats.pending,
+            icon: Clock,
+            color: 'warning',
+            onClick: () => { setStatusFilter('PENDING'); setInventoryStatusFilter('ALL'); },
+            isActive: statusFilter === 'PENDING',
+          },
+        ],
+      },
+      {
+        title: 'Inventory',
+        items: [
+          {
+            id: 'low-stock',
+            label: 'Low Stock',
+            value: productStats.lowStock,
+            icon: AlertTriangle,
+            color: 'warning',
+            onClick: () => { setStatusFilter('ALL'); setInventoryStatusFilter('LOW_STOCK'); },
+            isActive: inventoryStatusFilter === 'LOW_STOCK',
+          },
+          {
+            id: 'out-of-stock',
+            label: 'Out of Stock',
+            value: productStats.outOfStock,
+            icon: XCircle,
+            color: 'error',
+            onClick: () => { setStatusFilter('ALL'); setInventoryStatusFilter('OUT_OF_STOCK'); },
+            isActive: inventoryStatusFilter === 'OUT_OF_STOCK',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [productStats, statusFilter, inventoryStatusFilter]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = useMemo(() => [
+    {
+      id: 'total',
+      label: 'Total',
+      value: productStats.total,
+      icon: Package,
+      color: 'default',
+      onClick: () => { setStatusFilter('ALL'); setInventoryStatusFilter('ALL'); },
+    },
+    {
+      id: 'active',
+      label: 'Active',
+      value: productStats.published,
+      icon: CheckCircle,
+      color: 'success',
+      onClick: () => { setStatusFilter('ACTIVE'); setInventoryStatusFilter('ALL'); },
+    },
+    {
+      id: 'low-stock',
+      label: 'Low',
+      value: productStats.lowStock,
+      icon: AlertTriangle,
+      color: 'warning',
+      onClick: () => { setStatusFilter('ALL'); setInventoryStatusFilter('LOW_STOCK'); },
+    },
+    {
+      id: 'out-of-stock',
+      label: 'Out',
+      value: productStats.outOfStock,
+      icon: XCircle,
+      color: 'error',
+      onClick: () => { setStatusFilter('ALL'); setInventoryStatusFilter('OUT_OF_STOCK'); },
+    },
+  ], [productStats]);
 
   // Quick filters for product status
   const productQuickFilters: QuickFilter[] = useMemo(() => [
@@ -2646,40 +2769,10 @@ export default function ProductsPage() {
         {/* Error Alert */}
         <PageError error={error} onDismiss={() => setError(null)} />
 
-        {/* Compact Stats Row */}
-        {!loading && products.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-            <div className="bg-card rounded-lg border border-border p-3">
-              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                <Package className="h-3.5 w-3.5" />
-                Total
-              </div>
-              <p className="text-xl font-bold text-foreground">{productStats.total}</p>
-            </div>
-            <div className="bg-card rounded-lg border border-border p-3">
-              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                <CheckCircle className="h-3.5 w-3.5" />
-                Active
-              </div>
-              <p className="text-xl font-bold text-success">{productStats.published}</p>
-            </div>
-            <div className="bg-card rounded-lg border border-border p-3">
-              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                <AlertTriangle className="h-3.5 w-3.5" />
-                Low Stock
-              </div>
-              <p className="text-xl font-bold text-warning">{productStats.lowStock}</p>
-            </div>
-            <div className="bg-card rounded-lg border border-border p-3">
-              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                <XCircle className="h-3.5 w-3.5" />
-                Out of Stock
-              </div>
-              <p className="text-xl font-bold text-error">{productStats.outOfStock}</p>
-            </div>
-          </div>
-        )}
-
+        <DataPageLayout
+          sidebar={sidebarConfig}
+          mobileStats={mobileStats}
+        >
         {/* Filter Panel */}
         <FilterPanel
           searchValue={searchQuery}
@@ -3093,6 +3186,7 @@ export default function ProductsPage() {
             onItemsPerPageChange={setItemsPerPage}
           />
         )}
+        </DataPageLayout>
       </div>
 
       {/* Confirm Modal */}
