@@ -126,6 +126,14 @@ export const approvalService = {
   },
 
   /**
+   * Request changes on an approval request
+   */
+  async requestChanges(id: string, request: ApprovalActionRequest & { comment: string }): Promise<ApprovalResponse> {
+    const response = await apiClient.post<ApprovalResponse>(`${APPROVAL_API_BASE}/${id}/request-changes`, request);
+    return response;
+  },
+
+  /**
    * Cancel an approval request (by the requester)
    */
   async cancel(id: string): Promise<ApprovalResponse> {

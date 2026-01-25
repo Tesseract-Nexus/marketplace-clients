@@ -202,12 +202,10 @@ export default function ApprovalsPage() {
 
       if (actionType === 'approve') {
         await approvalService.approve(selectedApproval.id, actionComment ? { comment: actionComment } : undefined);
+      } else if (actionType === 'request_changes') {
+        await approvalService.requestChanges(selectedApproval.id, { comment: actionComment });
       } else {
-        // Both reject and request_changes use the reject endpoint
-        const comment = actionType === 'request_changes'
-          ? `[Changes Requested] ${actionComment}`
-          : actionComment;
-        await approvalService.reject(selectedApproval.id, { comment });
+        await approvalService.reject(selectedApproval.id, { comment: actionComment });
       }
 
       setActionDialogOpen(false);
