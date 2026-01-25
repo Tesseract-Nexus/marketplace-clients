@@ -1,10 +1,9 @@
 /**
  * OTP API Client
  *
- * Handles communication with the verification service for email OTP verification
+ * Handles communication with the verification service for email OTP verification.
+ * Routes are proxied through auth-bff at /auth/otp/*
  */
-
-import { getAuthBffUrl } from './auth';
 
 export interface SendOTPRequest {
   email: string;
@@ -63,10 +62,8 @@ export interface OTPStatusResponse {
  * Send OTP to customer email
  */
 export async function sendOTP(request: SendOTPRequest): Promise<SendOTPResponse> {
-  const authBffUrl = getAuthBffUrl();
-
   try {
-    const response = await fetch(`${authBffUrl}/auth/otp/send`, {
+    const response = await fetch('/auth/otp/send', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -112,10 +109,8 @@ export async function sendOTP(request: SendOTPRequest): Promise<SendOTPResponse>
  * Verify OTP code
  */
 export async function verifyOTP(request: VerifyOTPRequest): Promise<VerifyOTPResponse> {
-  const authBffUrl = getAuthBffUrl();
-
   try {
-    const response = await fetch(`${authBffUrl}/auth/otp/verify`, {
+    const response = await fetch('/auth/otp/verify', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -161,10 +156,8 @@ export async function verifyOTP(request: VerifyOTPRequest): Promise<VerifyOTPRes
  * Resend OTP code
  */
 export async function resendOTP(request: SendOTPRequest): Promise<SendOTPResponse> {
-  const authBffUrl = getAuthBffUrl();
-
   try {
-    const response = await fetch(`${authBffUrl}/auth/otp/resend`, {
+    const response = await fetch('/auth/otp/resend', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -210,11 +203,9 @@ export async function resendOTP(request: SendOTPRequest): Promise<SendOTPRespons
  * Get OTP status
  */
 export async function getOTPStatus(email: string, purpose: string): Promise<OTPStatusResponse> {
-  const authBffUrl = getAuthBffUrl();
-
   try {
     const params = new URLSearchParams({ email, purpose });
-    const response = await fetch(`${authBffUrl}/auth/otp/status?${params}`, {
+    const response = await fetch(`/auth/otp/status?${params}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
