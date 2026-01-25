@@ -21,7 +21,7 @@ export type ApprovalType =
   | 'vendor_commission_change'
   | 'vendor_contract_change'
   | 'vendor_large_payout';
-export type ApprovalStatus = 'pending' | 'approved' | 'rejected' | 'cancelled' | 'expired';
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected' | 'request_changes' | 'cancelled' | 'expired';
 
 export interface ApprovalRequest {
   id: string;

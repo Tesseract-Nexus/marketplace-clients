@@ -68,6 +68,7 @@ const getStatusBadge = (status: ApprovalStatus) => {
     pending: 'secondary',
     approved: 'default',
     rejected: 'destructive',
+    request_changes: 'outline',
     cancelled: 'outline',
     expired: 'outline',
   };
@@ -75,6 +76,7 @@ const getStatusBadge = (status: ApprovalStatus) => {
     pending: 'Pending',
     approved: 'Approved',
     rejected: 'Rejected',
+    request_changes: 'Needs Review',
     cancelled: 'Cancelled',
     expired: 'Expired',
   };
@@ -284,6 +286,7 @@ export default function ApprovalsPage() {
                       <SelectItem value="pending">Pending</SelectItem>
                       <SelectItem value="approved">Approved</SelectItem>
                       <SelectItem value="rejected">Rejected</SelectItem>
+                      <SelectItem value="request_changes">Needs Review</SelectItem>
                       <SelectItem value="cancelled">Cancelled</SelectItem>
                       <SelectItem value="expired">Expired</SelectItem>
                     </SelectContent>
