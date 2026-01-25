@@ -138,9 +138,10 @@ export default function ApprovalsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   // Dialog state
-  const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [actionDialogOpen, setActionDialogOpen] = useState(false);
+  const [actionType, setActionType] = useState<'approve' | 'reject' | 'request_changes'>('approve');
   const [selectedApproval, setSelectedApproval] = useState<ApprovalRequest | null>(null);
-  const [rejectReason, setRejectReason] = useState('');
+  const [actionComment, setActionComment] = useState('');
 
   const loadApprovals = useCallback(async () => {
     try {
@@ -164,7 +165,8 @@ export default function ApprovalsPage() {
     loadApprovals();
   }, [loadApprovals]);
 
-  const handleApprove = async (approval: ApprovalRequest) => {
+  // Quick approve without dialog
+  const handleQuickApprove = async (approval: ApprovalRequest) => {
     try {
       setActionLoading(approval.id);
       await approvalService.approve(approval.id);
@@ -176,23 +178,40 @@ export default function ApprovalsPage() {
     }
   };
 
-  const openRejectDialog = (approval: ApprovalRequest) => {
+  // Open action dialog
+  const openActionDialog = (approval: ApprovalRequest, type: 'approve' | 'reject' | 'request_changes') => {
     setSelectedApproval(approval);
-    setRejectReason('');
-    setRejectDialogOpen(true);
+    setActionType(type);
+    setActionComment('');
+    setActionDialogOpen(true);
   };
 
-  const handleReject = async () => {
-    if (!selectedApproval || !rejectReason.trim()) return;
+  // Handle action submission from dialog
+  const handleActionSubmit = async () => {
+    if (!selectedApproval) return;
+
+    // Reject and request_changes require a comment
+    if ((actionType === 'reject' || actionType === 'request_changes') && !actionComment.trim()) return;
+
     try {
       setActionLoading(selectedApproval.id);
-      await approvalService.reject(selectedApproval.id, { comment: rejectReason });
-      setRejectDialogOpen(false);
+
+      if (actionType === 'approve') {
+        await approvalService.approve(selectedApproval.id, actionComment ? { comment: actionComment } : undefined);
+      } else {
+        // Both reject and request_changes use the reject endpoint
+        const comment = actionType === 'request_changes'
+          ? `[Changes Requested] ${actionComment}`
+          : actionComment;
+        await approvalService.reject(selectedApproval.id, { comment });
+      }
+
+      setActionDialogOpen(false);
       setSelectedApproval(null);
-      setRejectReason('');
+      setActionComment('');
       await loadApprovals();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to reject');
+      setError(err instanceof Error ? err.message : `Failed to ${actionType === 'approve' ? 'approve' : 'reject'}`);
     } finally {
       setActionLoading(null);
     }
@@ -387,32 +406,55 @@ export default function ApprovalsPage() {
                       </Button>
                       <PermissionGate permission={Permission.APPROVALS_APPROVE}>
                         {approval.status === 'pending' && (
-                          <>
+                          <div className="flex flex-wrap items-center gap-2">
+                            {/* Approve dropdown with quick approve and approve with comment */}
+                            <div className="flex">
+                              <Button
+                                variant="default"
+                                size="sm"
+                                className="rounded-r-none"
+                                onClick={() => handleQuickApprove(approval)}
+                                disabled={actionLoading === approval.id}
+                              >
+                                {actionLoading === approval.id ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <>
+                                    <ThumbsUp className="w-4 h-4 mr-1" />
+                                    Approve
+                                  </>
+                                )}
+                              </Button>
+                              <Button
+                                variant="default"
+                                size="sm"
+                                className="rounded-l-none border-l border-primary-foreground/20 px-2"
+                                onClick={() => openActionDialog(approval, 'approve')}
+                                disabled={actionLoading === approval.id}
+                                title="Approve with comment"
+                              >
+                                +
+                              </Button>
+                            </div>
                             <Button
-                              variant="default"
+                              variant="outline"
                               size="sm"
-                              onClick={() => handleApprove(approval)}
+                              onClick={() => openActionDialog(approval, 'request_changes')}
                               disabled={actionLoading === approval.id}
                             >
-                              {actionLoading === approval.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <>
-                                  <ThumbsUp className="w-4 h-4 mr-1" />
-                                  Approve
-                                </>
-                              )}
+                              <Clock className="w-4 h-4 mr-1" />
+                              Review
                             </Button>
                             <Button
                               variant="destructive"
                               size="sm"
-                              onClick={() => openRejectDialog(approval)}
+                              onClick={() => openActionDialog(approval, 'reject')}
                               disabled={actionLoading === approval.id}
                             >
                               <ThumbsDown className="w-4 h-4 mr-1" />
                               Reject
                             </Button>
-                          </>
+                          </div>
                         )}
                       </PermissionGate>
                     </div>
@@ -422,36 +464,79 @@ export default function ApprovalsPage() {
             </div>
           )}
 
-          {/* Reject Dialog */}
-          <Dialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
-            <DialogContent>
+          {/* Action Dialog - Approve/Reject/Review */}
+          <Dialog open={actionDialogOpen} onOpenChange={setActionDialogOpen}>
+            <DialogContent className="max-w-lg">
               <DialogHeader>
-                <DialogTitle>Reject Approval Request</DialogTitle>
+                <DialogTitle>
+                  {actionType === 'approve' && 'Approve Request'}
+                  {actionType === 'reject' && 'Reject Request'}
+                  {actionType === 'request_changes' && 'Request Changes'}
+                </DialogTitle>
                 <DialogDescription>
-                  Please provide a reason for rejecting this request. This will be visible to the requester.
+                  {actionType === 'approve' && 'Add an optional comment for your approval.'}
+                  {actionType === 'reject' && 'Please provide a reason for rejecting this request. This is required.'}
+                  {actionType === 'request_changes' && 'Provide feedback on what changes are needed before approval.'}
                 </DialogDescription>
               </DialogHeader>
-              <div className="py-4">
+
+              {/* Request Details */}
+              {selectedApproval && (
+                <div className="bg-muted rounded-lg p-4 space-y-2">
+                  <div className="flex items-center gap-2">
+                    {getTypeIcon(selectedApproval.approvalType)}
+                    {getTypeBadge(selectedApproval.approvalType)}
+                    {selectedApproval.amount && (
+                      <span className="font-semibold">
+                        {formatCurrency(selectedApproval.amount, selectedApproval.currency)}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm font-medium">{selectedApproval.entityReference}</p>
+                  {selectedApproval.reason && (
+                    <p className="text-sm text-muted-foreground">{selectedApproval.reason}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Requested by {selectedApproval.requestedByName} on {formatDate(selectedApproval.createdAt)}
+                  </p>
+                </div>
+              )}
+
+              <div className="py-2">
+                <label className="text-sm font-medium mb-2 block">
+                  {actionType === 'approve' ? 'Comment (Optional)' : 'Comment (Required)'}
+                </label>
                 <Textarea
-                  placeholder="Enter rejection reason..."
-                  value={rejectReason}
-                  onChange={(e) => setRejectReason(e.target.value)}
+                  placeholder={
+                    actionType === 'approve'
+                      ? 'Add an optional comment...'
+                      : actionType === 'request_changes'
+                      ? 'Describe what changes are needed...'
+                      : 'Enter rejection reason...'
+                  }
+                  value={actionComment}
+                  onChange={(e) => setActionComment(e.target.value)}
                   rows={4}
                 />
               </div>
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setRejectDialogOpen(false)}>
+              <DialogFooter className="gap-2">
+                <Button variant="outline" onClick={() => setActionDialogOpen(false)}>
                   Cancel
                 </Button>
                 <Button
-                  variant="destructive"
-                  onClick={handleReject}
-                  disabled={!rejectReason.trim() || actionLoading !== null}
+                  variant={actionType === 'approve' ? 'default' : 'destructive'}
+                  onClick={handleActionSubmit}
+                  disabled={
+                    ((actionType === 'reject' || actionType === 'request_changes') && !actionComment.trim()) ||
+                    actionLoading !== null
+                  }
                 >
                   {actionLoading ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   ) : null}
-                  Reject Request
+                  {actionType === 'approve' && 'Approve'}
+                  {actionType === 'reject' && 'Reject'}
+                  {actionType === 'request_changes' && 'Request Changes'}
                 </Button>
               </DialogFooter>
             </DialogContent>
