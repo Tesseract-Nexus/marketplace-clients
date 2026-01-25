@@ -68,6 +68,7 @@ import { BulkImportModal } from '@/components/BulkImportModal';
 import { Upload } from 'lucide-react';
 import { StaffFormStep1, StaffFormStep2, StaffFormStep3, StaffFormStep4, StaffFormData, initialFormData, QuickAddForm, QuickAddData } from './components';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { useToast } from '@/contexts/ToastContext';
 
 type ViewMode = 'list' | 'create' | 'edit' | 'detail';
@@ -230,10 +231,108 @@ export default function StaffPage() {
   const statsData = useMemo(() => {
     const totalCount = staff.length;
     const activeCount = staff.filter(s => s.isActive).length;
+    const inactiveCount = staff.filter(s => !s.isActive).length;
     const invitedCount = staff.filter(s => s.accountStatus === 'pending_activation').length;
     const suspendedCount = staff.filter(s => s.accountStatus === 'suspended').length;
-    return { totalCount, activeCount, invitedCount, suspendedCount };
+    return { totalCount, activeCount, inactiveCount, invitedCount, suspendedCount };
   }, [staff]);
+
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Staff Health',
+      currentValue: statsData.activeCount,
+      totalValue: statsData.totalCount || 1,
+      status: statsData.suspendedCount === 0 ? 'healthy' : statsData.suspendedCount > 3 ? 'critical' : 'attention',
+      segments: [
+        { value: statsData.activeCount, color: 'success' },
+        { value: statsData.invitedCount, color: 'warning' },
+        { value: statsData.suspendedCount, color: 'error' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Staff Status',
+        items: [
+          {
+            id: 'total',
+            label: 'Total Staff',
+            value: statsData.totalCount,
+            icon: Users,
+            color: 'muted',
+            onClick: () => { setStatusFilter('ALL'); setActiveQuickFilters([]); },
+            isActive: statusFilter === 'ALL',
+          },
+          {
+            id: 'active',
+            label: 'Active',
+            value: statsData.activeCount,
+            icon: CheckCircle,
+            color: 'success',
+            onClick: () => { setStatusFilter('ACTIVE'); setActiveQuickFilters(['ACTIVE']); },
+            isActive: statusFilter === 'ACTIVE',
+          },
+          {
+            id: 'invited',
+            label: 'Pending Invite',
+            value: statsData.invitedCount,
+            icon: Send,
+            color: 'warning',
+            onClick: () => { setStatusFilter('INVITED'); setActiveQuickFilters(['INVITED']); },
+            isActive: statusFilter === 'INVITED',
+          },
+          {
+            id: 'suspended',
+            label: 'Suspended',
+            value: statsData.suspendedCount,
+            icon: XCircle,
+            color: 'error',
+            onClick: () => { setStatusFilter('SUSPENDED'); setActiveQuickFilters(['SUSPENDED']); },
+            isActive: statusFilter === 'SUSPENDED',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [statsData, statusFilter]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = useMemo(() => [
+    {
+      id: 'total',
+      label: 'Total',
+      value: statsData.totalCount,
+      icon: Users,
+      color: 'default',
+      onClick: () => { setStatusFilter('ALL'); setActiveQuickFilters([]); },
+    },
+    {
+      id: 'active',
+      label: 'Active',
+      value: statsData.activeCount,
+      icon: CheckCircle,
+      color: 'success',
+      onClick: () => { setStatusFilter('ACTIVE'); setActiveQuickFilters(['ACTIVE']); },
+    },
+    {
+      id: 'invited',
+      label: 'Invited',
+      value: statsData.invitedCount,
+      icon: Send,
+      color: 'warning',
+      onClick: () => { setStatusFilter('INVITED'); setActiveQuickFilters(['INVITED']); },
+    },
+    {
+      id: 'suspended',
+      label: 'Suspended',
+      value: statsData.suspendedCount,
+      icon: XCircle,
+      color: 'error',
+      onClick: () => { setStatusFilter('SUSPENDED'); setActiveQuickFilters(['SUSPENDED']); },
+    },
+  ], [statsData]);
 
   // Quick filters configuration
   const quickFilters: QuickFilter[] = useMemo(() => [
@@ -959,38 +1058,7 @@ export default function StaffPage() {
 
       <PageError error={error} onDismiss={() => setError(null)} />
 
-      {/* Compact Stats Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-            <Users className="h-3.5 w-3.5" />
-            Total Staff
-          </div>
-          <p className="text-xl font-bold text-foreground">{statsData.totalCount}</p>
-        </div>
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-            <CheckCircle className="h-3.5 w-3.5" />
-            Active
-          </div>
-          <p className="text-xl font-bold text-success">{statsData.activeCount}</p>
-        </div>
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-            <Send className="h-3.5 w-3.5" />
-            Pending Invite
-          </div>
-          <p className="text-xl font-bold text-warning">{statsData.invitedCount}</p>
-        </div>
-        <div className="bg-card rounded-lg border border-border p-3">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-            <XCircle className="h-3.5 w-3.5" />
-            Suspended
-          </div>
-          <p className="text-xl font-bold text-error">{statsData.suspendedCount}</p>
-        </div>
-      </div>
-
+      <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
       {/* Filter Panel with Quick Filters */}
       <FilterPanel
         searchValue={searchQuery}
@@ -1229,6 +1297,7 @@ export default function StaffPage() {
           onItemsPerPageChange={setItemsPerPage}
         />
       )}
+      </DataPageLayout>
 
         <ConfirmModal
           isOpen={modalConfig.isOpen}

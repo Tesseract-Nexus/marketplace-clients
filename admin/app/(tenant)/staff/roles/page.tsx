@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTenant } from '@/contexts/TenantContext';
 import { useToast } from '@/contexts/ToastContext';
 import {
@@ -51,6 +51,7 @@ import type {
   PermissionCategory,
 } from '@/lib/api/rbacTypes';
 import { getRolePriorityCategory, ROLE_PRIORITY_COLORS } from '@/lib/api/rbacTypes';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 
 const Badge = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn("inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors", className)} {...props}>
@@ -359,6 +360,55 @@ export default function RolesPage() {
       return next;
     });
   };
+
+  const systemRolesCount = roles.filter(r => r.isSystem).length;
+  const customRolesCount = roles.filter(r => !r.isSystem).length;
+
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Role Overview',
+      currentValue: roles.length,
+      totalValue: roles.length || 1,
+      status: roles.length === 0 ? 'attention' : 'healthy',
+      segments: [
+        { value: systemRolesCount, color: 'primary' },
+        { value: customRolesCount, color: 'success' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Role Types',
+        items: [
+          {
+            icon: Lock,
+            label: 'System Roles',
+            value: systemRolesCount,
+            color: 'primary',
+          },
+          {
+            icon: Shield,
+            label: 'Custom Roles',
+            value: customRolesCount,
+            color: 'success',
+          },
+          {
+            icon: CheckCircle,
+            label: 'Permissions',
+            value: allPermissions.length,
+          },
+        ] as SidebarStatItem[],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [roles.length, systemRolesCount, customRolesCount, allPermissions.length]);
+
+  const mobileStats = useMemo(() => [
+    { id: 'system', icon: Lock, label: 'System', value: systemRolesCount, color: 'primary' as const },
+    { id: 'custom', icon: Shield, label: 'Custom', value: customRolesCount, color: 'success' as const },
+    { id: 'permissions', icon: CheckCircle, label: 'Permissions', value: allPermissions.length },
+  ], [systemRolesCount, customRolesCount, allPermissions.length]);
 
   const getRoleBadge = (role: Role) => {
     const category = getRolePriorityCategory(role.priorityLevel);
@@ -835,6 +885,7 @@ export default function RolesPage() {
           </div>
         )}
 
+        <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
         <div className="bg-card rounded-lg border border-border overflow-hidden">
           <div className="p-6">
             <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -999,6 +1050,7 @@ export default function RolesPage() {
             onItemsPerPageChange={setItemsPerPage}
           />
         )}
+        </DataPageLayout>
 
         <ConfirmModal
           isOpen={modalConfig.isOpen}

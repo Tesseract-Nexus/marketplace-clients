@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useTenant } from '@/contexts/TenantContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -36,6 +36,7 @@ import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { BulkImportModal, EntityType } from '@/components/BulkImportModal';
 import { departmentService, teamService, roleService } from '@/lib/api/rbac';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import type {
   Department,
   DepartmentHierarchy,
@@ -411,6 +412,56 @@ export default function OrganizationPage() {
     const role = roles.find(r => r.id === roleId);
     return role?.displayName || role?.name || 'Unknown';
   };
+
+  const totalStaff = departments.reduce((acc, d) => acc + (d.staffCount || 0), 0);
+
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Organization Health',
+      currentValue: departments.length + teams.length,
+      totalValue: (departments.length + teams.length) || 1,
+      status: departments.length === 0 ? 'attention' : 'healthy',
+      segments: [
+        { value: departments.length, color: 'primary' },
+        { value: teams.length, color: 'success' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Organization',
+        items: [
+          {
+            icon: Building2,
+            label: 'Departments',
+            value: departments.length,
+            color: 'primary',
+            onClick: () => handleTabChange('hierarchy'),
+          },
+          {
+            icon: Users,
+            label: 'Teams',
+            value: teams.length,
+            color: 'success',
+            onClick: () => handleTabChange('teams'),
+          },
+          {
+            icon: UserCircle,
+            label: 'Total Staff',
+            value: totalStaff,
+          },
+        ] as SidebarStatItem[],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [departments.length, teams.length, totalStaff]);
+
+  const mobileStats = useMemo(() => [
+    { id: 'depts', icon: Building2, label: 'Depts', value: departments.length, color: 'primary' as const },
+    { id: 'teams', icon: Users, label: 'Teams', value: teams.length, color: 'success' as const },
+    { id: 'staff', icon: UserCircle, label: 'Staff', value: totalStaff },
+  ], [departments.length, teams.length, totalStaff]);
 
   // Render hierarchy tree recursively
   const renderHierarchyTree = (hierarchy: DepartmentHierarchy, level: number = 0) => {
@@ -1001,31 +1052,7 @@ export default function OrganizationPage() {
             </div>
           )}
 
-          {/* Stats Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-            <div className="bg-card rounded-lg border border-border p-3">
-              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                <Building2 className="h-3.5 w-3.5" />
-                Total Departments
-              </div>
-              <p className="text-xl font-bold text-foreground">{departments.length}</p>
-            </div>
-            <div className="bg-card rounded-lg border border-border p-3">
-              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                <Users className="h-3.5 w-3.5" />
-                Total Teams
-              </div>
-              <p className="text-xl font-bold text-success">{teams.length}</p>
-            </div>
-            <div className="bg-card rounded-lg border border-border p-3">
-              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                <UserCircle className="h-3.5 w-3.5" />
-                Total Staff
-              </div>
-              <p className="text-xl font-bold text-foreground">{departments.reduce((acc, d) => acc + (d.staffCount || 0), 0)}</p>
-            </div>
-          </div>
-
+          <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
           {/* Mobile Tab Selector */}
           <div className="md:hidden mb-4">
             <select
@@ -1229,6 +1256,7 @@ export default function OrganizationPage() {
               </div>
             </TabsContent>
           </Tabs>
+          </DataPageLayout>
 
           <ConfirmModal
             isOpen={modalConfig.isOpen}

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +47,7 @@ import {
   Shield,
   CalendarDays,
 } from 'lucide-react';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 
 const formatDate = (dateStr: string): string => {
   return new Date(dateStr).toLocaleDateString('en-US', {
@@ -238,6 +239,55 @@ export default function DelegationsPage() {
 
   const activeOutgoing = outgoing.filter((d) => getDelegationStatus(d) === 'active').length;
   const activeIncoming = incoming.filter((d) => getDelegationStatus(d) === 'active').length;
+  const totalDelegations = outgoing.length + incoming.length;
+
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Delegation Health',
+      currentValue: activeOutgoing + activeIncoming,
+      totalValue: totalDelegations || 1,
+      status: totalDelegations === 0 ? 'healthy' : (activeOutgoing + activeIncoming) > 0 ? 'healthy' : 'attention',
+      segments: [
+        { value: activeOutgoing, color: 'success' },
+        { value: activeIncoming, color: 'primary' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Delegation Status',
+        items: [
+          {
+            icon: ArrowUpRight,
+            label: 'Outgoing Active',
+            value: activeOutgoing,
+            color: 'success',
+            onClick: () => setActiveTab('outgoing'),
+          },
+          {
+            icon: ArrowDownLeft,
+            label: 'Incoming Active',
+            value: activeIncoming,
+            color: 'primary',
+            onClick: () => setActiveTab('incoming'),
+          },
+          {
+            icon: UserCheck,
+            label: 'Total Delegations',
+            value: totalDelegations,
+          },
+        ] as SidebarStatItem[],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [activeOutgoing, activeIncoming, totalDelegations]);
+
+  const mobileStats = useMemo(() => [
+    { id: 'outgoing', icon: ArrowUpRight, label: 'Outgoing', value: activeOutgoing, color: 'success' as const },
+    { id: 'incoming', icon: ArrowDownLeft, label: 'Incoming', value: activeIncoming, color: 'primary' as const },
+    { id: 'total', icon: UserCheck, label: 'Total', value: totalDelegations },
+  ], [activeOutgoing, activeIncoming, totalDelegations]);
 
   const renderDelegationCard = (delegation: Delegation, type: 'outgoing' | 'incoming') => {
     const status = getDelegationStatus(delegation);
@@ -381,31 +431,7 @@ export default function DelegationsPage() {
           {/* Hide content when there's a critical error */}
           {error && (error.toLowerCase().includes('permission') || error.toLowerCase().includes('forbidden') || error.toLowerCase().includes('unauthorized') || error.toLowerCase().includes('access denied') || error.toLowerCase().includes('admin portal')) ? null : (
           <>
-          {/* Compact Stats Row */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
-            <div className="bg-card rounded-lg border border-border p-3">
-              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                <ArrowUpRight className="h-3.5 w-3.5" />
-                Outgoing Active
-              </div>
-              <p className="text-xl font-bold text-foreground">{activeOutgoing}</p>
-            </div>
-            <div className="bg-card rounded-lg border border-border p-3">
-              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                <ArrowDownLeft className="h-3.5 w-3.5" />
-                Incoming Active
-              </div>
-              <p className="text-xl font-bold text-foreground">{activeIncoming}</p>
-            </div>
-            <div className="bg-card rounded-lg border border-border p-3">
-              <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
-                <UserCheck className="h-3.5 w-3.5" />
-                Total Delegations
-              </div>
-              <p className="text-xl font-bold text-foreground">{outgoing.length + incoming.length}</p>
-            </div>
-          </div>
-
+          <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
           {/* Filters */}
           <div className="bg-card rounded-lg border border-border p-4">
             <div className="flex items-center gap-4">
@@ -478,6 +504,7 @@ export default function DelegationsPage() {
               </TabsContent>
             </Tabs>
           )}
+          </DataPageLayout>
           </>
           )}
 
