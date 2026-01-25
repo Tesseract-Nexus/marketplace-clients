@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   ShoppingCart,
   TrendingUp,
@@ -12,12 +12,14 @@ import {
   Loader2,
   CheckSquare,
   Square,
+  Clock,
+  CheckCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
-import { StatsGrid } from '@/components/data-listing/StatsGrid';
+import { DataPageLayout, type HealthWidgetConfig, type SidebarStatItem } from '@/components/DataPageLayout';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
 import { apiClient } from '@/lib/api/client';
@@ -216,6 +218,48 @@ export default function AbandonedCartsPage() {
     return 'Guest';
   };
 
+  // Calculate stats for sidebar
+  const totalAbandoned = stats?.totalAbandoned || 0;
+  const pendingCount = stats?.pendingCount || 0;
+  const totalRecovered = stats?.totalRecovered || 0;
+  const recoveryRate = totalAbandoned > 0 ? Math.round((totalRecovered / totalAbandoned) * 100) : 0;
+
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Recovery Rate',
+      currentValue: totalRecovered,
+      totalValue: totalAbandoned || 1,
+      status: recoveryRate >= 30 ? 'healthy' : recoveryRate >= 15 ? 'attention' : 'critical',
+      segments: [
+        { value: totalRecovered, color: 'success' },
+        { value: pendingCount, color: 'warning' },
+        { value: totalAbandoned - totalRecovered - pendingCount, color: 'muted' },
+      ],
+    };
+
+    const sections = [
+      {
+        title: 'Cart Status',
+        items: [
+          { id: 'abandoned', icon: ShoppingCart, label: 'Total Abandoned', value: totalAbandoned, color: 'primary' as const },
+          { id: 'pending', icon: Mail, label: 'Pending Recovery', value: pendingCount, color: 'warning' as const },
+          { id: 'recovered', icon: TrendingUp, label: 'Recovered', value: totalRecovered, color: 'success' as const },
+          { id: 'value', icon: DollarSign, label: 'Recovered Value', value: formatCurrency(stats?.totalRecoveredValue || 0), color: 'success' as const },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [totalAbandoned, pendingCount, totalRecovered, recoveryRate, stats?.totalRecoveredValue]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = useMemo(() => [
+    { id: 'abandoned', icon: ShoppingCart, label: 'Abandoned', value: totalAbandoned, color: 'primary' as const },
+    { id: 'pending', icon: Clock, label: 'Pending', value: pendingCount, color: 'warning' as const },
+    { id: 'recovered', icon: CheckCircle, label: 'Recovered', value: totalRecovered, color: 'success' as const },
+  ], [totalAbandoned, pendingCount, totalRecovered]);
+
   return (
     <PermissionGate
       permission={Permission.ORDERS_VIEW}
@@ -235,17 +279,10 @@ export default function AbandonedCartsPage() {
           ]}
         />
 
-        {/* Summary Cards */}
-        <StatsGrid
-          stats={[
-            { label: 'Total Abandoned', value: formatNumber(stats?.totalAbandoned || 0), icon: ShoppingCart, color: 'primary' },
-            { label: 'Pending Recovery', value: formatNumber(stats?.pendingCount || 0), icon: Mail, color: 'warning' },
-            { label: 'Recovered', value: formatNumber(stats?.totalRecovered || 0), icon: TrendingUp, color: 'success' },
-            { label: 'Recovered Value', value: formatCurrency(stats?.totalRecoveredValue || 0), icon: DollarSign, color: 'primary' },
-          ]}
-          columns={4}
-        />
-
+        <DataPageLayout
+          sidebar={sidebarConfig}
+          mobileStats={mobileStats}
+        >
         {/* Filters and Actions */}
         <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
           <div className="flex items-center justify-between gap-4">
@@ -469,6 +506,8 @@ export default function AbandonedCartsPage() {
             </div>
           )}
         </div>
+
+        </DataPageLayout>
 
         {/* Cart Details Modal */}
         {showDetailsModal && selectedCart && (

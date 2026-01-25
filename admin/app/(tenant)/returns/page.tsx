@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { PackageX, Check, X, Eye, RefreshCw, Search, Clock, Truck, Package, CheckCircle, XCircle, RotateCcw, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
+import { DataPageLayout, type HealthWidgetConfig, type SidebarStatItem } from '@/components/DataPageLayout';
 import { formatDistanceToNow, format } from 'date-fns';
 import { useDialog } from '@/contexts/DialogContext';
 import { useTenant } from '@/contexts/TenantContext';
@@ -204,6 +205,49 @@ export default function ReturnsPage() {
     totalRefund: returns.reduce((sum, r) => sum + (r.refundAmount || 0), 0),
   };
 
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = useMemo(() => {
+    const processedCount = stats.approved + stats.completed;
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Return Processing',
+      currentValue: processedCount,
+      totalValue: stats.total || 1,
+      status: stats.pending === 0 ? 'healthy' : stats.pending > 5 ? 'critical' : 'attention',
+      segments: [
+        { value: stats.completed, color: 'success' },
+        { value: stats.approved, color: 'primary' },
+        { value: stats.pending, color: 'warning' },
+      ],
+    };
+
+    const sections = [
+      {
+        title: 'Return Status',
+        items: [
+          { id: 'total', icon: RotateCcw, label: 'Total Returns', value: stats.total, color: 'primary' as const },
+          { id: 'pending', icon: Clock, label: 'Pending', value: stats.pending, color: 'warning' as const },
+          { id: 'approved', icon: CheckCircle, label: 'Approved', value: stats.approved, color: 'primary' as const },
+          { id: 'completed', icon: Package, label: 'Completed', value: stats.completed, color: 'success' as const },
+        ],
+      },
+      {
+        title: 'Financials',
+        items: [
+          { id: 'refunds', icon: DollarSign, label: 'Total Refunds', value: `$${stats.totalRefund.toFixed(2)}`, color: 'success' as const },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [stats]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = useMemo(() => [
+    { id: 'total', icon: RotateCcw, label: 'Total', value: stats.total, color: 'primary' as const },
+    { id: 'pending', icon: Clock, label: 'Pending', value: stats.pending, color: 'warning' as const },
+    { id: 'completed', icon: CheckCircle, label: 'Completed', value: stats.completed, color: 'success' as const },
+  ], [stats]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -240,65 +284,10 @@ export default function ReturnsPage() {
           }
         />
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div className="bg-card rounded-xl border border-border p-4 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-muted rounded-lg">
-                <RotateCcw className="h-5 w-5 text-muted-foreground" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Returns</p>
-                <p className="text-2xl font-bold text-foreground">{stats.total}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-card rounded-xl border border-warning/30 p-4 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-warning-muted rounded-lg">
-                <Clock className="h-5 w-5 text-warning" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Pending</p>
-                <p className="text-2xl font-bold text-warning">{stats.pending}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-card rounded-xl border border-success/30 p-4 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-success-muted rounded-lg">
-                <CheckCircle className="h-5 w-5 text-success" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Approved</p>
-                <p className="text-2xl font-bold text-success">{stats.approved}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-card rounded-xl border border-success/30 p-4 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-success/10 rounded-lg">
-                <Package className="h-5 w-5 text-success" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Completed</p>
-                <p className="text-2xl font-bold text-success">{stats.completed}</p>
-              </div>
-            </div>
-          </div>
-          <div className="bg-card rounded-xl border border-primary/30 p-4 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/20 rounded-lg">
-                <DollarSign className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Total Refunds</p>
-                <p className="text-2xl font-bold text-primary">${stats.totalRefund.toFixed(2)}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        <DataPageLayout
+          sidebar={sidebarConfig}
+          mobileStats={mobileStats}
+        >
         {/* Filters */}
         <div className="bg-card rounded-xl border border-border p-4 shadow-sm">
           <div className="flex gap-4">
@@ -453,6 +442,7 @@ export default function ReturnsPage() {
             })}
           </div>
         )}
+        </DataPageLayout>
 
         {/* Details Dialog */}
         {isDetailsOpen && selectedReturn && (
