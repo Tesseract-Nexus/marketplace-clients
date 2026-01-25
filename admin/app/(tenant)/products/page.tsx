@@ -399,7 +399,7 @@ export default function ProductsPage() {
             maxOrderQty: product.maxOrderQty,
             lowStockThreshold: product.lowStockThreshold || 10,
             weight: product.weight || '',
-            currencyCode: product.currencyCode || 'USD',
+            currencyCode: product.currencyCode || storeCurrency || 'USD',
           });
         } else {
           setViewMode('detail');
@@ -817,7 +817,7 @@ export default function ProductsPage() {
       maxOrderQty: undefined,
       lowStockThreshold: 10,
       weight: '',
-      currencyCode: 'USD',
+      currencyCode: storeCurrency || 'USD',
       searchKeywords: '',
       tags: [],
       dimensions: {
