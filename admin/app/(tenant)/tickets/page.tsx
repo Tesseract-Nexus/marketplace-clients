@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'next/navigation';
-import { Plus, Eye, CheckCircle, Clock, XCircle, AlertTriangle, Ticket as TicketIcon, User, MessageSquare, AlertCircle, Loader2 } from 'lucide-react';
+import { Plus, Eye, CheckCircle, Clock, XCircle, AlertTriangle, Ticket as TicketIcon, User, MessageSquare, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
@@ -390,14 +390,26 @@ export default function TicketsPage() {
             { label: 'Tickets' },
           ]}
           actions={
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              className="bg-primary text-primary-foreground hover:opacity-90 w-full sm:w-auto"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Create Ticket</span>
-              <span className="sm:hidden">Create</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={loadTickets}
+                disabled={loading}
+                title="Refresh tickets"
+                className="h-10 w-10"
+              >
+                <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+              </Button>
+              <Button
+                onClick={() => setShowCreateModal(true)}
+                className="bg-primary text-primary-foreground hover:opacity-90 w-full sm:w-auto"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                <span className="hidden sm:inline">Create Ticket</span>
+                <span className="sm:hidden">Create</span>
+              </Button>
+            </div>
           }
         />
 
