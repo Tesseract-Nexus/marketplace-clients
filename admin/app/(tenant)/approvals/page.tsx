@@ -423,9 +423,8 @@ export default function ApprovalsPage() {
                             {/* Approve dropdown with quick approve and approve with comment */}
                             <div className="flex">
                               <Button
-                                variant="default"
                                 size="sm"
-                                className="rounded-r-none"
+                                className="rounded-r-none bg-green-600 hover:bg-green-700 text-white"
                                 onClick={() => handleQuickApprove(approval)}
                                 disabled={actionLoading === approval.id}
                               >
@@ -439,9 +438,8 @@ export default function ApprovalsPage() {
                                 )}
                               </Button>
                               <Button
-                                variant="default"
                                 size="sm"
-                                className="rounded-l-none border-l border-primary-foreground/20 px-2"
+                                className="rounded-l-none border-l border-green-500/30 px-2 bg-green-600 hover:bg-green-700 text-white"
                                 onClick={() => openActionDialog(approval, 'approve')}
                                 disabled={actionLoading === approval.id}
                                 title="Approve with comment"
@@ -537,7 +535,8 @@ export default function ApprovalsPage() {
                   Cancel
                 </Button>
                 <Button
-                  variant={actionType === 'approve' ? 'default' : 'destructive'}
+                  variant={actionType === 'reject' ? 'destructive' : 'default'}
+                  className={actionType === 'approve' ? 'bg-green-600 hover:bg-green-700 text-white' : ''}
                   onClick={handleActionSubmit}
                   disabled={
                     ((actionType === 'reject' || actionType === 'request_changes') && !actionComment.trim()) ||
