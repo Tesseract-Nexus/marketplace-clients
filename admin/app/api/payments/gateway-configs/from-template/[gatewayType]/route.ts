@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceUrl } from '@/lib/config/api';
 import { proxyToBackend, handleApiError } from '@/lib/utils/api-route-handler';
-import { getServerSession } from '@/lib/auth/session';
 
 const PAYMENTS_SERVICE_URL = getServiceUrl('PAYMENTS');
 
@@ -34,11 +33,6 @@ const CREDENTIAL_MAPPINGS: Record<string, Record<string, string>> = {
     merchant_id: 'merchantAccountId',
     api_key: 'apiKeySecret',
   },
-  PHONEPE: {
-    merchant_id: 'merchantAccountId',
-    salt_key: 'apiKeySecret',
-    salt_index: 'webhookSecret',
-  },
 };
 
 /**
@@ -50,7 +44,6 @@ const DISPLAY_NAMES: Record<string, string> = {
   RAZORPAY: 'Razorpay',
   AFTERPAY: 'Afterpay',
   ZIP: 'Zip Pay',
-  PHONEPE: 'PhonePe',
 };
 
 /**
@@ -62,7 +55,6 @@ const SUPPORTED_COUNTRIES: Record<string, string[]> = {
   RAZORPAY: ['IN'],
   AFTERPAY: ['AU', 'NZ', 'US', 'GB'],
   ZIP: ['AU', 'NZ', 'US'],
-  PHONEPE: ['IN'],
 };
 
 /**
@@ -74,7 +66,6 @@ const SUPPORTED_METHODS: Record<string, string[]> = {
   RAZORPAY: ['CARD', 'UPI', 'NET_BANKING', 'WALLET', 'EMI'],
   AFTERPAY: ['PAY_LATER'],
   ZIP: ['PAY_LATER'],
-  PHONEPE: ['UPI', 'WALLET'],
 };
 
 /**
@@ -85,15 +76,6 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const { gatewayType } = await params;
 
   try {
-    // Verify authentication
-    const session = await getServerSession(request);
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized', message: 'Authentication required' },
-        { status: 401 }
-      );
-    }
-
     const body = await request.json();
     const { credentials, isTestMode } = body;
 

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from '@/lib/auth/session';
 
 /**
  * Payment Gateway Templates
@@ -116,51 +115,14 @@ const GATEWAY_TEMPLATES: PaymentGatewayTemplate[] = [
     supportsPlatformSplit: false,
     isActive: true,
   },
-  {
-    id: 'phonepe-template',
-    gatewayType: 'PHONEPE',
-    displayName: 'PhonePe',
-    description: 'Popular UPI payment gateway in India with wide reach.',
-    logoUrl: '/logos/phonepe.svg',
-    supportedCountries: ['IN'],
-    supportedPaymentMethods: ['UPI', 'WALLET'],
-    requiredCredentials: ['merchant_id', 'salt_key', 'salt_index'],
-    setupInstructions: `
-1. Register as a PhonePe merchant at https://business.phonepe.com
-2. Complete KYC verification
-3. Access your merchant dashboard
-4. Go to Integration → API Keys
-5. Copy your Merchant ID, Salt Key, and Salt Index
-    `.trim(),
-    supportsPlatformSplit: false,
-    isActive: false,
-  },
 ];
 
 /**
  * GET /api/payments/gateway-configs/templates
  * Returns available payment gateway templates
  */
-export async function GET(request: NextRequest) {
-  try {
-    // Verify authentication
-    const session = await getServerSession(request);
-    if (!session) {
-      return NextResponse.json(
-        { error: 'Unauthorized', message: 'Authentication required' },
-        { status: 401 }
-      );
-    }
-
-    // Filter to only active templates
-    const activeTemplates = GATEWAY_TEMPLATES.filter(t => t.isActive);
-
-    return NextResponse.json(activeTemplates, { status: 200 });
-  } catch (error) {
-    console.error('Error fetching gateway templates:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch gateway templates', message: String(error) },
-      { status: 500 }
-    );
-  }
+export async function GET(_request: NextRequest) {
+  // Filter to only active templates
+  const activeTemplates = GATEWAY_TEMPLATES.filter(t => t.isActive);
+  return NextResponse.json(activeTemplates, { status: 200 });
 }
