@@ -183,12 +183,18 @@ export default function ShippingSettingsPage() {
   };
 
   const loadSettings = async () => {
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      console.warn('[ShippingSettings] No tenant ID available');
+      return;
+    }
+
     try {
       setLoading(true);
       const settings = await settingsService.getSettingsByContext({
         applicationId: 'admin-portal',
         scope: 'application',
-        tenantId: currentTenant?.id,
+        tenantId: tenantId,
       });
 
       if (settings?.ecommerce) {
@@ -233,6 +239,12 @@ export default function ShippingSettingsPage() {
       return;
     }
 
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      showError('Error', 'No tenant available. Please try again.');
+      return;
+    }
+
     try {
       setSaving(true);
       const mergedEcommerce = { ...existingEcommerce, shipping: shippingData };
@@ -240,15 +252,15 @@ export default function ShippingSettingsPage() {
         context: {
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: currentTenant?.id,
+          tenantId: tenantId,
         },
         ecommerce: mergedEcommerce,
       };
 
       if (settingsId) {
-        await settingsService.updateSettings(settingsId, payload as never, currentTenant?.id);
+        await settingsService.updateSettings(settingsId, payload as never, tenantId);
       } else {
-        const newSettings = await settingsService.createSettings(payload as never, currentTenant?.id);
+        const newSettings = await settingsService.createSettings(payload as never, tenantId);
         setSettingsId(newSettings.id);
       }
 

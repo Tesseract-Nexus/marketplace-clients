@@ -147,15 +147,21 @@ export function CarrierConfigTab() {
   };
 
   const loadStoreLocation = async () => {
+    // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      console.warn('[CarrierConfigTab] No tenant ID available');
+      return;
+    }
+
     try {
       setLoadingLocation(true);
-      const storefronts = await storefrontService.getStorefronts();
-      if (storefronts.data && storefronts.data.length > 0) {
-        const settings = await settingsService.getSettingsByContext({
-          applicationId: 'admin-portal',
-          scope: 'application',
-          tenantId: currentTenant?.id,
-        });
+      const settings = await settingsService.getSettingsByContext({
+        applicationId: 'admin-portal',
+        scope: 'application',
+        tenantId: tenantId,
+      });
+      if (settings) {
 
         if (settings?.ecommerce?.store?.address?.country) {
           const countryName = settings.ecommerce.store.address.country;

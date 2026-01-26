@@ -107,12 +107,18 @@ export default function MarketingSettingsPage() {
   };
 
   const loadSettings = async () => {
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      console.warn('[MarketingSettings] No tenant ID available');
+      return;
+    }
+
     try {
       setLoading(true);
       const settings = await settingsService.getSettingsByContext({
         applicationId: 'admin-portal',
         scope: 'application',
-        tenantId: currentTenant?.id,
+        tenantId: tenantId,
       });
 
       // Store the full settings object to preserve other sections when saving
@@ -167,6 +173,12 @@ export default function MarketingSettingsPage() {
       return;
     }
 
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      showError('Error', 'No tenant available. Please try again.');
+      return;
+    }
+
     try {
       setSaving(true);
 
@@ -174,15 +186,15 @@ export default function MarketingSettingsPage() {
         context: {
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: currentTenant?.id,
+          tenantId: tenantId,
         },
         marketing: marketingData,
       };
 
       if (settingsId) {
-        await settingsService.updateSettings(settingsId, payload as any, currentTenant?.id);
+        await settingsService.updateSettings(settingsId, payload as any, tenantId);
       } else {
-        const newSettings = await settingsService.createSettings(payload as any, currentTenant?.id);
+        const newSettings = await settingsService.createSettings(payload as any, tenantId);
         setSettingsId(newSettings.id);
       }
 

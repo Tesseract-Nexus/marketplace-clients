@@ -115,6 +115,12 @@ export default function ShippingCarriersSettingsPage() {
   }, [currentTenant?.id]);
 
   const loadShippingStatus = async () => {
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      console.warn('[ShippingCarriersSettings] No tenant ID available');
+      return;
+    }
+
     try {
       setLoading(true);
       const [carriersData, storefronts] = await Promise.all([
@@ -128,7 +134,7 @@ export default function ShippingCarriersSettingsPage() {
         const settings = await settingsService.getSettingsByContext({
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: currentTenant?.id,
+          tenantId: tenantId,
         });
 
         if (settings?.ecommerce?.store?.address?.country) {

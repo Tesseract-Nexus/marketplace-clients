@@ -98,12 +98,19 @@ export default function CatalogSettingsPage() {
   };
 
   const loadSettings = async () => {
+    // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      console.warn('[CatalogSettings] No tenant ID available');
+      return;
+    }
+
     try {
       setLoading(true);
       const settings = await settingsService.getSettingsByContext({
         applicationId: 'admin-portal',
         scope: 'application',
-        tenantId: currentTenant?.id,
+        tenantId: tenantId,
       });
 
       // Store the full ecommerce object to preserve other sections when saving
@@ -139,6 +146,12 @@ export default function CatalogSettingsPage() {
       return;
     }
 
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      showError('Error', 'No tenant available. Please try again.');
+      return;
+    }
+
     try {
       setSaving(true);
       // Merge current section with existing ecommerce data to preserve other sections
@@ -151,15 +164,15 @@ export default function CatalogSettingsPage() {
         context: {
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: currentTenant?.id,
+          tenantId: tenantId,
         },
         ecommerce: mergedEcommerce,
       };
 
       if (settingsId) {
-        await settingsService.updateSettings(settingsId, payload as any, currentTenant?.id);
+        await settingsService.updateSettings(settingsId, payload as any, tenantId);
       } else {
-        const newSettings = await settingsService.createSettings(payload as any, currentTenant?.id);
+        const newSettings = await settingsService.createSettings(payload as any, tenantId);
         setSettingsId(newSettings.id);
       }
 
