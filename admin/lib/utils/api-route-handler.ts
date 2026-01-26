@@ -329,6 +329,22 @@ export async function getProxyHeaders(incomingRequest?: Request, additionalHeade
     }
   }
 
+  // FALLBACK: If tenant_id is still not set (JWT doesn't have tenant_id claim),
+  // try to get it from BFF session. This handles the case where:
+  // 1. Browser sends Authorization header (so bffToken wasn't fetched above)
+  // 2. But the JWT doesn't contain tenant_id (Keycloak doesn't include custom claims by default)
+  // 3. BFF session has tenant_id from the login flow
+  if (!headers['x-jwt-claim-tenant-id'] && incomingRequest) {
+    // Only fetch BFF token if we haven't already
+    if (!bffToken) {
+      bffToken = await getBffAccessToken(incomingRequest);
+    }
+    if (bffToken?.tenant_id) {
+      headers['x-jwt-claim-tenant-id'] = bffToken.tenant_id;
+      logger.debug('[Proxy Headers] Got tenant_id from BFF session:', bffToken.tenant_id);
+    }
+  }
+
   return {
     ...headers,
     ...additionalHeaders,
@@ -419,6 +435,17 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
         logger.debug('[Proxy Headers] Tenant override - JWT:', jwtTenant, '-> Incoming:', incomingTenantId);
       }
       headers['x-jwt-claim-tenant-id'] = incomingTenantId;
+    }
+  }
+
+  // FALLBACK: If tenant_id is still not set, try to get it from BFF session
+  // This handles the case where JWT doesn't have tenant_id claim (common with Keycloak)
+  // but the BFF session has tenant_id from the login flow
+  if (!headers['x-jwt-claim-tenant-id'] && incomingRequest) {
+    const bffToken = await getAccessTokenFromBFF();
+    if (bffToken?.tenant_id) {
+      headers['x-jwt-claim-tenant-id'] = bffToken.tenant_id;
+      logger.debug('[Proxy Headers Async] Got tenant_id from BFF session fallback:', bffToken.tenant_id);
     }
   }
 
