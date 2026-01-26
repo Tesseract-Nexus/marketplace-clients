@@ -102,19 +102,31 @@ export function GatewayConfigTab() {
   }, []);
 
   const loadData = async () => {
-    try {
-      setLoading(true);
-      const [gatewaysData, templatesData] = await Promise.all([
-        paymentsService.getGatewayConfigs(),
-        paymentsService.getGatewayTemplates(),
-      ]);
-      setGateways(gatewaysData);
-      setTemplates(templatesData);
-    } catch (error) {
-      console.error('Failed to load payment data:', error);
-    } finally {
-      setLoading(false);
+    setLoading(true);
+
+    // Load gateway configs and templates independently so one failure doesn't block the other
+    const [gatewaysResult, templatesResult] = await Promise.allSettled([
+      paymentsService.getGatewayConfigs(),
+      paymentsService.getGatewayTemplates(),
+    ]);
+
+    // Set gateways if successful
+    if (gatewaysResult.status === 'fulfilled') {
+      setGateways(gatewaysResult.value);
+    } else {
+      console.error('Failed to load gateway configs:', gatewaysResult.reason);
+      setGateways([]);
     }
+
+    // Set templates if successful
+    if (templatesResult.status === 'fulfilled') {
+      setTemplates(templatesResult.value);
+    } else {
+      console.error('Failed to load gateway templates:', templatesResult.reason);
+      setTemplates([]);
+    }
+
+    setLoading(false);
   };
 
   const loadStoreLocation = async () => {
