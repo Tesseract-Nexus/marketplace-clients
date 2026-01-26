@@ -169,7 +169,7 @@ const navigation: NavItem[] = [
     hidden: false,
     children: [
       { name: "All Customers", href: "/customers" },
-      { name: "Segments", href: "/customer-segments", minRole: "manager" },
+      { name: "Segments", href: "/customer-segments", minRole: "manager", hidden: true }, // Disabled for now - enable in future
       { name: "Reviews", href: "/reviews" },
     ],
   }, // All roles (read-only for viewer)
