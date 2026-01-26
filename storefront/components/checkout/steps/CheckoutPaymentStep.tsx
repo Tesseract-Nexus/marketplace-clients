@@ -10,6 +10,7 @@ import { useLocalization } from '@/context/TenantContext';
 import { CouponInput } from '@/components/checkout/CouponInput';
 import { GiftCardInput } from '@/components/checkout/GiftCardInput';
 import { LoyaltyPointsRedemption } from '@/components/checkout/LoyaltyPointsRedemption';
+import { PaymentMethodSelector, EnabledPaymentMethod } from '@/components/checkout/PaymentMethodSelector';
 import { useCartStore } from '@/store/cart';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 import { cn } from '@/lib/utils';
@@ -19,6 +20,11 @@ interface CheckoutPaymentStepProps {
   orderSubtotal: number;
   shipping: number;
   tax: number;
+  // New props for dynamic payment methods
+  enabledPaymentMethods?: EnabledPaymentMethod[];
+  selectedPaymentMethod?: string | null;
+  onPaymentMethodSelect?: (code: string) => void;
+  isLoadingPaymentMethods?: boolean;
 }
 
 export function CheckoutPaymentStep({
@@ -26,6 +32,10 @@ export function CheckoutPaymentStep({
   orderSubtotal,
   shipping,
   tax,
+  enabledPaymentMethods = [],
+  selectedPaymentMethod = null,
+  onPaymentMethodSelect,
+  isLoadingPaymentMethods = false,
 }: CheckoutPaymentStepProps) {
   const {
     billingAddressSameAsShipping,
@@ -60,6 +70,13 @@ export function CheckoutPaymentStep({
   // Validate and proceed
   const handleContinue = () => {
     setError(null);
+
+    // If dynamic payment methods are available, ensure one is selected
+    if (enabledPaymentMethods.length > 0 && !selectedPaymentMethod) {
+      setError('Please select a payment method to continue.');
+      return;
+    }
+
     nextStep();
   };
 
@@ -85,68 +102,92 @@ export function CheckoutPaymentStep({
         </div>
       </div>
 
-      {/* Payment Gateway Info */}
-      <div className="relative overflow-hidden rounded-xl border bg-gradient-to-br from-muted/30 to-transparent mb-6">
-        <div className="p-4">
-          <div className="flex items-start gap-4">
-            {/* Gateway Logo */}
-            <div className={cn(
-              "flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center shadow-md",
-              gatewayType === 'razorpay'
-                ? "bg-gradient-to-br from-blue-500 to-blue-700"
-                : "bg-gradient-to-br from-indigo-500 to-purple-600"
-            )}>
-              {gatewayType === 'razorpay' ? (
-                <span className="text-white font-bold text-xl">R</span>
-              ) : (
-                <span className="text-white font-bold text-xl">S</span>
-              )}
-            </div>
-
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <h4 className="font-semibold text-lg">
-                  {gatewayType === 'razorpay' ? 'Razorpay' : 'Stripe'} <TranslatedUIText text="Checkout" />
-                </h4>
-                <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-2 py-0.5 rounded-full">
-                  <Shield className="h-3 w-3" />
-                  <TranslatedUIText text="Secure" />
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground mb-3">
-                <TranslatedUIText text="You'll be redirected to complete payment securely after placing your order." />
-              </p>
-
-              {/* Supported Payment Methods */}
-              <div className="flex flex-wrap gap-2">
-                <span className="text-xs px-2 py-1 bg-background rounded border flex items-center gap-1">
-                  <CreditCard className="h-3 w-3" /> Cards
-                </span>
-                {gatewayType === 'razorpay' && (
-                  <>
-                    <span className="text-xs px-2 py-1 bg-background rounded border">UPI</span>
-                    <span className="text-xs px-2 py-1 bg-background rounded border">Netbanking</span>
-                    <span className="text-xs px-2 py-1 bg-background rounded border">Wallets</span>
-                  </>
-                )}
-                {gatewayType === 'stripe' && (
-                  <>
-                    <span className="text-xs px-2 py-1 bg-background rounded border">Apple Pay</span>
-                    <span className="text-xs px-2 py-1 bg-background rounded border">Google Pay</span>
-                    <span className="text-xs px-2 py-1 bg-background rounded border">Link</span>
-                  </>
+      {/* Payment Method Selection */}
+      {enabledPaymentMethods.length > 0 || isLoadingPaymentMethods ? (
+        <div className="mb-6">
+          <h3 className="font-semibold mb-3 flex items-center gap-2">
+            <CreditCard className="h-4 w-4" />
+            <TranslatedUIText text="Select Payment Method" />
+          </h3>
+          <PaymentMethodSelector
+            methods={enabledPaymentMethods}
+            selectedMethod={selectedPaymentMethod}
+            onSelect={onPaymentMethodSelect || (() => {})}
+            isLoading={isLoadingPaymentMethods}
+            disabled={isProcessing}
+            orderTotal={orderTotal}
+            currency={localization.currency}
+          />
+          {/* Currency info */}
+          <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
+            <Globe className="h-3 w-3" />
+            <TranslatedUIText text="Currency:" /> {localization.currency}
+          </div>
+        </div>
+      ) : (
+        /* Fallback: Legacy Payment Gateway Info (when no dynamic methods available) */
+        <div className="relative overflow-hidden rounded-xl border bg-gradient-to-br from-muted/30 to-transparent mb-6">
+          <div className="p-4">
+            <div className="flex items-start gap-4">
+              {/* Gateway Logo */}
+              <div className={cn(
+                "flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center shadow-md",
+                gatewayType === 'razorpay'
+                  ? "bg-gradient-to-br from-blue-500 to-blue-700"
+                  : "bg-gradient-to-br from-indigo-500 to-purple-600"
+              )}>
+                {gatewayType === 'razorpay' ? (
+                  <span className="text-white font-bold text-xl">R</span>
+                ) : (
+                  <span className="text-white font-bold text-xl">S</span>
                 )}
               </div>
 
-              {/* Currency info */}
-              <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
-                <Globe className="h-3 w-3" />
-                <TranslatedUIText text="Currency:" /> {localization.currency}
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <h4 className="font-semibold text-lg">
+                    {gatewayType === 'razorpay' ? 'Razorpay' : 'Stripe'} <TranslatedUIText text="Checkout" />
+                  </h4>
+                  <span className="flex items-center gap-1 text-xs bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-2 py-0.5 rounded-full">
+                    <Shield className="h-3 w-3" />
+                    <TranslatedUIText text="Secure" />
+                  </span>
+                </div>
+                <p className="text-sm text-muted-foreground mb-3">
+                  <TranslatedUIText text="You'll be redirected to complete payment securely after placing your order." />
+                </p>
+
+                {/* Supported Payment Methods */}
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-xs px-2 py-1 bg-background rounded border flex items-center gap-1">
+                    <CreditCard className="h-3 w-3" /> Cards
+                  </span>
+                  {gatewayType === 'razorpay' && (
+                    <>
+                      <span className="text-xs px-2 py-1 bg-background rounded border">UPI</span>
+                      <span className="text-xs px-2 py-1 bg-background rounded border">Netbanking</span>
+                      <span className="text-xs px-2 py-1 bg-background rounded border">Wallets</span>
+                    </>
+                  )}
+                  {gatewayType === 'stripe' && (
+                    <>
+                      <span className="text-xs px-2 py-1 bg-background rounded border">Apple Pay</span>
+                      <span className="text-xs px-2 py-1 bg-background rounded border">Google Pay</span>
+                      <span className="text-xs px-2 py-1 bg-background rounded border">Link</span>
+                    </>
+                  )}
+                </div>
+
+                {/* Currency info */}
+                <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
+                  <Globe className="h-3 w-3" />
+                  <TranslatedUIText text="Currency:" /> {localization.currency}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Billing Address Toggle */}
       <div className="flex items-center gap-3 p-4 rounded-lg border mb-6">

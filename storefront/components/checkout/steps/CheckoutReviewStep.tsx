@@ -26,6 +26,9 @@ interface CheckoutReviewStepProps {
   total: number;
   onPlaceOrder: () => void;
   onRetryPayment?: () => void;
+  // Dynamic payment method info
+  selectedPaymentMethodName?: string;
+  selectedPaymentMethodProvider?: string;
 }
 
 export function CheckoutReviewStep({
@@ -40,6 +43,8 @@ export function CheckoutReviewStep({
   total,
   onPlaceOrder,
   onRetryPayment,
+  selectedPaymentMethodName,
+  selectedPaymentMethodProvider,
 }: CheckoutReviewStepProps) {
   const {
     contactInfo,
@@ -225,12 +230,15 @@ export function CheckoutReviewStep({
             <div className="flex items-center gap-2">
               <div className={cn(
                 "w-6 h-6 rounded flex items-center justify-center text-white text-xs font-bold",
-                gatewayType === 'razorpay' ? "bg-blue-600" : "bg-indigo-600"
+                (selectedPaymentMethodProvider === 'Razorpay' || gatewayType === 'razorpay') ? "bg-blue-600" : "bg-indigo-600"
               )}>
-                {gatewayType === 'razorpay' ? 'R' : 'S'}
+                {(selectedPaymentMethodProvider === 'Razorpay' || gatewayType === 'razorpay') ? 'R' :
+                 selectedPaymentMethodProvider === 'PayPal' ? 'P' :
+                 selectedPaymentMethodProvider === 'Afterpay' ? 'A' :
+                 selectedPaymentMethodProvider === 'Zip' ? 'Z' : 'S'}
               </div>
               <span className="font-medium">
-                {gatewayType === 'razorpay' ? 'Razorpay' : 'Stripe'}
+                {selectedPaymentMethodName || (gatewayType === 'razorpay' ? 'Razorpay' : 'Stripe')}
               </span>
             </div>
             <p className="text-muted-foreground flex items-center gap-1">

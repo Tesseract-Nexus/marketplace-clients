@@ -7,6 +7,8 @@ export interface Customer {
   firstName: string;
   lastName: string;
   phone?: string;
+  country?: string; // Full country name (e.g., "Australia")
+  countryCode?: string; // ISO 2-letter code (e.g., "AU") - used for payment method filtering
   tenantId?: string; // Tenant the customer belongs to
   status?: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
   customerType?: 'RETAIL' | 'WHOLESALE' | 'VIP';

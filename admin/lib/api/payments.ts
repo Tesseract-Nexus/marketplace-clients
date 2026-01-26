@@ -137,6 +137,112 @@ export interface PaymentMethodInfo {
   gatewayType: GatewayType;
 }
 
+// ==================== Payment Methods Configuration ====================
+
+export interface PaymentMethod {
+  id: string;
+  code: string;
+  name: string;
+  description: string;
+  provider: string;
+  type: 'card' | 'wallet' | 'bnpl' | 'upi' | 'netbanking' | 'gateway' | 'cod' | 'bank';
+  supportedRegions: string[];
+  supportedCurrencies: string[];
+  iconUrl: string;
+  transactionFeePercent: number;
+  transactionFeeFixed: number;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PaymentMethodResponse extends PaymentMethod {
+  isConfigured: boolean;
+  isEnabled: boolean;
+  isTestMode: boolean;
+  enabledRegions?: string[]; // Regions tenant has enabled for this method
+  lastTestAt?: string;
+  lastTestSuccess?: boolean;
+  configId?: string;
+}
+
+export interface PaymentConfigSettings {
+  displayName?: string;
+  customIconUrl?: string;
+  checkoutMessage?: string;
+  minOrderAmount?: number;
+  maxOrderAmount?: number;
+  webhookUrl?: string;
+  merchantName?: string;
+  merchantCategory?: string;
+}
+
+export interface PaymentCredentials {
+  // Stripe
+  stripePublishableKey?: string;
+  stripeSecretKey?: string;
+  stripeWebhookSecret?: string;
+  // PayPal
+  paypalClientId?: string;
+  paypalClientSecret?: string;
+  // Razorpay
+  razorpayKeyId?: string;
+  razorpayKeySecret?: string;
+  razorpayWebhookSecret?: string;
+  // Afterpay
+  afterpayMerchantId?: string;
+  afterpaySecretKey?: string;
+  // Zip
+  zipMerchantId?: string;
+  zipApiKey?: string;
+}
+
+export interface TenantPaymentConfig {
+  id: string;
+  tenantId: string;
+  paymentMethodCode: string;
+  isEnabled: boolean;
+  isTestMode: boolean;
+  displayOrder: number;
+  enabledRegions?: string[]; // Regions enabled for this method
+  settings: PaymentConfigSettings;
+  lastTestAt?: string;
+  lastTestSuccess?: boolean;
+  lastTestMessage?: string;
+  createdAt: string;
+  updatedAt: string;
+  paymentMethod?: PaymentMethod;
+}
+
+export interface UpdatePaymentConfigRequest {
+  isEnabled?: boolean;
+  isTestMode?: boolean;
+  displayOrder?: number;
+  enabledRegions?: string[]; // Regions to enable for this method
+  credentials?: PaymentCredentials;
+  settings?: PaymentConfigSettings;
+}
+
+export interface TestPaymentConnectionResponse {
+  success: boolean;
+  message: string;
+  testedAt: string;
+  provider: string;
+  isTestMode: boolean;
+}
+
+export interface EnabledPaymentMethod {
+  code: string;
+  name: string;
+  description?: string;
+  provider: string;
+  type: string;
+  iconUrl?: string;
+  displayOrder: number;
+  installmentInfo?: string;
+}
+
 export interface CreateGatewayFromTemplateRequest {
   credentials: Record<string, string>;
   isTestMode: boolean;
@@ -376,6 +482,88 @@ export class PaymentsService {
   async updatePaymentSettings(settings: Partial<PaymentSettings>): Promise<PaymentSettings> {
     const response = await apiClient.put<PaymentSettings>(`${this.baseUrl}/payment-settings`, settings);
     return response as PaymentSettings;
+  }
+
+  // ==================== Payment Methods Configuration ====================
+
+  /**
+   * Get available payment methods with tenant configuration status
+   * @param region Optional region filter (e.g., 'AU', 'IN', 'US')
+   */
+  async getPaymentMethods(region?: string): Promise<{ paymentMethods: PaymentMethodResponse[]; region: string }> {
+    const params = region ? `?region=${region}` : '';
+    const response = await apiClient.get<{ data: { paymentMethods: PaymentMethodResponse[]; region: string } }>(
+      `${this.baseUrl}/methods${params}`
+    );
+    return (response as { data: { paymentMethods: PaymentMethodResponse[]; region: string } }).data;
+  }
+
+  /**
+   * Get all payment configurations for the tenant
+   */
+  async getPaymentConfigs(): Promise<PaymentMethodResponse[]> {
+    const response = await apiClient.get<{ data: { paymentConfigs: PaymentMethodResponse[] } }>(
+      `${this.baseUrl}/configs`
+    );
+    return (response as { data: { paymentConfigs: PaymentMethodResponse[] } }).data.paymentConfigs;
+  }
+
+  /**
+   * Get a specific payment method configuration
+   */
+  async getPaymentConfig(code: string): Promise<TenantPaymentConfig> {
+    const response = await apiClient.get<{ data: TenantPaymentConfig }>(
+      `${this.baseUrl}/configs/${code}`
+    );
+    return (response as { data: TenantPaymentConfig }).data;
+  }
+
+  /**
+   * Update a payment method configuration
+   * Requires: payments:methods:config permission (Owner only)
+   */
+  async updatePaymentConfig(code: string, config: UpdatePaymentConfigRequest): Promise<TenantPaymentConfig> {
+    const response = await apiClient.put<{ data: TenantPaymentConfig }>(
+      `${this.baseUrl}/configs/${code}`,
+      config
+    );
+    return (response as { data: TenantPaymentConfig }).data;
+  }
+
+  /**
+   * Enable or disable a payment method
+   * Requires: payments:methods:enable permission (Owner + Admin)
+   */
+  async enablePaymentMethod(code: string, enabled: boolean): Promise<TenantPaymentConfig> {
+    const response = await apiClient.post<{ data: TenantPaymentConfig }>(
+      `${this.baseUrl}/configs/${code}/enable`,
+      { enabled }
+    );
+    return (response as { data: TenantPaymentConfig }).data;
+  }
+
+  /**
+   * Test connection to a payment provider
+   * Requires: payments:methods:test permission (Owner + Admin)
+   */
+  async testPaymentConnection(code: string): Promise<TestPaymentConnectionResponse> {
+    const response = await apiClient.post<{ data: TestPaymentConnectionResponse }>(
+      `${this.baseUrl}/configs/${code}/test`,
+      {}
+    );
+    return (response as { data: TestPaymentConnectionResponse }).data;
+  }
+
+  /**
+   * Get enabled payment methods for checkout
+   * @param region Optional region filter
+   */
+  async getEnabledPaymentMethods(region?: string): Promise<EnabledPaymentMethod[]> {
+    const params = region ? `?region=${region}` : '';
+    const response = await apiClient.get<{ data: { paymentMethods: EnabledPaymentMethod[] } }>(
+      `${this.baseUrl}/configs/enabled${params}`
+    );
+    return (response as { data: { paymentMethods: EnabledPaymentMethod[] } }).data.paymentMethods;
   }
 }
 

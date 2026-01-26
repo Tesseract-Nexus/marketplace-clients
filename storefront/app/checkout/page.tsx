@@ -116,13 +116,98 @@ function CheckoutContent() {
   const [completedOrderNumber, setCompletedOrderNumber] = useState<string | undefined>();
   const [showCreateAccountModal, setShowCreateAccountModal] = useState(false);
 
+  // Dynamic payment methods state
+  const [enabledPaymentMethods, setEnabledPaymentMethods] = useState<Array<{
+    code: string;
+    name: string;
+    description: string;
+    provider: string;
+    type: string;
+    supportedRegions: string[];
+    supportedCurrencies: string[];
+    iconUrl?: string;
+    transactionFeePercent: number;
+    transactionFeeFixed: number;
+    displayName?: string;
+    checkoutMessage?: string;
+    isTestMode: boolean;
+  }>>([]);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string | null>(null);
+  const [isLoadingPaymentMethods, setIsLoadingPaymentMethods] = useState(true);
+
   // Tax calculation
   const { taxResult, isLoading: isTaxLoading, calculateTax } = useTaxCalculation();
   const taxCalculationRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Gateway type based on store country
+  // Determine customer's region for payment method filtering
+  // Priority: 1. Shipping address country, 2. Customer profile country, 3. Store localization
+  const customerRegion = useMemo(() => {
+    // If shipping address is filled, use that country
+    if (shippingAddress.countryCode) {
+      return shippingAddress.countryCode;
+    }
+    // Fall back to customer's profile country if available
+    if (customer?.countryCode) {
+      return customer.countryCode;
+    }
+    // Finally, fall back to store's localization
+    return localization.countryCode || localization.country || '';
+  }, [shippingAddress.countryCode, customer?.countryCode, localization.countryCode, localization.country]);
+
+  // Gateway type based on store country (fallback if no dynamic methods)
   const storeCountryCode = localization.countryCode || localization.country || '';
-  const gatewayType = storeCountryCode === 'IN' ? 'razorpay' : 'stripe';
+  const fallbackGatewayType = customerRegion === 'IN' ? 'razorpay' : 'stripe';
+
+  // Determine actual gateway type based on selected payment method
+  const gatewayType = useMemo(() => {
+    if (selectedPaymentMethod && enabledPaymentMethods.length > 0) {
+      const method = enabledPaymentMethods.find(m => m.code === selectedPaymentMethod);
+      if (method) {
+        // Map provider to gateway type
+        const providerToGateway: Record<string, 'stripe' | 'razorpay'> = {
+          'Stripe': 'stripe',
+          'Razorpay': 'razorpay',
+          'PayPal': 'stripe', // PayPal goes through Stripe in some integrations
+        };
+        return providerToGateway[method.provider] || 'stripe';
+      }
+    }
+    return fallbackGatewayType;
+  }, [selectedPaymentMethod, enabledPaymentMethods, fallbackGatewayType]);
+
+  // Fetch enabled payment methods based on customer's region
+  useEffect(() => {
+    const fetchPaymentMethods = async () => {
+      try {
+        setIsLoadingPaymentMethods(true);
+        // Use customer's region for filtering payment methods
+        const region = customerRegion || '';
+        const response = await fetch(`/api/payments/methods${region ? `?region=${region}` : ''}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          const methods = data.paymentMethods || [];
+          setEnabledPaymentMethods(methods);
+
+          // Auto-select first method if only one available
+          if (methods.length === 1) {
+            setSelectedPaymentMethod(methods[0].code);
+          } else if (methods.length > 0 && !selectedPaymentMethod) {
+            // Auto-select card/stripe method if available, otherwise first
+            const cardMethod = methods.find((m: any) => m.type === 'card' || m.provider === 'Stripe');
+            setSelectedPaymentMethod(cardMethod?.code || methods[0].code);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch payment methods:', error);
+        // Fall back to empty array - will use legacy gateway
+      } finally {
+        setIsLoadingPaymentMethods(false);
+      }
+    };
+
+    fetchPaymentMethods();
+  }, [customerRegion]); // Re-fetch when customer's region changes (e.g., shipping address updated)
 
   // Load product shipping data
   useEffect(() => {
@@ -652,6 +737,10 @@ function CheckoutContent() {
                   orderSubtotal={subtotal}
                   shipping={shipping}
                   tax={tax}
+                  enabledPaymentMethods={enabledPaymentMethods}
+                  selectedPaymentMethod={selectedPaymentMethod}
+                  onPaymentMethodSelect={setSelectedPaymentMethod}
+                  isLoadingPaymentMethods={isLoadingPaymentMethods}
                 />
               )}
 
@@ -669,6 +758,17 @@ function CheckoutContent() {
                   total={total}
                   onPlaceOrder={handlePlaceOrder}
                   onRetryPayment={handleRetryPayment}
+                  selectedPaymentMethodName={
+                    selectedPaymentMethod
+                      ? enabledPaymentMethods.find(m => m.code === selectedPaymentMethod)?.displayName ||
+                        enabledPaymentMethods.find(m => m.code === selectedPaymentMethod)?.name
+                      : undefined
+                  }
+                  selectedPaymentMethodProvider={
+                    selectedPaymentMethod
+                      ? enabledPaymentMethods.find(m => m.code === selectedPaymentMethod)?.provider
+                      : undefined
+                  }
                 />
               )}
             </AnimatePresence>

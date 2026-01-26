@@ -1,197 +1,234 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { CreditCard, Smartphone, Building2, Wallet, Clock, Info } from 'lucide-react';
+import { CreditCard, Info, Loader2, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { Select } from '@/components/Select';
-import { paymentsService, GatewayOption, PaymentMethodInfo, GatewayType } from '@/lib/api/payments';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  paymentsService,
+  PaymentMethodResponse,
+} from '@/lib/api/payments';
+import { PaymentMethodCard } from './PaymentMethodCard';
+import { ConfigurePaymentModal } from './ConfigurePaymentModal';
+import { toast } from 'sonner';
 
-const methodIcons: Record<string, React.ReactNode> = {
-  CARD: <CreditCard className="h-5 w-5" />,
-  UPI: <Smartphone className="h-5 w-5" />,
-  NET_BANKING: <Building2 className="h-5 w-5" />,
-  WALLET: <Wallet className="h-5 w-5" />,
-  PAY_LATER: <Clock className="h-5 w-5" />,
-  BANK_ACCOUNT: <Building2 className="h-5 w-5" />,
-  APPLE_PAY: <Smartphone className="h-5 w-5" />,
-  GOOGLE_PAY: <Smartphone className="h-5 w-5" />,
-  PAYPAL: <Wallet className="h-5 w-5" />,
-};
-
-const countryOptions = [
-  { value: 'US', label: 'United States' },
-  { value: 'GB', label: 'United Kingdom' },
+const regionOptions = [
+  { value: '', label: 'All Regions' },
   { value: 'AU', label: 'Australia' },
   { value: 'NZ', label: 'New Zealand' },
-  { value: 'CA', label: 'Canada' },
   { value: 'IN', label: 'India' },
+  { value: 'US', label: 'United States' },
+  { value: 'GB', label: 'United Kingdom' },
+  { value: 'CA', label: 'Canada' },
+  { value: 'SG', label: 'Singapore' },
   { value: 'DE', label: 'Germany' },
   { value: 'FR', label: 'France' },
-  { value: 'SG', label: 'Singapore' },
-  { value: 'HK', label: 'Hong Kong' },
 ];
 
 export function PaymentMethodsTab() {
-  const [selectedCountry, setSelectedCountry] = useState('US');
-  const [gateways, setGateways] = useState<GatewayOption[]>([]);
-  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodInfo[]>([]);
+  const [selectedRegion, setSelectedRegion] = useState('');
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  // Configure modal state
+  const [configureModalOpen, setConfigureModalOpen] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethodResponse | null>(null);
 
   useEffect(() => {
-    loadPaymentMethods(selectedCountry);
-  }, [selectedCountry]);
+    loadPaymentMethods();
+  }, [selectedRegion]);
 
-  const loadPaymentMethods = async (countryCode: string) => {
+  const loadPaymentMethods = async (showLoading = true) => {
     try {
-      setLoading(true);
-      const [gatewaysData, methodsData] = await Promise.all([
-        paymentsService.getAvailableGateways(countryCode),
-        paymentsService.getPaymentMethodsByCountry(countryCode),
-      ]);
-      setGateways(gatewaysData.gateways);
-      setPaymentMethods(methodsData.paymentMethods);
-    } catch (error) {
+      if (showLoading) setLoading(true);
+      const response = await paymentsService.getPaymentMethods(selectedRegion || undefined);
+      setPaymentMethods(response.paymentMethods || []);
+    } catch (error: any) {
       console.error('Failed to load payment methods:', error);
-      setGateways([]);
+      toast.error('Failed to load payment methods');
       setPaymentMethods([]);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
-  const getMethodsByGateway = () => {
-    const methodsByGateway: Record<GatewayType, PaymentMethodInfo[]> = {} as any;
-    paymentMethods.forEach((method) => {
-      if (!methodsByGateway[method.gatewayType]) {
-        methodsByGateway[method.gatewayType] = [];
-      }
-      methodsByGateway[method.gatewayType].push(method);
-    });
-    return methodsByGateway;
+  const handleRefresh = () => {
+    setRefreshing(true);
+    loadPaymentMethods(false);
   };
 
-  const methodsByGateway = getMethodsByGateway();
+  const handleConfigure = (method: PaymentMethodResponse) => {
+    setSelectedMethod(method);
+    setConfigureModalOpen(true);
+  };
+
+  const handleToggle = async (method: PaymentMethodResponse, enabled: boolean) => {
+    try {
+      await paymentsService.enablePaymentMethod(method.code, enabled);
+      toast.success(`${method.name} ${enabled ? 'enabled' : 'disabled'}`);
+      loadPaymentMethods(false);
+    } catch (error: any) {
+      toast.error(error.message || `Failed to ${enabled ? 'enable' : 'disable'} payment method`);
+      throw error;
+    }
+  };
+
+  const handleTest = async (method: PaymentMethodResponse) => {
+    try {
+      const result = await paymentsService.testPaymentConnection(method.code);
+      if (result.success) {
+        toast.success(`${method.name}: ${result.message}`);
+      } else {
+        toast.error(`${method.name}: ${result.message}`);
+      }
+      loadPaymentMethods(false);
+    } catch (error: any) {
+      toast.error(error.message || 'Connection test failed');
+    }
+  };
+
+  const handleModalClose = () => {
+    setConfigureModalOpen(false);
+    setSelectedMethod(null);
+  };
+
+  const handleConfigSaved = () => {
+    loadPaymentMethods(false);
+  };
+
+  // Group methods by type for better organization
+  const groupedMethods = paymentMethods.reduce((acc, method) => {
+    const type = method.type;
+    if (!acc[type]) acc[type] = [];
+    acc[type].push(method);
+    return acc;
+  }, {} as Record<string, PaymentMethodResponse[]>);
+
+  const typeLabels: Record<string, string> = {
+    card: 'Credit & Debit Cards',
+    wallet: 'Digital Wallets',
+    bnpl: 'Buy Now, Pay Later',
+    upi: 'UPI Payments',
+    netbanking: 'Net Banking',
+    gateway: 'Payment Gateways',
+    cod: 'Cash on Delivery',
+    bank: 'Bank Transfer',
+  };
+
+  // Count enabled methods
+  const enabledCount = paymentMethods.filter((m) => m.isEnabled).length;
+  const configuredCount = paymentMethods.filter((m) => m.isConfigured).length;
 
   return (
     <div className="space-y-6">
-      {/* Country Selector */}
+      {/* Header with Region Filter */}
       <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h3 className="text-lg font-bold text-foreground">Available Payment Methods</h3>
+            <h3 className="text-lg font-bold text-foreground">Payment Methods</h3>
             <p className="text-sm text-muted-foreground">
-              View payment methods available for customers in each country
+              Configure payment methods available to your customers
             </p>
           </div>
-          <div className="w-64">
-            <Select
-              value={selectedCountry}
-              onChange={(value) => setSelectedCountry(value)}
-              options={countryOptions}
-            />
+
+          <div className="flex items-center gap-3">
+            <div className="w-48">
+              <Select
+                value={selectedRegion}
+                onChange={(value) => setSelectedRegion(value)}
+                options={regionOptions}
+              />
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleRefresh}
+              disabled={refreshing}
+            >
+              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+            </Button>
           </div>
         </div>
 
-        {/* Info Banner */}
-        <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 flex items-start gap-3">
-          <Info className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm text-primary">
-              Payment methods are automatically determined based on your configured gateways and
-              their regional availability. To add more payment methods, configure additional gateways
-              in the Payment Gateways tab.
-            </p>
+        {/* Stats */}
+        <div className="flex gap-6 mt-4 pt-4 border-t border-border">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-foreground">{paymentMethods.length}</p>
+            <p className="text-xs text-muted-foreground">Available</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-green-600">{enabledCount}</p>
+            <p className="text-xs text-muted-foreground">Enabled</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold text-blue-600">{configuredCount}</p>
+            <p className="text-xs text-muted-foreground">Configured</p>
           </div>
         </div>
       </div>
 
+      {/* Info Banner */}
+      <Alert>
+        <Info className="h-4 w-4" />
+        <AlertDescription>
+          Enable payment methods to make them available at checkout. Methods must be configured
+          with valid credentials before they can be enabled. Use Test Mode to verify your setup
+          before going live.
+        </AlertDescription>
+      </Alert>
+
+      {/* Loading State */}
       {loading ? (
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : paymentMethods.length === 0 ? (
+        /* Empty State */
+        <div className="bg-card rounded-lg border border-border p-12 text-center">
+          <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            No Payment Methods Available
+          </h3>
+          <p className="text-muted-foreground">
+            {selectedRegion
+              ? `No payment methods are available for ${regionOptions.find((r) => r.value === selectedRegion)?.label || selectedRegion}.`
+              : 'No payment methods are configured.'}
+          </p>
         </div>
       ) : (
-        <>
-          {/* Available Payment Methods Grid */}
-          {paymentMethods.length > 0 ? (
-            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
+        /* Payment Methods Grid - Grouped by Type */
+        <div className="space-y-8">
+          {Object.entries(groupedMethods).map(([type, methods]) => (
+            <div key={type}>
               <h4 className="text-md font-semibold text-foreground mb-4">
-                Payment Methods for {countryOptions.find((c) => c.value === selectedCountry)?.label}
+                {typeLabels[type] || type}
               </h4>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {paymentMethods.map((method) => (
-                  <div
-                    key={`${method.type}-${method.gatewayType}`}
-                    className="border border-border rounded-lg p-4 hover:border-primary/50 hover:bg-primary/10/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
-                        {methodIcons[method.type] || <CreditCard className="h-5 w-5" />}
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground">{method.displayName}</p>
-                        <p className="text-xs text-muted-foreground">via {method.gatewayType}</p>
-                      </div>
-                    </div>
-                  </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {methods.map((method) => (
+                  <PaymentMethodCard
+                    key={method.code}
+                    method={method}
+                    onConfigure={() => handleConfigure(method)}
+                    onToggle={(enabled) => handleToggle(method, enabled)}
+                    onTest={() => handleTest(method)}
+                  />
                 ))}
               </div>
             </div>
-          ) : (
-            <div className="bg-card rounded-lg border border-border p-12 text-center">
-              <CreditCard className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No Payment Methods Available</h3>
-              <p className="text-muted-foreground">
-                No payment gateways are configured for {countryOptions.find((c) => c.value === selectedCountry)?.label}.
-                Configure a gateway that supports this region to enable payments.
-              </p>
-            </div>
-          )}
-
-          {/* Gateways by Method */}
-          {gateways.length > 0 && (
-            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-              <h4 className="text-md font-semibold text-foreground mb-4">Active Gateways</h4>
-              <div className="space-y-4">
-                {gateways.map((gateway) => (
-                  <div
-                    key={gateway.gatewayType}
-                    className="border border-border rounded-lg p-4"
-                  >
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <h5 className="font-semibold text-foreground">{gateway.displayName}</h5>
-                        {gateway.isPrimary && (
-                          <span className="text-xs px-2 py-0.5 bg-primary/20 text-primary rounded-full">
-                            Primary
-                          </span>
-                        )}
-                        {gateway.isTestMode && (
-                          <span className="text-xs px-2 py-0.5 bg-warning-muted text-warning-foreground rounded-full">
-                            Test
-                          </span>
-                        )}
-                      </div>
-                      <span className="text-sm text-muted-foreground">Priority: {gateway.priority}</span>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {gateway.paymentMethods.map((method) => (
-                        <span
-                          key={method.type}
-                          className="inline-flex items-center gap-1 text-xs px-2 py-1 bg-muted text-foreground rounded"
-                        >
-                          {methodIcons[method.type] && (
-                            <span className="w-3 h-3">{methodIcons[method.type]}</span>
-                          )}
-                          {method.displayName}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </>
+          ))}
+        </div>
       )}
+
+      {/* Configure Modal */}
+      <ConfigurePaymentModal
+        isOpen={configureModalOpen}
+        onClose={handleModalClose}
+        method={selectedMethod}
+        onSaved={handleConfigSaved}
+      />
     </div>
   );
 }

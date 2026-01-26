@@ -36,6 +36,38 @@ export interface AutocompleteOptions {
   radius?: number;
 }
 
+export interface LocationDetection {
+  ip: string;
+  country: string;
+  countryName: string;
+  callingCode: string;
+  flagEmoji: string;
+  state: string;
+  stateName: string;
+  city: string;
+  postalCode: string;
+  latitude: number;
+  longitude: number;
+  timezone: string;
+  currency: string;
+  locale: string;
+}
+
+export interface Country {
+  id: string;
+  name: string;
+  nativeName: string;
+  code: string;
+  callingCode: string;
+  region: string;
+  subregion: string;
+  capital: string;
+  currency: string;
+  flagEmoji: string;
+  latitude: number;
+  longitude: number;
+}
+
 class LocationAPI {
   private baseURL = '/api/location';
 
@@ -125,6 +157,83 @@ class LocationAPI {
       console.warn('Reverse geocode error:', error);
       return null;
     }
+  }
+
+  /**
+   * Detect user's location based on IP address
+   * Returns country, city, timezone, currency, etc.
+   */
+  async detectLocation(): Promise<LocationDetection | null> {
+    try {
+      const response = await fetch(`${this.baseURL}/detect`, {
+        headers: {
+          'X-Request-ID': this.generateRequestId(),
+        },
+      });
+
+      if (!response.ok) {
+        console.warn('Location detection failed');
+        return null;
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.warn('Location detection error:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Get list of all countries
+   * @param options.region - Filter by region (e.g., "Asia", "Europe")
+   * @param options.search - Search by country name
+   */
+  async getCountries(options?: { region?: string; search?: string }): Promise<Country[]> {
+    try {
+      const params = new URLSearchParams();
+      if (options?.region) params.append('region', options.region);
+      if (options?.search) params.append('search', options.search);
+      params.append('limit', '250');
+
+      const queryString = params.toString();
+      const url = `${this.baseURL}/countries${queryString ? `?${queryString}` : ''}`;
+
+      const response = await fetch(url, {
+        headers: {
+          'X-Request-ID': this.generateRequestId(),
+        },
+      });
+
+      if (!response.ok) {
+        console.warn('Failed to fetch countries');
+        return this.getFallbackCountries();
+      }
+
+      const data = await response.json();
+      return data.countries || this.getFallbackCountries();
+    } catch (error) {
+      console.warn('Countries fetch error:', error);
+      return this.getFallbackCountries();
+    }
+  }
+
+  /**
+   * Fallback countries list for when API is unavailable
+   */
+  private getFallbackCountries(): Country[] {
+    return [
+      { id: 'US', name: 'United States', nativeName: 'United States', code: 'US', callingCode: '+1', region: 'Americas', subregion: 'Northern America', capital: 'Washington D.C.', currency: 'USD', flagEmoji: '🇺🇸', latitude: 37.0902, longitude: -95.7129 },
+      { id: 'AU', name: 'Australia', nativeName: 'Australia', code: 'AU', callingCode: '+61', region: 'Oceania', subregion: 'Australia and New Zealand', capital: 'Canberra', currency: 'AUD', flagEmoji: '🇦🇺', latitude: -25.2744, longitude: 133.7751 },
+      { id: 'IN', name: 'India', nativeName: 'भारत', code: 'IN', callingCode: '+91', region: 'Asia', subregion: 'Southern Asia', capital: 'New Delhi', currency: 'INR', flagEmoji: '🇮🇳', latitude: 20.5937, longitude: 78.9629 },
+      { id: 'GB', name: 'United Kingdom', nativeName: 'United Kingdom', code: 'GB', callingCode: '+44', region: 'Europe', subregion: 'Northern Europe', capital: 'London', currency: 'GBP', flagEmoji: '🇬🇧', latitude: 55.3781, longitude: -3.436 },
+      { id: 'CA', name: 'Canada', nativeName: 'Canada', code: 'CA', callingCode: '+1', region: 'Americas', subregion: 'Northern America', capital: 'Ottawa', currency: 'CAD', flagEmoji: '🇨🇦', latitude: 56.1304, longitude: -106.3468 },
+      { id: 'NZ', name: 'New Zealand', nativeName: 'New Zealand', code: 'NZ', callingCode: '+64', region: 'Oceania', subregion: 'Australia and New Zealand', capital: 'Wellington', currency: 'NZD', flagEmoji: '🇳🇿', latitude: -40.9006, longitude: 174.886 },
+      { id: 'SG', name: 'Singapore', nativeName: 'Singapore', code: 'SG', callingCode: '+65', region: 'Asia', subregion: 'South-Eastern Asia', capital: 'Singapore', currency: 'SGD', flagEmoji: '🇸🇬', latitude: 1.3521, longitude: 103.8198 },
+      { id: 'DE', name: 'Germany', nativeName: 'Deutschland', code: 'DE', callingCode: '+49', region: 'Europe', subregion: 'Western Europe', capital: 'Berlin', currency: 'EUR', flagEmoji: '🇩🇪', latitude: 51.1657, longitude: 10.4515 },
+      { id: 'FR', name: 'France', nativeName: 'France', code: 'FR', callingCode: '+33', region: 'Europe', subregion: 'Western Europe', capital: 'Paris', currency: 'EUR', flagEmoji: '🇫🇷', latitude: 46.2276, longitude: 2.2137 },
+      { id: 'JP', name: 'Japan', nativeName: '日本', code: 'JP', callingCode: '+81', region: 'Asia', subregion: 'Eastern Asia', capital: 'Tokyo', currency: 'JPY', flagEmoji: '🇯🇵', latitude: 36.2048, longitude: 138.2529 },
+    ];
   }
 }
 

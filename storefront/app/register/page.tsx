@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, Mail, Lock, User, Phone, Loader2, Check, Sparkles, Shield } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone, Loader2, Check, Sparkles, Shield, Globe, MapPin, ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { useTenant, useNavPath } from '@/context/TenantContext';
 import { useAuthStore } from '@/store/auth';
 import { initiateLogin, directRegister, DirectAuthResponse } from '@/lib/api/auth';
+import { locationApi, Country, LocationDetection } from '@/lib/api/location';
 import { SocialLogin } from '@/components/auth/SocialLogin';
 import { cn } from '@/lib/utils';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
@@ -79,11 +80,73 @@ export default function RegisterPage() {
     phone: '',
     password: '',
     confirmPassword: '',
+    country: '',
+    countryCode: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState('');
+
+  // Country selection state
+  const [countries, setCountries] = useState<Country[]>([]);
+  const [isLoadingCountries, setIsLoadingCountries] = useState(true);
+  const [isDetectingLocation, setIsDetectingLocation] = useState(true);
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
+
+  // Detect location and load countries on mount
+  useEffect(() => {
+    const initLocation = async () => {
+      // Load countries
+      setIsLoadingCountries(true);
+      const countriesList = await locationApi.getCountries();
+      setCountries(countriesList);
+      setIsLoadingCountries(false);
+
+      // Detect user's location
+      setIsDetectingLocation(true);
+      const location = await locationApi.detectLocation();
+      if (location && location.country) {
+        const detectedCountry = countriesList.find(c => c.code === location.country);
+        if (detectedCountry) {
+          setFormData(prev => ({
+            ...prev,
+            country: detectedCountry.name,
+            countryCode: detectedCountry.code,
+          }));
+        }
+      }
+      setIsDetectingLocation(false);
+    };
+
+    initLocation();
+  }, []);
+
+  // Filter countries based on search
+  const filteredCountries = useMemo(() => {
+    if (!countrySearch) return countries;
+    const search = countrySearch.toLowerCase();
+    return countries.filter(c =>
+      c.name.toLowerCase().includes(search) ||
+      c.code.toLowerCase().includes(search)
+    );
+  }, [countries, countrySearch]);
+
+  // Get selected country for display
+  const selectedCountry = useMemo(() => {
+    return countries.find(c => c.code === formData.countryCode);
+  }, [countries, formData.countryCode]);
+
+  const handleCountrySelect = (country: Country) => {
+    setFormData(prev => ({
+      ...prev,
+      country: country.name,
+      countryCode: country.code,
+    }));
+    setShowCountryDropdown(false);
+    setCountrySearch('');
+  };
 
   const handleSocialLogin = (provider: string) => {
     // Use auth-bff OIDC flow with Keycloak IDP hint for social login
@@ -157,6 +220,12 @@ export default function RegisterPage() {
       return;
     }
 
+    // Validate country is selected
+    if (!formData.countryCode) {
+      setError('Please select your country');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -167,7 +236,9 @@ export default function RegisterPage() {
         formData.firstName,
         formData.lastName,
         tenant.slug,
-        formData.phone || undefined
+        formData.phone || undefined,
+        formData.country,
+        formData.countryCode
       );
 
       if (result.success && (result.registered || result.authenticated)) {
@@ -335,6 +406,106 @@ export default function RegisterPage() {
                   autoComplete="tel"
                 />
               </div>
+            </motion.div>
+
+            {/* Country Selection */}
+            <motion.div variants={itemVariants} className="space-y-2">
+              <Label htmlFor="country">
+                <TranslatedUIText text="Country" /> *
+                {isDetectingLocation && (
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    <Loader2 className="h-3 w-3 inline animate-spin mr-1" />
+                    <TranslatedUIText text="Detecting..." />
+                  </span>
+                )}
+              </Label>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                  className={cn(
+                    "w-full flex items-center justify-between px-3 py-2 rounded-md border bg-background text-left transition-all duration-200",
+                    "hover:border-tenant-primary/50 focus:outline-none focus:ring-2 focus:ring-[var(--tenant-primary)]/20 focus:border-tenant-primary",
+                    showCountryDropdown && "border-tenant-primary ring-2 ring-[var(--tenant-primary)]/20"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-muted-foreground" />
+                    {selectedCountry ? (
+                      <span className="flex items-center gap-2">
+                        <span className="text-lg">{selectedCountry.flagEmoji}</span>
+                        <span>{selectedCountry.name}</span>
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">
+                        <TranslatedUIText text="Select your country" />
+                      </span>
+                    )}
+                  </div>
+                  <ChevronDown className={cn(
+                    "h-4 w-4 text-muted-foreground transition-transform",
+                    showCountryDropdown && "rotate-180"
+                  )} />
+                </button>
+
+                {/* Dropdown */}
+                <AnimatePresence>
+                  {showCountryDropdown && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="absolute z-50 mt-1 w-full bg-card border rounded-lg shadow-lg max-h-64 overflow-hidden"
+                    >
+                      {/* Search input */}
+                      <div className="p-2 border-b">
+                        <Input
+                          placeholder="Search countries..."
+                          value={countrySearch}
+                          onChange={(e) => setCountrySearch(e.target.value)}
+                          className="h-8 text-sm"
+                          autoFocus
+                        />
+                      </div>
+                      {/* Countries list */}
+                      <div className="max-h-48 overflow-y-auto">
+                        {isLoadingCountries ? (
+                          <div className="flex items-center justify-center py-4">
+                            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                          </div>
+                        ) : filteredCountries.length === 0 ? (
+                          <div className="py-4 text-center text-sm text-muted-foreground">
+                            <TranslatedUIText text="No countries found" />
+                          </div>
+                        ) : (
+                          filteredCountries.map((country) => (
+                            <button
+                              key={country.id}
+                              type="button"
+                              onClick={() => handleCountrySelect(country)}
+                              className={cn(
+                                "w-full flex items-center gap-2 px-3 py-2 text-left text-sm hover:bg-muted transition-colors",
+                                formData.countryCode === country.code && "bg-tenant-primary/10 text-tenant-primary"
+                              )}
+                            >
+                              <span className="text-lg">{country.flagEmoji}</span>
+                              <span className="flex-1">{country.name}</span>
+                              <span className="text-xs text-muted-foreground">{country.code}</span>
+                              {formData.countryCode === country.code && (
+                                <Check className="h-4 w-4 text-tenant-primary" />
+                              )}
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                <MapPin className="h-3 w-3 inline mr-1" />
+                <TranslatedUIText text="Used to show relevant payment options at checkout" />
+              </p>
             </motion.div>
 
             <motion.div variants={itemVariants} className="space-y-2">

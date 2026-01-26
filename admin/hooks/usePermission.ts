@@ -45,6 +45,12 @@ export const Permissions = {
   PAYMENTS_FEES_MANAGE: 'settings:payments:manage',
   PAYMENTS_MANAGE: 'settings:payments:manage',
 
+  // Payment Methods Configuration - granular permissions
+  PAYMENTS_METHODS_VIEW: 'payments:methods:view',
+  PAYMENTS_METHODS_ENABLE: 'payments:methods:enable',
+  PAYMENTS_METHODS_CONFIG: 'payments:methods:config', // Owner only - sensitive
+  PAYMENTS_METHODS_TEST: 'payments:methods:test',
+
   // Products - match database (003_seed_permissions.up.sql, catalog category)
   PRODUCTS_READ: 'catalog:products:view',
   PRODUCTS_VIEW: 'catalog:products:view', // alias

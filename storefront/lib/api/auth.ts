@@ -456,6 +456,9 @@ export async function directLogin(
  * @param firstName - User's first name
  * @param lastName - User's last name
  * @param tenantSlug - Tenant slug (e.g., 'demo-store')
+ * @param phone - Optional phone number
+ * @param country - Optional country name (e.g., "Australia")
+ * @param countryCode - Optional ISO 2-letter country code (e.g., "AU")
  */
 export async function directRegister(
   email: string,
@@ -463,7 +466,9 @@ export async function directRegister(
   firstName: string,
   lastName: string,
   tenantSlug: string,
-  phone?: string
+  phone?: string,
+  country?: string,
+  countryCode?: string
 ): Promise<DirectAuthResponse> {
   try {
     const response = await fetch('/auth/direct/register', {
@@ -479,6 +484,8 @@ export async function directRegister(
         last_name: lastName,
         tenant_slug: tenantSlug,
         phone: phone || undefined,
+        country: country || undefined,
+        country_code: countryCode || undefined,
       }),
     });
 
