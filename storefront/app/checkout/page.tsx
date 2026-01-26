@@ -15,6 +15,7 @@ import { useAuthStore } from '@/store/auth';
 import { useTaxCalculation } from '@/hooks/useTaxCalculation';
 import { getProduct } from '@/lib/api/storefront';
 import { getProductShippingData, type ProductShippingData } from '@/lib/utils/product-shipping';
+import { locationApi } from '@/lib/api/location';
 import {
   createOrder,
   createPaymentIntent,
@@ -116,6 +117,10 @@ function CheckoutContent() {
   const [completedOrderNumber, setCompletedOrderNumber] = useState<string | undefined>();
   const [showCreateAccountModal, setShowCreateAccountModal] = useState(false);
 
+  // Auto-detected region from IP geolocation
+  const [detectedRegion, setDetectedRegion] = useState<string | null>(null);
+  const [isDetectingRegion, setIsDetectingRegion] = useState(true);
+
   // Dynamic payment methods state
   const [enabledPaymentMethods, setEnabledPaymentMethods] = useState<Array<{
     code: string;
@@ -139,8 +144,27 @@ function CheckoutContent() {
   const { taxResult, isLoading: isTaxLoading, calculateTax } = useTaxCalculation();
   const taxCalculationRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Auto-detect customer's region from IP on initial load
+  useEffect(() => {
+    const detectRegion = async () => {
+      try {
+        setIsDetectingRegion(true);
+        const location = await locationApi.detectLocation();
+        if (location?.country) {
+          setDetectedRegion(location.country);
+        }
+      } catch (error) {
+        console.warn('Failed to auto-detect region:', error);
+      } finally {
+        setIsDetectingRegion(false);
+      }
+    };
+
+    detectRegion();
+  }, []);
+
   // Determine customer's region for payment method filtering
-  // Priority: 1. Shipping address country, 2. Customer profile country, 3. Store localization
+  // Priority: 1. Shipping address country, 2. Customer profile country, 3. IP-detected region, 4. Store localization
   const customerRegion = useMemo(() => {
     // If shipping address is filled, use that country
     if (shippingAddress.countryCode) {
@@ -150,9 +174,13 @@ function CheckoutContent() {
     if (customer?.countryCode) {
       return customer.countryCode;
     }
+    // Use IP-detected region for automatic gateway selection
+    if (detectedRegion) {
+      return detectedRegion;
+    }
     // Finally, fall back to store's localization
     return localization.countryCode || localization.country || '';
-  }, [shippingAddress.countryCode, customer?.countryCode, localization.countryCode, localization.country]);
+  }, [shippingAddress.countryCode, customer?.countryCode, detectedRegion, localization.countryCode, localization.country]);
 
   // Gateway type based on store country (fallback if no dynamic methods)
   const storeCountryCode = localization.countryCode || localization.country || '';
@@ -177,6 +205,12 @@ function CheckoutContent() {
 
   // Fetch enabled payment methods based on customer's region
   useEffect(() => {
+    // Wait for region detection to complete before fetching payment methods
+    // This avoids double-fetching (once with store locale, once with detected region)
+    if (isDetectingRegion) {
+      return;
+    }
+
     const fetchPaymentMethods = async () => {
       try {
         setIsLoadingPaymentMethods(true);
@@ -186,7 +220,7 @@ function CheckoutContent() {
 
         if (response.ok) {
           const data = await response.json();
-          const methods = data.paymentMethods || [];
+          const methods = data.paymentMethods || data.data?.paymentMethods || [];
           setEnabledPaymentMethods(methods);
 
           // Auto-select first method if only one available
@@ -207,7 +241,7 @@ function CheckoutContent() {
     };
 
     fetchPaymentMethods();
-  }, [customerRegion]); // Re-fetch when customer's region changes (e.g., shipping address updated)
+  }, [customerRegion, isDetectingRegion]); // Re-fetch when customer's region changes or detection completes
 
   // Load product shipping data
   useEffect(() => {
