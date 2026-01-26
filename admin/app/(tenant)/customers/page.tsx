@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, Plus, Eye, Edit, Trash2, Users, TrendingUp, DollarSign, ShoppingCart, AlertCircle, X, Loader2, Home, UserCircle, Sparkles, Crown, CheckCircle, XCircle, Lock, Unlock, MoreVertical } from 'lucide-react';
+import { Search, Plus, Eye, Edit, Trash2, Users, TrendingUp, DollarSign, ShoppingCart, AlertCircle, X, Loader2, Home, UserCircle, Sparkles, Crown, CheckCircle, XCircle, Lock, Unlock, MoreVertical, RefreshCw } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -490,6 +490,16 @@ export default function CustomersPage() {
           }}
           options={customerTypeOptions}
         />
+        <Button
+          onClick={loadCustomers}
+          disabled={loading}
+          variant="outline"
+          className="h-10 w-10 p-0 rounded-lg hover:bg-muted transition-colors"
+          title="Refresh customers list"
+          aria-label="Refresh customers list"
+        >
+          <RefreshCw className={cn("w-4 h-4 text-muted-foreground", loading && "animate-spin")} aria-hidden="true" />
+        </Button>
       </FilterPanel>
 
       {/* Customers Table - Desktop */}
