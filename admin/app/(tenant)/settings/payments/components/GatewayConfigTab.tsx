@@ -68,6 +68,14 @@ const gatewayTypeOptions = [
   { value: 'LINKT', label: 'Linkt' },
 ];
 
+// Gateway availability status - Ready gateways are fully functional
+// Coming Soon gateways are visible but not yet ready for production use
+const READY_GATEWAYS: GatewayType[] = ['STRIPE', 'RAZORPAY'];
+
+const isGatewayReady = (gatewayType: GatewayType): boolean => {
+  return READY_GATEWAYS.includes(gatewayType);
+};
+
 export function GatewayConfigTab() {
   const { showConfirm, showSuccess, showError } = useDialog();
   const { currentTenant } = useTenant();
@@ -567,29 +575,83 @@ export function GatewayConfigTab() {
 
             <div className="p-6">
               {!selectedTemplate ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {templates.map((template) => (
-                    <button
-                      key={template.id}
-                      onClick={() => handleSelectTemplate(template)}
-                      className="p-4 border border-border rounded-lg hover:border-primary hover:bg-primary/10 transition-colors text-left"
-                    >
-                      <div className="w-12 h-12 bg-muted rounded-lg mb-3 flex items-center justify-center">
-                        <img
-                          src={template.logoUrl || gatewayLogos[template.gatewayType]}
-                          alt={template.displayName}
-                          className="h-6 w-6"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                          }}
-                        />
-                      </div>
-                      <h3 className="font-semibold text-foreground">{template.displayName}</h3>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {template.supportedCountries?.slice(0, 3).join(', ')}
-                      </p>
-                    </button>
-                  ))}
+                <div className="space-y-6">
+                  {/* Ready Gateways Section */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
+                      <h3 className="text-sm font-semibold text-foreground">Ready to Use</h3>
+                      <span className="text-xs text-muted-foreground">— Fully integrated and tested</span>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {templates.filter(t => isGatewayReady(t.gatewayType)).map((template) => (
+                        <button
+                          key={template.id}
+                          onClick={() => handleSelectTemplate(template)}
+                          className="p-4 border-2 border-success/30 bg-success/5 rounded-lg hover:border-success hover:bg-success/10 transition-all text-left relative group"
+                        >
+                          <div className="absolute top-2 right-2">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-success text-white">
+                              <CheckCircle className="h-3 w-3 mr-1" />
+                              Ready
+                            </span>
+                          </div>
+                          <div className="w-12 h-12 bg-white rounded-lg mb-3 flex items-center justify-center border border-border shadow-sm">
+                            <img
+                              src={template.logoUrl || gatewayLogos[template.gatewayType]}
+                              alt={template.displayName}
+                              className="h-6 w-6"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                          </div>
+                          <h3 className="font-semibold text-foreground">{template.displayName}</h3>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {template.supportedCountries?.slice(0, 3).join(', ')}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Coming Soon Gateways Section */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-2 h-2 rounded-full bg-muted-foreground"></div>
+                      <h3 className="text-sm font-semibold text-muted-foreground">Coming Soon</h3>
+                      <span className="text-xs text-muted-foreground">— In development</span>
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      {templates.filter(t => !isGatewayReady(t.gatewayType)).map((template) => (
+                        <div
+                          key={template.id}
+                          className="p-4 border border-border rounded-lg bg-muted/30 text-left relative opacity-60 cursor-not-allowed"
+                          title="This payment gateway is coming soon"
+                        >
+                          <div className="absolute top-2 right-2">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-muted text-muted-foreground border border-border">
+                              Coming Soon
+                            </span>
+                          </div>
+                          <div className="w-12 h-12 bg-muted rounded-lg mb-3 flex items-center justify-center grayscale">
+                            <img
+                              src={template.logoUrl || gatewayLogos[template.gatewayType]}
+                              alt={template.displayName}
+                              className="h-6 w-6"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                          </div>
+                          <h3 className="font-semibold text-muted-foreground">{template.displayName}</h3>
+                          <p className="text-xs text-muted-foreground/70 mt-1">
+                            {template.supportedCountries?.slice(0, 3).join(', ')}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-4">
