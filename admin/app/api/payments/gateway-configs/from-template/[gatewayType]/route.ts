@@ -25,6 +25,11 @@ const CREDENTIAL_MAPPINGS: Record<string, Record<string, string>> = {
     key_secret: 'apiKeySecret',
     webhook_secret: 'webhookSecret',
   },
+  PHONEPE: {
+    merchant_id: 'merchantAccountId',
+    salt_key: 'apiKeySecret',
+    salt_index: 'webhookSecret',
+  },
   AFTERPAY: {
     merchant_id: 'merchantAccountId',
     secret_key: 'apiKeySecret',
@@ -32,6 +37,26 @@ const CREDENTIAL_MAPPINGS: Record<string, Record<string, string>> = {
   ZIP: {
     merchant_id: 'merchantAccountId',
     api_key: 'apiKeySecret',
+  },
+  GOOGLE_PAY: {
+    merchant_id: 'merchantAccountId',
+    merchant_name: 'displayName',
+    gateway_merchant_id: 'apiKeyPublic',
+  },
+  APPLE_PAY: {
+    merchant_id: 'merchantAccountId',
+    merchant_certificate: 'apiKeySecret',
+    domain_verification_file: 'webhookSecret',
+  },
+  PAYTM: {
+    merchant_id: 'merchantAccountId',
+    merchant_key: 'apiKeySecret',
+    website: 'webhookSecret',
+  },
+  UPI: {
+    vpa: 'apiKeyPublic',
+    merchant_name: 'displayName',
+    mcc: 'merchantAccountId',
   },
 };
 
@@ -42,19 +67,29 @@ const DISPLAY_NAMES: Record<string, string> = {
   STRIPE: 'Stripe Payment Gateway',
   PAYPAL: 'PayPal',
   RAZORPAY: 'Razorpay',
+  PHONEPE: 'PhonePe',
   AFTERPAY: 'Afterpay',
   ZIP: 'Zip Pay',
+  GOOGLE_PAY: 'Google Pay',
+  APPLE_PAY: 'Apple Pay',
+  PAYTM: 'Paytm',
+  UPI: 'UPI Direct',
 };
 
 /**
  * Supported countries by gateway
  */
 const SUPPORTED_COUNTRIES: Record<string, string[]> = {
-  STRIPE: ['US', 'GB', 'AU', 'NZ', 'CA', 'DE', 'FR', 'IE', 'SG', 'JP'],
-  PAYPAL: ['US', 'GB', 'AU', 'CA', 'DE', 'FR', 'IN', 'SG', 'JP', 'NZ'],
+  STRIPE: ['US', 'GB', 'AU', 'NZ', 'CA', 'DE', 'FR', 'IE', 'SG', 'JP', 'GLOBAL'],
+  PAYPAL: ['US', 'GB', 'AU', 'CA', 'DE', 'FR', 'IN', 'SG', 'JP', 'NZ', 'GLOBAL'],
   RAZORPAY: ['IN'],
+  PHONEPE: ['IN'],
   AFTERPAY: ['AU', 'NZ', 'US', 'GB'],
   ZIP: ['AU', 'NZ', 'US'],
+  GOOGLE_PAY: ['US', 'GB', 'AU', 'IN', 'SG', 'JP', 'CA', 'DE', 'FR', 'GLOBAL'],
+  APPLE_PAY: ['US', 'GB', 'AU', 'CA', 'SG', 'JP', 'DE', 'FR', 'GLOBAL'],
+  PAYTM: ['IN'],
+  UPI: ['IN'],
 };
 
 /**
@@ -62,10 +97,15 @@ const SUPPORTED_COUNTRIES: Record<string, string[]> = {
  */
 const SUPPORTED_METHODS: Record<string, string[]> = {
   STRIPE: ['CARD', 'APPLE_PAY', 'GOOGLE_PAY', 'BANK_ACCOUNT'],
-  PAYPAL: ['PAYPAL'],
+  PAYPAL: ['PAYPAL', 'PAY_LATER'],
   RAZORPAY: ['CARD', 'UPI', 'NET_BANKING', 'WALLET', 'EMI'],
+  PHONEPE: ['UPI', 'CARD', 'WALLET'],
   AFTERPAY: ['PAY_LATER'],
   ZIP: ['PAY_LATER'],
+  GOOGLE_PAY: ['GOOGLE_PAY', 'CARD'],
+  APPLE_PAY: ['APPLE_PAY', 'CARD'],
+  PAYTM: ['UPI', 'WALLET', 'CARD', 'NET_BANKING'],
+  UPI: ['UPI'],
 };
 
 /**

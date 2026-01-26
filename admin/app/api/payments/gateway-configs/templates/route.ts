@@ -25,8 +25,8 @@ const GATEWAY_TEMPLATES: PaymentGatewayTemplate[] = [
     gatewayType: 'STRIPE',
     displayName: 'Stripe',
     description: 'Accept credit cards, debit cards, Apple Pay, Google Pay and more. Best for US, UK, EU and Australia.',
-    logoUrl: '/logos/stripe.svg',
-    supportedCountries: ['US', 'GB', 'AU', 'NZ', 'CA', 'DE', 'FR', 'IE', 'SG', 'JP'],
+    logoUrl: 'https://cdn.brandfetch.io/idxAg10C0L/theme/dark/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B',
+    supportedCountries: ['US', 'GB', 'AU', 'NZ', 'CA', 'DE', 'FR', 'IE', 'SG', 'JP', 'GLOBAL'],
     supportedPaymentMethods: ['CARD', 'APPLE_PAY', 'GOOGLE_PAY', 'BANK_ACCOUNT'],
     requiredCredentials: ['publishable_key', 'secret_key', 'webhook_secret'],
     setupInstructions: `
@@ -44,9 +44,9 @@ const GATEWAY_TEMPLATES: PaymentGatewayTemplate[] = [
     id: 'paypal-template',
     gatewayType: 'PAYPAL',
     displayName: 'PayPal',
-    description: 'Accept PayPal payments and Pay Later options. Trusted worldwide.',
-    logoUrl: '/logos/paypal.svg',
-    supportedCountries: ['US', 'GB', 'AU', 'CA', 'DE', 'FR', 'IN', 'SG', 'JP', 'NZ'],
+    description: 'Accept PayPal payments and Pay Later options. Trusted worldwide with buyer protection.',
+    logoUrl: 'https://cdn.brandfetch.io/idHzLL15gW/theme/dark/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B',
+    supportedCountries: ['US', 'GB', 'AU', 'CA', 'DE', 'FR', 'IN', 'SG', 'JP', 'NZ', 'GLOBAL'],
     supportedPaymentMethods: ['PAYPAL', 'PAY_LATER'],
     requiredCredentials: ['client_id', 'client_secret'],
     setupInstructions: `
@@ -63,8 +63,8 @@ const GATEWAY_TEMPLATES: PaymentGatewayTemplate[] = [
     id: 'razorpay-template',
     gatewayType: 'RAZORPAY',
     displayName: 'Razorpay',
-    description: 'India\'s leading payment gateway. Accept cards, UPI, NetBanking, wallets and more.',
-    logoUrl: '/logos/razorpay.svg',
+    description: 'India\'s leading payment gateway. Accept cards, UPI, NetBanking, wallets and EMI options.',
+    logoUrl: 'https://cdn.brandfetch.io/idg7kFDD9L/theme/dark/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B',
     supportedCountries: ['IN'],
     supportedPaymentMethods: ['CARD', 'UPI', 'NET_BANKING', 'WALLET', 'EMI'],
     requiredCredentials: ['key_id', 'key_secret', 'webhook_secret'],
@@ -80,11 +80,30 @@ const GATEWAY_TEMPLATES: PaymentGatewayTemplate[] = [
     isActive: true,
   },
   {
+    id: 'phonepe-template',
+    gatewayType: 'PHONEPE',
+    displayName: 'PhonePe',
+    description: 'Popular UPI payment gateway in India. Accept UPI, cards and wallet payments with wide reach.',
+    logoUrl: 'https://cdn.brandfetch.io/idw0n_dNfz/theme/dark/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B',
+    supportedCountries: ['IN'],
+    supportedPaymentMethods: ['UPI', 'CARD', 'WALLET'],
+    requiredCredentials: ['merchant_id', 'salt_key', 'salt_index'],
+    setupInstructions: `
+1. Register as a PhonePe merchant at https://business.phonepe.com
+2. Complete KYC verification
+3. Access your merchant dashboard
+4. Go to Integration → API Keys
+5. Copy your Merchant ID, Salt Key, and Salt Index
+    `.trim(),
+    supportsPlatformSplit: false,
+    isActive: true,
+  },
+  {
     id: 'afterpay-template',
     gatewayType: 'AFTERPAY',
     displayName: 'Afterpay',
-    description: 'Buy Now, Pay Later in 4 interest-free installments. Popular in Australia and US.',
-    logoUrl: '/logos/afterpay.svg',
+    description: 'Buy Now, Pay Later in 4 interest-free installments. Popular in Australia, NZ, US and UK.',
+    logoUrl: 'https://cdn.brandfetch.io/idNYdT60Ym/theme/dark/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B',
     supportedCountries: ['AU', 'NZ', 'US', 'GB'],
     supportedPaymentMethods: ['PAY_LATER'],
     requiredCredentials: ['merchant_id', 'secret_key'],
@@ -101,8 +120,8 @@ const GATEWAY_TEMPLATES: PaymentGatewayTemplate[] = [
     id: 'zip-template',
     gatewayType: 'ZIP',
     displayName: 'Zip Pay',
-    description: 'Flexible Buy Now, Pay Later solution with longer payment terms.',
-    logoUrl: '/logos/zip.svg',
+    description: 'Flexible Buy Now, Pay Later solution with longer payment terms. Up to 12 months interest-free.',
+    logoUrl: 'https://cdn.brandfetch.io/idWkQ8Z0L6/theme/dark/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B',
     supportedCountries: ['AU', 'NZ', 'US'],
     supportedPaymentMethods: ['PAY_LATER'],
     requiredCredentials: ['merchant_id', 'api_key'],
@@ -111,6 +130,82 @@ const GATEWAY_TEMPLATES: PaymentGatewayTemplate[] = [
 2. Once approved, access your merchant dashboard
 3. Go to Integration → API Settings
 4. Copy your Merchant ID and API Key
+    `.trim(),
+    supportsPlatformSplit: false,
+    isActive: true,
+  },
+  {
+    id: 'gpay-template',
+    gatewayType: 'GOOGLE_PAY',
+    displayName: 'Google Pay',
+    description: 'Accept Google Pay for fast, secure checkout. Works globally on Android and web.',
+    logoUrl: 'https://cdn.brandfetch.io/idEaYT93R6/theme/dark/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B',
+    supportedCountries: ['US', 'GB', 'AU', 'IN', 'SG', 'JP', 'CA', 'DE', 'FR', 'GLOBAL'],
+    supportedPaymentMethods: ['GOOGLE_PAY', 'CARD'],
+    requiredCredentials: ['merchant_id', 'merchant_name', 'gateway_merchant_id'],
+    setupInstructions: `
+1. Sign up for Google Pay Business at https://pay.google.com/business/console
+2. Complete merchant verification
+3. Get your Merchant ID from the console
+4. Configure your payment processor (Stripe, Razorpay, etc.)
+5. Copy your Gateway Merchant ID from your processor
+    `.trim(),
+    supportsPlatformSplit: false,
+    isActive: true,
+  },
+  {
+    id: 'applepay-template',
+    gatewayType: 'APPLE_PAY',
+    displayName: 'Apple Pay',
+    description: 'Accept Apple Pay for secure, private payments on iPhone, iPad, Mac and Apple Watch.',
+    logoUrl: 'https://cdn.brandfetch.io/idnrCPuv87/theme/dark/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B',
+    supportedCountries: ['US', 'GB', 'AU', 'CA', 'SG', 'JP', 'DE', 'FR', 'GLOBAL'],
+    supportedPaymentMethods: ['APPLE_PAY', 'CARD'],
+    requiredCredentials: ['merchant_id', 'merchant_certificate', 'domain_verification_file'],
+    setupInstructions: `
+1. Enroll in Apple Developer Program at https://developer.apple.com
+2. Create a Merchant ID in Certificates, Identifiers & Profiles
+3. Generate a Payment Processing Certificate
+4. Verify your domain with Apple
+5. Configure your payment processor (Stripe, etc.)
+    `.trim(),
+    supportsPlatformSplit: false,
+    isActive: true,
+  },
+  {
+    id: 'paytm-template',
+    gatewayType: 'PAYTM',
+    displayName: 'Paytm',
+    description: 'India\'s popular digital wallet and payment gateway. Accept UPI, cards, netbanking and Paytm wallet.',
+    logoUrl: 'https://cdn.brandfetch.io/idw7FJ49Pj/theme/dark/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B',
+    supportedCountries: ['IN'],
+    supportedPaymentMethods: ['UPI', 'WALLET', 'CARD', 'NET_BANKING'],
+    requiredCredentials: ['merchant_id', 'merchant_key', 'website'],
+    setupInstructions: `
+1. Register at Paytm for Business at https://business.paytm.com
+2. Complete KYC and business verification
+3. Access your dashboard and go to Developer Settings
+4. Copy your Merchant ID and Merchant Key
+5. Configure your website/app details
+    `.trim(),
+    supportsPlatformSplit: false,
+    isActive: true,
+  },
+  {
+    id: 'upi-template',
+    gatewayType: 'UPI',
+    displayName: 'UPI Direct',
+    description: 'Accept direct UPI payments in India. Works with all UPI apps - GPay, PhonePe, Paytm, BHIM etc.',
+    logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1200px-UPI-Logo-vector.svg.png',
+    supportedCountries: ['IN'],
+    supportedPaymentMethods: ['UPI'],
+    requiredCredentials: ['vpa', 'merchant_name', 'mcc'],
+    setupInstructions: `
+1. Register with a UPI PSP (Payment Service Provider)
+2. Get your Virtual Payment Address (VPA) like yourstore@upi
+3. Configure your Merchant Category Code (MCC)
+4. Set up webhook for payment notifications
+5. Test with small amounts before going live
     `.trim(),
     supportsPlatformSplit: false,
     isActive: true,
