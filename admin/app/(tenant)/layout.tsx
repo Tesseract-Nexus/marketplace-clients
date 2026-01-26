@@ -222,7 +222,7 @@ const navigation: NavItem[] = [
       { name: "Staff", href: "/staff" },
       { name: "Organization", href: "/staff/organization" },
       { name: "Roles & Permissions", href: "/staff/roles" },
-      { name: "Delegations", href: "/staff/delegations" },
+      { name: "Delegations", href: "/staff/delegations", hidden: true }, // Disabled for now - enable in future
       { name: "Tickets", href: "/tickets", minRole: "member" }, // Tickets visible to member+
       { name: "Approvals", href: "/approvals", minRole: "manager" }, // Approvals for manager+
     ],
