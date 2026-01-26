@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PageHeader } from '@/components/PageHeader';
 import { useDialog } from '@/contexts/DialogContext';
+import { useTenant } from '@/contexts/TenantContext';
 import { StoreSelector } from '@/components/settings/StoreSelector';
 import { settingsService } from '@/lib/services/settingsService';
 import { storefrontService } from '@/lib/services/storefrontService';
@@ -22,6 +23,7 @@ const defaultCustomerData = {
 
 export default function CustomerSettingsPage() {
   const { showSuccess, showError } = useDialog();
+  const { currentTenant } = useTenant();
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
   const [selectedStorefront, setSelectedStorefront] = useState<Storefront | null>(null);
   const [loadingStorefronts, setLoadingStorefronts] = useState(true);
@@ -37,12 +39,12 @@ export default function CustomerSettingsPage() {
     loadStorefronts();
   }, []);
 
-  // Load settings when storefront changes
+  // Load settings when storefront changes and tenant is available
   useEffect(() => {
-    if (selectedStorefront) {
-      loadSettings(selectedStorefront.id);
+    if (selectedStorefront && currentTenant?.id) {
+      loadSettings();
     }
-  }, [selectedStorefront?.id]);
+  }, [selectedStorefront?.id, currentTenant?.id]);
 
   const loadStorefronts = async () => {
     try {
@@ -61,13 +63,20 @@ export default function CustomerSettingsPage() {
     }
   };
 
-  const loadSettings = async (storefrontId: string) => {
+  const loadSettings = async () => {
+    // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      console.warn('[CustomerSettings] No tenant ID available');
+      return;
+    }
+
     try {
       setLoading(true);
       const settings = await settingsService.getSettingsByContext({
         applicationId: 'admin-portal',
         scope: 'application',
-        tenantId: storefrontId,
+        tenantId: tenantId,
       });
 
       // Store the full ecommerce object to preserve other sections when saving
@@ -98,6 +107,13 @@ export default function CustomerSettingsPage() {
   };
 
   const handleSave = async () => {
+    // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      showError('Error', 'No tenant available. Please try again.');
+      return;
+    }
+
     if (!selectedStorefront) {
       showError('Error', 'Please select a storefront first');
       return;
@@ -115,15 +131,15 @@ export default function CustomerSettingsPage() {
         context: {
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: selectedStorefront.id,
+          tenantId: tenantId,
         },
         ecommerce: mergedEcommerce,
       };
 
       if (settingsId) {
-        await settingsService.updateSettings(settingsId, payload as any, selectedStorefront.id);
+        await settingsService.updateSettings(settingsId, payload as any, tenantId);
       } else {
-        const newSettings = await settingsService.createSettings(payload as any, selectedStorefront.id);
+        const newSettings = await settingsService.createSettings(payload as any, tenantId);
         setSettingsId(newSettings.id);
       }
 

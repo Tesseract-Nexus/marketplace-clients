@@ -7,8 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select } from '@/components/Select';
 import { useDialog } from '@/contexts/DialogContext';
+import { useTenant } from '@/contexts/TenantContext';
 import { settingsService } from '@/lib/services/settingsService';
-import { storefrontService } from '@/lib/services/storefrontService';
 import {
   paymentsService,
   PaymentGatewayConfig,
@@ -70,6 +70,7 @@ const gatewayTypeOptions = [
 
 export function GatewayConfigTab() {
   const { showConfirm, showSuccess, showError } = useDialog();
+  const { currentTenant } = useTenant();
   const [gateways, setGateways] = useState<PaymentGatewayConfig[]>([]);
   const [templates, setTemplates] = useState<PaymentGatewayTemplate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -98,8 +99,13 @@ export function GatewayConfigTab() {
 
   useEffect(() => {
     loadData();
-    loadStoreLocation();
   }, []);
+
+  useEffect(() => {
+    if (currentTenant?.id) {
+      loadStoreLocation();
+    }
+  }, [currentTenant?.id]);
 
   const loadData = async () => {
     setLoading(true);
@@ -132,35 +138,37 @@ export function GatewayConfigTab() {
   const loadStoreLocation = async () => {
     try {
       setLoadingLocation(true);
-      // Get first storefront to fetch its settings
-      const storefronts = await storefrontService.getStorefronts();
-      if (storefronts.data && storefronts.data.length > 0) {
-        const storefrontId = storefronts.data[0].id;
-        const settings = await settingsService.getSettingsByContext({
-          applicationId: 'admin-portal',
-          scope: 'application',
-          tenantId: storefrontId,
-        });
+      // Use tenant ID (not storefront ID) for tenant-scoped settings
+      const tenantId = currentTenant?.id;
+      if (!tenantId) {
+        console.warn('[GatewayConfigTab] No tenant ID available');
+        return;
+      }
 
-        if (settings?.ecommerce?.store?.address?.country) {
-          // Try to get country code from settings
-          const countryName = settings.ecommerce.store.address.country;
-          setStoreCountryName(countryName);
+      const settings = await settingsService.getSettingsByContext({
+        applicationId: 'admin-portal',
+        scope: 'application',
+        tenantId: tenantId,
+      });
 
-          // Map common country names to codes
-          const countryMap: Record<string, string> = {
-            'India': 'IN',
-            'United States': 'US',
-            'United Kingdom': 'GB',
-            'Australia': 'AU',
-            'Canada': 'CA',
-            'Germany': 'DE',
-            'France': 'FR',
-            'Singapore': 'SG',
-            'New Zealand': 'NZ',
-          };
-          setStoreCountry(countryMap[countryName] || 'DEFAULT');
-        }
+      if (settings?.ecommerce?.store?.address?.country) {
+        // Try to get country code from settings
+        const countryName = settings.ecommerce.store.address.country;
+        setStoreCountryName(countryName);
+
+        // Map common country names to codes
+        const countryMap: Record<string, string> = {
+          'India': 'IN',
+          'United States': 'US',
+          'United Kingdom': 'GB',
+          'Australia': 'AU',
+          'Canada': 'CA',
+          'Germany': 'DE',
+          'France': 'FR',
+          'Singapore': 'SG',
+          'New Zealand': 'NZ',
+        };
+        setStoreCountry(countryMap[countryName] || 'DEFAULT');
       }
     } catch (error) {
       console.error('Failed to load store location:', error);

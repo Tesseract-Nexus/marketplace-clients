@@ -23,6 +23,7 @@ import {
 } from '@/lib/api/shippingCarriers';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { cn } from '@/lib/utils';
+import { useTenant } from '@/contexts/TenantContext';
 
 type TabId = 'carriers' | 'regions' | 'settings';
 
@@ -101,14 +102,17 @@ function ShippingStatusWidget({
 }
 
 export default function ShippingCarriersSettingsPage() {
+  const { currentTenant } = useTenant();
   const [activeTab, setActiveTab] = useState<TabId>('carriers');
   const [loading, setLoading] = useState(true);
   const [storeCountry, setStoreCountry] = useState<string | null>(null);
   const [carriers, setCarriers] = useState<ShippingCarrierConfig[]>([]);
 
   useEffect(() => {
-    loadShippingStatus();
-  }, []);
+    if (currentTenant?.id) {
+      loadShippingStatus();
+    }
+  }, [currentTenant?.id]);
 
   const loadShippingStatus = async () => {
     try {
@@ -121,11 +125,10 @@ export default function ShippingCarriersSettingsPage() {
       setCarriers(carriersData);
 
       if (storefronts.data && storefronts.data.length > 0) {
-        const storefrontId = storefronts.data[0].id;
         const settings = await settingsService.getSettingsByContext({
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: storefrontId,
+          tenantId: currentTenant?.id,
         });
 
         if (settings?.ecommerce?.store?.address?.country) {

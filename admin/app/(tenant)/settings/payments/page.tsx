@@ -20,10 +20,10 @@ import { PaymentMethodsTab } from './components/PaymentMethodsTab';
 import { SecuritySettingsTab } from './components/SecuritySettingsTab';
 import { TaxInfoTab } from './components/TaxInfoTab';
 import { settingsService } from '@/lib/services/settingsService';
-import { storefrontService } from '@/lib/services/storefrontService';
 import { paymentsService, PaymentGatewayConfig } from '@/lib/api/payments';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PaymentStatusWidget } from '@/components/settings/payments';
+import { useTenant } from '@/contexts/TenantContext';
 import { cn } from '@/lib/utils';
 
 type TabId = 'gateways' | 'fees' | 'methods' | 'taxes' | 'regions' | 'security';
@@ -51,31 +51,31 @@ const GATEWAY_RECOMMENDATIONS: Record<string, {
 };
 
 export default function PaymentsSettingsPage() {
+  const { currentTenant } = useTenant();
   const [activeTab, setActiveTab] = useState<TabId>('gateways');
   const [loading, setLoading] = useState(true);
   const [storeCountry, setStoreCountry] = useState<string | null>(null);
   const [gateways, setGateways] = useState<PaymentGatewayConfig[]>([]);
 
   useEffect(() => {
-    loadPaymentStatus();
-  }, []);
+    if (currentTenant?.id) {
+      loadPaymentStatus();
+    }
+  }, [currentTenant?.id]);
 
   const loadPaymentStatus = async () => {
     try {
       setLoading(true);
-      const [gatewaysData, storefronts] = await Promise.all([
-        paymentsService.getGatewayConfigs(),
-        storefrontService.getStorefronts(),
-      ]);
-
+      const gatewaysData = await paymentsService.getGatewayConfigs();
       setGateways(gatewaysData);
 
-      if (storefronts.data && storefronts.data.length > 0) {
-        const storefrontId = storefronts.data[0].id;
+      // Use tenant ID (not storefront ID) for tenant-scoped settings
+      const tenantId = currentTenant?.id;
+      if (tenantId) {
         const settings = await settingsService.getSettingsByContext({
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: storefrontId,
+          tenantId: tenantId,
         });
 
         if (settings?.ecommerce?.store?.address?.country) {

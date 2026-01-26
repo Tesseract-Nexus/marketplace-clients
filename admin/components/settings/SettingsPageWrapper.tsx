@@ -9,6 +9,7 @@ import { storefrontService } from '@/lib/services/storefrontService';
 import { settingsService } from '@/lib/services/settingsService';
 import type { Storefront } from '@/lib/api/types';
 import { useDialog } from '@/contexts/DialogContext';
+import { useTenant } from '@/contexts/TenantContext';
 
 interface SettingsPageWrapperProps {
   title: string;
@@ -36,6 +37,7 @@ export function SettingsPageWrapper({
   saveButtonText = 'Save Changes',
 }: SettingsPageWrapperProps) {
   const { showSuccess, showError } = useDialog();
+  const { currentTenant } = useTenant();
 
   // Storefront state
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
@@ -57,12 +59,12 @@ export function SettingsPageWrapper({
     loadStorefronts();
   }, []);
 
-  // Load settings when storefront changes
+  // Load settings when storefront changes or tenant is available
   useEffect(() => {
-    if (selectedStorefront) {
-      loadSettings(selectedStorefront.id);
+    if (selectedStorefront && currentTenant?.id) {
+      loadSettings();
     }
-  }, [selectedStorefront?.id]);
+  }, [selectedStorefront?.id, currentTenant?.id]);
 
   const loadStorefronts = async () => {
     try {
@@ -81,13 +83,20 @@ export function SettingsPageWrapper({
     }
   };
 
-  const loadSettings = async (storefrontId: string) => {
+  const loadSettings = async () => {
+    // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      console.warn('[SettingsPageWrapper] No tenant ID available');
+      return;
+    }
+
     try {
       setLoading(true);
       const data = await settingsService.getSettingsByContext({
         applicationId: 'admin-portal',
         scope: 'application',
-        tenantId: storefrontId,
+        tenantId: tenantId,
       });
 
       if (data) {
@@ -117,6 +126,13 @@ export function SettingsPageWrapper({
   };
 
   const handleSave = async (data: any) => {
+    // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      showError('Error', 'No tenant available. Please try again.');
+      return;
+    }
+
     if (!selectedStorefront) {
       showError('Error', 'Please select a storefront first');
       return;
@@ -129,15 +145,15 @@ export function SettingsPageWrapper({
         context: {
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: selectedStorefront.id,
+          tenantId: tenantId,
         },
         ...data,
       };
 
       if (settingsId) {
-        await settingsService.updateSettings(settingsId, payload, selectedStorefront.id);
+        await settingsService.updateSettings(settingsId, payload, tenantId);
       } else {
-        const newSettings = await settingsService.createSettings(payload as any, selectedStorefront.id);
+        const newSettings = await settingsService.createSettings(payload as any, tenantId);
         setSettingsId(newSettings.id);
       }
 
@@ -239,6 +255,7 @@ export function SettingsPageWrapper({
 // Export a simpler hook for custom implementations
 export function useSettingsPage() {
   const { showSuccess, showError } = useDialog();
+  const { currentTenant } = useTenant();
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
   const [selectedStorefront, setSelectedStorefront] = useState<Storefront | null>(null);
   const [loadingStorefronts, setLoadingStorefronts] = useState(true);
@@ -252,10 +269,10 @@ export function useSettingsPage() {
   }, []);
 
   useEffect(() => {
-    if (selectedStorefront) {
-      loadSettings(selectedStorefront.id);
+    if (selectedStorefront && currentTenant?.id) {
+      loadSettings();
     }
-  }, [selectedStorefront?.id]);
+  }, [selectedStorefront?.id, currentTenant?.id]);
 
   const loadStorefronts = async () => {
     try {
@@ -273,13 +290,20 @@ export function useSettingsPage() {
     }
   };
 
-  const loadSettings = async (storefrontId: string) => {
+  const loadSettings = async () => {
+    // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      console.warn('[useSettingsPage] No tenant ID available');
+      return;
+    }
+
     try {
       setLoading(true);
       const data = await settingsService.getSettingsByContext({
         applicationId: 'admin-portal',
         scope: 'application',
-        tenantId: storefrontId,
+        tenantId: tenantId,
       });
       if (data) {
         setSettingsId(data.id);
@@ -298,6 +322,13 @@ export function useSettingsPage() {
   };
 
   const saveSettings = async (payload: any) => {
+    // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      showError('Error', 'No tenant available. Please try again.');
+      return;
+    }
+
     if (!selectedStorefront) {
       showError('Error', 'Please select a storefront first');
       return;
@@ -309,15 +340,15 @@ export function useSettingsPage() {
         context: {
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: selectedStorefront.id,
+          tenantId: tenantId,
         },
         ...payload,
       };
 
       if (settingsId) {
-        await settingsService.updateSettings(settingsId, data, selectedStorefront.id);
+        await settingsService.updateSettings(settingsId, data, tenantId);
       } else {
-        const newSettings = await settingsService.createSettings(data as any, selectedStorefront.id);
+        const newSettings = await settingsService.createSettings(data as any, tenantId);
         setSettingsId(newSettings.id);
       }
       showSuccess('Success', 'Settings saved successfully!');
@@ -346,7 +377,7 @@ export function useSettingsPage() {
     saving,
     saveSettings,
     handleStorefrontCreated,
-    refreshSettings: () => selectedStorefront && loadSettings(selectedStorefront.id),
+    refreshSettings: () => currentTenant?.id && loadSettings(),
   };
 }
 

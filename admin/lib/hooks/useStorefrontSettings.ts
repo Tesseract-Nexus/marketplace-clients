@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { storefrontService } from '@/lib/services/storefrontService';
 import { settingsService } from '@/lib/services/settingsService';
+import { useTenant } from '@/contexts/TenantContext';
 import type { Storefront } from '@/lib/api/types';
 import type { Settings } from '@/lib/types/settings';
 import { buildStorefrontUrl } from '@/lib/utils/tenant';
@@ -44,6 +45,8 @@ export function useStorefrontSettings(
     autoSelectFirst = true,
   } = options;
 
+  const { currentTenant } = useTenant();
+
   // Storefront state
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
   const [selectedStorefront, setSelectedStorefront] = useState<Storefront | null>(null);
@@ -59,15 +62,15 @@ export function useStorefrontSettings(
     loadStorefronts();
   }, []);
 
-  // Load settings when storefront changes
+  // Load settings when storefront changes and tenant is available
   useEffect(() => {
-    if (selectedStorefront) {
-      loadSettingsForStorefront(selectedStorefront.id);
+    if (selectedStorefront && currentTenant?.id) {
+      loadSettingsForTenant();
     } else {
       setSettings(null);
       setSettingsId(null);
     }
-  }, [selectedStorefront?.id]);
+  }, [selectedStorefront?.id, currentTenant?.id]);
 
   const loadStorefronts = async () => {
     try {
@@ -87,13 +90,20 @@ export function useStorefrontSettings(
     }
   };
 
-  const loadSettingsForStorefront = async (storefrontId: string) => {
+  const loadSettingsForTenant = async () => {
+    // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      console.warn('[useStorefrontSettings] No tenant ID available');
+      return;
+    }
+
     try {
       setLoadingSettings(true);
       const data = await settingsService.getSettingsByContext({
         applicationId,
         scope,
-        tenantId: storefrontId,
+        tenantId: tenantId,
       });
 
       if (data) {
@@ -113,12 +123,18 @@ export function useStorefrontSettings(
   };
 
   const loadSettings = useCallback(async () => {
-    if (selectedStorefront) {
-      await loadSettingsForStorefront(selectedStorefront.id);
+    if (selectedStorefront && currentTenant?.id) {
+      await loadSettingsForTenant();
     }
-  }, [selectedStorefront?.id]);
+  }, [selectedStorefront?.id, currentTenant?.id]);
 
   const saveSettings = useCallback(async (data: Partial<Settings>): Promise<Settings | null> => {
+    // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
+    const tenantId = currentTenant?.id;
+    if (!tenantId) {
+      throw new Error('No tenant available');
+    }
+
     if (!selectedStorefront) {
       throw new Error('No storefront selected');
     }
@@ -128,16 +144,16 @@ export function useStorefrontSettings(
       context: {
         applicationId,
         scope,
-        tenantId: selectedStorefront.id,
+        tenantId: tenantId,
       },
     };
 
     try {
       let result: Settings;
       if (settingsId) {
-        result = await settingsService.updateSettings(settingsId, payload, selectedStorefront.id);
+        result = await settingsService.updateSettings(settingsId, payload, tenantId);
       } else {
-        result = await settingsService.createSettings(payload as any, selectedStorefront.id);
+        result = await settingsService.createSettings(payload as any, tenantId);
         setSettingsId(result.id);
       }
       setSettings(result);
@@ -146,7 +162,7 @@ export function useStorefrontSettings(
       console.error('Failed to save settings:', err);
       throw err;
     }
-  }, [selectedStorefront?.id, settingsId, applicationId, scope]);
+  }, [selectedStorefront?.id, settingsId, applicationId, scope, currentTenant?.id]);
 
   const selectStorefront = useCallback((storefront: Storefront) => {
     setSelectedStorefront(storefront);

@@ -269,10 +269,16 @@ export default function GeneralSettingsPage() {
 
       let data = null;
       try {
+        // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
+        // The settings service uses tenant_id for RBAC and data isolation
+        const tenantId = currentTenant?.id || '';
+        if (!tenantId) {
+          console.warn('[Settings] No tenant ID available');
+        }
         data = await settingsService.getSettingsByContext({
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: storefrontId,
+          tenantId: tenantId,
         });
       } catch (settingsErr) {
         console.log('[Settings] Settings service error (will use tenant data):', settingsErr);
@@ -372,12 +378,19 @@ export default function GeneralSettingsPage() {
     try {
       setIsSaving(true);
 
+      // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
+      const tenantId = currentTenant?.id || '';
+      if (!tenantId) {
+        showError('Error', 'Unable to save: No tenant context available');
+        return;
+      }
+
       // Build settings payload - using Partial types since we're only updating specific fields
       const payload = {
         context: {
           applicationId: 'admin-portal',
           scope: 'application' as const,
-          tenantId: selectedStorefront.id,
+          tenantId: tenantId,
         },
         ecommerce: {
           store: {
@@ -415,10 +428,10 @@ export default function GeneralSettingsPage() {
 
       if (settingsId) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        await settingsService.updateSettings(settingsId, payload as any, selectedStorefront.id);
+        await settingsService.updateSettings(settingsId, payload as any, tenantId);
       } else {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const newSettings = await settingsService.createSettings(payload as any, selectedStorefront.id);
+        const newSettings = await settingsService.createSettings(payload as any, tenantId);
         setSettingsId(newSettings.id);
       }
 

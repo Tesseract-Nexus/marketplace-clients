@@ -211,12 +211,21 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
   try {
     const headers = await getProxyHeaders(request) as Record<string, string>;
     const storefrontId = request.headers.get('x-storefront-id') || request.headers.get('X-Storefront-ID');
-    const tenantId = headers['x-jwt-claim-tenant-id'] || storefrontId;
+    // IMPORTANT: tenant ID must come from JWT claims/BFF session, NOT from storefront ID
+    const tenantId = headers['x-jwt-claim-tenant-id'];
 
     if (!storefrontId) {
       return NextResponse.json(
         { success: false, data: null as unknown as StorefrontSettings, message: 'X-Storefront-ID header is required' },
         { status: 400 }
+      );
+    }
+
+    if (!tenantId) {
+      console.error('GET /api/storefront/settings: Missing tenant ID in JWT claims');
+      return NextResponse.json(
+        { success: false, data: null as unknown as StorefrontSettings, message: 'Missing tenant ID - please log in again' },
+        { status: 401 }
       );
     }
 
@@ -229,7 +238,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
       'Content-Type': 'application/json',
       'X-Storefront-ID': storefrontId,
       // Forward Istio JWT claim headers
-      'x-jwt-claim-tenant-id': tenantId || storefrontId,
+      'x-jwt-claim-tenant-id': tenantId,
     };
 
     // Forward user identity headers (required by backend IstioAuth middleware)
@@ -283,7 +292,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
     const now = new Date().toISOString();
     const defaultSettings: StorefrontSettings = {
       id: crypto.randomUUID(),
-      tenantId: storefrontId,
+      tenantId: tenantId,
       ...DEFAULT_STOREFRONT_SETTINGS,
       createdAt: now,
       updatedAt: now,
@@ -296,12 +305,13 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
   } catch (error) {
     console.error('Error fetching storefront settings from Settings Service:', error);
 
-    // Fallback to defaults on error
-    const storefrontId = request.headers.get('x-storefront-id') || 'unknown';
+    // Fallback to defaults on error - re-extract tenant ID from headers
+    const errorHeaders = await getProxyHeaders(request).catch(() => ({})) as Record<string, string>;
+    const fallbackTenantId = errorHeaders['x-jwt-claim-tenant-id'] || request.headers.get('x-storefront-id') || 'unknown';
     const now = new Date().toISOString();
     const defaultSettings: StorefrontSettings = {
       id: crypto.randomUUID(),
-      tenantId: storefrontId,
+      tenantId: fallbackTenantId,
       ...DEFAULT_STOREFRONT_SETTINGS,
       createdAt: now,
       updatedAt: now,
@@ -323,7 +333,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
   try {
     const headers = await getProxyHeaders(request) as Record<string, string>;
     const storefrontId = request.headers.get('x-storefront-id') || request.headers.get('X-Storefront-ID');
-    const tenantId = headers['x-jwt-claim-tenant-id'] || storefrontId;
+    // IMPORTANT: tenant ID must come from JWT claims/BFF session, NOT from storefront ID
+    const tenantId = headers['x-jwt-claim-tenant-id'];
     const userId = headers['x-jwt-claim-sub'];
     const userEmail = headers['x-jwt-claim-email'];
 
@@ -332,6 +343,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       return NextResponse.json(
         { success: false, data: null as unknown as StorefrontSettings, message: 'X-Storefront-ID header is required' },
         { status: 400 }
+      );
+    }
+
+    if (!tenantId) {
+      console.error('POST /api/storefront/settings: Missing tenant ID in JWT claims');
+      return NextResponse.json(
+        { success: false, data: null as unknown as StorefrontSettings, message: 'Missing tenant ID - please log in again' },
+        { status: 401 }
       );
     }
 
@@ -345,7 +364,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
       'Content-Type': 'application/json',
       'X-Storefront-ID': storefrontId,
       // Forward Istio JWT claim headers
-      'x-jwt-claim-tenant-id': tenantId || storefrontId,
+      'x-jwt-claim-tenant-id': tenantId,
     };
 
     if (userId) {
@@ -441,7 +460,8 @@ export async function PATCH(request: NextRequest): Promise<NextResponse<ApiRespo
   try {
     const headers = await getProxyHeaders(request) as Record<string, string>;
     const storefrontId = request.headers.get('x-storefront-id') || request.headers.get('X-Storefront-ID');
-    const tenantId = headers['x-jwt-claim-tenant-id'] || storefrontId;
+    // IMPORTANT: tenant ID must come from JWT claims/BFF session, NOT from storefront ID
+    const tenantId = headers['x-jwt-claim-tenant-id'];
     const userId = headers['x-jwt-claim-sub'];
     const userEmail = headers['x-jwt-claim-email'];
 
@@ -452,13 +472,21 @@ export async function PATCH(request: NextRequest): Promise<NextResponse<ApiRespo
       );
     }
 
+    if (!tenantId) {
+      console.error('PATCH /api/storefront/settings: Missing tenant ID in JWT claims');
+      return NextResponse.json(
+        { success: false, data: null as unknown as StorefrontSettings, message: 'Missing tenant ID - please log in again' },
+        { status: 401 }
+      );
+    }
+
     const body: Partial<CreateStorefrontSettingsRequest> = await request.json();
 
     // Build headers for backend request
     const backendHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-Storefront-ID': storefrontId,
-      'x-jwt-claim-tenant-id': tenantId || storefrontId,
+      'x-jwt-claim-tenant-id': tenantId,
     };
 
     if (userId) {
@@ -548,7 +576,8 @@ export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResp
   try {
     const headers = await getProxyHeaders(request) as Record<string, string>;
     const storefrontId = request.headers.get('x-storefront-id') || request.headers.get('X-Storefront-ID');
-    const tenantId = headers['x-jwt-claim-tenant-id'] || storefrontId;
+    // IMPORTANT: tenant ID must come from JWT claims/BFF session, NOT from storefront ID
+    const tenantId = headers['x-jwt-claim-tenant-id'];
     const userId = headers['x-jwt-claim-sub'];
     const userEmail = headers['x-jwt-claim-email'];
 
@@ -559,11 +588,19 @@ export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResp
       );
     }
 
+    if (!tenantId) {
+      console.error('DELETE /api/storefront/settings: Missing tenant ID in JWT claims');
+      return NextResponse.json(
+        { success: false, data: null as unknown as StorefrontSettings, message: 'Missing tenant ID - please log in again' },
+        { status: 401 }
+      );
+    }
+
     // Build headers for backend request
     const backendHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-Storefront-ID': storefrontId,
-      'x-jwt-claim-tenant-id': tenantId || storefrontId,
+      'x-jwt-claim-tenant-id': tenantId,
     };
 
     if (userId) {
@@ -601,7 +638,7 @@ export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResp
     const now = new Date().toISOString();
     const defaultSettings: StorefrontSettings = {
       id: crypto.randomUUID(),
-      tenantId: storefrontId,
+      tenantId: tenantId,
       ...DEFAULT_STOREFRONT_SETTINGS,
       createdAt: now,
       updatedAt: now,
@@ -615,11 +652,13 @@ export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResp
   } catch (error) {
     console.error('Error resetting storefront settings in Settings Service:', error);
 
-    const storefrontId = request.headers.get('x-storefront-id') || 'unknown';
+    // Fallback to defaults on error - re-extract tenant ID from headers
+    const errorHeaders = await getProxyHeaders(request).catch(() => ({})) as Record<string, string>;
+    const fallbackTenantId = errorHeaders['x-jwt-claim-tenant-id'] || request.headers.get('x-storefront-id') || 'unknown';
     const now = new Date().toISOString();
     const defaultSettings: StorefrontSettings = {
       id: crypto.randomUUID(),
-      tenantId: storefrontId,
+      tenantId: fallbackTenantId,
       ...DEFAULT_STOREFRONT_SETTINGS,
       createdAt: now,
       updatedAt: now,

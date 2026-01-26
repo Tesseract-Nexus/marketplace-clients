@@ -35,6 +35,7 @@ import { settingsService } from '@/lib/services/settingsService';
 import { storefrontService } from '@/lib/services/storefrontService';
 import type { Storefront } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
+import { useTenant } from '@/contexts/TenantContext';
 
 interface CarrierConfig {
   id?: string;
@@ -104,6 +105,7 @@ const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
 
 export default function ShippingSettingsPage() {
   const { showSuccess, showError } = useDialog();
+  const { currentTenant } = useTenant();
   const [activeTab, setActiveTab] = useState<TabId>('general');
 
   // Storefront state
@@ -137,11 +139,11 @@ export default function ShippingSettingsPage() {
 
   // Load settings when storefront changes
   useEffect(() => {
-    if (selectedStorefront) {
-      loadSettings(selectedStorefront.id);
+    if (selectedStorefront && currentTenant?.id) {
+      loadSettings();
       loadCarrierConfigs();
     }
-  }, [selectedStorefront?.id]);
+  }, [selectedStorefront?.id, currentTenant?.id]);
 
   const loadStorefronts = async () => {
     try {
@@ -180,13 +182,13 @@ export default function ShippingSettingsPage() {
     }
   };
 
-  const loadSettings = async (storefrontId: string) => {
+  const loadSettings = async () => {
     try {
       setLoading(true);
       const settings = await settingsService.getSettingsByContext({
         applicationId: 'admin-portal',
         scope: 'application',
-        tenantId: storefrontId,
+        tenantId: currentTenant?.id,
       });
 
       if (settings?.ecommerce) {
@@ -238,15 +240,15 @@ export default function ShippingSettingsPage() {
         context: {
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: selectedStorefront.id,
+          tenantId: currentTenant?.id,
         },
         ecommerce: mergedEcommerce,
       };
 
       if (settingsId) {
-        await settingsService.updateSettings(settingsId, payload as never, selectedStorefront.id);
+        await settingsService.updateSettings(settingsId, payload as never, currentTenant?.id);
       } else {
-        const newSettings = await settingsService.createSettings(payload as never, selectedStorefront.id);
+        const newSettings = await settingsService.createSettings(payload as never, currentTenant?.id);
         setSettingsId(newSettings.id);
       }
 

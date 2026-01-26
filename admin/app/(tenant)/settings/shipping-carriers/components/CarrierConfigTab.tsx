@@ -37,6 +37,7 @@ import {
   isIndiaCarrier,
   isGlobalCarrier,
 } from '@/lib/api/shippingCarriers';
+import { useTenant } from '@/contexts/TenantContext';
 
 // Country-specific carrier recommendations
 const CARRIER_RECOMMENDATIONS: Record<string, { primary: CarrierType; fallback?: CarrierType; description: string }> = {
@@ -95,6 +96,7 @@ const getCarrierIconComponent = (carrierType: CarrierType) => {
 
 export function CarrierConfigTab() {
   const { showConfirm, showSuccess, showError } = useDialog();
+  const { currentTenant } = useTenant();
   const [carriers, setCarriers] = useState<ShippingCarrierConfig[]>([]);
   const [templates, setTemplates] = useState<ShippingCarrierTemplate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,8 +122,10 @@ export function CarrierConfigTab() {
 
   useEffect(() => {
     loadData();
-    loadStoreLocation();
-  }, []);
+    if (currentTenant?.id) {
+      loadStoreLocation();
+    }
+  }, [currentTenant?.id]);
 
   const loadData = async () => {
     try {
@@ -147,11 +151,10 @@ export function CarrierConfigTab() {
       setLoadingLocation(true);
       const storefronts = await storefrontService.getStorefronts();
       if (storefronts.data && storefronts.data.length > 0) {
-        const storefrontId = storefronts.data[0].id;
         const settings = await settingsService.getSettingsByContext({
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: storefrontId,
+          tenantId: currentTenant?.id,
         });
 
         if (settings?.ecommerce?.store?.address?.country) {

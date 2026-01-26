@@ -13,6 +13,7 @@ import { storefrontService } from '@/lib/services/storefrontService';
 import type { Storefront } from '@/lib/api/types';
 import type { OrderSettings } from '@/lib/types/settings';
 import { useDialog } from '@/contexts/DialogContext';
+import { useTenant } from '@/contexts/TenantContext';
 
 const defaultOrderData: OrderSettings = {
   numbering: {
@@ -58,6 +59,7 @@ const defaultOrderData: OrderSettings = {
 
 export default function OrderSettingsPage() {
   const { showSuccess, showError } = useDialog();
+  const { currentTenant } = useTenant();
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
   const [selectedStorefront, setSelectedStorefront] = useState<Storefront | null>(null);
   const [loadingStorefronts, setLoadingStorefronts] = useState(true);
@@ -75,10 +77,10 @@ export default function OrderSettingsPage() {
 
   // Load settings when storefront changes
   useEffect(() => {
-    if (selectedStorefront) {
-      loadSettings(selectedStorefront.id);
+    if (selectedStorefront && currentTenant?.id) {
+      loadSettings();
     }
-  }, [selectedStorefront?.id]);
+  }, [selectedStorefront?.id, currentTenant?.id]);
 
   const loadStorefronts = async () => {
     try {
@@ -97,13 +99,13 @@ export default function OrderSettingsPage() {
     }
   };
 
-  const loadSettings = async (storefrontId: string) => {
+  const loadSettings = async () => {
     try {
       setLoading(true);
       const settings = await settingsService.getSettingsByContext({
         applicationId: 'admin-portal',
         scope: 'application',
-        tenantId: storefrontId,
+        tenantId: currentTenant?.id,
       });
 
       // Store the full ecommerce object to preserve other sections when saving
@@ -151,15 +153,15 @@ export default function OrderSettingsPage() {
         context: {
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: selectedStorefront.id,
+          tenantId: currentTenant?.id,
         },
         ecommerce: mergedEcommerce,
       };
 
       if (settingsId) {
-        await settingsService.updateSettings(settingsId, payload as any, selectedStorefront.id);
+        await settingsService.updateSettings(settingsId, payload as any, currentTenant?.id);
       } else {
-        const newSettings = await settingsService.createSettings(payload as any, selectedStorefront.id);
+        const newSettings = await settingsService.createSettings(payload as any, currentTenant?.id);
         setSettingsId(newSettings.id);
       }
 

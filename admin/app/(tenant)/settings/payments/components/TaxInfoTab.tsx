@@ -18,8 +18,8 @@ import {
   Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTenant } from '@/contexts/TenantContext';
 import { settingsService } from '@/lib/services/settingsService';
-import { storefrontService } from '@/lib/services/storefrontService';
 
 // Tax configuration by country
 const TAX_CONFIG: Record<string, {
@@ -186,6 +186,7 @@ const TAX_CONFIG: Record<string, {
 const ALL_REGIONS = ['IN', 'US', 'GB', 'AU', 'CA', 'DE'];
 
 export function TaxInfoTab() {
+  const { currentTenant } = useTenant();
   const [storeCountry, setStoreCountry] = useState<string | null>(null);
   const [storeCountryName, setStoreCountryName] = useState<string>('');
   const [loading, setLoading] = useState(true);
@@ -193,38 +194,42 @@ export function TaxInfoTab() {
   const [taxRegistration, setTaxRegistration] = useState<string | null>(null);
 
   useEffect(() => {
-    loadTaxInfo();
-  }, []);
+    if (currentTenant?.id) {
+      loadTaxInfo();
+    }
+  }, [currentTenant?.id]);
 
   const loadTaxInfo = async () => {
     try {
       setLoading(true);
-      const storefronts = await storefrontService.getStorefronts();
+      // Use tenant ID (not storefront ID) for tenant-scoped settings
+      const tenantId = currentTenant?.id;
+      if (!tenantId) {
+        console.warn('[TaxInfoTab] No tenant ID available');
+        return;
+      }
 
-      if (storefronts.data && storefronts.data.length > 0) {
-        const storefrontId = storefronts.data[0].id;
-        const settings = await settingsService.getSettingsByContext({
-          applicationId: 'admin-portal',
-          scope: 'application',
-          tenantId: storefrontId,
-        });
+      const settings = await settingsService.getSettingsByContext({
+        applicationId: 'admin-portal',
+        scope: 'application',
+        tenantId: tenantId,
+      });
 
-        if (settings?.ecommerce?.store?.address?.country) {
-          const countryName = settings.ecommerce.store.address.country;
-          setStoreCountryName(countryName);
+      if (settings?.ecommerce?.store?.address?.country) {
+        const countryName = settings.ecommerce.store.address.country;
+        setStoreCountryName(countryName);
 
-          const countryMap: Record<string, string> = {
-            'India': 'IN',
-            'United States': 'US',
-            'United Kingdom': 'GB',
-            'Australia': 'AU',
-            'Canada': 'CA',
-            'Germany': 'DE',
-            'France': 'DE', // Use DE (VAT) for France
-            'Singapore': 'DEFAULT',
-          };
-          setStoreCountry(countryMap[countryName] || 'DEFAULT');
-        }
+        const countryMap: Record<string, string> = {
+          'India': 'IN',
+          'United States': 'US',
+          'United Kingdom': 'GB',
+          'Australia': 'AU',
+          'Canada': 'CA',
+          'Germany': 'DE',
+          'France': 'DE', // Use DE (VAT) for France
+          'Singapore': 'DEFAULT',
+        };
+        setStoreCountry(countryMap[countryName] || 'DEFAULT');
       }
     } catch (error) {
       console.error('Failed to load tax info:', error);
