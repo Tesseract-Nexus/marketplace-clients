@@ -11,7 +11,7 @@ import {
 } from '@/lib/api/payments';
 import { PaymentMethodCard } from './PaymentMethodCard';
 import { ConfigurePaymentModal } from './ConfigurePaymentModal';
-import { toast } from 'sonner';
+import { useToast } from '@/contexts/ToastContext';
 
 const regionOptions = [
   { value: '', label: 'All Regions' },
@@ -27,6 +27,7 @@ const regionOptions = [
 ];
 
 export function PaymentMethodsTab() {
+  const toast = useToast();
   const [selectedRegion, setSelectedRegion] = useState('');
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethodResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,7 +48,7 @@ export function PaymentMethodsTab() {
       setPaymentMethods(response.paymentMethods || []);
     } catch (error: any) {
       console.error('Failed to load payment methods:', error);
-      toast.error('Failed to load payment methods');
+      toast.error('Error', 'Failed to load payment methods');
       setPaymentMethods([]);
     } finally {
       setLoading(false);
@@ -68,10 +69,10 @@ export function PaymentMethodsTab() {
   const handleToggle = async (method: PaymentMethodResponse, enabled: boolean) => {
     try {
       await paymentsService.enablePaymentMethod(method.code, enabled);
-      toast.success(`${method.name} ${enabled ? 'enabled' : 'disabled'}`);
+      toast.success('Success', `${method.name} ${enabled ? 'enabled' : 'disabled'}`);
       loadPaymentMethods(false);
     } catch (error: any) {
-      toast.error(error.message || `Failed to ${enabled ? 'enable' : 'disable'} payment method`);
+      toast.error('Error', error.message || `Failed to ${enabled ? 'enable' : 'disable'} payment method`);
       throw error;
     }
   };
@@ -80,13 +81,13 @@ export function PaymentMethodsTab() {
     try {
       const result = await paymentsService.testPaymentConnection(method.code);
       if (result.success) {
-        toast.success(`${method.name}: ${result.message}`);
+        toast.success(method.name, result.message);
       } else {
-        toast.error(`${method.name}: ${result.message}`);
+        toast.error(method.name, result.message);
       }
       loadPaymentMethods(false);
     } catch (error: any) {
-      toast.error(error.message || 'Connection test failed');
+      toast.error('Error', error.message || 'Connection test failed');
     }
   };
 

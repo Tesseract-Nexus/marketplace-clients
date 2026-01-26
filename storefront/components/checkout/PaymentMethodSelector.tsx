@@ -138,7 +138,7 @@ export function PaymentMethodSelector({
             </h4>
           )}
           <div className="space-y-2">
-            {groupedMethods[type].map((method) => {
+            {groupedMethods[type]?.map((method) => {
               const isSelected = selectedMethod === method.code;
               const Icon = methodTypeIcons[method.type] || CreditCard;
               const logo = providerLogos[method.provider] || providerLogos.Manual;

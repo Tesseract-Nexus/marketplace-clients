@@ -31,7 +31,7 @@ import {
   PaymentConfigSettings,
   UpdatePaymentConfigRequest,
 } from '@/lib/api/payments';
-import { toast } from 'sonner';
+import { useToast } from '@/contexts/ToastContext';
 
 interface ConfigurePaymentModalProps {
   isOpen: boolean;
@@ -104,6 +104,7 @@ export function ConfigurePaymentModal({
   method,
   onSaved,
 }: ConfigurePaymentModalProps) {
+  const toast = useToast();
   const [credentials, setCredentials] = useState<Partial<PaymentCredentials>>({});
   const [settings, setSettings] = useState<Partial<PaymentConfigSettings>>({});
   const [isTestMode, setIsTestMode] = useState(true);
@@ -182,14 +183,14 @@ export function ConfigurePaymentModal({
       setTestResult({ success: result.success, message: result.message });
 
       if (result.success) {
-        toast.success('Connection test successful');
+        toast.success('Success', 'Connection test successful');
       } else {
-        toast.error(`Connection test failed: ${result.message}`);
+        toast.error('Test Failed', result.message);
       }
     } catch (error: any) {
       const message = error.message || 'Failed to test connection';
       setTestResult({ success: false, message });
-      toast.error(message);
+      toast.error('Error', message);
     } finally {
       setIsTesting(false);
     }
@@ -212,11 +213,11 @@ export function ConfigurePaymentModal({
 
       await paymentsService.updatePaymentConfig(method.code, updateReq);
 
-      toast.success('Payment method configured successfully');
+      toast.success('Success', 'Payment method configured successfully');
       onSaved();
       onClose();
     } catch (error: any) {
-      toast.error(error.message || 'Failed to save configuration');
+      toast.error('Error', error.message || 'Failed to save configuration');
     } finally {
       setIsSaving(false);
     }
