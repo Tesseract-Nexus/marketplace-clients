@@ -14,6 +14,19 @@ import { Button } from '@/components/ui/button';
 import { REQUIRED_STORE_FIELDS } from '@/lib/constants/settings';
 import type { Storefront } from '@/lib/api/types';
 
+/**
+ * Get the display URL for a storefront
+ * Prioritizes custom domain if configured, otherwise uses the default storefrontUrl
+ */
+function getDisplayUrl(storefront: Storefront): string | null {
+  // Prefer custom domain if configured (this is what the user wants to see)
+  if (storefront.customDomain) {
+    return `https://${storefront.customDomain}`;
+  }
+  // Fall back to API-provided storefrontUrl
+  return storefront.storefrontUrl || null;
+}
+
 interface StoreSettings {
   store: {
     name: string;
@@ -104,27 +117,30 @@ export function StoreHealthWidget({
           />
         </div>
 
-        {/* Store URL */}
-        {storefront.storefrontUrl && (
-          <div className="flex items-center gap-2 text-xs">
-            <a
-              href={storefront.storefrontUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary truncate flex-1 transition-colors"
-            >
-              {storefront.storefrontUrl.replace(/^https?:\/\//, '')}
-            </a>
-            <a
-              href={storefront.storefrontUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-muted-foreground hover:text-primary transition-colors"
-            >
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          </div>
-        )}
+        {/* Store URL - prefer custom domain if configured */}
+        {(() => {
+          const displayUrl = getDisplayUrl(storefront);
+          return displayUrl ? (
+            <div className="flex items-center gap-2 text-xs">
+              <a
+                href={displayUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary truncate flex-1 transition-colors"
+              >
+                {displayUrl.replace(/^https?:\/\//, '')}
+              </a>
+              <a
+                href={displayUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            </div>
+          ) : null;
+        })()}
 
         {/* Preview button for hidden stores */}
         {!isLive && (
