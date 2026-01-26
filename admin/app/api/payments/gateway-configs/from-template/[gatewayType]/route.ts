@@ -7,163 +7,101 @@ const PAYMENTS_SERVICE_URL = getServiceUrl('PAYMENTS');
 type RouteParams = { params: Promise<{ gatewayType: string }> };
 
 /**
- * Gateway type to credential mapping
- * Maps the credential keys to the API field names expected by the backend
+ * Valid gateway types supported by the payment service.
+ * Used for request validation before proxying to backend.
  */
-const CREDENTIAL_MAPPINGS: Record<string, Record<string, string>> = {
-  STRIPE: {
-    publishable_key: 'apiKeyPublic',
-    secret_key: 'apiKeySecret',
-    webhook_secret: 'webhookSecret',
-  },
-  PAYPAL: {
-    client_id: 'apiKeyPublic',
-    client_secret: 'apiKeySecret',
-  },
-  RAZORPAY: {
-    key_id: 'apiKeyPublic',
-    key_secret: 'apiKeySecret',
-    webhook_secret: 'webhookSecret',
-  },
-  PHONEPE: {
-    merchant_id: 'merchantAccountId',
-    salt_key: 'apiKeySecret',
-    salt_index: 'webhookSecret',
-  },
-  AFTERPAY: {
-    merchant_id: 'merchantAccountId',
-    secret_key: 'apiKeySecret',
-  },
-  ZIP: {
-    merchant_id: 'merchantAccountId',
-    api_key: 'apiKeySecret',
-  },
-  GOOGLE_PAY: {
-    merchant_id: 'merchantAccountId',
-    merchant_name: 'displayName',
-    gateway_merchant_id: 'apiKeyPublic',
-  },
-  APPLE_PAY: {
-    merchant_id: 'merchantAccountId',
-    merchant_certificate: 'apiKeySecret',
-    domain_verification_file: 'webhookSecret',
-  },
-  PAYTM: {
-    merchant_id: 'merchantAccountId',
-    merchant_key: 'apiKeySecret',
-    website: 'webhookSecret',
-  },
-  UPI: {
-    vpa: 'apiKeyPublic',
-    merchant_name: 'displayName',
-    mcc: 'merchantAccountId',
-  },
-};
+const VALID_GATEWAY_TYPES = [
+  'STRIPE',
+  'PAYPAL',
+  'RAZORPAY',
+  'PHONEPE',
+  'AFTERPAY',
+  'ZIP',
+  'GOOGLE_PAY',
+  'APPLE_PAY',
+  'PAYTM',
+  'UPI',
+] as const;
 
-/**
- * Gateway type display names
- */
-const DISPLAY_NAMES: Record<string, string> = {
-  STRIPE: 'Stripe Payment Gateway',
-  PAYPAL: 'PayPal',
-  RAZORPAY: 'Razorpay',
-  PHONEPE: 'PhonePe',
-  AFTERPAY: 'Afterpay',
-  ZIP: 'Zip Pay',
-  GOOGLE_PAY: 'Google Pay',
-  APPLE_PAY: 'Apple Pay',
-  PAYTM: 'Paytm',
-  UPI: 'UPI Direct',
-};
+type GatewayType = (typeof VALID_GATEWAY_TYPES)[number];
 
-/**
- * Supported countries by gateway
- */
-const SUPPORTED_COUNTRIES: Record<string, string[]> = {
-  STRIPE: ['US', 'GB', 'AU', 'NZ', 'CA', 'DE', 'FR', 'IE', 'SG', 'JP', 'GLOBAL'],
-  PAYPAL: ['US', 'GB', 'AU', 'CA', 'DE', 'FR', 'IN', 'SG', 'JP', 'NZ', 'GLOBAL'],
-  RAZORPAY: ['IN'],
-  PHONEPE: ['IN'],
-  AFTERPAY: ['AU', 'NZ', 'US', 'GB'],
-  ZIP: ['AU', 'NZ', 'US'],
-  GOOGLE_PAY: ['US', 'GB', 'AU', 'IN', 'SG', 'JP', 'CA', 'DE', 'FR', 'GLOBAL'],
-  APPLE_PAY: ['US', 'GB', 'AU', 'CA', 'SG', 'JP', 'DE', 'FR', 'GLOBAL'],
-  PAYTM: ['IN'],
-  UPI: ['IN'],
-};
-
-/**
- * Supported payment methods by gateway
- */
-const SUPPORTED_METHODS: Record<string, string[]> = {
-  STRIPE: ['CARD', 'APPLE_PAY', 'GOOGLE_PAY', 'BANK_ACCOUNT'],
-  PAYPAL: ['PAYPAL', 'PAY_LATER'],
-  RAZORPAY: ['CARD', 'UPI', 'NET_BANKING', 'WALLET', 'EMI'],
-  PHONEPE: ['UPI', 'CARD', 'WALLET'],
-  AFTERPAY: ['PAY_LATER'],
-  ZIP: ['PAY_LATER'],
-  GOOGLE_PAY: ['GOOGLE_PAY', 'CARD'],
-  APPLE_PAY: ['APPLE_PAY', 'CARD'],
-  PAYTM: ['UPI', 'WALLET', 'CARD', 'NET_BANKING'],
-  UPI: ['UPI'],
-};
+function isValidGatewayType(type: string): type is GatewayType {
+  return VALID_GATEWAY_TYPES.includes(type as GatewayType);
+}
 
 /**
  * POST /api/payments/gateway-configs/from-template/:gatewayType
- * Creates a new gateway configuration from a template
+ * Creates a new gateway configuration from a template.
+ *
+ * This endpoint proxies to the payment service's from-template endpoint which:
+ * 1. Uses gateway templates for default configuration (display name, supported countries, etc.)
+ * 2. Provisions credentials to GCP Secret Manager (if dynamic credentials enabled)
+ * 3. Stores only metadata in the database (no secrets)
+ * 4. Triggers approval workflow if required
+ *
+ * Request body:
+ * {
+ *   credentials: Record<string, string>  // Raw credentials (e.g., { key_id, key_secret, webhook_secret })
+ *   isTestMode?: boolean                 // Whether to use test/sandbox mode (default: true)
+ * }
+ *
+ * The backend handles:
+ * - Credential validation per gateway type
+ * - Credential mapping to internal format
+ * - GCP Secret Manager provisioning
+ * - Approval workflow orchestration
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const { gatewayType } = await params;
 
   try {
+    // Validate gateway type before proxying
+    if (!isValidGatewayType(gatewayType)) {
+      return NextResponse.json(
+        {
+          error: 'Bad Request',
+          message: `Invalid gateway type: ${gatewayType}. Valid types: ${VALID_GATEWAY_TYPES.join(', ')}`,
+        },
+        { status: 400 }
+      );
+    }
+
     const body = await request.json();
     const { credentials, isTestMode } = body;
 
-    if (!credentials) {
+    // Basic validation - detailed validation happens in the backend
+    if (!credentials || typeof credentials !== 'object') {
       return NextResponse.json(
-        { error: 'Bad Request', message: 'Credentials are required' },
+        { error: 'Bad Request', message: 'Credentials object is required' },
         { status: 400 }
       );
     }
 
-    // Map credentials to gateway config fields
-    const mapping = CREDENTIAL_MAPPINGS[gatewayType];
-    if (!mapping) {
-      return NextResponse.json(
-        { error: 'Bad Request', message: `Unknown gateway type: ${gatewayType}` },
-        { status: 400 }
-      );
-    }
-
-    // Build the gateway config request
-    const gatewayConfig: Record<string, unknown> = {
-      gatewayType,
-      displayName: DISPLAY_NAMES[gatewayType] || gatewayType,
-      isEnabled: true,
-      isTestMode: isTestMode ?? true,
-      priority: 10,
-      supportedCountries: SUPPORTED_COUNTRIES[gatewayType] || [],
-      supportedPaymentMethods: SUPPORTED_METHODS[gatewayType] || [],
-      supportsPlatformSplit: gatewayType === 'STRIPE',
-    };
-
-    // Map provided credentials to config fields
-    for (const [credKey, configKey] of Object.entries(mapping)) {
-      if (credentials[credKey]) {
-        gatewayConfig[configKey] = credentials[credKey];
+    // Proxy to the backend's from-template endpoint
+    // The backend handles:
+    // - Template-based configuration (display name, supported countries, payment methods)
+    // - Credential mapping and validation
+    // - GCP Secret Manager provisioning
+    // - Approval workflow
+    const response = await proxyToBackend(
+      PAYMENTS_SERVICE_URL,
+      `gateway-configs/from-template/${gatewayType}`,
+      {
+        method: 'POST',
+        body: {
+          credentials,
+          isTestMode: isTestMode ?? true,
+        },
+        incomingRequest: request,
       }
-    }
-
-    // Proxy the create request to the payments service
-    const response = await proxyToBackend(PAYMENTS_SERVICE_URL, 'gateway-configs', {
-      method: 'POST',
-      body: gatewayConfig,
-      incomingRequest: request,
-    });
+    );
 
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (error) {
-    return handleApiError(error, `POST /payments/gateway-configs/from-template/${gatewayType}`);
+    return handleApiError(
+      error,
+      `POST /payments/gateway-configs/from-template/${gatewayType}`
+    );
   }
 }
