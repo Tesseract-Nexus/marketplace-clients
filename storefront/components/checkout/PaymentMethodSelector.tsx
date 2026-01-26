@@ -52,13 +52,15 @@ const methodTypeIcons: Record<string, React.ElementType> = {
   bank: Building2,
 };
 
+const defaultLogo = { bg: 'from-gray-400 to-gray-600', text: 'text-white', letter: 'M' };
+
 const providerLogos: Record<string, { bg: string; text: string; letter: string }> = {
   Stripe: { bg: 'from-indigo-500 to-purple-600', text: 'text-white', letter: 'S' },
   PayPal: { bg: 'from-blue-500 to-blue-700', text: 'text-white', letter: 'P' },
   Razorpay: { bg: 'from-blue-500 to-blue-700', text: 'text-white', letter: 'R' },
   Afterpay: { bg: 'from-teal-500 to-teal-700', text: 'text-white', letter: 'A' },
   Zip: { bg: 'from-purple-500 to-purple-700', text: 'text-white', letter: 'Z' },
-  Manual: { bg: 'from-gray-400 to-gray-600', text: 'text-white', letter: 'M' },
+  Manual: defaultLogo,
 };
 
 // Calculate BNPL installment preview
@@ -141,7 +143,7 @@ export function PaymentMethodSelector({
             {groupedMethods[type]?.map((method) => {
               const isSelected = selectedMethod === method.code;
               const Icon = methodTypeIcons[method.type] || CreditCard;
-              const logo = providerLogos[method.provider] || providerLogos.Manual;
+              const logo = providerLogos[method.provider] || defaultLogo;
               const isBnpl = method.type === 'bnpl';
               const installmentText = isBnpl ? calculateInstallments(orderTotal, method.provider) : '';
 
