@@ -23,6 +23,12 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
+
+    // CRITICAL: Override tenantId in query params with the one from JWT claims/BFF session
+    // The frontend TenantContext might have a stale or incorrect tenant ID, but the
+    // header value is authoritative (comes from BFF session during login)
+    searchParams.set('tenantId', tenantId);
+
     const queryString = searchParams.toString();
 
     // Build cache key from tenant ID and query params
