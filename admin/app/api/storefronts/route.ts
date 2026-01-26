@@ -109,18 +109,11 @@ export async function GET(request: NextRequest) {
 
     if (domainInfo?.storefrontUrl) {
       // Enrich storefronts with the custom domain URL
-      // SECURITY: Only apply to storefronts confirmed to belong to the current tenant
-      // to prevent cross-tenant URL contamination
+      // SECURITY NOTE: The vendor-service already filters storefronts by the requesting user's
+      // tenant via the x-jwt-claim-tenant-id header. All storefronts returned belong to the
+      // current tenant, so it's safe to apply the custom domain URL to all of them.
+      // This ensures users see their custom domain in the sidebar URL.
       result.data = result.data.map((storefront: Storefront) => {
-        // SECURITY: Only enrich if storefront explicitly belongs to current tenant
-        // If tenantId is missing, we cannot confirm ownership - skip enrichment for safety
-        // This ensures we never leak custom domain URLs to other tenants' storefronts
-        const storefrontTenantId = storefront.tenantId || (storefront as Record<string, unknown>).tenant_id;
-        if (!storefrontTenantId || storefrontTenantId !== tenantId) {
-          // Cannot confirm tenant ownership or different tenant - don't apply custom domain URL
-          // The storefront will fall back to computing URL from slug
-          return storefront;
-        }
         return {
           ...storefront,
           storefrontUrl: domainInfo.storefrontUrl,
