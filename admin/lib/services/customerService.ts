@@ -36,4 +36,12 @@ export const customerService = {
   deleteCustomer: async (id: string): Promise<ApiResponse<void>> => {
     return customersService.deleteCustomer(id);
   },
+
+  lockCustomer: async (id: string, reason: string): Promise<ApiResponse<Customer>> => {
+    return customersService.lockCustomer(id, reason);
+  },
+
+  unlockCustomer: async (id: string, reason: string): Promise<ApiResponse<Customer>> => {
+    return customersService.unlockCustomer(id, reason);
+  },
 };

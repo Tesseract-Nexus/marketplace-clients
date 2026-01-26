@@ -637,6 +637,14 @@ export interface Customer {
   notes?: string;
   marketingOptIn: boolean;
 
+  // Lock/Unlock metadata
+  lockReason?: string;
+  lockedAt?: string;
+  lockedBy?: string;
+  unlockReason?: string;
+  unlockedAt?: string;
+  unlockedBy?: string;
+
   // Metadata
   createdAt: string;
   updatedAt: string;

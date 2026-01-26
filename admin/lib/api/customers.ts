@@ -23,6 +23,14 @@ export class CustomersService {
   async deleteCustomer(id: string): Promise<ApiResponse<void>> {
     return apiClient.delete<ApiResponse<void>>(`/customers/${id}`);
   }
+
+  async lockCustomer(id: string, reason: string): Promise<ApiResponse<Customer>> {
+    return apiClient.post<ApiResponse<Customer>>(`/customers/${id}/lock`, { reason });
+  }
+
+  async unlockCustomer(id: string, reason: string): Promise<ApiResponse<Customer>> {
+    return apiClient.post<ApiResponse<Customer>>(`/customers/${id}/unlock`, { reason });
+  }
 }
 
 export const customersService = new CustomersService();

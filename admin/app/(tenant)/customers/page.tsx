@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Search, Plus, Eye, Edit, Trash2, Users, TrendingUp, DollarSign, ShoppingCart, AlertCircle, X, Loader2, Home, UserCircle, Sparkles, Crown, CheckCircle, XCircle } from 'lucide-react';
+import { Search, Plus, Eye, Edit, Trash2, Users, TrendingUp, DollarSign, ShoppingCart, AlertCircle, X, Loader2, Home, UserCircle, Sparkles, Crown, CheckCircle, XCircle, Lock, Unlock, MoreVertical } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +20,7 @@ import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } f
 import { customerService } from '@/lib/services/customerService';
 import { useToast } from '@/contexts/ToastContext';
 import type { Customer, CreateCustomerRequest, CustomerStatus, CustomerType } from '@/lib/api/types';
+import { LockUnlockDialog } from './components/LockUnlockDialog';
 
 const customerStatusOptions = [
   { value: 'ALL', label: 'All Statuses' },
@@ -56,6 +57,11 @@ export default function CustomersPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
+
+  // Lock/Unlock dialog state
+  const [showLockDialog, setShowLockDialog] = useState(false);
+  const [lockAction, setLockAction] = useState<'lock' | 'unlock'>('lock');
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   // Pagination - also from URL
   const [currentPage, setCurrentPage] = useState(parseInt(searchParams.get('page') || '1', 10));
@@ -170,6 +176,27 @@ export default function CustomersPage() {
       toast.error('Failed to Delete Customer', errorMsg);
       setError(errorMsg);
     }
+  };
+
+  const handleLockClick = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setLockAction('lock');
+    setShowLockDialog(true);
+  };
+
+  const handleUnlockClick = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setLockAction('unlock');
+    setShowLockDialog(true);
+  };
+
+  const handleLockSuccess = (updatedCustomer: Customer) => {
+    // Update customer in list
+    setCustomers(prev => prev.map(c =>
+      c.id === updatedCustomer.id ? updatedCustomer : c
+    ));
+    setShowLockDialog(false);
+    setSelectedCustomer(null);
   };
 
   const resetForm = () => {
@@ -553,6 +580,29 @@ export default function CustomersPage() {
                         >
                           <Eye className="w-4 h-4 text-primary" aria-hidden="true" />
                         </Button>
+                        {customer.status === 'ACTIVE' || customer.status === 'INACTIVE' ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleLockClick(customer)}
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-warning-muted transition-colors"
+                            title="Lock Account"
+                            aria-label="Lock customer account"
+                          >
+                            <Lock className="w-4 h-4 text-warning" aria-hidden="true" />
+                          </Button>
+                        ) : customer.status === 'BLOCKED' ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleUnlockClick(customer)}
+                            className="h-8 w-8 p-0 rounded-lg hover:bg-success-muted transition-colors"
+                            title="Unlock Account"
+                            aria-label="Unlock customer account"
+                          >
+                            <Unlock className="w-4 h-4 text-success" aria-hidden="true" />
+                          </Button>
+                        ) : null}
                         <Button
                           variant="ghost"
                           size="sm"
@@ -654,6 +704,33 @@ export default function CustomersPage() {
                       <Eye className="w-3.5 h-3.5 mr-1.5" />
                       View
                     </Button>
+                    {customer.status === 'ACTIVE' || customer.status === 'INACTIVE' ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleLockClick(customer);
+                        }}
+                        className="h-9 px-3 text-xs text-warning border-warning/30 hover:bg-warning-muted"
+                      >
+                        <Lock className="w-3.5 h-3.5 mr-1.5" />
+                        Lock
+                      </Button>
+                    ) : customer.status === 'BLOCKED' ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleUnlockClick(customer);
+                        }}
+                        className="h-9 px-3 text-xs text-success border-success/30 hover:bg-success-muted"
+                      >
+                        <Unlock className="w-3.5 h-3.5 mr-1.5" />
+                        Unlock
+                      </Button>
+                    ) : null}
                     <Button
                       variant="outline"
                       size="sm"
@@ -909,6 +986,18 @@ export default function CustomersPage() {
           confirmText="Delete"
           cancelText="Cancel"
           variant="danger"
+        />
+
+        {/* Lock/Unlock Dialog */}
+        <LockUnlockDialog
+          isOpen={showLockDialog}
+          onClose={() => {
+            setShowLockDialog(false);
+            setSelectedCustomer(null);
+          }}
+          customer={selectedCustomer}
+          action={lockAction}
+          onSuccess={handleLockSuccess}
         />
       </div>
     </div>
