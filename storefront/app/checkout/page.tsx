@@ -526,15 +526,12 @@ function CheckoutContent() {
           console.warn('Payment confirmation pending, proceeding with order completion');
         }
 
-        // Success - now safe to clear cart
+        // Success - clear cart and redirect to success page
         removeSelectedItems();
         clearAppliedCoupon();
         clearGiftCards();
-        setPendingOrder(null);
-        setCompletedOrderNumber(order.orderNumber);
-        setIsComplete(true);
 
-        // Record customer order
+        // Record customer order (don't wait for it)
         if (isAuthenticated && customer?.id && accessToken) {
           recordCustomerOrder(tenant.id, tenant.storefrontId, customer.id, {
             orderId: order.id,
@@ -543,10 +540,9 @@ function CheckoutContent() {
           }, accessToken).catch(console.warn);
         }
 
-        // Show create account modal for guests
-        if (isGuestMode && !isAuthenticated) {
-          setTimeout(() => setShowCreateAccountModal(true), 1000);
-        }
+        // Redirect to success page with payment session ID
+        router.push(getNavPath(`/checkout/success?session_id=${paymentIntent.paymentIntentId}`));
+        return;
       } else {
         // Stripe flow
         const stripeSessionUrl = paymentIntent.stripeSessionUrl || (paymentIntent.options?.sessionUrl as string);
@@ -650,9 +646,10 @@ function CheckoutContent() {
         removeSelectedItems();
         clearAppliedCoupon();
         clearGiftCards();
-        setCompletedOrderNumber(pendingOrder.orderNumber);
-        setPendingOrder(null);
-        setIsComplete(true);
+
+        // Redirect to success page with payment session ID
+        router.push(getNavPath(`/checkout/success?session_id=${paymentIntent.paymentIntentId}`));
+        return;
       } else {
         const stripeSessionUrl = paymentIntent.stripeSessionUrl || (paymentIntent.options?.sessionUrl as string);
         if (stripeSessionUrl) {
