@@ -17,6 +17,7 @@ import { useCheckout } from '@/context/CheckoutContext';
 import { AddressSelector } from '@/components/checkout/AddressSelector';
 import { ShippingMethodSelector } from '@/components/checkout/ShippingMethodSelector';
 import { LocationConfirmationModal } from '@/components/checkout/LocationConfirmationModal';
+import { AddressAutocomplete, type ParsedAddressData } from '@/components/AddressAutocomplete';
 import { useLocationDetection } from '@/hooks/useLocationDetection';
 import { CustomerAddress } from '@/lib/api/customers';
 import { ShippingMethod, ShippingRate } from '@/lib/api/shipping';
@@ -79,6 +80,9 @@ export function CheckoutShippingStep({
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [hasShownLocationModal, setHasShownLocationModal] = useState(false);
   const [hasAutoFilled, setHasAutoFilled] = useState(false);
+
+  // Address entry mode (autocomplete vs manual form)
+  const [useAutocomplete, setUseAutocomplete] = useState(true);
 
   // Countries and states
   const [countries, setCountries] = useState<Country[]>([]);
@@ -152,6 +156,22 @@ export function CheckoutShippingStep({
     });
     setHasAutoFilled(true);
     setShowLocationModal(false);
+  };
+
+  // Handle address autocomplete selection
+  const handleAutocompleteSelect = (address: ParsedAddressData) => {
+    setShippingAddress({
+      addressLine1: address.streetAddress,
+      city: address.city,
+      state: address.stateCode || address.state,
+      stateCode: address.stateCode || address.state,
+      zip: address.postalCode,
+      country: address.countryCode || address.country,
+      countryCode: address.countryCode || address.country,
+    });
+    setHasAutoFilled(true);
+    // Switch to manual mode to show filled fields
+    setUseAutocomplete(false);
   };
 
   // Handle saved address selection
@@ -316,19 +336,62 @@ export function CheckoutShippingStep({
             exit={{ opacity: 0, y: -10 }}
           >
             <div className="grid gap-4">
-              {/* Street Address */}
-              <div className="space-y-2">
-                <Label htmlFor="address">
-                  <TranslatedUIText text="Street Address" /> *
-                </Label>
-                <Input
-                  id="address"
-                  placeholder="123 Main Street, Apt 4B"
-                  value={shippingAddress.addressLine1}
-                  onChange={(e) => setShippingAddress({ addressLine1: e.target.value })}
-                  required
-                />
-              </div>
+              {/* Address Autocomplete Search */}
+              {useAutocomplete && !hasAutoFilled && (
+                <div className="space-y-2">
+                  <Label>
+                    <TranslatedUIText text="Search Your Address" />
+                  </Label>
+                  <AddressAutocomplete
+                    onAddressSelect={handleAutocompleteSelect}
+                    onManualEntryToggle={(isManual) => setUseAutocomplete(!isManual)}
+                    placeholder="Start typing your address..."
+                    countryRestriction={shippingAddress.countryCode}
+                    showCurrentLocation={true}
+                  />
+                </div>
+              )}
+
+              {/* Show editable fields after autocomplete or in manual mode */}
+              {(!useAutocomplete || hasAutoFilled) && (
+                <>
+                  {/* Edit button to re-search */}
+                  {hasAutoFilled && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUseAutocomplete(true);
+                        setHasAutoFilled(false);
+                        setShippingAddress({
+                          addressLine1: '',
+                          city: '',
+                          state: '',
+                          stateCode: '',
+                          zip: '',
+                          country: '',
+                          countryCode: '',
+                        });
+                      }}
+                      className="text-sm text-tenant-primary hover:underline flex items-center gap-1 mb-2"
+                    >
+                      <MapPin className="h-4 w-4" />
+                      <TranslatedUIText text="Search for a different address" />
+                    </button>
+                  )}
+
+                  {/* Street Address */}
+                  <div className="space-y-2">
+                    <Label htmlFor="address">
+                      <TranslatedUIText text="Street Address" /> *
+                    </Label>
+                    <Input
+                      id="address"
+                      placeholder="123 Main Street, Apt 4B"
+                      value={shippingAddress.addressLine1}
+                      onChange={(e) => setShippingAddress({ addressLine1: e.target.value })}
+                      required
+                    />
+                  </div>
 
               {/* City, State, ZIP */}
               <div className="grid sm:grid-cols-3 gap-4">
@@ -436,6 +499,8 @@ export function CheckoutShippingStep({
                   </SelectContent>
                 </Select>
               </div>
+                </>
+              )}
             </div>
           </motion.div>
         )}
