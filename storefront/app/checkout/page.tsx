@@ -90,8 +90,7 @@ function CheckoutContent() {
   const selectedItemsRaw = getSelectedItems();
   const selectedItems = useMemo(() => selectedItemsRaw, [JSON.stringify(selectedItemsRaw)]);
 
-  const { customer, accessToken } = useAuthStore();
-  const isAuthenticated = !!(customer && accessToken);
+  const { customer, accessToken, isAuthenticated } = useAuthStore();
 
   // Checkout context
   const {
@@ -971,8 +970,7 @@ function CheckoutContent() {
 }
 
 export default function CheckoutPage() {
-  const { customer, accessToken, isLoading: isAuthLoading } = useAuthStore();
-  const isAuthenticated = !!(customer && accessToken);
+  const { customer, isAuthenticated, isLoading: isAuthLoading } = useAuthStore();
 
   // Wait for auth session validation before rendering checkout
   // This prevents the guest banner from flashing for authenticated users
