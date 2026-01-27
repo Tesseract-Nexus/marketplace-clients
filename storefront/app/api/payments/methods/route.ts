@@ -152,7 +152,9 @@ export async function GET(request: NextRequest) {
     const data = await response.json();
     const gateways: GatewayOption[] = data.gateways || [];
 
-    // Transform gateway response to payment methods format expected by checkout
+    // Transform: one entry per enabled gateway (not per sub-method)
+    // The checkout UI shows each gateway as a selectable option with its
+    // supported payment types displayed as sub-badges.
     const paymentMethods: EnabledPaymentMethod[] = [];
     let displayOrder = 0;
 
@@ -160,33 +162,47 @@ export async function GET(request: NextRequest) {
       // Skip disabled gateways
       if (!gateway.isEnabled) continue;
 
-      // Add each payment method from the gateway
-      for (const method of gateway.paymentMethods || []) {
-        const methodCode = `${gateway.gatewayType.toLowerCase()}_${method.type.toLowerCase()}`;
+      const providerName =
+        GATEWAY_PROVIDERS[gateway.gatewayType] || gateway.gatewayType;
+      const primaryMethod = (gateway.paymentMethods || [])[0];
+      const primaryIcon = primaryMethod?.icon || 'credit-card';
 
-        paymentMethods.push({
-          code: methodCode,
-          name: method.displayName,
-          description:
-            METHOD_DESCRIPTIONS[method.type] ||
-            `Pay with ${method.displayName}`,
-          provider: GATEWAY_PROVIDERS[gateway.gatewayType] || gateway.gatewayType,
-          type: method.type.toLowerCase(),
-          iconUrl: ICON_URLS[method.icon] || `/icons/payment/${method.icon}.svg`,
-          displayOrder: displayOrder++,
-          gatewayType: gateway.gatewayType,
-          isTestMode: gateway.isTestMode,
-          // Add installment info for BNPL methods
-          ...(method.type === 'PAY_LATER' && {
-            installmentInfo:
-              gateway.gatewayType === 'AFTERPAY'
-                ? 'Pay in 4 interest-free payments'
-                : gateway.gatewayType === 'ZIP'
-                  ? 'Buy now, pay later'
-                  : 'Pay in installments',
-          }),
-        });
-      }
+      // Determine gateway-level type for grouping
+      // BNPL gateways (Afterpay, Zip) get type 'bnpl', others get 'gateway'
+      const isBnpl = ['AFTERPAY', 'ZIP'].includes(gateway.gatewayType);
+      const gatewayMethodType = isBnpl ? 'bnpl' : 'gateway';
+
+      // Build description from supported methods
+      const methodNames = (gateway.paymentMethods || []).map(
+        (m: PaymentMethodInfo) => m.displayName
+      );
+      const description =
+        METHOD_DESCRIPTIONS[gateway.gatewayType] ||
+        (methodNames.length > 0
+          ? `Pay with ${methodNames.join(', ')}`
+          : `Pay securely with ${providerName}`);
+
+      paymentMethods.push({
+        code: gateway.gatewayType.toLowerCase(),
+        name: gateway.displayName || providerName,
+        description,
+        provider: providerName,
+        type: gatewayMethodType,
+        iconUrl:
+          ICON_URLS[primaryIcon] ||
+          `/icons/payment/${primaryIcon}.svg`,
+        displayOrder: displayOrder++,
+        gatewayType: gateway.gatewayType,
+        isTestMode: gateway.isTestMode,
+        ...(isBnpl && {
+          installmentInfo:
+            gateway.gatewayType === 'AFTERPAY'
+              ? 'Pay in 4 interest-free payments'
+              : gateway.gatewayType === 'ZIP'
+                ? 'Buy now, pay later'
+                : 'Pay in installments',
+        }),
+      });
     }
 
     // Sort by display order (primary gateways first, then by priority)
