@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Star, ThumbsUp, CheckCircle, Loader2, AlertCircle, ImageIcon } from 'lucide-react';
+import { Star, ThumbsUp, ThumbsDown, CheckCircle, Loader2, AlertCircle, ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -203,16 +203,21 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
   };
 
   const handleHelpful = async (reviewId: string) => {
-    if (!accessToken) return;
-
     try {
-      await addReviewReaction(tenantId, storefrontId, accessToken, reviewId, 'HELPFUL');
-      // Update local state
+      await addReviewReaction(tenantId, storefrontId, accessToken || null, reviewId, 'HELPFUL');
       setReviews((prev) =>
         prev.map((r) =>
           r.id === reviewId ? { ...r, helpfulCount: r.helpfulCount + 1 } : r
         )
       );
+    } catch {
+      // Silently fail
+    }
+  };
+
+  const handleNotHelpful = async (reviewId: string) => {
+    try {
+      await addReviewReaction(tenantId, storefrontId, accessToken || null, reviewId, 'NOT_HELPFUL');
     } catch {
       // Silently fail
     }
@@ -594,10 +599,18 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
                   size="sm"
                   className="text-muted-foreground hover:text-foreground"
                   onClick={() => handleHelpful(review.id)}
-                  disabled={!isAuthenticated}
                 >
                   <ThumbsUp className="h-4 w-4 mr-1" />
                   Helpful ({review.helpfulCount})
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-muted-foreground hover:text-foreground"
+                  onClick={() => handleNotHelpful(review.id)}
+                >
+                  <ThumbsDown className="h-4 w-4 mr-1" />
+                  Not Helpful
                 </Button>
               </div>
             </div>
