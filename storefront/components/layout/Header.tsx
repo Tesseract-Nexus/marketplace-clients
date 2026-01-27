@@ -500,7 +500,15 @@ export function Header() {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
-                    {isAuthenticated ? (
+                    {isAuthLoading ? (
+                      <div className="px-4 py-6 flex flex-col items-center gap-3">
+                        <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+                        <div className="space-y-2 w-full">
+                          <div className="h-3 w-24 mx-auto bg-muted animate-pulse rounded" />
+                          <div className="h-3 w-32 mx-auto bg-muted animate-pulse rounded" />
+                        </div>
+                      </div>
+                    ) : isAuthenticated ? (
                       <>
                         <div className="px-2 py-2 border-b">
                           <p className="font-medium">{customer?.firstName} {customer?.lastName}</p>
