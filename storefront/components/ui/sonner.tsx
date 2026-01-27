@@ -17,7 +17,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps['theme']}
       className="toaster group"
-      position="top-right"
+      position="bottom-right"
       expand={false}
       richColors
       closeButton
@@ -86,10 +86,11 @@ const showInfo = (message: string, description?: string) => {
 /**
  * Show a cart-related toast
  */
-const showCart = (message: string, description?: string) => {
+const showCart = (message: string, description?: string, action?: { label: string; onClick: () => void }) => {
   toast.success(message, {
     description,
     icon: <ShoppingCart className="h-5 w-5 text-tenant-primary" />,
+    action: action ? { label: action.label, onClick: action.onClick } : undefined,
   });
 };
 
@@ -195,7 +196,7 @@ export const storefrontToast: {
   error: (message: string, description?: string) => void;
   warning: (message: string, description?: string) => void;
   info: (message: string, description?: string) => void;
-  cart: (message: string, description?: string) => void;
+  cart: (message: string, description?: string, action?: { label: string; onClick: () => void }) => void;
   payment: (message: string, description?: string, isSuccess?: boolean) => void;
   coupon: (message: string, description?: string, isSuccess?: boolean) => void;
   giftCard: (message: string, description?: string, isSuccess?: boolean) => void;

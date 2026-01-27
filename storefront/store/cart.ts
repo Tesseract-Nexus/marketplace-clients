@@ -156,10 +156,11 @@ export const useCartStore = create<CartState>()(
         });
         // Show toast notification
         const itemName = item.name.length > 30 ? item.name.substring(0, 30) + '...' : item.name;
+        const viewCartAction = { label: 'View Cart', onClick: () => { window.location.href = '/cart'; } };
         if (isUpdate) {
-          storefrontToast.cart('Cart updated', `${itemName} quantity increased`);
+          storefrontToast.cart('Cart updated', `${itemName} quantity increased`, viewCartAction);
         } else {
-          storefrontToast.cart('Added to cart', itemName);
+          storefrontToast.cart('Added to cart', itemName, viewCartAction);
         }
       },
 
