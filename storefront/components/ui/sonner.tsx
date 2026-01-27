@@ -174,22 +174,14 @@ const showAccount = (message: string, description?: string, isSuccess = true) =>
 /**
  * Show a loading toast that can be updated
  */
-const showLoading = (message: string) => {
+const showLoading = (message: string): string | number => {
   return toast.loading(message);
-};
-
-/**
- * Update a toast (typically used with loading toasts)
- */
-const updateToast = (id: string | number, options: Parameters<typeof toast.success>[1] & { message: string }) => {
-  const { message, ...rest } = options;
-  toast.success(message, { id, ...rest });
 };
 
 /**
  * Dismiss a specific toast or all toasts
  */
-const dismissToast = (id?: string | number) => {
+const dismissToast = (id?: string | number): void => {
   if (id) {
     toast.dismiss(id);
   } else {
@@ -197,8 +189,21 @@ const dismissToast = (id?: string | number) => {
   }
 };
 
-// Export toast utilities as a namespace
-export const storefrontToast = {
+// Export toast utilities as a typed namespace
+export const storefrontToast: {
+  success: (message: string, description?: string) => void;
+  error: (message: string, description?: string) => void;
+  warning: (message: string, description?: string) => void;
+  info: (message: string, description?: string) => void;
+  cart: (message: string, description?: string) => void;
+  payment: (message: string, description?: string, isSuccess?: boolean) => void;
+  coupon: (message: string, description?: string, isSuccess?: boolean) => void;
+  giftCard: (message: string, description?: string, isSuccess?: boolean) => void;
+  shipping: (message: string, description?: string) => void;
+  account: (message: string, description?: string, isSuccess?: boolean) => void;
+  loading: (message: string) => string | number;
+  dismiss: (id?: string | number) => void;
+} = {
   success: showSuccess,
   error: showError,
   warning: showWarning,
@@ -210,10 +215,7 @@ export const storefrontToast = {
   shipping: showShipping,
   account: showAccount,
   loading: showLoading,
-  update: updateToast,
   dismiss: dismissToast,
-  // Also export raw toast for custom use cases
-  raw: toast,
 };
 
 export { Toaster, toast };
