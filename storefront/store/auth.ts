@@ -39,7 +39,7 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       customer: null,
       isAuthenticated: false,
-      isLoading: false,
+      isLoading: true, // Start as loading until AuthSessionProvider validates session
       accessToken: null,
 
       setCustomer: (customer) =>

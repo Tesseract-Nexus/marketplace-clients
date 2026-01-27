@@ -49,7 +49,7 @@ export function Header() {
   const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const lists = useListsStore((state) => state.lists);
   const listsCount = lists.reduce((sum, list) => sum + list.itemCount, 0);
-  const { customer, isAuthenticated, logout } = useAuthStore();
+  const { customer, isAuthenticated, isLoading: isAuthLoading, logout } = useAuthStore();
   const { pointsBalance, isProgramActive, isEnrolled } = useLoyalty();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -164,7 +164,17 @@ export function Header() {
                 </SheetHeader>
 
                 {/* User Info Section */}
-                {isAuthenticated && (
+                {isAuthLoading ? (
+                  <div className="p-4 bg-muted/50 border-b">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+                      <div className="flex-1 min-w-0 space-y-2">
+                        <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+                        <div className="h-3 w-32 bg-muted animate-pulse rounded" />
+                      </div>
+                    </div>
+                  </div>
+                ) : isAuthenticated ? (
                   <div className="p-4 bg-muted/50 border-b">
                     <div className="flex items-center gap-3">
                       <div className="h-10 w-10 rounded-full flex items-center justify-center text-sm font-medium text-on-tenant-primary bg-tenant-primary">
@@ -192,7 +202,7 @@ export function Header() {
                       </Link>
                     )}
                   </div>
-                )}
+                ) : null}
 
                 {/* Shop Section - Navigation Links */}
                 <div className="p-2">
@@ -477,7 +487,9 @@ export function Header() {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="relative">
-                      {isAuthenticated ? (
+                      {isAuthLoading ? (
+                        <div className="h-7 w-7 rounded-full bg-muted animate-pulse" />
+                      ) : isAuthenticated ? (
                         <div className="h-7 w-7 rounded-full flex items-center justify-center text-xs font-medium text-on-tenant-primary bg-tenant-primary">
                           {customer?.firstName?.[0]?.toUpperCase() || 'U'}
                         </div>
