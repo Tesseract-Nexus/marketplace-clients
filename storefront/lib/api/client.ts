@@ -43,6 +43,10 @@ export async function apiRequest<T>(
   }
   // Add system user ID for public API requests (required by settings-service auth)
   (headers as Record<string, string>)['X-User-ID'] = STOREFRONT_SYSTEM_USER_ID;
+  // Mark as internal service call for server-side requests (bypasses IstioAuth + RBAC)
+  if (typeof window === 'undefined') {
+    (headers as Record<string, string>)['X-Internal-Service'] = 'storefront';
+  }
 
   const response = await fetch(url, {
     ...fetchOptions,
