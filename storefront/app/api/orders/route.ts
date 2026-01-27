@@ -217,6 +217,12 @@ export async function POST(request: NextRequest) {
     if (storefrontId) {
       headers['X-Storefront-ID'] = storefrontId;
     }
+    // Pass the storefront host so orders-service can build correct email URLs
+    // This supports both custom domains (e.g., yahvismartfarm.com) and default subdomains
+    const host = request.headers.get('host');
+    if (host) {
+      headers['X-Storefront-Host'] = host;
+    }
     if (accessToken) {
       headers['Authorization'] = `Bearer ${accessToken}`;
     }
