@@ -144,9 +144,19 @@ interface CheckoutProviderProps {
   children: ReactNode;
   isAuthenticated?: boolean;
   customerEmail?: string;
+  customerFirstName?: string;
+  customerLastName?: string;
+  customerPhone?: string;
 }
 
-export function CheckoutProvider({ children, isAuthenticated = false, customerEmail }: CheckoutProviderProps) {
+export function CheckoutProvider({
+  children,
+  isAuthenticated = false,
+  customerEmail,
+  customerFirstName,
+  customerLastName,
+  customerPhone,
+}: CheckoutProviderProps) {
   // Get persisted store state
   const checkoutStore = useCheckoutStore();
   const isHydrated = useCheckoutHydration();
@@ -157,6 +167,9 @@ export function CheckoutProvider({ children, isAuthenticated = false, customerEm
     contactInfo: {
       ...DEFAULT_CONTACT_INFO,
       email: customerEmail || '',
+      firstName: customerFirstName || '',
+      lastName: customerLastName || '',
+      phone: customerPhone || '',
     },
   }));
 
@@ -172,6 +185,9 @@ export function CheckoutProvider({ children, isAuthenticated = false, customerEm
         contactInfo: {
           ...checkoutStore.contactInfo,
           email: checkoutStore.contactInfo.email || customerEmail || '',
+          firstName: checkoutStore.contactInfo.firstName || customerFirstName || '',
+          lastName: checkoutStore.contactInfo.lastName || customerLastName || '',
+          phone: checkoutStore.contactInfo.phone || customerPhone || '',
         },
         isGuestMode: checkoutStore.isGuestMode,
         addressMode: checkoutStore.addressMode,
@@ -185,7 +201,22 @@ export function CheckoutProvider({ children, isAuthenticated = false, customerEm
         termsAccepted: checkoutStore.termsAccepted,
       }));
     }
-  }, [isHydrated, checkoutStore.sessionStartedAt, customerEmail]);
+  }, [isHydrated, checkoutStore.sessionStartedAt, customerEmail, customerFirstName, customerLastName, customerPhone]);
+
+  // Auto-populate contact info when customer profile data arrives (e.g., after profile fetch)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    setState((prev) => {
+      const updated = { ...prev.contactInfo };
+      let changed = false;
+      if (!prev.contactInfo.firstName && customerFirstName) { updated.firstName = customerFirstName; changed = true; }
+      if (!prev.contactInfo.lastName && customerLastName) { updated.lastName = customerLastName; changed = true; }
+      if (!prev.contactInfo.phone && customerPhone) { updated.phone = customerPhone; changed = true; }
+      if (!prev.contactInfo.email && customerEmail) { updated.email = customerEmail; changed = true; }
+      if (!changed) return prev;
+      return { ...prev, contactInfo: updated };
+    });
+  }, [isAuthenticated, customerEmail, customerFirstName, customerLastName, customerPhone]);
 
   // Sync state changes to the persisted store
   useEffect(() => {

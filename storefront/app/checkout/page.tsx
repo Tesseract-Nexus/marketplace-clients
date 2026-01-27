@@ -987,6 +987,9 @@ export default function CheckoutPage() {
     <CheckoutProvider
       isAuthenticated={isAuthenticated}
       customerEmail={customer?.email}
+      customerFirstName={customer?.firstName}
+      customerLastName={customer?.lastName}
+      customerPhone={customer?.phone}
     >
       <CheckoutContent />
     </CheckoutProvider>
