@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect, ReactNode } from 'react';
+import React, { useState, useRef, useEffect, ReactNode, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Check, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -22,6 +23,12 @@ interface SelectProps {
   disabled?: boolean;
 }
 
+interface DropdownPosition {
+  top: number;
+  left: number;
+  width: number;
+}
+
 export function Select({
   value,
   onChange,
@@ -34,13 +41,57 @@ export function Select({
   disabled = false,
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState<DropdownPosition | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const selectedOption = options.find(opt => opt.value === value);
 
+  // Calculate dropdown position based on button position
+  const updateDropdownPosition = useCallback(() => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + window.scrollY + 4, // 4px gap
+        left: rect.left + window.scrollX,
+        width: rect.width,
+      });
+    }
+  }, []);
+
+  // Update position when opening
+  useEffect(() => {
+    if (isOpen) {
+      updateDropdownPosition();
+    }
+  }, [isOpen, updateDropdownPosition]);
+
+  // Update position on scroll/resize
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handlePositionUpdate = () => {
+      updateDropdownPosition();
+    };
+
+    window.addEventListener('scroll', handlePositionUpdate, true);
+    window.addEventListener('resize', handlePositionUpdate);
+
+    return () => {
+      window.removeEventListener('scroll', handlePositionUpdate, true);
+      window.removeEventListener('resize', handlePositionUpdate);
+    };
+  }, [isOpen, updateDropdownPosition]);
+
+  // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      const target = event.target as Node;
+      const isInsideContainer = containerRef.current?.contains(target);
+      const isInsideDropdown = dropdownRef.current?.contains(target);
+
+      if (!isInsideContainer && !isInsideDropdown) {
         setIsOpen(false);
       }
     };
@@ -71,10 +122,53 @@ export function Select({
     lg: 'h-11 px-4 text-base',
   };
 
+  // Dropdown content
+  const dropdownContent = isOpen && dropdownPosition && (
+    <div
+      ref={dropdownRef}
+      style={{
+        position: 'fixed',
+        top: dropdownPosition.top - window.scrollY,
+        left: dropdownPosition.left,
+        width: dropdownPosition.width,
+        zIndex: 9999,
+      }}
+      className="bg-popover border border-border rounded-md shadow-lg overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100"
+    >
+      <div className="max-h-60 overflow-y-auto py-1">
+        {options.map((option) => {
+          const isSelected = option.value === value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => handleSelect(option.value)}
+              className={cn(
+                "w-full flex items-center justify-between px-3 py-2 text-sm text-left transition-colors",
+                isSelected
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-foreground hover:bg-primary/10 hover:text-primary"
+              )}
+            >
+              <span className="flex items-center gap-2">
+                {option.icon && <span className="flex-shrink-0">{option.icon}</span>}
+                {option.label}
+              </span>
+              {isSelected && (
+                <Check className="h-4 w-4 flex-shrink-0" />
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+
   return (
     <div ref={containerRef} className="relative">
       {/* Select Button */}
       <button
+        ref={buttonRef}
         type="button"
         onClick={() => !disabled && setIsOpen(!isOpen)}
         disabled={disabled}
@@ -117,37 +211,8 @@ export function Select({
         />
       </button>
 
-      {/* Dropdown Panel */}
-      {isOpen && (
-        <div className="absolute z-[100] w-full mt-1 bg-popover border border-border rounded-md shadow-lg overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100">
-          <div className="max-h-60 overflow-y-auto py-1">
-            {options.map((option) => {
-              const isSelected = option.value === value;
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => handleSelect(option.value)}
-                  className={cn(
-                    "w-full flex items-center justify-between px-3 py-2 text-sm text-left transition-colors",
-                    isSelected
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "text-foreground hover:bg-primary/10 hover:text-primary"
-                  )}
-                >
-                  <span className="flex items-center gap-2">
-                    {option.icon && <span className="flex-shrink-0">{option.icon}</span>}
-                    {option.label}
-                  </span>
-                  {isSelected && (
-                    <Check className="h-4 w-4 flex-shrink-0" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {/* Dropdown Portal - renders at document body level to escape all stacking contexts */}
+      {typeof document !== 'undefined' && createPortal(dropdownContent, document.body)}
     </div>
   );
 }
