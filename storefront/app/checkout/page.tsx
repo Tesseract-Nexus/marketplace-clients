@@ -112,6 +112,16 @@ function CheckoutContent() {
     isHydrated,
   } = useCheckout();
 
+  // Product shipping data cache
+  const [productShippingCache, setProductShippingCache] = useState<Record<string, ProductShippingData>>({});
+  const [isLoadingProductShipping, setIsLoadingProductShipping] = useState(true);
+
+  // Order completion state
+  const [isComplete, setIsComplete] = useState(false);
+  const [completedOrderNumber, setCompletedOrderNumber] = useState<string | undefined>();
+  const [showCreateAccountModal, setShowCreateAccountModal] = useState(false);
+  const [isNavigatingToSuccess, setIsNavigatingToSuccess] = useState(false);
+
   // Redirect to homepage if cart is empty after hydration
   useEffect(() => {
     // Wait for hydration to complete before checking
@@ -126,16 +136,6 @@ function CheckoutContent() {
       router.replace(getNavPath('/'));
     }
   }, [isHydrated, items.length, selectedItems.length, router, getNavPath, isNavigatingToSuccess]);
-
-  // Product shipping data cache
-  const [productShippingCache, setProductShippingCache] = useState<Record<string, ProductShippingData>>({});
-  const [isLoadingProductShipping, setIsLoadingProductShipping] = useState(true);
-
-  // Order completion state
-  const [isComplete, setIsComplete] = useState(false);
-  const [completedOrderNumber, setCompletedOrderNumber] = useState<string | undefined>();
-  const [showCreateAccountModal, setShowCreateAccountModal] = useState(false);
-  const [isNavigatingToSuccess, setIsNavigatingToSuccess] = useState(false);
 
   // Auto-detected region from IP geolocation
   const [detectedRegion, setDetectedRegion] = useState<string | null>(null);
