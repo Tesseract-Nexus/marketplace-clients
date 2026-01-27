@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CheckCircle2, Package, ArrowRight, Home, Loader2, MapPin, Truck, CreditCard, Clock, Copy, Check, Receipt } from 'lucide-react';
+import { CheckCircle2, Package, ArrowRight, Home, Loader2, MapPin, Truck, CreditCard, Clock, Copy, Check, Receipt, XCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -84,6 +84,10 @@ function CheckoutSuccessContent() {
   const [showCreateAccountModal, setShowCreateAccountModal] = useState(false);
   const [countdown, setCountdown] = useState(AUTO_REDIRECT_SECONDS);
   const [copied, setCopied] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelling, setCancelling] = useState(false);
+  const [orderCancelled, setOrderCancelled] = useState(false);
 
   // Clear cart on successful checkout
   useEffect(() => {
@@ -174,6 +178,41 @@ function CheckoutSuccessContent() {
       setTimeout(() => setCopied(false), 2000);
     }
   }, [sessionDetails?.orderNumber]);
+
+  const CANCEL_REASONS = [
+    'Changed my mind',
+    'Found a better price',
+    'Ordered by mistake',
+    'Item no longer needed',
+    'Other',
+  ];
+
+  const handleCancelOrder = useCallback(async () => {
+    if (!sessionDetails?.orderNumber || !sessionDetails?.customerEmail || !cancelReason) return;
+    setCancelling(true);
+    try {
+      const res = await fetch('/api/orders/cancel', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderNumber: sessionDetails.orderNumber,
+          reason: cancelReason,
+        }),
+      });
+      if (res.ok) {
+        setOrderCancelled(true);
+        setShowCancelDialog(false);
+        setCancelReason('');
+        storefrontToast.success('Order cancelled successfully');
+      } else {
+        storefrontToast.error('Unable to cancel this order');
+      }
+    } catch {
+      storefrontToast.error('Failed to cancel order. Please try again.');
+    } finally {
+      setCancelling(false);
+    }
+  }, [sessionDetails?.orderNumber, sessionDetails?.customerEmail, cancelReason]);
 
   const storeName = tenant?.name || 'Store';
   const isPaid = sessionDetails?.paymentStatus === 'succeeded';
@@ -496,6 +535,79 @@ function CheckoutSuccessContent() {
                       Return to Home
                     </Button>
                   </div>
+
+                  {/* Cancel Order */}
+                  {isPaid && !orderCancelled && (
+                    <div className="mt-4 pt-4 border-t">
+                      {!showCancelDialog ? (
+                        <Button
+                          variant="ghost"
+                          className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                          size="sm"
+                          onClick={() => setShowCancelDialog(true)}
+                        >
+                          <XCircle className="w-4 h-4 mr-2" />
+                          Cancel Order
+                        </Button>
+                      ) : (
+                        <div className="space-y-3">
+                          <p className="text-sm font-medium">Why do you want to cancel?</p>
+                          <div className="space-y-2">
+                            {CANCEL_REASONS.map((reason) => (
+                              <label
+                                key={reason}
+                                className="flex items-center gap-2 p-2 rounded-lg border cursor-pointer hover:bg-muted/50 text-sm"
+                              >
+                                <input
+                                  type="radio"
+                                  name="cancelReason"
+                                  value={reason}
+                                  checked={cancelReason === reason}
+                                  onChange={(e) => setCancelReason(e.target.value)}
+                                  className="accent-red-600"
+                                />
+                                {reason}
+                              </label>
+                            ))}
+                          </div>
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex-1"
+                              onClick={() => {
+                                setShowCancelDialog(false);
+                                setCancelReason('');
+                              }}
+                            >
+                              Keep Order
+                            </Button>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="flex-1"
+                              disabled={!cancelReason || cancelling}
+                              onClick={handleCancelOrder}
+                            >
+                              {cancelling ? (
+                                <Loader2 className="w-4 h-4 animate-spin mr-1" />
+                              ) : (
+                                <XCircle className="w-4 h-4 mr-1" />
+                              )}
+                              Confirm Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {orderCancelled && (
+                    <div className="mt-4 pt-4 border-t">
+                      <p className="text-sm text-red-600 font-medium text-center">
+                        Order has been cancelled
+                      </p>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             </div>
