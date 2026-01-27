@@ -22,6 +22,7 @@ import { ComingSoonPage } from '@/components/ComingSoonPage';
 import { OrganizationJsonLd, WebSiteJsonLd } from '@/components/seo/JsonLd';
 import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider';
 import { CookieConsentBanner } from '@/components/ui/CookieConsentBanner';
+import { Toaster } from '@/components/ui/sonner';
 
 // Generate Google Fonts URL for preloading
 function getGoogleFontsUrl(fonts: string[]): string | null {
@@ -386,6 +387,7 @@ export default async function RootLayout({
                             </main>
                           </NavigationLayout>
                           <CookieConsentBanner />
+                          <Toaster />
                         </AnalyticsProvider>
                       </PushNotificationProvider>
                     </CartSyncProvider>

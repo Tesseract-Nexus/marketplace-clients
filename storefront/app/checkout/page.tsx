@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ChevronLeft, Check, Loader2 } from 'lucide-react';
@@ -71,6 +71,7 @@ function CheckoutContent() {
   const localization = useLocalization();
   const formatPrice = useFormatPrice();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { formatDisplayPrice, formatStorePrice, isConverted, displayCurrency, storeCurrency } = usePriceFormatting();
 
   const {
@@ -106,7 +107,20 @@ function CheckoutContent() {
     setError,
     pendingOrder,
     setPendingOrder,
+    isHydrated,
   } = useCheckout();
+
+  // Redirect to homepage if cart is empty after hydration
+  useEffect(() => {
+    // Wait for hydration to complete before checking
+    if (!isHydrated) return;
+
+    // If no items in cart and no selected items, redirect to homepage
+    if (items.length === 0 && selectedItems.length === 0) {
+      console.log('[Checkout] No cart items after hydration, redirecting to homepage');
+      router.replace(getNavPath('/'));
+    }
+  }, [isHydrated, items.length, selectedItems.length, router, getNavPath]);
 
   // Product shipping data cache
   const [productShippingCache, setProductShippingCache] = useState<Record<string, ProductShippingData>>({});
@@ -707,21 +721,40 @@ function CheckoutContent() {
     );
   }
 
-  // Empty cart state
-  if (selectedItems.length === 0) {
+  // Show loading state while waiting for hydration
+  if (!isHydrated) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
-        <h1 className="text-2xl font-bold mb-2"><TranslatedUIText text="No items selected for checkout" /></h1>
-        <p className="text-muted-foreground mb-6">
-          {items.length > 0
-            ? <TranslatedUIText text="Please select items in your cart to proceed with checkout." />
-            : <TranslatedUIText text="Add some items to your cart to checkout." />}
-        </p>
-        <Button asChild variant="tenant-gradient" size="lg">
-          <Link href={getNavPath(items.length > 0 ? '/cart' : '/products')}>
-            {items.length > 0 ? <TranslatedUIText text="Go to Cart" /> : <TranslatedUIText text="Shop Now" />}
-          </Link>
-        </Button>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-tenant-primary mb-4" />
+        <p className="text-muted-foreground"><TranslatedUIText text="Loading checkout..." /></p>
+      </div>
+    );
+  }
+
+  // Empty cart state - redirect happens via useEffect, show loading while redirecting
+  if (selectedItems.length === 0) {
+    // If items exist in cart but none selected, go to cart
+    if (items.length > 0) {
+      return (
+        <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4">
+          <h1 className="text-2xl font-bold mb-2"><TranslatedUIText text="No items selected for checkout" /></h1>
+          <p className="text-muted-foreground mb-6">
+            <TranslatedUIText text="Please select items in your cart to proceed with checkout." />
+          </p>
+          <Button asChild variant="tenant-gradient" size="lg">
+            <Link href={getNavPath('/cart')}>
+              <TranslatedUIText text="Go to Cart" />
+            </Link>
+          </Button>
+        </div>
+      );
+    }
+
+    // No items at all - redirect is happening, show loading
+    return (
+      <div className="min-h-[60vh] flex flex-col items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-tenant-primary mb-4" />
+        <p className="text-muted-foreground"><TranslatedUIText text="Redirecting..." /></p>
       </div>
     );
   }

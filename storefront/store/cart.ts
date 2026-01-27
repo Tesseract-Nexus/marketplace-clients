@@ -15,6 +15,7 @@ import {
 } from '@/lib/api/cart';
 import type { AppliedCoupon } from '@/lib/api/coupons';
 import type { AppliedGiftCard } from '@/lib/api/gift-cards';
+import { storefrontToast } from '@/components/ui/sonner';
 
 interface CartState {
   items: CartItem[];
@@ -113,6 +114,7 @@ export const useCartStore = create<CartState>()(
       expiresAt: null,
 
       addItem: (item) => {
+        let isUpdate = false;
         set((state) => {
           const existingItemIndex = state.items.findIndex(
             (i) => i.productId === item.productId && i.variantId === item.variantId
@@ -120,6 +122,7 @@ export const useCartStore = create<CartState>()(
 
           if (existingItemIndex > -1) {
             // Update quantity if item exists
+            isUpdate = true;
             const updatedItems = [...state.items];
             const existingItem = updatedItems[existingItemIndex];
             if (existingItem) {
@@ -151,9 +154,17 @@ export const useCartStore = create<CartState>()(
           };
           return { items: [...state.items, newItem], isOpen: true };
         });
+        // Show toast notification
+        const itemName = item.name.length > 30 ? item.name.substring(0, 30) + '...' : item.name;
+        if (isUpdate) {
+          storefrontToast.cart('Cart updated', `${itemName} quantity increased`);
+        } else {
+          storefrontToast.cart('Added to cart', itemName);
+        }
       },
 
       removeItem: (itemId) => {
+        const removedItem = get().items.find((item) => item.id === itemId);
         set((state) => {
           const newItems = state.items.filter((item) => item.id !== itemId);
           // Recalculate validation counts after removing item
@@ -172,6 +183,11 @@ export const useCartStore = create<CartState>()(
             priceChangedCount: priceChangedItems.length,
           };
         });
+        // Show toast notification
+        if (removedItem) {
+          const itemName = removedItem.name.length > 30 ? removedItem.name.substring(0, 30) + '...' : removedItem.name;
+          storefrontToast.info('Removed from cart', itemName);
+        }
       },
 
       updateQuantity: (itemId, quantity) => {
@@ -188,7 +204,11 @@ export const useCartStore = create<CartState>()(
       },
 
       clearCart: () => {
+        const hadItems = get().items.length > 0;
         set({ items: [] });
+        if (hadItems) {
+          storefrontToast.info('Cart cleared');
+        }
       },
 
       toggleCart: () => {
@@ -206,27 +226,37 @@ export const useCartStore = create<CartState>()(
       // Coupon actions
       setAppliedCoupon: (coupon) => {
         set({ appliedCoupon: coupon });
+        if (coupon) {
+          storefrontToast.coupon('Coupon applied', `${coupon.coupon.code} - Save $${coupon.discountAmount.toFixed(2)}`);
+        }
       },
 
       clearAppliedCoupon: () => {
+        const hadCoupon = get().appliedCoupon !== null;
         set({ appliedCoupon: null });
+        if (hadCoupon) {
+          storefrontToast.info('Coupon removed');
+        }
       },
 
       // Gift card actions
       addGiftCard: (giftCard) => {
-        set((state) => {
-          // Don't add duplicate gift cards
-          if (state.appliedGiftCards.some(gc => gc.code === giftCard.code)) {
-            return state;
-          }
-          return { appliedGiftCards: [...state.appliedGiftCards, giftCard] };
-        });
+        const isDuplicate = get().appliedGiftCards.some(gc => gc.code === giftCard.code);
+        if (isDuplicate) {
+          storefrontToast.warning('Gift card already applied');
+          return;
+        }
+        set((state) => ({
+          appliedGiftCards: [...state.appliedGiftCards, giftCard],
+        }));
+        storefrontToast.giftCard('Gift card applied', `$${giftCard.amountToUse.toFixed(2)} applied to order`);
       },
 
       removeGiftCard: (code) => {
         set((state) => ({
           appliedGiftCards: state.appliedGiftCards.filter(gc => gc.code !== code),
         }));
+        storefrontToast.info('Gift card removed');
       },
 
       updateGiftCardAmount: (code, amount) => {
