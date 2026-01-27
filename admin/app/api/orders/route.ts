@@ -85,8 +85,10 @@ export async function GET(request: NextRequest) {
     const headers = await getProxyHeaders(request) as Record<string, string>;
     const tenantId = headers['x-jwt-claim-tenant-id'] || 'default';
 
-    console.log('[Orders API] GET request - tenant_id:', tenantId);
-    console.log('[Orders API] Headers:', JSON.stringify(headers, null, 2));
+    console.log('[Orders API] GET request - tenant_id from x-jwt-claim-tenant-id:', tenantId);
+    console.log('[Orders API] Full headers being sent:', JSON.stringify(headers, null, 2));
+    console.log('[Orders API] x-jwt-claim-sub:', headers['x-jwt-claim-sub'] || 'MISSING');
+    console.log('[Orders API] x-jwt-claim-staff-id:', headers['x-jwt-claim-staff-id'] || 'MISSING');
 
     // Build cache key from query params
     const paramsString = searchParams.toString();
