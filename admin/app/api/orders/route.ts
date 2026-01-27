@@ -16,6 +16,22 @@ function transformOrder(order: Record<string, unknown>): Record<string, unknown>
   const shipping = order.shipping as Record<string, unknown> | undefined;
   const customer = order.customer as Record<string, unknown> | undefined;
 
+  // Build shipping address from shipping object (backend format uses 'street' instead of 'addressLine1')
+  let shippingAddress = order.shippingAddress as Record<string, unknown> | undefined;
+  if (!shippingAddress && shipping) {
+    shippingAddress = {
+      firstName: customer?.firstName || '',
+      lastName: customer?.lastName || '',
+      addressLine1: shipping.street || '',
+      addressLine2: '',
+      city: shipping.city || '',
+      state: shipping.state || '',
+      postalCode: shipping.postalCode || '',
+      country: shipping.country || '',
+      phone: customer?.phone || '',
+    };
+  }
+
   return {
     ...order,
     // Map nested payment.status to paymentStatus
@@ -33,6 +49,10 @@ function transformOrder(order: Record<string, unknown>): Record<string, unknown>
       order.customerName ||
       (customer ? `${customer.firstName || ''} ${customer.lastName || ''}`.trim() : ''),
     customerEmail: order.customerEmail || customer?.email || '',
+    // Map customer phone
+    customerPhone: customer?.phone || '',
+    // Map shipping address for frontend display
+    shippingAddress,
     // Map payment method
     paymentMethod: order.paymentMethod || payment?.method || '',
     // Map shipping method
