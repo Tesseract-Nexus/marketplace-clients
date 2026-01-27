@@ -4,7 +4,8 @@ import { StorefrontAsset, UploadAssetResponse, ApiResponse } from '@/lib/api/typ
 
 // Document service URL - uses internal k8s service name or external URL
 const DOCUMENT_SERVICE_URL = process.env.DOCUMENT_SERVICE_URL || 'http://document-service:8082';
-const DOCUMENT_SERVICE_BUCKET = process.env.DOCUMENT_SERVICE_BUCKET || 'tesseracthub-devtest-assets';
+// Use public bucket for storefront assets - must start with 'marketplace-' for document-service access
+const DOCUMENT_SERVICE_BUCKET = process.env.DOCUMENT_SERVICE_BUCKET || 'marketplace-devtest-public-au';
 
 // Asset types and their configurations
 const ASSET_CONFIG: Record<string, { maxSize: number; allowedTypes: string[]; filename: string }> = {
@@ -77,11 +78,14 @@ function getExtensionFromMimeType(mimeType: string): string {
   return mimeToExt[mimeType] || 'png';
 }
 
+// Public bucket URL for direct GCS access
+const PUBLIC_BUCKET_URL = process.env.STORAGE_PUBLIC_BUCKET_URL || `https://storage.googleapis.com/${DOCUMENT_SERVICE_BUCKET}`;
+
 /**
- * Build public URL for the asset (for direct access via serve endpoint)
+ * Build public URL for the asset (direct GCS URL for public bucket)
  */
 function buildPublicUrl(path: string): string {
-  return `/api/storefront/assets/serve?path=${encodeURIComponent(path)}`;
+  return `${PUBLIC_BUCKET_URL}/${path}`;
 }
 
 /**
