@@ -80,11 +80,14 @@ export async function GET(
     console.log('[BFF] Fetching session details for:', sessionId);
 
     // First, try to get payment details from payment service by session ID
+    // Use X-Internal-Service header for service-to-service authentication
+    // This bypasses RBAC permission checks while maintaining tenant isolation
     const paymentResponse = await fetch(
       `${PAYMENT_SERVICE_URL}/api/v1/payments/by-gateway-id/${sessionId}`,
       {
         headers: {
           'X-Tenant-ID': tenantId,
+          'X-Internal-Service': 'storefront-bff',
           ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
         },
       }
@@ -112,11 +115,13 @@ export async function GET(
     // If we have an order ID, fetch order details
     if (paymentData?.orderId) {
       try {
+        // Use X-Internal-Service header for service-to-service authentication
         const orderResponse = await fetch(
           `${ORDERS_SERVICE_URL}/api/v1/orders/${paymentData.orderId}`,
           {
             headers: {
               'X-Tenant-ID': tenantId,
+              'X-Internal-Service': 'storefront-bff',
               ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
             },
           }
