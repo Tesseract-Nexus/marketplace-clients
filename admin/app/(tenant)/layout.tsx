@@ -270,6 +270,7 @@ const navigation: NavItem[] = [
       { name: "Shipping", href: "/settings/shipping-carriers" },
       { name: "Payments", href: "/settings/payments" },
       { name: "Audit Logs", href: "/settings/audit-logs" },
+      { name: "QR Codes", href: "/settings/qr-codes" },
     ],
   },
   {
