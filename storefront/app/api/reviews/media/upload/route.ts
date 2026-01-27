@@ -14,22 +14,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Tenant ID required' }, { status: 400 });
     }
 
-    if (!authorization) {
-      return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
-    }
-
     // Get the FormData from the request
     const formData = await request.formData();
 
+    const headers: Record<string, string> = {
+      'X-Tenant-ID': tenantId,
+      'X-Internal-Service': 'storefront',
+    };
+    if (authorization) headers['Authorization'] = authorization;
+    if (storefrontId) headers['X-Storefront-ID'] = storefrontId;
+    if (userId) headers['X-User-Id'] = userId;
+
     // Forward the FormData to the backend service
-    const response = await fetch(`${REVIEWS_SERVICE_URL}/api/v1/reviews/media/upload`, {
+    const response = await fetch(`${REVIEWS_SERVICE_URL}/api/v1/storefront/reviews/media/upload`, {
       method: 'POST',
-      headers: {
-        'X-Tenant-ID': tenantId,
-        'Authorization': authorization,
-        ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
-        ...(userId && { 'X-User-Id': userId }),
-      },
+      headers,
       body: formData,
     });
 

@@ -48,6 +48,8 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
     title: '',
     content: '',
     rating: 5,
+    reviewerName: '',
+    reviewerEmail: '',
   });
   const [reviewImages, setReviewImages] = useState<UploadedImage[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,7 +110,21 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!accessToken) return;
+
+    // Determine reviewer name and email
+    const reviewerName = isAuthenticated && customer
+      ? (customer.firstName && customer.lastName
+          ? `${customer.firstName} ${customer.lastName}`
+          : customer.email || formData.reviewerName)
+      : formData.reviewerName;
+    const reviewerEmail = isAuthenticated && customer?.email
+      ? customer.email
+      : formData.reviewerEmail;
+
+    if (!reviewerName || !reviewerEmail) {
+      setSubmitError('Name and email are required.');
+      return;
+    }
 
     setIsSubmitting(true);
     setSubmitError('');
@@ -119,7 +135,7 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
       const review = await createReview(
         tenantId,
         storefrontId,
-        accessToken,
+        accessToken || null,
         {
           targetId: productId,
           targetType: 'PRODUCT',
@@ -127,11 +143,11 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
           title: formData.title || undefined,
           content: formData.content,
           ratings: [{ aspect: 'overall', score: formData.rating, maxScore: 5 }],
+          reviewerName,
+          reviewerEmail,
         },
         customer?.id,
-        customer?.firstName && customer?.lastName
-          ? `${customer.firstName} ${customer.lastName}`
-          : customer?.email
+        reviewerName
       );
 
       // Then upload images if any
@@ -169,7 +185,7 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
       }
 
       setSubmitSuccess(true);
-      setFormData({ title: '', content: '', rating: 5 });
+      setFormData({ title: '', content: '', rating: 5, reviewerName: '', reviewerEmail: '' });
       setReviewImages([]);
       setShowForm(false);
 
@@ -344,120 +360,135 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
 
       {/* Write Review Button / Form */}
       <div>
-        {isAuthenticated ? (
-          showForm ? (
-            <form onSubmit={handleSubmitReview} className="space-y-4 bg-muted/50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold">Write a Review for {productName}</h3>
+        {showForm ? (
+          <form onSubmit={handleSubmitReview} className="space-y-4 bg-muted/50 p-6 rounded-lg">
+            <h3 className="text-lg font-semibold">Write a Review for {productName}</h3>
 
-              {submitError && (
-                <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4" />
-                  {submitError}
+            {submitError && (
+              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" />
+                {submitError}
+              </div>
+            )}
+
+            {/* Name and Email fields for anonymous users */}
+            {!isAuthenticated && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reviewer-name">Your Name *</Label>
+                  <Input
+                    id="reviewer-name"
+                    placeholder="John Doe"
+                    value={formData.reviewerName}
+                    onChange={(e) => setFormData({ ...formData, reviewerName: e.target.value })}
+                    required
+                  />
                 </div>
-              )}
-
-              <div className="space-y-2">
-                <Label>Your Rating</Label>
-                <div className="flex gap-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <button
-                      key={star}
-                      type="button"
-                      onClick={() => setFormData({ ...formData, rating: star })}
-                      className="p-1"
-                    >
-                      <Star
-                        className={cn(
-                          'h-8 w-8 transition-colors',
-                          star <= formData.rating
-                            ? 'fill-yellow-400 text-yellow-400'
-                            : 'text-gray-300 hover:text-yellow-200'
-                        )}
-                      />
-                    </button>
-                  ))}
+                <div className="space-y-2">
+                  <Label htmlFor="reviewer-email">Your Email *</Label>
+                  <Input
+                    id="reviewer-email"
+                    type="email"
+                    placeholder="john@example.com"
+                    value={formData.reviewerEmail}
+                    onChange={(e) => setFormData({ ...formData, reviewerEmail: e.target.value })}
+                    required
+                  />
                 </div>
               </div>
+            )}
 
-              <div className="space-y-2">
-                <Label htmlFor="review-title">Title (optional)</Label>
-                <Input
-                  id="review-title"
-                  placeholder="Summarize your review"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                />
+            <div className="space-y-2">
+              <Label>Your Rating</Label>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, rating: star })}
+                    className="p-1"
+                  >
+                    <Star
+                      className={cn(
+                        'h-8 w-8 transition-colors',
+                        star <= formData.rating
+                          ? 'fill-yellow-400 text-yellow-400'
+                          : 'text-gray-300 hover:text-yellow-200'
+                      )}
+                    />
+                  </button>
+                ))}
               </div>
+            </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="review-content">Your Review</Label>
-                <Textarea
-                  id="review-content"
-                  placeholder="Share your experience with this product..."
-                  rows={4}
-                  value={formData.content}
-                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-                  required
-                />
+            <div className="space-y-2">
+              <Label htmlFor="review-title">Title (optional)</Label>
+              <Input
+                id="review-title"
+                placeholder="Summarize your review"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="review-content">Your Review</Label>
+              <Textarea
+                id="review-content"
+                placeholder="Share your experience with this product..."
+                rows={4}
+                value={formData.content}
+                onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <ImageIcon className="h-4 w-4" />
+                Add Photos (optional)
+              </Label>
+              <ReviewImageUpload
+                images={reviewImages}
+                onImagesChange={setReviewImages}
+                disabled={isSubmitting}
+                maxImages={5}
+                maxSizeMB={5}
+              />
+            </div>
+
+            {uploadProgress && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                {uploadProgress}
               </div>
+            )}
 
-              <div className="space-y-2">
-                <Label className="flex items-center gap-2">
-                  <ImageIcon className="h-4 w-4" />
-                  Add Photos (optional)
-                </Label>
-                <ReviewImageUpload
-                  images={reviewImages}
-                  onImagesChange={setReviewImages}
-                  disabled={isSubmitting}
-                  maxImages={5}
-                  maxSizeMB={5}
-                />
-              </div>
-
-              {uploadProgress && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {uploadProgress}
-                </div>
-              )}
-
-              <div className="flex gap-3">
-                <Button type="submit" className="btn-tenant-primary" disabled={isSubmitting}>
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Submitting...
-                    </>
-                  ) : (
-                    'Submit Review'
-                  )}
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowForm(false)}
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          ) : (
-            <Button className="btn-tenant-primary" onClick={() => setShowForm(true)}>
-              Write a Review
-            </Button>
-          )
+            <div className="flex gap-3">
+              <Button type="submit" className="btn-tenant-primary" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit Review'
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowForm(false)}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            </div>
+          </form>
         ) : (
-          <div className="bg-muted/50 p-4 rounded-lg text-center">
-            <p className="text-muted-foreground">
-              Please{' '}
-              <a href={`/${tenant?.slug || 'demo'}/login`} className="text-tenant-primary underline">
-                sign in
-              </a>{' '}
-              to write a review.
-            </p>
-          </div>
+          <Button className="btn-tenant-primary" onClick={() => setShowForm(true)}>
+            Write a Review
+          </Button>
         )}
       </div>
 

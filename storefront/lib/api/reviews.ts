@@ -81,6 +81,8 @@ export interface CreateReviewRequest {
   title?: string;
   content: string;
   ratings?: ReviewRating[];
+  reviewerName: string;
+  reviewerEmail: string;
 }
 
 // ========================================
@@ -132,23 +134,25 @@ export async function getProductReviews(
 export async function createReview(
   tenantId: string,
   storefrontId: string,
-  accessToken: string,
+  accessToken: string | null,
   review: CreateReviewRequest,
   userId?: string,
   userName?: string
 ): Promise<Review> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Tenant-ID': tenantId,
+    'X-Storefront-ID': storefrontId,
+  };
+  if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+  if (userId) headers['X-User-Id'] = userId;
+  if (userName) headers['X-User-Name'] = userName;
+
   const response = await fetch(
     `/api/reviews`,
     {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId,
-        ...(userId && { 'X-User-Id': userId }),
-        ...(userName && { 'X-User-Name': userName }),
-      },
+      headers,
       body: JSON.stringify(review),
     }
   );
@@ -165,20 +169,22 @@ export async function createReview(
 export async function addReviewReaction(
   tenantId: string,
   storefrontId: string,
-  accessToken: string,
+  accessToken: string | null,
   reviewId: string,
   reactionType: 'HELPFUL' | 'NOT_HELPFUL'
 ): Promise<void> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Tenant-ID': tenantId,
+    'X-Storefront-ID': storefrontId,
+  };
+  if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+
   const response = await fetch(
     `/api/reviews/${reviewId}/reactions`,
     {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId,
-      },
+      headers,
       body: JSON.stringify({ type: reactionType }),
     }
   );
@@ -217,7 +223,7 @@ export interface UploadMediaResponse {
 export async function uploadReviewMedia(
   tenantId: string,
   storefrontId: string,
-  accessToken: string,
+  accessToken: string | null,
   reviewId: string,
   file: File,
   caption?: string
@@ -231,15 +237,17 @@ export async function uploadReviewMedia(
     formData.append('caption', caption);
   }
 
+  const headers: Record<string, string> = {
+    'X-Tenant-ID': tenantId,
+    'X-Storefront-ID': storefrontId,
+  };
+  if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+
   const response = await fetch(
     `/api/reviews/media/upload`,
     {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId,
-      },
+      headers,
       body: formData,
     }
   );

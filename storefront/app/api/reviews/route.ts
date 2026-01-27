@@ -27,11 +27,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const queryString = searchParams.toString();
 
-    const response = await fetch(`${REVIEWS_SERVICE_URL}/api/v1/reviews${queryString ? `?${queryString}` : ''}`, {
+    const response = await fetch(`${REVIEWS_SERVICE_URL}/api/v1/storefront/reviews${queryString ? `?${queryString}` : ''}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'X-Tenant-ID': tenantId,
+        'X-Internal-Service': 'storefront',
         ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
       },
     });
@@ -80,23 +81,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Tenant ID required' }, { status: 400 });
     }
 
-    if (!authorization) {
-      return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
-    }
-
     const body = await request.json();
 
-    const response = await fetch(`${REVIEWS_SERVICE_URL}/api/v1/reviews`, {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Tenant-ID': tenantId,
+      'X-Internal-Service': 'storefront',
+    };
+    if (authorization) headers['Authorization'] = authorization;
+    if (storefrontId) headers['X-Storefront-ID'] = storefrontId;
+    if (userId) headers['X-User-Id'] = userId;
+    if (userName) headers['X-User-Name'] = userName;
+    if (userEmail) headers['X-User-Email'] = userEmail;
+
+    const response = await fetch(`${REVIEWS_SERVICE_URL}/api/v1/storefront/reviews`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
-        'Authorization': authorization,
-        ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
-        ...(userId && { 'X-User-Id': userId }),
-        ...(userName && { 'X-User-Name': userName }),
-        ...(userEmail && { 'X-User-Email': userEmail }),
-      },
+      headers,
       body: JSON.stringify(body),
     });
 

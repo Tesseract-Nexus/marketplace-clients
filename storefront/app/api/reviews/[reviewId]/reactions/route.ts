@@ -18,21 +18,20 @@ export async function POST(
       return NextResponse.json({ error: 'Tenant ID required' }, { status: 400 });
     }
 
-    if (!authorization) {
-      return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
-    }
-
     const body = await request.json();
 
-    const response = await fetch(`${REVIEWS_SERVICE_URL}/api/v1/reviews/${reviewId}/reactions`, {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Tenant-ID': tenantId,
+      'X-Internal-Service': 'storefront',
+    };
+    if (authorization) headers['Authorization'] = authorization;
+    if (storefrontId) headers['X-Storefront-ID'] = storefrontId;
+    if (userId) headers['X-User-Id'] = userId;
+
+    const response = await fetch(`${REVIEWS_SERVICE_URL}/api/v1/storefront/reviews/${reviewId}/reactions`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
-        'Authorization': authorization,
-        ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
-        ...(userId && { 'X-User-Id': userId }),
-      },
+      headers,
       body: JSON.stringify(body),
     });
 
