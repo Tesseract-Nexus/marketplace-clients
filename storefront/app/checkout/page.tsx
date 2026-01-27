@@ -78,6 +78,8 @@ function CheckoutContent() {
     items,
     getSelectedItems,
     removeSelectedItems,
+    removeItem,
+    updateQuantity,
     appliedCoupon,
     clearAppliedCoupon,
     appliedGiftCards,
@@ -825,6 +827,8 @@ function CheckoutContent() {
                   total={total}
                   onPlaceOrder={handlePlaceOrder}
                   onRetryPayment={handleRetryPayment}
+                  onRemoveItem={removeItem}
+                  onUpdateQuantity={updateQuantity}
                   selectedPaymentMethodName={
                     selectedPaymentMethod
                       ? enabledPaymentMethods.find(m => m.code === selectedPaymentMethod)?.displayName ||

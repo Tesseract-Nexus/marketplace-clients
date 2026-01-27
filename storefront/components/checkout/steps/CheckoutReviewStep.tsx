@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Check, Truck, CreditCard, User, Edit2, ChevronLeft, Loader2, AlertCircle, Globe, Lock } from 'lucide-react';
+import { Check, Truck, CreditCard, User, Edit2, ChevronLeft, Loader2, AlertCircle, Globe, Lock, Trash2, Minus, Plus } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -26,6 +26,8 @@ interface CheckoutReviewStepProps {
   total: number;
   onPlaceOrder: () => void;
   onRetryPayment?: () => void;
+  onRemoveItem?: (itemId: string) => void;
+  onUpdateQuantity?: (itemId: string, quantity: number) => void;
   // Dynamic payment method info
   selectedPaymentMethodName?: string;
   selectedPaymentMethodProvider?: string;
@@ -43,6 +45,8 @@ export function CheckoutReviewStep({
   total,
   onPlaceOrder,
   onRetryPayment,
+  onRemoveItem,
+  onUpdateQuantity,
   selectedPaymentMethodName,
   selectedPaymentMethodProvider,
 }: CheckoutReviewStepProps) {
@@ -122,18 +126,57 @@ export function CheckoutReviewStep({
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-medium truncate">{item.name}</p>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-xs px-2 py-0.5 bg-background rounded border">
-                    <TranslatedUIText text="Qty:" /> {item.quantity}
-                  </span>
+                <div className="flex items-center gap-2 mt-2">
+                  {/* Quantity controls */}
+                  {onUpdateQuantity ? (
+                    <div className="flex items-center gap-1 bg-background rounded border">
+                      <button
+                        type="button"
+                        onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                        disabled={item.quantity <= 1 || isProcessing}
+                        className="p-1 hover:bg-muted rounded-l disabled:opacity-50 disabled:cursor-not-allowed"
+                        aria-label="Decrease quantity"
+                      >
+                        <Minus className="h-3 w-3" />
+                      </button>
+                      <span className="text-xs px-2 min-w-[2rem] text-center">{item.quantity}</span>
+                      <button
+                        type="button"
+                        onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                        disabled={isProcessing}
+                        className="p-1 hover:bg-muted rounded-r disabled:opacity-50 disabled:cursor-not-allowed"
+                        aria-label="Increase quantity"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <span className="text-xs px-2 py-0.5 bg-background rounded border">
+                      <TranslatedUIText text="Qty:" /> {item.quantity}
+                    </span>
+                  )}
                   <span className="text-xs text-muted-foreground">
                     {formatPrice(item.price)} <TranslatedUIText text="each" />
                   </span>
                 </div>
               </div>
-              <p className="font-semibold text-tenant-primary">
-                {formatPrice(item.price * item.quantity)}
-              </p>
+              <div className="flex flex-col items-end gap-2">
+                <p className="font-semibold text-tenant-primary">
+                  {formatPrice(item.price * item.quantity)}
+                </p>
+                {/* Remove button */}
+                {onRemoveItem && (
+                  <button
+                    type="button"
+                    onClick={() => onRemoveItem(item.id)}
+                    disabled={isProcessing}
+                    className="p-1.5 text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label={`Remove ${item.name} from cart`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
             </motion.div>
           ))}
         </div>
