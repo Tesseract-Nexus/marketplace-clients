@@ -79,11 +79,11 @@ export async function GET(
 
     console.log('[BFF] Fetching session details for:', sessionId);
 
-    // First, try to get payment details from payment service by session ID
+    // First, try to get payment details from payment service by payment ID
+    // The sessionId is actually the payment transaction UUID (paymentIntentId)
     // Use X-Internal-Service header for service-to-service authentication
-    // This bypasses RBAC permission checks while maintaining tenant isolation
     const paymentResponse = await fetch(
-      `${PAYMENT_SERVICE_URL}/api/v1/payments/by-gateway-id/${sessionId}`,
+      `${PAYMENT_SERVICE_URL}/api/v1/payments/${sessionId}`,
       {
         headers: {
           'X-Tenant-ID': tenantId,
