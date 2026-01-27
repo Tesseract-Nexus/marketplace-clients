@@ -145,7 +145,7 @@ export function RegionalSettingsTab() {
       </div>
 
       {/* Country Gateway Matrix */}
-      <div className="bg-card rounded-lg border border-border shadow-sm">
+      <div className="bg-card rounded-lg border border-border shadow-sm relative z-10">
         <div className="overflow-x-auto overflow-y-visible">
           <table className="w-full">
             <thead className="bg-muted">
