@@ -5,16 +5,58 @@ import { config } from '@/lib/config';
 const PAYMENT_SERVICE_URL = config.api.paymentService.replace(/\/api\/v1\/?$/, '');
 const ORDERS_SERVICE_URL = config.api.ordersService.replace(/\/api\/v1\/?$/, '');
 
+interface OrderItem {
+  id: string;
+  productId: string;
+  name: string;
+  sku?: string;
+  quantity: number;
+  price: number;
+  totalPrice: number;
+  imageUrl?: string;
+}
+
+interface ShippingAddress {
+  firstName?: string;
+  lastName?: string;
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+  phone?: string;
+}
+
+interface ShippingInfo {
+  method?: string;
+  carrier?: string;
+  trackingNumber?: string;
+  estimatedDelivery?: string;
+  cost?: number;
+}
+
 interface SessionDetails {
   sessionId: string;
   paymentStatus: 'pending' | 'processing' | 'succeeded' | 'failed';
   orderId?: string;
   orderNumber?: string;
+  orderDate?: string;
   amount?: number;
   currency?: string;
   customerEmail?: string;
   customerName?: string;
   isGuest?: boolean;
+  // Full order details
+  items?: OrderItem[];
+  subtotal?: number;
+  discount?: number;
+  tax?: number;
+  shippingCost?: number;
+  total?: number;
+  shippingAddress?: ShippingAddress;
+  shipping?: ShippingInfo;
+  paymentMethod?: string;
 }
 
 // GET /api/payments/session/[sessionId] - Get Stripe session details
@@ -83,6 +125,7 @@ export async function GET(
         if (orderResponse.ok) {
           const orderData = await orderResponse.json();
           sessionDetails.orderNumber = orderData.orderNumber;
+          sessionDetails.orderDate = orderData.createdAt;
           sessionDetails.customerEmail = orderData.customerEmail || sessionDetails.customerEmail;
           sessionDetails.isGuest = !orderData.customerId;
 
@@ -91,6 +134,53 @@ export async function GET(
             const addr = orderData.shippingAddress;
             sessionDetails.customerName = `${addr.firstName || ''} ${addr.lastName || ''}`.trim();
           }
+
+          // Include full order details
+          sessionDetails.items = (orderData.items || []).map((item: any) => ({
+            id: item.id,
+            productId: item.productId,
+            name: item.name || item.productName,
+            sku: item.sku,
+            quantity: item.quantity,
+            price: item.price || item.unitPrice,
+            totalPrice: item.totalPrice || (item.quantity * (item.price || item.unitPrice)),
+            imageUrl: item.imageUrl || item.image,
+          }));
+
+          sessionDetails.subtotal = orderData.subtotal;
+          sessionDetails.discount = orderData.discount || 0;
+          sessionDetails.tax = orderData.tax || 0;
+          sessionDetails.shippingCost = orderData.shippingCost || orderData.shipping?.cost || 0;
+          sessionDetails.total = orderData.total;
+
+          // Shipping address
+          if (orderData.shippingAddress) {
+            sessionDetails.shippingAddress = {
+              firstName: orderData.shippingAddress.firstName,
+              lastName: orderData.shippingAddress.lastName,
+              addressLine1: orderData.shippingAddress.addressLine1 || orderData.shippingAddress.line1,
+              addressLine2: orderData.shippingAddress.addressLine2 || orderData.shippingAddress.line2,
+              city: orderData.shippingAddress.city,
+              state: orderData.shippingAddress.state,
+              postalCode: orderData.shippingAddress.postalCode || orderData.shippingAddress.zip,
+              country: orderData.shippingAddress.country,
+              phone: orderData.shippingAddress.phone,
+            };
+          }
+
+          // Shipping info
+          if (orderData.shipping) {
+            sessionDetails.shipping = {
+              method: orderData.shipping.method || orderData.shipping.serviceName,
+              carrier: orderData.shipping.carrier || orderData.shipping.carrierName,
+              trackingNumber: orderData.shipping.trackingNumber,
+              estimatedDelivery: orderData.shipping.estimatedDelivery,
+              cost: orderData.shipping.cost,
+            };
+          }
+
+          // Payment method
+          sessionDetails.paymentMethod = orderData.paymentMethod || paymentData?.paymentMethod;
         }
       } catch (orderError) {
         console.warn('[BFF] Failed to fetch order details:', orderError);
