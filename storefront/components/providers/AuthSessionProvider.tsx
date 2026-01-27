@@ -13,14 +13,18 @@ interface AuthSessionProviderProps {
  * AuthSessionProvider - Validates authentication state against auth-bff session
  *
  * This provider runs on mount to:
- * 1. Check the auth-bff session cookie via /auth/session
+ * 1. Always check the auth-bff session cookie via /auth/session
  * 2. Sync the local auth store with the actual session state
- * 3. Clear stale auth data if the session is no longer valid
+ * 3. Populate auth store from valid server-side session (survives page refresh)
+ * 4. Clear stale auth data if the session is no longer valid
  *
- * For protected routes (/account/*), it will also populate the auth store
- * from a valid session cookie (for OAuth callback flows).
+ * The Zustand auth store intentionally does NOT persist to localStorage.
+ * Auth state is managed server-side via auth-bff HttpOnly cookies.
+ * On every page load (including refresh), we call /auth/session to rehydrate
+ * the client-side store from the server-side session.
  *
  * This ensures:
+ * - Session persists across soft and hard refreshes
  * - Storefront is browsable without being logged in
  * - OAuth callbacks properly populate auth state
  * - Clear separation between admin (staff) and storefront (customer) contexts
@@ -37,40 +41,43 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
 
     const validateSession = async () => {
       try {
-        // Check if we're on a protected route that requires auth
-        const isProtectedRoute = pathname?.startsWith('/account');
+        // Always call /auth/session to rehydrate auth state from server-side
+        // session cookie. This is necessary because the Zustand store does not
+        // persist auth state to localStorage — on every page load (including
+        // refresh), the client store resets to anonymous. The auth-bff HttpOnly
+        // cookie survives refresh, so we always check it to restore auth state.
+        const session = await getSession();
 
-        if (isAuthenticated && customer) {
-          // User thinks they're logged in - verify the session is still valid
-          const session = await getSession();
+        if (session.authenticated && session.user) {
+          const sessionUser = session.user;
 
-          if (!session.authenticated || !session.user) {
-            // Session expired or was logged out elsewhere
-            console.log('[AuthSessionProvider] Session expired, clearing auth state');
-            logout();
-            return;
-          }
-
-          // Check if session user matches stored customer
-          if (session.user.id !== customer.id) {
-            // Different user - this shouldn't happen, clear state
-            console.log('[AuthSessionProvider] Session user mismatch, clearing auth state');
-            logout();
-            return;
-          }
-
-          // Session is valid and matches - keep the auth state
-          console.log('[AuthSessionProvider] Session validated, keeping auth state');
-        } else if (isProtectedRoute) {
-          // Not authenticated but on a protected route (e.g., after OAuth callback)
-          // Check if there's a valid session from OAuth
-          setLoading(true);
-          const session = await getSession();
-
-          if (session.authenticated && session.user) {
-            // Valid session exists - populate auth store
-            console.log('[AuthSessionProvider] Found valid session after OAuth, populating auth store');
-            const sessionUser = session.user;
+          if (isAuthenticated && customer) {
+            // Already authenticated in store — verify user matches
+            if (customer.id !== sessionUser.id) {
+              console.log('[AuthSessionProvider] Session user mismatch, re-syncing auth state');
+              login(
+                {
+                  id: sessionUser.id,
+                  email: sessionUser.email,
+                  firstName: sessionUser.firstName || sessionUser.name?.split(' ')[0] || '',
+                  lastName: sessionUser.lastName || sessionUser.name?.split(' ').slice(1).join(' ') || '',
+                  status: 'ACTIVE',
+                  customerType: 'RETAIL',
+                  totalOrders: 0,
+                  totalSpent: 0,
+                  marketingOptIn: false,
+                  emailVerified: true,
+                  createdAt: new Date().toISOString(),
+                },
+                '' // Token is managed by auth-bff via HttpOnly cookies
+              );
+            } else {
+              console.log('[AuthSessionProvider] Session validated, keeping auth state');
+            }
+          } else {
+            // Not authenticated in store but server has valid session
+            // This happens after page refresh (store resets, cookie persists)
+            console.log('[AuthSessionProvider] Restoring auth state from server session');
             login(
               {
                 id: sessionUser.id,
@@ -88,10 +95,15 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
               '' // Token is managed by auth-bff via HttpOnly cookies
             );
           }
-          setLoading(false);
+        } else {
+          // No valid server session
+          if (isAuthenticated) {
+            // Store thinks we're authenticated but server disagrees — clear it
+            console.log('[AuthSessionProvider] Session expired, clearing auth state');
+            logout();
+          }
+          // Otherwise, stay anonymous — this is the normal unauthenticated state
         }
-        // If not authenticated and not on protected route, stay anonymous
-
       } catch (error) {
         console.error('[AuthSessionProvider] Failed to validate session:', error);
         // On error, if we think we're authenticated, clear the state to be safe
@@ -99,6 +111,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
           console.log('[AuthSessionProvider] Clearing auth state due to session check error');
           logout();
         }
+      } finally {
         setLoading(false);
       }
     };
