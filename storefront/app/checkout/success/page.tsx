@@ -67,8 +67,8 @@ interface SessionDetails {
   paymentMethod?: string;
 }
 
-// Auto-redirect timeout in seconds (5 minutes)
-const AUTO_REDIRECT_SECONDS = 5 * 60;
+// Auto-redirect timeout in seconds (10 minutes)
+const AUTO_REDIRECT_SECONDS = 10 * 60;
 
 function CheckoutSuccessContent() {
   const searchParams = useSearchParams();

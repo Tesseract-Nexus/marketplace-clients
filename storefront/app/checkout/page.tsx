@@ -117,12 +117,15 @@ function CheckoutContent() {
     // Wait for hydration to complete before checking
     if (!isHydrated) return;
 
+    // Don't redirect if we're navigating to success page after payment
+    if (isNavigatingToSuccess) return;
+
     // If no items in cart and no selected items, redirect to homepage
     if (items.length === 0 && selectedItems.length === 0) {
       console.log('[Checkout] No cart items after hydration, redirecting to homepage');
       router.replace(getNavPath('/'));
     }
-  }, [isHydrated, items.length, selectedItems.length, router, getNavPath]);
+  }, [isHydrated, items.length, selectedItems.length, router, getNavPath, isNavigatingToSuccess]);
 
   // Product shipping data cache
   const [productShippingCache, setProductShippingCache] = useState<Record<string, ProductShippingData>>({});
@@ -132,6 +135,7 @@ function CheckoutContent() {
   const [isComplete, setIsComplete] = useState(false);
   const [completedOrderNumber, setCompletedOrderNumber] = useState<string | undefined>();
   const [showCreateAccountModal, setShowCreateAccountModal] = useState(false);
+  const [isNavigatingToSuccess, setIsNavigatingToSuccess] = useState(false);
 
   // Auto-detected region from IP geolocation
   const [detectedRegion, setDetectedRegion] = useState<string | null>(null);
@@ -526,6 +530,9 @@ function CheckoutContent() {
           console.warn('Payment confirmation pending, proceeding with order completion');
         }
 
+        // IMPORTANT: Set navigation flag BEFORE clearing cart to prevent redirect race condition
+        setIsNavigatingToSuccess(true);
+
         // Success - clear cart and redirect to success page
         removeSelectedItems();
         clearAppliedCoupon();
@@ -642,6 +649,9 @@ function CheckoutContent() {
           5,
           1500
         );
+
+        // IMPORTANT: Set navigation flag BEFORE clearing cart to prevent redirect race condition
+        setIsNavigatingToSuccess(true);
 
         removeSelectedItems();
         clearAppliedCoupon();
