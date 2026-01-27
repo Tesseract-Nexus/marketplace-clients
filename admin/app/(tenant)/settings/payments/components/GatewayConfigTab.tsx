@@ -98,6 +98,7 @@ export function GatewayConfigTab() {
     priority: 10,
   });
   const [credentials, setCredentials] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
 
   // Store location state
   const [storeCountry, setStoreCountry] = useState<string | null>(null);
@@ -209,6 +210,7 @@ export function GatewayConfigTab() {
 
   const handleSave = async () => {
     try {
+      setSaving(true);
       if (editingGateway) {
         await paymentsService.updateGatewayConfig(editingGateway.id, formData);
         showSuccess('Success', 'Gateway updated successfully');
@@ -228,6 +230,8 @@ export function GatewayConfigTab() {
       loadData();
     } catch (error: any) {
       showError('Error', error.message || 'Failed to save gateway');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -705,11 +709,18 @@ export function GatewayConfigTab() {
                 <Button
                   onClick={handleSave}
                   disabled={
-                    !selectedTemplate.requiredCredentials?.every((field) => credentials[field])
+                    saving || !selectedTemplate.requiredCredentials?.every((field) => credentials[field])
                   }
                   className="bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
                 >
-                  Add Gateway
+                  {saving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Add Gateway'
+                  )}
                 </Button>
               )}
             </div>
@@ -819,9 +830,17 @@ export function GatewayConfigTab() {
               </Button>
               <Button
                 onClick={handleSave}
-                className="bg-primary text-primary-foreground hover:opacity-90"
+                disabled={saving}
+                className="bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
               >
-                Update Gateway
+                {saving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  'Update Gateway'
+                )}
               </Button>
             </div>
           </div>

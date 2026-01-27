@@ -114,6 +114,7 @@ export function CarrierConfigTab() {
     priority: 10,
   });
   const [credentials, setCredentials] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
 
   // Store location state
   const [storeCountry, setStoreCountry] = useState<string | null>(null);
@@ -213,6 +214,7 @@ export function CarrierConfigTab() {
 
   const handleSave = async () => {
     try {
+      setSaving(true);
       let newCarrierId: string | null = null;
 
       if (editingCarrier) {
@@ -259,6 +261,8 @@ export function CarrierConfigTab() {
       loadData();
     } catch (error: any) {
       showError('Error', error.message || 'Failed to save carrier');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -723,11 +727,18 @@ export function CarrierConfigTab() {
                 <Button
                   onClick={handleSave}
                   disabled={
-                    !selectedTemplate.requiredCredentials?.every((field) => credentials[field])
+                    saving || !selectedTemplate.requiredCredentials?.every((field) => credentials[field])
                   }
                   className="bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
                 >
-                  Add Carrier
+                  {saving ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    'Add Carrier'
+                  )}
                 </Button>
               )}
             </div>
@@ -912,9 +923,17 @@ export function CarrierConfigTab() {
               </Button>
               <Button
                 onClick={handleSave}
-                className="bg-primary text-primary-foreground hover:opacity-90"
+                disabled={saving}
+                className="bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
               >
-                Update Carrier
+                {saving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  'Update Carrier'
+                )}
               </Button>
             </div>
           </div>

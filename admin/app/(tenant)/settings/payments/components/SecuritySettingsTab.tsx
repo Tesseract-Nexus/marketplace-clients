@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Shield, Lock, AlertTriangle, CheckCircle, Info, ExternalLink } from 'lucide-react';
+import { Shield, Lock, AlertTriangle, CheckCircle, Info, ExternalLink, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
@@ -326,7 +326,14 @@ export function SecuritySettingsTab() {
           disabled={saving}
           className="bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
         >
-          {saving ? 'Saving...' : 'Save Security Settings'}
+          {saving ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Saving...
+            </>
+          ) : (
+            'Save Security Settings'
+          )}
         </Button>
       </div>
     </div>

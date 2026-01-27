@@ -11,7 +11,6 @@ import {
   Star,
   Loader2,
   MapPin,
-  Sparkles,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -54,6 +53,7 @@ export function CarrierRegionsTab() {
   const [loadingRegions, setLoadingRegions] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingRegion, setEditingRegion] = useState<ShippingCarrierRegion | null>(null);
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState<Partial<ShippingCarrierRegion>>({
     countryCode: '',
     isPrimary: false,
@@ -107,6 +107,7 @@ export function CarrierRegionsTab() {
     if (!selectedCarrier) return;
 
     try {
+      setSaving(true);
       if (editingRegion) {
         await shippingCarriersService.updateCarrierRegion(editingRegion.id, formData);
         showSuccess('Success', 'Region updated successfully');
@@ -119,6 +120,8 @@ export function CarrierRegionsTab() {
       loadRegions(selectedCarrier.id);
     } catch (error: any) {
       showError('Error', error.message || 'Failed to save region');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -483,10 +486,17 @@ export function CarrierRegionsTab() {
               </Button>
               <Button
                 onClick={handleSave}
-                disabled={!formData.countryCode}
+                disabled={saving || !formData.countryCode}
                 className="bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
               >
-                {editingRegion ? 'Update' : 'Add'} Region
+                {saving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  `${editingRegion ? 'Update' : 'Add'} Region`
+                )}
               </Button>
             </div>
           </div>
