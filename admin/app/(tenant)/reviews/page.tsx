@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Plus, Eye, CheckCircle, XCircle, Flag, Star, MessageSquare, Shield, AlertCircle, X, Loader2, Sparkles, ShieldCheck, Camera, ThumbsUp, Home, MessageCircle, Clock, TrendingUp } from 'lucide-react';
+import { Search, Plus, Eye, CheckCircle, XCircle, Flag, Star, MessageSquare, Shield, AlertCircle, X, Loader2, Sparkles, ShieldCheck, Camera, ThumbsUp, Home, MessageCircle, Clock, TrendingUp, RefreshCw } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -459,6 +459,17 @@ export default function ReviewsPage() {
             { label: 'Customers', href: '/customers' },
             { label: 'Reviews' },
           ]}
+          actions={
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => loadReviews()}
+              disabled={loading}
+            >
+              <RefreshCw className={cn("h-4 w-4 mr-2", loading && "animate-spin")} />
+              Refresh
+            </Button>
+          }
         />
 
       {/* Error Alert */}
