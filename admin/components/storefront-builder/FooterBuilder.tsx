@@ -50,6 +50,35 @@ const TRUST_BADGE_PRESETS = [
   { label: 'Verified Business', icon: 'BadgeCheck' },
 ];
 
+// Collapsible section component - defined outside FooterBuilder to prevent re-creation on render
+interface CollapsibleSectionProps {
+  id: string;
+  title: string;
+  icon: React.ElementType;
+  children: React.ReactNode;
+  isOpen: boolean;
+  onToggle: (id: string) => void;
+}
+
+function CollapsibleSection({ id, title, icon: Icon, children, isOpen, onToggle }: CollapsibleSectionProps) {
+  return (
+    <div className="border border-border rounded-md overflow-hidden">
+      <button
+        type="button"
+        onClick={() => onToggle(id)}
+        className="w-full flex items-center justify-between p-4 bg-muted hover:bg-muted/80 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <Icon className="h-5 w-5 text-primary" />
+          <span className="font-medium">{title}</span>
+        </div>
+        {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+      </button>
+      {isOpen && <div className="p-4 border-t border-border bg-card">{children}</div>}
+    </div>
+  );
+}
+
 interface FooterBuilderProps {
   config: StorefrontFooterConfig;
   onChange: (updates: Partial<StorefrontFooterConfig>) => void;
@@ -58,6 +87,10 @@ interface FooterBuilderProps {
 
 export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps) {
   const [activeSection, setActiveSection] = useState<string | null>('columns');
+
+  const handleToggleSection = (id: string) => {
+    setActiveSection(activeSection === id ? null : id);
+  };
 
   const handleTogglePaymentMethod = (method: PaymentMethod) => {
     const current = config.paymentMethods || [];
@@ -88,36 +121,6 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
     onChange({ trustBadges: (config.trustBadges || []).filter((b) => b.id !== id) });
   };
 
-  const Section = ({
-    id,
-    title,
-    icon: Icon,
-    children,
-  }: {
-    id: string;
-    title: string;
-    icon: React.ElementType;
-    children: React.ReactNode;
-  }) => {
-    const isOpen = activeSection === id;
-    return (
-      <div className="border border-border rounded-md overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setActiveSection(isOpen ? null : id)}
-          className="w-full flex items-center justify-between p-4 bg-muted hover:bg-muted/80 transition-colors"
-        >
-          <div className="flex items-center gap-3">
-            <Icon className="h-5 w-5 text-primary" />
-            <span className="font-medium">{title}</span>
-          </div>
-          {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-        </button>
-        {isOpen && <div className="p-4 border-t border-border bg-card">{children}</div>}
-      </div>
-    );
-  };
-
   return (
     <div className="space-y-4">
       {/* Show Footer Toggle */}
@@ -141,7 +144,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
       {config.showFooter && (
         <>
           {/* Column Layout */}
-          <Section id="columns" title="Link Columns" icon={Columns}>
+          <CollapsibleSection id="columns" title="Link Columns" icon={Columns} isOpen={activeSection === 'columns'} onToggle={handleToggleSection}>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Column Layout</label>
@@ -174,10 +177,10 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                 onChange={(linkGroups) => onChange({ linkGroups })}
               />
             </div>
-          </Section>
+          </CollapsibleSection>
 
           {/* Styling */}
-          <Section id="styling" title="Colors & Styling" icon={ImageIcon}>
+          <CollapsibleSection id="styling" title="Colors & Styling" icon={ImageIcon} isOpen={activeSection === 'styling'} onToggle={handleToggleSection}>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-2">Background Color</label>
@@ -233,10 +236,10 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                 <a href="#" className="text-sm underline opacity-80">Sample Link</a>
               </div>
             </div>
-          </Section>
+          </CollapsibleSection>
 
           {/* Contact Info */}
-          <Section id="contact" title="Contact Information" icon={LinkIcon}>
+          <CollapsibleSection id="contact" title="Contact Information" icon={LinkIcon} isOpen={activeSection === 'contact'} onToggle={handleToggleSection}>
             <div className="space-y-4">
               <label className="flex items-center gap-2">
                 <input
@@ -287,10 +290,10 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                 </div>
               )}
             </div>
-          </Section>
+          </CollapsibleSection>
 
           {/* Social Links */}
-          <Section id="social" title="Social Links" icon={LinkIcon}>
+          <CollapsibleSection id="social" title="Social Links" icon={LinkIcon} isOpen={activeSection === 'social'} onToggle={handleToggleSection}>
             <div className="space-y-4">
               <label className="flex items-center gap-2">
                 <input
@@ -310,10 +313,10 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                 />
               )}
             </div>
-          </Section>
+          </CollapsibleSection>
 
           {/* Payment Methods */}
-          <Section id="payment" title="Payment Methods" icon={CreditCard}>
+          <CollapsibleSection id="payment" title="Payment Methods" icon={CreditCard} isOpen={activeSection === 'payment'} onToggle={handleToggleSection}>
             <div className="space-y-4">
               <label className="flex items-center gap-2">
                 <input
@@ -353,10 +356,10 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                 </div>
               )}
             </div>
-          </Section>
+          </CollapsibleSection>
 
           {/* Trust Badges */}
-          <Section id="trust" title="Trust Badges" icon={Shield}>
+          <CollapsibleSection id="trust" title="Trust Badges" icon={Shield} isOpen={activeSection === 'trust'} onToggle={handleToggleSection}>
             <div className="space-y-4">
               <label className="flex items-center gap-2">
                 <input
@@ -456,10 +459,10 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                 </>
               )}
             </div>
-          </Section>
+          </CollapsibleSection>
 
           {/* Newsletter & Copyright */}
-          <Section id="bottom" title="Newsletter & Copyright" icon={LinkIcon}>
+          <CollapsibleSection id="bottom" title="Newsletter & Copyright" icon={LinkIcon} isOpen={activeSection === 'bottom'} onToggle={handleToggleSection}>
             <div className="space-y-4">
               <label className="flex items-center gap-2">
                 <input
@@ -495,7 +498,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                 <span className="text-sm font-medium">Show "Powered by" branding</span>
               </label>
             </div>
-          </Section>
+          </CollapsibleSection>
         </>
       )}
     </div>

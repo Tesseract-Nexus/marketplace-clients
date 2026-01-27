@@ -28,6 +28,7 @@ import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { StoreSelector } from '@/components/settings/StoreSelector';
 
 // Import our new storefront builder components
@@ -107,7 +108,8 @@ interface StorefrontThemeContentProps {
 
 export function StorefrontThemeContent({ embedded = false, selectedStorefrontId }: StorefrontThemeContentProps) {
   const searchParams = useSearchParams();
-  const { showSuccess, showError, showConfirm } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const { user } = useUser();
   const [settings, setSettings] = useState<StorefrontSettings | null>(null);
@@ -211,7 +213,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
         setSavedSettings(response.data);
       }
     } catch (error) {
-      showError('Error', 'Failed to load storefront settings');
+      toast.error('Error', 'Failed to load storefront settings');
     } finally {
       setIsLoading(false);
     }
@@ -222,7 +224,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
 
     // Verify we have required context set
     if (!selectedStorefront?.id) {
-      showError('Error', 'No storefront selected. Please select a storefront first.');
+      toast.error('Error', 'No storefront selected. Please select a storefront first.');
       return;
     }
 
@@ -232,15 +234,15 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
       if (response.success && response.data) {
         setSavedSettings(response.data);
         setSettings(response.data);
-        showSuccess('Success', 'Storefront settings saved successfully!');
+        toast.success('Settings Saved', 'Storefront settings saved successfully!');
       } else {
         const errorMessage = response.message || 'Failed to save settings';
-        showError('Error', errorMessage);
+        toast.error('Error', errorMessage);
         console.error('Save settings failed:', response);
       }
     } catch (error) {
       console.error('Save settings error:', error);
-      showError('Error', 'An error occurred while saving. Please try again.');
+      toast.error('Error', 'An error occurred while saving. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -258,10 +260,10 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
         if (response.success && response.data) {
           setSettings(response.data);
           setSavedSettings(response.data);
-          showSuccess('Success', 'Settings reset to defaults');
+          toast.success('Reset Complete', 'Settings reset to defaults');
         }
       } catch (error) {
-        showError('Error', 'Failed to reset settings');
+        toast.error('Error', 'Failed to reset settings');
       }
     }
   };
