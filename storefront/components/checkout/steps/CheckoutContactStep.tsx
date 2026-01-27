@@ -53,9 +53,16 @@ export function CheckoutContactStep({
       return;
     }
 
-    // Validate phone if required
-    if (checkoutConfig.requirePhone && !contactInfo.phone?.trim()) {
-      setError('Please enter your phone number');
+    // Validate phone if required or guest mode
+    if (
+      (checkoutConfig.requirePhone || isGuestMode) &&
+      !contactInfo.phone?.trim()
+    ) {
+      setError(
+        isGuestMode
+          ? 'Phone number is required for guest checkout'
+          : 'Please enter your phone number'
+      );
       return;
     }
 
@@ -190,7 +197,7 @@ export function CheckoutContactStep({
         <div className="space-y-2">
           <Label htmlFor="phone">
             <TranslatedUIText text="Phone Number" />
-            {checkoutConfig.requirePhone && ' *'}
+            {(checkoutConfig.requirePhone || isGuestMode) && ' *'}
           </Label>
           <div className="relative">
             <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
