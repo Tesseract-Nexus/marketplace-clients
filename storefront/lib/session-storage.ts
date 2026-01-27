@@ -1,22 +1,25 @@
 /**
- * Session Storage Utility with TTL Support for Anonymous Users
+ * Session Storage Utility with TTL Support
  *
  * This module provides a custom storage implementation for Zustand that:
- * 1. Uses sessionStorage for anonymous users (data cleared on browser close)
- * 2. Applies a 3-hour TTL for anonymous user data
- * 3. Uses localStorage for authenticated users (persistent + backend sync)
+ * 1. Uses localStorage for both anonymous and authenticated users (survives refresh/tab close)
+ * 2. Applies different TTLs:
+ *    - Anonymous users: 30 minutes (short session for guest checkout)
+ *    - Authenticated users: 1 month (persistent + backend sync)
  *
  * The goal is to allow anonymous users to have full cart/wishlist functionality
- * during their session, with automatic cleanup when:
- * - The browser is closed (sessionStorage behavior)
- * - The TTL expires (3 hours max)
- * - The user logs in (data migrated to persistent storage + backend)
+ * during their checkout session, with automatic cleanup when:
+ * - The TTL expires (30 minutes for anonymous, 1 month for authenticated)
+ * - The user logs in (data migrated to authenticated storage + backend sync)
  */
 
 import { StateStorage } from 'zustand/middleware';
 
-// 3 hours in milliseconds
-export const ANONYMOUS_TTL_MS = 3 * 60 * 60 * 1000;
+// 30 minutes in milliseconds for anonymous users
+export const ANONYMOUS_TTL_MS = 30 * 60 * 1000;
+
+// 1 month in milliseconds for authenticated users
+export const AUTHENTICATED_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 // Keys for tracking TTL
 const TTL_KEY_SUFFIX = '_ttl';
@@ -61,16 +64,26 @@ export function isExpired(expiresAt: number): boolean {
 }
 
 /**
- * Create a new expiration timestamp
+ * Create a new expiration timestamp based on authentication status
  */
-export function createExpirationTimestamp(): number {
-  return Date.now() + ANONYMOUS_TTL_MS;
+export function createExpirationTimestamp(isAuthenticated: boolean = false): number {
+  const ttl = isAuthenticated ? AUTHENTICATED_TTL_MS : ANONYMOUS_TTL_MS;
+  return Date.now() + ttl;
 }
 
 /**
- * Custom storage adapter for Zustand that handles:
- * - sessionStorage for anonymous users with TTL
- * - localStorage for authenticated users
+ * Get appropriate TTL description for logging
+ */
+function getTTLDescription(isAuthenticated: boolean): string {
+  return isAuthenticated ? '1 month' : '30 minutes';
+}
+
+/**
+ * Custom storage adapter for Zustand that handles TTL-based persistence:
+ * - Uses localStorage for BOTH anonymous and authenticated users (survives refresh/tab close)
+ * - Applies different TTLs:
+ *   - Anonymous: 30 minutes (for guest checkout sessions)
+ *   - Authenticated: 1 month (persistent with backend sync)
  *
  * @param storeName - The name of the store (e.g., 'storefront-cart')
  */
@@ -80,94 +93,88 @@ export function createSessionAwareStorage(storeName: string): StateStorage {
       if (!isBrowser) return null;
 
       const isAuth = isUserAuthenticated();
-
-      // For authenticated users, use localStorage (will be synced with backend)
-      if (isAuth) {
-        const persistentData = localStorage.getItem(name);
-        if (persistentData) {
-          try {
-            // Check if it's wrapped data (from anonymous session that was migrated)
-            const parsed = JSON.parse(persistentData);
-            if (parsed.data !== undefined && parsed.expiresAt !== undefined) {
-              // It's wrapped data, unwrap it
-              return JSON.stringify(parsed.data);
-            }
-            // It's regular data
-            return persistentData;
-          } catch {
-            return persistentData;
-          }
-        }
-        return null;
-      }
-
-      // For anonymous users, check sessionStorage first, then localStorage for migration
-      const sessionData = sessionStorage.getItem(name);
       const ttlKey = `${name}${TTL_KEY_SUFFIX}`;
 
-      if (sessionData) {
-        // Check TTL
-        const ttlData = sessionStorage.getItem(ttlKey);
-        if (ttlData) {
-          const expiresAt = parseInt(ttlData, 10);
-          if (isExpired(expiresAt)) {
-            // Data expired, clear it
-            sessionStorage.removeItem(name);
-            sessionStorage.removeItem(ttlKey);
-            console.log(`[SessionStorage] Anonymous data expired for ${storeName}, cleared.`);
-            return null;
-          }
-        }
-        return sessionData;
-      }
+      // Both anonymous and authenticated use localStorage now
+      const storedData = localStorage.getItem(name);
+      const ttlData = localStorage.getItem(ttlKey);
 
-      // Check if there's data in localStorage that needs to be migrated to session
-      // This handles the case where user was authenticated and logged out
-      const localData = localStorage.getItem(name);
-      if (localData) {
-        // Don't migrate - let them start fresh as anonymous
-        // The old authenticated data stays in localStorage for if they log back in
+      if (!storedData) {
+        // Check for legacy sessionStorage data and migrate it
+        const sessionData = sessionStorage.getItem(name);
+        if (sessionData) {
+          // Migrate from sessionStorage to localStorage
+          localStorage.setItem(name, sessionData);
+          const expiresAt = createExpirationTimestamp(isAuth);
+          localStorage.setItem(ttlKey, expiresAt.toString());
+          // Clean up old sessionStorage
+          sessionStorage.removeItem(name);
+          sessionStorage.removeItem(ttlKey);
+          console.log(`[Storage] Migrated ${storeName} from sessionStorage to localStorage`);
+          return sessionData;
+        }
         return null;
       }
 
-      return null;
+      // Check TTL
+      if (ttlData) {
+        const expiresAt = parseInt(ttlData, 10);
+        if (isExpired(expiresAt)) {
+          // Data expired, clear it
+          localStorage.removeItem(name);
+          localStorage.removeItem(ttlKey);
+          const userType = isAuth ? 'authenticated' : 'anonymous';
+          console.log(`[Storage] ${userType} data expired for ${storeName}, cleared.`);
+          return null;
+        }
+      }
+
+      // Handle wrapped data (from migration)
+      try {
+        const parsed = JSON.parse(storedData);
+        if (parsed.data !== undefined && parsed.expiresAt !== undefined) {
+          // It's wrapped data, unwrap it
+          return JSON.stringify(parsed.data);
+        }
+      } catch {
+        // Not JSON or not wrapped, return as-is
+      }
+
+      return storedData;
     },
 
     setItem: (name: string, value: string): void => {
       if (!isBrowser) return;
 
       const isAuth = isUserAuthenticated();
+      const ttlKey = `${name}${TTL_KEY_SUFFIX}`;
 
-      if (isAuth) {
-        // Authenticated users use localStorage (with backend sync)
-        localStorage.setItem(name, value);
+      // Store in localStorage with TTL
+      localStorage.setItem(name, value);
 
-        // Clear any session storage data since user is now authenticated
-        sessionStorage.removeItem(name);
-        sessionStorage.removeItem(`${name}${TTL_KEY_SUFFIX}`);
-      } else {
-        // Anonymous users use sessionStorage with TTL
-        sessionStorage.setItem(name, value);
+      // Set/update TTL based on auth status
+      const existingTTL = localStorage.getItem(ttlKey);
+      const wasAnonymous = existingTTL ? !isAuth : true;
 
-        // Set/update TTL
-        const ttlKey = `${name}${TTL_KEY_SUFFIX}`;
-        const existingTTL = sessionStorage.getItem(ttlKey);
-
-        if (!existingTTL) {
-          // First time setting data, create TTL
-          const expiresAt = createExpirationTimestamp();
-          sessionStorage.setItem(ttlKey, expiresAt.toString());
-          console.log(`[SessionStorage] Set TTL for ${storeName}: expires in 3 hours`);
-        }
-        // If TTL exists, don't extend it - let it expire at original time
+      if (!existingTTL || (isAuth && wasAnonymous)) {
+        // First time setting data, or user just logged in - set appropriate TTL
+        const expiresAt = createExpirationTimestamp(isAuth);
+        localStorage.setItem(ttlKey, expiresAt.toString());
+        console.log(`[Storage] Set TTL for ${storeName}: expires in ${getTTLDescription(isAuth)}`);
       }
+      // If TTL exists and user is still in same auth state, keep existing TTL
+
+      // Clean up any legacy sessionStorage
+      sessionStorage.removeItem(name);
+      sessionStorage.removeItem(ttlKey);
     },
 
     removeItem: (name: string): void => {
       if (!isBrowser) return;
 
-      // Remove from both storages
+      // Remove from both storages (for migration cleanup)
       localStorage.removeItem(name);
+      localStorage.removeItem(`${name}${TTL_KEY_SUFFIX}`);
       sessionStorage.removeItem(name);
       sessionStorage.removeItem(`${name}${TTL_KEY_SUFFIX}`);
     },
@@ -175,40 +182,42 @@ export function createSessionAwareStorage(storeName: string): StateStorage {
 }
 
 /**
- * Migrate anonymous session data to authenticated storage
- * Called when a user logs in to preserve their cart/wishlist
+ * Upgrade anonymous storage to authenticated storage
+ * Called when a user logs in to extend their TTL
  *
- * @param storeName - The store name to migrate
- * @returns The migrated data or null if no data to migrate
+ * @param storeName - The store name to upgrade
+ * @returns The data or null if no data exists
  */
 export function migrateToAuthenticatedStorage<T>(storeName: string): T | null {
   if (!isBrowser) return null;
 
-  const sessionData = sessionStorage.getItem(storeName);
-  if (!sessionData) return null;
+  const storedData = localStorage.getItem(storeName);
+  if (!storedData) return null;
 
   try {
-    // Parse the session data
-    const data = JSON.parse(sessionData) as T;
+    // Parse the data
+    const data = JSON.parse(storedData) as T;
 
-    // Store in localStorage (authenticated storage)
-    localStorage.setItem(storeName, sessionData);
+    // Extend TTL to authenticated duration (1 month)
+    const ttlKey = `${storeName}${TTL_KEY_SUFFIX}`;
+    const expiresAt = createExpirationTimestamp(true);
+    localStorage.setItem(ttlKey, expiresAt.toString());
 
-    // Clear session storage
+    // Clean up any legacy sessionStorage
     sessionStorage.removeItem(storeName);
-    sessionStorage.removeItem(`${storeName}${TTL_KEY_SUFFIX}`);
+    sessionStorage.removeItem(ttlKey);
 
-    console.log(`[SessionStorage] Migrated ${storeName} from session to authenticated storage`);
+    console.log(`[Storage] Upgraded ${storeName} to authenticated storage (1 month TTL)`);
 
     return data;
   } catch (error) {
-    console.error(`[SessionStorage] Failed to migrate ${storeName}:`, error);
+    console.error(`[Storage] Failed to upgrade ${storeName}:`, error);
     return null;
   }
 }
 
 /**
- * Get anonymous session data without consuming it
+ * Get session data without consuming it
  * Useful for checking what needs to be merged on login
  *
  * @param storeName - The store name to check
@@ -217,49 +226,52 @@ export function migrateToAuthenticatedStorage<T>(storeName: string): T | null {
 export function getAnonymousSessionData<T>(storeName: string): T | null {
   if (!isBrowser) return null;
 
-  const sessionData = sessionStorage.getItem(storeName);
-  if (!sessionData) return null;
+  const storedData = localStorage.getItem(storeName);
+  if (!storedData) return null;
 
   // Check TTL
   const ttlKey = `${storeName}${TTL_KEY_SUFFIX}`;
-  const ttlData = sessionStorage.getItem(ttlKey);
+  const ttlData = localStorage.getItem(ttlKey);
   if (ttlData) {
     const expiresAt = parseInt(ttlData, 10);
     if (isExpired(expiresAt)) {
       // Data expired
-      sessionStorage.removeItem(storeName);
-      sessionStorage.removeItem(ttlKey);
+      localStorage.removeItem(storeName);
+      localStorage.removeItem(ttlKey);
       return null;
     }
   }
 
   try {
-    return JSON.parse(sessionData) as T;
+    return JSON.parse(storedData) as T;
   } catch {
     return null;
   }
 }
 
 /**
- * Clear all anonymous session data
- * Called after successful migration to authenticated storage
+ * Clear session data
+ * Called after successful order completion or logout
  */
 export function clearAnonymousSessionData(storeName: string): void {
   if (!isBrowser) return;
 
+  localStorage.removeItem(storeName);
+  localStorage.removeItem(`${storeName}${TTL_KEY_SUFFIX}`);
+  // Also clear legacy sessionStorage
   sessionStorage.removeItem(storeName);
   sessionStorage.removeItem(`${storeName}${TTL_KEY_SUFFIX}`);
 }
 
 /**
- * Get remaining TTL for anonymous session data
+ * Get remaining TTL for session data
  * @returns Remaining time in milliseconds, or 0 if expired/no TTL
  */
 export function getRemainingTTL(storeName: string): number {
   if (!isBrowser) return 0;
 
   const ttlKey = `${storeName}${TTL_KEY_SUFFIX}`;
-  const ttlData = sessionStorage.getItem(ttlKey);
+  const ttlData = localStorage.getItem(ttlKey);
 
   if (!ttlData) return 0;
 
@@ -270,41 +282,51 @@ export function getRemainingTTL(storeName: string): number {
 }
 
 /**
- * Clean up all expired anonymous session data
+ * Clean up all expired session data
  * Should be called on app initialization
  */
 export function cleanupExpiredSessionData(): void {
   if (!isBrowser) return;
 
-  const storesToCheck = ['storefront-cart', 'storefront-wishlist'];
+  const storesToCheck = ['storefront-cart', 'storefront-wishlist', 'storefront-checkout'];
 
   for (const storeName of storesToCheck) {
     const ttlKey = `${storeName}${TTL_KEY_SUFFIX}`;
-    const ttlData = sessionStorage.getItem(ttlKey);
+    const ttlData = localStorage.getItem(ttlKey);
 
     if (ttlData) {
       const expiresAt = parseInt(ttlData, 10);
       if (isExpired(expiresAt)) {
+        localStorage.removeItem(storeName);
+        localStorage.removeItem(ttlKey);
+        console.log(`[Storage] Cleaned up expired data for ${storeName}`);
+      }
+    }
+
+    // Also clean up legacy sessionStorage
+    const sessionTTL = sessionStorage.getItem(ttlKey);
+    if (sessionTTL) {
+      const expiresAt = parseInt(sessionTTL, 10);
+      if (isExpired(expiresAt)) {
         sessionStorage.removeItem(storeName);
         sessionStorage.removeItem(ttlKey);
-        console.log(`[SessionStorage] Cleaned up expired session data for ${storeName}`);
       }
     }
   }
 }
 
 /**
- * Check if there's anonymous session data that can be migrated
+ * Check if there's valid session data
  */
 export function hasAnonymousSessionData(storeName: string): boolean {
   if (!isBrowser) return false;
 
-  const sessionData = sessionStorage.getItem(storeName);
-  if (!sessionData) return false;
+  const storedData = localStorage.getItem(storeName);
+  if (!storedData) return false;
 
   // Verify it's not expired
   const ttlKey = `${storeName}${TTL_KEY_SUFFIX}`;
-  const ttlData = sessionStorage.getItem(ttlKey);
+  const ttlData = localStorage.getItem(ttlKey);
 
   if (ttlData) {
     const expiresAt = parseInt(ttlData, 10);
@@ -319,15 +341,12 @@ export function hasAnonymousSessionData(storeName: string): boolean {
 // Store periodic cleanup interval reference
 let cleanupIntervalId: NodeJS.Timeout | null = null;
 
-// Expiration warning threshold (30 minutes before expiry)
-const EXPIRATION_WARNING_THRESHOLD_MS = 30 * 60 * 1000;
-
 /**
  * Start periodic TTL cleanup check
  * Runs every 5 minutes to check for expired session data
  *
  * @param onExpired - Optional callback when session data expires
- * @param onExpirationWarning - Optional callback when session is about to expire (30 min warning)
+ * @param onExpirationWarning - Optional callback when session is about to expire (5 min warning for anonymous)
  */
 export function startPeriodicTTLCleanup(
   onExpired?: (storeName: string) => void,
@@ -338,31 +357,32 @@ export function startPeriodicTTLCleanup(
   // Don't start multiple intervals
   if (cleanupIntervalId) return;
 
-  const checkInterval = 5 * 60 * 1000; // 5 minutes
-  const storesToCheck = ['storefront-cart', 'storefront-wishlist'];
+  const checkInterval = 1 * 60 * 1000; // 1 minute (more frequent for 30 min TTL)
+  const storesToCheck = ['storefront-cart', 'storefront-wishlist', 'storefront-checkout'];
 
   const performCheck = () => {
-    // Only check for anonymous users
-    if (isUserAuthenticated()) return;
+    const isAuth = isUserAuthenticated();
+    // Warning threshold: 5 mins for anonymous, 1 day for authenticated
+    const warningThreshold = isAuth ? 24 * 60 * 60 * 1000 : 5 * 60 * 1000;
 
     for (const storeName of storesToCheck) {
       const ttlKey = `${storeName}${TTL_KEY_SUFFIX}`;
-      const ttlData = sessionStorage.getItem(ttlKey);
-      const sessionData = sessionStorage.getItem(storeName);
+      const ttlData = localStorage.getItem(ttlKey);
+      const storedData = localStorage.getItem(storeName);
 
-      if (ttlData && sessionData) {
+      if (ttlData && storedData) {
         const expiresAt = parseInt(ttlData, 10);
         const remainingMs = expiresAt - Date.now();
 
         if (remainingMs <= 0) {
           // Expired - clean up
-          sessionStorage.removeItem(storeName);
-          sessionStorage.removeItem(ttlKey);
-          console.log(`[SessionStorage] Periodic cleanup: expired session data for ${storeName}`);
+          localStorage.removeItem(storeName);
+          localStorage.removeItem(ttlKey);
+          console.log(`[Storage] Periodic cleanup: expired data for ${storeName}`);
           onExpired?.(storeName);
-        } else if (remainingMs <= EXPIRATION_WARNING_THRESHOLD_MS) {
+        } else if (remainingMs <= warningThreshold) {
           // About to expire - warn user
-          console.log(`[SessionStorage] Warning: ${storeName} expires in ${Math.round(remainingMs / 60000)} minutes`);
+          console.log(`[Storage] Warning: ${storeName} expires in ${Math.round(remainingMs / 60000)} minutes`);
           onExpirationWarning?.(storeName, remainingMs);
         }
       }
@@ -393,15 +413,19 @@ export function stopPeriodicTTLCleanup(): void {
 export function getExpirationWarning(storeName: string): { expiresIn: number; expiresAt: Date } | null {
   if (!isBrowser) return null;
 
+  const isAuth = isUserAuthenticated();
+  // Warning threshold: 5 mins for anonymous, 1 day for authenticated
+  const warningThreshold = isAuth ? 24 * 60 * 60 * 1000 : 5 * 60 * 1000;
+
   const ttlKey = `${storeName}${TTL_KEY_SUFFIX}`;
-  const ttlData = sessionStorage.getItem(ttlKey);
+  const ttlData = localStorage.getItem(ttlKey);
 
   if (!ttlData) return null;
 
   const expiresAt = parseInt(ttlData, 10);
   const remainingMs = expiresAt - Date.now();
 
-  if (remainingMs > 0 && remainingMs <= EXPIRATION_WARNING_THRESHOLD_MS) {
+  if (remainingMs > 0 && remainingMs <= warningThreshold) {
     return {
       expiresIn: remainingMs,
       expiresAt: new Date(expiresAt),
@@ -413,21 +437,21 @@ export function getExpirationWarning(storeName: string): { expiresIn: number; ex
 
 /**
  * Extend TTL for session data (e.g., when user is actively using the cart)
- * Only extends if user is anonymous and data exists
+ * Resets TTL to full duration based on auth status
  * @param storeName - The store to extend TTL for
  * @returns true if TTL was extended, false otherwise
  */
 export function extendSessionTTL(storeName: string): boolean {
   if (!isBrowser) return false;
-  if (isUserAuthenticated()) return false;
 
-  const sessionData = sessionStorage.getItem(storeName);
-  if (!sessionData) return false;
+  const storedData = localStorage.getItem(storeName);
+  if (!storedData) return false;
 
+  const isAuth = isUserAuthenticated();
   const ttlKey = `${storeName}${TTL_KEY_SUFFIX}`;
-  const newExpiresAt = createExpirationTimestamp();
-  sessionStorage.setItem(ttlKey, newExpiresAt.toString());
+  const newExpiresAt = createExpirationTimestamp(isAuth);
+  localStorage.setItem(ttlKey, newExpiresAt.toString());
 
-  console.log(`[SessionStorage] Extended TTL for ${storeName}: expires in 3 hours`);
+  console.log(`[Storage] Extended TTL for ${storeName}: expires in ${getTTLDescription(isAuth)}`);
   return true;
 }

@@ -1,9 +1,10 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useMemo, useEffect, ReactNode } from 'react';
 import { CustomerAddress } from '@/lib/api/customers';
 import { ShippingMethod, ShippingRate } from '@/lib/api/shipping';
 import { ShippingAddress } from '@/hooks/useTaxCalculation';
+import { useCheckoutStore, useCheckoutHydration } from '@/store/checkout';
 
 export type CheckoutStep = 'contact' | 'shipping' | 'payment' | 'review';
 
@@ -52,6 +53,9 @@ export interface CheckoutState {
 }
 
 interface CheckoutContextValue extends CheckoutState {
+  // Hydration status
+  isHydrated: boolean;
+
   // Step navigation
   goToStep: (step: CheckoutStep) => void;
   nextStep: () => void;
@@ -143,6 +147,10 @@ interface CheckoutProviderProps {
 }
 
 export function CheckoutProvider({ children, isAuthenticated = false, customerEmail }: CheckoutProviderProps) {
+  // Get persisted store state
+  const checkoutStore = useCheckoutStore();
+  const isHydrated = useCheckoutHydration();
+
   const [state, setState] = useState<CheckoutState>(() => ({
     ...DEFAULT_STATE,
     addressMode: isAuthenticated ? 'saved' : 'manual',
@@ -151,6 +159,70 @@ export function CheckoutProvider({ children, isAuthenticated = false, customerEm
       email: customerEmail || '',
     },
   }));
+
+  // Restore state from persisted store on hydration
+  useEffect(() => {
+    if (isHydrated && checkoutStore.sessionStartedAt) {
+      // Restore persisted checkout state
+      console.log('[CheckoutContext] Restoring from persisted store');
+      setState((prev) => ({
+        ...prev,
+        currentStep: checkoutStore.currentStep,
+        completedSteps: checkoutStore.completedSteps,
+        contactInfo: {
+          ...checkoutStore.contactInfo,
+          email: checkoutStore.contactInfo.email || customerEmail || '',
+        },
+        isGuestMode: checkoutStore.isGuestMode,
+        addressMode: checkoutStore.addressMode,
+        shippingAddress: checkoutStore.shippingAddress,
+        selectedShippingMethod: checkoutStore.selectedShippingMethodData,
+        shippingCost: checkoutStore.shippingCost,
+        billingAddressSameAsShipping: checkoutStore.billingAddressSameAsShipping,
+        billingAddress: checkoutStore.billingAddress,
+        loyaltyPointsApplied: checkoutStore.loyaltyPointsApplied,
+        loyaltyDiscount: checkoutStore.loyaltyDiscount,
+        termsAccepted: checkoutStore.termsAccepted,
+      }));
+    }
+  }, [isHydrated, checkoutStore.sessionStartedAt, customerEmail]);
+
+  // Sync state changes to the persisted store
+  useEffect(() => {
+    if (!isHydrated) return;
+
+    // Only sync if we have meaningful data
+    if (state.contactInfo.email || state.contactInfo.firstName) {
+      checkoutStore.setContactInfo(state.contactInfo);
+    }
+    checkoutStore.setCurrentStep(state.currentStep);
+    state.completedSteps.forEach((step) => checkoutStore.markStepCompleted(step));
+    checkoutStore.setGuestMode(state.isGuestMode);
+    checkoutStore.setAddressMode(state.addressMode);
+    checkoutStore.setShippingAddress(state.shippingAddress);
+    checkoutStore.setShippingMethod(state.selectedShippingMethod, state.shippingCost);
+    checkoutStore.setBillingAddressSameAsShipping(state.billingAddressSameAsShipping);
+    checkoutStore.setBillingAddress(state.billingAddress);
+    checkoutStore.setLoyaltyPoints(state.loyaltyPointsApplied, state.loyaltyDiscount);
+    checkoutStore.setTermsAccepted(state.termsAccepted);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    isHydrated,
+    state.currentStep,
+    state.completedSteps,
+    state.contactInfo,
+    state.isGuestMode,
+    state.addressMode,
+    state.shippingAddress,
+    state.selectedShippingMethod,
+    state.shippingCost,
+    state.billingAddressSameAsShipping,
+    state.billingAddress,
+    state.loyaltyPointsApplied,
+    state.loyaltyDiscount,
+    state.termsAccepted,
+    // checkoutStore is stable from zustand, no need to include
+  ]);
 
   // Step navigation
   const getStepIndex = useCallback((step: CheckoutStep) => {
@@ -307,10 +379,13 @@ export function CheckoutProvider({ children, isAuthenticated = false, customerEm
         email: customerEmail || '',
       },
     });
-  }, [isAuthenticated, customerEmail]);
+    // Also reset the persisted store
+    checkoutStore.resetCheckout();
+  }, [isAuthenticated, customerEmail, checkoutStore]);
 
   const value = useMemo<CheckoutContextValue>(() => ({
     ...state,
+    isHydrated,
     goToStep,
     nextStep,
     prevStep,
@@ -334,6 +409,7 @@ export function CheckoutProvider({ children, isAuthenticated = false, customerEm
     getProgressPercent,
   }), [
     state,
+    isHydrated,
     goToStep,
     nextStep,
     prevStep,
