@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { User, Mail, Phone, ChevronRight, LogIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -37,6 +37,13 @@ export function CheckoutContactStep({
   const getNavPath = useNavPath();
 
   const [showGuestBanner, setShowGuestBanner] = useState(!isAuthenticated && !isGuestMode);
+
+  // Hide guest banner if user becomes authenticated (e.g., after session rehydration)
+  useEffect(() => {
+    if (isAuthenticated) {
+      setShowGuestBanner(false);
+    }
+  }, [isAuthenticated]);
 
   // Validate and proceed
   const handleContinue = () => {

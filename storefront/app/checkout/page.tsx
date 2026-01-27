@@ -971,8 +971,18 @@ function CheckoutContent() {
 }
 
 export default function CheckoutPage() {
-  const { customer, accessToken } = useAuthStore();
+  const { customer, accessToken, isLoading: isAuthLoading } = useAuthStore();
   const isAuthenticated = !!(customer && accessToken);
+
+  // Wait for auth session validation before rendering checkout
+  // This prevents the guest banner from flashing for authenticated users
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <CheckoutProvider
