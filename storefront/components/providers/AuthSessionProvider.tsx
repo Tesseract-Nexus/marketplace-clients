@@ -10,6 +10,36 @@ interface AuthSessionProviderProps {
 }
 
 /**
+ * Fetch the full customer profile from customers-service via BFF route.
+ * This provides additional fields (phone, country, etc.) not available
+ * in the auth-bff session response.
+ */
+async function fetchCustomerProfile(): Promise<{
+  phone?: string;
+  firstName?: string;
+  lastName?: string;
+  country?: string;
+  countryCode?: string;
+  totalOrders?: number;
+  totalSpent?: number;
+  createdAt?: string;
+} | null> {
+  try {
+    const response = await fetch('/api/auth/profile', {
+      credentials: 'include',
+    });
+    if (!response.ok) return null;
+    const result = await response.json();
+    if (result.success && result.data) {
+      return result.data;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * AuthSessionProvider - Validates authentication state against auth-bff session
  *
  * This provider runs on mount to:
@@ -17,6 +47,7 @@ interface AuthSessionProviderProps {
  * 2. Sync the local auth store with the actual session state
  * 3. Populate auth store from valid server-side session (survives page refresh)
  * 4. Clear stale auth data if the session is no longer valid
+ * 5. Fetch full customer profile (phone, country, etc.) from customers-service
  *
  * The Zustand auth store intentionally does NOT persist to localStorage.
  * Auth state is managed server-side via auth-bff HttpOnly cookies.
@@ -31,7 +62,7 @@ interface AuthSessionProviderProps {
  */
 export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
   const pathname = usePathname();
-  const { logout, login, setLoading, isAuthenticated, customer } = useAuthStore();
+  const { logout, login, updateCustomer, setLoading, isAuthenticated, customer } = useAuthStore();
   const hasCheckedSession = useRef(false);
 
   useEffect(() => {
@@ -61,6 +92,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
                   email: sessionUser.email,
                   firstName: sessionUser.firstName || sessionUser.name?.split(' ')[0] || '',
                   lastName: sessionUser.lastName || sessionUser.name?.split(' ').slice(1).join(' ') || '',
+                  phone: sessionUser.phone,
                   status: 'ACTIVE',
                   customerType: 'RETAIL',
                   totalOrders: 0,
@@ -84,6 +116,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
                 email: sessionUser.email,
                 firstName: sessionUser.firstName || sessionUser.name?.split(' ')[0] || '',
                 lastName: sessionUser.lastName || sessionUser.name?.split(' ').slice(1).join(' ') || '',
+                phone: sessionUser.phone,
                 status: 'ACTIVE',
                 customerType: 'RETAIL',
                 totalOrders: 0,
@@ -95,6 +128,26 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
               '' // Token is managed by auth-bff via HttpOnly cookies
             );
           }
+
+          // Fetch full customer profile to get additional fields (phone, country, etc.)
+          // This runs after login so the store is already populated with basic session data
+          fetchCustomerProfile().then((profile) => {
+            if (profile) {
+              console.log('[AuthSessionProvider] Enriching auth store with full customer profile');
+              updateCustomer({
+                phone: profile.phone,
+                country: profile.country,
+                countryCode: profile.countryCode,
+                totalOrders: profile.totalOrders,
+                totalSpent: profile.totalSpent,
+                ...(profile.firstName && { firstName: profile.firstName }),
+                ...(profile.lastName && { lastName: profile.lastName }),
+                ...(profile.createdAt && { createdAt: profile.createdAt }),
+              });
+            }
+          }).catch((err) => {
+            console.warn('[AuthSessionProvider] Failed to fetch customer profile:', err);
+          });
         } else {
           // No valid server session
           if (isAuthenticated) {
@@ -117,7 +170,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
     };
 
     validateSession();
-  }, [logout, login, setLoading, isAuthenticated, customer, pathname]);
+  }, [logout, login, updateCustomer, setLoading, isAuthenticated, customer, pathname]);
 
   return <>{children}</>;
 }

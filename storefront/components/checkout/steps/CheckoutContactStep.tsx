@@ -17,12 +17,14 @@ interface CheckoutContactStepProps {
   isAuthenticated: boolean;
   customerEmail?: string;
   customerName?: string;
+  customerPhone?: string;
 }
 
 export function CheckoutContactStep({
   isAuthenticated,
   customerEmail,
   customerName,
+  customerPhone,
 }: CheckoutContactStepProps) {
   const {
     contactInfo,
@@ -39,11 +41,27 @@ export function CheckoutContactStep({
   const [showGuestBanner, setShowGuestBanner] = useState(!isAuthenticated && !isGuestMode);
 
   // Hide guest banner if user becomes authenticated (e.g., after session rehydration)
+  // and auto-populate contact form from customer profile
   useEffect(() => {
     if (isAuthenticated) {
       setShowGuestBanner(false);
+      // Auto-populate contact form from customer data if fields are empty/default
+      const isEmpty = !contactInfo.firstName && !contactInfo.lastName && !contactInfo.phone;
+      if (isEmpty) {
+        const updates: Partial<typeof contactInfo> = {};
+        if (customerEmail) updates.email = customerEmail;
+        if (customerPhone) updates.phone = customerPhone;
+        if (customerName) {
+          const [firstName, ...lastNameParts] = customerName.split(' ');
+          updates.firstName = firstName || '';
+          updates.lastName = lastNameParts.join(' ') || '';
+        }
+        if (Object.keys(updates).length > 0) {
+          setContactInfo(updates);
+        }
+      }
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, customerEmail, customerName, customerPhone]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Validate and proceed
   const handleContinue = () => {
@@ -79,16 +97,15 @@ export function CheckoutContactStep({
 
   // Pre-fill from customer data if authenticated
   const handleUseAccountInfo = () => {
-    if (customerEmail) {
-      setContactInfo({ email: customerEmail });
-    }
+    const updates: Partial<typeof contactInfo> = {};
+    if (customerEmail) updates.email = customerEmail;
+    if (customerPhone) updates.phone = customerPhone;
     if (customerName) {
       const [firstName, ...lastNameParts] = customerName.split(' ');
-      setContactInfo({
-        firstName: firstName || '',
-        lastName: lastNameParts.join(' ') || '',
-      });
+      updates.firstName = firstName || '';
+      updates.lastName = lastNameParts.join(' ') || '';
     }
+    setContactInfo(updates);
   };
 
   return (

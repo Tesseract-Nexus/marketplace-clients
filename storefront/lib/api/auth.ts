@@ -60,6 +60,7 @@ export interface SessionResponse {
     name?: string;
     firstName?: string;
     lastName?: string;
+    phone?: string;
     tenantId?: string;
     tenantSlug?: string;
     roles?: string[];

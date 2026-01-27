@@ -791,6 +791,7 @@ function CheckoutContent() {
                   isAuthenticated={isAuthenticated}
                   customerEmail={customer?.email}
                   customerName={customer?.firstName ? `${customer.firstName} ${customer.lastName || ''}`.trim() : undefined}
+                  customerPhone={customer?.phone}
                 />
               )}
 
