@@ -450,7 +450,7 @@ function CheckoutContent() {
           country: shippingAddress.countryCode || shippingAddress.country || 'US',
           phone: contactInfo.phone
         },
-        customerEmail: contactInfo.email,
+        customerEmail: (isAuthenticated && customer?.email) || contactInfo.email,
         customerPhone: contactInfo.phone,
         shippingMethod: getShippingMethodName(selectedShippingMethod) || 'standard',
         shippingCarrier: selectedShippingMethod && 'carrier' in selectedShippingMethod ? selectedShippingMethod.carrier : undefined,
