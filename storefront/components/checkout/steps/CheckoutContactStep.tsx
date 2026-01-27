@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { User, Mail, Phone, ChevronRight, LogIn } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -41,27 +41,33 @@ export function CheckoutContactStep({
   const [showGuestBanner, setShowGuestBanner] = useState(!isAuthenticated && !isGuestMode);
 
   // Hide guest banner if user becomes authenticated (e.g., after session rehydration)
-  // and auto-populate contact form from customer profile
   useEffect(() => {
     if (isAuthenticated) {
       setShowGuestBanner(false);
-      // Auto-populate contact form from customer data if fields are empty/default
-      const isEmpty = !contactInfo.firstName && !contactInfo.lastName && !contactInfo.phone;
-      if (isEmpty) {
-        const updates: Partial<typeof contactInfo> = {};
-        if (customerEmail) updates.email = customerEmail;
-        if (customerPhone) updates.phone = customerPhone;
-        if (customerName) {
-          const [firstName, ...lastNameParts] = customerName.split(' ');
-          updates.firstName = firstName || '';
-          updates.lastName = lastNameParts.join(' ') || '';
-        }
-        if (Object.keys(updates).length > 0) {
-          setContactInfo(updates);
-        }
-      }
     }
-  }, [isAuthenticated, customerEmail, customerName, customerPhone]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isAuthenticated]);
+
+  // Auto-populate contact form from customer profile data
+  // Runs when customer data becomes available (e.g., after profile fetch)
+  const hasAutoFilled = useRef(false);
+  useEffect(() => {
+    if (!isAuthenticated || hasAutoFilled.current) return;
+    // Wait until we have at least a name to fill
+    if (!customerName) return;
+
+    hasAutoFilled.current = true;
+    const updates: Partial<typeof contactInfo> = {};
+    if (customerEmail) updates.email = customerEmail;
+    if (customerPhone) updates.phone = customerPhone;
+    if (customerName) {
+      const [firstName, ...lastNameParts] = customerName.split(' ');
+      updates.firstName = firstName || '';
+      updates.lastName = lastNameParts.join(' ') || '';
+    }
+    if (Object.keys(updates).length > 0) {
+      setContactInfo(updates);
+    }
+  }, [isAuthenticated, customerEmail, customerName, customerPhone, setContactInfo]);
 
   // Validate and proceed
   const handleContinue = () => {
