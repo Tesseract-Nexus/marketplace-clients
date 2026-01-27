@@ -2,7 +2,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getOrders, Order } from '@/lib/api/storefront';
 import { OrdersClient } from './OrdersClient';
-import { resolveTenantId, getCustomerEmailFromCookie } from '@/lib/tenant';
+import { resolveTenantId, getCustomerEmailFromCookie, getAccessTokenFromCookie } from '@/lib/tenant';
 
 export default async function OrdersPage() {
   const headersList = await headers();
@@ -29,9 +29,12 @@ export default async function OrdersPage() {
     redirect(`/login?redirect=/account/orders`);
   }
 
-  // Fetch orders for this specific customer by email
+  // Get accessToken to use customer-authenticated endpoint
+  const accessToken = await getAccessTokenFromCookie();
+
+  // Fetch orders using customer-authenticated endpoint (validates ownership via JWT)
   console.log('[OrdersPage] Fetching orders for email:', email);
-  const orders = await getOrders(tenantId, tenantId, { email });
+  const orders = await getOrders(tenantId, tenantId, { email, accessToken: accessToken || undefined });
   console.log('[OrdersPage] Orders received:', orders.length);
 
   return <OrdersClient orders={orders} />;

@@ -725,22 +725,38 @@ function transformOrder(order: any): Order {
 export async function getOrders(
   tenantId: string,
   storefrontId: string,
-  options?: { customerId?: string; email?: string }
+  options?: { customerId?: string; email?: string; accessToken?: string }
 ): Promise<Order[]> {
   try {
     const params = new URLSearchParams();
+
+    // If we have an accessToken, use the customer-authenticated endpoint
+    // which validates ownership via JWT and only returns the customer's orders
+    if (options?.accessToken) {
+      const queryString = params.toString();
+      const url = `${serviceUrls.orders}/storefront/my/orders${queryString ? `?${queryString}` : ''}`;
+
+      const response = await apiRequest<any>(url, {
+        tenantId,
+        storefrontId,
+        headers: {
+          'Authorization': `Bearer ${options.accessToken}`,
+        },
+      });
+      const orders = response.orders || response.data || [];
+      return orders.map(transformOrder);
+    }
+
+    // Fallback: use admin endpoint with email filter (for backward compatibility)
     if (options?.customerId) params.set('customerId', options.customerId);
     if (options?.email) params.set('email', options.email);
 
     const queryString = params.toString();
-    // Note: serviceUrls.orders already includes /api/v1 from env var
     const url = `${serviceUrls.orders}/orders${queryString ? `?${queryString}` : ''}`;
 
     const response = await apiRequest<any>(url, { tenantId, storefrontId });
-    // API returns { orders: [...], total, page, limit }
     const orders = response.orders || response.data || [];
 
-    // Transform each order to match frontend expectations
     return orders.map(transformOrder);
   } catch (error) {
     console.error('Failed to fetch orders:', error);
@@ -751,14 +767,22 @@ export async function getOrders(
 export async function getOrder(
   tenantId: string,
   storefrontId: string,
-  orderId: string
+  orderId: string,
+  accessToken?: string
 ): Promise<Order | null> {
   try {
-    const response = await apiRequest<any>(
-      `${serviceUrls.orders}/orders/${orderId}`,
-      { tenantId, storefrontId }
-    );
-    // API returns order directly or wrapped in { data: order }
+    // Use customer-authenticated endpoint if accessToken is available
+    const url = accessToken
+      ? `${serviceUrls.orders}/storefront/my/orders/${orderId}`
+      : `${serviceUrls.orders}/orders/${orderId}`;
+
+    const response = await apiRequest<any>(url, {
+      tenantId,
+      storefrontId,
+      ...(accessToken && {
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+      }),
+    });
     const order = response.data || response;
     return order?.id ? transformOrder(order) : null;
   } catch (error) {
@@ -782,14 +806,22 @@ export interface OrderTracking {
 export async function getOrderTracking(
   tenantId: string,
   storefrontId: string,
-  orderId: string
+  orderId: string,
+  accessToken?: string
 ): Promise<OrderTracking | null> {
   try {
-    const response = await apiRequest<any>(
-      `${serviceUrls.orders}/orders/${orderId}/tracking`,
-      { tenantId, storefrontId }
-    );
-    // API returns tracking directly or wrapped in { data: tracking }
+    // Use customer-authenticated endpoint if accessToken is available
+    const url = accessToken
+      ? `${serviceUrls.orders}/storefront/my/orders/${orderId}/tracking`
+      : `${serviceUrls.orders}/orders/${orderId}/tracking`;
+
+    const response = await apiRequest<any>(url, {
+      tenantId,
+      storefrontId,
+      ...(accessToken && {
+        headers: { 'Authorization': `Bearer ${accessToken}` },
+      }),
+    });
     return response.data || response;
   } catch (error) {
     console.error('Failed to fetch order tracking:', error);

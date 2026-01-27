@@ -221,6 +221,19 @@ export async function getCustomerIdFromCookie(): Promise<string | null> {
 }
 
 /**
+ * Gets the raw accessToken JWT from cookies for forwarding to backend services.
+ * Returns null if not authenticated.
+ */
+export async function getAccessTokenFromCookie(): Promise<string | null> {
+  try {
+    const cookieStore = await cookies();
+    return cookieStore.get('accessToken')?.value || null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * Gets the current authenticated customer email from cookies
  * Returns null if not authenticated
  */

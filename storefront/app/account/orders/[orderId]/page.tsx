@@ -2,7 +2,7 @@ import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { getOrder, getOrderTracking, getOrderReturns } from '@/lib/api/storefront';
 import { OrderDetailsClient } from './OrderDetailsClient';
-import { resolveTenantId } from '@/lib/tenant';
+import { resolveTenantId, getAccessTokenFromCookie } from '@/lib/tenant';
 
 interface OrderDetailsPageProps {
   params: Promise<{ orderId: string }>;
@@ -19,10 +19,13 @@ export default async function OrderDetailsPage({ params }: OrderDetailsPageProps
     notFound();
   }
 
+  // Get accessToken to use customer-authenticated endpoints
+  const accessToken = (await getAccessTokenFromCookie()) || undefined;
+
   // Fetch order details, tracking, and returns in parallel
   const [order, tracking, returns] = await Promise.all([
-    getOrder(tenantId, tenantId, orderId),
-    getOrderTracking(tenantId, tenantId, orderId),
+    getOrder(tenantId, tenantId, orderId, accessToken),
+    getOrderTracking(tenantId, tenantId, orderId, accessToken),
     getOrderReturns(tenantId, tenantId, orderId),
   ]);
 
