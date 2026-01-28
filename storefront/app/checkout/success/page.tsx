@@ -204,10 +204,16 @@ function CheckoutSuccessContent() {
         }),
       });
       if (res.ok) {
-        setOrderCancelled(true);
-        setShowCancelDialog(false);
-        setCancelReason('');
+        const cancelledOrder = await res.json();
         storefrontToast.success('Order cancelled successfully');
+        // Redirect to order details page to show cancellation timeline
+        const orderId = cancelledOrder.id || sessionDetails.orderId;
+        if (orderId) {
+          router.push(getNavPath(`/account/orders/${orderId}`));
+        } else {
+          // Fallback to orders list if no order ID
+          router.push(getNavPath('/account/orders'));
+        }
       } else {
         storefrontToast.error('Unable to cancel this order');
       }
@@ -216,7 +222,7 @@ function CheckoutSuccessContent() {
     } finally {
       setCancelling(false);
     }
-  }, [sessionDetails?.orderNumber, sessionDetails?.customerEmail, cancelReason, tenant?.id, tenant?.storefrontId]);
+  }, [sessionDetails?.orderNumber, sessionDetails?.customerEmail, sessionDetails?.orderId, cancelReason, tenant?.id, tenant?.storefrontId, router, getNavPath]);
 
   const storeName = tenant?.name || 'Store';
   const isPaid = sessionDetails?.paymentStatus?.toLowerCase() === 'succeeded';
