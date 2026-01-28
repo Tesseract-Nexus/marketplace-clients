@@ -123,7 +123,7 @@ function WelcomeContent() {
     };
 
     fetchOnboardingData();
-  }, [sessionId, showError]);
+  }, [sessionId]);
 
   // Calculate password strength
   useEffect(() => {

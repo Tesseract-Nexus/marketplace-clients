@@ -96,7 +96,7 @@ export default function TaxExemptionsPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [showError]);
+  }, []);
 
   // Initial fetch (no polling - data is cached in PostgreSQL)
   useEffect(() => {

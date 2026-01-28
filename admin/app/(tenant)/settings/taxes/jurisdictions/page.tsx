@@ -67,7 +67,7 @@ export default function TaxJurisdictionsPage() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [showError]);
+  }, []);
 
   // Initial fetch (no polling - data is cached in PostgreSQL)
   useEffect(() => {
