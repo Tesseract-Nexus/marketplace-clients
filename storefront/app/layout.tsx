@@ -327,24 +327,50 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="theme-loading">
       <head>
-        {/* CRITICAL: Hide content IMMEDIATELY - must be first style in head */}
+        {/* CRITICAL: Theme loading styles - show skeleton while loading */}
         <style dangerouslySetInnerHTML={{ __html: `
-          /* Hide content until theme is loaded - prevent FOUC */
-          html.theme-loading,
-          html.theme-loading body,
-          html.theme-loading * {
-            visibility: hidden !important;
-            opacity: 0 !important;
+          /* Hide main content until theme is loaded */
+          html.theme-loading #main-app-content {
+            display: none !important;
           }
-          html.theme-loaded,
-          html.theme-loaded body,
-          html.theme-loaded * {
-            visibility: visible !important;
-            opacity: 1 !important;
+          /* Show skeleton loader while theme is loading */
+          html.theme-loading #theme-skeleton {
+            display: block !important;
           }
-          /* Smooth transition when theme loads */
-          html.theme-loaded body {
-            transition: opacity 0.1s ease-in-out;
+          /* Once loaded, show content and hide skeleton */
+          html.theme-loaded #main-app-content {
+            display: block !important;
+            animation: fadeIn 0.2s ease-out;
+          }
+          html.theme-loaded #theme-skeleton {
+            display: none !important;
+          }
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          /* Skeleton styles */
+          @keyframes skeleton-pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.7; }
+          }
+          @keyframes skeleton-shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+          }
+          .skeleton-pulse {
+            animation: skeleton-pulse 1.5s ease-in-out infinite;
+          }
+          .skeleton-shimmer {
+            position: relative;
+            overflow: hidden;
+          }
+          .skeleton-shimmer::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: skeleton-shimmer 1.5s ease-in-out infinite;
           }
         `}} />
         {/* Inject CSS variables as style tag - before any other styles */}
@@ -376,6 +402,212 @@ export default async function RootLayout({
         <a href="#main-content" className="skip-to-content">
           Skip to main content
         </a>
+
+        {/* Theme Loading Skeleton - shown while styles initialize */}
+        <div id="theme-skeleton" style={{ display: 'none' }}>
+          {/* Header skeleton */}
+          <div style={{
+            height: '64px',
+            borderBottom: '1px solid rgba(0,0,0,0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            padding: '0 24px',
+            background: 'var(--background, #fff)'
+          }}>
+            <div className="skeleton-pulse skeleton-shimmer" style={{
+              height: '32px',
+              width: '120px',
+              borderRadius: '6px',
+              background: 'var(--muted, #f1f5f9)'
+            }} />
+            <div style={{ display: 'flex', gap: '24px' }}>
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="skeleton-pulse" style={{
+                  height: '16px',
+                  width: '60px',
+                  borderRadius: '4px',
+                  background: 'var(--muted, #f1f5f9)'
+                }} />
+              ))}
+            </div>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <div className="skeleton-pulse" style={{
+                height: '36px',
+                width: '36px',
+                borderRadius: '50%',
+                background: 'var(--muted, #f1f5f9)'
+              }} />
+              <div className="skeleton-pulse" style={{
+                height: '36px',
+                width: '36px',
+                borderRadius: '50%',
+                background: 'var(--muted, #f1f5f9)'
+              }} />
+            </div>
+          </div>
+
+          {/* Hero skeleton */}
+          <div style={{
+            minHeight: '60vh',
+            display: 'flex',
+            alignItems: 'center',
+            position: 'relative',
+            overflow: 'hidden',
+            background: `linear-gradient(135deg, ${settings.primaryColor}15 0%, ${settings.secondaryColor}15 100%)`
+          }}>
+            <div style={{ padding: '64px 24px', maxWidth: '600px' }}>
+              <div className="skeleton-pulse skeleton-shimmer" style={{
+                height: '32px',
+                width: '180px',
+                borderRadius: '16px',
+                marginBottom: '24px',
+                background: 'var(--muted, #f1f5f9)'
+              }} />
+              <div className="skeleton-pulse skeleton-shimmer" style={{
+                height: '48px',
+                width: '100%',
+                maxWidth: '500px',
+                borderRadius: '8px',
+                marginBottom: '12px',
+                background: 'var(--muted, #f1f5f9)'
+              }} />
+              <div className="skeleton-pulse skeleton-shimmer" style={{
+                height: '48px',
+                width: '75%',
+                borderRadius: '8px',
+                marginBottom: '24px',
+                background: 'var(--muted, #f1f5f9)'
+              }} />
+              <div className="skeleton-pulse" style={{
+                height: '24px',
+                width: '300px',
+                borderRadius: '4px',
+                marginBottom: '32px',
+                background: 'var(--muted, #f1f5f9)'
+              }} />
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <div className="skeleton-pulse" style={{
+                  height: '48px',
+                  width: '140px',
+                  borderRadius: '8px',
+                  background: settings.primaryColor,
+                  opacity: 0.4
+                }} />
+                <div className="skeleton-pulse" style={{
+                  height: '48px',
+                  width: '140px',
+                  borderRadius: '8px',
+                  background: 'var(--muted, #f1f5f9)'
+                }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Products grid skeleton */}
+          <div style={{ padding: '64px 24px' }}>
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              marginBottom: '32px'
+            }}>
+              <div className="skeleton-pulse skeleton-shimmer" style={{
+                height: '32px',
+                width: '200px',
+                borderRadius: '8px',
+                background: 'var(--muted, #f1f5f9)'
+              }} />
+              <div className="skeleton-pulse" style={{
+                height: '16px',
+                width: '80px',
+                borderRadius: '4px',
+                background: 'var(--muted, #f1f5f9)'
+              }} />
+            </div>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+              gap: '24px'
+            }}>
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} style={{
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  border: '1px solid rgba(0,0,0,0.1)',
+                  background: 'var(--card, #fff)'
+                }}>
+                  <div className="skeleton-pulse skeleton-shimmer" style={{
+                    aspectRatio: '1',
+                    background: 'var(--muted, #f1f5f9)'
+                  }} />
+                  <div style={{ padding: '16px' }}>
+                    <div className="skeleton-pulse" style={{
+                      height: '12px',
+                      width: '60px',
+                      borderRadius: '4px',
+                      marginBottom: '8px',
+                      background: 'var(--muted, #f1f5f9)'
+                    }} />
+                    <div className="skeleton-pulse" style={{
+                      height: '16px',
+                      width: '100%',
+                      borderRadius: '4px',
+                      marginBottom: '8px',
+                      background: 'var(--muted, #f1f5f9)'
+                    }} />
+                    <div className="skeleton-pulse" style={{
+                      height: '20px',
+                      width: '80px',
+                      borderRadius: '4px',
+                      marginTop: '12px',
+                      background: 'var(--muted, #f1f5f9)'
+                    }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Loading indicator */}
+          <div style={{
+            position: 'fixed',
+            bottom: '16px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            padding: '8px 16px',
+            borderRadius: '9999px',
+            background: 'var(--background, #fff)',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(0,0,0,0.1)'
+          }}>
+            {[0, 150, 300].map((delay) => (
+              <div
+                key={delay}
+                style={{
+                  height: '8px',
+                  width: '8px',
+                  borderRadius: '50%',
+                  background: settings.primaryColor,
+                  animation: 'bounce 1s ease-in-out infinite',
+                  animationDelay: `${delay}ms`
+                }}
+              />
+            ))}
+          </div>
+          <style dangerouslySetInnerHTML={{ __html: `
+            @keyframes bounce {
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(-6px); }
+            }
+          `}} />
+        </div>
+
+        {/* Main app content - hidden while skeleton is shown */}
+        <div id="main-app-content">
         {/* Organization and WebSite JSON-LD for brand identity and search */}
         <OrganizationJsonLd
           organization={{
@@ -416,6 +648,7 @@ export default async function RootLayout({
             </CurrencyProvider>
           </TenantProvider>
         </QueryProvider>
+        </div>{/* End main-app-content */}
       </body>
     </html>
   );

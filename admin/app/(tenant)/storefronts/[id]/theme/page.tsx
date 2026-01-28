@@ -737,8 +737,8 @@ export default function StorefrontThemePage() {
                               label="Hero Background Image"
                               description="Recommended: 1920x800px"
                               currentUrl={settings.homepageConfig.heroImage}
-                              onUpload={(url) => updateHomepageConfig({ heroImage: url })}
-                              onRemove={() => updateHomepageConfig({ heroImage: undefined })}
+                              onUpload={(url) => updateHomepageConfig({ heroImage: url, heroBackgroundType: 'image' })}
+                              onRemove={() => updateHomepageConfig({ heroImage: undefined, heroBackgroundType: 'animated' })}
                               aspectRatio="banner"
                             />
                           </div>
