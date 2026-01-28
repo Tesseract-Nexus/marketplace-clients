@@ -11,6 +11,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { qrCodeService } from '@/lib/services/qrService';
+import { storefrontService } from '@/lib/services/storefrontService';
+import type { Storefront } from '@/lib/api/types';
+import { Select } from '@/components/Select';
 import {
   QRCodeType,
   QRCodeQuality,
@@ -121,6 +124,11 @@ export default function QRCodesPage() {
   const [qrSize, setQrSize] = useState(256);
   const [qrQuality, setQrQuality] = useState<QRCodeQuality>('medium');
 
+  // Storefront state for URL dropdown
+  const [storefronts, setStorefronts] = useState<Storefront[]>([]);
+  const [loadingStorefronts, setLoadingStorefronts] = useState(true);
+  const [selectedUrlOption, setSelectedUrlOption] = useState<string>('custom');
+
   // Color customization
   const [fgColor, setFgColor] = useState('#000000');
   const [bgColor, setBgColor] = useState('#FFFFFF');
@@ -143,6 +151,37 @@ export default function QRCodesPage() {
   const [geoData, setGeoData] = useState<GeoData>({ latitude: 0, longitude: 0 });
   const [appData, setAppData] = useState<AppData>({ ios_url: '', android_url: '', fallback_url: '' });
   const [paymentData, setPaymentData] = useState<PaymentData>({ type: 'upi', upi_id: '' });
+
+  // Load storefronts on mount
+  useEffect(() => {
+    const loadStorefronts = async () => {
+      try {
+        setLoadingStorefronts(true);
+        const data = await storefrontService.getStorefronts();
+        setStorefronts(data);
+        // Pre-select first storefront URL if available
+        if (data.length > 0 && data[0].storefrontUrl) {
+          setSelectedUrlOption(data[0].storefrontUrl);
+          setUrlData({ url: data[0].storefrontUrl });
+        }
+      } catch (err) {
+        console.error('Failed to load storefronts:', err);
+      } finally {
+        setLoadingStorefronts(false);
+      }
+    };
+    loadStorefronts();
+  }, []);
+
+  // Handle URL option change
+  const handleUrlOptionChange = (value: string) => {
+    setSelectedUrlOption(value);
+    if (value !== 'custom') {
+      setUrlData({ url: value });
+    } else {
+      setUrlData({ url: '' });
+    }
+  };
 
   // Handle logo file upload
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -458,15 +497,41 @@ export default function QRCodesPage() {
         return (
           <div className="space-y-4">
             <div>
-              <Label htmlFor="url">Website URL</Label>
-              <Input
-                id="url"
-                type="url"
-                placeholder="https://example.com"
-                value={urlData.url}
-                onChange={(e) => setUrlData({ url: e.target.value })}
-              />
+              <Label htmlFor="urlSelect">Website URL</Label>
+              {loadingStorefronts ? (
+                <div className="flex items-center gap-2 h-10 px-3 text-sm text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Loading storefronts...
+                </div>
+              ) : (
+                <Select
+                  value={selectedUrlOption}
+                  onChange={handleUrlOptionChange}
+                  options={[
+                    ...storefronts
+                      .filter(s => s.storefrontUrl)
+                      .map(s => ({
+                        value: s.storefrontUrl!,
+                        label: `${s.name} (${s.storefrontUrl})`,
+                      })),
+                    { value: 'custom', label: 'Enter custom URL...' },
+                  ]}
+                  placeholder="Select a storefront URL"
+                />
+              )}
             </div>
+            {selectedUrlOption === 'custom' && (
+              <div>
+                <Label htmlFor="customUrl">Custom URL</Label>
+                <Input
+                  id="customUrl"
+                  type="url"
+                  placeholder="https://example.com"
+                  value={urlData.url}
+                  onChange={(e) => setUrlData({ url: e.target.value })}
+                />
+              </div>
+            )}
           </div>
         );
 
