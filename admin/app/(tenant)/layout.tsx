@@ -872,13 +872,20 @@ function TenantLayoutInner({
 
     async function loadBrandingSettings() {
       try {
+        console.log('[TenantLayout] Loading branding settings for tenant:', currentTenant!.id);
         const data = await settingsService.getSettingsByContext({
           applicationId: 'admin-portal',
           scope: 'global',
           tenantId: currentTenant!.id,
         });
 
+        console.log('[TenantLayout] Settings API response:', data ? 'success' : 'null');
+
         if (data?.branding) {
+          console.log('[TenantLayout] Branding data:', {
+            hasFavicon: !!data.branding.general?.faviconUrl,
+            hasLogo: !!data.branding.general?.logoUrl,
+          });
           // Merge with defaults to ensure all required properties exist
           const loadedBranding = {
             general: { ...branding.general, ...data.branding.general },
@@ -888,10 +895,12 @@ function TenantLayoutInner({
           };
           updateBranding(loadedBranding);
           brandingLoadedRef.current = true;
+        } else {
+          console.log('[TenantLayout] No branding data in settings');
         }
       } catch (error) {
-        // Silently fail - localStorage branding will be used as fallback
-        console.debug('Failed to load admin branding settings:', error);
+        // Log error for debugging
+        console.warn('[TenantLayout] Failed to load admin branding settings:', error);
       }
     }
 
@@ -901,16 +910,32 @@ function TenantLayoutInner({
   // Dynamic favicon update based on admin branding settings (from ThemeContext)
   // Priority: 1) Admin branding settings faviconUrl, 2) Admin branding logoUrl, 3) Tenant logoUrl
   useEffect(() => {
-    const faviconUrl = branding?.general?.faviconUrl || branding?.general?.logoUrl || currentTenant?.logoUrl;
+    // Get the best available favicon URL with proper fallback
+    // Check for non-empty strings (empty string is falsy but we want explicit check)
+    const faviconFromBranding = branding?.general?.faviconUrl?.trim();
+    const logoFromBranding = branding?.general?.logoUrl?.trim();
+    const logoFromTenant = currentTenant?.logoUrl;
+
+    const faviconUrl = faviconFromBranding || logoFromBranding || logoFromTenant;
+
+    console.log('[TenantLayout] Favicon check:', {
+      faviconFromBranding: faviconFromBranding ? 'set' : 'empty',
+      logoFromBranding: logoFromBranding ? 'set' : 'empty',
+      logoFromTenant: logoFromTenant ? 'set' : 'empty',
+      using: faviconUrl ? 'found' : 'none',
+    });
+
     if (faviconUrl) {
       // Find existing favicon link or create a new one
-      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement | null;
+      // Use rel*='icon' selector to match both "icon" and "shortcut icon"
+      let link = document.querySelector("link[rel*='icon']") as HTMLLinkElement | null;
       if (!link) {
         link = document.createElement('link');
         link.rel = 'icon';
         document.head.appendChild(link);
       }
       link.href = faviconUrl;
+      console.log('[TenantLayout] Favicon set to:', faviconUrl.substring(0, 60) + (faviconUrl.length > 60 ? '...' : ''));
     }
   }, [branding?.general?.faviconUrl, branding?.general?.logoUrl, currentTenant?.logoUrl]);
 
