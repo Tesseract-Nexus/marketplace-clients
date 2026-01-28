@@ -296,10 +296,29 @@ export async function POST(request: NextRequest): Promise<NextResponse<UploadAss
 
     if (!uploadResponse.ok) {
       const errorText = await uploadResponse.text();
-      console.error('Document service upload failed:', errorText);
+      console.error('Document service upload failed:', {
+        status: uploadResponse.status,
+        statusText: uploadResponse.statusText,
+        error: errorText,
+        uploadUrl,
+        bucket: DOCUMENT_SERVICE_BUCKET,
+        path: storagePath,
+      });
+
+      // Parse error for more details
+      let errorMessage = 'Failed to upload file to storage';
+      try {
+        const errorJson = JSON.parse(errorText);
+        errorMessage = errorJson.message || errorJson.error || errorMessage;
+      } catch {
+        if (errorText) {
+          errorMessage = `Upload failed: ${errorText.substring(0, 200)}`;
+        }
+      }
+
       return NextResponse.json(
-        { success: false, asset: null as any, message: 'Failed to upload file to storage' } as any,
-        { status: 500 }
+        { success: false, asset: null as any, message: errorMessage } as any,
+        { status: uploadResponse.status || 500 }
       );
     }
 
