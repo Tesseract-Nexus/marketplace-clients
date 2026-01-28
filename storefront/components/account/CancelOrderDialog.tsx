@@ -98,6 +98,11 @@ export function CancelOrderDialog({
       return;
     }
 
+    if (!orderNumber) {
+      setError('Order number is required for cancellation. Please contact support.');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
 

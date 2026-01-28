@@ -18,14 +18,27 @@ export async function POST(
       return NextResponse.json({ error: 'Tenant ID required' }, { status: 400 });
     }
 
-    let body;
+    let body: { orderNumber?: string; reason?: string; notes?: string } = {};
     try {
       body = await request.json();
     } catch {
       return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
 
-    console.log('[BFF] Cancelling order:', orderId, 'orderNumber:', body.orderNumber, 'reason:', body.reason);
+    // orderNumber is required by the orders-service storefront cancel endpoint
+    // If not provided, we cannot proceed
+    const orderNumber = body.orderNumber;
+    if (!orderNumber) {
+      console.error('[BFF] Cancel order missing orderNumber, orderId:', orderId);
+      return NextResponse.json(
+        { error: 'Order number is required for cancellation. Please try again from the order details page.' },
+        { status: 400 }
+      );
+    }
+
+    const reason = body.reason || 'CHANGED_MIND';
+
+    console.log('[BFF] Cancelling order:', orderId, 'orderNumber:', orderNumber, 'reason:', reason);
 
     const authorization = request.headers.get('Authorization');
 
@@ -42,14 +55,14 @@ export async function POST(
         ...(authorization && { 'Authorization': authorization }),
       },
       body: JSON.stringify({
-        orderNumber: body.orderNumber,
-        reason: body.reason,
+        orderNumber: orderNumber,
+        reason: reason,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[BFF] Cancel order error:', errorText);
+      console.error('[BFF] Cancel order error:', response.status, errorText);
       let errorData: Record<string, unknown> = {};
       try {
         errorData = JSON.parse(errorText);
@@ -76,7 +89,7 @@ export async function POST(
     }
 
     const data = await response.json();
-    console.log('[BFF] Order cancelled:', orderId);
+    console.log('[BFF] Order cancelled successfully:', orderId, 'orderNumber:', orderNumber);
     return NextResponse.json(data);
   } catch (error) {
     console.error('[BFF] Failed to cancel order:', error);

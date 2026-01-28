@@ -1,5 +1,3 @@
-import { apiRequest, serviceUrls } from './client';
-
 // ========================================
 // Types
 // ========================================
@@ -61,6 +59,38 @@ interface CancellationSettingsResponse {
   message?: string;
 }
 
+// Default cancellation settings for graceful fallback
+const DEFAULT_CANCELLATION_SETTINGS: CancellationSettingsResponse = {
+  success: true,
+  data: {
+    id: 'default',
+    tenantId: '',
+    enabled: true,
+    requireReason: true,
+    allowPartialCancellation: false,
+    defaultFeeType: 'percentage',
+    defaultFeeValue: 15,
+    refundMethod: 'original_payment',
+    autoRefundEnabled: true,
+    nonCancellableStatuses: ['SHIPPED', 'DELIVERED'],
+    windows: [
+      { id: 'w1', name: 'Free cancellation', maxHoursAfterOrder: 6, feeType: 'percentage', feeValue: 0, description: 'Cancel within 6 hours at no charge.' },
+      { id: 'w2', name: 'Low fee', maxHoursAfterOrder: 24, feeType: 'percentage', feeValue: 3, description: 'A small processing fee applies within 24 hours.' },
+      { id: 'w3', name: 'Pre-delivery', maxHoursAfterOrder: 72, feeType: 'percentage', feeValue: 10, description: '10% fee for cancellations before delivery.' },
+    ],
+    cancellationReasons: [
+      'I changed my mind',
+      'Found a better price elsewhere',
+      'Ordered by mistake',
+      'Shipping is taking too long',
+      'Payment issue',
+      'Other reason',
+    ],
+    requireApprovalForPolicyChanges: false,
+    policyText: '',
+  },
+};
+
 export async function getCancellationPolicy(
   storefrontId: string,
   tenantId: string,
@@ -75,11 +105,61 @@ export async function getCancellationPolicy(
       queryParams.set('storefrontId', storefrontId);
     }
 
-    // Use BFF route to fetch cancellation settings from orders-service
-    const response = await apiRequest<CancellationSettingsResponse>(
-      `/api/cancellation/settings?${queryParams.toString()}`,
-      { tenantId: effectiveTenantId, storefrontId, cache: 'no-store' }
-    );
+    let response: CancellationSettingsResponse;
+
+    // Server-side: call orders-service directly
+    // Client-side: use BFF route to avoid CORS issues
+    if (typeof window === 'undefined') {
+      // Server-side rendering - call orders-service directly
+      const ORDERS_SERVICE_URL = (process.env.ORDERS_SERVICE_URL || 'http://localhost:3108').replace(/\/api\/v1\/?$/, '');
+      const fetchResponse = await fetch(
+        `${ORDERS_SERVICE_URL}/api/v1/public/settings/cancellation?${queryParams.toString()}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Tenant-ID': effectiveTenantId,
+            'X-Internal-Service': 'storefront',
+            ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
+          },
+          cache: 'no-store',
+        }
+      );
+
+      if (!fetchResponse.ok) {
+        if (fetchResponse.status === 404) {
+          // No settings found, use defaults
+          console.log('[Cancellation] No settings found, using defaults');
+          response = DEFAULT_CANCELLATION_SETTINGS;
+        } else {
+          console.error('[Cancellation] Server fetch error:', fetchResponse.status);
+          return null;
+        }
+      } else {
+        response = await fetchResponse.json();
+      }
+    } else {
+      // Client-side - use BFF route
+      const fetchResponse = await fetch(
+        `/api/cancellation/settings?${queryParams.toString()}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Tenant-ID': effectiveTenantId,
+            ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
+          },
+          cache: 'no-store',
+        }
+      );
+
+      if (!fetchResponse.ok) {
+        console.error('[Cancellation] Client fetch error:', fetchResponse.status);
+        return null;
+      }
+
+      response = await fetchResponse.json();
+    }
 
     if (!response.success || !response.data) {
       console.error('Failed to fetch cancellation settings:', response.error || response.message);
