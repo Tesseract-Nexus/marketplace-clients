@@ -446,7 +446,8 @@ export async function checkAccountStatus(
 export async function verifyMfa(
   mfaSession: string,
   code: string,
-  method: 'totp' | 'email' | 'sms' = 'totp'
+  method: 'totp' | 'email' | 'sms' = 'totp',
+  trustDevice: boolean = false
 ): Promise<DirectLoginResponse> {
   try {
     const response = await fetch(`${authConfig.bffBaseUrl}/auth/direct/mfa/verify`, {
@@ -460,6 +461,7 @@ export async function verifyMfa(
         mfa_session: mfaSession,
         code,
         method,
+        trust_device: trustDevice,
       }),
     });
 

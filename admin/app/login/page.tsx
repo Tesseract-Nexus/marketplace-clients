@@ -66,6 +66,7 @@ function LoginPageContent() {
   const [tenants, setTenants] = useState<TenantInfo[]>([]);
   const [mfaSession, setMfaSession] = useState<string | null>(null);
   const [mfaCode, setMfaCode] = useState('');
+  const [trustDevice, setTrustDevice] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
 
   // UI state
@@ -282,6 +283,7 @@ function LoginPageContent() {
     } else if (step === 'mfa') {
       setStep('password');
       setMfaCode('');
+      setTrustDevice(false);
       setResendCooldown(0);
     }
   };
@@ -314,7 +316,7 @@ function LoginPageContent() {
     setIsLoading(true);
 
     try {
-      const result = await verifyMfa(mfaSession, codeToVerify, 'email');
+      const result = await verifyMfa(mfaSession, codeToVerify, 'email', trustDevice);
 
       if (!result.success) {
         setError(result.message || 'Invalid verification code.');
@@ -657,6 +659,16 @@ function LoginPageContent() {
                   </div>
                 </div>
               )}
+
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={trustDevice}
+                  onChange={(e) => setTrustDevice(e.target.checked)}
+                  className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                />
+                <span className="text-xs text-muted-foreground">Trust this device for 30 days</span>
+              </label>
 
               <Button
                 onClick={() => handleMfaSubmit()}
