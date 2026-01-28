@@ -59,6 +59,8 @@ export async function GET(request: NextRequest) {
       totalReviews: reviewStats.totalReviews || 0,
     };
 
+    console.log('[Stats API] Fetched stats for tenant', tenantId, ':', JSON.stringify(stats));
+
     // Cache the result
     setCachedStats(cacheKey, stats);
 
@@ -77,30 +79,44 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// Common headers for internal service calls
+function internalHeaders(tenantId: string): Record<string, string> {
+  return {
+    'X-Tenant-ID': tenantId,
+    'X-Internal-Service': 'storefront',
+    'Content-Type': 'application/json',
+  };
+}
+
 // Fetch product count from products-service
 async function fetchProductStats(tenantId: string): Promise<{ totalProducts: number }> {
   try {
     const url = `${config.api.productsService}/api/v1/products/stats`;
     const response = await fetch(url, {
-      headers: {
-        'X-Tenant-ID': tenantId,
-        'Content-Type': 'application/json',
-      },
-      next: { revalidate: 300 }, // Cache for 5 minutes
+      headers: internalHeaders(tenantId),
+      next: { revalidate: 300 },
     });
 
     if (!response.ok) {
-      // Try getting count from list endpoint
-      const listUrl = `${config.api.productsService}/api/v1/products?limit=1&status=ACTIVE`;
+      // Try storefront endpoint which is known to work
+      const listUrl = `${config.api.productsService}/storefront/products?limit=1&status=ACTIVE`;
       const listResponse = await fetch(listUrl, {
-        headers: {
-          'X-Tenant-ID': tenantId,
-          'Content-Type': 'application/json',
-        },
+        headers: internalHeaders(tenantId),
       });
 
       if (listResponse.ok) {
         const data = await listResponse.json();
+        return { totalProducts: data.pagination?.total || data.total || 0 };
+      }
+
+      // Try non-storefront endpoint
+      const altUrl = `${config.api.productsService}/api/v1/products?limit=1&status=ACTIVE`;
+      const altResponse = await fetch(altUrl, {
+        headers: internalHeaders(tenantId),
+      });
+
+      if (altResponse.ok) {
+        const data = await altResponse.json();
         return { totalProducts: data.pagination?.total || data.total || 0 };
       }
       return { totalProducts: 0 };
@@ -121,41 +137,59 @@ async function fetchProductStats(tenantId: string): Promise<{ totalProducts: num
 
 // Fetch review stats from reviews-service
 async function fetchReviewStats(tenantId: string): Promise<{ averageRating: number; totalReviews: number }> {
+  const reviewsBase = (config.api.reviewsService || '').replace(/\/api\/v1\/?$/, '');
+
   try {
-    const url = `${config.api.reviewsService}/api/v1/reviews/stats`;
+    // Try dedicated stats endpoint first
+    const url = `${reviewsBase}/api/v1/reviews/stats`;
     const response = await fetch(url, {
-      headers: {
-        'X-Tenant-ID': tenantId,
-        'Content-Type': 'application/json',
-      },
+      headers: internalHeaders(tenantId),
       next: { revalidate: 300 },
     });
 
-    if (!response.ok) {
-      // Try analytics endpoint
-      const analyticsUrl = `${config.api.reviewsService}/api/v1/reviews/analytics`;
-      const analyticsResponse = await fetch(analyticsUrl, {
-        headers: {
-          'X-Tenant-ID': tenantId,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (analyticsResponse.ok) {
-        const data = await analyticsResponse.json();
-        return {
-          averageRating: data.data?.overview?.averageRating || data.overview?.averageRating || 0,
-          totalReviews: data.data?.overview?.totalReviews || data.overview?.totalReviews || 0,
-        };
-      }
-      return { averageRating: 0, totalReviews: 0 };
+    if (response.ok) {
+      const data = await response.json();
+      const avg = data.data?.averageRating || data.averageRating || 0;
+      const total = data.data?.totalReviews || data.totalReviews || 0;
+      if (total > 0) return { averageRating: avg, totalReviews: total };
     }
 
-    const data = await response.json();
-    return {
-      averageRating: data.data?.averageRating || data.averageRating || 0,
-      totalReviews: data.data?.totalReviews || data.totalReviews || 0,
-    };
+    // Try analytics endpoint
+    const analyticsUrl = `${reviewsBase}/api/v1/reviews/analytics`;
+    const analyticsResponse = await fetch(analyticsUrl, {
+      headers: internalHeaders(tenantId),
+    });
+
+    if (analyticsResponse.ok) {
+      const data = await analyticsResponse.json();
+      const avg = data.data?.overview?.averageRating || data.overview?.averageRating || 0;
+      const total = data.data?.overview?.totalReviews || data.overview?.totalReviews || 0;
+      if (total > 0) return { averageRating: avg, totalReviews: total };
+    }
+
+    // Fallback: fetch approved reviews via storefront endpoint and compute from summary
+    const storefrontUrl = `${reviewsBase}/api/v1/storefront/reviews?status=APPROVED&limit=1`;
+    const storefrontResponse = await fetch(storefrontUrl, {
+      headers: internalHeaders(tenantId),
+    });
+
+    if (storefrontResponse.ok) {
+      const data = await storefrontResponse.json();
+      if (data.summary && data.summary.totalReviews > 0) {
+        return {
+          averageRating: data.summary.averageRating || 0,
+          totalReviews: data.summary.totalReviews || 0,
+        };
+      }
+      // Use pagination total if summary is missing
+      const total = data.pagination?.total || 0;
+      if (total > 0 && data.data?.[0]) {
+        // We have reviews but no summary — compute from what we have
+        return { averageRating: 0, totalReviews: total };
+      }
+    }
+
+    return { averageRating: 0, totalReviews: 0 };
   } catch (error) {
     console.error('Error fetching review stats:', error);
     return { averageRating: 0, totalReviews: 0 };
@@ -168,30 +202,24 @@ async function fetchCustomerCount(tenantId: string): Promise<number> {
     // Try customers-service first
     const customersUrl = `${config.api.customersService}/customers?limit=1`;
     const customersResponse = await fetch(customersUrl, {
-      headers: {
-        'X-Tenant-ID': tenantId,
-        'Content-Type': 'application/json',
-      },
+      headers: internalHeaders(tenantId),
       next: { revalidate: 300 },
     });
 
     if (customersResponse.ok) {
       const data = await customersResponse.json();
-      return data.pagination?.total || data.total || 0;
+      const count = data.pagination?.total || data.total || 0;
+      if (count > 0) return count;
     }
 
     // Fallback to orders-service to count unique customers
     const ordersUrl = `${config.api.ordersService}/api/v1/orders?limit=1`;
     const ordersResponse = await fetch(ordersUrl, {
-      headers: {
-        'X-Tenant-ID': tenantId,
-        'Content-Type': 'application/json',
-      },
+      headers: internalHeaders(tenantId),
     });
 
     if (ordersResponse.ok) {
       const data = await ordersResponse.json();
-      // Note: This is a rough estimate based on orders, not distinct customers
       return Math.ceil((data.pagination?.total || data.total || 0) * 0.7);
     }
 
