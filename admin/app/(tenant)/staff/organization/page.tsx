@@ -328,8 +328,8 @@ export default function OrganizationPage() {
       setViewMode('list');
       setSelectedDepartment(null);
 
-      // Refresh data in background to sync hierarchy
-      loadData();
+      // Refresh data in background to sync hierarchy (delayed to allow optimistic update to render)
+      setTimeout(() => loadData(), 500);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save department';
       setError(errorMessage);
@@ -455,8 +455,8 @@ export default function OrganizationPage() {
       setViewMode('list');
       setSelectedTeam(null);
 
-      // Refresh data in background to sync hierarchy
-      loadData();
+      // Refresh data in background to sync hierarchy (delayed to allow optimistic update to render)
+      setTimeout(() => loadData(), 500);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save team';
       setError(errorMessage);
