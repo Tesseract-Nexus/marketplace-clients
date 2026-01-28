@@ -179,47 +179,52 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
         <>
           {/* Column Layout */}
           <CollapsibleSection id="columns" title="Link Columns" icon={Columns} isOpen={activeSection === 'columns'} onToggle={handleToggleSection}>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-2">Column Layout</label>
-                <div className="grid grid-cols-4 gap-2">
-                  {[1, 2, 3, 4].map((num) => {
-                    // Default to linkGroups length if columnLayout not set
-                    const currentLayout = config.columnLayout || (config.linkGroups?.length || 4);
-                    return (
-                    <button
-                      key={num}
-                      type="button"
-                      onClick={() => handleColumnLayoutChange(num as 1 | 2 | 3 | 4)}
-                      disabled={disabled}
-                      className={cn(
-                        'p-3 border rounded-md text-center transition-all',
-                        currentLayout === num
-                          ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border hover:border-primary/30',
-                        disabled && 'opacity-50 cursor-not-allowed'
-                      )}
-                    >
-                      <div className="flex justify-center gap-1 mb-1">
-                        {Array(num).fill(0).map((_, i) => (
-                          <div key={i} className="w-3 h-6 bg-current opacity-30 rounded-sm" />
-                        ))}
-                      </div>
-                      <span className="text-xs font-medium">{num} Column{num > 1 ? 's' : ''}</span>
-                    </button>
-                  );})}
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Changing layout will add or remove columns to match. Current: {(config.linkGroups || []).length} column{(config.linkGroups || []).length !== 1 ? 's' : ''} configured.
-                </p>
-              </div>
+            {(() => {
+              // Compute active layout: use columnLayout if set, otherwise fall back to linkGroups length
+              const linkGroupsCount = (config.linkGroups || []).length;
+              const activeLayout = config.columnLayout != null ? config.columnLayout : (linkGroupsCount || 4);
 
-              <FooterLinkGroupsManager
-                linkGroups={config.linkGroups || []}
-                onChange={handleLinkGroupsChange}
-                maxColumns={config.columnLayout || 4}
-              />
-            </div>
+              return (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium mb-2">Column Layout</label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {[1, 2, 3, 4].map((num) => (
+                        <button
+                          key={num}
+                          type="button"
+                          onClick={() => handleColumnLayoutChange(num as 1 | 2 | 3 | 4)}
+                          disabled={disabled}
+                          className={cn(
+                            'p-3 border rounded-md text-center transition-all',
+                            activeLayout === num
+                              ? 'border-primary bg-primary/10 text-primary font-semibold'
+                              : 'border-border hover:border-primary/30',
+                            disabled && 'opacity-50 cursor-not-allowed'
+                          )}
+                        >
+                          <div className="flex justify-center gap-1 mb-1">
+                            {Array(num).fill(0).map((_, i) => (
+                              <div key={i} className="w-3 h-6 bg-current opacity-30 rounded-sm" />
+                            ))}
+                          </div>
+                          <span className="text-xs font-medium">{num} Column{num > 1 ? 's' : ''}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Changing layout will add or remove columns to match. Current: {linkGroupsCount} column{linkGroupsCount !== 1 ? 's' : ''} configured.
+                    </p>
+                  </div>
+
+                  <FooterLinkGroupsManager
+                    linkGroups={config.linkGroups || []}
+                    onChange={handleLinkGroupsChange}
+                    maxColumns={activeLayout}
+                  />
+                </div>
+              );
+            })()}
           </CollapsibleSection>
 
           {/* Styling */}
