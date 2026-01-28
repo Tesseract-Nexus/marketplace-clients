@@ -22,6 +22,9 @@ import {
   Moon,
   Sun,
   Monitor,
+  ImagePlus,
+  Bookmark,
+  Info,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -638,27 +641,87 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                   </div>
 
                   <div className="border-t border-border pt-6">
-                    <h3 className="text-sm font-semibold text-foreground mb-3">Logo & Branding</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <AssetUploader
-                        type="logo"
-                        label="Store Logo"
-                        description="200x60px, PNG or SVG"
-                        currentUrl={settings.logoUrl}
-                        onUpload={(url) => updateSettings({ logoUrl: url })}
-                        onRemove={() => updateSettings({ logoUrl: undefined })}
-                        aspectRatio="banner"
-                      />
-                      <AssetUploader
-                        type="favicon"
-                        label="Favicon"
-                        description="32x32px, ICO or PNG"
-                        currentUrl={settings.faviconUrl}
-                        onUpload={(url) => updateSettings({ faviconUrl: url })}
-                        onRemove={() => updateSettings({ faviconUrl: undefined })}
-                        aspectRatio="square"
-                        size="sm"
-                      />
+                    <div className="flex items-center gap-2 mb-4">
+                      <ImagePlus className="h-5 w-5 text-primary" />
+                      <h3 className="text-lg font-semibold text-foreground">Logo & Branding</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Upload your store logo and favicon to establish brand identity across your storefront.
+                    </p>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      {/* Store Logo Card */}
+                      <div className="bg-muted/30 rounded-xl p-5 border border-border">
+                        <div className="flex items-start gap-3 mb-4">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <Store className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium text-foreground">Store Logo</h4>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              Displayed in header, emails, and invoices
+                            </p>
+                          </div>
+                        </div>
+                        <AssetUploader
+                          type="logo"
+                          description="Recommended: 400x120px, PNG or SVG with transparent background"
+                          currentUrl={settings.logoUrl}
+                          onUpload={(url) => updateSettings({ logoUrl: url })}
+                          onRemove={() => updateSettings({ logoUrl: undefined })}
+                          aspectRatio="banner"
+                          maxSizeMB={5}
+                        />
+                        <div className="mt-3 flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 p-2.5 rounded-lg">
+                          <Info className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                          <span>For best results, use a horizontal logo with transparent background. SVG format is recommended for sharp display at all sizes.</span>
+                        </div>
+                      </div>
+
+                      {/* Favicon Card */}
+                      <div className="bg-muted/30 rounded-xl p-5 border border-border">
+                        <div className="flex items-start gap-3 mb-4">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <Bookmark className="h-5 w-5 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium text-foreground">Favicon</h4>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              Browser tab icon and bookmarks
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-4">
+                          <AssetUploader
+                            type="favicon"
+                            description="32x32px or 64x64px, ICO or PNG"
+                            currentUrl={settings.faviconUrl}
+                            onUpload={(url) => updateSettings({ faviconUrl: url })}
+                            onRemove={() => updateSettings({ faviconUrl: undefined })}
+                            aspectRatio="square"
+                            size="md"
+                            maxSizeMB={1}
+                          />
+                          {/* Favicon Preview */}
+                          <div className="flex-1 flex flex-col items-center justify-center bg-muted/50 rounded-lg p-3 min-h-[120px]">
+                            <p className="text-xs text-muted-foreground mb-2">Preview</p>
+                            <div className="flex items-center gap-2 bg-background rounded-md px-3 py-1.5 border shadow-sm">
+                              {settings.faviconUrl ? (
+                                <img src={settings.faviconUrl} alt="Favicon" className="h-4 w-4 object-contain" />
+                              ) : (
+                                <div className="h-4 w-4 bg-muted rounded" />
+                              )}
+                              <span className="text-xs text-muted-foreground truncate max-w-[80px]">
+                                {selectedStorefront?.name || 'Your Store'}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="mt-3 flex items-start gap-2 text-xs text-muted-foreground bg-muted/50 p-2.5 rounded-lg">
+                          <Info className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                          <span>Square image that appears in browser tabs. Use a simple, recognizable icon version of your logo.</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
