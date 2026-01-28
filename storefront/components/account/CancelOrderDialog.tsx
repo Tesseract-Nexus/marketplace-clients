@@ -41,7 +41,7 @@ interface CancelOrderDialogProps {
   onCancelled?: () => void;
 }
 
-const cancellationReasons: { value: CancellationReason; label: string }[] = [
+const defaultCancellationReasons: { value: CancellationReason; label: string }[] = [
   { value: 'CHANGED_MIND', label: 'I changed my mind' },
   { value: 'FOUND_BETTER_PRICE', label: 'Found a better price elsewhere' },
   { value: 'ORDERED_BY_MISTAKE', label: 'Ordered by mistake' },
@@ -49,6 +49,10 @@ const cancellationReasons: { value: CancellationReason; label: string }[] = [
   { value: 'PAYMENT_ISSUE', label: 'Payment issue' },
   { value: 'OTHER', label: 'Other reason' },
 ];
+
+function toReasonValue(label: string): string {
+  return label.toUpperCase().replace(/[^A-Z0-9]+/g, '_').replace(/^_|_$/g, '');
+}
 
 export function CancelOrderDialog({
   orderId,
@@ -206,7 +210,10 @@ export function CancelOrderDialog({
                       <SelectValue placeholder="Select a reason" />
                     </SelectTrigger>
                     <SelectContent>
-                      {cancellationReasons.map((r) => (
+                      {(policy?.cancellationReasons && policy.cancellationReasons.length > 0
+                        ? policy.cancellationReasons.map((label) => ({ value: toReasonValue(label), label }))
+                        : defaultCancellationReasons
+                      ).map((r) => (
                         <SelectItem key={r.value} value={r.value}>
                           {r.label}
                         </SelectItem>

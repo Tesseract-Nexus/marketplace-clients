@@ -18,4 +18,5 @@ export interface CancellationSettings {
   allowPartialCancellation: boolean;
   refundMethod: 'original_payment' | 'store_credit' | 'either';
   policyText: string;
+  cancellationReasons: string[];
 }

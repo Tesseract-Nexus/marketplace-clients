@@ -40,6 +40,14 @@ const defaultSettings: CancellationSettings = {
   allowPartialCancellation: false,
   refundMethod: 'original_payment',
   policyText: '',
+  cancellationReasons: [
+    'I changed my mind',
+    'Found a better price elsewhere',
+    'Ordered by mistake',
+    'Shipping is taking too long',
+    'Payment issue',
+    'Other reason',
+  ],
 };
 
 const ORDER_STATUSES = ['PROCESSING', 'SHIPPED', 'DELIVERED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'READY_FOR_PICKUP'];
@@ -58,6 +66,7 @@ export function CancellationTabContent() {
   const [saving, setSaving] = useState(false);
   const [settingsId, setSettingsId] = useState<string | null>(null);
   const [pendingApproval, setPendingApproval] = useState(false);
+  const [newReason, setNewReason] = useState('');
 
   useEffect(() => {
     if (currentTenant?.id) {
@@ -392,6 +401,45 @@ export function CancellationTabContent() {
               description={`Block cancellation for ${status.toLowerCase().replace(/_/g, ' ')} orders`}
             />
           ))}
+        </div>
+      </div>
+
+      {/* Cancellation Reasons */}
+      <div className="bg-card rounded-lg border border-border p-5 shadow-sm">
+        <h2 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+          <XCircle className="h-4 w-4 text-indigo-500" />
+          Cancellation Reasons
+        </h2>
+        <p className="text-sm text-muted-foreground mb-3">Reasons shown to customers in the cancellation dropdown</p>
+        <div className="space-y-2">
+          {data.cancellationReasons.map((r, idx) => (
+            <div key={idx} className="flex items-center gap-2">
+              <Input value={r} onChange={(e) => {
+                const updated = [...data.cancellationReasons];
+                updated[idx] = e.target.value;
+                updateField('cancellationReasons', updated);
+              }} />
+              <Button variant="ghost" size="sm" onClick={() => updateField('cancellationReasons', data.cancellationReasons.filter((_, i) => i !== idx))}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
+          ))}
+        </div>
+        <div className="flex items-center gap-2 mt-3">
+          <Input value={newReason} onChange={(e) => setNewReason(e.target.value)} placeholder="Add a new reason..." onKeyDown={(e) => {
+            if (e.key === 'Enter' && newReason.trim()) {
+              updateField('cancellationReasons', [...data.cancellationReasons, newReason.trim()]);
+              setNewReason('');
+            }
+          }} />
+          <Button variant="outline" size="sm" onClick={() => {
+            if (newReason.trim()) {
+              updateField('cancellationReasons', [...data.cancellationReasons, newReason.trim()]);
+              setNewReason('');
+            }
+          }}>
+            <Plus className="h-4 w-4 mr-1" /> Add
+          </Button>
         </div>
       </div>
 
