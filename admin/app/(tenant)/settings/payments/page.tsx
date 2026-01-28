@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import {
   CreditCard,
-  Percent,
   Globe,
   Shield,
   Loader2,
@@ -14,9 +13,7 @@ import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/PageHeader';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { GatewayConfigTab } from './components/GatewayConfigTab';
-import { PlatformFeesTab } from './components/PlatformFeesTab';
 import { RegionalSettingsTab } from './components/RegionalSettingsTab';
-import { PaymentMethodsTab } from './components/PaymentMethodsTab';
 import { SecuritySettingsTab } from './components/SecuritySettingsTab';
 import { TaxInfoTab } from './components/TaxInfoTab';
 import { settingsService } from '@/lib/services/settingsService';
@@ -26,12 +23,10 @@ import { PaymentStatusWidget } from '@/components/settings/payments';
 import { useTenant } from '@/contexts/TenantContext';
 import { cn } from '@/lib/utils';
 
-type TabId = 'gateways' | 'fees' | 'methods' | 'taxes' | 'regions' | 'security';
+type TabId = 'gateways' | 'taxes' | 'regions' | 'security';
 
 const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
   { id: 'gateways', label: 'Gateways', icon: CreditCard },
-  { id: 'fees', label: 'Fees', icon: Percent },
-  { id: 'methods', label: 'Methods', icon: CreditCard },
   { id: 'taxes', label: 'Taxes', icon: Receipt },
   { id: 'regions', label: 'Regions', icon: Globe },
   { id: 'security', label: 'Security', icon: Shield },
@@ -227,14 +222,6 @@ export default function PaymentsSettingsPage() {
 
                 <TabsContent value="gateways" className="mt-0">
                   <GatewayConfigTab />
-                </TabsContent>
-
-                <TabsContent value="fees" className="mt-0">
-                  <PlatformFeesTab />
-                </TabsContent>
-
-                <TabsContent value="methods" className="mt-0">
-                  <PaymentMethodsTab />
                 </TabsContent>
 
                 <TabsContent value="taxes" className="mt-0">

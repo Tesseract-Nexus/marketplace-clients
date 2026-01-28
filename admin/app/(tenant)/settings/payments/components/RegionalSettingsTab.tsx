@@ -5,6 +5,8 @@ import { Globe, Star, Plus, Trash2, Info, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/Select';
 import { useDialog } from '@/contexts/DialogContext';
+import { useTenant } from '@/contexts/TenantContext';
+import { tenantService } from '@/lib/services/tenantService';
 import {
   paymentsService,
   GatewayOption,
@@ -31,16 +33,18 @@ const allCountries = [
 
 export function RegionalSettingsTab() {
   const { showConfirm, showSuccess, showError } = useDialog();
+  const { currentTenant } = useTenant();
   const [matrix, setMatrix] = useState<Record<string, GatewayOption[]>>({});
   const [gateways, setGateways] = useState<PaymentGatewayConfig[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedGateway, setSelectedGateway] = useState('');
+  const [storeCountry, setStoreCountry] = useState<string | null>(null);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [currentTenant?.id]);
 
   const loadData = async () => {
     try {
@@ -51,6 +55,22 @@ export function RegionalSettingsTab() {
       ]);
       setMatrix(matrixData.matrix);
       setGateways(gatewaysData);
+
+      // Fetch store country from tenant details
+      if (currentTenant?.id) {
+        try {
+          const tenantDetails = await tenantService.getTenantDetails(currentTenant.id);
+          if (tenantDetails.address?.country) {
+            setStoreCountry(tenantDetails.address.country);
+            // Auto-populate country in the add modal if no regions exist
+            if (Object.keys(matrixData.matrix).length === 0) {
+              setSelectedCountry(tenantDetails.address.country);
+            }
+          }
+        } catch (err) {
+          console.error('Failed to load tenant details:', err);
+        }
+      }
     } catch (error) {
       console.error('Failed to load regional settings:', error);
     } finally {
@@ -136,7 +156,13 @@ export function RegionalSettingsTab() {
       {/* Add Region Button */}
       <div className="flex justify-end">
         <Button
-          onClick={() => setShowAddModal(true)}
+          onClick={() => {
+            // Pre-populate with store country if available
+            if (storeCountry) {
+              setSelectedCountry(storeCountry);
+            }
+            setShowAddModal(true);
+          }}
           className="bg-primary text-primary-foreground hover:opacity-90"
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -219,7 +245,17 @@ export function RegionalSettingsTab() {
                     <Globe className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                     <p className="text-lg font-medium text-foreground mb-2">No Regional Mappings</p>
                     <p className="text-sm text-muted-foreground">
-                      Add region mappings to control which gateways are available in each country.
+                      {storeCountry ? (
+                        <>
+                          Add region mappings to control which gateways are available. Your store is based in{' '}
+                          <span className="font-medium text-foreground">
+                            {allCountries.find(c => c.value === storeCountry)?.flag}{' '}
+                            {allCountries.find(c => c.value === storeCountry)?.label || storeCountry}
+                          </span>.
+                        </>
+                      ) : (
+                        'Add region mappings to control which gateways are available in each country.'
+                      )}
                     </p>
                   </td>
                 </tr>
