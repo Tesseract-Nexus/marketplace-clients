@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Select } from '@/components/Select';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 
 const threeDSecureOptions = [
   { value: 'always', label: 'Always Require 3D Secure' },
@@ -22,7 +22,7 @@ const fraudDetectionOptions = [
 ];
 
 export function SecuritySettingsTab() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const [saving, setSaving] = useState(false);
   const [settings, setSettings] = useState({
     threeDSecure: 'when_required',
@@ -45,9 +45,9 @@ export function SecuritySettingsTab() {
       setSaving(true);
       // TODO: Save settings to backend
       await new Promise((resolve) => setTimeout(resolve, 500));
-      showSuccess('Success', 'Security settings saved successfully');
+      toast.success('Success', 'Security settings saved successfully');
     } catch (error: any) {
-      showError('Error', error.message || 'Failed to save settings');
+      toast.error('Error', error.message || 'Failed to save settings');
     } finally {
       setSaving(false);
     }

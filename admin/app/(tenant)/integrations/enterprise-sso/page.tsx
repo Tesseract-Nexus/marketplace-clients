@@ -25,7 +25,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { PageHeader } from '@/components/PageHeader';
 import { PermissionGate, Permission, Priority } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 
 interface SSOConfig {
@@ -70,7 +70,7 @@ interface ProviderStatus {
 type TabType = 'providers' | 'provisioning' | 'security';
 
 export default function EnterpriseSSOPage() {
-  const { showSuccess, showError, showInfo } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const tenantId = currentTenant?.id;
   const [activeTab, setActiveTab] = useState<TabType>('providers');
@@ -157,7 +157,7 @@ export default function EnterpriseSSOPage() {
       }
     } catch (error) {
       console.error('Failed to load SSO status:', error);
-      showError('Error', 'Failed to load SSO configuration');
+      toast.error('Error', 'Failed to load SSO configuration');
     } finally {
       setLoading(false);
     }
@@ -176,14 +176,14 @@ export default function EnterpriseSSOPage() {
       });
 
       if (response.ok) {
-        showSuccess('Success', 'Microsoft Entra SSO configured successfully');
+        toast.success('Success', 'Microsoft Entra SSO configured successfully');
         loadSSOStatus();
       } else {
         const error = await response.json();
-        showError('Error', error.error?.message || 'Failed to configure Entra');
+        toast.error('Error', error.error?.message || 'Failed to configure Entra');
       }
     } catch (error) {
-      showError('Error', 'Failed to configure Microsoft Entra SSO');
+      toast.error('Error', 'Failed to configure Microsoft Entra SSO');
     } finally {
       setSaving(false);
     }
@@ -202,14 +202,14 @@ export default function EnterpriseSSOPage() {
       });
 
       if (response.ok) {
-        showSuccess('Success', 'Okta SSO configured successfully');
+        toast.success('Success', 'Okta SSO configured successfully');
         loadSSOStatus();
       } else {
         const error = await response.json();
-        showError('Error', error.error?.message || 'Failed to configure Okta');
+        toast.error('Error', error.error?.message || 'Failed to configure Okta');
       }
     } catch (error) {
-      showError('Error', 'Failed to configure Okta SSO');
+      toast.error('Error', 'Failed to configure Okta SSO');
     } finally {
       setSaving(false);
     }
@@ -227,12 +227,12 @@ export default function EnterpriseSSOPage() {
 
       const data = await response.json();
       if (data.data?.success) {
-        showSuccess('Connection Successful', `${provider} identity provider is reachable`);
+        toast.success('Connection Successful', `${provider} identity provider is reachable`);
       } else {
-        showError('Connection Failed', data.data?.message || 'Provider is not reachable');
+        toast.error('Connection Failed', data.data?.message || 'Provider is not reachable');
       }
     } catch (error) {
-      showError('Error', 'Failed to test provider connection');
+      toast.error('Error', 'Failed to test provider connection');
     } finally {
       setTesting(null);
     }
@@ -248,14 +248,14 @@ export default function EnterpriseSSOPage() {
       });
 
       if (response.ok) {
-        showSuccess('Success', `${provider} SSO provider removed`);
+        toast.success('Success', `${provider} SSO provider removed`);
         loadSSOStatus();
       } else {
         const error = await response.json();
-        showError('Error', error.error?.message || 'Failed to remove provider');
+        toast.error('Error', error.error?.message || 'Failed to remove provider');
       }
     } catch (error) {
-      showError('Error', 'Failed to remove provider');
+      toast.error('Error', 'Failed to remove provider');
     }
   };
 
@@ -272,14 +272,14 @@ export default function EnterpriseSSOPage() {
       if (response.ok) {
         const data = await response.json();
         setSCIMToken(data.data?.token);
-        showInfo('SCIM Enabled', 'Copy the token now - it will only be shown once!');
+        toast.info('SCIM Enabled', 'Copy the token now - it will only be shown once!');
         loadSSOStatus();
       } else {
         const error = await response.json();
-        showError('Error', error.error?.message || 'Failed to enable SCIM');
+        toast.error('Error', error.error?.message || 'Failed to enable SCIM');
       }
     } catch (error) {
-      showError('Error', 'Failed to enable SCIM provisioning');
+      toast.error('Error', 'Failed to enable SCIM provisioning');
     } finally {
       setSaving(false);
     }
@@ -298,13 +298,13 @@ export default function EnterpriseSSOPage() {
       if (response.ok) {
         const data = await response.json();
         setSCIMToken(data.data?.token);
-        showInfo('Token Rotated', 'Update your IdP with the new token. Copy it now!');
+        toast.info('Token Rotated', 'Update your IdP with the new token. Copy it now!');
       } else {
         const error = await response.json();
-        showError('Error', error.error?.message || 'Failed to rotate token');
+        toast.error('Error', error.error?.message || 'Failed to rotate token');
       }
     } catch (error) {
-      showError('Error', 'Failed to rotate SCIM token');
+      toast.error('Error', 'Failed to rotate SCIM token');
     } finally {
       setSaving(false);
     }
@@ -331,13 +331,13 @@ export default function EnterpriseSSOPage() {
       });
 
       if (response.ok) {
-        showSuccess('Success', 'Security settings updated');
+        toast.success('Success', 'Security settings updated');
       } else {
         const error = await response.json();
-        showError('Error', error.error?.message || 'Failed to update settings');
+        toast.error('Error', error.error?.message || 'Failed to update settings');
       }
     } catch (error) {
-      showError('Error', 'Failed to update security settings');
+      toast.error('Error', 'Failed to update security settings');
     } finally {
       setSaving(false);
     }
@@ -345,7 +345,7 @@ export default function EnterpriseSSOPage() {
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
-    showSuccess('Copied', `${label} copied to clipboard`);
+    toast.success('Copied', `${label} copied to clipboard`);
   };
 
   const toggleSecretVisibility = (key: string) => {

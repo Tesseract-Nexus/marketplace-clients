@@ -20,6 +20,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { storefrontService } from '@/lib/services/storefrontService';
 import { StoreSelector } from '@/components/settings/StoreSelector';
@@ -111,7 +112,8 @@ const defaultStats: TranslationStats = {
 };
 
 export default function TranslationSettingsPage() {
-  const { showSuccess, showError, showConfirm } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const [settings, setSettings] = useState<TranslationSettings>(defaultSettings);
   const [savedSettings, setSavedSettings] = useState<TranslationSettings>(defaultSettings);
@@ -258,14 +260,14 @@ export default function TranslationSettingsPage() {
 
       if (response.ok) {
         setSavedSettings(settings);
-        showSuccess('Success', 'Translation settings saved successfully!');
+        toast.success('Success', 'Translation settings saved successfully!');
       } else {
         const error = await response.json();
-        showError('Error', error.error || 'Failed to save settings');
+        toast.error('Error', error.error || 'Failed to save settings');
       }
     } catch (err) {
       console.error('Error saving settings:', err);
-      showError('Error', 'Failed to save settings');
+      toast.error('Error', 'Failed to save settings');
     } finally {
       setSaving(false);
     }
@@ -295,15 +297,15 @@ export default function TranslationSettingsPage() {
       );
 
       if (response.ok) {
-        showSuccess('Cache Cleared', 'Translation cache has been cleared successfully.');
+        toast.success('Cache Cleared', 'Translation cache has been cleared successfully.');
         loadStats(); // Refresh stats
       } else {
         const error = await response.json();
-        showError('Error', error.error || 'Failed to clear cache');
+        toast.error('Error', error.error || 'Failed to clear cache');
       }
     } catch (err) {
       console.error('Error clearing cache:', err);
-      showError('Error', 'Failed to clear cache');
+      toast.error('Error', 'Failed to clear cache');
     } finally {
       setClearingCache(false);
     }

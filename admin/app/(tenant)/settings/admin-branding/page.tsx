@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/PageHeader';
 import { BrandingAssetUploader } from '@/components/settings/BrandingAssetUploader';
 import { useTheme } from '@/contexts/ThemeContext';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { settingsService } from '@/lib/services/settingsService';
 import type { AdminBrandingSettings } from '@/lib/types/settings';
@@ -177,7 +178,8 @@ const defaultBrandingSettings: AdminBrandingSettings = {
 
 export default function AdminBrandingPage() {
   const { branding, updateBranding, resetBranding } = useTheme();
-  const { showSuccess, showError: showErrorDialog, showConfirm } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const { currentTenant, isLoading: tenantLoading } = useTenant();
 
   // Form state
@@ -253,7 +255,7 @@ export default function AdminBrandingPage() {
 
   const handleSave = async () => {
     if (!currentTenant?.id) {
-      showErrorDialog('Error', 'No tenant selected');
+      toast.error('Error', 'No tenant selected');
       return;
     }
 
@@ -295,10 +297,10 @@ export default function AdminBrandingPage() {
 
       setSavedData(brandingData);
       updateBranding(brandingData);
-      showSuccess('Saved', 'Branding settings saved successfully!');
+      toast.success('Saved', 'Branding settings saved successfully!');
     } catch (error) {
       console.error('Failed to save branding settings:', error);
-      showErrorDialog('Error', 'Failed to save settings. Please try again.');
+      toast.error('Error', 'Failed to save settings. Please try again.');
     } finally {
       setSaving(false);
     }

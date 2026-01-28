@@ -21,6 +21,7 @@ import { Select } from '@/components/Select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PageHeader } from '@/components/PageHeader';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import {
   taxService,
   TaxJurisdiction,
@@ -45,7 +46,8 @@ const statusOptions = [
 ];
 
 export default function TaxExemptionsPage() {
-  const { showSuccess, showError, showConfirm } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const [certificates, setCertificates] = useState<TaxExemptionCertificate[]>([]);
   const [jurisdictions, setJurisdictions] = useState<TaxJurisdiction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,7 +90,7 @@ export default function TaxExemptionsPage() {
       const message = err instanceof Error ? err.message : 'Failed to load exemption certificates';
       setError(message);
       if (!isBackground) {
-        showError('Error', message);
+        toast.error('Error', message);
       }
     } finally {
       setLoading(false);
@@ -118,17 +120,17 @@ export default function TaxExemptionsPage() {
 
       if (editingId) {
         await taxService.exemptions.update(editingId, request);
-        showSuccess('Success', 'Certificate updated successfully');
+        toast.success('Success', 'Certificate updated successfully');
       } else {
         await taxService.exemptions.create(request);
-        showSuccess('Success', 'Certificate created successfully');
+        toast.success('Success', 'Certificate created successfully');
       }
 
       handleCloseModal();
       fetchData();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to save certificate';
-      showError('Error', message);
+      toast.error('Error', message);
     } finally {
       setSaving(false);
     }
@@ -160,11 +162,11 @@ export default function TaxExemptionsPage() {
     if (confirmed) {
       try {
         await taxService.exemptions.delete(id);
-        showSuccess('Success', 'Certificate deleted successfully');
+        toast.success('Success', 'Certificate deleted successfully');
         fetchData();
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to delete certificate';
-        showError('Error', message);
+        toast.error('Error', message);
       }
     }
   };

@@ -11,7 +11,7 @@ import { useSetupWizard } from '../SetupWizardProvider';
 import { WIZARD_ROUTES } from '@/lib/routes';
 import { productService } from '@/lib/services/productService';
 import { categoryService } from '@/lib/services/categoryService';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 
 interface ProductStepProps {
@@ -23,7 +23,7 @@ interface ProductStepProps {
 export function ProductStep({ onComplete, onSkip, onBack }: ProductStepProps) {
   const router = useRouter();
   const { markStepComplete, markStepSkipped, closeWizard, setCreatedProduct, createdCategory } = useSetupWizard();
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
 
   const [mode, setMode] = useState<'choose' | 'quick-create'>('choose');
@@ -81,11 +81,11 @@ export function ProductStep({ onComplete, onSkip, onBack }: ProductStepProps) {
 
   const handleQuickCreate = async () => {
     if (!formData.name.trim()) {
-      showError('Error', 'Please enter a product name');
+      toast.error('Error', 'Please enter a product name');
       return;
     }
     if (!formData.price.trim() || isNaN(parseFloat(formData.price))) {
-      showError('Error', 'Please enter a valid price');
+      toast.error('Error', 'Please enter a valid price');
       return;
     }
 
@@ -97,7 +97,7 @@ export function ProductStep({ onComplete, onSkip, onBack }: ProductStepProps) {
       const vendorId = currentTenant?.id || '';
 
       if (!categoryId) {
-        showError('Error', 'Please select a category or create one first');
+        toast.error('Error', 'Please select a category or create one first');
         setIsCreating(false);
         return;
       }
@@ -118,7 +118,7 @@ export function ProductStep({ onComplete, onSkip, onBack }: ProductStepProps) {
           name: result.data.name,
           sku: result.data.sku,
         });
-        showSuccess('Product Created!', `"${result.data.name}" has been added to your catalog.`);
+        toast.success('Product Created!', `"${result.data.name}" has been added to your catalog.`);
         markStepComplete('product');
         onComplete();
       } else {
@@ -126,7 +126,7 @@ export function ProductStep({ onComplete, onSkip, onBack }: ProductStepProps) {
       }
     } catch (error) {
       console.error('Failed to create product:', error);
-      showError('Error', 'Failed to create product. Please try again.');
+      toast.error('Error', 'Failed to create product. Please try again.');
     } finally {
       setIsCreating(false);
     }

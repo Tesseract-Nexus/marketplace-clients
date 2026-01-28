@@ -9,7 +9,7 @@ import { Select } from '@/components/Select';
 import { useSetupWizard } from '../SetupWizardProvider';
 import { WIZARD_ROUTES } from '@/lib/routes';
 import { staffService } from '@/lib/services/staffService';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 
 interface StaffStepProps {
   onComplete: () => void;
@@ -27,7 +27,7 @@ const ROLE_OPTIONS = [
 export function StaffStep({ onComplete, onSkip, onBack }: StaffStepProps) {
   const router = useRouter();
   const { markStepComplete, markStepSkipped, closeWizard, setInvitedStaff } = useSetupWizard();
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
 
   const [mode, setMode] = useState<'choose' | 'quick-invite'>('choose');
   const [isInviting, setIsInviting] = useState(false);
@@ -55,15 +55,15 @@ export function StaffStep({ onComplete, onSkip, onBack }: StaffStepProps) {
 
   const handleQuickInvite = async () => {
     if (!formData.email.trim()) {
-      showError('Error', 'Please enter an email address');
+      toast.error('Error', 'Please enter an email address');
       return;
     }
     if (!validateEmail(formData.email)) {
-      showError('Error', 'Please enter a valid email address');
+      toast.error('Error', 'Please enter a valid email address');
       return;
     }
     if (!formData.firstName.trim()) {
-      showError('Error', 'Please enter a first name');
+      toast.error('Error', 'Please enter a first name');
       return;
     }
 
@@ -85,7 +85,7 @@ export function StaffStep({ onComplete, onSkip, onBack }: StaffStepProps) {
           name: result.data.displayName || formData.firstName,
           role: result.data.role,
         });
-        showSuccess('Staff Invited!', `An invitation will be sent to ${formData.email}.`);
+        toast.success('Staff Invited!', `An invitation will be sent to ${formData.email}.`);
         markStepComplete('staff');
         onComplete();
       } else {
@@ -93,7 +93,7 @@ export function StaffStep({ onComplete, onSkip, onBack }: StaffStepProps) {
       }
     } catch (error) {
       console.error('Failed to invite staff:', error);
-      showError('Error', 'Failed to invite staff member. Please try again.');
+      toast.error('Error', 'Failed to invite staff member. Please try again.');
     } finally {
       setIsInviting(false);
     }

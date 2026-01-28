@@ -12,7 +12,7 @@ import { settingsService } from '@/lib/services/settingsService';
 import { storefrontService } from '@/lib/services/storefrontService';
 import type { Storefront } from '@/lib/api/types';
 import type { OrderSettings } from '@/lib/types/settings';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 
 const defaultOrderData: OrderSettings = {
@@ -58,7 +58,7 @@ const defaultOrderData: OrderSettings = {
 };
 
 export default function OrderSettingsPage() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
   const [selectedStorefront, setSelectedStorefront] = useState<Storefront | null>(null);
@@ -143,13 +143,13 @@ export default function OrderSettingsPage() {
 
   const handleSave = async () => {
     if (!selectedStorefront) {
-      showError('Error', 'Please select a storefront first');
+      toast.error('Error', 'Please select a storefront first');
       return;
     }
 
     const tenantId = currentTenant?.id;
     if (!tenantId) {
-      showError('Error', 'No tenant available. Please try again.');
+      toast.error('Error', 'No tenant available. Please try again.');
       return;
     }
 
@@ -180,10 +180,10 @@ export default function OrderSettingsPage() {
       // Update existing ecommerce with the merged data
       setExistingEcommerce(mergedEcommerce);
       setSavedData(orderData);
-      showSuccess('Success', 'Order settings saved successfully!');
+      toast.success('Success', 'Order settings saved successfully!');
     } catch (error) {
       console.error('Failed to save order settings:', error);
-      showError('Error', 'Failed to save order settings');
+      toast.error('Error', 'Failed to save order settings');
     } finally {
       setSaving(false);
     }

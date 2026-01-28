@@ -5,6 +5,7 @@ import { Globe, Star, Plus, Trash2, Info, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/Select';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { tenantService } from '@/lib/services/tenantService';
 import {
@@ -32,7 +33,8 @@ const allCountries = [
 ];
 
 export function RegionalSettingsTab() {
-  const { showConfirm, showSuccess, showError } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const [matrix, setMatrix] = useState<Record<string, GatewayOption[]>>({});
   const [gateways, setGateways] = useState<PaymentGatewayConfig[]>([]);
@@ -81,10 +83,10 @@ export function RegionalSettingsTab() {
   const handleSetPrimary = async (configId: string, countryCode: string) => {
     try {
       await paymentsService.setPrimaryGateway(configId, countryCode);
-      showSuccess('Success', 'Primary gateway updated');
+      toast.success('Success', 'Primary gateway updated');
       loadData();
     } catch (error: any) {
-      showError('Error', error.message || 'Failed to set primary gateway');
+      toast.error('Error', error.message || 'Failed to set primary gateway');
     }
   };
 
@@ -100,13 +102,13 @@ export function RegionalSettingsTab() {
         isPrimary: !matrix[selectedCountry] || matrix[selectedCountry].length === 0,
         priority: 10,
       });
-      showSuccess('Success', 'Region added successfully');
+      toast.success('Success', 'Region added successfully');
       setShowAddModal(false);
       setSelectedCountry('');
       setSelectedGateway('');
       loadData();
     } catch (error: any) {
-      showError('Error', error.message || 'Failed to add region');
+      toast.error('Error', error.message || 'Failed to add region');
     }
   };
 

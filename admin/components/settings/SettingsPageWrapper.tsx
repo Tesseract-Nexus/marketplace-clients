@@ -8,7 +8,7 @@ import { StoreSelector } from './StoreSelector';
 import { storefrontService } from '@/lib/services/storefrontService';
 import { settingsService } from '@/lib/services/settingsService';
 import type { Storefront } from '@/lib/api/types';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 
 interface SettingsPageWrapperProps {
@@ -36,7 +36,7 @@ export function SettingsPageWrapper({
   saveIcon,
   saveButtonText = 'Save Changes',
 }: SettingsPageWrapperProps) {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
 
   // Storefront state
@@ -129,12 +129,12 @@ export function SettingsPageWrapper({
     // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
     const tenantId = currentTenant?.id;
     if (!tenantId) {
-      showError('Error', 'No tenant available. Please try again.');
+      toast.error('Error', 'No tenant available. Please try again.');
       return;
     }
 
     if (!selectedStorefront) {
-      showError('Error', 'Please select a storefront first');
+      toast.error('Error', 'Please select a storefront first');
       return;
     }
 
@@ -157,11 +157,11 @@ export function SettingsPageWrapper({
         setSettingsId(newSettings.id);
       }
 
-      showSuccess('Success', `${title} saved successfully!`);
+      toast.success('Success', `${title} saved successfully!`);
       setHasChanges(false);
     } catch (error) {
       console.error('Failed to save settings:', error);
-      showError('Error', 'Failed to save settings');
+      toast.error('Error', 'Failed to save settings');
     } finally {
       setSaving(false);
     }
@@ -254,7 +254,7 @@ export function SettingsPageWrapper({
 
 // Export a simpler hook for custom implementations
 export function useSettingsPage() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
   const [selectedStorefront, setSelectedStorefront] = useState<Storefront | null>(null);
@@ -325,12 +325,12 @@ export function useSettingsPage() {
     // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
     const tenantId = currentTenant?.id;
     if (!tenantId) {
-      showError('Error', 'No tenant available. Please try again.');
+      toast.error('Error', 'No tenant available. Please try again.');
       return;
     }
 
     if (!selectedStorefront) {
-      showError('Error', 'Please select a storefront first');
+      toast.error('Error', 'Please select a storefront first');
       return;
     }
 
@@ -351,10 +351,10 @@ export function useSettingsPage() {
         const newSettings = await settingsService.createSettings(data as any, tenantId);
         setSettingsId(newSettings.id);
       }
-      showSuccess('Success', 'Settings saved successfully!');
+      toast.success('Success', 'Settings saved successfully!');
     } catch (error) {
       console.error('Failed to save settings:', error);
-      showError('Error', 'Failed to save settings');
+      toast.error('Error', 'Failed to save settings');
       throw error;
     } finally {
       setSaving(false);

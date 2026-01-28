@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select } from '@/components/Select';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { settingsService } from '@/lib/services/settingsService';
 import { approvalService } from '@/lib/services/approvalService';
 import { useTenant } from '@/contexts/TenantContext';
@@ -57,7 +57,7 @@ const ORDER_STATUSES = ['PROCESSING', 'SHIPPED', 'DELIVERED', 'IN_TRANSIT', 'OUT
 // ========================================
 
 export function CancellationTabContent() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState<CancellationSettings>(defaultSettings);
@@ -129,7 +129,7 @@ export function CancellationTabContent() {
   const handleSave = async () => {
     const tenantId = currentTenant?.id;
     if (!tenantId) {
-      showError('Error', 'No tenant available. Please try again.');
+      toast.error('Error', 'No tenant available. Please try again.');
       return;
     }
 
@@ -152,7 +152,7 @@ export function CancellationTabContent() {
           },
         });
         setPendingApproval(true);
-        showSuccess('Submitted', 'Changes submitted for approval.');
+        toast.success('Submitted', 'Changes submitted for approval.');
         return;
       }
 
@@ -179,10 +179,10 @@ export function CancellationTabContent() {
 
       setExistingEcommerce(mergedEcommerce);
       setSavedData(data);
-      showSuccess('Success', 'Cancellation settings saved successfully!');
+      toast.success('Success', 'Cancellation settings saved successfully!');
     } catch (error) {
       console.error('Failed to save cancellation settings:', error);
-      showError('Error', 'Failed to save cancellation settings');
+      toast.error('Error', 'Failed to save cancellation settings');
     } finally {
       setSaving(false);
     }

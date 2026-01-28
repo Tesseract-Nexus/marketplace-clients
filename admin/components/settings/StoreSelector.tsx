@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import type { Storefront } from '@/lib/api/types';
 import { storefrontService } from '@/lib/services/storefrontService';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { getStorefrontDomain, getStorefrontUrl } from '@/lib/utils/tenant';
 
 interface StoreSelectorProps {
@@ -393,7 +393,7 @@ function CreateStorefrontModal({
   const [name, setName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState('');
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
 
   // Generate slug from name
   const slug = useMemo(() => {
@@ -446,14 +446,14 @@ function CreateStorefrontModal({
         metaDescription: undefined,
       });
 
-      showSuccess('Storefront Created', `${name} is now live at ${storefrontUrl}`);
+      toast.success('Storefront Created', `${name} is now live at ${storefrontUrl}`);
       onCreated(result.data);
       setName('');
       onClose();
     } catch (err: any) {
       console.error('Failed to create storefront:', err);
       setError(err.message || 'Failed to create storefront');
-      showError('Error', err.message || 'Failed to create storefront');
+      toast.error('Error', err.message || 'Failed to create storefront');
     } finally {
       setIsCreating(false);
     }

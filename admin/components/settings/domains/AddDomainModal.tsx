@@ -5,7 +5,7 @@ import { Globe, Plus, Loader2, CheckCircle2, AlertCircle, ArrowRight, Shield, Za
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import {
   customDomainService,
   type CustomDomain,
@@ -24,7 +24,7 @@ export function AddDomainModal({ isOpen, onClose, onDomainAdded }: AddDomainModa
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [validationState, setValidationState] = useState<'idle' | 'valid' | 'invalid'>('idle');
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
 
   const cleanDomain = useCallback((value: string): string => {
     return value
@@ -79,14 +79,14 @@ export function AddDomainModal({ isOpen, onClose, onDomainAdded }: AddDomainModa
         redirectWWW: true,
       });
 
-      showSuccess('Domain Added', `${cleaned} has been added. Configure your DNS to complete setup.`);
+      toast.success('Domain Added', `${cleaned} has been added. Configure your DNS to complete setup.`);
       onDomainAdded(result.data);
       handleClose();
     } catch (err: unknown) {
       console.error('Failed to add domain:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to add domain';
       setError(errorMessage);
-      showError('Error', errorMessage);
+      toast.error('Error', errorMessage);
     } finally {
       setIsSubmitting(false);
     }

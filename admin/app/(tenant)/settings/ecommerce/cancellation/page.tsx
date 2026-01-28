@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { StoreSelector } from '@/components/settings/StoreSelector';
 import { settingsService } from '@/lib/services/settingsService';
 import { approvalService } from '@/lib/services/approvalService';
@@ -61,7 +61,7 @@ const ORDER_STATUSES = ['PROCESSING', 'SHIPPED', 'DELIVERED', 'IN_TRANSIT', 'OUT
 // ========================================
 
 export default function CancellationSettingsPage() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
   const [selectedStorefront, setSelectedStorefront] = useState<Storefront | null>(null);
@@ -155,13 +155,13 @@ export default function CancellationSettingsPage() {
 
   const handleSave = async () => {
     if (!selectedStorefront) {
-      showError('Error', 'Please select a storefront first');
+      toast.error('Error', 'Please select a storefront first');
       return;
     }
 
     const tenantId = currentTenant?.id;
     if (!tenantId) {
-      showError('Error', 'No tenant available. Please try again.');
+      toast.error('Error', 'No tenant available. Please try again.');
       return;
     }
 
@@ -185,7 +185,7 @@ export default function CancellationSettingsPage() {
           },
         });
         setPendingApproval(true);
-        showSuccess('Submitted', 'Changes submitted for approval.');
+        toast.success('Submitted', 'Changes submitted for approval.');
         return;
       }
 
@@ -213,10 +213,10 @@ export default function CancellationSettingsPage() {
 
       setExistingEcommerce(mergedEcommerce);
       setSavedData(data);
-      showSuccess('Success', 'Cancellation settings saved successfully!');
+      toast.success('Success', 'Cancellation settings saved successfully!');
     } catch (error) {
       console.error('Failed to save cancellation settings:', error);
-      showError('Error', 'Failed to save cancellation settings');
+      toast.error('Error', 'Failed to save cancellation settings');
     } finally {
       setSaving(false);
     }

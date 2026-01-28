@@ -26,6 +26,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/PageHeader';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { storefrontService } from '@/lib/services/storefrontService';
 import { Storefront } from '@/lib/api/types';
@@ -91,7 +92,8 @@ export default function StorefrontPagesPage() {
   const params = useParams();
   const router = useRouter();
   const storefrontId = params?.id as string;
-  const { showSuccess, showError, showConfirm } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
 
   const [storefront, setStorefront] = useState<Storefront | null>(null);
@@ -116,7 +118,7 @@ export default function StorefrontPagesPage() {
       }
     } catch (error) {
       console.error('Error loading storefront:', error);
-      showError('Error', 'Failed to load storefront');
+      toast.error('Error', 'Failed to load storefront');
     } finally {
       setIsLoading(false);
     }
@@ -148,7 +150,7 @@ export default function StorefrontPagesPage() {
 
     if (confirmed) {
       setPages(pages.filter((p) => p.id !== page.id));
-      showSuccess('Success', 'Page deleted successfully');
+      toast.success('Success', 'Page deleted successfully');
     }
   };
 
@@ -158,7 +160,7 @@ export default function StorefrontPagesPage() {
         p.id === page.id ? { ...p, isPublished: !p.isPublished } : p
       )
     );
-    showSuccess('Success', `Page ${page.isPublished ? 'unpublished' : 'published'}`);
+    toast.success('Success', `Page ${page.isPublished ? 'unpublished' : 'published'}`);
   };
 
   const handleDuplicatePage = (page: StorefrontPage) => {
@@ -172,7 +174,7 @@ export default function StorefrontPagesPage() {
       updatedAt: new Date().toISOString(),
     };
     setPages([...pages, newPage]);
-    showSuccess('Success', 'Page duplicated');
+    toast.success('Success', 'Page duplicated');
   };
 
   const handleSavePage = () => {
@@ -187,7 +189,7 @@ export default function StorefrontPagesPage() {
     }
     setIsEditorOpen(false);
     setEditingPage(null);
-    showSuccess('Success', 'Page saved successfully');
+    toast.success('Success', 'Page saved successfully');
   };
 
   const filteredPages = pages.filter(

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { StoreSelector } from '@/components/settings/StoreSelector';
 import { settingsService } from '@/lib/services/settingsService';
 import { storefrontService } from '@/lib/services/storefrontService';
@@ -59,7 +59,7 @@ const defaultReturnsData: ReturnsData = {
 };
 
 export default function ReturnsSettingsPage() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
   const [selectedStorefront, setSelectedStorefront] = useState<Storefront | null>(null);
@@ -144,13 +144,13 @@ export default function ReturnsSettingsPage() {
 
   const handleSave = async () => {
     if (!selectedStorefront) {
-      showError('Error', 'Please select a storefront first');
+      toast.error('Error', 'Please select a storefront first');
       return;
     }
 
     const tenantId = currentTenant?.id;
     if (!tenantId) {
-      showError('Error', 'No tenant available. Please try again.');
+      toast.error('Error', 'No tenant available. Please try again.');
       return;
     }
 
@@ -181,10 +181,10 @@ export default function ReturnsSettingsPage() {
       // Update existing ecommerce with the merged data
       setExistingEcommerce(mergedEcommerce);
       setSavedData(returnsData);
-      showSuccess('Success', 'Returns settings saved successfully!');
+      toast.success('Success', 'Returns settings saved successfully!');
     } catch (error) {
       console.error('Failed to save returns settings:', error);
-      showError('Error', 'Failed to save returns settings');
+      toast.error('Error', 'Failed to save returns settings');
     } finally {
       setSaving(false);
     }

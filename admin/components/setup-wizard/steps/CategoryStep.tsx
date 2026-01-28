@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useSetupWizard } from '../SetupWizardProvider';
 import { WIZARD_ROUTES } from '@/lib/routes';
 import { categoryService } from '@/lib/services/categoryService';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 
 interface CategoryStepProps {
   onComplete: () => void;
@@ -20,7 +20,7 @@ interface CategoryStepProps {
 export function CategoryStep({ onComplete, onSkip, onBack }: CategoryStepProps) {
   const router = useRouter();
   const { markStepComplete, markStepSkipped, closeWizard, setCreatedCategory } = useSetupWizard();
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
 
   const [mode, setMode] = useState<'choose' | 'quick-create'>('choose');
   const [isCreating, setIsCreating] = useState(false);
@@ -42,7 +42,7 @@ export function CategoryStep({ onComplete, onSkip, onBack }: CategoryStepProps) 
 
   const handleQuickCreate = async () => {
     if (!formData.name.trim()) {
-      showError('Error', 'Please enter a category name');
+      toast.error('Error', 'Please enter a category name');
       return;
     }
 
@@ -60,7 +60,7 @@ export function CategoryStep({ onComplete, onSkip, onBack }: CategoryStepProps) 
           name: result.data.name,
           slug: result.data.slug,
         });
-        showSuccess('Category Created!', `"${result.data.name}" has been added to your catalog.`);
+        toast.success('Category Created!', `"${result.data.name}" has been added to your catalog.`);
         markStepComplete('category');
         onComplete();
       } else {
@@ -68,7 +68,7 @@ export function CategoryStep({ onComplete, onSkip, onBack }: CategoryStepProps) 
       }
     } catch (error) {
       console.error('Failed to create category:', error);
-      showError('Error', 'Failed to create category. Please try again.');
+      toast.error('Error', 'Failed to create category. Please try again.');
     } finally {
       setIsCreating(false);
     }

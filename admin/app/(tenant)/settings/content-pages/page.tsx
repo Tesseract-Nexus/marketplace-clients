@@ -63,7 +63,7 @@ const DEFAULT_CREATE_FORM = {
 };
 
 export default function ContentPagesSettingsPage() {
-  const { showConfirm, showSuccess, showError } = useDialog();
+  const { showConfirm } = useDialog();
   const toast = useToast();
 
   // Storefront state
@@ -158,7 +158,7 @@ export default function ContentPagesSettingsPage() {
 
   const savePages = async (updatedPages: ContentPage[]) => {
     if (!selectedStorefront) {
-      showError('Error', 'Please select a storefront first');
+      toast.error('Error', 'Please select a storefront first');
       return;
     }
 
@@ -267,7 +267,7 @@ export default function ContentPagesSettingsPage() {
   // Auto-generate content based on page title and type
   const autoGenerateContent = () => {
     if (!createForm.title) {
-      showError('Title Required', 'Please enter a page title first');
+      toast.error('Title Required', 'Please enter a page title first');
       return;
     }
 
@@ -403,18 +403,18 @@ export default function ContentPagesSettingsPage() {
       metaDescription: excerpt,
     });
 
-    showSuccess('Content Generated!', 'Fields have been auto-filled based on your page title and type.');
+    toast.success('Content Generated!', 'Fields have been auto-filled based on your page title and type.');
   };
 
   const handleCreatePage = async () => {
     if (!createForm.title || !createForm.slug) {
-      showError('Error', 'Title and slug are required');
+      toast.error('Error', 'Title and slug are required');
       return;
     }
 
     // Check for duplicate slug
     if (pages.some((p) => p.slug === createForm.slug)) {
-      showError('Error', 'A page with this slug already exists');
+      toast.error('Error', 'A page with this slug already exists');
       return;
     }
 
@@ -452,7 +452,7 @@ export default function ContentPagesSettingsPage() {
 
     // Check for duplicate slug (excluding current page)
     if (pages.some((p) => p.slug === editForm.slug && p.id !== editForm.id)) {
-      showError('Error', 'A page with this slug already exists');
+      toast.error('Error', 'A page with this slug already exists');
       return;
     }
 

@@ -10,6 +10,7 @@ import { Select } from '@/components/Select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PageHeader } from '@/components/PageHeader';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import {
   taxService,
   TaxJurisdiction,
@@ -46,7 +47,8 @@ interface RateWithJurisdiction extends TaxRate {
 }
 
 export default function TaxRatesPage() {
-  const { showSuccess, showError, showConfirm } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const [rates, setRates] = useState<RateWithJurisdiction[]>([]);
   const [jurisdictions, setJurisdictions] = useState<TaxJurisdiction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,7 +102,7 @@ export default function TaxRatesPage() {
       const message = err instanceof Error ? err.message : 'Failed to load tax rates';
       setError(message);
       if (!isBackground) {
-        showError('Error', message);
+        toast.error('Error', message);
       }
     } finally {
       setLoading(false);
@@ -132,17 +134,17 @@ export default function TaxRatesPage() {
 
       if (editingId) {
         await taxService.rates.update(editingId, request);
-        showSuccess('Success', 'Tax rate updated successfully');
+        toast.success('Success', 'Tax rate updated successfully');
       } else {
         await taxService.rates.create(request);
-        showSuccess('Success', 'Tax rate created successfully');
+        toast.success('Success', 'Tax rate created successfully');
       }
 
       handleCloseModal();
       fetchData();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to save tax rate';
-      showError('Error', message);
+      toast.error('Error', message);
     } finally {
       setSaving(false);
     }
@@ -176,11 +178,11 @@ export default function TaxRatesPage() {
     if (confirmed) {
       try {
         await taxService.rates.delete(id);
-        showSuccess('Success', 'Tax rate deleted successfully');
+        toast.success('Success', 'Tax rate deleted successfully');
         fetchData();
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to delete tax rate';
-        showError('Error', message);
+        toast.error('Error', message);
       }
     }
   };

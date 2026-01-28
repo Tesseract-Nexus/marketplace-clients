@@ -25,6 +25,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { settingsService } from '@/lib/services/settingsService';
 import { storefrontService } from '@/lib/services/storefrontService';
 import {
@@ -95,7 +96,8 @@ const getCarrierIconComponent = (carrierType: CarrierType) => {
 };
 
 export function CarrierConfigTab() {
-  const { showConfirm, showSuccess, showError } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const [carriers, setCarriers] = useState<ShippingCarrierConfig[]>([]);
   const [templates, setTemplates] = useState<ShippingCarrierTemplate[]>([]);
@@ -200,7 +202,7 @@ export function CarrierConfigTab() {
 
   const handleSetupRecommended = (carrierType: CarrierType) => {
     if (loading || templates.length === 0) {
-      showError('Loading', 'Please wait while carrier templates are loading...');
+      toast.error('Loading', 'Please wait while carrier templates are loading...');
       return;
     }
     const template = templates.find(t => t.carrierType === carrierType);
@@ -208,7 +210,7 @@ export function CarrierConfigTab() {
       handleSelectTemplate(template);
       setShowAddWizard(true);
     } else {
-      showError('Error', `Template for ${carrierType} not found. Please try refreshing the page.`);
+      toast.error('Error', `Template for ${carrierType} not found. Please try refreshing the page.`);
     }
   };
 
@@ -224,7 +226,7 @@ export function CarrierConfigTab() {
           ? { ...formData, credentials }
           : formData;
         await shippingCarriersService.updateCarrierConfig(editingCarrier.id, updateData);
-        showSuccess('Success', `Carrier updated successfully${hasNewCredentials ? ' with new credentials' : ''}`);
+        toast.success('Success', `Carrier updated successfully${hasNewCredentials ? ' with new credentials' : ''}`);
       } else if (selectedTemplate) {
         const newCarrier = await shippingCarriersService.createCarrierFromTemplate(selectedTemplate.carrierType, {
           credentials,
@@ -247,20 +249,20 @@ export function CarrierConfigTab() {
           }
         }
 
-        showSuccess('Success', `${selectedTemplate.displayName} added${storeCountry ? ` and configured for ${storeCountryName || storeCountry}` : ''}`);
+        toast.success('Success', `${selectedTemplate.displayName} added${storeCountry ? ` and configured for ${storeCountryName || storeCountry}` : ''}`);
       } else {
         await shippingCarriersService.createCarrierConfig({
           ...formData,
           credentials,
         } as any);
-        showSuccess('Success', 'Carrier created successfully');
+        toast.success('Success', 'Carrier created successfully');
       }
       setShowModal(false);
       setShowAddWizard(false);
       resetForm();
       loadData();
     } catch (error: any) {
-      showError('Error', error.message || 'Failed to save carrier');
+      toast.error('Error', error.message || 'Failed to save carrier');
     } finally {
       setSaving(false);
     }
@@ -276,10 +278,10 @@ export function CarrierConfigTab() {
     if (confirmed) {
       try {
         await shippingCarriersService.deleteCarrierConfig(id);
-        showSuccess('Success', 'Carrier deleted successfully');
+        toast.success('Success', 'Carrier deleted successfully');
         loadData();
       } catch (error: any) {
-        showError('Error', error.message || 'Failed to delete carrier');
+        toast.error('Error', error.message || 'Failed to delete carrier');
       }
     }
   };
@@ -295,12 +297,12 @@ export function CarrierConfigTab() {
     try {
       const result = await shippingCarriersService.testConnection(carrier.id);
       if (result.valid) {
-        showSuccess('Connection Successful', result.message || `Successfully connected to ${carrier.displayName}`);
+        toast.success('Connection Successful', result.message || `Successfully connected to ${carrier.displayName}`);
       } else {
-        showError('Connection Failed', result.message || `Failed to connect to ${carrier.displayName}`);
+        toast.error('Connection Failed', result.message || `Failed to connect to ${carrier.displayName}`);
       }
     } catch (error: any) {
-      showError('Error', error.message || 'Failed to test connection');
+      toast.error('Error', error.message || 'Failed to test connection');
     } finally {
       setTestingConnectionId(null);
     }

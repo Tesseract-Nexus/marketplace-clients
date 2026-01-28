@@ -22,7 +22,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { MaskedValue } from './MaskedValue';
 import {
   customDomainService,
@@ -48,7 +48,7 @@ export function CustomDomainEnabledState({
   adminUrl,
   storefrontUrl,
 }: CustomDomainEnabledStateProps) {
-  const { showSuccess } = useDialog();
+  const toast = useToast();
   const [domainDetails, setDomainDetails] = useState<CustomDomain[]>([]);
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [showDnsConfig, setShowDnsConfig] = useState(false);
@@ -71,7 +71,7 @@ export function CustomDomainEnabledState({
   const handleCopy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
     setCopiedUrl(text);
-    showSuccess('Copied', `${label} copied to clipboard`);
+    toast.success('Copied', `${label} copied to clipboard`);
     setTimeout(() => setCopiedUrl(null), 2000);
   };
 

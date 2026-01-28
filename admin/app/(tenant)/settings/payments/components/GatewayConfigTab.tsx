@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select } from '@/components/Select';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { settingsService } from '@/lib/services/settingsService';
 import {
@@ -77,7 +78,8 @@ const isGatewayReady = (gatewayType: GatewayType): boolean => {
 };
 
 export function GatewayConfigTab() {
-  const { showConfirm, showSuccess, showError } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const [gateways, setGateways] = useState<PaymentGatewayConfig[]>([]);
   const [templates, setTemplates] = useState<PaymentGatewayTemplate[]>([]);
@@ -204,7 +206,7 @@ export function GatewayConfigTab() {
       handleSelectTemplate(template);
       setShowAddWizard(true);
     } else {
-      showError('Error', `Template for ${gatewayType} not found`);
+      toast.error('Error', `Template for ${gatewayType} not found`);
     }
   };
 
@@ -213,23 +215,23 @@ export function GatewayConfigTab() {
       setSaving(true);
       if (editingGateway) {
         await paymentsService.updateGatewayConfig(editingGateway.id, formData);
-        showSuccess('Success', 'Gateway updated successfully');
+        toast.success('Success', 'Gateway updated successfully');
       } else if (selectedTemplate) {
         await paymentsService.createGatewayFromTemplate(selectedTemplate.gatewayType, {
           credentials,
           isTestMode: formData.isTestMode || true,
         });
-        showSuccess('Success', 'Gateway created successfully');
+        toast.success('Success', 'Gateway created successfully');
       } else {
         await paymentsService.createGatewayConfig(formData);
-        showSuccess('Success', 'Gateway created successfully');
+        toast.success('Success', 'Gateway created successfully');
       }
       setShowModal(false);
       setShowAddWizard(false);
       resetForm();
       loadData();
     } catch (error: any) {
-      showError('Error', error.message || 'Failed to save gateway');
+      toast.error('Error', error.message || 'Failed to save gateway');
     } finally {
       setSaving(false);
     }
@@ -245,10 +247,10 @@ export function GatewayConfigTab() {
     if (confirmed) {
       try {
         await paymentsService.deleteGatewayConfig(id);
-        showSuccess('Success', 'Gateway deleted successfully');
+        toast.success('Success', 'Gateway deleted successfully');
         loadData();
       } catch (error: any) {
-        showError('Error', error.message || 'Failed to delete gateway');
+        toast.error('Error', error.message || 'Failed to delete gateway');
       }
     }
   };

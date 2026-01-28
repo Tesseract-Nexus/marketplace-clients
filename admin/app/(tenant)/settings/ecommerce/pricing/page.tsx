@@ -13,7 +13,7 @@ import { settingsService } from '@/lib/services/settingsService';
 import { storefrontService } from '@/lib/services/storefrontService';
 import type { Storefront } from '@/lib/api/types';
 import type { PricingSettings } from '@/lib/types/settings';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 
 const defaultPricingData: PricingSettings = {
@@ -59,7 +59,7 @@ const defaultPricingData: PricingSettings = {
 };
 
 export default function PricingSettingsPage() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
 
   // Storefront state
@@ -166,13 +166,13 @@ export default function PricingSettingsPage() {
 
   const handleSave = async () => {
     if (!selectedStorefront) {
-      showError('Error', 'Please select a storefront first');
+      toast.error('Error', 'Please select a storefront first');
       return;
     }
 
     const tenantId = currentTenant?.id;
     if (!tenantId) {
-      showError('Error', 'No tenant available. Please try again.');
+      toast.error('Error', 'No tenant available. Please try again.');
       return;
     }
 
@@ -203,10 +203,10 @@ export default function PricingSettingsPage() {
       // Update existing ecommerce with the merged data
       setExistingEcommerce(mergedEcommerce);
       setSavedData(pricingData);
-      showSuccess('Success', 'Pricing settings saved successfully!');
+      toast.success('Success', 'Pricing settings saved successfully!');
     } catch (error) {
       console.error('Failed to save pricing settings:', error);
-      showError('Error', 'Failed to save pricing settings');
+      toast.error('Error', 'Failed to save pricing settings');
     } finally {
       setSaving(false);
     }

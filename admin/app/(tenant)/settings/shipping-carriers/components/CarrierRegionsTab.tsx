@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select } from '@/components/Select';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import {
   shippingCarriersService,
   ShippingCarrierConfig,
@@ -45,7 +46,8 @@ const COMMON_COUNTRIES = [
 ];
 
 export function CarrierRegionsTab() {
-  const { showConfirm, showSuccess, showError } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const [carriers, setCarriers] = useState<ShippingCarrierConfig[]>([]);
   const [selectedCarrier, setSelectedCarrier] = useState<ShippingCarrierConfig | null>(null);
   const [regions, setRegions] = useState<ShippingCarrierRegion[]>([]);
@@ -110,16 +112,16 @@ export function CarrierRegionsTab() {
       setSaving(true);
       if (editingRegion) {
         await shippingCarriersService.updateCarrierRegion(editingRegion.id, formData);
-        showSuccess('Success', 'Region updated successfully');
+        toast.success('Success', 'Region updated successfully');
       } else {
         await shippingCarriersService.createCarrierRegion(selectedCarrier.id, formData as any);
-        showSuccess('Success', 'Region created successfully');
+        toast.success('Success', 'Region created successfully');
       }
       setShowModal(false);
       resetForm();
       loadRegions(selectedCarrier.id);
     } catch (error: any) {
-      showError('Error', error.message || 'Failed to save region');
+      toast.error('Error', error.message || 'Failed to save region');
     } finally {
       setSaving(false);
     }
@@ -135,10 +137,10 @@ export function CarrierRegionsTab() {
     if (confirmed && selectedCarrier) {
       try {
         await shippingCarriersService.deleteCarrierRegion(regionId);
-        showSuccess('Success', 'Region deleted successfully');
+        toast.success('Success', 'Region deleted successfully');
         loadRegions(selectedCarrier.id);
       } catch (error: any) {
-        showError('Error', error.message || 'Failed to delete region');
+        toast.error('Error', error.message || 'Failed to delete region');
       }
     }
   };
@@ -148,10 +150,10 @@ export function CarrierRegionsTab() {
 
     try {
       await shippingCarriersService.setPrimaryCarrier(selectedCarrier.id, countryCode);
-      showSuccess('Success', `${selectedCarrier.displayName} is now the primary carrier for ${getRegionLabel(countryCode)}`);
+      toast.success('Success', `${selectedCarrier.displayName} is now the primary carrier for ${getRegionLabel(countryCode)}`);
       loadRegions(selectedCarrier.id);
     } catch (error: any) {
-      showError('Error', error.message || 'Failed to set primary carrier');
+      toast.error('Error', error.message || 'Failed to set primary carrier');
     }
   };
 

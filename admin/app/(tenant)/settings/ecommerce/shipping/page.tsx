@@ -22,7 +22,7 @@ import { Select } from '@/components/Select';
 import { Switch } from '@/components/ui/switch';
 import { PageHeader } from '@/components/PageHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { StoreSelector } from '@/components/settings/StoreSelector';
 import {
   ShippingStatusWidget,
@@ -104,7 +104,7 @@ const TABS: { id: TabId; label: string; icon: React.ElementType }[] = [
 ];
 
 export default function ShippingSettingsPage() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const [activeTab, setActiveTab] = useState<TabId>('general');
 
@@ -235,13 +235,13 @@ export default function ShippingSettingsPage() {
 
   const handleSave = async () => {
     if (!selectedStorefront) {
-      showError('Error', 'Please select a storefront first');
+      toast.error('Error', 'Please select a storefront first');
       return;
     }
 
     const tenantId = currentTenant?.id;
     if (!tenantId) {
-      showError('Error', 'No tenant available. Please try again.');
+      toast.error('Error', 'No tenant available. Please try again.');
       return;
     }
 
@@ -266,10 +266,10 @@ export default function ShippingSettingsPage() {
 
       setExistingEcommerce(mergedEcommerce);
       setSavedData(shippingData);
-      showSuccess('Success', 'Shipping settings saved successfully!');
+      toast.success('Success', 'Shipping settings saved successfully!');
     } catch (error) {
       console.error('Failed to save shipping settings:', error);
-      showError('Error', 'Failed to save shipping settings');
+      toast.error('Error', 'Failed to save shipping settings');
     } finally {
       setSaving(false);
     }
@@ -298,12 +298,12 @@ export default function ShippingSettingsPage() {
         });
       }
 
-      showSuccess('Success', `${carrierType} credentials saved successfully!`);
+      toast.success('Success', `${carrierType} credentials saved successfully!`);
       await loadCarrierConfigs();
       setCarrierModalOpen(false);
     } catch (error) {
       console.error('Failed to save carrier credentials:', error);
-      showError('Error', `Failed to save ${carrierType} credentials`);
+      toast.error('Error', `Failed to save ${carrierType} credentials`);
     } finally {
       setSavingCarrier(false);
     }
@@ -317,12 +317,12 @@ export default function ShippingSettingsPage() {
       });
       const data = await response.json();
       if (data.valid || data.success) {
-        showSuccess('Connection Successful', `${carrierType} API connection is working!`);
+        toast.success('Connection Successful', `${carrierType} API connection is working!`);
       } else {
-        showError('Connection Failed', data.message || `Failed to connect to ${carrierType}`);
+        toast.error('Connection Failed', data.message || `Failed to connect to ${carrierType}`);
       }
     } catch (error) {
-      showError('Connection Failed', `Failed to test ${carrierType} connection`);
+      toast.error('Connection Failed', `Failed to test ${carrierType} connection`);
     } finally {
       setTestingConnection(null);
     }
@@ -340,9 +340,9 @@ export default function ShippingSettingsPage() {
           handlingFeePercent: carrierSettings.handlingFeePercent,
         }),
       });
-      showSuccess('Success', 'Carrier priority settings saved!');
+      toast.success('Success', 'Carrier priority settings saved!');
     } catch (error) {
-      showError('Error', 'Failed to save carrier priority settings');
+      toast.error('Error', 'Failed to save carrier priority settings');
     } finally {
       setSaving(false);
     }

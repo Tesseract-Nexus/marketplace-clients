@@ -13,7 +13,7 @@ import { settingsService } from '@/lib/services/settingsService';
 import { storefrontService } from '@/lib/services/storefrontService';
 import type { Storefront } from '@/lib/api/types';
 import type { InventorySettings } from '@/lib/types/settings';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 
 const defaultInventorySettings: InventorySettings = {
@@ -49,7 +49,7 @@ const defaultInventorySettings: InventorySettings = {
 };
 
 export default function InventorySettingsPage() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
   const [selectedStorefront, setSelectedStorefront] = useState<Storefront | null>(null);
@@ -134,13 +134,13 @@ export default function InventorySettingsPage() {
 
   const handleSave = async () => {
     if (!selectedStorefront) {
-      showError('Error', 'Please select a storefront first');
+      toast.error('Error', 'Please select a storefront first');
       return;
     }
 
     const tenantId = currentTenant?.id;
     if (!tenantId) {
-      showError('Error', 'No tenant available. Please try again.');
+      toast.error('Error', 'No tenant available. Please try again.');
       return;
     }
 
@@ -171,10 +171,10 @@ export default function InventorySettingsPage() {
       // Update existing ecommerce with the merged data
       setExistingEcommerce(mergedEcommerce);
       setSavedData(inventoryData);
-      showSuccess('Success', 'Inventory settings saved successfully!');
+      toast.success('Success', 'Inventory settings saved successfully!');
     } catch (error) {
       console.error('Failed to save inventory settings:', error);
-      showError('Error', 'Failed to save inventory settings');
+      toast.error('Error', 'Failed to save inventory settings');
     } finally {
       setSaving(false);
     }

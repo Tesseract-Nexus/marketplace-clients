@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { taxService, TaxJurisdiction, JurisdictionType, CreateJurisdictionRequest } from '@/lib/services/taxService';
 
 const jurisdictionTypeOptions = [
@@ -25,7 +26,8 @@ const statusOptions = [
 ];
 
 export default function TaxJurisdictionsPage() {
-  const { showSuccess, showError, showConfirm } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const [jurisdictions, setJurisdictions] = useState<TaxJurisdiction[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -59,7 +61,7 @@ export default function TaxJurisdictionsPage() {
       const message = err instanceof Error ? err.message : 'Failed to load jurisdictions';
       setError(message);
       if (!isBackground) {
-        showError('Error', message);
+        toast.error('Error', message);
       }
     } finally {
       setLoading(false);
@@ -86,17 +88,17 @@ export default function TaxJurisdictionsPage() {
 
       if (editingId) {
         await taxService.jurisdictions.update(editingId, request);
-        showSuccess('Success', 'Jurisdiction updated successfully');
+        toast.success('Success', 'Jurisdiction updated successfully');
       } else {
         await taxService.jurisdictions.create(request);
-        showSuccess('Success', 'Jurisdiction created successfully');
+        toast.success('Success', 'Jurisdiction created successfully');
       }
 
       handleCloseModal();
       fetchJurisdictions();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to save jurisdiction';
-      showError('Error', message);
+      toast.error('Error', message);
     } finally {
       setSaving(false);
     }
@@ -125,11 +127,11 @@ export default function TaxJurisdictionsPage() {
     if (confirmed) {
       try {
         await taxService.jurisdictions.delete(id);
-        showSuccess('Success', 'Jurisdiction deleted successfully');
+        toast.success('Success', 'Jurisdiction deleted successfully');
         fetchJurisdictions();
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to delete jurisdiction';
-        showError('Error', message);
+        toast.error('Error', message);
       }
     }
   };

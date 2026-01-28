@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { PageHeader } from '@/components/PageHeader';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { StoreSelector } from '@/components/settings/StoreSelector';
 import { settingsService } from '@/lib/services/settingsService';
@@ -22,7 +22,7 @@ const defaultCustomerData = {
 };
 
 export default function CustomerSettingsPage() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
   const [selectedStorefront, setSelectedStorefront] = useState<Storefront | null>(null);
@@ -110,12 +110,12 @@ export default function CustomerSettingsPage() {
     // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
     const tenantId = currentTenant?.id;
     if (!tenantId) {
-      showError('Error', 'No tenant available. Please try again.');
+      toast.error('Error', 'No tenant available. Please try again.');
       return;
     }
 
     if (!selectedStorefront) {
-      showError('Error', 'Please select a storefront first');
+      toast.error('Error', 'Please select a storefront first');
       return;
     }
 
@@ -146,10 +146,10 @@ export default function CustomerSettingsPage() {
       // Update existing ecommerce with the merged data
       setExistingEcommerce(mergedEcommerce);
       setSavedData(customerData);
-      showSuccess('Success', 'Customer settings saved successfully!');
+      toast.success('Success', 'Customer settings saved successfully!');
     } catch (error) {
       console.error('Failed to save customer settings:', error);
-      showError('Error', 'Failed to save customer settings');
+      toast.error('Error', 'Failed to save customer settings');
     } finally {
       setSaving(false);
     }

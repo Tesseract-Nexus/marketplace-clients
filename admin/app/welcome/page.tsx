@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { SocialLogin } from '@/components/SocialLogin';
 import { Confetti, FloralCelebration } from '@/components/Confetti';
 
@@ -48,7 +48,7 @@ function WelcomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const sessionId = searchParams?.get('sessionId') || searchParams?.get('session_id');
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,7 +82,7 @@ function WelcomeContent() {
           return;
         }
 
-        showError('Session Error', 'No session ID provided. Please restart the onboarding process.');
+        toast.error('Session Error', 'No session ID provided. Please restart the onboarding process.');
         return;
       }
 
@@ -118,7 +118,7 @@ function WelcomeContent() {
       } catch (error) {
         console.error('Failed to fetch onboarding data:', error);
         setIsLoading(false);
-        showError('Error', error instanceof Error ? error.message : 'Failed to load session data');
+        toast.error('Error', error instanceof Error ? error.message : 'Failed to load session data');
       }
     };
 
@@ -149,22 +149,22 @@ function WelcomeContent() {
     e.preventDefault();
 
     if (!sessionId) {
-      showError('Session Error', 'No session ID. Please restart the onboarding process.');
+      toast.error('Session Error', 'No session ID. Please restart the onboarding process.');
       return;
     }
 
     if (password.length < 8) {
-      showError('Weak Password', 'Password must be at least 8 characters long');
+      toast.error('Weak Password', 'Password must be at least 8 characters long');
       return;
     }
 
     if (password !== confirmPassword) {
-      showError('Password Mismatch', 'Passwords do not match');
+      toast.error('Password Mismatch', 'Passwords do not match');
       return;
     }
 
     if (passwordStrength === 'weak') {
-      showError('Weak Password', 'Please choose a stronger password');
+      toast.error('Weak Password', 'Please choose a stronger password');
       return;
     }
 
@@ -204,20 +204,20 @@ function WelcomeContent() {
           return tenantSlug ? `https://${tenantSlug}-admin.${baseDomain}` : '/';
         })();
 
-      showSuccess('Account Created!', 'Welcome to Tesserix. Redirecting to your dashboard...');
+      toast.success('Account Created!', 'Welcome to Tesserix. Redirecting to your dashboard...');
       setTimeout(() => {
         window.location.href = adminUrl;
       }, 1500);
     } catch (error) {
       console.error('Account setup error:', error);
       setIsSubmitting(false);
-      showError('Setup Failed', error instanceof Error ? error.message : 'Failed to complete account setup');
+      toast.error('Setup Failed', error instanceof Error ? error.message : 'Failed to complete account setup');
     }
   };
 
   const handleSocialLogin = async (provider: string) => {
     if (!sessionId) {
-      showError('Session Error', 'No session ID. Please restart the onboarding process.');
+      toast.error('Session Error', 'No session ID. Please restart the onboarding process.');
       return;
     }
 
@@ -256,7 +256,7 @@ function WelcomeContent() {
           return tenantSlug ? `https://${tenantSlug}-admin.${baseDomain}` : '/';
         })();
 
-      showSuccess(
+      toast.success(
         `${provider.charAt(0).toUpperCase() + provider.slice(1)} Account Linked!`,
         'Your account has been created successfully. Redirecting to dashboard...'
       );
@@ -266,7 +266,7 @@ function WelcomeContent() {
     } catch (error) {
       console.error('Social login setup error:', error);
       setIsSubmitting(false);
-      showError('Setup Failed', error instanceof Error ? error.message : 'Failed to complete account setup');
+      toast.error('Setup Failed', error instanceof Error ? error.message : 'Failed to complete account setup');
     }
   };
 

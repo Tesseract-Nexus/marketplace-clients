@@ -5,7 +5,7 @@ import { Store, X, Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { storefrontService } from '@/lib/services/storefrontService';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { getStorefrontDomain } from '@/lib/utils/tenant';
 import type { Storefront } from '@/lib/api/types';
 
@@ -25,7 +25,7 @@ export function CreateStorefrontModal({
   const [name, setName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState('');
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
 
   // Generate slug from name
   const slug = useMemo(() => {
@@ -81,7 +81,7 @@ export function CreateStorefrontModal({
         metaDescription: undefined,
       });
 
-      showSuccess('Storefront Created', `${name} is now live at ${storefrontUrl}`);
+      toast.success('Storefront Created', `${name} is now live at ${storefrontUrl}`);
       onCreated(result.data);
       setName('');
       onClose();
@@ -89,7 +89,7 @@ export function CreateStorefrontModal({
       console.error('Failed to create storefront:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to create storefront';
       setError(errorMessage);
-      showError('Error', errorMessage);
+      toast.error('Error', errorMessage);
     } finally {
       setIsCreating(false);
     }

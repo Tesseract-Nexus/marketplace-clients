@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import {
@@ -135,7 +136,8 @@ function EmptyState({ onAddDomain }: { onAddDomain: () => void }) {
 }
 
 export function DomainsTabContent() {
-  const { showSuccess, showError, showConfirm } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const { currentTenant, isLoading: tenantLoading } = useTenant();
   const [domains, setDomains] = useState<CustomDomain[]>([]);
   const [stats, setStats] = useState<DomainStats | null>(null);
@@ -192,14 +194,14 @@ export function DomainsTabContent() {
       );
 
       if (result.data.dnsVerified) {
-        showSuccess('DNS Verified', 'Your domain DNS has been verified. SSL provisioning will begin shortly.');
+        toast.success('DNS Verified', 'Your domain DNS has been verified. SSL provisioning will begin shortly.');
       } else {
-        showError('DNS Not Verified', 'DNS records not found. Please check your DNS configuration and try again.');
+        toast.error('DNS Not Verified', 'DNS records not found. Please check your DNS configuration and try again.');
       }
     } catch (err: unknown) {
       console.error('Failed to verify domain:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to verify domain';
-      showError('Verification Failed', errorMessage);
+      toast.error('Verification Failed', errorMessage);
     } finally {
       setVerifyingDomains((prev) => {
         const next = new Set(prev);
@@ -222,7 +224,7 @@ export function DomainsTabContent() {
     try {
       await customDomainService.deleteDomain(domain.id);
       setDomains((prev) => prev.filter((d) => d.id !== domain.id));
-      showSuccess('Domain Deleted', `${domain.domain} has been removed.`);
+      toast.success('Domain Deleted', `${domain.domain} has been removed.`);
 
       if (stats) {
         const statusKey = domain.status === 'active' ? 'activeDomains' :
@@ -236,13 +238,13 @@ export function DomainsTabContent() {
     } catch (err: unknown) {
       console.error('Failed to delete domain:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete domain';
-      showError('Delete Failed', errorMessage);
+      toast.error('Delete Failed', errorMessage);
     }
   };
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
-    showSuccess('Copied', 'Value copied to clipboard');
+    toast.success('Copied', 'Value copied to clipboard');
   };
 
   const hasOnboardedCustomDomain = currentTenant?.useCustomDomain && currentTenant?.customDomain;

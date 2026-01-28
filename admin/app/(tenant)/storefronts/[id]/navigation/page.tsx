@@ -29,6 +29,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/PageHeader';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { useUser } from '@/contexts/UserContext';
 import { storefrontService } from '@/lib/services/storefrontService';
@@ -59,7 +60,8 @@ export default function StorefrontNavigationPage() {
   const params = useParams();
   const router = useRouter();
   const storefrontId = params?.id as string;
-  const { showSuccess, showError, showConfirm } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const { user } = useUser();
 
@@ -126,7 +128,7 @@ export default function StorefrontNavigationPage() {
       }
     } catch (error) {
       console.error('Error loading storefront:', error);
-      showError('Error', 'Failed to load navigation settings');
+      toast.error('Error', 'Failed to load navigation settings');
     } finally {
       setIsLoading(false);
     }
@@ -166,13 +168,13 @@ export default function StorefrontNavigationPage() {
         if (saveResponse.success) {
           setSavedHeaderLinks(headerLinks);
           setSavedFooterLinks(footerLinks);
-          showSuccess('Success', 'Navigation saved! Changes will reflect on your storefront.');
+          toast.success('Success', 'Navigation saved! Changes will reflect on your storefront.');
         } else {
-          showError('Error', 'Failed to save navigation');
+          toast.error('Error', 'Failed to save navigation');
         }
       }
     } catch (error) {
-      showError('Error', 'Failed to save navigation settings');
+      toast.error('Error', 'Failed to save navigation settings');
     } finally {
       setIsSaving(false);
     }

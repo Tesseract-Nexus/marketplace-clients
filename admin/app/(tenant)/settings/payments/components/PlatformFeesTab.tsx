@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select } from '@/components/Select';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import {
   paymentsService,
   PaymentSettings,
@@ -22,7 +22,7 @@ const feePayerOptions = [
 ];
 
 export function PlatformFeesTab() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const [settings, setSettings] = useState<PaymentSettings | null>(null);
   const [summary, setSummary] = useState<FeeSummary | null>(null);
   const [ledger, setLedger] = useState<FeeLedgerEntry[]>([]);
@@ -69,10 +69,10 @@ export function PlatformFeesTab() {
     try {
       setSaving(true);
       await paymentsService.updatePaymentSettings(formData);
-      showSuccess('Success', 'Platform fee settings updated successfully');
+      toast.success('Success', 'Platform fee settings updated successfully');
       loadData();
     } catch (error: any) {
-      showError('Error', error.message || 'Failed to save settings');
+      toast.error('Error', error.message || 'Failed to save settings');
     } finally {
       setSaving(false);
     }

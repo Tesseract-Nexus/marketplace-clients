@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { storefrontApi, setCurrentStorefrontId, setCurrentTenantId } from '@/lib/api/storefront';
 import type { ContentPage, ContentPageType, ContentPageStatus } from '@/lib/types/settings';
 
@@ -57,7 +58,8 @@ const DEFAULT_PAGE: Omit<ContentPage, 'id' | 'createdAt' | 'updatedAt'> = {
 };
 
 export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, className }: ContentPagesEditorProps) {
-  const { showConfirm, showSuccess, showError } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
 
   const [pages, setPages] = useState<ContentPage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -113,13 +115,13 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
 
       if (response.success) {
         setPages(updatedPages);
-        showSuccess('Success', 'Content pages saved successfully');
+        toast.success('Success', 'Content pages saved successfully');
       } else {
         throw new Error('Failed to save');
       }
     } catch (error) {
       console.error('Failed to save:', error);
-      showError('Error', 'Failed to save content pages');
+      toast.error('Error', 'Failed to save content pages');
       throw error;
     } finally {
       setSaving(false);
@@ -146,12 +148,12 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
     if (!editingPage) return;
 
     if (!editingPage.title.trim()) {
-      showError('Validation Error', 'Title is required');
+      toast.error('Validation Error', 'Title is required');
       return;
     }
 
     if (!editingPage.slug.trim()) {
-      showError('Validation Error', 'Slug is required');
+      toast.error('Validation Error', 'Slug is required');
       return;
     }
 

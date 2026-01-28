@@ -28,7 +28,7 @@ import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/PageHeader';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 import {
   Select,
@@ -240,7 +240,7 @@ function DiffViewer({ oldValue, newValue }: { oldValue?: Record<string, unknown>
 }
 
 export default function AuditLogsPage() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
 
   const getAuthHeaders = (): Record<string, string> => {
@@ -350,10 +350,10 @@ export default function AuditLogsPage() {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
-        showSuccess('Success', 'Export completed');
+        toast.success('Success', 'Export completed');
       }
     } catch (error) {
-      showError('Error', 'Failed to export');
+      toast.error('Error', 'Failed to export');
     } finally {
       setExporting(false);
     }
@@ -362,9 +362,9 @@ export default function AuditLogsPage() {
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      showSuccess('Copied', 'ID copied to clipboard');
+      toast.success('Copied', 'ID copied to clipboard');
     } catch {
-      showError('Error', 'Failed to copy');
+      toast.error('Error', 'Failed to copy');
     }
   };
 

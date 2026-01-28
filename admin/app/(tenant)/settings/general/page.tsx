@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { settingsService } from '@/lib/services/settingsService';
 import { storefrontService } from '@/lib/services/storefrontService';
 import { tenantService, type TenantDetails } from '@/lib/services/tenantService';
@@ -101,7 +102,8 @@ function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
 }
 
 export default function GeneralSettingsPage() {
-  const { showSuccess, showError, showConfirm } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const { user } = useUser();
   const searchParams = useSearchParams();
@@ -383,7 +385,7 @@ export default function GeneralSettingsPage() {
 
   const handleSave = async () => {
     if (!selectedStorefront) {
-      showError('Error', 'Please select a storefront first');
+      toast.error('Error', 'Please select a storefront first');
       return;
     }
 
@@ -393,7 +395,7 @@ export default function GeneralSettingsPage() {
       // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
       const tenantId = currentTenant?.id || '';
       if (!tenantId) {
-        showError('Error', 'Unable to save: No tenant context available');
+        toast.error('Error', 'Unable to save: No tenant context available');
         return;
       }
 
@@ -454,10 +456,10 @@ export default function GeneralSettingsPage() {
       // Update local state to track the merged ecommerce data
       setExistingEcommerce(mergedEcommerce);
       setSavedSettings(settings);
-      showSuccess('Success', 'Settings saved successfully!');
+      toast.success('Success', 'Settings saved successfully!');
     } catch (err) {
       console.error('Error saving settings:', err);
-      showError('Error', 'Failed to save settings');
+      toast.error('Error', 'Failed to save settings');
     } finally {
       setIsSaving(false);
     }
@@ -497,7 +499,7 @@ export default function GeneralSettingsPage() {
         prev.map((sf) => (sf.id === selectedStorefront.id ? { ...sf, isActive: shouldPublish } : sf))
       );
 
-      showSuccess(
+      toast.success(
         shouldPublish ? 'Store Published!' : 'Store Unpublished',
         shouldPublish
           ? 'Your storefront is now live and visible to customers.'
@@ -506,7 +508,7 @@ export default function GeneralSettingsPage() {
     } catch (err) {
       const action = shouldPublish ? 'publish' : 'unpublish';
       console.error(`Failed to ${action} storefront:`, err);
-      showError('Error', `Failed to ${action} storefront. Please try again.`);
+      toast.error('Error', `Failed to ${action} storefront. Please try again.`);
     } finally {
       setIsPublishing(false);
     }
@@ -658,7 +660,7 @@ export default function GeneralSettingsPage() {
     }));
 
     setShowLocationModal(false);
-    showSuccess('Location Applied', 'Your location and business settings have been updated');
+    toast.success('Location Applied', 'Your location and business settings have been updated');
   };
 
   const handleLocationSkip = () => {

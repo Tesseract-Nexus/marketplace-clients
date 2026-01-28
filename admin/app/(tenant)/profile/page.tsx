@@ -23,7 +23,7 @@ import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Input } from '@/components/ui/input';
 import { PageHeader } from '@/components/PageHeader';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useUser } from '@/contexts/UserContext';
 
 interface UserProfile {
@@ -46,7 +46,7 @@ interface UserProfile {
 }
 
 export default function ProfilePage() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { user, updateUser, isLoading: isUserLoading } = useUser();
 
   const [profile, setProfile] = useState<UserProfile>({
@@ -123,9 +123,9 @@ export default function ProfilePage() {
 
       setProfile(editedProfile);
       setIsEditing(false);
-      showSuccess('Success', 'Profile updated successfully!');
+      toast.success('Success', 'Profile updated successfully!');
     } catch (error) {
-      showError('Error', 'Failed to update profile');
+      toast.error('Error', 'Failed to update profile');
     } finally {
       setIsSaving(false);
     }

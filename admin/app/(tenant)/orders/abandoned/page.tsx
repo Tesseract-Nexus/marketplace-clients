@@ -8,6 +8,7 @@ import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { Pagination } from '@/components/Pagination';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { abandonedCartService, AbandonedCart } from '@/lib/services/abandonedCartService';
 import {
   ShoppingCart,
@@ -74,7 +75,8 @@ const Badge = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivEl
 );
 
 export default function AbandonedCartsPage() {
-  const { showSuccess, showError, showConfirm } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const [carts, setCarts] = useState<AbandonedCartDisplay[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | CartStatus>('ALL');
@@ -189,7 +191,7 @@ export default function AbandonedCartsPage() {
       cancelLabel: 'Cancel',
     });
     if (confirmed) {
-      showSuccess('Email Sent', 'Recovery email has been sent to the customer');
+      toast.success('Email Sent', 'Recovery email has been sent to the customer');
       setCarts(prev => prev.map(c =>
         c.id === id
           ? { ...c, status: 'CONTACTED' as CartStatus, recoveryAttempts: c.recoveryAttempts + 1, lastContactedAt: new Date().toISOString() }
@@ -206,7 +208,7 @@ export default function AbandonedCartsPage() {
       cancelLabel: 'Cancel',
     });
     if (confirmed) {
-      showSuccess('Deleted', 'Abandoned cart record has been deleted');
+      toast.success('Deleted', 'Abandoned cart record has been deleted');
       setCarts(prev => prev.filter(c => c.id !== id));
     }
   };

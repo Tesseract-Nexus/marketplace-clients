@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { Copy, Check, Eye, EyeOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 
 interface MaskedValueProps {
   value: string;
@@ -14,7 +14,7 @@ interface MaskedValueProps {
 export function MaskedValue({ value, label, alwaysShowCopy = true }: MaskedValueProps) {
   const [revealed, setRevealed] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { showSuccess } = useDialog();
+  const toast = useToast();
 
   const maskedValue = value
     ? `${value.substring(0, 8)}${'•'.repeat(Math.min(value.length - 8, 20))}`
@@ -23,7 +23,7 @@ export function MaskedValue({ value, label, alwaysShowCopy = true }: MaskedValue
   const handleCopy = () => {
     navigator.clipboard.writeText(value);
     setCopied(true);
-    showSuccess('Copied', `${label || 'Value'} copied to clipboard`);
+    toast.success('Copied', `${label || 'Value'} copied to clipboard`);
     setTimeout(() => setCopied(false), 2000);
   };
 

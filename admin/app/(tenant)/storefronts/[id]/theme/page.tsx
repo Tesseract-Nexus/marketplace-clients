@@ -27,6 +27,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/PageHeader';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { useUser } from '@/contexts/UserContext';
 
@@ -85,7 +86,8 @@ export default function StorefrontThemePage() {
   const params = useParams();
   const router = useRouter();
   const storefrontId = params?.id as string;
-  const { showSuccess, showError, showConfirm } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
   const { user } = useUser();
 
@@ -147,7 +149,7 @@ export default function StorefrontThemePage() {
       }
     } catch (error) {
       console.error('Error loading storefront:', error);
-      showError('Error', 'Failed to load storefront settings');
+      toast.error('Error', 'Failed to load storefront settings');
     } finally {
       setIsLoading(false);
     }
@@ -162,12 +164,12 @@ export default function StorefrontThemePage() {
       if (response.success && response.data) {
         setSavedSettings(response.data);
         setSettings(response.data);
-        showSuccess('Success', 'Theme settings saved! Changes will reflect on your storefront shortly.');
+        toast.success('Success', 'Theme settings saved! Changes will reflect on your storefront shortly.');
       } else {
-        showError('Error', 'Failed to save settings');
+        toast.error('Error', 'Failed to save settings');
       }
     } catch (error) {
-      showError('Error', 'An error occurred while saving');
+      toast.error('Error', 'An error occurred while saving');
     } finally {
       setIsSaving(false);
     }
@@ -185,10 +187,10 @@ export default function StorefrontThemePage() {
         if (response.success && response.data) {
           setSettings(response.data);
           setSavedSettings(response.data);
-          showSuccess('Success', 'Settings reset to defaults');
+          toast.success('Success', 'Settings reset to defaults');
         }
       } catch (error) {
-        showError('Error', 'Failed to reset settings');
+        toast.error('Error', 'Failed to reset settings');
       }
     }
   };

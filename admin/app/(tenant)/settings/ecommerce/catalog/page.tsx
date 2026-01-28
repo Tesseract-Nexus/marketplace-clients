@@ -13,7 +13,7 @@ import { settingsService } from '@/lib/services/settingsService';
 import { storefrontService } from '@/lib/services/storefrontService';
 import type { Storefront } from '@/lib/api/types';
 import type { CatalogSettings } from '@/lib/types/settings';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 
 const defaultCatalogData: CatalogSettings = {
@@ -51,7 +51,7 @@ const defaultCatalogData: CatalogSettings = {
 };
 
 export default function CatalogSettingsPage() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
 
   // Storefront state
@@ -142,13 +142,13 @@ export default function CatalogSettingsPage() {
 
   const handleSave = async () => {
     if (!selectedStorefront) {
-      showError('Error', 'Please select a storefront');
+      toast.error('Error', 'Please select a storefront');
       return;
     }
 
     const tenantId = currentTenant?.id;
     if (!tenantId) {
-      showError('Error', 'No tenant available. Please try again.');
+      toast.error('Error', 'No tenant available. Please try again.');
       return;
     }
 
@@ -179,10 +179,10 @@ export default function CatalogSettingsPage() {
       // Update existing ecommerce with the merged data
       setExistingEcommerce(mergedEcommerce);
       setSavedData(catalogData);
-      showSuccess('Success', 'Catalog settings saved successfully!');
+      toast.success('Success', 'Catalog settings saved successfully!');
     } catch (error) {
       console.error('Failed to save catalog settings:', error);
-      showError('Error', 'Failed to save catalog settings');
+      toast.error('Error', 'Failed to save catalog settings');
     } finally {
       setSaving(false);
     }

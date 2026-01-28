@@ -8,6 +8,7 @@ import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { Pagination } from '@/components/Pagination';
 import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { returnsService, Return } from '@/lib/services/returnsService';
 import {
   RotateCcw,
@@ -88,7 +89,8 @@ const Badge = ({ className, children, ...props }: React.HTMLAttributes<HTMLDivEl
 );
 
 export default function ReturnsPage() {
-  const { showSuccess, showError, showConfirm } = useDialog();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const [returns, setReturns] = useState<ReturnRequest[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'ALL' | ReturnStatus>('ALL');
@@ -225,12 +227,12 @@ export default function ReturnsPage() {
     if (confirmed) {
       try {
         await returnsService.approveReturn(id);
-        showSuccess('Success', 'Return request approved');
+        toast.success('Success', 'Return request approved');
         // Refresh the list to get updated data
         loadReturns();
       } catch (err) {
         console.error('Failed to approve return:', err);
-        showError('Error', 'Failed to approve return request');
+        toast.error('Error', 'Failed to approve return request');
       }
     }
   };
@@ -245,12 +247,12 @@ export default function ReturnsPage() {
     if (confirmed) {
       try {
         await returnsService.rejectReturn(id, 'Rejected by admin');
-        showSuccess('Success', 'Return request rejected');
+        toast.success('Success', 'Return request rejected');
         // Refresh the list to get updated data
         loadReturns();
       } catch (err) {
         console.error('Failed to reject return:', err);
-        showError('Error', 'Failed to reject return request');
+        toast.error('Error', 'Failed to reject return request');
       }
     }
   };

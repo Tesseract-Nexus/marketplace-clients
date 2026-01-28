@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select } from '@/components/Select';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { AddressAutocomplete, ParsedAddressData } from '@/components/AddressAutocomplete';
 import {
   shippingCarriersService,
@@ -49,7 +49,7 @@ const returnLabelModeOptions = [
 ];
 
 export function ShippingSettingsTab() {
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [carriers, setCarriers] = useState<ShippingCarrierConfig[]>([]);
@@ -121,9 +121,9 @@ export function ShippingSettingsTab() {
     try {
       setSaving(true);
       await shippingCarriersService.updateShippingSettings(settings);
-      showSuccess('Success', 'Shipping settings updated successfully');
+      toast.success('Success', 'Shipping settings updated successfully');
     } catch (error: any) {
-      showError('Error', error.message || 'Failed to save settings');
+      toast.error('Error', error.message || 'Failed to save settings');
     } finally {
       setSaving(false);
     }

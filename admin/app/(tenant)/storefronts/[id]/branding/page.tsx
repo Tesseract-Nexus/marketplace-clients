@@ -19,7 +19,7 @@ import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/PageHeader';
-import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenant } from '@/contexts/TenantContext';
 import { storefrontService } from '@/lib/services/storefrontService';
 import { Storefront } from '@/lib/api/types';
@@ -41,7 +41,7 @@ export default function StorefrontBrandingPage() {
   const params = useParams();
   const router = useRouter();
   const storefrontId = params?.id as string;
-  const { showSuccess, showError } = useDialog();
+  const toast = useToast();
   const { currentTenant } = useTenant();
 
   const [storefront, setStorefront] = useState<Storefront | null>(null);
@@ -74,7 +74,7 @@ export default function StorefrontBrandingPage() {
       }
     } catch (error) {
       console.error('Error loading storefront:', error);
-      showError('Error', 'Failed to load storefront');
+      toast.error('Error', 'Failed to load storefront');
     } finally {
       setIsLoading(false);
     }
@@ -93,9 +93,9 @@ export default function StorefrontBrandingPage() {
         metaDescription: branding.metaDescription,
       });
       setSavedBranding(branding);
-      showSuccess('Success', 'Branding settings saved! Changes will reflect on your storefront.');
+      toast.success('Success', 'Branding settings saved! Changes will reflect on your storefront.');
     } catch (error) {
-      showError('Error', 'Failed to save branding settings');
+      toast.error('Error', 'Failed to save branding settings');
     } finally {
       setIsSaving(false);
     }
