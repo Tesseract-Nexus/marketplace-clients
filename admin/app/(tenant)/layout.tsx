@@ -882,9 +882,11 @@ function TenantLayoutInner({
         console.log('[TenantLayout] Settings API raw response:', JSON.stringify(data, null, 2).substring(0, 500));
 
         if (data?.branding) {
+          const faviconUrl = data.branding.general?.faviconUrl;
+          const logoUrl = data.branding.general?.logoUrl;
           console.log('[TenantLayout] Branding general data:', {
-            faviconUrl: data.branding.general?.faviconUrl || '(empty)',
-            logoUrl: data.branding.general?.logoUrl || '(empty)',
+            faviconUrl: faviconUrl || '(empty)',
+            logoUrl: logoUrl || '(empty)',
           });
           // Merge with defaults to ensure all required properties exist
           const loadedBranding = {
@@ -896,6 +898,19 @@ function TenantLayoutInner({
           console.log('[TenantLayout] Merged branding faviconUrl:', loadedBranding.general.faviconUrl || '(empty)');
           updateBranding(loadedBranding);
           brandingLoadedRef.current = true;
+
+          // Directly set favicon here to ensure it's set after API completes
+          const effectiveFavicon = faviconUrl?.trim() || logoUrl?.trim();
+          if (effectiveFavicon) {
+            let link = document.querySelector("link[rel*='icon']") as HTMLLinkElement | null;
+            if (!link) {
+              link = document.createElement('link');
+              link.rel = 'icon';
+              document.head.appendChild(link);
+            }
+            link.href = effectiveFavicon;
+            console.log('[TenantLayout] Favicon set directly from branding:', effectiveFavicon.substring(0, 60));
+          }
         } else {
           console.log('[TenantLayout] No branding data in settings. Full response:', data);
         }
