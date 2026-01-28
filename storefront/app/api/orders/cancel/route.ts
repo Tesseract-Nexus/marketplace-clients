@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-Tenant-ID': tenantId,
+      'X-Internal-Service': 'storefront',
     };
     if (accessToken) {
       headers['Authorization'] = `Bearer ${accessToken}`;

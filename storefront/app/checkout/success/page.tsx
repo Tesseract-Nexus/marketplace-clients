@@ -215,7 +215,7 @@ function CheckoutSuccessContent() {
   }, [sessionDetails?.orderNumber, sessionDetails?.customerEmail, cancelReason]);
 
   const storeName = tenant?.name || 'Store';
-  const isPaid = sessionDetails?.paymentStatus === 'succeeded';
+  const isPaid = sessionDetails?.paymentStatus?.toLowerCase() === 'succeeded';
   const currency = sessionDetails?.currency || 'USD';
 
   // Parse customer name into first/last for the modal

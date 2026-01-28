@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Package, ChevronRight, Truck, CheckCircle2, Clock, XCircle, ShoppingBag, ArrowRight } from 'lucide-react';
+import { Package, ChevronRight, Truck, CheckCircle2, Clock, XCircle, ShoppingBag, ArrowRight, Ban } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,7 @@ import { useTenant, useNavPath } from '@/context/TenantContext';
 import { cn } from '@/lib/utils';
 import { Order } from '@/lib/api/storefront';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
+import { CancelOrderDialog } from '@/components/account/CancelOrderDialog';
 
 // Animation variants
 const containerVariants = {
@@ -98,6 +99,8 @@ export function OrdersClient({ orders: ordersProp }: OrdersClientProps) {
   const { settings } = useTenant();
   const getNavPath = useNavPath();
   const [activeTab, setActiveTab] = useState('all');
+  const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
+  const [cancelOrderNumber, setCancelOrderNumber] = useState<string | undefined>();
 
   // Ensure orders is always an array
   const orders = ordersProp || [];
@@ -265,6 +268,20 @@ export function OrdersClient({ orders: ordersProp }: OrdersClientProps) {
 
                         {/* Action Buttons */}
                         <div className="flex flex-wrap justify-end gap-3 mt-4 pt-4 border-t">
+                          {(order.status === 'PENDING' || order.status === 'CONFIRMED') && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="gap-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300 dark:hover:bg-red-950/30"
+                              onClick={() => {
+                                setCancelOrderId(order.id);
+                                setCancelOrderNumber(order.orderNumber);
+                              }}
+                            >
+                              <Ban className="h-3.5 w-3.5" />
+                              <TranslatedUIText text="Cancel Order" />
+                            </Button>
+                          )}
                           {order.status === 'DELIVERED' && (
                             <Button variant="outline" size="sm" className="gap-1.5">
                               <TranslatedUIText text="Write Review" />
@@ -329,6 +346,24 @@ export function OrdersClient({ orders: ordersProp }: OrdersClientProps) {
           </AnimatePresence>
         </Tabs>
       </motion.div>
+      {cancelOrderId && (
+        <CancelOrderDialog
+          orderId={cancelOrderId}
+          orderNumber={cancelOrderNumber}
+          open={!!cancelOrderId}
+          onOpenChange={(open) => {
+            if (!open) {
+              setCancelOrderId(null);
+              setCancelOrderNumber(undefined);
+            }
+          }}
+          onCancelled={() => {
+            setCancelOrderId(null);
+            setCancelOrderNumber(undefined);
+            window.location.reload();
+          }}
+        />
+      )}
     </div>
   );
 }

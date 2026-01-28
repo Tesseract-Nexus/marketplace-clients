@@ -104,7 +104,7 @@ export async function GET(
     // Build response
     const sessionDetails: SessionDetails = {
       sessionId,
-      paymentStatus: paymentData?.status || 'pending',
+      paymentStatus: (paymentData?.status || 'pending').toLowerCase(),
       orderId: paymentData?.orderId,
       amount: paymentData?.amount,
       currency: paymentData?.currency,
