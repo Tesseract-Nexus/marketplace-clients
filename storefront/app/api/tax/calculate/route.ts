@@ -70,8 +70,8 @@ export async function POST(request: NextRequest) {
       originAddress: storeAddress, // Tax service expects originAddress for GST/VAT calculation
     };
 
-    // Forward request to tax service
-    const response = await fetch(`${TAX_SERVICE_URL}/tax/calculate`, {
+    // Forward request to tax service (use public storefront endpoint)
+    const response = await fetch(`${TAX_SERVICE_URL}/storefront/tax/calculate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
