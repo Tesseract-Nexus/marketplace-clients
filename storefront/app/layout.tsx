@@ -408,7 +408,7 @@ export default async function RootLayout({
         )}
         {/* Dynamic page title and description */}
         <title>{storeName}</title>
-        <meta name="description" content={settings.metaDescription || `Shop at ${storeName}`} />
+        <meta name="description" content={(settings as any).metaDescription || `Shop at ${storeName}`} />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         {/* Preview Mode Banner for unpublished stores */}
