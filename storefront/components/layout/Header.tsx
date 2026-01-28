@@ -238,20 +238,21 @@ export function Header() {
                 )}
               >
                 <SheetHeader className="p-4 border-b">
-                  <SheetTitle className="text-left">
-                    {settings.logoUrl ? (
-                      <Image
-                        src={settings.logoUrl}
-                        alt={tenant?.name || 'Store'}
-                        width={100}
-                        height={32}
-                        className="h-7 w-auto object-contain"
-                      />
-                    ) : (
-                      <span className="text-lg font-bold gradient-text">
-                        {tenant?.name || 'Store'}
-                      </span>
+                  <SheetTitle className="text-left flex items-center gap-2.5">
+                    {settings.logoUrl && (
+                      <div className="w-8 h-8 rounded-lg overflow-hidden bg-white/10 border border-border/30 shadow-sm flex items-center justify-center flex-shrink-0">
+                        <Image
+                          src={settings.logoUrl}
+                          alt={tenant?.name || 'Store'}
+                          width={32}
+                          height={32}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
                     )}
+                    <span className="text-lg font-bold gradient-text">
+                      {tenant?.name || 'Store'}
+                    </span>
                   </SheetTitle>
                 </SheetHeader>
 
@@ -507,21 +508,22 @@ export function Header() {
             {/* Logo */}
             <Link
               href={getNavPath('/')}
-              className="flex items-center gap-2 shrink-0"
+              className="flex items-center gap-2.5 shrink-0"
             >
-              {settings.logoUrl ? (
-                <Image
-                  src={settings.logoUrl}
-                  alt={tenant?.name || 'Store'}
-                  width={120}
-                  height={40}
-                  className="h-8 w-auto object-contain"
-                />
-              ) : (
-                <span className="text-xl font-bold gradient-text">
-                  {tenant?.name || 'Store'}
-                </span>
+              {settings.logoUrl && (
+                <div className="w-10 h-10 rounded-xl overflow-hidden bg-white/10 border border-border/30 shadow-sm flex items-center justify-center flex-shrink-0">
+                  <Image
+                    src={settings.logoUrl}
+                    alt={tenant?.name || 'Store'}
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               )}
+              <span className="text-xl font-bold gradient-text">
+                {tenant?.name || 'Store'}
+              </span>
             </Link>
 
             {/* Desktop Navigation */}
