@@ -874,6 +874,17 @@ export default function ProductsPage() {
     setCurrentStep(1);
     setViewMode('edit');
     navigateToProduct(product.id, 'edit');
+    // Load existing product images into uploadedImages state
+    setUploadedImages(
+      (product.images || []).map((img: { id?: string; url: string; position?: number; path?: string; fileName?: string }) => ({
+        id: img.id || `img_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+        url: img.url,
+        path: img.path || '',
+        fileName: img.fileName || img.url.split('/').pop() || 'image.jpg',
+        position: img.position ?? 0,
+        isPrimary: (img.position ?? 0) < MAX_PRIMARY_IMAGES,
+      }))
+    );
   };
 
   const handleViewProduct = (product: Product) => {
