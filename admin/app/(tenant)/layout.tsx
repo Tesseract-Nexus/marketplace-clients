@@ -879,12 +879,12 @@ function TenantLayoutInner({
           tenantId: currentTenant!.id,
         });
 
-        console.log('[TenantLayout] Settings API response:', data ? 'success' : 'null');
+        console.log('[TenantLayout] Settings API raw response:', JSON.stringify(data, null, 2).substring(0, 500));
 
         if (data?.branding) {
-          console.log('[TenantLayout] Branding data:', {
-            hasFavicon: !!data.branding.general?.faviconUrl,
-            hasLogo: !!data.branding.general?.logoUrl,
+          console.log('[TenantLayout] Branding general data:', {
+            faviconUrl: data.branding.general?.faviconUrl || '(empty)',
+            logoUrl: data.branding.general?.logoUrl || '(empty)',
           });
           // Merge with defaults to ensure all required properties exist
           const loadedBranding = {
@@ -893,10 +893,11 @@ function TenantLayoutInner({
             appearance: { ...branding.appearance, ...data.branding.appearance },
             advanced: { ...branding.advanced, ...data.branding.advanced },
           };
+          console.log('[TenantLayout] Merged branding faviconUrl:', loadedBranding.general.faviconUrl || '(empty)');
           updateBranding(loadedBranding);
           brandingLoadedRef.current = true;
         } else {
-          console.log('[TenantLayout] No branding data in settings');
+          console.log('[TenantLayout] No branding data in settings. Full response:', data);
         }
       } catch (error) {
         // Log error for debugging
