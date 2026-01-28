@@ -101,6 +101,9 @@ export function OrdersClient({ orders: ordersProp }: OrdersClientProps) {
   const [activeTab, setActiveTab] = useState('all');
   const [cancelOrderId, setCancelOrderId] = useState<string | null>(null);
   const [cancelOrderNumber, setCancelOrderNumber] = useState<string | undefined>();
+  const [cancelOrderTotal, setCancelOrderTotal] = useState<number | undefined>();
+  const [cancelOrderCreatedAt, setCancelOrderCreatedAt] = useState<string | undefined>();
+  const [cancelOrderStatus, setCancelOrderStatus] = useState<string | undefined>();
 
   // Ensure orders is always an array
   const orders = ordersProp || [];
@@ -276,6 +279,9 @@ export function OrdersClient({ orders: ordersProp }: OrdersClientProps) {
                               onClick={() => {
                                 setCancelOrderId(order.id);
                                 setCancelOrderNumber(order.orderNumber);
+                                setCancelOrderTotal(order.total);
+                                setCancelOrderCreatedAt(order.createdAt);
+                                setCancelOrderStatus(order.status);
                               }}
                             >
                               <Ban className="h-3.5 w-3.5" />
@@ -350,6 +356,9 @@ export function OrdersClient({ orders: ordersProp }: OrdersClientProps) {
         <CancelOrderDialog
           orderId={cancelOrderId}
           orderNumber={cancelOrderNumber}
+          orderTotal={cancelOrderTotal}
+          orderCreatedAt={cancelOrderCreatedAt}
+          orderStatus={cancelOrderStatus}
           open={!!cancelOrderId}
           onOpenChange={(open) => {
             if (!open) {

@@ -768,6 +768,9 @@ export function OrderDetailsClient({ order, tracking, returns }: OrderDetailsCli
       <CancelOrderDialog
         orderId={order.id}
         orderNumber={order.orderNumber}
+        orderTotal={order.total}
+        orderCreatedAt={order.createdAt}
+        orderStatus={order.status}
         open={showCancelDialog}
         onOpenChange={setShowCancelDialog}
         onCancelled={() => {
