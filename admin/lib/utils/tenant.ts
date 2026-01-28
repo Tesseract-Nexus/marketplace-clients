@@ -109,7 +109,11 @@ export function getCurrentTenantSlug(): string | null {
       console.log('[Tenant] Custom domain detected, tenant from cookie:', fromCookie);
       return fromCookie;
     }
-    console.log('[Tenant] Custom domain detected but no tenant-slug cookie found');
+    // On a custom domain, the tenant is resolved by the middleware/Istio headers
+    // even if the cookie is missing (e.g., blocked by browser extension).
+    // Return a sentinel value so callers know a tenant exists.
+    console.log('[Tenant] Custom domain detected but no tenant-slug cookie found, using domain as identifier');
+    return '__custom_domain__';
   }
 
   return null;
@@ -230,8 +234,8 @@ export function getStorefrontUrl(
  */
 export function isRootDomain(): boolean {
   if (typeof window === 'undefined') return true;
-  // If on a custom domain with a tenant cookie, it's not a root domain
-  if (isCustomDomain() && getTenantFromCookie()) {
+  // Custom domains are never root domains - the tenant is resolved by the domain itself
+  if (isCustomDomain()) {
     return false;
   }
   return getCurrentTenantSlug() === null;

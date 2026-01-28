@@ -873,11 +873,50 @@ function TenantLayoutInner({
         .find(row => row.startsWith('tenant-slug='));
       const tenantSlug = tenantCookie ? decodeURIComponent(tenantCookie.split('=')[1]) : null;
 
+      // Also check the is-custom-domain cookie
+      const customDomainCookie = document.cookie
+        .split('; ')
+        .find(row => row.startsWith('is-custom-domain='));
+      const isOnCustomDomain = customDomainCookie
+        ? customDomainCookie.split('=')[1] === 'true'
+        : false;
+
+      // For custom domains: if the tenant-slug cookie is missing but we know we're
+      // on a custom domain, the middleware should have set it. This can happen if
+      // cookies are blocked by browser extensions or there's a race condition.
+      // In this case, allow access and let the middleware/API handle tenant resolution
+      // via headers rather than redirecting to an incorrect domain.
+      if (!tenantSlug && isOnCustomDomain) {
+        console.log('[TenantLayoutInner] Custom domain detected without tenant-slug cookie, allowing access');
+        hasCheckedRef.current = true;
+        setHasAccess(true);
+        setIsChecking(false);
+        return;
+      }
+
+      // Detect custom domain from hostname as fallback
+      const hostname = window.location.hostname;
+      const isCustomDomainHost =
+        !hostname.endsWith('.tesserix.app') &&
+        hostname !== 'tesserix.app' &&
+        !hostname.endsWith('.localhost') &&
+        hostname !== 'localhost';
+
+      if (!tenantSlug && isCustomDomainHost) {
+        // On a custom domain but no tenant cookie - allow access rather than
+        // redirecting to an incorrect domain (localhost). The middleware and
+        // Istio headers provide tenant context server-side.
+        console.log('[TenantLayoutInner] Custom domain host detected without tenant cookie, allowing access');
+        hasCheckedRef.current = true;
+        setHasAccess(true);
+        setIsChecking(false);
+        return;
+      }
+
       // If no tenant in subdomain (root domain), redirect to get tenant
       if (!tenantSlug) {
         // Use tenant from BFF session if available
         if (userTenantSlug) {
-          const hostname = window.location.hostname;
           const port = window.location.port;
           const protocol = window.location.protocol;
 

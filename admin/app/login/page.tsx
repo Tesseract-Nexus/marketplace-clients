@@ -18,7 +18,7 @@ import {
   type DirectLoginResponse,
 } from '@/lib/auth/auth-client';
 import { OTPInput } from '@/components/auth/OTPInput';
-import { getCurrentTenantSlug } from '@/lib/utils/tenant';
+import { getCurrentTenantSlug, isCustomDomain } from '@/lib/utils/tenant';
 import { SocialLogin } from '@/components/SocialLogin';
 
 type LoginStep = 'email' | 'tenant-select' | 'password' | 'mfa' | 'success';
@@ -127,7 +127,7 @@ function LoginPageContent() {
 
     if (isAuthenticated && user) {
       const currentTenantSlug = getCurrentTenantSlug();
-      if (currentTenantSlug) {
+      if (currentTenantSlug || isCustomDomain()) {
         window.location.href = '/';
         return;
       }
