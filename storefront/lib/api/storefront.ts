@@ -167,7 +167,8 @@ export async function getStorefrontSettings(
  */
 export async function getContentPages(
   storefrontId: string,
-  tenantId: string
+  tenantId: string,
+  adminTenantId?: string
 ): Promise<ContentPage[]> {
   try {
     // Read from the public storefront-theme endpoint
@@ -181,18 +182,20 @@ export async function getContentPages(
     let pages = rawData?.contentPages || rawData?.ecommerce?.contentPages || [];
 
     // Fallback: If no pages found, try fetching from admin-portal context (where Admin saves them)
+    // Use adminTenantId (tenant-router ID) which matches the tenant ID the admin saves with
     if (pages.length === 0) {
+      const settingsTenantId = adminTenantId || tenantId;
       try {
         const queryParams = new URLSearchParams({
           applicationId: 'admin-portal',
           scope: 'application',
-          tenantId: storefrontId
+          tenantId: settingsTenantId
         });
 
         // Use public endpoint for anonymous storefront access (no auth required)
         const adminResponse = await apiRequest<ApiResponse<any>>(
           `${serviceUrls.settings}/api/v1/public/settings/context?${queryParams.toString()}`,
-          { tenantId: storefrontId, storefrontId, cache: 'no-store' }
+          { tenantId: settingsTenantId, storefrontId, cache: 'no-store' }
         );
         
         const adminData = adminResponse.data || adminResponse;
@@ -230,19 +233,22 @@ export async function getContentPage(
  */
 export async function getMarketingSettings(
   storefrontId: string,
-  tenantId: string
+  tenantId: string,
+  adminTenantId?: string
 ): Promise<StorefrontMarketingConfig | null> {
   try {
+    // Use adminTenantId (tenant-router ID) which matches the tenant ID the admin saves with
+    const settingsTenantId = adminTenantId || tenantId;
     const queryParams = new URLSearchParams({
       applicationId: 'admin-portal',
       scope: 'application',
-      tenantId: storefrontId
+      tenantId: settingsTenantId
     });
 
     // Use public endpoint for anonymous storefront access (no auth required)
     const response = await apiRequest<ApiResponse<any>>(
       `${serviceUrls.settings}/api/v1/public/settings/context?${queryParams.toString()}`,
-      { tenantId: storefrontId, storefrontId, cache: 'no-store' }
+      { tenantId: settingsTenantId, storefrontId, cache: 'no-store' }
     );
 
     const data = response.data || response;
@@ -303,7 +309,8 @@ const currencySymbols: Record<string, string> = {
  */
 export async function getStoreLocalization(
   storefrontId: string,
-  tenantId: string
+  tenantId: string,
+  adminTenantId?: string
 ): Promise<StoreLocalization> {
   const defaults: StoreLocalization = {
     currency: 'USD',
@@ -317,16 +324,18 @@ export async function getStoreLocalization(
   };
 
   try {
+    // Use adminTenantId (tenant-router ID) which matches the tenant ID the admin saves with
+    const settingsTenantId = adminTenantId || tenantId;
     const queryParams = new URLSearchParams({
       applicationId: 'admin-portal',
       scope: 'application',
-      tenantId: storefrontId
+      tenantId: settingsTenantId
     });
 
     // Use public endpoint for anonymous storefront access (no auth required)
     const response = await apiRequest<ApiResponse<any>>(
       `${serviceUrls.settings}/api/v1/public/settings/context?${queryParams.toString()}`,
-      { tenantId: storefrontId, storefrontId, cache: 'no-store' }
+      { tenantId: settingsTenantId, storefrontId, cache: 'no-store' }
     );
 
     const data = response.data || response;

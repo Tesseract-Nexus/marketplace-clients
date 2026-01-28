@@ -238,12 +238,15 @@ export default async function RootLayout({
   console.log(`[RootLayout] Final IDs: storefrontId=${storefrontId}, tenantId=${tenantId}`);
 
   // Fetch theme settings, content pages, marketing settings, and localization in parallel
+  // tenantHost.tenant_id is the authoritative tenant ID from the tenant-router,
+  // matching the JWT tenant_id the admin uses when saving settings
+  const adminTenantId = tenantHost.tenant_id;
   const [themeSettings, contentPages, marketingConfig, localization, adminStoreName] = await Promise.all([
     getStorefrontTheme(storefrontId, tenantId),
-    getContentPages(storefrontId, tenantId),
-    getMarketingSettings(storefrontId, tenantId),
-    getStoreLocalization(storefrontId, tenantId),
-    getStoreName(storefrontId, tenantHost.tenant_id),
+    getContentPages(storefrontId, tenantId, adminTenantId),
+    getMarketingSettings(storefrontId, tenantId, adminTenantId),
+    getStoreLocalization(storefrontId, tenantId, adminTenantId),
+    getStoreName(storefrontId, adminTenantId),
   ]);
 
   // Pass themeTemplate to get correct default colors based on the selected theme
