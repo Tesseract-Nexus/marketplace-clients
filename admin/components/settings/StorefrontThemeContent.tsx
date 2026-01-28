@@ -1217,16 +1217,19 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                             </div>
                           )}
 
-                          {/* Hero Text Color */}
-                          <div>
-                            <ColorPicker
-                              label="Text Color"
-                              description="Custom color for hero text (leave empty for auto)"
-                              value={settings.homepageConfig.heroTextColor || ''}
-                              onChange={(color) => updateHomepageConfig({ heroTextColor: color || undefined })}
-                              defaultValue="#ffffff"
-                              showContrastWarning={false}
-                            />
+                          {/* Hero Text Color - always visible */}
+                          <div className="md:col-span-2 pt-4 border-t border-border mt-4">
+                            <h4 className="text-sm font-semibold mb-3">Text Styling</h4>
+                            <div className="grid gap-4 md:grid-cols-2">
+                              <ColorPicker
+                                label="Hero Text Color"
+                                description="Color for title, subtitle and stats text"
+                                value={settings.homepageConfig.heroTextColor || ''}
+                                onChange={(color) => updateHomepageConfig({ heroTextColor: color || undefined })}
+                                defaultValue="#ffffff"
+                                showContrastWarning={false}
+                              />
+                            </div>
                           </div>
                         </div>
                       )}
@@ -1278,43 +1281,150 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                       </label>
 
                       {settings.headerConfig.showAnnouncement && (
-                        <div className="grid gap-4 md:grid-cols-2">
-                          <div className="md:col-span-2">
-                            <label className="block text-sm font-medium text-foreground mb-1">
-                              Announcement Text
-                            </label>
-                            <input
-                              type="text"
-                              value={settings.headerConfig.announcementText || ''}
-                              onChange={(e) =>
-                                updateHeaderConfig({ announcementText: e.target.value })
-                              }
-                              placeholder="Free shipping on orders over $50!"
-                              className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
-                            />
+                        <div className="space-y-6">
+                          {/* Content Section */}
+                          <div className="grid gap-4 md:grid-cols-2">
+                            <div className="md:col-span-2">
+                              <label className="block text-sm font-medium text-foreground mb-1">
+                                Announcement Text
+                              </label>
+                              <input
+                                type="text"
+                                value={settings.headerConfig.announcementText || ''}
+                                onChange={(e) =>
+                                  updateHeaderConfig({ announcementText: e.target.value })
+                                }
+                                placeholder="🎉 Free shipping on orders over $50!"
+                                className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-foreground mb-1">
+                                Link (optional)
+                              </label>
+                              <input
+                                type="text"
+                                value={settings.headerConfig.announcementLink || ''}
+                                onChange={(e) =>
+                                  updateHeaderConfig({ announcementLink: e.target.value })
+                                }
+                                placeholder="/shipping"
+                                className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-foreground mb-1">
+                                Icon/Emoji (optional)
+                              </label>
+                              <input
+                                type="text"
+                                value={settings.headerConfig.announcementIcon || ''}
+                                onChange={(e) =>
+                                  updateHeaderConfig({ announcementIcon: e.target.value })
+                                }
+                                placeholder="🎉 or 🔥 or ⚡"
+                                className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">Add an emoji to grab attention</p>
+                            </div>
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-foreground mb-1">
-                              Link (optional)
-                            </label>
-                            <input
-                              type="text"
-                              value={settings.headerConfig.announcementLink || ''}
-                              onChange={(e) =>
-                                updateHeaderConfig({ announcementLink: e.target.value })
-                              }
-                              placeholder="/shipping"
-                              className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
-                            />
+
+                          {/* Style Section */}
+                          <div className="border-t border-border pt-4">
+                            <h4 className="text-sm font-semibold mb-3">Appearance</h4>
+                            <div className="grid gap-4 md:grid-cols-2">
+                              <ColorPicker
+                                label="Background Color"
+                                description="Leave empty for theme gradient"
+                                value={settings.headerConfig.announcementBgColor || ''}
+                                onChange={(color) => updateHeaderConfig({ announcementBgColor: color || undefined })}
+                                showContrastWarning={false}
+                              />
+                              <ColorPicker
+                                label="Text Color"
+                                description="Leave empty for white"
+                                value={settings.headerConfig.announcementTextColor || ''}
+                                onChange={(color) => updateHeaderConfig({ announcementTextColor: color || undefined })}
+                                defaultValue="#ffffff"
+                                showContrastWarning={false}
+                              />
+                            </div>
+                            <div className="mt-4">
+                              <label className="block text-sm font-medium text-foreground mb-2">
+                                Animation Style
+                              </label>
+                              <div className="flex flex-wrap gap-2">
+                                {[
+                                  { id: 'static', label: 'Static', desc: 'No animation' },
+                                  { id: 'pulse', label: 'Pulse', desc: 'Subtle glow effect' },
+                                  { id: 'marquee', label: 'Marquee', desc: 'Scrolling text' },
+                                ].map((style) => (
+                                  <button
+                                    key={style.id}
+                                    type="button"
+                                    onClick={() => updateHeaderConfig({ announcementStyle: style.id as 'static' | 'pulse' | 'marquee' })}
+                                    className={`px-4 py-2 rounded-lg border text-sm transition-all ${
+                                      (settings.headerConfig.announcementStyle || 'static') === style.id
+                                        ? 'border-primary bg-primary/10 ring-2 ring-primary/20'
+                                        : 'border-border hover:border-primary/50'
+                                    }`}
+                                  >
+                                    {style.label}
+                                  </button>
+                                ))}
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <ColorPicker
-                              label="Background Color"
-                              description="Leave empty to use theme gradient"
-                              value={settings.headerConfig.announcementBgColor || ''}
-                              onChange={(color) => updateHeaderConfig({ announcementBgColor: color || undefined })}
-                              showContrastWarning={false}
-                            />
+
+                          {/* Behavior Section */}
+                          <div className="border-t border-border pt-4">
+                            <h4 className="text-sm font-semibold mb-3">Behavior</h4>
+                            <div className="space-y-3">
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={settings.headerConfig.announcementDismissible || false}
+                                  onChange={(e) =>
+                                    updateHeaderConfig({ announcementDismissible: e.target.checked })
+                                  }
+                                  className="rounded border-border text-primary focus:ring-purple-500"
+                                />
+                                <span className="text-sm font-medium">Allow visitors to dismiss</span>
+                              </label>
+                              <p className="text-xs text-muted-foreground ml-6">
+                                Shows a close button. Dismissal is remembered for the session.
+                              </p>
+                            </div>
+
+                            {/* Countdown Timer */}
+                            <div className="mt-4">
+                              <label className="block text-sm font-medium text-foreground mb-1">
+                                Countdown Timer (optional)
+                              </label>
+                              <input
+                                type="datetime-local"
+                                value={settings.headerConfig.announcementCountdownEnd ?
+                                  new Date(settings.headerConfig.announcementCountdownEnd).toISOString().slice(0, 16) : ''}
+                                onChange={(e) =>
+                                  updateHeaderConfig({
+                                    announcementCountdownEnd: e.target.value ? new Date(e.target.value).toISOString() : undefined
+                                  })
+                                }
+                                className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Add urgency with a countdown. Shows "Sale ends in 2d 5h 30m"
+                              </p>
+                              {settings.headerConfig.announcementCountdownEnd && (
+                                <button
+                                  type="button"
+                                  onClick={() => updateHeaderConfig({ announcementCountdownEnd: undefined })}
+                                  className="text-xs text-destructive hover:underline mt-1"
+                                >
+                                  Remove countdown
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
                       )}

@@ -217,6 +217,18 @@ export interface StorefrontHeaderConfig {
   announcementText?: string;
   announcementLink?: string;
   announcementBgColor?: string;
+  announcementTextColor?: string;
+  announcementIcon?: string;           // Emoji or icon name
+  announcementDismissible?: boolean;   // Allow visitors to close
+  announcementStyle?: 'static' | 'pulse' | 'marquee';  // Animation style
+  announcementCountdownEnd?: string;   // ISO date for countdown timer
+  // Multiple announcements support
+  announcements?: Array<{
+    id: string;
+    text: string;
+    link?: string;
+    icon?: string;
+  }>;
   navLinks: StorefrontNavLink[];
   showSearch: boolean;
   showCart: boolean;

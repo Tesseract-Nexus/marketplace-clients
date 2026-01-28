@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Menu, Search, ShoppingCart, User, LogOut, Package, Heart, Settings, Bell, Star, Gift, Globe, ChevronRight, Home, Grid3X3, Ticket, CreditCard, ChevronDown } from 'lucide-react';
+import { Menu, Search, ShoppingCart, User, LogOut, Package, Heart, Settings, Bell, Star, Gift, Globe, ChevronRight, Home, Grid3X3, Ticket, CreditCard, ChevronDown, X } from 'lucide-react';
 import { NotificationBell } from '@/components/NotificationBell';
 import { GlobalSearch } from '@/components/layout/GlobalSearch';
 import { useSearchShortcut } from '@/hooks/useSearchShortcut';
@@ -55,6 +55,8 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [announcementDismissed, setAnnouncementDismissed] = useState(false);
+  const [countdown, setCountdown] = useState<string | null>(null);
 
   // Enable Cmd/Ctrl+K shortcut to open search
   useSearchShortcut({ onOpen: () => setSearchOpen(true) });
@@ -68,6 +70,59 @@ export function Header() {
     handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Check if announcement was dismissed (session storage)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const dismissed = sessionStorage.getItem('announcement-dismissed');
+      if (dismissed === 'true') {
+        setAnnouncementDismissed(true);
+      }
+    }
+  }, []);
+
+  // Countdown timer for announcements
+  useEffect(() => {
+    if (!headerConfig.announcementCountdownEnd) {
+      setCountdown(null);
+      return;
+    }
+
+    const calculateCountdown = () => {
+      const endDate = new Date(headerConfig.announcementCountdownEnd!);
+      const now = new Date();
+      const diff = endDate.getTime() - now.getTime();
+
+      if (diff <= 0) {
+        setCountdown(null);
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      if (days > 0) {
+        setCountdown(`${days}d ${hours}h ${minutes}m`);
+      } else if (hours > 0) {
+        setCountdown(`${hours}h ${minutes}m ${seconds}s`);
+      } else {
+        setCountdown(`${minutes}m ${seconds}s`);
+      }
+    };
+
+    calculateCountdown();
+    const interval = setInterval(calculateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, [headerConfig.announcementCountdownEnd]);
+
+  const handleDismissAnnouncement = () => {
+    setAnnouncementDismissed(true);
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('announcement-dismissed', 'true');
+    }
+  };
 
   const sortedNavLinks = [...(headerConfig?.navLinks || [])].sort((a, b) => a.position - b.position);
 
@@ -98,20 +153,52 @@ export function Header() {
   return (
     <>
       {/* Announcement Bar */}
-      {headerConfig.showAnnouncement && headerConfig.announcementText && (
+      {headerConfig.showAnnouncement && headerConfig.announcementText && !announcementDismissed && (
         <div
-          className="text-center py-2 px-4 text-sm font-medium"
+          className={cn(
+            "relative text-center py-2 px-4 text-sm font-medium overflow-hidden",
+            headerConfig.announcementStyle === 'pulse' && "animate-pulse-subtle"
+          )}
           style={{
             background: headerConfig.announcementBgColor || 'var(--tenant-gradient)',
-            color: '#fff',
+            color: headerConfig.announcementTextColor || '#fff',
           }}
         >
-          {headerConfig.announcementLink ? (
-            <Link href={headerConfig.announcementLink} className="hover:underline">
-              {headerConfig.announcementText}
-            </Link>
-          ) : (
-            headerConfig.announcementText
+          <div className={cn(
+            "flex items-center justify-center gap-2",
+            headerConfig.announcementStyle === 'marquee' && "animate-marquee whitespace-nowrap"
+          )}>
+            {/* Icon/Emoji */}
+            {headerConfig.announcementIcon && (
+              <span className="flex-shrink-0">{headerConfig.announcementIcon}</span>
+            )}
+
+            {/* Announcement Content */}
+            {headerConfig.announcementLink ? (
+              <Link href={headerConfig.announcementLink} className="hover:underline">
+                {headerConfig.announcementText}
+              </Link>
+            ) : (
+              <span>{headerConfig.announcementText}</span>
+            )}
+
+            {/* Countdown Timer */}
+            {countdown && (
+              <span className="font-bold ml-2 bg-white/20 px-2 py-0.5 rounded">
+                {countdown}
+              </span>
+            )}
+          </div>
+
+          {/* Dismiss Button */}
+          {headerConfig.announcementDismissible && (
+            <button
+              onClick={handleDismissAnnouncement}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-white/20 rounded-full transition-colors"
+              aria-label="Dismiss announcement"
+            >
+              <X className="h-4 w-4" />
+            </button>
           )}
         </div>
       )}
