@@ -2,6 +2,9 @@
 // SETTINGS SERVICE TYPES
 // ==========================================
 
+import type { CancellationSettings } from './cancellation';
+export type { CancellationSettings } from './cancellation';
+
 export interface SettingsContext {
   tenantId?: string; // Optional - when not provided, uses x-jwt-claim-tenant-id header
   applicationId: string;
@@ -568,6 +571,7 @@ export interface EcommerceSettings {
   orders?: OrderSettings;
   shipping?: ShippingSettings;
   returns?: ReturnsSettings;
+  cancellation?: CancellationSettings;
   checkout?: CheckoutSettings;
   customers?: CustomerSettings;
   marketplace?: MarketplaceSettings;

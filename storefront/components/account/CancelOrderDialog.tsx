@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle, Loader2, XCircle, CheckCircle } from 'lucide-react';
 import {
@@ -23,10 +23,19 @@ import {
 } from '@/components/ui/select';
 import { useTenant } from '@/context/TenantContext';
 import { cancelOrder, CancellationReason } from '@/lib/api/checkout';
+import {
+  getCancellationPolicy,
+  calculateCancellationFee,
+  type CancellationPolicy,
+  type CancellationFeeResult,
+} from '@/lib/api/cancellation';
 
 interface CancelOrderDialogProps {
   orderId: string;
   orderNumber?: string;
+  orderTotal?: number;
+  orderCreatedAt?: string;
+  orderStatus?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCancelled?: () => void;
@@ -44,6 +53,9 @@ const cancellationReasons: { value: CancellationReason; label: string }[] = [
 export function CancelOrderDialog({
   orderId,
   orderNumber,
+  orderTotal,
+  orderCreatedAt,
+  orderStatus,
   open,
   onOpenChange,
   onCancelled,
@@ -54,6 +66,26 @@ export function CancelOrderDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [policy, setPolicy] = useState<CancellationPolicy | null>(null);
+  const [feeResult, setFeeResult] = useState<CancellationFeeResult | null>(null);
+  const [loadingPolicy, setLoadingPolicy] = useState(false);
+
+  // Fetch cancellation policy when dialog opens
+  useEffect(() => {
+    if (open && tenant?.id && tenant?.storefrontId) {
+      setLoadingPolicy(true);
+      getCancellationPolicy(tenant.storefrontId, tenant.id)
+        .then((p) => {
+          setPolicy(p);
+          if (p && orderTotal != null && orderCreatedAt) {
+            setFeeResult(calculateCancellationFee(p, orderTotal, orderCreatedAt, orderStatus));
+          } else {
+            setFeeResult(null);
+          }
+        })
+        .finally(() => setLoadingPolicy(false));
+    }
+  }, [open, tenant?.id, tenant?.storefrontId, orderTotal, orderCreatedAt, orderStatus]);
 
   const handleSubmit = async () => {
     if (!reason) {
@@ -195,12 +227,41 @@ export function CancelOrderDialog({
                   />
                 </div>
 
-                <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
-                  <p className="text-sm text-amber-800 dark:text-amber-200">
-                    <strong>Note:</strong> Once cancelled, this action cannot be undone.
-                    If you've already been charged, a refund will be initiated within 5-7 business days.
-                  </p>
-                </div>
+                {loadingPolicy ? (
+                  <div className="p-3 bg-muted rounded-lg flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm text-muted-foreground">Loading cancellation policy...</span>
+                  </div>
+                ) : feeResult && !feeResult.canCancel ? (
+                  <div className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg">
+                    <p className="text-sm text-red-800 dark:text-red-200">
+                      <strong>Cannot cancel:</strong> {feeResult.description}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {feeResult && (
+                      <div className={`p-3 rounded-lg border ${feeResult.fee === 0 ? 'bg-green-50 dark:bg-green-950/30 border-green-200 dark:border-green-800' : 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800'}`}>
+                        <p className={`text-sm font-medium ${feeResult.fee === 0 ? 'text-green-800 dark:text-green-200' : 'text-blue-800 dark:text-blue-200'}`}>
+                          {feeResult.fee === 0
+                            ? 'Free cancellation'
+                            : `Cancellation fee: $${feeResult.fee.toFixed(2)} (${feeResult.feePercent}%)`}
+                        </p>
+                        {feeResult.description && (
+                          <p className={`text-xs mt-1 ${feeResult.fee === 0 ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'}`}>
+                            {feeResult.description}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                    <div className="p-3 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg">
+                      <p className="text-sm text-amber-800 dark:text-amber-200">
+                        <strong>Note:</strong> Once cancelled, this action cannot be undone.
+                        {policy?.policyText ? ` ${policy.policyText}` : ' If you\'ve already been charged, a refund will be initiated.'}
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <DialogFooter className="gap-2 sm:gap-0">
@@ -214,7 +275,7 @@ export function CancelOrderDialog({
                 <Button
                   variant="destructive"
                   onClick={handleSubmit}
-                  disabled={isLoading || !reason}
+                  disabled={isLoading || !reason || (feeResult != null && !feeResult.canCancel)}
                   className="gap-2"
                 >
                   {isLoading ? (

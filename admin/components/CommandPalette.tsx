@@ -166,6 +166,7 @@ const SETTINGS_ITEMS: SearchResultItem[] = [
   { id: 'set-payments', type: 'setting', title: 'Payment Settings', subtitle: 'Payment methods', href: '/settings/payments', icon: Settings, keywords: ['stripe', 'paypal', 'gateway'] },
   { id: 'set-taxes', type: 'setting', title: 'Tax Settings', subtitle: 'Tax configuration', href: '/settings/taxes', icon: Settings, keywords: ['vat', 'gst', 'tax'] },
   { id: 'set-marketing', type: 'setting', title: 'Marketing Settings', subtitle: 'Marketing preferences', href: '/settings/marketing', icon: Settings, keywords: ['email', 'sms'] },
+  { id: 'set-cancellation', type: 'setting', title: 'Cancellation Settings', subtitle: 'Configure cancellation policies', href: '/settings/ecommerce/cancellation', icon: Settings, keywords: ['cancel', 'refund', 'policy', 'fee'] },
   { id: 'set-qr-codes', type: 'setting', title: 'QR Codes', subtitle: 'Generate QR codes for URLs, WiFi, contacts', href: '/settings/qr-codes', icon: QrCode, keywords: ['qr', 'barcode', 'scan', 'wifi', 'vcard', 'url', 'generator'] },
   { id: 'set-users', type: 'setting', title: 'Users & Roles', subtitle: 'Access management', href: '/settings/users', icon: Settings, keywords: ['permissions', 'team'] },
   { id: 'set-audit', type: 'setting', title: 'Audit Logs', subtitle: 'Activity history', href: '/settings/audit-logs', icon: Settings, keywords: ['logs', 'history', 'activity'] },

@@ -20,7 +20,8 @@ export type ApprovalType =
   | 'vendor_status_change'
   | 'vendor_commission_change'
   | 'vendor_contract_change'
-  | 'vendor_large_payout';
+  | 'vendor_large_payout'
+  | 'settings_change';
 export type ApprovalStatus = 'pending' | 'approved' | 'rejected' | 'request_changes' | 'cancelled' | 'expired';
 
 export interface ApprovalRequest {
@@ -98,6 +99,21 @@ export const approvalService = {
     const url = query ? `${APPROVAL_API_BASE}?${query}` : APPROVAL_API_BASE;
 
     const response = await apiClient.get<ApprovalListResponse>(url);
+    return response;
+  },
+
+  /**
+   * Create a new approval request
+   */
+  async createApproval(data: {
+    approvalType: ApprovalType;
+    entityType: string;
+    entityId: string;
+    entityReference: string;
+    reason: string;
+    metadata?: Record<string, any>;
+  }): Promise<ApprovalResponse> {
+    const response = await apiClient.post<ApprovalResponse>(APPROVAL_API_BASE, data);
     return response;
   },
 
