@@ -133,24 +133,28 @@ export function ProductCard({
   }, [product.images]);
   const imageCount = allImages.length;
 
-  // Image cycling on hover (desktop only)
-  const startImageCycle = useCallback(() => {
-    if (imageCount <= 1 || isTouchDevice) return;
-
+  // Auto-cycle images every 4 seconds
+  useEffect(() => {
+    if (imageCount <= 1) return;
     imageIntervalRef.current = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % imageCount);
-    }, 1500); // Change image every 1.5 seconds
-  }, [imageCount, isTouchDevice]);
+    }, 4000);
+    return () => {
+      if (imageIntervalRef.current) clearInterval(imageIntervalRef.current);
+    };
+  }, [imageCount]);
 
-  const stopImageCycle = useCallback(() => {
-    if (imageIntervalRef.current) {
-      clearInterval(imageIntervalRef.current);
-      imageIntervalRef.current = null;
-    }
-    if (!isTouchDevice) {
-      setCurrentImageIndex(0);
-    }
-  }, [isTouchDevice]);
+  const resetAutoTimer = useCallback(() => {
+    if (imageIntervalRef.current) clearInterval(imageIntervalRef.current);
+    if (imageCount <= 1) return;
+    imageIntervalRef.current = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % imageCount);
+    }, 4000);
+  }, [imageCount]);
+
+  // Keep for API compatibility but no longer needed for image cycling
+  const startImageCycle = useCallback(() => {}, []);
+  const stopImageCycle = useCallback(() => {}, []);
 
   // Swipe handlers for mobile
   const handleDragEnd = useCallback((event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
@@ -165,18 +169,16 @@ export function ProductCard({
   const goToNextImage = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (currentImageIndex < imageCount - 1) {
-      setCurrentImageIndex(prev => prev + 1);
-    }
-  }, [currentImageIndex, imageCount]);
+    setCurrentImageIndex(prev => (prev + 1) % imageCount);
+    resetAutoTimer();
+  }, [imageCount, resetAutoTimer]);
 
   const goToPrevImage = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (currentImageIndex > 0) {
-      setCurrentImageIndex(prev => prev - 1);
-    }
-  }, [currentImageIndex]);
+    setCurrentImageIndex(prev => (prev - 1 + imageCount) % imageCount);
+    resetAutoTimer();
+  }, [imageCount, resetAutoTimer]);
 
   // Open image lightbox
   const openLightbox = useCallback((e: React.MouseEvent) => {
@@ -192,14 +194,7 @@ export function ProductCard({
     setIsQuickViewOpen(true);
   }, []);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (imageIntervalRef.current) {
-        clearInterval(imageIntervalRef.current);
-      }
-    };
-  }, []);
+  // Note: auto-cycle useEffect handles its own cleanup
 
   const price = parseFloat(product.price);
   const comparePrice = product.comparePrice ? parseFloat(product.comparePrice) : null;
@@ -444,7 +439,7 @@ export function ProductCard({
           aspectRatioClass,
           isOutOfStock && 'opacity-75'
         )}>
-          {/* Swipeable Image Gallery for Mobile */}
+          {/* Image Gallery with crossfade */}
           {isTouchDevice && imageCount > 1 ? (
             <motion.div
               className="relative w-full h-full"
@@ -460,7 +455,7 @@ export function ProductCard({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: 0.4 }}
                   className="absolute inset-0"
                 >
                   <Image
@@ -481,16 +476,43 @@ export function ProductCard({
                 </motion.div>
               </AnimatePresence>
             </motion.div>
+          ) : imageCount > 1 ? (
+            /* Desktop Image Gallery with crossfade */
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={currentImageIndex}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.5 }}
+                className="absolute inset-0"
+              >
+                <Image
+                  src={imageError ? FALLBACK_PLACEHOLDER : currentImage}
+                  alt={product.name}
+                  fill
+                  className={cn(
+                    'object-cover',
+                    imageError && 'object-contain p-8'
+                  )}
+                  placeholder="blur"
+                  blurDataURL={BLUR_DATA_URL}
+                  loading={loading}
+                  priority={priority}
+                  onError={() => setImageError(true)}
+                />
+              </motion.div>
+            </AnimatePresence>
           ) : (
-            /* Desktop Image (cycles on hover) */
+            /* Single image */
             <Image
               src={imageError ? FALLBACK_PLACEHOLDER : currentImage}
               alt={product.name}
               fill
               className={cn(
                 'object-cover transition-transform duration-300',
-                hoverEffectsEnabled && productConfig.hoverEffect === 'zoom' && imageCount <= 1 && !isTouchDevice && 'group-hover:scale-[1.02]',
-                hoverEffectsEnabled && productConfig.hoverEffect === 'fade' && imageCount <= 1 && !isTouchDevice && 'group-hover:opacity-90',
+                hoverEffectsEnabled && productConfig.hoverEffect === 'zoom' && !isTouchDevice && 'group-hover:scale-[1.02]',
+                hoverEffectsEnabled && productConfig.hoverEffect === 'fade' && !isTouchDevice && 'group-hover:opacity-90',
                 imageError && 'object-contain p-8'
               )}
               placeholder="blur"
@@ -501,27 +523,33 @@ export function ProductCard({
             />
           )}
 
-          {/* Mobile Navigation Arrows - 44px minimum touch targets */}
-          {isTouchDevice && imageCount > 1 && (
+          {/* Navigation Arrows */}
+          {imageCount > 1 && (
             <>
-              {currentImageIndex > 0 && (
-                <button
-                  onClick={goToPrevImage}
-                  className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white active:scale-95 transition-transform touch-manipulation"
-                  aria-label="Previous image"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-              )}
-              {currentImageIndex < imageCount - 1 && (
-                <button
-                  onClick={goToNextImage}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white active:scale-95 transition-transform touch-manipulation"
-                  aria-label="Next image"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-              )}
+              <button
+                onClick={goToPrevImage}
+                className={cn(
+                  "absolute left-1 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white transition-all touch-manipulation",
+                  isTouchDevice
+                    ? "w-8 h-8 active:scale-95"
+                    : "w-7 h-7 opacity-0 group-hover:opacity-100 hover:bg-black/60"
+                )}
+                aria-label="Previous image"
+              >
+                <ChevronLeft className={isTouchDevice ? "h-4 w-4" : "h-3.5 w-3.5"} />
+              </button>
+              <button
+                onClick={goToNextImage}
+                className={cn(
+                  "absolute right-1 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white transition-all touch-manipulation",
+                  isTouchDevice
+                    ? "w-8 h-8 active:scale-95"
+                    : "w-7 h-7 opacity-0 group-hover:opacity-100 hover:bg-black/60"
+                )}
+                aria-label="Next image"
+              >
+                <ChevronRight className={isTouchDevice ? "h-4 w-4" : "h-3.5 w-3.5"} />
+              </button>
             </>
           )}
 
@@ -545,30 +573,13 @@ export function ProductCard({
             </div>
           )}
 
-          {/* Image Indicator Dots - Enhanced for mobile */}
+          {/* Image Counter */}
           {imageCount > 1 && (
             <div className={cn(
-              "absolute left-1/2 -translate-x-1/2 flex gap-1.5 z-20",
-              isTouchDevice ? "bottom-14 bg-black/40 rounded-full px-2 py-1" : "bottom-2"
+              "absolute z-20 bg-black/40 backdrop-blur-sm text-white text-[10px] font-medium rounded-full px-1.5 py-0.5",
+              isTouchDevice ? "bottom-14 left-1/2 -translate-x-1/2" : "bottom-2 right-2"
             )}>
-              {allImages.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setCurrentImageIndex(idx);
-                  }}
-                  className={cn(
-                    'rounded-full transition-all duration-300',
-                    isTouchDevice ? 'w-2 h-2' : 'w-1.5 h-1.5',
-                    idx === currentImageIndex
-                      ? cn('bg-white', isTouchDevice ? 'w-4' : 'w-3')
-                      : 'bg-white/50 hover:bg-white/80'
-                  )}
-                  aria-label={`View image ${idx + 1}`}
-                />
-              ))}
+              {currentImageIndex + 1}/{imageCount}
             </div>
           )}
 
