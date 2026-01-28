@@ -48,6 +48,7 @@ import type { ContentPage, ContentPageType, ContentPageStatus } from '@/lib/type
 import {
   ThemeSelector,
   ColorPairPicker,
+  ColorPicker,
   SectionEditor,
   NavigationEditor,
   AssetUploader,
@@ -1195,6 +1196,38 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                               />
                             </div>
                           )}
+
+                          {/* Animation Toggle - only show for animated background */}
+                          {(settings.homepageConfig.heroBackgroundType === 'animated' || !settings.homepageConfig.heroBackgroundType) && (
+                            <div className="md:col-span-2">
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="checkbox"
+                                  checked={settings.homepageConfig.heroAnimationsEnabled !== false}
+                                  onChange={(e) =>
+                                    updateHomepageConfig({ heroAnimationsEnabled: e.target.checked })
+                                  }
+                                  className="rounded border-border text-primary focus:ring-purple-500"
+                                />
+                                <span className="text-sm font-medium">Enable floating blob animations</span>
+                              </label>
+                              <p className="text-xs text-muted-foreground mt-1 ml-6">
+                                Decorative animated color blobs that add depth to the hero section
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Hero Text Color */}
+                          <div>
+                            <ColorPicker
+                              label="Text Color"
+                              description="Custom color for hero text (leave empty for auto)"
+                              value={settings.homepageConfig.heroTextColor || ''}
+                              onChange={(color) => updateHomepageConfig({ heroTextColor: color || undefined })}
+                              defaultValue="#ffffff"
+                              showContrastWarning={false}
+                            />
+                          </div>
                         </div>
                       )}
                     </div>
@@ -1272,6 +1305,15 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                               }
                               placeholder="/shipping"
                               className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
+                            />
+                          </div>
+                          <div>
+                            <ColorPicker
+                              label="Background Color"
+                              description="Leave empty to use theme gradient"
+                              value={settings.headerConfig.announcementBgColor || ''}
+                              onChange={(color) => updateHeaderConfig({ announcementBgColor: color || undefined })}
+                              showContrastWarning={false}
                             />
                           </div>
                         </div>

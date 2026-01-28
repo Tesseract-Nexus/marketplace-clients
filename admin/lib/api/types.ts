@@ -1401,6 +1401,8 @@ export interface StorefrontHomepageConfig {
   heroCtaText?: string;
   heroCtaLink?: string;
   heroOverlayOpacity: number;
+  heroTextColor?: string;           // Custom text color for hero section
+  heroAnimationsEnabled?: boolean;  // Enable/disable blob animations (default true)
 
   sections: StorefrontSection[];
 

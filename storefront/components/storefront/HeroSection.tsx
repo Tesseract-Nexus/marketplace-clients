@@ -147,51 +147,57 @@ export function HeroSection({ variant }: HeroSectionProps) {
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
 
         {/* Decorative floating blobs with glow - smaller on mobile */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none hidden sm:block">
-          <motion.div
-            className="absolute top-10 right-10 md:top-20 md:right-20 w-40 h-40 md:w-72 md:h-72 blob opacity-30 blur-xl"
-            style={{ background: 'var(--tenant-primary)' }}
-            animate={{
-              scale: [1, 1.2, 1],
-              x: [0, 30, 0],
-              y: [0, -20, 0],
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.div
-            className="absolute bottom-20 right-20 md:bottom-40 md:right-40 w-28 h-28 md:w-48 md:h-48 blob opacity-25 blur-lg glow-pulse"
-            style={{ background: 'var(--tenant-secondary)' }}
-            animate={{
-              scale: [1, 1.3, 1],
-              x: [0, -20, 0],
-              y: [0, 30, 0],
-            }}
-            transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-          />
-          <motion.div
-            className="absolute top-1/2 right-1/4 w-20 h-20 md:w-32 md:h-32 blob opacity-20 blur-md"
-            style={{ background: 'var(--tenant-accent)' }}
-            animate={{
-              scale: [1, 1.4, 1],
-            }}
-            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-          />
-          {/* Additional floating element for depth - hidden on mobile for performance */}
-          <motion.div
-            className="absolute top-1/3 left-1/4 w-40 h-40 md:w-64 md:h-64 blob opacity-15 blur-2xl hidden md:block"
-            style={{ background: 'var(--tenant-gradient)' }}
-            animate={{
-              scale: [1, 1.1, 1],
-              rotate: [0, 10, 0],
-            }}
-            transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
-          />
-        </div>
+        {/* Only show when animations are enabled (default true) */}
+        {homepageConfig.heroAnimationsEnabled !== false && (
+          <div className="absolute inset-0 overflow-hidden pointer-events-none hidden sm:block">
+            <motion.div
+              className="absolute top-10 right-10 md:top-20 md:right-20 w-40 h-40 md:w-72 md:h-72 blob opacity-30 blur-xl"
+              style={{ background: 'var(--tenant-primary)' }}
+              animate={{
+                scale: [1, 1.2, 1],
+                x: [0, 30, 0],
+                y: [0, -20, 0],
+              }}
+              transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.div
+              className="absolute bottom-20 right-20 md:bottom-40 md:right-40 w-28 h-28 md:w-48 md:h-48 blob opacity-25 blur-lg glow-pulse"
+              style={{ background: 'var(--tenant-secondary)' }}
+              animate={{
+                scale: [1, 1.3, 1],
+                x: [0, -20, 0],
+                y: [0, 30, 0],
+              }}
+              transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+            />
+            <motion.div
+              className="absolute top-1/2 right-1/4 w-20 h-20 md:w-32 md:h-32 blob opacity-20 blur-md"
+              style={{ background: 'var(--tenant-accent)' }}
+              animate={{
+                scale: [1, 1.4, 1],
+              }}
+              transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
+            />
+            {/* Additional floating element for depth - hidden on mobile for performance */}
+            <motion.div
+              className="absolute top-1/3 left-1/4 w-40 h-40 md:w-64 md:h-64 blob opacity-15 blur-2xl hidden md:block"
+              style={{ background: 'var(--tenant-gradient)' }}
+              animate={{
+                scale: [1, 1.1, 1],
+                rotate: [0, 10, 0],
+              }}
+              transition={{ duration: 12, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Content */}
       <div className="container-tenant relative z-10 py-12 sm:py-16 md:py-20">
-        <div className="max-w-2xl">
+        <div
+          className="max-w-2xl"
+          style={homepageConfig.heroTextColor ? { '--hero-text-color': homepageConfig.heroTextColor } as React.CSSProperties : undefined}
+        >
           {/* Badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -200,14 +206,22 @@ export function HeroSection({ variant }: HeroSectionProps) {
             className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass mb-4 sm:mb-6"
           >
             <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-tenant-accent" />
-            <TranslatedUIText text="New Collection Available" className="text-xs sm:text-sm font-medium text-on-gradient" />
+            <TranslatedUIText
+              text="New Collection Available"
+              className="text-xs sm:text-sm font-medium"
+              style={homepageConfig.heroTextColor ? { color: homepageConfig.heroTextColor } : undefined}
+            />
           </motion.div>
 
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-on-gradient mb-4 sm:mb-6 leading-tight"
+            className={cn(
+              "text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 leading-tight",
+              !homepageConfig.heroTextColor && "text-on-gradient"
+            )}
+            style={homepageConfig.heroTextColor ? { color: homepageConfig.heroTextColor } : undefined}
           >
             <TranslatedUIText text={homepageConfig.heroTitle || 'Discover Your Style'} />
           </motion.h1>
@@ -217,7 +231,11 @@ export function HeroSection({ variant }: HeroSectionProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-base sm:text-lg md:text-xl text-on-gradient/90 mb-6 sm:mb-8 leading-relaxed max-w-xl"
+              className={cn(
+                "text-base sm:text-lg md:text-xl mb-6 sm:mb-8 leading-relaxed max-w-xl",
+                !homepageConfig.heroTextColor && "text-on-gradient/90"
+              )}
+              style={homepageConfig.heroTextColor ? { color: homepageConfig.heroTextColor, opacity: 0.9 } : undefined}
             >
               <TranslatedUIText text={homepageConfig.heroSubtitle} />
             </motion.p>
@@ -282,10 +300,18 @@ export function HeroSection({ variant }: HeroSectionProps) {
                   <Users className="w-4 h-4 sm:w-5 sm:h-5 text-tenant-accent" />
                 </div>
                 <div className="text-center sm:text-left">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-on-gradient">
+                  <div
+                    className={cn("text-xl sm:text-2xl md:text-3xl font-bold", !homepageConfig.heroTextColor && "text-on-gradient")}
+                    style={homepageConfig.heroTextColor ? { color: homepageConfig.heroTextColor } : undefined}
+                  >
                     <AnimatedCounter value={displayStats.customerCount} suffix="+" duration={2000} />
                   </div>
-                  <div className="text-[10px] sm:text-xs md:text-sm text-on-gradient/70"><TranslatedUIText text="Customers" /></div>
+                  <div
+                    className={cn("text-[10px] sm:text-xs md:text-sm", !homepageConfig.heroTextColor && "text-on-gradient/70")}
+                    style={homepageConfig.heroTextColor ? { color: homepageConfig.heroTextColor, opacity: 0.7 } : undefined}
+                  >
+                    <TranslatedUIText text="Customers" />
+                  </div>
                 </div>
               </div>
 
@@ -295,10 +321,18 @@ export function HeroSection({ variant }: HeroSectionProps) {
                   <Package className="w-4 h-4 sm:w-5 sm:h-5 text-tenant-accent" />
                 </div>
                 <div className="text-center sm:text-left">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-on-gradient">
+                  <div
+                    className={cn("text-xl sm:text-2xl md:text-3xl font-bold", !homepageConfig.heroTextColor && "text-on-gradient")}
+                    style={homepageConfig.heroTextColor ? { color: homepageConfig.heroTextColor } : undefined}
+                  >
                     <AnimatedCounter value={displayStats.productCount} suffix="+" duration={1800} />
                   </div>
-                  <div className="text-[10px] sm:text-xs md:text-sm text-on-gradient/70"><TranslatedUIText text="Products" /></div>
+                  <div
+                    className={cn("text-[10px] sm:text-xs md:text-sm", !homepageConfig.heroTextColor && "text-on-gradient/70")}
+                    style={homepageConfig.heroTextColor ? { color: homepageConfig.heroTextColor, opacity: 0.7 } : undefined}
+                  >
+                    <TranslatedUIText text="Products" />
+                  </div>
                 </div>
               </div>
 
@@ -308,10 +342,18 @@ export function HeroSection({ variant }: HeroSectionProps) {
                   <Star className="w-4 h-4 sm:w-5 sm:h-5 text-tenant-accent fill-tenant-accent" />
                 </div>
                 <div className="text-center sm:text-left">
-                  <div className="text-xl sm:text-2xl md:text-3xl font-bold text-on-gradient">
+                  <div
+                    className={cn("text-xl sm:text-2xl md:text-3xl font-bold", !homepageConfig.heroTextColor && "text-on-gradient")}
+                    style={homepageConfig.heroTextColor ? { color: homepageConfig.heroTextColor } : undefined}
+                  >
                     <AnimatedCounter value={displayStats.averageRating * 10} decimals={1} duration={1500} />
                   </div>
-                  <div className="text-[10px] sm:text-xs md:text-sm text-on-gradient/70"><TranslatedUIText text="Rating" /></div>
+                  <div
+                    className={cn("text-[10px] sm:text-xs md:text-sm", !homepageConfig.heroTextColor && "text-on-gradient/70")}
+                    style={homepageConfig.heroTextColor ? { color: homepageConfig.heroTextColor, opacity: 0.7 } : undefined}
+                  >
+                    <TranslatedUIText text="Rating" />
+                  </div>
                 </div>
               </div>
             </motion.div>
