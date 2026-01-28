@@ -6,14 +6,18 @@ import { Sparkles, Shield, Loader2, Mail, Lock, ArrowLeft, Building2, AlertCircl
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import {
   login,
   lookupTenants,
   directLogin,
+  verifyMfa,
+  sendMfaCode,
   type TenantInfo,
   type DirectLoginResponse,
 } from '@/lib/auth/auth-client';
+import { OTPInput } from '@/components/auth/OTPInput';
 import { getCurrentTenantSlug } from '@/lib/utils/tenant';
 import { SocialLogin } from '@/components/SocialLogin';
 
@@ -62,6 +66,7 @@ function LoginPageContent() {
   const [tenants, setTenants] = useState<TenantInfo[]>([]);
   const [mfaSession, setMfaSession] = useState<string | null>(null);
   const [mfaCode, setMfaCode] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   // UI state
   const [isLoading, setIsLoading] = useState(false);
@@ -277,6 +282,72 @@ function LoginPageContent() {
     } else if (step === 'mfa') {
       setStep('password');
       setMfaCode('');
+      setResendCooldown(0);
+    }
+  };
+
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
+  // Auto-send MFA code when entering MFA step
+  useEffect(() => {
+    if (step === 'mfa' && mfaSession) {
+      sendMfaCode(mfaSession, 'email').then(() => {
+        setResendCooldown(60);
+      }).catch(() => {
+        // Silently handle - user can manually resend
+      });
+    }
+  }, [step, mfaSession]);
+
+  // Handle MFA verification
+  const handleMfaSubmit = async (code?: string) => {
+    const codeToVerify = code || mfaCode;
+    if (!mfaSession || codeToVerify.length !== 6) return;
+
+    setError(null);
+    setRemainingAttempts(null);
+    setIsLoading(true);
+
+    try {
+      const result = await verifyMfa(mfaSession, codeToVerify, 'email');
+
+      if (!result.success) {
+        setError(result.message || 'Invalid verification code.');
+        if (result.remaining_attempts !== undefined) {
+          setRemainingAttempts(result.remaining_attempts);
+        }
+        setIsLoading(false);
+        return;
+      }
+
+      setStep('success');
+
+      setTimeout(() => {
+        const returnTo = getCurrentTenantSlug() ? '/' : '/welcome';
+        window.location.href = returnTo;
+      }, 1000);
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle MFA resend
+  const handleResendMfa = async () => {
+    if (!mfaSession || resendCooldown > 0) return;
+
+    try {
+      await sendMfaCode(mfaSession, 'email');
+      setResendCooldown(60);
+      setError(null);
+    } catch {
+      setError('Failed to resend code. Please try again.');
     }
   };
 
@@ -544,6 +615,82 @@ function LoginPageContent() {
           </>
         );
 
+      case 'mfa':
+        return (
+          <>
+            <div className="text-center relative">
+              <button
+                onClick={handleBack}
+                className="absolute -top-2 -left-2 p-2 rounded-lg hover:bg-muted transition-colors"
+              >
+                <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+              </button>
+              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary shadow-lg shadow-primary/30 mb-3">
+                <Shield className="w-7 h-7 text-white" />
+              </div>
+              <h2 className="text-xl font-semibold text-foreground mb-1">Verify Your Identity</h2>
+              <p className="text-xs text-muted-foreground">
+                We sent a 6-digit code to
+              </p>
+              <p className="text-xs text-primary font-medium mt-1">{email}</p>
+            </div>
+
+            <div className="space-y-4">
+              <OTPInput
+                value={mfaCode}
+                onChange={setMfaCode}
+                onComplete={(code) => handleMfaSubmit(code)}
+                disabled={isLoading}
+                error={!!error}
+              />
+
+              {error && (
+                <div className="flex items-center gap-2 text-sm text-error bg-error-muted border border-error/30 rounded-lg px-3 py-2">
+                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                  <div>
+                    <span>{error}</span>
+                    {remainingAttempts !== null && remainingAttempts > 0 && (
+                      <p className="text-xs mt-1">
+                        {remainingAttempts} attempt{remainingAttempts !== 1 ? 's' : ''} remaining
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <Button
+                onClick={() => handleMfaSubmit()}
+                disabled={isLoading || mfaCode.length !== 6}
+                className="w-full h-12 text-sm font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all duration-300"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  'Verify'
+                )}
+              </Button>
+
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={handleResendMfa}
+                  disabled={resendCooldown > 0}
+                  className={cn(
+                    'text-xs transition-colors',
+                    resendCooldown > 0
+                      ? 'text-muted-foreground cursor-not-allowed'
+                      : 'text-primary hover:underline'
+                  )}
+                >
+                  {resendCooldown > 0
+                    ? `Resend code in ${resendCooldown}s`
+                    : 'Resend code'}
+                </button>
+              </div>
+            </div>
+          </>
+        );
+
       case 'success':
         return (
           <div className="text-center py-8">
@@ -585,21 +732,6 @@ function LoginPageContent() {
         <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl shadow-black/20 border border-white/20 p-6 space-y-5 animate-fade-in-up relative">
           {renderStepContent()}
 
-          {/* Sign up link (only on email step) */}
-          {step === 'email' && (
-            <div className="text-center pt-4 border-t border-border">
-              <p className="text-sm text-muted-foreground">
-                New to Tesseract?{' '}
-                <button
-                  type="button"
-                  onClick={() => router.push('/welcome')}
-                  className="font-medium text-primary hover:underline"
-                >
-                  Create an account
-                </button>
-              </p>
-            </div>
-          )}
 
           {/* Branding Footer */}
           <div className="text-center pt-4 border-t border-border">
