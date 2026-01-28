@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -154,6 +154,8 @@ export default function ProductsPage() {
 
   // Image upload state
   const [uploadingImages, setUploadingImages] = useState(false);
+  const [isDraggingImages, setIsDraggingImages] = useState(false);
+  const imageFileInputRef = useRef<HTMLInputElement>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
@@ -2475,14 +2477,43 @@ export default function ProductsPage() {
                           </p>
                         </div>
                       ) : (
-                        // Edit mode - allow uploads
-                        <label
+                        // Edit mode - allow uploads with drag and drop
+                        <div
+                          onClick={() => !uploadingImages && imageFileInputRef.current?.click()}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setIsDraggingImages(false);
+                            if (!uploadingImages && e.dataTransfer.files.length > 0) {
+                              handleImageUpload(e.dataTransfer.files);
+                            }
+                          }}
+                          onDragOver={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (!uploadingImages) setIsDraggingImages(true);
+                          }}
+                          onDragLeave={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setIsDraggingImages(false);
+                          }}
+                          onDragEnter={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            if (!uploadingImages) setIsDraggingImages(true);
+                          }}
                           className={cn(
-                            "border-2 border-dashed rounded-xl p-8 text-center transition-all bg-muted cursor-pointer block",
-                            uploadingImages ? "border-primary/70 bg-primary/10" : "border-border hover:border-primary/70"
+                            "border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer",
+                            uploadingImages
+                              ? "border-primary/70 bg-primary/10"
+                              : isDraggingImages
+                                ? "border-primary bg-primary/10 scale-[1.01]"
+                                : "border-border bg-muted hover:border-primary/70"
                           )}
                         >
                           <input
+                            ref={imageFileInputRef}
                             type="file"
                             multiple
                             accept="image/jpeg,image/png,image/gif,image/webp"
@@ -2504,8 +2535,10 @@ export default function ProductsPage() {
                             </div>
                           ) : (
                             <>
-                              <Upload className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                              <p className="text-lg text-foreground font-bold mb-2">Click to upload or drag and drop</p>
+                              <Upload className={cn("h-12 w-12 mx-auto mb-4", isDraggingImages ? "text-primary" : "text-muted-foreground")} />
+                              <p className="text-lg text-foreground font-bold mb-2">
+                                {isDraggingImages ? "Drop images here" : "Click to upload or drag and drop"}
+                              </p>
                               <p className="text-sm text-muted-foreground mb-1">PNG, JPG, GIF, WebP up to 10MB each</p>
                               <p className="text-sm text-muted-foreground">First image will be the primary product image</p>
                               <div className="mt-4">
@@ -2515,7 +2548,7 @@ export default function ProductsPage() {
                               </div>
                             </>
                           )}
-                        </label>
+                        </div>
                       )}
 
                       <p className="text-xs text-muted-foreground mt-3">
