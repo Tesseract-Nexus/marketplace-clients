@@ -959,6 +959,39 @@ function CheckoutContent() {
                     <span>{formatPrice(tax)}</span>
                   )}
                 </div>
+                {/* GST Breakdown for India */}
+                {taxResult?.gstSummary && !taxResult.isEstimate && (
+                  <div className="ml-4 text-xs text-muted-foreground space-y-1">
+                    {taxResult.gstSummary.isInterstate ? (
+                      <div className="flex justify-between">
+                        <span>IGST ({((taxResult.gstSummary.igst / (subtotal || 1)) * 100).toFixed(1)}%)</span>
+                        <span>{formatPrice(taxResult.gstSummary.igst)}</span>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex justify-between">
+                          <span>CGST ({((taxResult.gstSummary.cgst / (subtotal || 1)) * 100).toFixed(1)}%)</span>
+                          <span>{formatPrice(taxResult.gstSummary.cgst)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>SGST ({((taxResult.gstSummary.sgst / (subtotal || 1)) * 100).toFixed(1)}%)</span>
+                          <span>{formatPrice(taxResult.gstSummary.sgst)}</span>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+                {/* Tax Breakdown for other regions */}
+                {taxResult?.taxBreakdown && taxResult.taxBreakdown.length > 0 && !taxResult.gstSummary && !taxResult.isEstimate && (
+                  <div className="ml-4 text-xs text-muted-foreground space-y-1">
+                    {taxResult.taxBreakdown.map((item, idx) => (
+                      <div key={idx} className="flex justify-between">
+                        <span>{item.jurisdictionName} ({item.rate}%)</span>
+                        <span>{formatPrice(item.taxAmount)}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <Separator className="my-4" />
