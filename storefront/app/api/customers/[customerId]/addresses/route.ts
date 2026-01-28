@@ -5,7 +5,6 @@ const CUSTOMERS_BASE_URL = CUSTOMERS_SERVICE_URL.replace(/\/api\/v1\/?$/, '');
 const AUTH_BFF_URL = process.env.AUTH_BFF_INTERNAL_URL || process.env.AUTH_BFF_URL || 'http://localhost:8080';
 
 // Use storefront endpoints for customer-facing address operations
-// These endpoints use customer JWT auth instead of staff RBAC
 const STOREFRONT_API_PATH = '/api/v1/storefront';
 
 // Helper to decode JWT payload (base64url decode)
@@ -23,21 +22,10 @@ function decodeJwtPayload(token: string): { sub?: string; customer_id?: string }
 }
 
 /**
- * Get auth context from either JWT or session cookie.
+ * Get session token from auth-bff using the request cookies.
  * Supports OAuth/session-based auth where accessToken is not available client-side.
  */
-async function getAuthContext(request: NextRequest): Promise<{ customerId?: string; token?: string } | null> {
-  const authHeader = request.headers.get('Authorization');
-
-  // Check if we have a valid JWT token
-  if (authHeader && authHeader !== 'Bearer ' && authHeader !== 'Bearer') {
-    const tokenPayload = decodeJwtPayload(authHeader);
-    if (tokenPayload?.sub) {
-      return { customerId: tokenPayload.sub, token: authHeader };
-    }
-  }
-
-  // Fall back to session-based auth (OAuth flow)
+async function getSessionToken(request: NextRequest): Promise<{ token?: string; userId?: string } | null> {
   try {
     const cookie = request.headers.get('cookie');
     if (!cookie) return null;
@@ -54,22 +42,15 @@ async function getAuthContext(request: NextRequest): Promise<{ customerId?: stri
     const session = await response.json();
     if (session.authenticated && session.user) {
       return {
-        customerId: session.user.id,
-        // auth-bff may provide access_token for BFF-to-service calls
-        token: session.access_token ? `Bearer ${session.access_token}` : undefined,
+        token: session.access_token || session.accessToken,
+        userId: session.user.id,
       };
     }
+    return null;
   } catch (error) {
     console.error('[Address API] Failed to get session:', error);
+    return null;
   }
-
-  return null;
-}
-
-// SECURITY: Validate that the customerId in URL path matches the authenticated customer
-function validateCustomerOwnership(authenticatedCustomerId: string | undefined, requestedCustomerId: string): boolean {
-  if (!authenticatedCustomerId) return false;
-  return authenticatedCustomerId === requestedCustomerId;
 }
 
 // Transform frontend address format to backend format
@@ -83,7 +64,6 @@ function transformAddressForBackend(address: Record<string, unknown>): Record<st
   }
 
   // Backend expects 'country' to be 2-letter ISO code
-  // If we have countryCode, use it for country and remove countryCode
   if ('countryCode' in transformed && transformed.countryCode) {
     transformed.country = transformed.countryCode;
     delete transformed.countryCode;
@@ -103,18 +83,14 @@ function transformAddressForFrontend(address: Record<string, unknown>): Record<s
   }
 
   // Frontend expects both country and countryCode
-  // Backend only stores country as 2-letter code
   if ('country' in transformed && typeof transformed.country === 'string') {
     transformed.countryCode = transformed.country;
-    // Keep country as is - it's already the code
   }
 
   return transformed;
 }
 
 // GET /api/customers/[customerId]/addresses - List addresses
-// SECURITY: Validates that the authenticated customer owns the requested data
-// Supports both JWT and session-based (OAuth) authentication
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ customerId: string }> }
@@ -123,15 +99,37 @@ export async function GET(
     const { customerId } = await params;
     const tenantId = request.headers.get('X-Tenant-ID');
     const storefrontId = request.headers.get('X-Storefront-ID');
+    let authorization = request.headers.get('Authorization');
+    let userId = request.headers.get('X-User-Id');
 
-    // Get auth context from either JWT or session
-    const auth = await getAuthContext(request);
-    if (!auth?.customerId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Tenant ID required' }, { status: 400 });
+    }
+
+    // Check if authorization is empty or just "Bearer " (session-based auth)
+    const hasValidAuth = authorization && authorization !== 'Bearer ' && authorization !== 'Bearer';
+
+    if (!hasValidAuth) {
+      // Try to get auth from session cookie (BFF pattern)
+      const session = await getSessionToken(request);
+      if (session?.token) {
+        authorization = `Bearer ${session.token}`;
+      }
+      if (session?.userId) {
+        userId = session.userId;
+      }
+      // If no session at all, require authorization
+      if (!session?.userId) {
+        return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
+      }
+    } else {
+      // Extract user ID from JWT if we have valid auth
+      const tokenPayload = decodeJwtPayload(authorization);
+      userId = tokenPayload?.sub || tokenPayload?.customer_id || userId;
     }
 
     // SECURITY: Prevent IDOR attacks - verify the customerId belongs to the authenticated user
-    if (!validateCustomerOwnership(auth.customerId, customerId)) {
+    if (userId && userId !== customerId) {
       return NextResponse.json(
         { error: 'Access denied: You can only access your own addresses' },
         { status: 403 }
@@ -141,17 +139,17 @@ export async function GET(
     // Build headers for internal service call
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'X-Tenant-ID': tenantId,
       'X-Internal-Request': 'true',
-      'X-User-Id': auth.customerId,
     };
-    if (tenantId) {
-      headers['X-Tenant-ID'] = tenantId;
+    if (authorization && authorization !== 'Bearer ' && authorization !== 'Bearer') {
+      headers['Authorization'] = authorization;
     }
     if (storefrontId) {
       headers['X-Storefront-ID'] = storefrontId;
     }
-    if (auth.token) {
-      headers['Authorization'] = auth.token;
+    if (userId) {
+      headers['X-User-Id'] = userId;
     }
 
     // Use storefront endpoint path for customer-facing operations
@@ -191,8 +189,6 @@ export async function GET(
 }
 
 // POST /api/customers/[customerId]/addresses - Add address
-// SECURITY: Validates that the authenticated customer owns the requested data
-// Supports both JWT and session-based (OAuth) authentication
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ customerId: string }> }
@@ -201,15 +197,37 @@ export async function POST(
     const { customerId } = await params;
     const tenantId = request.headers.get('X-Tenant-ID');
     const storefrontId = request.headers.get('X-Storefront-ID');
+    let authorization = request.headers.get('Authorization');
+    let userId = request.headers.get('X-User-Id');
 
-    // Get auth context from either JWT or session
-    const auth = await getAuthContext(request);
-    if (!auth?.customerId) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!tenantId) {
+      return NextResponse.json({ error: 'Tenant ID required' }, { status: 400 });
     }
 
-    // SECURITY: Prevent IDOR attacks - verify the customerId belongs to the authenticated user
-    if (!validateCustomerOwnership(auth.customerId, customerId)) {
+    // Check if authorization is empty or just "Bearer " (session-based auth)
+    const hasValidAuth = authorization && authorization !== 'Bearer ' && authorization !== 'Bearer';
+
+    if (!hasValidAuth) {
+      // Try to get auth from session cookie (BFF pattern)
+      const session = await getSessionToken(request);
+      if (session?.token) {
+        authorization = `Bearer ${session.token}`;
+      }
+      if (session?.userId) {
+        userId = session.userId;
+      }
+      // If no session at all, require authorization
+      if (!session?.userId) {
+        return NextResponse.json({ error: 'Authorization required' }, { status: 401 });
+      }
+    } else {
+      // Extract user ID from JWT if we have valid auth
+      const tokenPayload = decodeJwtPayload(authorization);
+      userId = tokenPayload?.sub || tokenPayload?.customer_id || userId;
+    }
+
+    // SECURITY: Prevent IDOR attacks
+    if (userId && userId !== customerId) {
       return NextResponse.json(
         { error: 'Access denied: You can only add addresses to your own account' },
         { status: 403 }
@@ -230,17 +248,17 @@ export async function POST(
     // Build headers for internal service call
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
+      'X-Tenant-ID': tenantId,
       'X-Internal-Request': 'true',
-      'X-User-Id': auth.customerId,
     };
-    if (tenantId) {
-      headers['X-Tenant-ID'] = tenantId;
+    if (authorization && authorization !== 'Bearer ' && authorization !== 'Bearer') {
+      headers['Authorization'] = authorization;
     }
     if (storefrontId) {
       headers['X-Storefront-ID'] = storefrontId;
     }
-    if (auth.token) {
-      headers['Authorization'] = auth.token;
+    if (userId) {
+      headers['X-User-Id'] = userId;
     }
 
     // Use storefront endpoint path for customer-facing operations
