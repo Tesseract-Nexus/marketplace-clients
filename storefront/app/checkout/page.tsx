@@ -381,7 +381,19 @@ function CheckoutContent() {
   useEffect(() => {
     if (taxCalculationRef.current) clearTimeout(taxCalculationRef.current);
 
-    if (shippingAddress.city && shippingAddress.state && shippingAddress.zip && selectedItems.length > 0) {
+    // Trigger tax calculation when we have minimum required fields (city and state for GST)
+    const hasMinimumAddress = shippingAddress.city && (shippingAddress.state || shippingAddress.stateCode);
+
+    if (hasMinimumAddress && selectedItems.length > 0) {
+      console.log('[Tax] Triggering tax calculation for:', {
+        city: shippingAddress.city,
+        state: shippingAddress.state,
+        stateCode: shippingAddress.stateCode,
+        country: shippingAddress.country,
+        countryCode: shippingAddress.countryCode,
+        storeAddress: storeAddress ? { city: storeAddress.city, state: storeAddress.state, countryCode: storeAddress.countryCode } : 'undefined',
+      });
+
       taxCalculationRef.current = setTimeout(() => {
         const cartItems = selectedItems.map((item) => ({
           id: item.id,
@@ -396,7 +408,7 @@ function CheckoutContent() {
     return () => {
       if (taxCalculationRef.current) clearTimeout(taxCalculationRef.current);
     };
-  }, [shippingAddress.city, shippingAddress.state, shippingAddress.zip, selectedItems, shipping, calculateTax, storeAddress]);
+  }, [shippingAddress.city, shippingAddress.state, shippingAddress.stateCode, shippingAddress.countryCode, shippingAddress.zip, selectedItems, shipping, calculateTax, storeAddress]);
 
   // Handle payment cancellation from Stripe redirect
   useEffect(() => {
