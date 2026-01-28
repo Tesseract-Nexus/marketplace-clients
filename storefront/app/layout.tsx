@@ -286,6 +286,10 @@ export default async function RootLayout({
         <head>
           <title>{storeName} - Coming Soon</title>
           <meta name="description" content={`${storeName} is launching soon. Stay tuned for an amazing shopping experience!`} />
+          {/* Dynamic Favicon from storefront settings */}
+          {settings.faviconUrl && (
+            <link rel="icon" href={settings.faviconUrl} />
+          )}
         </head>
         <body className={`${inter.variable} font-sans antialiased`}>
           <ComingSoonPage
@@ -398,6 +402,13 @@ export default async function RootLayout({
         <meta name="description" content={`Shop at ${storeName} - Discover amazing products`} />
         {/* AI Crawler Guidance */}
         <link rel="ai-guidance" href="/llms.txt" />
+        {/* Dynamic Favicon from storefront settings */}
+        {settings.faviconUrl && (
+          <link rel="icon" href={settings.faviconUrl} />
+        )}
+        {/* Dynamic page title and description */}
+        <title>{storeName}</title>
+        <meta name="description" content={settings.metaDescription || `Shop at ${storeName}`} />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         {/* Preview Mode Banner for unpublished stores */}

@@ -524,30 +524,30 @@ export default function AuditLogsPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-3 mt-3 border-t">
                     <div>
                       <label className="text-[10px] font-medium text-muted-foreground mb-1 block">Action</label>
-                      <Select value={filters.action} onValueChange={v => setFilters(prev => ({ ...prev, action: v }))}>
+                      <Select value={filters.action || 'all'} onValueChange={v => setFilters(prev => ({ ...prev, action: v === 'all' ? '' : v }))}>
                         <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="All" /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All</SelectItem>
+                          <SelectItem value="all">All</SelectItem>
                           {ACTION_TYPES.map(action => <SelectItem key={action} value={action}>{action}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
                       <label className="text-[10px] font-medium text-muted-foreground mb-1 block">Resource</label>
-                      <Select value={filters.resource} onValueChange={v => setFilters(prev => ({ ...prev, resource: v }))}>
+                      <Select value={filters.resource || 'all'} onValueChange={v => setFilters(prev => ({ ...prev, resource: v === 'all' ? '' : v }))}>
                         <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="All" /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All</SelectItem>
+                          <SelectItem value="all">All</SelectItem>
                           {RESOURCE_TYPES.map(r => <SelectItem key={r} value={r}>{r}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
                       <label className="text-[10px] font-medium text-muted-foreground mb-1 block">Status</label>
-                      <Select value={filters.status} onValueChange={v => setFilters(prev => ({ ...prev, status: v }))}>
+                      <Select value={filters.status || 'all'} onValueChange={v => setFilters(prev => ({ ...prev, status: v === 'all' ? '' : v }))}>
                         <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="All" /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All</SelectItem>
+                          <SelectItem value="all">All</SelectItem>
                           <SelectItem value="SUCCESS">Success</SelectItem>
                           <SelectItem value="FAILURE">Failure</SelectItem>
                         </SelectContent>
@@ -555,10 +555,10 @@ export default function AuditLogsPage() {
                     </div>
                     <div>
                       <label className="text-[10px] font-medium text-muted-foreground mb-1 block">Severity</label>
-                      <Select value={filters.severity} onValueChange={v => setFilters(prev => ({ ...prev, severity: v }))}>
+                      <Select value={filters.severity || 'all'} onValueChange={v => setFilters(prev => ({ ...prev, severity: v === 'all' ? '' : v }))}>
                         <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="All" /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="">All</SelectItem>
+                          <SelectItem value="all">All</SelectItem>
                           <SelectItem value="CRITICAL">Critical</SelectItem>
                           <SelectItem value="HIGH">High</SelectItem>
                           <SelectItem value="MEDIUM">Medium</SelectItem>

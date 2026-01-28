@@ -15,6 +15,7 @@ export interface Tenant {
   role: 'owner' | 'admin' | 'manager' | 'staff' | 'member' | 'viewer' | 'platform_admin';
   isDefault: boolean;
   logoUrl?: string;
+  faviconUrl?: string;
   primaryColor?: string;
   secondaryColor?: string;
   displayName?: string;

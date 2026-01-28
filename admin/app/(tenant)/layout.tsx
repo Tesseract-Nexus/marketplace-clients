@@ -846,6 +846,7 @@ function TenantLayoutInner({
 }) {
   const router = useRouter();
   const { user } = useAuth();
+  const { currentTenant } = useTenant();
 
   // DEV MODE: Skip all tenant checks
   const devBypass = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true';
@@ -857,6 +858,21 @@ function TenantLayoutInner({
 
   // Extract stable values from user to avoid re-running effect on every auth state change
   const userTenantSlug = user?.tenantSlug;
+
+  // Dynamic favicon update based on tenant branding
+  useEffect(() => {
+    const faviconUrl = currentTenant?.faviconUrl || currentTenant?.logoUrl;
+    if (faviconUrl) {
+      // Find existing favicon link or create a new one
+      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement | null;
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = faviconUrl;
+    }
+  }, [currentTenant?.faviconUrl, currentTenant?.logoUrl]);
 
   useEffect(() => {
     // DEV MODE: Skip tenant check entirely

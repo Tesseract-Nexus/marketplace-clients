@@ -12,6 +12,7 @@ interface Tenant {
   role: string;
   isDefault: boolean;
   logoUrl?: string;
+  faviconUrl?: string;
   primaryColor?: string;
   secondaryColor?: string;
   displayName?: string;
@@ -133,6 +134,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
           role: t.role,
           isDefault: t.is_default || false,
           logoUrl: t.logo_url,
+          faviconUrl: t.favicon_url as string | undefined,
           primaryColor: t.primary_color || '#6366f1',
           secondaryColor: t.secondary_color || '#8b5cf6',
           displayName: t.display_name,
