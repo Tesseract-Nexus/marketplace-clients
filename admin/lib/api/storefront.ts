@@ -293,13 +293,25 @@ export const storefrontAssetsApi = {
     formData.append('file', file);
     formData.append('type', type);
 
-    // Build headers - don't include Content-Type for FormData
+    // Build headers - don't include Content-Type for FormData (browser sets it automatically with boundary)
     const headers: Record<string, string> = {};
     if (currentStorefrontId) {
       headers['x-storefront-id'] = currentStorefrontId;
     }
     if (currentTenantId) {
       headers['x-jwt-claim-tenant-id'] = currentTenantId;
+    }
+    // Auth headers required by backend IstioAuth middleware
+    if (currentUserId) {
+      headers['x-jwt-claim-sub'] = currentUserId;
+    }
+    if (currentUserEmail) {
+      headers['x-jwt-claim-email'] = currentUserEmail;
+    }
+    // Include auth token if available
+    const authToken = enhancedApiClient.getAuthToken();
+    if (authToken) {
+      headers['Authorization'] = `Bearer ${authToken}`;
     }
 
     const response = await fetch(`${API_BASE}/assets`, {
