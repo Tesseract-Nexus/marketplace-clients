@@ -11,6 +11,7 @@ import {
   Plus,
   Palette,
   Globe,
+  XCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +30,7 @@ import { useUser } from '@/contexts/UserContext';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { StorefrontThemeContent } from '@/components/settings/StorefrontThemeContent';
 import { DomainsTabContent } from '@/components/settings/domains';
+import { CancellationTabContent } from '@/components/settings/CancellationTabContent';
 
 // New modular components
 import {
@@ -113,8 +115,8 @@ export default function GeneralSettingsPage() {
 
   // Tab state - check URL parameter for initial tab
   const tabParam = searchParams.get('tab');
-  const initialTab = tabParam === 'domains' ? 'domains' : tabParam === 'theme' ? 'theme' : 'general';
-  const [activeTab, setActiveTab] = useState<'general' | 'theme' | 'domains'>(initialTab);
+  const initialTab = tabParam === 'domains' ? 'domains' : tabParam === 'theme' ? 'theme' : tabParam === 'cancellation' ? 'cancellation' : 'general';
+  const [activeTab, setActiveTab] = useState<'general' | 'theme' | 'domains' | 'cancellation'>(initialTab);
 
   // Storefront state
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
@@ -151,6 +153,8 @@ export default function GeneralSettingsPage() {
       setActiveTab('domains');
     } else if (tab === 'theme') {
       setActiveTab('theme');
+    } else if (tab === 'cancellation') {
+      setActiveTab('cancellation');
     }
   }, [searchParams]);
 
@@ -739,7 +743,7 @@ export default function GeneralSettingsPage() {
 
             {/* Tabs */}
             <div className="px-6 pb-4">
-              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'general' | 'theme' | 'domains')}>
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'general' | 'theme' | 'domains' | 'cancellation')}>
                 <TabsList className="inline-flex h-auto items-center justify-start rounded-xl bg-card border border-border p-1 shadow-sm">
                   <TabsTrigger
                     value="general"
@@ -761,6 +765,13 @@ export default function GeneralSettingsPage() {
                   >
                     <Globe className="h-4 w-4" />
                     Domains
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="cancellation"
+                    className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  >
+                    <XCircle className="h-4 w-4" />
+                    Cancellation
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -959,6 +970,19 @@ export default function GeneralSettingsPage() {
                   }
                 >
                   <DomainsTabContent />
+                </Suspense>
+              </TabsContent>
+
+              {/* Cancellation Tab Content */}
+              <TabsContent value="cancellation" className="h-full m-0 p-0">
+                <Suspense
+                  fallback={
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                    </div>
+                  }
+                >
+                  <CancellationTabContent />
                 </Suspense>
               </TabsContent>
             </Tabs>

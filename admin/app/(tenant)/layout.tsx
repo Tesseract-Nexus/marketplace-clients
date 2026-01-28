@@ -269,7 +269,6 @@ const navigation: NavItem[] = [
       { name: "Store Settings", href: "/settings/general" },
       { name: "Shipping", href: "/settings/shipping-carriers" },
       { name: "Payments", href: "/settings/payments" },
-      { name: "Cancellation", href: "/settings/ecommerce/cancellation" },
       { name: "Audit Logs", href: "/settings/audit-logs" },
       { name: "QR Codes", href: "/settings/qr-codes" },
     ],
