@@ -183,7 +183,10 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
               <div>
                 <label className="block text-sm font-medium mb-2">Column Layout</label>
                 <div className="grid grid-cols-4 gap-2">
-                  {[1, 2, 3, 4].map((num) => (
+                  {[1, 2, 3, 4].map((num) => {
+                    // Default to linkGroups length if columnLayout not set
+                    const currentLayout = config.columnLayout || (config.linkGroups?.length || 4);
+                    return (
                     <button
                       key={num}
                       type="button"
@@ -191,7 +194,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                       disabled={disabled}
                       className={cn(
                         'p-3 border rounded-md text-center transition-all',
-                        config.columnLayout === num
+                        currentLayout === num
                           ? 'border-primary bg-primary/10 text-primary'
                           : 'border-border hover:border-primary/30',
                         disabled && 'opacity-50 cursor-not-allowed'
@@ -204,7 +207,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                       </div>
                       <span className="text-xs font-medium">{num} Column{num > 1 ? 's' : ''}</span>
                     </button>
-                  ))}
+                  );})}
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
                   Changing layout will add or remove columns to match. Current: {(config.linkGroups || []).length} column{(config.linkGroups || []).length !== 1 ? 's' : ''} configured.

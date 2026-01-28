@@ -2598,6 +2598,7 @@ export const DEFAULT_STOREFRONT_SETTINGS: Omit<StorefrontSettings, 'id' | 'tenan
 
   footerConfig: {
     showFooter: true,
+    columnLayout: 2,
     linkGroups: [
       {
         id: '1',
