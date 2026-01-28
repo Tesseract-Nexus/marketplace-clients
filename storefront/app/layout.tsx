@@ -16,7 +16,7 @@ import { RoutePrefetcher } from '@/components/providers/RoutePrefetcher';
 import { StorefrontSettings, TenantInfo, DEFAULT_STOREFRONT_SETTINGS, THEME_PRESETS, GOOGLE_FONTS, NavigationStyle } from '@/types/storefront';
 import { generateCssVariables, generateCssString } from '@/lib/theme/theme-utils';
 
-import { resolveStorefront, getContentPages, getStorefrontTheme, getMarketingSettings, getStoreLocalization } from '@/lib/api/storefront';
+import { resolveStorefront, getContentPages, getStorefrontTheme, getMarketingSettings, getStoreLocalization, getStoreName } from '@/lib/api/storefront';
 import { resolveTenantInfo } from '@/lib/tenant';
 import { ComingSoonPage } from '@/components/ComingSoonPage';
 import { OrganizationJsonLd, WebSiteJsonLd } from '@/components/seo/JsonLd';
@@ -238,11 +238,12 @@ export default async function RootLayout({
   console.log(`[RootLayout] Final IDs: storefrontId=${storefrontId}, tenantId=${tenantId}`);
 
   // Fetch theme settings, content pages, marketing settings, and localization in parallel
-  const [themeSettings, contentPages, marketingConfig, localization] = await Promise.all([
+  const [themeSettings, contentPages, marketingConfig, localization, adminStoreName] = await Promise.all([
     getStorefrontTheme(storefrontId, tenantId),
     getContentPages(storefrontId, tenantId),
     getMarketingSettings(storefrontId, tenantId),
     getStoreLocalization(storefrontId, tenantId),
+    getStoreName(storefrontId, tenantId),
   ]);
 
   // Pass themeTemplate to get correct default colors based on the selected theme
@@ -273,7 +274,7 @@ export default async function RootLayout({
   // Check if storefront is published (isActive)
   // If not published and not in preview mode, show Coming Soon page
   const isStorefrontActive = resolution?.isActive ?? true; // Default to true for backward compatibility
-  const storeName = resolution?.name || tenantHost.slug.charAt(0).toUpperCase() + tenantHost.slug.slice(1) + ' Store';
+  const storeName = adminStoreName || resolution?.name || tenantHost.slug.charAt(0).toUpperCase() + tenantHost.slug.slice(1) + ' Store';
 
   // Show Coming Soon page for unpublished storefronts (unless in preview mode)
   if (!isStorefrontActive && !isPreviewMode) {

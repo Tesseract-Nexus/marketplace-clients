@@ -387,6 +387,34 @@ function getCountryCode(countryName: string): string {
 }
 
 /**
+ * Fetch admin-configured store name from settings-service
+ * This is the business name set in Admin > General Settings > Store Name
+ */
+export async function getStoreName(
+  storefrontId: string,
+  tenantId: string
+): Promise<string | null> {
+  try {
+    const queryParams = new URLSearchParams({
+      applicationId: 'admin-portal',
+      scope: 'application',
+      tenantId: storefrontId
+    });
+
+    const response = await apiRequest<ApiResponse<any>>(
+      `${serviceUrls.settings}/api/v1/public/settings/context?${queryParams.toString()}`,
+      { tenantId: storefrontId, storefrontId, cache: 'no-store' }
+    );
+
+    const data = response.data || response;
+    return data?.ecommerce?.store?.name || null;
+  } catch (error) {
+    console.error('Failed to fetch store name:', error);
+    return null;
+  }
+}
+
+/**
  * Format price with store currency
  */
 export function formatPrice(
