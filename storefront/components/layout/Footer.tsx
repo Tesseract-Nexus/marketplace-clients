@@ -1,11 +1,100 @@
 'use client';
 
 import Link from 'next/link';
-import { Facebook, Twitter, Instagram, Linkedin, Youtube, Mail, Phone, MapPin, ExternalLink } from 'lucide-react';
+import {
+  Facebook, Twitter, Instagram, Linkedin, Youtube, Mail, Phone, MapPin, ExternalLink,
+  Shield, Truck, RefreshCw, Headphones, BadgeCheck, Lock, Award
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTenant, useFooterConfig, useNavPath } from '@/context/TenantContext';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
+
+// Trust badge icon mapping
+const TRUST_BADGE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  Shield,
+  Truck,
+  RefreshCw,
+  Headphones,
+  BadgeCheck,
+  Lock,
+  Award,
+};
+
+// Payment method SVG icons - using brand colors for payment logos (industry standard, not customizable)
+// These are official brand colors required for brand recognition and compliance
+// Container backgrounds use theme tokens, but logo colors are fixed brand colors
+const PAYMENT_ICONS: Record<string, React.ReactNode> = {
+  visa: (
+    <div className="w-10 h-7 sm:w-12 sm:h-8 bg-[var(--surface-default)] rounded-md border border-[var(--border-default)] flex items-center justify-center shadow-sm">
+      <svg viewBox="0 0 48 32" className="w-7 h-4 sm:w-8 sm:h-5">
+        <path fill="#1434CB" d="M18.5 21.5h-3l1.9-11.7h3l-1.9 11.7zm8.5-11.4c-.6-.2-1.5-.5-2.7-.5-3 0-5.1 1.5-5.1 3.6 0 1.6 1.4 2.4 2.5 3 1.1.5 1.5.9 1.5 1.4 0 .7-.9 1.1-1.7 1.1-1.2 0-1.8-.2-2.7-.6l-.4-.2-.4 2.4c.7.3 1.9.5 3.2.5 3.1 0 5.2-1.5 5.2-3.7 0-1.2-.8-2.2-2.5-3-.8-.5-1.4-.8-1.4-1.4 0-.5.4-.9 1.4-.9.8 0 1.4.2 1.8.4l.2.1.4-2.3zm7.5-.3h-2.3c-.7 0-1.3.2-1.6 1l-4.5 10.7h3.1l.6-1.7h3.8l.4 1.7h2.8l-2.4-11.7zm-3.7 7.6l1.2-3.2.3-.8.2.7.7 3.3h-2.4zM15 9.8l-2.9 8-1.6-8.1c-.2-.8-.7-1.1-1.4-1.1H5l-.1.3c1.1.3 2.4.7 3.1 1.2.5.3.6.5.7 1.1l2.3 8.8h3.1l4.8-10.2H15z"/>
+      </svg>
+    </div>
+  ),
+  mastercard: (
+    <div className="w-10 h-7 sm:w-12 sm:h-8 bg-[var(--surface-default)] rounded-md border border-[var(--border-default)] flex items-center justify-center shadow-sm">
+      <svg viewBox="0 0 48 32" className="w-7 h-4 sm:w-8 sm:h-5">
+        <circle fill="#EB001B" cx="18" cy="16" r="9"/>
+        <circle fill="#F79E1B" cx="30" cy="16" r="9"/>
+        <path fill="#FF5F00" d="M24 9.5c2.2 1.8 3.6 4.5 3.6 7.5s-1.4 5.7-3.6 7.5c-2.2-1.8-3.6-4.5-3.6-7.5s1.4-5.7 3.6-7.5z"/>
+      </svg>
+    </div>
+  ),
+  amex: (
+    <div className="w-10 h-7 sm:w-12 sm:h-8 bg-[#016FD0] rounded-md flex items-center justify-center shadow-sm">
+      <span className="text-white text-[7px] sm:text-[8px] font-bold leading-tight text-center">AMEX</span>
+    </div>
+  ),
+  discover: (
+    <div className="w-10 h-7 sm:w-12 sm:h-8 bg-[var(--surface-default)] rounded-md border border-[var(--border-default)] flex items-center justify-center shadow-sm">
+      <span className="text-[#FF6000] text-[7px] sm:text-[8px] font-bold">DISCOVER</span>
+    </div>
+  ),
+  paypal: (
+    <div className="w-10 h-7 sm:w-12 sm:h-8 bg-[var(--surface-default)] rounded-md border border-[var(--border-default)] flex items-center justify-center shadow-sm">
+      <svg viewBox="0 0 48 32" className="w-7 h-4 sm:w-8 sm:h-5">
+        <path fill="#003087" d="M18.4 8h-5.8c-.4 0-.7.3-.8.6l-2.4 15c0 .3.2.5.5.5h2.8c.4 0 .7-.3.8-.6l.6-4.1c0-.4.4-.7.8-.7h1.8c3.7 0 5.9-1.8 6.4-5.3.2-1.5 0-2.7-.7-3.6-.7-1-2.1-1.6-4-1.6z"/>
+        <path fill="#009CDE" d="M34.4 8h-5.8c-.4 0-.7.3-.8.6l-2.4 15c0 .3.2.5.5.5h3c.3 0 .5-.2.5-.4l.7-4.3c0-.4.4-.7.8-.7h1.8c3.7 0 5.9-1.8 6.4-5.3.2-1.5 0-2.7-.7-3.6-.7-1-2.1-1.6-4-1.6z"/>
+      </svg>
+    </div>
+  ),
+  apple_pay: (
+    <div className="w-10 h-7 sm:w-12 sm:h-8 bg-foreground rounded-md flex items-center justify-center shadow-sm">
+      <span className="text-background text-[7px] sm:text-[8px] font-medium"> Pay</span>
+    </div>
+  ),
+  google_pay: (
+    <div className="w-10 h-7 sm:w-12 sm:h-8 bg-[var(--surface-default)] rounded-md border border-[var(--border-default)] flex items-center justify-center shadow-sm">
+      <span className="text-[7px] sm:text-[8px] font-medium text-foreground"><span className="text-[#4285F4]">G</span> Pay</span>
+    </div>
+  ),
+  stripe: (
+    <div className="w-10 h-7 sm:w-12 sm:h-8 bg-[#635BFF] rounded-md flex items-center justify-center shadow-sm">
+      <span className="text-white text-[7px] sm:text-[8px] font-bold">stripe</span>
+    </div>
+  ),
+  afterpay: (
+    <div className="w-10 h-7 sm:w-12 sm:h-8 bg-[#B2FCE4] rounded-md flex items-center justify-center shadow-sm">
+      <span className="text-foreground text-[6px] sm:text-[7px] font-bold">Afterpay</span>
+    </div>
+  ),
+  klarna: (
+    <div className="w-10 h-7 sm:w-12 sm:h-8 bg-[#FFB3C7] rounded-md flex items-center justify-center shadow-sm">
+      <span className="text-foreground text-[7px] sm:text-[8px] font-bold">Klarna</span>
+    </div>
+  ),
+  zip: (
+    <div className="w-10 h-7 sm:w-12 sm:h-8 bg-[#AA8FFF] rounded-md flex items-center justify-center shadow-sm">
+      <span className="text-white text-[7px] sm:text-[8px] font-bold">Zip</span>
+    </div>
+  ),
+  bank_transfer: (
+    <div className="w-10 h-7 sm:w-12 sm:h-8 bg-[var(--surface-muted)] rounded-md border border-[var(--border-default)] flex items-center justify-center shadow-sm">
+      <span className="text-muted-foreground text-[6px] sm:text-[7px] font-medium">Bank</span>
+    </div>
+  ),
+};
 
 // Social icon components with tenant theme colors on hover for consistent branding
 const SOCIAL_ICONS: Record<string, { icon: React.ComponentType<{ className?: string }> | (() => React.JSX.Element); hoverColor: string; label: string }> = {
@@ -76,73 +165,109 @@ export function Footer() {
   // Provide safe defaults and deep clone to avoid mutation
   const socialLinks = footerConfig.socialLinks || [];
 
-  // Build organized footer structure
-  const contentPages = (settings.contentPages || [])
-    .filter((p) => p.status === 'PUBLISHED' && p.showInFooter);
+  // Use admin-configured link groups, with fallback to auto-generated if empty
+  const configuredLinkGroups = footerConfig.linkGroups || [];
 
-  // Create separate columns for better organization
-  const shopLinks = [
-    { id: 'products', label: 'All Products', href: '/products', isExternal: false, position: 10 },
-    { id: 'new-arrivals', label: 'New Arrivals', href: '/products?sort=newest', isExternal: false, position: 20 },
-    { id: 'gift-cards', label: 'Gift Cards', href: '/gift-cards', isExternal: false, position: 30 },
-  ];
+  // Fallback: Generate links from content pages if no groups are configured
+  let linkGroups = configuredLinkGroups;
 
-  // Customer service / support links from content pages
-  const supportPages = contentPages.filter(p =>
-    ['faq', 'contact', 'shipping', 'returns', 'refund-policy'].some(slug => p.slug.includes(slug))
-  );
+  if (linkGroups.length === 0) {
+    // Build organized footer structure from content pages as fallback
+    const contentPages = (settings.contentPages || [])
+      .filter((p) => p.status === 'PUBLISHED' && p.showInFooter);
 
-  const supportLinks = [
-    ...supportPages.map((p, idx) => ({
+    // Create separate columns for better organization
+    const shopLinks = [
+      { id: 'products', label: 'All Products', href: '/products', isExternal: false, position: 10 },
+      { id: 'new-arrivals', label: 'New Arrivals', href: '/products?sort=newest', isExternal: false, position: 20 },
+      { id: 'gift-cards', label: 'Gift Cards', href: '/gift-cards', isExternal: false, position: 30 },
+    ];
+
+    // Customer service / support links from content pages
+    const supportPages = contentPages.filter(p =>
+      ['faq', 'contact', 'shipping', 'returns', 'refund-policy'].some(slug => p.slug.includes(slug))
+    );
+
+    const supportLinks = [
+      ...supportPages.map((p, idx) => ({
+        id: p.id,
+        label: p.title,
+        href: `/pages/${p.slug}`,
+        isExternal: false,
+        position: idx * 10
+      }))
+    ];
+
+    // Legal / policy links
+    const policyPages = contentPages.filter(p =>
+      ['privacy', 'terms', 'policy'].some(slug => p.slug.includes(slug)) &&
+      !supportPages.some(sp => sp.id === p.id)
+    );
+
+    const policyLinks = policyPages.map((p, idx) => ({
       id: p.id,
       label: p.title,
       href: `/pages/${p.slug}`,
       isExternal: false,
       position: idx * 10
-    }))
-  ];
+    }));
 
-  // Legal / policy links
-  const policyPages = contentPages.filter(p =>
-    ['privacy', 'terms', 'policy'].some(slug => p.slug.includes(slug)) &&
-    !supportPages.some(sp => sp.id === p.id)
-  );
+    // Company / about pages
+    const companyPages = contentPages.filter(p =>
+      ['about', 'careers', 'press', 'blog'].some(slug => p.slug.includes(slug)) &&
+      !supportPages.some(sp => sp.id === p.id) &&
+      !policyPages.some(pp => pp.id === p.id)
+    );
 
-  const policyLinks = policyPages.map((p, idx) => ({
-    id: p.id,
-    label: p.title,
-    href: `/pages/${p.slug}`,
-    isExternal: false,
-    position: idx * 10
-  }));
+    const companyLinks = companyPages.map((p, idx) => ({
+      id: p.id,
+      label: p.title,
+      href: `/pages/${p.slug}`,
+      isExternal: false,
+      position: idx * 10
+    }));
 
-  // Company / about pages
-  const companyPages = contentPages.filter(p =>
-    ['about', 'careers', 'press', 'blog'].some(slug => p.slug.includes(slug)) &&
-    !supportPages.some(sp => sp.id === p.id) &&
-    !policyPages.some(pp => pp.id === p.id)
-  );
+    // Build final link groups - only include groups that have links
+    linkGroups = [
+      { id: 'shop', title: 'Shop', links: shopLinks },
+      ...(supportLinks.length > 0 ? [{ id: 'support', title: 'Customer Service', links: supportLinks }] : []),
+      ...(companyLinks.length > 0 ? [{ id: 'company', title: 'Company', links: companyLinks }] : []),
+      ...(policyLinks.length > 0 ? [{ id: 'legal', title: 'Legal', links: policyLinks }] : []),
+    ].filter(g => g.links.length > 0);
+  }
 
-  const companyLinks = companyPages.map((p, idx) => ({
-    id: p.id,
-    label: p.title,
-    href: `/pages/${p.slug}`,
-    isExternal: false,
-    position: idx * 10
-  }));
+  // Get column layout from config (default to 4)
+  const columnLayout = footerConfig.columnLayout || 4;
 
-  // Build final link groups - only include groups that have links
-  const linkGroups = [
-    { id: 'shop', title: 'Shop', links: shopLinks },
-    ...(supportLinks.length > 0 ? [{ id: 'support', title: 'Customer Service', links: supportLinks }] : []),
-    ...(companyLinks.length > 0 ? [{ id: 'company', title: 'Company', links: companyLinks }] : []),
-    ...(policyLinks.length > 0 ? [{ id: 'legal', title: 'Legal', links: policyLinks }] : []),
-  ].filter(g => g.links.length > 0);
+  // Calculate grid column spans based on column layout
+  const getColumnGridClass = () => {
+    switch (columnLayout) {
+      case 1:
+        return 'lg:col-span-12'; // Full width for each group
+      case 2:
+        return 'lg:col-span-6'; // Half width
+      case 3:
+        return 'lg:col-span-4'; // Third width
+      case 4:
+      default:
+        return 'lg:col-span-2'; // Quarter width (original behavior)
+    }
+  };
+
+  // Payment methods from config
+  const showPaymentIcons = footerConfig.showPaymentIcons ?? false;
+  const paymentMethods = footerConfig.paymentMethods || [];
+
+  // Trust badges from config
+  const showTrustBadges = footerConfig.showTrustBadges ?? false;
+  const trustBadges = footerConfig.trustBadges || [];
 
   const currentYear = new Date().getFullYear();
   const hasSocialLinks = footerConfig.showSocialIcons && socialLinks.length > 0;
   const hasContactInfo = footerConfig.showContactInfo && (footerConfig.contactEmail || footerConfig.contactPhone || footerConfig.contactAddress);
   const hasCustomColors = !!(footerConfig.footerBgColor || footerConfig.footerTextColor);
+  const hasTrustBadges = showTrustBadges && trustBadges.length > 0;
+  const hasPaymentMethods = showPaymentIcons && paymentMethods.length > 0;
 
   // Use inherit for text when custom colors are set, otherwise use theme colors
   const textMutedClass = hasCustomColors ? 'opacity-70' : 'text-muted-foreground';
@@ -160,6 +285,9 @@ export function Footer() {
       '--footer-text-muted': `color-mix(in srgb, ${footerConfig.footerTextColor} 70%, transparent)`,
     } as React.CSSProperties),
   };
+
+  // Dynamic grid class based on column layout
+  const linkColumnClass = getColumnGridClass();
 
   return (
     <footer
@@ -271,9 +399,9 @@ export function Footer() {
             )}
           </div>
 
-          {/* Link Groups - Dynamic columns */}
+          {/* Link Groups - Dynamic columns based on columnLayout */}
           {linkGroups.map((group) => (
-            <div key={group.id} className="lg:col-span-2">
+            <div key={group.id} className={linkColumnClass}>
               <h3 className="font-semibold text-foreground mb-4 text-sm uppercase tracking-wider">
                 <TranslatedUIText text={group.title} />
               </h3>
@@ -338,41 +466,65 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-muted-foreground/10">
-          {/* Payment Methods - Responsive sizes */}
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-6">
-            <span className="text-xs text-muted-foreground mr-1 sm:mr-2 w-full sm:w-auto text-center sm:text-left mb-2 sm:mb-0"><TranslatedUIText text="Secure payments:" /></span>
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center">
-              {/* Visa */}
-              <div className="w-10 h-7 sm:w-12 sm:h-8 bg-white rounded-md border border-gray-200 flex items-center justify-center shadow-sm">
-                <svg viewBox="0 0 48 32" className="w-7 h-4 sm:w-8 sm:h-5">
-                  <path fill="#1434CB" d="M18.5 21.5h-3l1.9-11.7h3l-1.9 11.7zm8.5-11.4c-.6-.2-1.5-.5-2.7-.5-3 0-5.1 1.5-5.1 3.6 0 1.6 1.4 2.4 2.5 3 1.1.5 1.5.9 1.5 1.4 0 .7-.9 1.1-1.7 1.1-1.2 0-1.8-.2-2.7-.6l-.4-.2-.4 2.4c.7.3 1.9.5 3.2.5 3.1 0 5.2-1.5 5.2-3.7 0-1.2-.8-2.2-2.5-3-.8-.5-1.4-.8-1.4-1.4 0-.5.4-.9 1.4-.9.8 0 1.4.2 1.8.4l.2.1.4-2.3zm7.5-.3h-2.3c-.7 0-1.3.2-1.6 1l-4.5 10.7h3.1l.6-1.7h3.8l.4 1.7h2.8l-2.4-11.7zm-3.7 7.6l1.2-3.2.3-.8.2.7.7 3.3h-2.4zM15 9.8l-2.9 8-1.6-8.1c-.2-.8-.7-1.1-1.4-1.1H5l-.1.3c1.1.3 2.4.7 3.1 1.2.5.3.6.5.7 1.1l2.3 8.8h3.1l4.8-10.2H15z"/>
-                </svg>
-              </div>
-              {/* Mastercard */}
-              <div className="w-10 h-7 sm:w-12 sm:h-8 bg-white rounded-md border border-gray-200 flex items-center justify-center shadow-sm">
-                <svg viewBox="0 0 48 32" className="w-7 h-4 sm:w-8 sm:h-5">
-                  <circle fill="#EB001B" cx="18" cy="16" r="9"/>
-                  <circle fill="#F79E1B" cx="30" cy="16" r="9"/>
-                  <path fill="#FF5F00" d="M24 9.5c2.2 1.8 3.6 4.5 3.6 7.5s-1.4 5.7-3.6 7.5c-2.2-1.8-3.6-4.5-3.6-7.5s1.4-5.7 3.6-7.5z"/>
-                </svg>
-              </div>
-              {/* Amex */}
-              <div className="w-10 h-7 sm:w-12 sm:h-8 bg-[#016FD0] rounded-md flex items-center justify-center shadow-sm">
-                <span className="text-white text-[7px] sm:text-[8px] font-bold leading-tight text-center">AMEX</span>
-              </div>
-              {/* PayPal */}
-              <div className="w-10 h-7 sm:w-12 sm:h-8 bg-white rounded-md border border-gray-200 flex items-center justify-center shadow-sm">
-                <svg viewBox="0 0 48 32" className="w-7 h-4 sm:w-8 sm:h-5">
-                  <path fill="#003087" d="M18.4 8h-5.8c-.4 0-.7.3-.8.6l-2.4 15c0 .3.2.5.5.5h2.8c.4 0 .7-.3.8-.6l.6-4.1c0-.4.4-.7.8-.7h1.8c3.7 0 5.9-1.8 6.4-5.3.2-1.5 0-2.7-.7-3.6-.7-1-2.1-1.6-4-1.6z"/>
-                  <path fill="#009CDE" d="M34.4 8h-5.8c-.4 0-.7.3-.8.6l-2.4 15c0 .3.2.5.5.5h3c.3 0 .5-.2.5-.4l.7-4.3c0-.4.4-.7.8-.7h1.8c3.7 0 5.9-1.8 6.4-5.3.2-1.5 0-2.7-.7-3.6-.7-1-2.1-1.6-4-1.6z"/>
-                </svg>
-              </div>
-              {/* Apple Pay */}
-              <div className="w-10 h-7 sm:w-12 sm:h-8 bg-black rounded-md flex items-center justify-center shadow-sm">
-                <span className="text-white text-[7px] sm:text-[8px] font-medium">Pay</span>
+          {/* Trust Badges - Only show if enabled and has badges */}
+          {hasTrustBadges && (
+            <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 mb-6">
+              {trustBadges.map((badge) => {
+                const IconComponent = badge.icon ? TRUST_BADGE_ICONS[badge.icon] : null;
+                const badgeContent = (
+                  <div
+                    key={badge.id}
+                    className="flex items-center gap-2 px-3 py-2 rounded-md bg-[var(--surface-muted)] border border-[var(--border-default)] text-sm"
+                  >
+                    {badge.imageUrl ? (
+                      <img src={badge.imageUrl} alt={badge.label} className="h-5 w-5 object-contain" />
+                    ) : IconComponent ? (
+                      <IconComponent className="h-5 w-5 text-tenant-primary" />
+                    ) : null}
+                    <span className="text-muted-foreground font-medium">
+                      <TranslatedUIText text={badge.label} />
+                    </span>
+                  </div>
+                );
+
+                if (badge.href) {
+                  return (
+                    <a
+                      key={badge.id}
+                      href={badge.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:opacity-80 transition-opacity"
+                    >
+                      {badgeContent}
+                    </a>
+                  );
+                }
+
+                return badgeContent;
+              })}
+            </div>
+          )}
+
+          {/* Payment Methods - Only show if enabled and has methods */}
+          {hasPaymentMethods && (
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 mb-6">
+              <span className="text-xs text-muted-foreground mr-1 sm:mr-2 w-full sm:w-auto text-center sm:text-left mb-2 sm:mb-0">
+                <TranslatedUIText text="Secure payments:" />
+              </span>
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-center">
+                {paymentMethods.map((method) => {
+                  const icon = PAYMENT_ICONS[method];
+                  if (!icon) return null;
+                  return (
+                    <div key={method}>
+                      {icon}
+                    </div>
+                  );
+                })}
               </div>
             </div>
-          </div>
+          )}
 
           {/* Copyright and Powered By */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
@@ -380,18 +532,20 @@ export function Footer() {
               {footerConfig.copyrightText || `© ${currentYear} ${tenant?.name || 'Store'}. All rights reserved.`}
             </p>
 
-            {/* Powered by badge - always visible */}
-            <p className="text-sm text-muted-foreground">
-              <TranslatedUIText text="Powered by" />{' '}
-              <a
-                href="https://tesserix.app"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-tenant-primary hover:underline transition-colors"
-              >
-                Tesserix
-              </a>
-            </p>
+            {/* Powered by badge - respects showPoweredBy config */}
+            {footerConfig.showPoweredBy && (
+              <p className="text-sm text-muted-foreground">
+                <TranslatedUIText text="Powered by" />{' '}
+                <a
+                  href="https://tesserix.app"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold text-tenant-primary hover:underline transition-colors"
+                >
+                  Tesserix
+                </a>
+              </p>
+            )}
           </div>
         </div>
       </div>

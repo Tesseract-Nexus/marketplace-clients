@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { ContentPage } from '@/types/storefront';
 import { ChevronDown, Search, MessageCircle, HelpCircle } from 'lucide-react';
 import { useState, useMemo } from 'react';
@@ -69,7 +70,7 @@ function parseFAQItems(content: string): FAQItem[] {
 // FAQ Accordion Item Component
 function FAQAccordionItem({ item, isOpen, onToggle, index }: { item: FAQItem; isOpen: boolean; onToggle: () => void; index: number }) {
   return (
-    <div className="border-b border-stone-200 dark:border-stone-800 last:border-b-0">
+    <div className="border-b border-[var(--border-default)] last:border-b-0">
       <button
         onClick={onToggle}
         className="w-full flex items-start gap-4 py-5 text-left group"
@@ -78,18 +79,18 @@ function FAQAccordionItem({ item, isOpen, onToggle, index }: { item: FAQItem; is
         <span className="flex-shrink-0 w-8 h-8 rounded-lg bg-tenant-primary/10 flex items-center justify-center text-sm font-medium text-tenant-primary">
           {index + 1}
         </span>
-        <span className="flex-1 font-medium text-stone-900 dark:text-stone-100 group-hover:text-tenant-primary transition-colors">
+        <span className="flex-1 font-medium text-foreground group-hover:text-tenant-primary transition-colors">
           {item.question}
         </span>
         <ChevronDown
-          className={`flex-shrink-0 w-5 h-5 text-stone-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          className={`flex-shrink-0 w-5 h-5 text-muted-foreground transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
       <div
         className={`overflow-hidden transition-all duration-200 ${isOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
       >
         <div className="pb-5 pl-12 pr-4">
-          <p className="text-stone-600 dark:text-stone-400 leading-relaxed">
+          <p className="text-muted-foreground leading-relaxed">
             {item.answer}
           </p>
         </div>
@@ -137,95 +138,97 @@ export function FAQPageLayout({ page }: FAQPageLayoutProps) {
 
   return (
     <div className="py-12 md:py-16 lg:py-20">
-      <div className="max-w-4xl mx-auto px-6">
-        {/* Search and Controls */}
-        <div className="mb-10">
-          {/* Search Bar */}
-          <div className="relative mb-6">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
-            <input
-              type="text"
-              placeholder="Search frequently asked questions..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-tenant-primary/50 focus:border-tenant-primary transition-colors"
-            />
-          </div>
+      <div className="container-tenant">
+        <div className="max-w-4xl mx-auto">
+          {/* Search and Controls */}
+          <div className="mb-10">
+            {/* Search Bar */}
+            <div className="relative mb-6">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <input
+                type="text"
+                placeholder="Search frequently asked questions..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-[var(--border-default)] bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-tenant-primary/50 focus:border-tenant-primary transition-colors"
+              />
+            </div>
 
-          {/* Controls */}
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-stone-500">
-              {filteredItems.length} {filteredItems.length === 1 ? 'question' : 'questions'} found
-            </p>
-            <div className="flex gap-3">
-              <button
-                onClick={expandAll}
-                className="text-sm text-tenant-primary hover:underline"
-              >
-                Expand all
-              </button>
-              <span className="text-stone-300">|</span>
-              <button
-                onClick={collapseAll}
-                className="text-sm text-tenant-primary hover:underline"
-              >
-                Collapse all
-              </button>
+            {/* Controls */}
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {filteredItems.length} {filteredItems.length === 1 ? 'question' : 'questions'} found
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={expandAll}
+                  className="text-sm text-tenant-primary hover:underline"
+                >
+                  Expand all
+                </button>
+                <span className="text-muted-foreground/30">|</span>
+                <button
+                  onClick={collapseAll}
+                  className="text-sm text-tenant-primary hover:underline"
+                >
+                  Collapse all
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* FAQ List */}
-        {filteredItems.length > 0 ? (
-          <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm">
-            {filteredItems.map((item, index) => (
-              <FAQAccordionItem
-                key={index}
-                item={item}
-                index={index}
-                isOpen={openItems.has(index)}
-                onToggle={() => toggleItem(index)}
+          {/* FAQ List */}
+          {filteredItems.length > 0 ? (
+            <div className="bg-background rounded-xl border border-[var(--border-default)] shadow-sm">
+              {filteredItems.map((item, index) => (
+                <FAQAccordionItem
+                  key={index}
+                  item={item}
+                  index={index}
+                  isOpen={openItems.has(index)}
+                  onToggle={() => toggleItem(index)}
+                />
+              ))}
+            </div>
+          ) : searchQuery ? (
+            <div className="text-center py-12 bg-background rounded-xl border border-[var(--border-default)]">
+              <HelpCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
+              <h3 className="text-lg font-medium text-foreground mb-2">No results found</h3>
+              <p className="text-muted-foreground">
+                Try adjusting your search or{' '}
+                <button onClick={() => setSearchQuery('')} className="text-tenant-primary hover:underline">
+                  clear the filter
+                </button>
+              </p>
+            </div>
+          ) : (
+            // If no FAQ items could be parsed, show the raw content
+            <div className="bg-background rounded-xl border border-[var(--border-default)] shadow-sm p-8">
+              <article
+                className="prose-editorial"
+                dangerouslySetInnerHTML={createSanitizedHtml(page.content)}
               />
-            ))}
-          </div>
-        ) : searchQuery ? (
-          <div className="text-center py-12 bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800">
-            <HelpCircle className="w-12 h-12 mx-auto mb-4 text-stone-300 dark:text-stone-600" />
-            <h3 className="text-lg font-medium text-stone-900 dark:text-stone-100 mb-2">No results found</h3>
-            <p className="text-stone-500">
-              Try adjusting your search or{' '}
-              <button onClick={() => setSearchQuery('')} className="text-tenant-primary hover:underline">
-                clear the filter
-              </button>
-            </p>
-          </div>
-        ) : (
-          // If no FAQ items could be parsed, show the raw content
-          <div className="bg-white dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 shadow-sm p-8">
-            <article
-              className="prose-editorial"
-              dangerouslySetInnerHTML={createSanitizedHtml(page.content)}
-            />
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* Still have questions? CTA */}
-        <div className="mt-12 bg-tenant-primary/5 dark:bg-tenant-primary/10 rounded-2xl p-8 text-center">
-          <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-tenant-primary/10 flex items-center justify-center">
-            <MessageCircle className="w-7 h-7 text-tenant-primary" />
+          {/* Still have questions? CTA */}
+          <div className="mt-12 bg-tenant-primary/5 rounded-2xl p-8 text-center">
+            <div className="w-14 h-14 mx-auto mb-4 rounded-xl bg-tenant-primary/10 flex items-center justify-center">
+              <MessageCircle className="w-7 h-7 text-tenant-primary" />
+            </div>
+            <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2 font-heading">
+              Still have questions?
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+              Can&apos;t find the answer you&apos;re looking for? Our support team is here to help.
+            </p>
+            <Link
+              href="/pages/contact"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-tenant-primary text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
+            >
+              Contact Support
+            </Link>
           </div>
-          <h3 className="text-xl font-semibold text-[var(--text-primary)] mb-2 font-heading">
-            Still have questions?
-          </h3>
-          <p className="text-stone-600 dark:text-stone-400 mb-6 max-w-md mx-auto">
-            Can&apos;t find the answer you&apos;re looking for? Our support team is here to help.
-          </p>
-          <a
-            href="/pages/contact"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-tenant-primary text-white font-medium rounded-lg hover:opacity-90 transition-opacity"
-          >
-            Contact Support
-          </a>
         </div>
       </div>
     </div>

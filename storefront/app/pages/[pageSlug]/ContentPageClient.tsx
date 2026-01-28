@@ -1,8 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { Breadcrumb } from '@/components/ui/Breadcrumb';
 import { ContentPage } from '@/types/storefront';
-import { FileText, Scale, HelpCircle, Building2, Mail, Calendar, ArrowLeft, Clock } from 'lucide-react';
+import { FileText, Scale, HelpCircle, Building2, Mail, Calendar, Clock } from 'lucide-react';
 import { createSanitizedHtml } from '@/lib/utils/sanitize';
 import { ContactPageLayout } from './ContactPageLayout';
 import { AboutPageLayout } from './AboutPageLayout';
@@ -83,17 +84,17 @@ export function ContentPageClient({ page }: ContentPageClientProps) {
   const pageLayout = getPageLayout(page);
 
   return (
-    <div className="min-h-screen bg-stone-50 dark:bg-stone-950">
+    <div className="min-h-screen bg-[var(--surface-default)]">
       {/* Hero Section - Clean Editorial Style */}
-      <header className="relative bg-white dark:bg-stone-900 border-b border-stone-200 dark:border-stone-800">
-        <div className="max-w-4xl mx-auto px-6 py-8 md:py-12 lg:py-16">
+      <header className="relative bg-background border-b border-[var(--border-default)]">
+        <div className="container-tenant py-8 md:py-12 lg:py-16">
           {/* Breadcrumb */}
           <Breadcrumb items={breadcrumbItems} />
 
           {/* Page Header */}
-          <div className="mt-8 md:mt-12">
+          <div className="mt-8 md:mt-12 max-w-4xl">
             {/* Icon Badge */}
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-stone-100 dark:bg-stone-800 mb-6">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--surface-muted)] mb-6">
               <Icon className="w-6 h-6 text-tenant-primary" />
             </div>
 
@@ -104,14 +105,14 @@ export function ContentPageClient({ page }: ContentPageClientProps) {
 
             {/* Excerpt/Description */}
             {page.excerpt && (
-              <p className="mt-6 text-lg md:text-xl text-stone-600 dark:text-stone-400 leading-relaxed max-w-2xl">
+              <p className="mt-6 text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl">
                 {page.excerpt}
               </p>
             )}
 
             {/* Meta Info - Only show for default layout */}
             {pageLayout === 'default' && (
-              <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-stone-500 dark:text-stone-500">
+              <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                 {formattedDate && (
                   <span className="inline-flex items-center gap-1.5">
                     <Calendar className="w-4 h-4" />
@@ -141,46 +142,25 @@ export function ContentPageClient({ page }: ContentPageClientProps) {
       ) : pageLayout === 'faq' ? (
         <FAQPageLayout page={page} />
       ) : (
-        <main className="max-w-4xl mx-auto px-6 py-12 md:py-16 lg:py-20">
-          {/* Content Card for Policy Pages */}
-          {isPolicyPage ? (
-            <div className="bg-white dark:bg-stone-900 rounded-lg border border-stone-200 dark:border-stone-800 shadow-sm p-8 md:p-12">
+        <main className="container-tenant py-12 md:py-16 lg:py-20">
+          <div className="max-w-4xl">
+            {/* Content Card for Policy Pages */}
+            {isPolicyPage ? (
+              <div className="bg-background rounded-lg border border-[var(--border-default)] shadow-sm p-8 md:p-12">
+                <article
+                  className="prose-editorial"
+                  dangerouslySetInnerHTML={createSanitizedHtml(page.content)}
+                />
+              </div>
+            ) : (
               <article
                 className="prose-editorial"
                 dangerouslySetInnerHTML={createSanitizedHtml(page.content)}
               />
-            </div>
-          ) : (
-            <article
-              className="prose-editorial"
-              dangerouslySetInnerHTML={createSanitizedHtml(page.content)}
-            />
-          )}
-        </main>
-      )}
-
-      {/* Footer Section */}
-      <footer className="max-w-4xl mx-auto px-6 pb-16">
-        <div className="pt-8 border-t border-stone-200 dark:border-stone-800">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            {/* Back Link */}
-            <a
-              href="/"
-              className="inline-flex items-center gap-2 text-sm font-medium text-tenant-primary hover:opacity-80 transition-opacity"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Home
-            </a>
-
-            {/* Last Updated */}
-            {formattedDate && (
-              <p className="text-sm text-stone-500 dark:text-stone-500">
-                Last updated: {formattedDate}
-              </p>
             )}
           </div>
-        </div>
-      </footer>
+        </main>
+      )}
     </div>
   );
 }
