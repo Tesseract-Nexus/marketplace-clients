@@ -157,12 +157,13 @@ export default function QRCodesPage() {
     const loadStorefronts = async () => {
       try {
         setLoadingStorefronts(true);
-        const data = await storefrontService.getStorefronts();
-        setStorefronts(data);
+        const response = await storefrontService.getStorefronts();
+        const storefrontsList = response.data || [];
+        setStorefronts(storefrontsList);
         // Pre-select first storefront URL if available
-        if (data.length > 0 && data[0].storefrontUrl) {
-          setSelectedUrlOption(data[0].storefrontUrl);
-          setUrlData({ url: data[0].storefrontUrl });
+        if (storefrontsList.length > 0 && storefrontsList[0].storefrontUrl) {
+          setSelectedUrlOption(storefrontsList[0].storefrontUrl);
+          setUrlData({ url: storefrontsList[0].storefrontUrl });
         }
       } catch (err) {
         console.error('Failed to load storefronts:', err);
