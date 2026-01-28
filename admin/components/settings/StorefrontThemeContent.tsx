@@ -25,6 +25,12 @@ import {
   ImagePlus,
   Bookmark,
   Info,
+  FileText,
+  Plus,
+  Search,
+  Edit,
+  Trash2,
+  Wand2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -33,6 +39,10 @@ import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
 import { useToast } from '@/contexts/ToastContext';
 import { StoreSelector } from '@/components/settings/StoreSelector';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/Select';
+import { RichTextEditor } from '@/components/ui/RichTextEditor';
+import type { ContentPage, ContentPageType, ContentPageStatus } from '@/lib/types/settings';
 
 // Import our new storefront builder components
 import {
@@ -63,7 +73,7 @@ import {
   ColorMode,
 } from '@/lib/api/types';
 
-type TabId = 'theme' | 'homepage' | 'header' | 'footer' | 'products' | 'checkout';
+type TabId = 'theme' | 'homepage' | 'header' | 'footer' | 'products' | 'checkout' | 'pages';
 
 const TABS: { id: TabId; label: string; icon: React.ElementType; description: string }[] = [
   {
@@ -102,6 +112,12 @@ const TABS: { id: TabId; label: string; icon: React.ElementType; description: st
     icon: CreditCard,
     description: 'Checkout flow options',
   },
+  {
+    id: 'pages',
+    label: 'Pages',
+    icon: FileText,
+    description: 'Manage content pages',
+  },
 ];
 
 interface StorefrontThemeContentProps {
@@ -126,6 +142,27 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
   const [selectedStorefront, setSelectedStorefront] = useState<Storefront | null>(null);
   const [loadingStorefronts, setLoadingStorefronts] = useState(true);
+
+  // Content pages state
+  const [contentPages, setContentPages] = useState<ContentPage[]>([]);
+  const [savingPages, setSavingPages] = useState(false);
+  const [showPageForm, setShowPageForm] = useState(false);
+  const [pageSearchQuery, setPageSearchQuery] = useState('');
+  const [pageTypeFilter, setPageTypeFilter] = useState('');
+  const [pageStatusFilter, setPageStatusFilter] = useState('');
+  const [editingPage, setEditingPage] = useState<ContentPage | null>(null);
+  const [pageForm, setPageForm] = useState({
+    type: 'STATIC' as ContentPageType,
+    title: '',
+    slug: '',
+    excerpt: '',
+    content: '',
+    metaTitle: '',
+    metaDescription: '',
+    showInMenu: false,
+    showInFooter: false,
+    isFeatured: false,
+  });
 
   // Get vendor ID from tenant context
   const vendorId = currentTenant?.id || '';
@@ -332,6 +369,306 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
       });
     }
   };
+
+  // Content Pages functions
+  const pageTypeOptions = [
+    { value: '', label: 'All Types' },
+    { value: 'STATIC', label: 'Static' },
+    { value: 'BLOG', label: 'Blog' },
+    { value: 'FAQ', label: 'FAQ' },
+    { value: 'POLICY', label: 'Policy' },
+    { value: 'LANDING', label: 'Landing' },
+    { value: 'CUSTOM', label: 'Custom' },
+  ];
+
+  const pageStatusOptions = [
+    { value: '', label: 'All Status' },
+    { value: 'PUBLISHED', label: 'Published' },
+    { value: 'DRAFT', label: 'Draft' },
+    { value: 'ARCHIVED', label: 'Archived' },
+  ];
+
+  const filteredPages = contentPages.filter((page) => {
+    const matchesSearch =
+      !pageSearchQuery ||
+      page.title.toLowerCase().includes(pageSearchQuery.toLowerCase()) ||
+      page.slug.toLowerCase().includes(pageSearchQuery.toLowerCase());
+    const matchesType = !pageTypeFilter || page.type === pageTypeFilter;
+    const matchesStatus = !pageStatusFilter || page.status === pageStatusFilter;
+    return matchesSearch && matchesType && matchesStatus;
+  });
+
+  const generateSlug = (title: string) => {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  };
+
+  const handlePageTitleChange = (title: string) => {
+    const slug = generateSlug(title);
+    if (editingPage) {
+      setEditingPage({ ...editingPage, title, slug });
+    } else {
+      setPageForm({ ...pageForm, title, slug });
+    }
+  };
+
+  const resetPageForm = () => {
+    setPageForm({
+      type: 'STATIC',
+      title: '',
+      slug: '',
+      excerpt: '',
+      content: '',
+      metaTitle: '',
+      metaDescription: '',
+      showInMenu: false,
+      showInFooter: false,
+      isFeatured: false,
+    });
+    setEditingPage(null);
+    setShowPageForm(false);
+  };
+
+  const startEditPage = (page: ContentPage) => {
+    setEditingPage({ ...page });
+    setShowPageForm(true);
+  };
+
+  const startCreatePage = () => {
+    setEditingPage(null);
+    resetPageForm();
+    setShowPageForm(true);
+  };
+
+  const saveContentPages = async (updatedPages: ContentPage[]) => {
+    if (!selectedStorefront) return;
+
+    try {
+      setSavingPages(true);
+      const response = await fetch('/api/storefront/settings', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Storefront-ID': selectedStorefront.id,
+        },
+        body: JSON.stringify({ contentPages: updatedPages }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save content pages');
+      }
+
+      setContentPages(updatedPages);
+      // Also update settings to keep in sync
+      if (settings) {
+        setSettings({ ...settings, contentPages: updatedPages });
+        setSavedSettings({ ...settings, contentPages: updatedPages });
+      }
+    } catch (error) {
+      console.error('Failed to save content pages:', error);
+      throw error;
+    } finally {
+      setSavingPages(false);
+    }
+  };
+
+  const handleSavePage = async () => {
+    const formData = editingPage || pageForm;
+
+    if (!formData.title || !formData.slug) {
+      toast.error('Error', 'Title and slug are required');
+      return;
+    }
+
+    // Check for duplicate slug (excluding current page if editing)
+    const isDuplicate = contentPages.some((p) =>
+      p.slug === formData.slug && (!editingPage || p.id !== editingPage.id)
+    );
+    if (isDuplicate) {
+      toast.error('Error', 'A page with this slug already exists');
+      return;
+    }
+
+    if (editingPage) {
+      // Update existing page
+      const updatedPages = contentPages.map((p) =>
+        p.id === editingPage.id ? { ...editingPage, updatedAt: new Date().toISOString() } : p
+      );
+
+      try {
+        await saveContentPages(updatedPages);
+        resetPageForm();
+        toast.success('Success', 'Page updated successfully!');
+      } catch {
+        toast.error('Error', 'Failed to update page');
+      }
+    } else {
+      // Create new page
+      const now = new Date().toISOString();
+      const newPage: ContentPage = {
+        id: crypto.randomUUID(),
+        type: pageForm.type,
+        status: 'DRAFT',
+        title: pageForm.title,
+        slug: pageForm.slug,
+        excerpt: pageForm.excerpt || undefined,
+        content: pageForm.content,
+        metaTitle: pageForm.metaTitle || undefined,
+        metaDescription: pageForm.metaDescription || undefined,
+        viewCount: 0,
+        showInMenu: pageForm.showInMenu,
+        showInFooter: pageForm.showInFooter,
+        isFeatured: pageForm.isFeatured,
+        createdAt: now,
+        updatedAt: now,
+      };
+
+      try {
+        await saveContentPages([...contentPages, newPage]);
+        resetPageForm();
+        toast.success('Success', 'Page created successfully!');
+      } catch {
+        toast.error('Error', 'Failed to create page');
+      }
+    }
+  };
+
+
+  const handlePublishPage = async (id: string) => {
+    const updatedPages = contentPages.map((p) =>
+      p.id === id
+        ? { ...p, status: 'PUBLISHED' as ContentPageStatus, publishedAt: new Date().toISOString(), updatedAt: new Date().toISOString() }
+        : p
+    );
+
+    try {
+      await saveContentPages(updatedPages);
+      toast.success('Success', 'Page published!');
+    } catch {
+      toast.error('Error', 'Failed to publish page');
+    }
+  };
+
+  const handleUnpublishPage = async (id: string) => {
+    const updatedPages = contentPages.map((p) =>
+      p.id === id
+        ? { ...p, status: 'DRAFT' as ContentPageStatus, updatedAt: new Date().toISOString() }
+        : p
+    );
+
+    try {
+      await saveContentPages(updatedPages);
+      toast.success('Success', 'Page unpublished');
+    } catch {
+      toast.error('Error', 'Failed to unpublish page');
+    }
+  };
+
+  const handleDeletePage = async (id: string) => {
+    const confirmed = await showConfirm({
+      title: 'Delete Page',
+      message: 'Are you sure you want to delete this page? This action cannot be undone.',
+      confirmLabel: 'Delete',
+      cancelLabel: 'Cancel',
+    });
+
+    if (confirmed) {
+      const updatedPages = contentPages.filter((p) => p.id !== id);
+      try {
+        await saveContentPages(updatedPages);
+        toast.success('Success', 'Page deleted');
+      } catch {
+        toast.error('Error', 'Failed to delete page');
+      }
+    }
+  };
+
+  const autoGenerateContent = () => {
+    const formData = editingPage || pageForm;
+    if (!formData.title) {
+      toast.error('Title Required', 'Please enter a page title first');
+      return;
+    }
+
+    const title = formData.title;
+    const type = formData.type;
+    const storeName = selectedStorefront?.name || 'Our Store';
+
+    const metaTitle = `${title} | ${storeName}`;
+
+    const excerptTemplates: Record<string, string> = {
+      STATIC: `Learn more about ${title.toLowerCase()} at ${storeName}.`,
+      BLOG: `Read our latest insights about ${title.toLowerCase()}.`,
+      FAQ: `Find answers to frequently asked questions about ${title.toLowerCase()}.`,
+      POLICY: `Review our ${title.toLowerCase()} to understand how ${storeName} operates.`,
+      LANDING: `Discover ${title.toLowerCase()} at ${storeName}.`,
+      CUSTOM: `Explore ${title.toLowerCase()} at ${storeName}.`,
+    };
+
+    const contentTemplates: Record<string, string> = {
+      STATIC: `<h2>${title}</h2>\n<p>Welcome to our ${title.toLowerCase()} page at ${storeName}.</p>\n\n<h3>Our Commitment</h3>\n<p>We are dedicated to providing exceptional service and products that meet your needs.</p>`,
+      BLOG: `<h2>${title}</h2>\n<p><em>Published on ${new Date().toLocaleDateString()}</em></p>\n\n<p>Welcome to this article about ${title.toLowerCase()}.</p>`,
+      FAQ: `<h2>${title}</h2>\n<p>Find answers to the most common questions about ${storeName}.</p>\n\n<p><strong>Q: What is ${storeName}?</strong></p>\n<p>A: ${storeName} is your trusted destination for quality products.</p>`,
+      POLICY: `<h2>${title}</h2>\n<p><em>Last updated: ${new Date().toLocaleDateString()}</em></p>\n\n<h3>Overview</h3>\n<p>This ${title.toLowerCase()} outlines the terms for ${storeName}.</p>`,
+      LANDING: `<h2>${title}</h2>\n<p class="lead">Discover amazing products at ${storeName}.</p>\n\n<h3>Why Choose Us?</h3>\n<ul>\n<li>Quality Products</li>\n<li>Great Prices</li>\n<li>Fast Shipping</li>\n</ul>`,
+      CUSTOM: `<h2>${title}</h2>\n<p>Welcome to ${storeName}'s ${title.toLowerCase()} page.</p>`,
+    };
+
+    const updates = {
+      excerpt: excerptTemplates[type] || excerptTemplates.STATIC,
+      content: contentTemplates[type] || contentTemplates.STATIC,
+      metaTitle,
+      metaDescription: excerptTemplates[type] || excerptTemplates.STATIC,
+    };
+
+    if (editingPage) {
+      setEditingPage({ ...editingPage, ...updates });
+    } else {
+      setPageForm({ ...pageForm, ...updates });
+    }
+
+    toast.success('Content Generated!', 'Fields have been auto-filled based on your page title and type.');
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'PUBLISHED':
+        return 'bg-success-muted text-success-muted-foreground border-success/30';
+      case 'DRAFT':
+        return 'bg-warning-muted text-warning border-warning/30';
+      case 'ARCHIVED':
+        return 'bg-muted text-foreground border-border';
+      default:
+        return 'bg-muted text-foreground border-border';
+    }
+  };
+
+  const getTypeColor = (type: string) => {
+    switch (type) {
+      case 'STATIC':
+        return 'bg-primary/20 text-primary border-primary/30';
+      case 'BLOG':
+        return 'bg-primary/10 text-primary border-primary/30';
+      case 'FAQ':
+        return 'bg-success-muted text-success-muted-foreground border-success/30';
+      case 'POLICY':
+        return 'bg-warning-muted text-warning border-warning/30';
+      default:
+        return 'bg-muted text-foreground border-border';
+    }
+  };
+
+  // Load content pages when settings are loaded
+  useEffect(() => {
+    if (settings?.contentPages) {
+      // Cast the content pages from settings to our ContentPage type
+      setContentPages(settings.contentPages as ContentPage[]);
+    } else {
+      setContentPages([]);
+    }
+  }, [settings?.contentPages]);
 
   // Show storefront selector first, then loading/content (only when not embedded)
   if (!selectedStorefront) {
@@ -1323,6 +1660,330 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                       </div>
                     )}
                   </div>
+                </div>
+              )}
+
+              {/* Pages Tab */}
+              {activeTab === 'pages' && (
+                <div className="space-y-6">
+                  {/* Inline Form - Create/Edit */}
+                  {showPageForm ? (
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-lg font-semibold">
+                          {editingPage ? 'Edit Page' : 'Create New Page'}
+                        </h3>
+                        <div className="flex items-center gap-2">
+                          <Button variant="outline" size="sm" onClick={resetPageForm} disabled={savingPages}>
+                            Cancel
+                          </Button>
+                          <Button
+                            size="sm"
+                            onClick={handleSavePage}
+                            disabled={savingPages}
+                            className="bg-primary text-primary-foreground"
+                          >
+                            {savingPages ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+                            {editingPage ? 'Update' : 'Create'}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Left Column - Details */}
+                        <div className="space-y-4">
+                          <div className="p-4 bg-muted/50 rounded-lg space-y-4">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-medium text-foreground">Page Details</h4>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={autoGenerateContent}
+                                disabled={!(editingPage?.title || pageForm.title)}
+                              >
+                                <Wand2 className="h-3.5 w-3.5 mr-1.5" />
+                                Auto Generate
+                              </Button>
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-medium text-foreground mb-1">Title *</label>
+                              <Input
+                                placeholder="About Us"
+                                value={editingPage?.title || pageForm.title}
+                                onChange={(e) => handlePageTitleChange(e.target.value)}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-medium text-foreground mb-1">URL Slug *</label>
+                              <Input
+                                placeholder="about-us"
+                                value={editingPage?.slug || pageForm.slug}
+                                onChange={(e) => {
+                                  const slug = generateSlug(e.target.value);
+                                  if (editingPage) {
+                                    setEditingPage({ ...editingPage, slug });
+                                  } else {
+                                    setPageForm({ ...pageForm, slug });
+                                  }
+                                }}
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                URL: /{editingPage?.slug || pageForm.slug || 'page-slug'}
+                              </p>
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-medium text-foreground mb-1">Type</label>
+                              <Select
+                                value={editingPage?.type || pageForm.type}
+                                onChange={(value) => {
+                                  if (editingPage) {
+                                    setEditingPage({ ...editingPage, type: value as ContentPageType });
+                                  } else {
+                                    setPageForm({ ...pageForm, type: value as ContentPageType });
+                                  }
+                                }}
+                                options={pageTypeOptions.filter((t) => t.value !== '')}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-medium text-foreground mb-1">Excerpt</label>
+                              <textarea
+                                className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                                rows={2}
+                                placeholder="Short description..."
+                                value={editingPage?.excerpt || pageForm.excerpt}
+                                onChange={(e) => {
+                                  if (editingPage) {
+                                    setEditingPage({ ...editingPage, excerpt: e.target.value });
+                                  } else {
+                                    setPageForm({ ...pageForm, excerpt: e.target.value });
+                                  }
+                                }}
+                              />
+                            </div>
+
+                            <div className="flex flex-wrap gap-4">
+                              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={editingPage?.showInMenu || pageForm.showInMenu}
+                                  onChange={(e) => {
+                                    if (editingPage) {
+                                      setEditingPage({ ...editingPage, showInMenu: e.target.checked });
+                                    } else {
+                                      setPageForm({ ...pageForm, showInMenu: e.target.checked });
+                                    }
+                                  }}
+                                  className="rounded border-border text-primary"
+                                />
+                                Show in Menu
+                              </label>
+                              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={editingPage?.showInFooter || pageForm.showInFooter}
+                                  onChange={(e) => {
+                                    if (editingPage) {
+                                      setEditingPage({ ...editingPage, showInFooter: e.target.checked });
+                                    } else {
+                                      setPageForm({ ...pageForm, showInFooter: e.target.checked });
+                                    }
+                                  }}
+                                  className="rounded border-border text-primary"
+                                />
+                                Show in Footer
+                              </label>
+                            </div>
+                          </div>
+
+                          {/* SEO */}
+                          <div className="p-4 bg-muted/50 rounded-lg space-y-4">
+                            <h4 className="font-medium text-foreground">SEO Settings</h4>
+                            <div>
+                              <label className="block text-sm font-medium text-foreground mb-1">Meta Title</label>
+                              <Input
+                                placeholder="About Us - Store Name"
+                                value={editingPage?.metaTitle || pageForm.metaTitle}
+                                onChange={(e) => {
+                                  if (editingPage) {
+                                    setEditingPage({ ...editingPage, metaTitle: e.target.value });
+                                  } else {
+                                    setPageForm({ ...pageForm, metaTitle: e.target.value });
+                                  }
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-foreground mb-1">Meta Description</label>
+                              <textarea
+                                className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                                rows={2}
+                                placeholder="Description for search engines..."
+                                value={editingPage?.metaDescription || pageForm.metaDescription}
+                                onChange={(e) => {
+                                  if (editingPage) {
+                                    setEditingPage({ ...editingPage, metaDescription: e.target.value });
+                                  } else {
+                                    setPageForm({ ...pageForm, metaDescription: e.target.value });
+                                  }
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right Column - Content */}
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">Content</label>
+                          <RichTextEditor
+                            value={editingPage?.content || pageForm.content}
+                            onChange={(value) => {
+                              if (editingPage) {
+                                setEditingPage({ ...editingPage, content: value });
+                              } else {
+                                setPageForm({ ...pageForm, content: value });
+                              }
+                            }}
+                            placeholder="Write your page content..."
+                            minHeight="400px"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Header with Create Button */}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <h3 className="text-lg font-semibold">Content Pages</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Create and manage pages for your storefront
+                          </p>
+                        </div>
+                        <Button onClick={startCreatePage} disabled={savingPages} className="bg-primary text-primary-foreground hover:opacity-90">
+                          <Plus className="h-4 w-4 mr-2" />
+                          New Page
+                        </Button>
+                      </div>
+
+                      {/* Filters */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-muted/50 rounded-lg">
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-1.5">Search</label>
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <Input
+                              placeholder="Search pages..."
+                              value={pageSearchQuery}
+                              onChange={(e) => setPageSearchQuery(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-1.5">Type</label>
+                          <Select value={pageTypeFilter} onChange={setPageTypeFilter} options={pageTypeOptions} />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-1.5">Status</label>
+                          <Select value={pageStatusFilter} onChange={setPageStatusFilter} options={pageStatusOptions} />
+                        </div>
+                      </div>
+
+                      {/* Pages List */}
+                      {filteredPages.length === 0 ? (
+                        <div className="text-center py-12">
+                          <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                          <h4 className="font-semibold text-foreground mb-2">
+                            {contentPages.length === 0 ? 'No Content Pages Yet' : 'No Pages Match Filters'}
+                          </h4>
+                          <p className="text-sm text-muted-foreground mb-4">
+                            {contentPages.length === 0
+                              ? 'Create your first content page to get started.'
+                              : 'Try adjusting your search or filter criteria.'}
+                          </p>
+                          {contentPages.length === 0 && (
+                            <Button onClick={startCreatePage} className="bg-primary text-primary-foreground">
+                              <Plus className="h-4 w-4 mr-2" />
+                              Create First Page
+                            </Button>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="overflow-x-auto border border-border rounded-lg">
+                          <table className="w-full">
+                            <thead className="bg-muted border-b border-border">
+                              <tr>
+                                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase">Title</th>
+                                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase">Type</th>
+                                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase">Status</th>
+                                <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase">Updated</th>
+                                <th className="px-4 py-3 text-right text-xs font-bold text-foreground uppercase">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border">
+                              {filteredPages.map((page) => (
+                                <tr key={page.id} className="hover:bg-muted/50 transition-colors">
+                                  <td className="px-4 py-3">
+                                    <div>
+                                      <p className="font-medium text-foreground">{page.title}</p>
+                                      <p className="text-xs text-muted-foreground font-mono">/{page.slug}</p>
+                                      <div className="flex items-center gap-1.5 mt-1">
+                                        {page.showInMenu && (
+                                          <span className="text-xs bg-primary/20 text-primary px-1.5 py-0.5 rounded font-medium">Menu</span>
+                                        )}
+                                        {page.showInFooter && (
+                                          <span className="text-xs bg-success-muted text-success-muted-foreground px-1.5 py-0.5 rounded font-medium">Footer</span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </td>
+                                  <td className="px-4 py-3">
+                                    <span className={cn('inline-flex px-2 py-0.5 rounded text-xs font-medium border', getTypeColor(page.type))}>
+                                      {page.type}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-3">
+                                    <span className={cn('inline-flex px-2 py-0.5 rounded text-xs font-medium border', getStatusColor(page.status))}>
+                                      {page.status}
+                                    </span>
+                                  </td>
+                                  <td className="px-4 py-3 text-sm text-muted-foreground">
+                                    {new Date(page.updatedAt).toLocaleDateString()}
+                                  </td>
+                                  <td className="px-4 py-3 text-right">
+                                    <div className="flex gap-1 justify-end">
+                                      {page.status === 'DRAFT' && (
+                                        <Button variant="ghost" size="sm" onClick={() => handlePublishPage(page.id)} disabled={savingPages} title="Publish">
+                                          <Globe className="h-4 w-4 text-success" />
+                                        </Button>
+                                      )}
+                                      {page.status === 'PUBLISHED' && (
+                                        <Button variant="ghost" size="sm" onClick={() => handleUnpublishPage(page.id)} disabled={savingPages} title="Unpublish">
+                                          <Globe className="h-4 w-4 text-muted-foreground" />
+                                        </Button>
+                                      )}
+                                      <Button variant="ghost" size="sm" onClick={() => startEditPage(page)} disabled={savingPages} title="Edit">
+                                        <Edit className="h-4 w-4 text-muted-foreground" />
+                                      </Button>
+                                      <Button variant="ghost" size="sm" onClick={() => handleDeletePage(page.id)} disabled={savingPages} title="Delete">
+                                        <Trash2 className="h-4 w-4 text-destructive" />
+                                      </Button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
             </div>
