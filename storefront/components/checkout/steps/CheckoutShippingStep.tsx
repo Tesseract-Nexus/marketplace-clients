@@ -361,7 +361,7 @@ export function CheckoutShippingStep({
                     onAddressSelect={handleAutocompleteSelect}
                     onManualEntryToggle={(isManual) => setUseAutocomplete(!isManual)}
                     placeholder="Start typing your address..."
-                    countryRestriction={shippingAddress.countryCode || storeCountryCode}
+                    countryRestriction={storeCountryCode}
                     showCurrentLocation={true}
                   />
                 </div>
@@ -377,14 +377,15 @@ export function CheckoutShippingStep({
                       onClick={() => {
                         setUseAutocomplete(true);
                         setHasAutoFilled(false);
+                        // Keep store country when re-searching
                         setShippingAddress({
                           addressLine1: '',
                           city: '',
                           state: '',
                           stateCode: '',
                           zip: '',
-                          country: '',
-                          countryCode: '',
+                          country: storeCountryCode || '',
+                          countryCode: storeCountryCode || '',
                         });
                       }}
                       className="text-sm text-tenant-primary hover:underline flex items-center gap-1 mb-2"
@@ -487,7 +488,7 @@ export function CheckoutShippingStep({
                       stateCode: '',
                     });
                   }}
-                  disabled={isLoadingCountries}
+                  disabled={true} // Country is set by store location - customers cannot change
                 >
                   <SelectTrigger>
                     {isLoadingCountries ? (
