@@ -385,6 +385,17 @@ export default async function RootLayout({
             <link rel="stylesheet" href={googleFontsUrl} />
           </>
         )}
+        {/* Dynamic favicon from admin settings */}
+        {settings.faviconUrl && (
+          <>
+            <link rel="icon" href={settings.faviconUrl} />
+            <link rel="shortcut icon" href={settings.faviconUrl} />
+            <link rel="apple-touch-icon" href={settings.faviconUrl} />
+          </>
+        )}
+        {/* Dynamic page title */}
+        <title>{storeName}</title>
+        <meta name="description" content={`Shop at ${storeName} - Discover amazing products`} />
         {/* AI Crawler Guidance */}
         <link rel="ai-guidance" href="/llms.txt" />
       </head>
