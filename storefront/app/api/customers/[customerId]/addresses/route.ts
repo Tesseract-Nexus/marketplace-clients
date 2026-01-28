@@ -3,6 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 const CUSTOMERS_SERVICE_URL = process.env.CUSTOMERS_SERVICE_URL || 'http://localhost:8089/api/v1';
 const CUSTOMERS_BASE_URL = CUSTOMERS_SERVICE_URL.replace(/\/api\/v1\/?$/, '');
 
+// Use storefront endpoints for customer-facing address operations
+// These endpoints use customer JWT auth instead of staff RBAC
+const STOREFRONT_API_PATH = '/api/v1/storefront';
+
 // Helper to decode JWT payload (base64url decode)
 function decodeJwtPayload(token: string): { sub?: string; customer_id?: string } | null {
   try {
@@ -90,8 +94,9 @@ export async function GET(
       );
     }
 
+    // Use storefront endpoint path for customer-facing operations
     const response = await fetch(
-      `${CUSTOMERS_BASE_URL}/api/v1/customers/${customerId}/addresses`,
+      `${CUSTOMERS_BASE_URL}${STOREFRONT_API_PATH}/customers/${customerId}/addresses`,
       {
         headers: {
           'Content-Type': 'application/json',
@@ -167,7 +172,8 @@ export async function POST(
     // Transform request body to backend format
     const transformedBody = transformAddressForBackend(body);
 
-    const targetUrl = `${CUSTOMERS_BASE_URL}/api/v1/customers/${customerId}/addresses`;
+    // Use storefront endpoint path for customer-facing operations
+    const targetUrl = `${CUSTOMERS_BASE_URL}${STOREFRONT_API_PATH}/customers/${customerId}/addresses`;
     console.log('POST address - target URL:', targetUrl);
 
     const response = await fetch(targetUrl, {
