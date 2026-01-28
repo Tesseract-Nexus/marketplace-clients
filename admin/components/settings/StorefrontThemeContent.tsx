@@ -1403,17 +1403,16 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                               </label>
                               <input
                                 type="datetime-local"
-                                value={settings.headerConfig.announcementCountdownEnd ?
-                                  new Date(settings.headerConfig.announcementCountdownEnd).toISOString().slice(0, 16) : ''}
+                                value={settings.headerConfig.announcementCountdownEnd?.slice(0, 16) || ''}
                                 onChange={(e) =>
                                   updateHeaderConfig({
-                                    announcementCountdownEnd: e.target.value ? new Date(e.target.value).toISOString() : undefined
+                                    announcementCountdownEnd: e.target.value || undefined
                                   })
                                 }
                                 className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                               />
                               <p className="text-xs text-muted-foreground mt-1">
-                                Add urgency with a countdown. Shows "Sale ends in 2d 5h 30m"
+                                Time is in your store&apos;s timezone. Shows &quot;Sale ends in 2d 5h 30m&quot;
                               </p>
                               {settings.headerConfig.announcementCountdownEnd && (
                                 <button

@@ -19,7 +19,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useTenant, useHeaderConfig, useNavPath, useMobileConfig } from '@/context/TenantContext';
+import { useTenant, useHeaderConfig, useNavPath, useMobileConfig, useLocalization } from '@/context/TenantContext';
 import { useCartStore } from '@/store/cart';
 import { useListsStore } from '@/store/lists';
 import { useAuthStore } from '@/store/auth';
@@ -37,6 +37,7 @@ export function Header() {
   const headerConfig = useHeaderConfig();
   const mobileConfig = useMobileConfig();
   const getNavPath = useNavPath();
+  const localization = useLocalization();
   const mobileMenuStyle = mobileConfig?.mobileMenuStyle || 'slide';
   const mobileHeaderStyle = mobileConfig?.mobileHeaderStyle || 'standard';
 
@@ -81,7 +82,7 @@ export function Header() {
     }
   }, []);
 
-  // Countdown timer for announcements
+  // Countdown timer for announcements (uses store timezone)
   useEffect(() => {
     if (!headerConfig.announcementCountdownEnd) {
       setCountdown(null);
@@ -89,8 +90,60 @@ export function Header() {
     }
 
     const calculateCountdown = () => {
-      const endDate = new Date(headerConfig.announcementCountdownEnd!);
+      // Parse the end date in the store's timezone
+      // The datetime is stored as a simple string like "2026-01-29T03:29" without timezone
+      // We need to interpret it in the store's timezone
+      const storeTimezone = localization.timezone || 'UTC';
+
+      // Get current time in store timezone as a comparable timestamp
       const now = new Date();
+
+      // Parse the stored datetime and treat it as being in the store's timezone
+      // by creating a formatter that outputs the store timezone's current time
+      const endDateStr = headerConfig.announcementCountdownEnd!;
+
+      // Create a date from the stored string (interpreted as local time initially)
+      // Then adjust for the store's timezone
+      let endDate: Date;
+
+      try {
+        // If the stored value is an ISO string (legacy), parse it directly
+        if (endDateStr.includes('Z') || endDateStr.includes('+')) {
+          endDate = new Date(endDateStr);
+        } else {
+          // For simple datetime strings like "2026-01-29T03:29", interpret in store timezone
+          // Create a date string with the timezone info
+          const dateFormatter = new Intl.DateTimeFormat('en-CA', {
+            timeZone: storeTimezone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+          });
+
+          // Get current time in store timezone
+          const nowInStoreTimezone = dateFormatter.format(now);
+          const [datePart, timePart] = nowInStoreTimezone.split(', ');
+          const currentStoreTime = new Date(`${datePart}T${timePart}`);
+
+          // Parse the end date string (it's already in store timezone format)
+          const endDateTime = new Date(endDateStr.includes('T') ? endDateStr : `${endDateStr}T00:00:00`);
+
+          // Calculate the offset between local time and store time
+          const localNow = new Date();
+          const storeTimeOffset = currentStoreTime.getTime() - localNow.getTime();
+
+          // Adjust the end date by the same offset
+          endDate = new Date(endDateTime.getTime() - storeTimeOffset);
+        }
+      } catch {
+        // Fallback: parse as-is
+        endDate = new Date(endDateStr);
+      }
+
       const diff = endDate.getTime() - now.getTime();
 
       if (diff <= 0) {
@@ -115,7 +168,7 @@ export function Header() {
     calculateCountdown();
     const interval = setInterval(calculateCountdown, 1000);
     return () => clearInterval(interval);
-  }, [headerConfig.announcementCountdownEnd]);
+  }, [headerConfig.announcementCountdownEnd, localization.timezone]);
 
   const handleDismissAnnouncement = () => {
     setAnnouncementDismissed(true);
