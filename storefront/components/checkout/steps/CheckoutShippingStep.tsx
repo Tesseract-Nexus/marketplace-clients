@@ -23,6 +23,7 @@ import { CustomerAddress } from '@/lib/api/customers';
 import { ShippingMethod, ShippingRate } from '@/lib/api/shipping';
 import type { DetectedLocation } from '@/hooks/useLocationDetection';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
+import { useLocalization } from '@/context/TenantContext';
 import { cn } from '@/lib/utils';
 
 interface Country {
@@ -75,6 +76,10 @@ export function CheckoutShippingStep({
     isProcessing,
   } = useCheckout();
 
+  // Get store localization settings (country configured by admin)
+  const localization = useLocalization();
+  const storeCountryCode = localization.countryCode;
+
   // Location detection
   const { location, isLoading: isLocationLoading, isAutoDetected } = useLocationDetection(true);
   const [showLocationModal, setShowLocationModal] = useState(false);
@@ -107,6 +112,16 @@ export function CheckoutShippingStep({
     };
     fetchCountries();
   }, []);
+
+  // Set default country from store settings when component mounts
+  useEffect(() => {
+    if (storeCountryCode && !shippingAddress.countryCode) {
+      setShippingAddress({
+        country: storeCountryCode,
+        countryCode: storeCountryCode,
+      });
+    }
+  }, [storeCountryCode, shippingAddress.countryCode, setShippingAddress]);
 
   // Fetch states when country changes
   const fetchStates = useCallback(async (countryId: string) => {
@@ -346,7 +361,7 @@ export function CheckoutShippingStep({
                     onAddressSelect={handleAutocompleteSelect}
                     onManualEntryToggle={(isManual) => setUseAutocomplete(!isManual)}
                     placeholder="Start typing your address..."
-                    countryRestriction={shippingAddress.countryCode}
+                    countryRestriction={shippingAddress.countryCode || storeCountryCode}
                     showCurrentLocation={true}
                   />
                 </div>
