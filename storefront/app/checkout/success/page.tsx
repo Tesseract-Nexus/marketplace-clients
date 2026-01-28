@@ -193,7 +193,11 @@ function CheckoutSuccessContent() {
     try {
       const res = await fetch('/api/orders/cancel', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Tenant-ID': tenant?.id || '',
+          'X-Storefront-ID': tenant?.storefrontId || '',
+        },
         body: JSON.stringify({
           orderNumber: sessionDetails.orderNumber,
           reason: cancelReason,
@@ -212,7 +216,7 @@ function CheckoutSuccessContent() {
     } finally {
       setCancelling(false);
     }
-  }, [sessionDetails?.orderNumber, sessionDetails?.customerEmail, cancelReason]);
+  }, [sessionDetails?.orderNumber, sessionDetails?.customerEmail, cancelReason, tenant?.id, tenant?.storefrontId]);
 
   const storeName = tenant?.name || 'Store';
   const isPaid = sessionDetails?.paymentStatus?.toLowerCase() === 'succeeded';
