@@ -327,13 +327,30 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className="theme-loading">
       <head>
-        {/* CRITICAL: Blocking script to set theme BEFORE any render - prevents FOUC */}
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-        {/* Hide content until theme is loaded */}
+        {/* CRITICAL: Hide content IMMEDIATELY - must be first style in head */}
         <style dangerouslySetInnerHTML={{ __html: `
-          html.theme-loading { visibility: hidden; }
-          html.theme-loaded { visibility: visible; }
+          /* Hide content until theme is loaded - prevent FOUC */
+          html.theme-loading,
+          html.theme-loading body,
+          html.theme-loading * {
+            visibility: hidden !important;
+            opacity: 0 !important;
+          }
+          html.theme-loaded,
+          html.theme-loaded body,
+          html.theme-loaded * {
+            visibility: visible !important;
+            opacity: 1 !important;
+          }
+          /* Smooth transition when theme loads */
+          html.theme-loaded body {
+            transition: opacity 0.1s ease-in-out;
+          }
         `}} />
+        {/* Inject CSS variables as style tag - before any other styles */}
+        <style dangerouslySetInnerHTML={{ __html: `:root { ${cssString} }` }} />
+        {/* Blocking script to mark theme as loaded */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
         {/* Preload Google Fonts to prevent flash of unstyled text */}
         {googleFontsUrl && (
           <>
@@ -342,8 +359,6 @@ export default async function RootLayout({
             <link rel="stylesheet" href={googleFontsUrl} />
           </>
         )}
-        {/* Fallback: Inject CSS variables as style tag */}
-        <style dangerouslySetInnerHTML={{ __html: `:root { ${cssString} }` }} />
         {/* AI Crawler Guidance */}
         <link rel="ai-guidance" href="/llms.txt" />
       </head>

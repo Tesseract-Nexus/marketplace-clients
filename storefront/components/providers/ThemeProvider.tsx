@@ -68,7 +68,9 @@ export function ThemeProvider({ children, settings }: ThemeProviderProps) {
   }, [settings.colorMode, settings.themeTemplate]);
 
   // Critical CSS variables that need !important to override globals.css defaults
+  // Must match CRITICAL_VARIABLES in theme-utils.ts
   const CRITICAL_VARIABLES = [
+    // Tenant colors
     '--tenant-primary',
     '--tenant-primary-light',
     '--tenant-primary-dark',
@@ -82,6 +84,12 @@ export function ThemeProvider({ children, settings }: ThemeProviderProps) {
     '--tenant-secondary-foreground',
     '--tenant-gradient',
     '--tenant-gradient-subtle',
+    // Typography - prevent font flash
+    '--font-heading',
+    '--font-body',
+    '--font-size-base',
+    '--font-weight-heading',
+    '--font-weight-body',
   ];
 
   // Inject CSS variables into document

@@ -367,7 +367,10 @@ export function injectCssVariables(variables: Record<string, string>): void {
 }
 
 // Critical CSS variables that need !important to override globals.css defaults
+// These prevent FOUC (Flash of Unstyled Content) by ensuring tenant theme
+// takes priority over the layered defaults in globals.css
 const CRITICAL_VARIABLES = [
+  // Tenant colors
   '--tenant-primary',
   '--tenant-primary-light',
   '--tenant-primary-dark',
@@ -381,6 +384,12 @@ const CRITICAL_VARIABLES = [
   '--tenant-secondary-foreground',
   '--tenant-gradient',
   '--tenant-gradient-subtle',
+  // Typography - prevent font flash
+  '--font-heading',
+  '--font-body',
+  '--font-size-base',
+  '--font-weight-heading',
+  '--font-weight-body',
 ];
 
 export function generateCssString(variables: Record<string, string>): string {

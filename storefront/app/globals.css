@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Define layer order: defaults < base < utilities
+   Inline styles from layout.tsx (unlayered) will override these */
+@layer defaults;
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -117,28 +121,9 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 
-  /* Tenant Theme Defaults (overridden by ThemeProvider) */
-  --tenant-primary: #8B5CF6;
-  --tenant-primary-light: #A78BFA;
-  --tenant-primary-dark: #7C3AED;
-  --tenant-secondary: #EC4899;
-  --tenant-secondary-light: #F472B6;
-  --tenant-secondary-dark: #DB2777;
-  --tenant-accent: #F59E0B;
-  --tenant-background: #FFFFFF;
-  --tenant-foreground: #18181B;
-  --tenant-primary-foreground: #FFFFFF;
-  --tenant-secondary-foreground: #FFFFFF;
+  /* Tenant Theme Defaults moved to @layer defaults below */
 
-  /* Typography */
-  --font-heading: 'Inter', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
-  --font-size-base: 16px;
-  --font-weight-heading: 700;
-  --font-weight-body: 400;
-  --line-height-heading: 1.25;
-  --line-height-body: 1.5;
-  --letter-spacing-heading: -0.025em;
+  /* Typography defaults moved to @layer defaults below */
 
   /* Heading Sizes */
   --heading-h1: 2.5rem;
@@ -278,6 +263,38 @@
   --ease-editorial: cubic-bezier(0.25, 0.1, 0.25, 1);
   --duration-normal: 250ms;
   --duration-slow: 400ms;
+}
+
+/* ============================================
+   TENANT THEME DEFAULTS (LOW PRIORITY)
+   These are in @layer defaults so inline styles
+   from layout.tsx take precedence, preventing FOUC
+   ============================================ */
+@layer defaults {
+  :root {
+    /* Tenant Theme Colors */
+    --tenant-primary: #8B5CF6;
+    --tenant-primary-light: #A78BFA;
+    --tenant-primary-dark: #7C3AED;
+    --tenant-secondary: #EC4899;
+    --tenant-secondary-light: #F472B6;
+    --tenant-secondary-dark: #DB2777;
+    --tenant-accent: #F59E0B;
+    --tenant-background: #FFFFFF;
+    --tenant-foreground: #18181B;
+    --tenant-primary-foreground: #FFFFFF;
+    --tenant-secondary-foreground: #FFFFFF;
+
+    /* Typography Defaults */
+    --font-heading: 'Inter', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+    --font-size-base: 16px;
+    --font-weight-heading: 700;
+    --font-weight-body: 400;
+    --line-height-heading: 1.25;
+    --line-height-body: 1.5;
+    --letter-spacing-heading: -0.025em;
+  }
 }
 
 .dark {

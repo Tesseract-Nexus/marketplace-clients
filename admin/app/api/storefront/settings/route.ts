@@ -29,6 +29,9 @@ function transformHomepageConfig(backendConfig: Record<string, unknown> | null):
     heroCtaText: (backendConfig.heroCtaText as string) || DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroCtaText,
     heroCtaLink: (backendConfig.heroCtaLink as string) || DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroCtaLink,
     heroOverlayOpacity: (backendConfig.heroOverlayOpacity as number) ?? DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroOverlayOpacity,
+    // Hero customization options
+    heroTextColor: backendConfig.heroTextColor as string | undefined,
+    heroAnimationsEnabled: (backendConfig.heroAnimationsEnabled as boolean) ?? true,
     sections: (backendConfig.sections as StorefrontSettings['homepageConfig']['sections']) || DEFAULT_STOREFRONT_SETTINGS.homepageConfig.sections,
     featuredProductIds: backendConfig.featuredProductIds as string[] | undefined,
     featuredCategoryIds: backendConfig.featuredCategoryIds as string[] | undefined,
