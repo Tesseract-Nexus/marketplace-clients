@@ -206,11 +206,15 @@ export function HeroSection({ variant }: HeroSectionProps) {
             className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass mb-4 sm:mb-6"
           >
             <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-tenant-accent" />
-            <TranslatedUIText
-              text="New Collection Available"
-              className="text-xs sm:text-sm font-medium"
+            <span
+              className={cn(
+                "text-xs sm:text-sm font-medium",
+                !homepageConfig.heroTextColor && "text-on-gradient"
+              )}
               style={homepageConfig.heroTextColor ? { color: homepageConfig.heroTextColor } : undefined}
-            />
+            >
+              <TranslatedUIText text="New Collection Available" />
+            </span>
           </motion.div>
 
           <motion.h1
