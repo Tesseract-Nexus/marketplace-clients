@@ -101,17 +101,12 @@ export function HeroSection({ variant }: HeroSectionProps) {
 
             case 'image':
               return homepageConfig.heroImage ? (
-                <div className="absolute inset-0">
-                  <Image
-                    src={homepageConfig.heroImage}
-                    alt="Hero background"
-                    fill
-                    priority
-                    sizes="100vw"
-                    className="object-cover"
-                    style={{ objectFit: 'cover' }}
-                  />
-                </div>
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={homepageConfig.heroImage}
+                  alt="Hero background"
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
               ) : <div className="w-full h-full bg-tenant-gradient" />;
 
             case 'static':
