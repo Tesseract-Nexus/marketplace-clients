@@ -413,9 +413,10 @@ export default function DelegationsPage() {
                   variant="outline"
                   onClick={loadDelegations}
                   disabled={loading}
+                  className="p-2.5"
+                  title="Refresh"
                 >
-                  <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                  Refresh
+                  <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                 </Button>
                 <Button onClick={openCreateDialog}>
                   <Plus className="h-4 w-4 mr-2" />

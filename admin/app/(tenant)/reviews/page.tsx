@@ -465,9 +465,10 @@ export default function ReviewsPage() {
               size="sm"
               onClick={() => loadReviews()}
               disabled={loading}
+              className="p-2.5"
+              title="Refresh"
             >
-              <RefreshCw className={cn("h-4 w-4 mr-2", loading && "animate-spin")} />
-              Refresh
+              <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
             </Button>
           }
         />

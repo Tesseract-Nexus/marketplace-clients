@@ -319,9 +319,8 @@ export default function AuditLogsPage() {
 
                 {/* Quick Links */}
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1 h-8 text-xs">
-                    <RefreshCw className="h-3 w-3 mr-1" />
-                    Refresh
+                  <Button variant="outline" size="sm" className="flex-1 h-8 text-xs p-2.5" title="Refresh">
+                    <RefreshCw className="h-3 w-3" />
                   </Button>
                 </div>
 

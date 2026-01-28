@@ -185,10 +185,10 @@ export default function AnalyticsOverviewPage() {
                 size="sm"
                 onClick={handleRefresh}
                 disabled={isFetching}
-                className="text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg px-3"
+                className="text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg p-2.5"
+                title="Refresh"
               >
-                <RefreshCw className={`h-4 w-4 mr-1.5 ${isFetching ? 'animate-spin' : ''}`} />
-                Refresh
+                <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
               </Button>
             </div>
           }

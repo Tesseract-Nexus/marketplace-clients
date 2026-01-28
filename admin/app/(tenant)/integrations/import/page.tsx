@@ -374,9 +374,8 @@ export default function DataImportPage() {
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Import History</h2>
-          <Button variant="outline" size="sm">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Refresh
+          <Button variant="outline" size="sm" className="p-2.5" title="Refresh">
+            <RefreshCw className="w-4 h-4" />
           </Button>
         </div>
 

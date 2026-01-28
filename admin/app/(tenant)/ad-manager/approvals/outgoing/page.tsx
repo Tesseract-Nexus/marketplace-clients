@@ -218,9 +218,8 @@ export default function OutgoingApprovalsPage() {
                 </p>
               </div>
               <div className="flex items-center">
-                <Button variant="outline" onClick={fetchSubmissions} disabled={loading} className="justify-center">
-                  <RefreshCw className={cn('h-4 w-4 mr-2', loading && 'animate-spin')} />
-                  Refresh
+                <Button variant="outline" onClick={fetchSubmissions} disabled={loading} className="justify-center p-2.5" title="Refresh">
+                  <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
                 </Button>
               </div>
             </div>

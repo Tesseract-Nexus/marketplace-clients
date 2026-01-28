@@ -142,10 +142,10 @@ export default function MauticIntegrationPage() {
                 variant="outline"
                 onClick={handleRefreshConnection}
                 disabled={loading || syncing}
-                className="border-border hover:bg-muted"
+                className="border-border hover:bg-muted p-2.5"
+                title="Refresh Status"
               >
-                <RefreshCw className={cn("h-4 w-4 mr-2", (loading || syncing) && "animate-spin")} />
-                Refresh Status
+                <RefreshCw className={cn("h-4 w-4", (loading || syncing) && "animate-spin")} />
               </Button>
               <Button variant="gradient" asChild>
                 <a href="https://dev-mautic.tesserix.app" target="_blank" rel="noopener noreferrer">

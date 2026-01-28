@@ -351,9 +351,8 @@ export default function AnalyticsPage() {
                   />
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={fetchAnalytics} disabled={loading}>
-                    <RefreshCw className={cn('h-4 w-4 mr-2', loading && 'animate-spin')} />
-                    Refresh
+                  <Button variant="outline" onClick={fetchAnalytics} disabled={loading} className="p-2.5" title="Refresh">
+                    <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
                   </Button>
                   <Button variant="outline">
                     <Download className="h-4 w-4 mr-2" />

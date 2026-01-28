@@ -282,9 +282,10 @@ export default function TaxExemptionsPage() {
                 variant="outline"
                 onClick={() => fetchData()}
                 disabled={loading || refreshing}
+                className="p-2.5"
+                title="Refresh"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${(loading || refreshing) ? 'animate-spin' : ''}`} />
-                Refresh
+                <RefreshCw className={`h-4 w-4 ${(loading || refreshing) ? 'animate-spin' : ''}`} />
               </Button>
               <Button
                 onClick={() => {

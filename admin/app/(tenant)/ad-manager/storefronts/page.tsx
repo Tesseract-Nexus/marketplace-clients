@@ -158,9 +158,8 @@ export default function StorefrontsPage() {
               { label: 'Storefronts' },
             ]}
             actions={
-              <Button variant="outline" onClick={fetchData} disabled={loading}>
-                <RefreshCw className={cn('h-4 w-4 mr-2', loading && 'animate-spin')} />
-                Refresh
+              <Button variant="outline" onClick={fetchData} disabled={loading} className="p-2.5" title="Refresh">
+                <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
               </Button>
             }
           />

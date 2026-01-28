@@ -541,10 +541,10 @@ export default function CampaignsPage() {
                 variant="outline"
                 onClick={() => { fetchCampaigns(); fetchStats(); }}
                 disabled={loading}
-                className="border-border hover:bg-muted"
+                className="border-border hover:bg-muted p-2.5"
+                title="Refresh"
               >
-                <RefreshCw className={cn("h-4 w-4 mr-2", loading && "animate-spin")} />
-                Refresh
+                <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
               </Button>
               <Button
                 onClick={() => setShowCreateModal(true)}

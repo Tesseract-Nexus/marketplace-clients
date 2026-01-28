@@ -1072,9 +1072,10 @@ export default function InventoryPage() {
                     size="sm"
                     onClick={() => activeTab === 'stock-levels' ? fetchProducts() : fetchData()}
                     disabled={loading}
+                    className="p-2.5"
+                    title="Refresh"
                   >
-                    <RefreshCw className={cn('h-4 w-4 mr-2', loading && 'animate-spin')} />
-                    Refresh
+                    <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
                   </Button>
 
                   {(activeTab === 'warehouses' || activeTab === 'suppliers') && (

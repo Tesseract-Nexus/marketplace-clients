@@ -638,10 +638,10 @@ export default function AdCampaignsPage() {
                     fetchStats();
                   }}
                   disabled={loading}
-                  className="justify-center"
+                  className="justify-center p-2.5"
+                  title="Refresh"
                 >
-                  <RefreshCw className={cn('h-4 w-4 mr-2', loading && 'animate-spin')} />
-                  Refresh
+                  <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
                 </Button>
                 <Button asChild className="justify-center">
                   <Link href="/ad-manager/campaigns/new">

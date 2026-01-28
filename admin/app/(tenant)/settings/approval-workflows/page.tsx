@@ -314,9 +314,8 @@ export default function ApprovalWorkflowsPage() {
               { label: 'Approval Workflows' },
             ]}
             actions={
-              <Button variant="outline" size="sm" onClick={loadWorkflows}>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
+              <Button variant="outline" size="sm" onClick={loadWorkflows} className="p-2.5" title="Refresh">
+                <RefreshCw className="h-4 w-4" />
               </Button>
             }
           />
@@ -343,9 +342,8 @@ export default function ApprovalWorkflowsPage() {
 
                 {/* Quick Links */}
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1 h-8 text-xs" onClick={loadWorkflows}>
-                    <RefreshCw className="h-3 w-3 mr-1" />
-                    Refresh
+                  <Button variant="outline" size="sm" className="flex-1 h-8 text-xs p-2.5" onClick={loadWorkflows} title="Refresh">
+                    <RefreshCw className="h-3 w-3" />
                   </Button>
                 </div>
 

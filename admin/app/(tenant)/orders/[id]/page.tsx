@@ -356,9 +356,10 @@ export default function OrderDetailsPage() {
                 variant="outline"
                 onClick={() => { loadOrder(); fetchValidTransitions(); }}
                 disabled={loading}
+                className="p-2.5"
+                title="Refresh"
               >
-                <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
               </Button>
               <Button variant="outline" onClick={() => router.push('/orders')}>
                 <ArrowLeft className="w-4 h-4 mr-2" />

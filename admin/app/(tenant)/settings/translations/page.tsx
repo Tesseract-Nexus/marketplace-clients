@@ -416,10 +416,10 @@ export default function TranslationSettingsPage() {
                   variant="outline"
                   size="sm"
                   onClick={loadStats}
-                  className="flex items-center gap-2"
+                  className="flex items-center p-2.5"
+                  title="Refresh"
                 >
                   <RefreshCw className="h-4 w-4" />
-                  Refresh
                 </Button>
               </div>
 
