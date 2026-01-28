@@ -167,8 +167,8 @@ async function fetchReviewStats(tenantId: string): Promise<{ averageRating: numb
       if (total > 0) return { averageRating: avg, totalReviews: total };
     }
 
-    // Fallback: fetch approved reviews via storefront endpoint and compute from summary
-    const storefrontUrl = `${reviewsBase}/api/v1/storefront/reviews?status=APPROVED&limit=1`;
+    // Fallback: fetch all approved reviews and compute average from ratings
+    const storefrontUrl = `${reviewsBase}/api/v1/storefront/reviews?status=APPROVED&limit=100`;
     const storefrontResponse = await fetch(storefrontUrl, {
       headers: internalHeaders(tenantId),
     });
@@ -181,11 +181,20 @@ async function fetchReviewStats(tenantId: string): Promise<{ averageRating: numb
           totalReviews: data.summary.totalReviews || 0,
         };
       }
-      // Use pagination total if summary is missing
-      const total = data.pagination?.total || 0;
-      if (total > 0 && data.data?.[0]) {
-        // We have reviews but no summary — compute from what we have
-        return { averageRating: 0, totalReviews: total };
+      // Compute from review data
+      const reviews = data.data || [];
+      const totalCount = data.pagination?.total || reviews.length;
+      if (totalCount > 0 && reviews.length > 0) {
+        const scores = reviews
+          .map((r: { ratings?: { overall?: { score: number } } }) => r.ratings?.overall?.score)
+          .filter((s: number | undefined): s is number => typeof s === 'number' && s > 0);
+        if (scores.length > 0) {
+          const avg = scores.reduce((sum: number, s: number) => sum + s, 0) / scores.length;
+          return {
+            averageRating: Math.round(avg * 10) / 10,
+            totalReviews: totalCount,
+          };
+        }
       }
     }
 

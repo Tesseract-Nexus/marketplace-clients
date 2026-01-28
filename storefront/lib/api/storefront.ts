@@ -541,21 +541,48 @@ export async function getProductReviewSummary(
       targetId: productId,
       targetType: 'PRODUCT',
       status: 'APPROVED',
-      limit: '1',
+      limit: '100',
     });
+
+    interface ReviewData {
+      id: string;
+      ratings?: {
+        overall?: { score: number; maxScore?: number };
+        [key: string]: { score: number; maxScore?: number } | undefined;
+      };
+    }
+
     const response = await apiRequest<{
       summary?: { averageRating: number; totalReviews: number };
-      data?: Array<{ id: string }>;
+      data?: ReviewData[];
       pagination?: { total: number };
     }>(`${baseUrl}?${params}`, { tenantId, storefrontId });
 
+    // Use summary if the backend provides it
     if (response.summary && response.summary.totalReviews > 0) {
       return {
         averageRating: response.summary.averageRating,
         reviewCount: response.summary.totalReviews,
       };
     }
-    return null;
+
+    // Otherwise compute from review data
+    const reviews = response.data || [];
+    const totalCount = response.pagination?.total || reviews.length;
+    if (totalCount === 0) return null;
+
+    // Calculate average rating from review ratings
+    const scores = reviews
+      .map((r) => r.ratings?.overall?.score)
+      .filter((s): s is number => typeof s === 'number' && s > 0);
+
+    if (scores.length === 0) return null;
+
+    const avg = scores.reduce((sum, s) => sum + s, 0) / scores.length;
+    return {
+      averageRating: Math.round(avg * 10) / 10,
+      reviewCount: totalCount,
+    };
   } catch {
     return null;
   }
