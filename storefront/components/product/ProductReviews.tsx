@@ -629,54 +629,79 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
                 })()
               )}
 
-              {/* Reaction Buttons */}
+              {/* Reaction Buttons - visible to all, disabled for own reviews or unauthenticated */}
               <div className="mt-3 flex items-center gap-4">
-                {/* Only show reaction buttons if user is not the review author */}
-                {review.userId !== customer?.id && (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={cn(
-                        "text-muted-foreground hover:text-foreground transition-colors",
-                        review.userReaction === 'HELPFUL' && "text-green-600 hover:text-green-700 bg-green-50",
-                        !isAuthenticated && "opacity-60 cursor-not-allowed"
+                {(() => {
+                  const isOwnReview = isAuthenticated && review.userId === customer?.id;
+                  const canReact = isAuthenticated && !isOwnReview;
+
+                  return (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={cn(
+                          "text-muted-foreground hover:text-foreground transition-colors",
+                          review.userReaction === 'HELPFUL' && "text-green-600 hover:text-green-700 bg-green-50",
+                          !canReact && "opacity-60 cursor-not-allowed"
+                        )}
+                        onClick={() => handleHelpful(review.id)}
+                        disabled={!canReact}
+                        title={
+                          !isAuthenticated
+                            ? "Log in to react"
+                            : isOwnReview
+                              ? "You cannot react to your own review"
+                              : review.userReaction === 'HELPFUL'
+                                ? "Click to remove your reaction"
+                                : "Mark as helpful"
+                        }
+                      >
+                        <ThumbsUp className={cn(
+                          "h-4 w-4 mr-1",
+                          review.userReaction === 'HELPFUL' && "fill-current"
+                        )} />
+                        Helpful ({review.helpfulCount})
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={cn(
+                          "text-muted-foreground hover:text-foreground transition-colors",
+                          review.userReaction === 'NOT_HELPFUL' && "text-red-600 hover:text-red-700 bg-red-50",
+                          !canReact && "opacity-60 cursor-not-allowed"
+                        )}
+                        onClick={() => handleNotHelpful(review.id)}
+                        disabled={!canReact}
+                        title={
+                          !isAuthenticated
+                            ? "Log in to react"
+                            : isOwnReview
+                              ? "You cannot react to your own review"
+                              : review.userReaction === 'NOT_HELPFUL'
+                                ? "Click to remove your reaction"
+                                : "Mark as not helpful"
+                        }
+                      >
+                        <ThumbsDown className={cn(
+                          "h-4 w-4 mr-1",
+                          review.userReaction === 'NOT_HELPFUL' && "fill-current"
+                        )} />
+                        Not Helpful ({review.notHelpfulCount || 0})
+                      </Button>
+                      {!isAuthenticated && (
+                        <span className="text-xs text-muted-foreground">
+                          <a href="/auth/login" className="underline hover:text-foreground">Log in</a> to react
+                        </span>
                       )}
-                      onClick={() => handleHelpful(review.id)}
-                      disabled={!isAuthenticated}
-                      title={!isAuthenticated ? "Log in to react" : review.userReaction === 'HELPFUL' ? "Click to remove your reaction" : "Mark as helpful"}
-                    >
-                      <ThumbsUp className={cn(
-                        "h-4 w-4 mr-1",
-                        review.userReaction === 'HELPFUL' && "fill-current"
-                      )} />
-                      Helpful ({review.helpfulCount})
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className={cn(
-                        "text-muted-foreground hover:text-foreground transition-colors",
-                        review.userReaction === 'NOT_HELPFUL' && "text-red-600 hover:text-red-700 bg-red-50",
-                        !isAuthenticated && "opacity-60 cursor-not-allowed"
+                      {isOwnReview && (
+                        <span className="text-xs text-muted-foreground">
+                          Your review
+                        </span>
                       )}
-                      onClick={() => handleNotHelpful(review.id)}
-                      disabled={!isAuthenticated}
-                      title={!isAuthenticated ? "Log in to react" : review.userReaction === 'NOT_HELPFUL' ? "Click to remove your reaction" : "Mark as not helpful"}
-                    >
-                      <ThumbsDown className={cn(
-                        "h-4 w-4 mr-1",
-                        review.userReaction === 'NOT_HELPFUL' && "fill-current"
-                      )} />
-                      Not Helpful ({review.notHelpfulCount || 0})
-                    </Button>
-                  </>
-                )}
-                {!isAuthenticated && (
-                  <span className="text-xs text-muted-foreground">
-                    <a href="/auth/login" className="underline hover:text-foreground">Log in</a> to react
-                  </span>
-                )}
+                    </>
+                  );
+                })()}
               </div>
             </div>
           ))}
