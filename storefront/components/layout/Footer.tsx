@@ -205,13 +205,16 @@ export function Footer() {
       !supportPages.some(sp => sp.id === p.id)
     );
 
-    const policyLinks = policyPages.map((p, idx) => ({
-      id: p.id,
-      label: p.title,
-      href: `/pages/${p.slug}`,
-      isExternal: false,
-      position: idx * 10
-    }));
+    const policyLinks = [
+      ...policyPages.map((p, idx) => ({
+        id: p.id,
+        label: p.title,
+        href: `/pages/${p.slug}`,
+        isExternal: false,
+        position: idx * 10
+      })),
+      { id: 'cancellation-policy', label: 'Cancellation Policy', href: '/cancellation-policy', isExternal: false, position: (policyPages.length) * 10 },
+    ];
 
     // Company / about pages
     const companyPages = contentPages.filter(p =>
