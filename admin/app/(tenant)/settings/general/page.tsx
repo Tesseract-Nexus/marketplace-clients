@@ -112,6 +112,9 @@ export default function GeneralSettingsPage() {
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [settingsId, setSettingsId] = useState<string | null>(null);
+  // Store existing ecommerce data to preserve cancellation settings when saving
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [existingEcommerce, setExistingEcommerce] = useState<Record<string, any>>({});
 
   // Tab state - check URL parameter for initial tab
   const tabParam = searchParams.get('tab');
@@ -290,6 +293,8 @@ export default function GeneralSettingsPage() {
 
       if (data) {
         setSettingsId(data.id);
+        // Store existing ecommerce data to preserve cancellation settings when saving
+        setExistingEcommerce(data.ecommerce || {});
 
         const countryName = data.ecommerce?.store?.address?.country || '';
         const countryCode = COUNTRY_OPTIONS.find((c) => c.name === countryName)?.value || '';
@@ -337,6 +342,7 @@ export default function GeneralSettingsPage() {
           setSettings(newSettings);
           setSavedSettings(newSettings);
           setSettingsId(null);
+          setExistingEcommerce({});
         } else {
           const newSettings = {
             ...defaultSettings,
@@ -348,10 +354,12 @@ export default function GeneralSettingsPage() {
           setSettings(newSettings);
           setSavedSettings(newSettings);
           setSettingsId(null);
+          setExistingEcommerce({});
         }
       }
     } catch (err) {
       console.error('[Settings] Failed to load settings:', err);
+      setExistingEcommerce({});
 
       if (tenant) {
         const newSettings = buildSettingsFromTenantData(tenant, selectedStorefront?.name || '');
@@ -390,34 +398,38 @@ export default function GeneralSettingsPage() {
       }
 
       // Build settings payload - using Partial types since we're only updating specific fields
+      // IMPORTANT: Merge with existing ecommerce data to preserve cancellation settings
+      const mergedEcommerce = {
+        ...existingEcommerce,
+        store: {
+          name: settings.store.name,
+          contactEmail: settings.store.email,
+          supportPhone: settings.store.phone,
+          address: {
+            businessName: settings.store.name,
+            street1: settings.store.address,
+            city: settings.store.city,
+            state: settings.store.state,
+            zipCode: settings.store.zipCode,
+            country: settings.store.country,
+          },
+        },
+        pricing: {
+          currencies: {
+            primary: settings.business.currency,
+            supported: [settings.business.currency],
+            autoConversion: true,
+          },
+        },
+      };
+
       const payload = {
         context: {
           applicationId: 'admin-portal',
           scope: 'application' as const,
           tenantId: tenantId,
         },
-        ecommerce: {
-          store: {
-            name: settings.store.name,
-            contactEmail: settings.store.email,
-            supportPhone: settings.store.phone,
-            address: {
-              businessName: settings.store.name,
-              street1: settings.store.address,
-              city: settings.store.city,
-              state: settings.store.state,
-              zipCode: settings.store.zipCode,
-              country: settings.store.country,
-            },
-          },
-          pricing: {
-            currencies: {
-              primary: settings.business.currency,
-              supported: [settings.business.currency],
-              autoConversion: true,
-            },
-          },
-        },
+        ecommerce: mergedEcommerce,
         localization: {
           timezone: settings.business.timezone,
           dateFormat: settings.business.dateFormat,
@@ -439,6 +451,8 @@ export default function GeneralSettingsPage() {
         setSettingsId(newSettings.id);
       }
 
+      // Update local state to track the merged ecommerce data
+      setExistingEcommerce(mergedEcommerce);
       setSavedSettings(settings);
       showSuccess('Success', 'Settings saved successfully!');
     } catch (err) {
