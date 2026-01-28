@@ -116,10 +116,15 @@ export function AssetUploader({
       if (response.success && response.asset) {
         onUpload(response.asset.url);
       } else {
-        setError('Failed to upload file. Please try again.');
+        // Log detailed error for debugging
+        console.error('Upload failed:', response);
+        const errorMessage = response.message || response.error || 'Failed to upload file. Please try again.';
+        setError(errorMessage);
       }
     } catch (err) {
-      setError('An error occurred during upload. Please try again.');
+      console.error('Upload error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred during upload. Please try again.';
+      setError(errorMessage);
     } finally {
       setIsUploading(false);
       setUploadProgress(0);

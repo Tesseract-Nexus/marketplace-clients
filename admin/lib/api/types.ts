@@ -1567,7 +1567,9 @@ export interface StorefrontAsset {
 
 export interface UploadAssetResponse {
   success: boolean;
-  asset: StorefrontAsset;
+  asset?: StorefrontAsset;
+  message?: string;
+  error?: string;
 }
 
 // Industry categories for theme organization

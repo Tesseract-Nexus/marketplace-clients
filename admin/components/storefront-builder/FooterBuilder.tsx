@@ -92,6 +92,40 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
     setActiveSection(activeSection === id ? null : id);
   };
 
+  // Handle column layout change - sync with linkGroups
+  const handleColumnLayoutChange = (newLayout: 1 | 2 | 3 | 4) => {
+    const currentGroups = config.linkGroups || [];
+    let updatedGroups = [...currentGroups];
+
+    if (newLayout > currentGroups.length) {
+      // Add empty columns to match the new layout
+      for (let i = currentGroups.length; i < newLayout; i++) {
+        updatedGroups.push({
+          id: `group-${Date.now()}-${i}`,
+          title: `Column ${i + 1}`,
+          links: [],
+        });
+      }
+    } else if (newLayout < currentGroups.length) {
+      // Trim columns to match the new layout (keep first N columns)
+      updatedGroups = updatedGroups.slice(0, newLayout);
+    }
+
+    onChange({ columnLayout: newLayout, linkGroups: updatedGroups });
+  };
+
+  // Handle link groups change - sync columnLayout if needed
+  const handleLinkGroupsChange = (linkGroups: StorefrontFooterLinkGroup[]) => {
+    const updates: Partial<StorefrontFooterConfig> = { linkGroups };
+
+    // Auto-update column layout if groups exceed current layout
+    if (linkGroups.length > (config.columnLayout || 4)) {
+      updates.columnLayout = Math.min(linkGroups.length, 4) as 1 | 2 | 3 | 4;
+    }
+
+    onChange(updates);
+  };
+
   const handleTogglePaymentMethod = (method: PaymentMethod) => {
     const current = config.paymentMethods || [];
     const exists = current.includes(method);
@@ -153,12 +187,14 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                     <button
                       key={num}
                       type="button"
-                      onClick={() => onChange({ columnLayout: num as 1 | 2 | 3 | 4 })}
+                      onClick={() => handleColumnLayoutChange(num as 1 | 2 | 3 | 4)}
+                      disabled={disabled}
                       className={cn(
                         'p-3 border rounded-md text-center transition-all',
                         config.columnLayout === num
                           ? 'border-primary bg-primary/10 text-primary'
-                          : 'border-border hover:border-primary/30'
+                          : 'border-border hover:border-primary/30',
+                        disabled && 'opacity-50 cursor-not-allowed'
                       )}
                     >
                       <div className="flex justify-center gap-1 mb-1">
@@ -170,11 +206,15 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                     </button>
                   ))}
                 </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Changing layout will add or remove columns to match. Current: {(config.linkGroups || []).length} column{(config.linkGroups || []).length !== 1 ? 's' : ''} configured.
+                </p>
               </div>
 
               <FooterLinkGroupsManager
                 linkGroups={config.linkGroups || []}
-                onChange={(linkGroups) => onChange({ linkGroups })}
+                onChange={handleLinkGroupsChange}
+                maxColumns={config.columnLayout || 4}
               />
             </div>
           </CollapsibleSection>

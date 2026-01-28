@@ -155,13 +155,17 @@ export function FooterLinkGroupEditor({ group, onUpdate, onDelete }: FooterLinkG
 interface FooterLinkGroupsManagerProps {
   linkGroups: StorefrontFooterLinkGroup[];
   onChange: (groups: StorefrontFooterLinkGroup[]) => void;
+  maxColumns?: number;
 }
 
-export function FooterLinkGroupsManager({ linkGroups, onChange }: FooterLinkGroupsManagerProps) {
+export function FooterLinkGroupsManager({ linkGroups, onChange, maxColumns = 4 }: FooterLinkGroupsManagerProps) {
+  const canAddColumn = linkGroups.length < maxColumns;
+
   const addGroup = () => {
+    if (!canAddColumn) return;
     const newGroup: StorefrontFooterLinkGroup = {
       id: `group-${Date.now()}`,
-      title: 'New Column',
+      title: `Column ${linkGroups.length + 1}`,
       links: [],
     };
     onChange([...linkGroups, newGroup]);
@@ -182,7 +186,7 @@ export function FooterLinkGroupsManager({ linkGroups, onChange }: FooterLinkGrou
       {linkGroups.length === 0 ? (
         <div className="text-center py-8 bg-muted rounded-lg border border-dashed border-border">
           <p className="text-sm text-muted-foreground mb-3">No footer columns added yet</p>
-          <Button variant="outline" size="sm" onClick={addGroup}>
+          <Button variant="outline" size="sm" onClick={addGroup} disabled={!canAddColumn}>
             <Plus className="h-4 w-4 mr-1" />
             Add Column
           </Button>
@@ -197,10 +201,17 @@ export function FooterLinkGroupsManager({ linkGroups, onChange }: FooterLinkGrou
               onDelete={() => deleteGroup(index)}
             />
           ))}
-          <Button variant="outline" size="sm" onClick={addGroup} className="w-full">
-            <Plus className="h-4 w-4 mr-1" />
-            Add Column
-          </Button>
+          {canAddColumn && (
+            <Button variant="outline" size="sm" onClick={addGroup} className="w-full">
+              <Plus className="h-4 w-4 mr-1" />
+              Add Column ({linkGroups.length}/{maxColumns})
+            </Button>
+          )}
+          {!canAddColumn && (
+            <p className="text-xs text-center text-muted-foreground py-2">
+              Maximum {maxColumns} column{maxColumns !== 1 ? 's' : ''} allowed. Change Column Layout above to add more.
+            </p>
+          )}
         </>
       )}
     </div>
