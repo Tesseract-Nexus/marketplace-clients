@@ -29,5 +29,5 @@ export default async function CancellationPolicyPage() {
 
   const policy = await getCancellationPolicy(storefrontId, tenantId, adminTenantId);
 
-  return <CancellationPolicyClient policyText={policy?.policyText || null} />;
+  return <CancellationPolicyClient policy={policy} />;
 }
