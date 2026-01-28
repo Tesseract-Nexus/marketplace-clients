@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
+        'X-Internal-Service': 'storefront',
         'Authorization': authorization,
       },
       body: JSON.stringify({
@@ -83,6 +84,7 @@ export async function GET(request: NextRequest) {
       headers: {
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
+        'X-Internal-Service': 'storefront',
         'Authorization': authorization,
       },
     });

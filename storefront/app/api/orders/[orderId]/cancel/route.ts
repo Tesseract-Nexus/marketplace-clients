@@ -26,12 +26,16 @@ export async function POST(
 
     console.log('[BFF] Cancelling order:', orderId, 'reason:', body.reason);
 
+    const authorization = request.headers.get('Authorization');
+
     const response = await fetch(`${ORDERS_SERVICE_URL}/api/v1/orders/${orderId}/cancel`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'X-Tenant-ID': tenantId,
+        'X-Internal-Service': 'storefront',
         ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
+        ...(authorization && { 'Authorization': authorization }),
       },
       body: JSON.stringify(body),
     });
