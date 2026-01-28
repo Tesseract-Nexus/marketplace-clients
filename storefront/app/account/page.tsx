@@ -43,6 +43,7 @@ export default function AccountPage() {
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [useManualEntry, setUseManualEntry] = useState(false);
   const [editingAddress, setEditingAddress] = useState<CustomerAddress | null>(null);
+  const defaultCountryCode = customer?.countryCode || 'AU';
   const [newAddress, setNewAddress] = useState({
     label: '',
     firstName: '',
@@ -52,8 +53,8 @@ export default function AccountPage() {
     city: '',
     state: '',
     postalCode: '',
-    country: 'US',
-    countryCode: 'US',
+    country: defaultCountryCode,
+    countryCode: defaultCountryCode,
     phone: '',
     type: 'SHIPPING' as AddressType,
   });
@@ -90,7 +91,16 @@ export default function AccountPage() {
   }, [customer?.id, accessToken, tenantId, storefrontId]);
 
   const handleAddAddress = async () => {
-    if (!customer?.id || !accessToken || !tenantId) return;
+    if (!customer?.id || !accessToken || !tenantId) {
+      console.error('Missing auth context for address save:', {
+        hasCustomerId: !!customer?.id,
+        hasAccessToken: !!accessToken,
+        hasTenantId: !!tenantId,
+        tenantId,
+      });
+      toast.error('Unable to save address. Please sign out and sign back in.');
+      return;
+    }
 
     setIsAddingAddress(true);
     try {
@@ -140,8 +150,8 @@ export default function AccountPage() {
       city: '',
       state: '',
       postalCode: '',
-      country: 'US',
-      countryCode: 'US',
+      country: defaultCountryCode,
+      countryCode: defaultCountryCode,
       phone: '',
       type: 'SHIPPING',
     });
@@ -546,15 +556,37 @@ export default function AccountPage() {
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="addr-phone"><TranslatedUIText text="Phone (Optional)" /></Label>
-                  <Input
-                    id="addr-phone"
-                    type="tel"
-                    value={newAddress.phone}
-                    onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
-                    placeholder="Phone number"
-                  />
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="addr-country"><TranslatedUIText text="Country" /></Label>
+                    <select
+                      id="addr-country"
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      value={newAddress.countryCode}
+                      onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value, countryCode: e.target.value })}
+                    >
+                      <option value="AU">Australia</option>
+                      <option value="US">United States</option>
+                      <option value="GB">United Kingdom</option>
+                      <option value="CA">Canada</option>
+                      <option value="NZ">New Zealand</option>
+                      <option value="IN">India</option>
+                      <option value="DE">Germany</option>
+                      <option value="FR">France</option>
+                      <option value="JP">Japan</option>
+                      <option value="SG">Singapore</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="addr-phone"><TranslatedUIText text="Phone (Optional)" /></Label>
+                    <Input
+                      id="addr-phone"
+                      type="tel"
+                      value={newAddress.phone}
+                      onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
+                      placeholder="Phone number"
+                    />
+                  </div>
                 </div>
               </>
             )}
