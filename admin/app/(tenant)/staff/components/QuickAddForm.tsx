@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { Loader2, Shield, Users, Plus, Building2 } from 'lucide-react';
 import { Select } from '@/components/Select';
 import { useTenant } from '@/contexts/TenantContext';
-import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
 import { useHasPermission, Permissions } from '@/hooks/usePermission';
+import { departmentService, teamService } from '@/lib/api/rbac';
 import type { Team, Role, Department } from '@/lib/api/rbacTypes';
 import { CreateDepartmentModal } from './CreateDepartmentModal';
 import { CreateTeamModal } from './CreateTeamModal';
@@ -32,7 +32,6 @@ interface TeamWithRole extends Team {
 
 export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitting }: QuickAddFormProps) {
   const { currentTenant } = useTenant();
-  const { user } = useUser();
 
   // Permission checks for creating departments and teams
   const canCreateDepartments = useHasPermission(Permissions.DEPARTMENTS_CREATE);
@@ -62,21 +61,11 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
   const [showCreateDeptModal, setShowCreateDeptModal] = useState(false);
   const [showCreateTeamModal, setShowCreateTeamModal] = useState(false);
 
-  const getHeaders = (): HeadersInit => {
-    const headers: Record<string, string> = {
-      'x-jwt-claim-tenant-id': currentTenant?.id || '',
-    };
-    if (user?.id) headers['x-jwt-claim-sub'] = user.id;
-    if (user?.email) headers['x-jwt-claim-email'] = user.email;
-    return headers;
-  };
-
   // Load departments on mount
   useEffect(() => {
     if (currentTenant?.id) {
       loadDepartments();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentTenant?.id]);
 
   // Load teams when department changes
@@ -105,11 +94,8 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
     if (!currentTenant?.id) return;
     setLoadingDepts(true);
     try {
-      const response = await fetch('/api/staff/departments', { headers: getHeaders() });
-      if (response.ok) {
-        const data = await response.json();
-        setDepartments(data.data || []);
-      }
+      const response = await departmentService.list();
+      setDepartments(response.data || []);
     } catch (error) {
       console.error('Failed to load departments:', error);
     } finally {
@@ -122,11 +108,8 @@ export function QuickAddForm({ onSubmit, onCancel, onSwitchToFullForm, isSubmitt
     if (!currentTenant?.id) return;
     setLoadingTeams(true);
     try {
-      const response = await fetch(`/api/staff/teams?departmentId=${deptId}`, { headers: getHeaders() });
-      if (response.ok) {
-        const data = await response.json();
-        setTeams(data.data || []);
-      }
+      const response = await teamService.list({ departmentId: deptId });
+      setTeams(response.data || []);
     } catch (error) {
       console.error('Failed to load teams:', error);
     } finally {

@@ -10,8 +10,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { useTenant } from '@/contexts/TenantContext';
-import { useUser } from '@/contexts/UserContext';
+import { departmentService } from '@/lib/api/rbac';
 import type { Department, CreateDepartmentRequest } from '@/lib/api/rbacTypes';
 
 interface CreateDepartmentModalProps {
@@ -27,9 +26,6 @@ export function CreateDepartmentModal({
   onSuccess,
   existingDepartments = [],
 }: CreateDepartmentModalProps) {
-  const { currentTenant } = useTenant();
-  const { user } = useUser();
-
   const [formData, setFormData] = useState({
     name: '',
     code: '',
@@ -39,16 +35,6 @@ export function CreateDepartmentModal({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-
-  const getHeaders = (): HeadersInit => {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'x-jwt-claim-tenant-id': currentTenant?.id || '',
-    };
-    if (user?.id) headers['x-jwt-claim-sub'] = user.id;
-    if (user?.email) headers['x-jwt-claim-email'] = user.email;
-    return headers;
-  };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -79,19 +65,8 @@ export function CreateDepartmentModal({
         parentDepartmentId: formData.parentDepartmentId || undefined,
       };
 
-      const response = await fetch('/api/staff/departments', {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(createData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to create department');
-      }
-
-      const result = await response.json();
-      const newDepartment = result.data || result;
+      const result = await departmentService.create(createData);
+      const newDepartment = result.data;
 
       // Reset form
       setFormData({

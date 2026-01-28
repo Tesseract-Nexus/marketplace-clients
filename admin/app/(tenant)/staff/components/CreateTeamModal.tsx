@@ -11,8 +11,7 @@ import {
 } from '@/components/ui/dialog';
 import { Select } from '@/components/Select';
 import { cn } from '@/lib/utils';
-import { useTenant } from '@/contexts/TenantContext';
-import { useUser } from '@/contexts/UserContext';
+import { teamService, roleService } from '@/lib/api/rbac';
 import type { Team, CreateTeamRequest, Role } from '@/lib/api/rbacTypes';
 
 interface CreateTeamModalProps {
@@ -30,9 +29,6 @@ export function CreateTeamModal({
   departmentId,
   departmentName,
 }: CreateTeamModalProps) {
-  const { currentTenant } = useTenant();
-  const { user } = useUser();
-
   const [formData, setFormData] = useState({
     name: '',
     code: '',
@@ -45,32 +41,18 @@ export function CreateTeamModal({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
 
-  const getHeaders = (): HeadersInit => {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'x-jwt-claim-tenant-id': currentTenant?.id || '',
-    };
-    if (user?.id) headers['x-jwt-claim-sub'] = user.id;
-    if (user?.email) headers['x-jwt-claim-email'] = user.email;
-    return headers;
-  };
-
   // Load roles when modal opens
   useEffect(() => {
-    if (isOpen && currentTenant?.id) {
+    if (isOpen) {
       loadRoles();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, currentTenant?.id]);
+  }, [isOpen]);
 
   const loadRoles = async () => {
     setLoadingRoles(true);
     try {
-      const response = await fetch('/api/staff/roles', { headers: getHeaders() });
-      if (response.ok) {
-        const data = await response.json();
-        setRoles(data.data || []);
-      }
+      const response = await roleService.list();
+      setRoles(response.data || []);
     } catch (error) {
       console.error('Failed to load roles:', error);
     } finally {
@@ -112,25 +94,14 @@ export function CreateTeamModal({
         maxCapacity: formData.maxCapacity ? parseInt(formData.maxCapacity) : undefined,
       };
 
-      const response = await fetch('/api/staff/teams', {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify(createData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || 'Failed to create team');
-      }
-
-      const result = await response.json();
-      const newTeam = result.data || result;
+      const result = await teamService.create(createData);
+      const newTeam = result.data;
 
       // Attach the default role info if selected
       if (formData.defaultRoleId) {
         const selectedRole = roles.find(r => r.id === formData.defaultRoleId);
         if (selectedRole) {
-          newTeam.defaultRole = selectedRole;
+          (newTeam as any).defaultRole = selectedRole;
         }
       }
 
