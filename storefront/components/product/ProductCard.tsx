@@ -796,7 +796,7 @@ export function ProductCard({
           </h3>
 
           {/* Rating */}
-          {productConfig.showRatings && product.averageRating && (
+          {productConfig.showRatings && (
             <div className="flex items-center gap-1.5 mt-2">
               <div className="flex gap-0.5">
                 {[...Array(5)].map((_, i) => (
@@ -811,9 +811,15 @@ export function ProductCard({
                   />
                 ))}
               </div>
-              {product.reviewCount && (
-                <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                  ({product.reviewCount})
+              {product.averageRating ? (
+                product.reviewCount && (
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                    ({product.reviewCount})
+                  </span>
+                )
+              ) : (
+                <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                  No reviews yet
                 </span>
               )}
             </div>

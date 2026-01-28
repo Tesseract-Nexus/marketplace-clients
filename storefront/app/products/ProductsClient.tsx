@@ -545,7 +545,7 @@ function ProductCard({
 
       <div className={cn('p-4', viewMode === 'list' && 'flex-1 flex flex-col')}>
         {/* Rating */}
-        {productConfig.showRatings && product.averageRating && (
+        {productConfig.showRatings && (
           <div className="flex items-center gap-1.5 mb-2">
             <div className="flex gap-0.5">
               {[...Array(5)].map((_, i) => (
@@ -560,9 +560,15 @@ function ProductCard({
                 />
               ))}
             </div>
-            <span className="text-xs text-muted-foreground">
-              ({product.reviewCount})
-            </span>
+            {product.averageRating ? (
+              <span className="text-xs text-muted-foreground">
+                ({product.reviewCount})
+              </span>
+            ) : (
+              <span className="text-xs text-muted-foreground">
+                No reviews yet
+              </span>
+            )}
           </div>
         )}
 

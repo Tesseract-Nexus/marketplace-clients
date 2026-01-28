@@ -424,7 +424,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
               <TranslatedProductName name={product.name} />
             </h1>
 
-            {productConfig.showRatings && product.averageRating && (
+            {productConfig.showRatings && (
               <div className="flex items-center gap-2">
                 <div className="flex">
                   {[...Array(5)].map((_, i) => (
@@ -439,9 +439,15 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                     />
                   ))}
                 </div>
-                <span className="text-sm text-muted-foreground">
-                  {product.averageRating} ({product.reviewCount} <TranslatedUIText text="reviews" />)
-                </span>
+                {product.averageRating ? (
+                  <span className="text-sm text-muted-foreground">
+                    {product.averageRating} ({product.reviewCount} <TranslatedUIText text="reviews" />)
+                  </span>
+                ) : (
+                  <span className="text-sm text-muted-foreground">
+                    No reviews yet
+                  </span>
+                )}
               </div>
             )}
 
