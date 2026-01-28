@@ -7,7 +7,7 @@ import { CategoryShowcase } from '@/components/storefront/CategoryShowcase';
 import { NewsletterSection } from '@/components/storefront/NewsletterSection';
 import { PersonalizedOffers } from '@/components/marketing/PersonalizedOffers';
 import { DynamicHomeSections } from '@/components/storefront/DynamicHomeSections';
-import { getFeaturedProducts, getCategories } from '@/lib/api/storefront';
+import { getFeaturedProducts, getCategories, enrichProductsWithReviews } from '@/lib/api/storefront';
 import { resolveTenantId } from '@/lib/tenant';
 import type { LayoutTemplate, PageLayout } from '@/types/blocks';
 
@@ -58,10 +58,15 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   }
 
   // Legacy layout: Use traditional components with dynamic section rendering
-  const [products, categories] = await Promise.all([
+  const [rawProducts, categories] = await Promise.all([
     getFeaturedProducts(tenantId, tenantId, 8).catch(() => []),
     getCategories(tenantId, tenantId).catch(() => []),
   ]);
+
+  // Enrich products with review ratings
+  const products = rawProducts.length > 0
+    ? await enrichProductsWithReviews(tenantId, tenantId, rawProducts)
+    : [];
 
   return (
     <>
@@ -69,7 +74,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
       <HeroSection />
 
       {/* Dynamic sections from homepageConfig.sections */}
-      <DynamicHomeSections products={products || []} categories={categories || []} />
+      <DynamicHomeSections products={products} categories={categories || []} />
 
       {/* Personalized offers - always shown if available */}
       <section className="py-12 bg-muted/30">

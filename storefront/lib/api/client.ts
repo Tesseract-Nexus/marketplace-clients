@@ -117,4 +117,5 @@ export const serviceUrls = {
   cart: config.api.cartService,
   vendors: config.api.vendorsService,
   tickets: config.api.ticketsService,
+  reviews: config.api.reviewsService,
 };

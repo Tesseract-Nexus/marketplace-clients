@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
-import { getProduct, resolveStorefront } from '@/lib/api/storefront';
+import { getProduct, getProductReviewSummary, resolveStorefront } from '@/lib/api/storefront';
 import { ProductDetailClient } from './ProductDetailClient';
 import { resolveTenantId, resolveTenantInfo } from '@/lib/tenant';
 import { ProductJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
@@ -110,6 +110,15 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   if (!product) {
     notFound();
+  }
+
+  // Enrich product with review summary if not already present
+  if (!product.averageRating) {
+    const reviewSummary = await getProductReviewSummary(tenantId, tenantId, product.id);
+    if (reviewSummary) {
+      product.averageRating = reviewSummary.averageRating;
+      product.reviewCount = reviewSummary.reviewCount;
+    }
   }
 
   // Prepare JSON-LD schema data

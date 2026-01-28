@@ -527,6 +527,68 @@ export async function getProduct(
   }
 }
 
+export async function getProductReviewSummary(
+  tenantId: string,
+  storefrontId: string,
+  productId: string
+): Promise<{ averageRating: number; reviewCount: number } | null> {
+  try {
+    const reviewsBase = serviceUrls.reviews.replace(/\/api\/v1\/?$/, '');
+    const baseUrl = typeof window === 'undefined'
+      ? `${reviewsBase}/api/v1/storefront/reviews`
+      : `/api/reviews`;
+    const params = new URLSearchParams({
+      targetId: productId,
+      targetType: 'PRODUCT',
+      status: 'APPROVED',
+      limit: '1',
+    });
+    const response = await apiRequest<{
+      summary?: { averageRating: number; totalReviews: number };
+      data?: Array<{ id: string }>;
+      pagination?: { total: number };
+    }>(`${baseUrl}?${params}`, { tenantId, storefrontId });
+
+    if (response.summary && response.summary.totalReviews > 0) {
+      return {
+        averageRating: response.summary.averageRating,
+        reviewCount: response.summary.totalReviews,
+      };
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export async function enrichProductsWithReviews(
+  tenantId: string,
+  storefrontId: string,
+  products: Product[]
+): Promise<Product[]> {
+  const productsToEnrich = products.filter((p) => !p.averageRating);
+  if (productsToEnrich.length === 0) return products;
+
+  const summaries = await Promise.all(
+    productsToEnrich.map((p) =>
+      getProductReviewSummary(tenantId, storefrontId, p.id).catch(() => null)
+    )
+  );
+
+  const summaryMap = new Map<string, { averageRating: number; reviewCount: number }>();
+  productsToEnrich.forEach((p, i) => {
+    if (summaries[i]) summaryMap.set(p.id, summaries[i]);
+  });
+
+  return products.map((p) => {
+    const summary = summaryMap.get(p.id);
+    if (summary && !p.averageRating) {
+      return { ...p, averageRating: summary.averageRating, reviewCount: summary.reviewCount };
+    }
+    return p;
+  });
+}
+
 export async function getFeaturedProducts(
   tenantId: string,
   storefrontId: string,

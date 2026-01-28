@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
-import { getProducts, getCategories, resolveStorefront } from '@/lib/api/storefront';
+import { getProducts, getCategories, resolveStorefront, enrichProductsWithReviews } from '@/lib/api/storefront';
 import { ProductsClient } from './ProductsClient';
 import { resolveTenantId } from '@/lib/tenant';
 
@@ -64,9 +64,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
     getCategories(tenantId, tenantId),
   ]);
 
+  // Enrich products with review ratings from reviews service
+  const enrichedProducts = await enrichProductsWithReviews(tenantId, tenantId, productsResponse.data);
+
   return (
     <ProductsClient
-      initialProducts={productsResponse.data}
+      initialProducts={enrichedProducts}
       categories={categories}
       totalProducts={productsResponse.pagination.total}
     />
