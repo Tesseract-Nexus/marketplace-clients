@@ -230,6 +230,16 @@ export interface StorefrontNavLink {
   href: string;
   isExternal: boolean;
   position: number;
+  // Enhanced navigation features
+  icon?: string;                    // Lucide icon name
+  badge?: string;                   // e.g., "New", "Sale"
+  badgeColor?: string;              // Badge background color
+  children?: StorefrontNavLink[];   // Sub-menu items
+  // Mega-menu config (only for top-level items)
+  isMegaMenu?: boolean;
+  megaMenuColumns?: number;         // 2, 3, or 4 columns
+  megaMenuImage?: string;           // Featured image URL
+  megaMenuImageAlt?: string;
 }
 
 export interface StorefrontHomepageConfig {
@@ -272,11 +282,25 @@ export interface StorefrontTestimonial {
   rating: number;
 }
 
+export type PaymentMethod =
+  | 'visa' | 'mastercard' | 'amex' | 'discover'
+  | 'paypal' | 'apple_pay' | 'google_pay' | 'stripe'
+  | 'afterpay' | 'klarna' | 'zip' | 'bank_transfer';
+
+export interface TrustBadge {
+  id: string;
+  label: string;
+  icon?: string;          // Lucide icon name
+  imageUrl?: string;      // Custom badge image
+  href?: string;          // Link to verification page
+}
+
 export interface StorefrontFooterConfig {
   showFooter: boolean;
   footerBgColor?: string;
   footerTextColor?: string;
   linkGroups: StorefrontFooterLinkGroup[];
+  columnLayout?: number; // 1, 2, 3, or 4 columns
   showSocialIcons: boolean;
   socialLinks: StorefrontSocialLink[];
   showContactInfo: boolean;
@@ -286,6 +310,12 @@ export interface StorefrontFooterConfig {
   showNewsletter: boolean;
   copyrightText?: string;
   showPoweredBy: boolean;
+  // Payment icons
+  showPaymentIcons?: boolean;
+  paymentMethods?: PaymentMethod[];
+  // Trust badges
+  showTrustBadges?: boolean;
+  trustBadges?: TrustBadge[];
 }
 
 export interface StorefrontFooterLinkGroup {

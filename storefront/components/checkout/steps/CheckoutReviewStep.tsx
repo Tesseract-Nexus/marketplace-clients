@@ -1,13 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import { Check, Truck, CreditCard, User, Edit2, ChevronLeft, Loader2, AlertCircle, Globe, Lock, Trash2, Minus, Plus } from 'lucide-react';
+import { Check, Truck, CreditCard, User, Edit2, ChevronLeft, Loader2, AlertCircle, Globe, Lock, Trash2, Minus, Plus, Gift, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { useCheckout } from '@/context/CheckoutContext';
-import { useLocalization, useFormatPrice } from '@/context/TenantContext';
+import { useLocalization, useFormatPrice, useCheckoutConfig } from '@/context/TenantContext';
 import { usePriceFormatting } from '@/context/CurrencyContext';
 import { CartItem } from '@/types/storefront';
 import { ShippingMethod, ShippingRate } from '@/lib/api/shipping';
@@ -56,6 +57,12 @@ export function CheckoutReviewStep({
     selectedShippingMethod,
     termsAccepted,
     setTermsAccepted,
+    orderNotes,
+    setOrderNotes,
+    isGiftOrder,
+    setIsGiftOrder,
+    giftMessage,
+    setGiftMessage,
     goToStep,
     prevStep,
     isProcessing,
@@ -65,6 +72,7 @@ export function CheckoutReviewStep({
 
   const localization = useLocalization();
   const formatPrice = useFormatPrice();
+  const checkoutConfig = useCheckoutConfig();
   const { formatDisplayPrice, formatStorePrice, isConverted, displayCurrency, storeCurrency } = usePriceFormatting();
 
   // Get shipping method name
@@ -76,7 +84,8 @@ export function CheckoutReviewStep({
   };
 
   const handlePlaceOrder = () => {
-    if (!termsAccepted) return;
+    // Only check terms if the checkbox is shown
+    if (checkoutConfig.showTermsCheckbox && !termsAccepted) return;
     onPlaceOrder();
   };
 
@@ -351,19 +360,137 @@ export function CheckoutReviewStep({
         </div>
       </div>
 
+      {/* Order Notes */}
+      {checkoutConfig.showOrderNotes && (
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <FileText className="h-4 w-4 text-muted-foreground" />
+            <Label htmlFor="orderNotes" className="font-medium">
+              <TranslatedUIText text="Order Notes" />
+            </Label>
+            <span className="text-xs text-muted-foreground">
+              (<TranslatedUIText text="optional" />)
+            </span>
+          </div>
+          <Textarea
+            id="orderNotes"
+            placeholder="Add any special instructions for your order..."
+            value={orderNotes}
+            onChange={(e) => setOrderNotes(e.target.value)}
+            className="min-h-[80px] resize-none"
+            disabled={isProcessing}
+          />
+        </div>
+      )}
+
+      {/* Gift Options */}
+      {checkoutConfig.showGiftOptions && (
+        <div className="mb-6 p-4 rounded-lg border">
+          <div className="flex items-start gap-3">
+            <Checkbox
+              id="isGiftOrder"
+              checked={isGiftOrder}
+              onCheckedChange={(checked) => setIsGiftOrder(checked === true)}
+              disabled={isProcessing}
+            />
+            <div className="flex-1">
+              <Label htmlFor="isGiftOrder" className="flex items-center gap-2 cursor-pointer">
+                <Gift className="h-4 w-4 text-tenant-primary" />
+                <span className="font-medium">
+                  <TranslatedUIText text="This is a gift" />
+                </span>
+              </Label>
+              <p className="text-xs text-muted-foreground mt-1">
+                <TranslatedUIText text="Add a gift message and exclude prices from the packing slip" />
+              </p>
+            </div>
+          </div>
+          {isGiftOrder && (
+            <div className="mt-4 pl-6">
+              <Label htmlFor="giftMessage" className="text-sm font-medium mb-2 block">
+                <TranslatedUIText text="Gift Message" />
+              </Label>
+              <Textarea
+                id="giftMessage"
+                placeholder="Enter your gift message here..."
+                value={giftMessage}
+                onChange={(e) => setGiftMessage(e.target.value)}
+                className="min-h-[80px] resize-none"
+                disabled={isProcessing}
+                maxLength={500}
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {giftMessage.length}/500 <TranslatedUIText text="characters" />
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Trust Badges */}
+      {checkoutConfig.showTrustBadges && checkoutConfig.trustBadges && checkoutConfig.trustBadges.length > 0 && (
+        <div className="flex flex-wrap items-center justify-center gap-4 p-4 rounded-lg border bg-muted/30 mb-6">
+          {checkoutConfig.trustBadges.map((badge, index) => (
+            <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Check className="h-4 w-4 text-green-600" />
+              <span>{badge}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Payment Icons */}
+      {checkoutConfig.showPaymentIcons && checkoutConfig.paymentIconsUrls && checkoutConfig.paymentIconsUrls.length > 0 && (
+        <div className="flex flex-wrap items-center justify-center gap-3 p-4 rounded-lg border bg-muted/30 mb-6">
+          <span className="text-xs text-muted-foreground mr-2">
+            <TranslatedUIText text="We accept:" />
+          </span>
+          {checkoutConfig.paymentIconsUrls.map((iconUrl, index) => (
+            <Image
+              key={index}
+              src={iconUrl}
+              alt="Payment method"
+              width={40}
+              height={24}
+              className="object-contain"
+            />
+          ))}
+        </div>
+      )}
+
       {/* Terms and Conditions */}
-      <div className="flex items-start gap-3 p-4 rounded-lg border mb-6">
-        <Checkbox
-          id="terms"
-          checked={termsAccepted}
-          onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-          required
-        />
-        <Label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
-          <TranslatedUIText text="I agree to the terms and conditions and understand that all sales are final." />
-          <span className="text-red-500 ml-1">*</span>
-        </Label>
-      </div>
+      {checkoutConfig.showTermsCheckbox && (
+        <div className="flex items-start gap-3 p-4 rounded-lg border mb-6">
+          <Checkbox
+            id="terms"
+            checked={termsAccepted}
+            onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+            required
+          />
+          <Label htmlFor="terms" className="text-sm leading-relaxed cursor-pointer">
+            {checkoutConfig.termsText ? (
+              checkoutConfig.termsLink ? (
+                <>
+                  <TranslatedUIText text={checkoutConfig.termsText} />{' '}
+                  <a
+                    href={checkoutConfig.termsLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-tenant-primary hover:underline"
+                  >
+                    <TranslatedUIText text="View Terms" />
+                  </a>
+                </>
+              ) : (
+                <TranslatedUIText text={checkoutConfig.termsText} />
+              )
+            ) : (
+              <TranslatedUIText text="I agree to the terms and conditions and understand that all sales are final." />
+            )}
+            <span className="text-red-500 ml-1">*</span>
+          </Label>
+        </div>
+      )}
 
       {/* Error message */}
       {error && (
@@ -422,7 +549,7 @@ export function CheckoutReviewStep({
           size="lg"
           className="min-w-[200px]"
           onClick={handlePlaceOrder}
-          disabled={isProcessing || !termsAccepted}
+          disabled={isProcessing || (checkoutConfig.showTermsCheckbox && !termsAccepted)}
         >
           {isProcessing ? (
             <div className="flex items-center gap-2">

@@ -359,7 +359,11 @@ export function ProductsClient({ initialProducts, categories, totalProducts }: P
                     className={cn(
                       'grid gap-3 sm:gap-4 md:gap-6',
                       viewMode === 'grid'
-                        ? 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3'
+                        ? {
+                            2: 'grid-cols-2',
+                            3: 'grid-cols-2 md:grid-cols-3',
+                            4: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4',
+                          }[productConfig.gridColumns] || 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
                         : 'grid-cols-1'
                     )}
                   >

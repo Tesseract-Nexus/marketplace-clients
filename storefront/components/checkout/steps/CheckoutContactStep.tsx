@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { User, Mail, Phone, ChevronRight, LogIn } from 'lucide-react';
+import { User, Mail, Phone, ChevronRight, LogIn, Building2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -94,6 +94,12 @@ export function CheckoutContactStep({
           ? 'Phone number is required for guest checkout'
           : 'Please enter your phone number'
       );
+      return;
+    }
+
+    // Validate company if required
+    if (checkoutConfig.requireCompany && !contactInfo.company?.trim()) {
+      setError('Please enter your company name');
       return;
     }
 
@@ -245,6 +251,27 @@ export function CheckoutContactStep({
             <TranslatedUIText text="For delivery updates and carrier contact" />
           </p>
         </div>
+
+        {/* Company - shown if requireCompany is enabled */}
+        {checkoutConfig.requireCompany && (
+          <div className="space-y-2">
+            <Label htmlFor="company">
+              <TranslatedUIText text="Company Name" /> *
+            </Label>
+            <div className="relative">
+              <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="company"
+                type="text"
+                placeholder="Acme Inc."
+                value={contactInfo.company}
+                onChange={(e) => setContactInfo({ company: e.target.value })}
+                className="pl-10"
+                required
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Error message */}

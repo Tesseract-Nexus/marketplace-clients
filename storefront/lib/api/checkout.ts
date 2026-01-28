@@ -37,6 +37,9 @@ export interface CreateOrderRequest {
   shippingServiceCode?: string; // Carrier-specific service code (e.g., Shiprocket courier_company_id)
   shippingCost?: number;
   notes?: string;
+  isGiftOrder?: boolean;
+  giftMessage?: string;
+  companyName?: string;
   // Package dimensions (captured at checkout for accurate shipping)
   packageWeight?: number; // Weight in kg
   packageLength?: number; // Length in cm
@@ -128,6 +131,9 @@ export async function createOrder(
       packageWidth: orderData.packageWidth,
       packageHeight: orderData.packageHeight,
       notes: orderData.notes,
+      isGiftOrder: orderData.isGiftOrder,
+      giftMessage: orderData.giftMessage,
+      companyName: orderData.companyName,
       status: 'pending',
     }),
   });

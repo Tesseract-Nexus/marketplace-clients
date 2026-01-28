@@ -102,6 +102,9 @@ function CheckoutContent() {
     isGuestMode,
     loyaltyDiscount,
     loyaltyPointsApplied,
+    orderNotes,
+    isGiftOrder,
+    giftMessage,
     isProcessing,
     setIsProcessing,
     error,
@@ -462,6 +465,10 @@ function CheckoutContent() {
         shippingBaseRate: selectedShippingMethod && 'baseRate' in selectedShippingMethod ? selectedShippingMethod.baseRate : undefined,
         shippingMarkupAmount: selectedShippingMethod && 'markupAmount' in selectedShippingMethod ? selectedShippingMethod.markupAmount : undefined,
         shippingMarkupPercent: selectedShippingMethod && 'markupPercent' in selectedShippingMethod ? selectedShippingMethod.markupPercent : undefined,
+        notes: orderNotes || undefined,
+        isGiftOrder: isGiftOrder || undefined,
+        giftMessage: isGiftOrder ? giftMessage : undefined,
+        companyName: contactInfo.company || undefined,
       };
 
       const order = await createOrder(tenant.id, tenant.storefrontId, createOrderData);

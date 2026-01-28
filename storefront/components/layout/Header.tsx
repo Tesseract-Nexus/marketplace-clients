@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Menu, Search, ShoppingCart, User, LogOut, Package, Heart, Settings, Bell, Star, Gift, Globe, ChevronRight, Home, Grid3X3, Ticket, CreditCard } from 'lucide-react';
+import { Menu, Search, ShoppingCart, User, LogOut, Package, Heart, Settings, Bell, Star, Gift, Globe, ChevronRight, Home, Grid3X3, Ticket, CreditCard, ChevronDown } from 'lucide-react';
 import { NotificationBell } from '@/components/NotificationBell';
 import { GlobalSearch } from '@/components/layout/GlobalSearch';
 import { useSearchShortcut } from '@/hooks/useSearchShortcut';
@@ -29,6 +29,7 @@ import { cn } from '@/lib/utils';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { LanguageSelector } from '@/components/language/LanguageSelector';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
+import { StorefrontNavLink } from '@/types/storefront';
 
 export function Header() {
   const router = useRouter();
@@ -71,7 +72,7 @@ export function Header() {
   const sortedNavLinks = [...(headerConfig?.navLinks || [])].sort((a, b) => a.position - b.position);
 
   // Filter content pages for header menu
-  const menuPages = (settings.contentPages || [])
+  const menuPages: StorefrontNavLink[] = (settings.contentPages || [])
     .filter((p) => p.status === 'PUBLISHED' && p.showInMenu)
     .map((p) => ({
       id: p.id,
@@ -81,7 +82,7 @@ export function Header() {
       position: 100, // Show after main links
     }));
 
-  const allNavLinks = [...sortedNavLinks, ...menuPages];
+  const allNavLinks: StorefrontNavLink[] = [...sortedNavLinks, ...menuPages];
 
   const handleLogout = async () => {
     try {
@@ -211,18 +212,56 @@ export function Header() {
                   </p>
                   <nav className="flex flex-col" role="navigation" aria-label="Shop navigation">
                     {allNavLinks.map((link) => (
-                      <Link
-                        key={link.id}
-                        href={link.isExternal ? link.href : getNavPath(link.href)}
-                        target={link.isExternal ? '_blank' : undefined}
-                        rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                        className="flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium hover:bg-muted active:bg-muted transition-colors"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        <Grid3X3 className="h-5 w-5 text-muted-foreground" />
-                        <TranslatedUIText text={link.label} />
-                        <ChevronRight className="h-4 w-4 ml-auto text-muted-foreground" />
-                      </Link>
+                      <div key={link.id}>
+                        <Link
+                          href={link.isExternal ? link.href : getNavPath(link.href)}
+                          target={link.isExternal ? '_blank' : undefined}
+                          rel={link.isExternal ? 'noopener noreferrer' : undefined}
+                          className="flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium hover:bg-muted active:bg-muted transition-colors"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          <Grid3X3 className="h-5 w-5 text-muted-foreground" />
+                          <span className="flex-1">
+                            <TranslatedUIText text={link.label} />
+                          </span>
+                          {link.badge && (
+                            <Badge
+                              className="text-[10px] px-1.5 py-0"
+                              style={link.badgeColor ? { backgroundColor: link.badgeColor } : undefined}
+                            >
+                              {link.badge}
+                            </Badge>
+                          )}
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        </Link>
+                        {/* Render children as indented items */}
+                        {link.children && link.children.length > 0 && (
+                          <div className="ml-8 border-l border-[var(--border-default)]">
+                            {link.children.map((child) => (
+                              <Link
+                                key={child.id}
+                                href={child.isExternal ? child.href : getNavPath(child.href)}
+                                target={child.isExternal ? '_blank' : undefined}
+                                rel={child.isExternal ? 'noopener noreferrer' : undefined}
+                                className="flex items-center gap-3 px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-muted active:bg-muted transition-colors"
+                                onClick={() => setMobileMenuOpen(false)}
+                              >
+                                <span className="flex-1">
+                                  <TranslatedUIText text={child.label} />
+                                </span>
+                                {child.badge && (
+                                  <Badge
+                                    className="text-[10px] px-1.5 py-0"
+                                    style={child.badgeColor ? { backgroundColor: child.badgeColor } : undefined}
+                                  >
+                                    {child.badge}
+                                  </Badge>
+                                )}
+                              </Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ))}
                     <Link
                       href={getNavPath('/gift-cards')}
@@ -397,15 +436,66 @@ export function Header() {
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-6">
               {allNavLinks.map((link) => (
-                <Link
-                  key={link.id}
-                  href={link.isExternal ? link.href : getNavPath(link.href)}
-                  target={link.isExternal ? '_blank' : undefined}
-                  rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <TranslatedUIText text={link.label} />
-                </Link>
+                link.children && link.children.length > 0 ? (
+                  // Dropdown menu for nav links with children
+                  <DropdownMenu key={link.id}>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                        <TranslatedUIText text={link.label} />
+                        {link.badge && (
+                          <Badge
+                            className="ml-1 text-[10px] px-1.5 py-0"
+                            style={link.badgeColor ? { backgroundColor: link.badgeColor } : undefined}
+                          >
+                            {link.badge}
+                          </Badge>
+                        )}
+                        <ChevronDown className="h-3 w-3" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-48">
+                      {link.children.map((child) => (
+                        <DropdownMenuItem key={child.id} asChild>
+                          <Link
+                            href={child.isExternal ? child.href : getNavPath(child.href)}
+                            target={child.isExternal ? '_blank' : undefined}
+                            rel={child.isExternal ? 'noopener noreferrer' : undefined}
+                            className="flex items-center justify-between"
+                          >
+                            <TranslatedUIText text={child.label} />
+                            {child.badge && (
+                              <Badge
+                                className="text-[10px] px-1.5 py-0"
+                                style={child.badgeColor ? { backgroundColor: child.badgeColor } : undefined}
+                              >
+                                {child.badge}
+                              </Badge>
+                            )}
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  // Regular link without dropdown
+                  <Link
+                    key={link.id}
+                    href={link.isExternal ? link.href : getNavPath(link.href)}
+                    target={link.isExternal ? '_blank' : undefined}
+                    rel={link.isExternal ? 'noopener noreferrer' : undefined}
+                    className="flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <TranslatedUIText text={link.label} />
+                    {link.badge && (
+                      <Badge
+                        className="ml-1 text-[10px] px-1.5 py-0"
+                        style={link.badgeColor ? { backgroundColor: link.badgeColor } : undefined}
+                      >
+                        {link.badge}
+                      </Badge>
+                    )}
+                  </Link>
+                )
               ))}
             </nav>
 

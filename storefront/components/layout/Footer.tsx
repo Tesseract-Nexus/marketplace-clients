@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useTenant, useFooterConfig, useNavPath } from '@/context/TenantContext';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
+import { PaymentMethod, TrustBadge } from '@/types/storefront';
 
 // Trust badge icon mapping
 const TRUST_BADGE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -256,11 +257,11 @@ export function Footer() {
 
   // Payment methods from config
   const showPaymentIcons = footerConfig.showPaymentIcons ?? false;
-  const paymentMethods = footerConfig.paymentMethods || [];
+  const paymentMethods: PaymentMethod[] = footerConfig.paymentMethods || [];
 
   // Trust badges from config
   const showTrustBadges = footerConfig.showTrustBadges ?? false;
-  const trustBadges = footerConfig.trustBadges || [];
+  const trustBadges: TrustBadge[] = footerConfig.trustBadges || [];
 
   const currentYear = new Date().getFullYear();
   const hasSocialLinks = footerConfig.showSocialIcons && socialLinks.length > 0;

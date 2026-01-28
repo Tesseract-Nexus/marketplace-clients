@@ -13,6 +13,7 @@ export interface ContactInfo {
   lastName: string;
   email: string;
   phone: string;
+  company: string;
 }
 
 export interface CheckoutState {
@@ -43,6 +44,11 @@ export interface CheckoutState {
 
   // Terms
   termsAccepted: boolean;
+
+  // Order extras
+  orderNotes: string;
+  isGiftOrder: boolean;
+  giftMessage: string;
 
   // Processing state
   isProcessing: boolean;
@@ -85,6 +91,11 @@ interface CheckoutContextValue extends CheckoutState {
   // Terms
   setTermsAccepted: (accepted: boolean) => void;
 
+  // Order extras
+  setOrderNotes: (notes: string) => void;
+  setIsGiftOrder: (isGift: boolean) => void;
+  setGiftMessage: (message: string) => void;
+
   // Processing
   setIsProcessing: (processing: boolean) => void;
   setError: (error: string | null) => void;
@@ -107,6 +118,7 @@ const DEFAULT_CONTACT_INFO: ContactInfo = {
   lastName: '',
   email: '',
   phone: '',
+  company: '',
 };
 
 const DEFAULT_SHIPPING_ADDRESS: ShippingAddress = {
@@ -133,6 +145,9 @@ const DEFAULT_STATE: CheckoutState = {
   loyaltyPointsApplied: 0,
   loyaltyDiscount: 0,
   termsAccepted: false,
+  orderNotes: '',
+  isGiftOrder: false,
+  giftMessage: '',
   isProcessing: false,
   error: null,
   pendingOrder: null,
@@ -170,6 +185,7 @@ export function CheckoutProvider({
       firstName: customerFirstName || '',
       lastName: customerLastName || '',
       phone: customerPhone || '',
+      company: '',
     },
   }));
 
@@ -183,11 +199,13 @@ export function CheckoutProvider({
         currentStep: checkoutStore.currentStep,
         completedSteps: checkoutStore.completedSteps,
         contactInfo: {
+          ...DEFAULT_CONTACT_INFO,
           ...checkoutStore.contactInfo,
           email: checkoutStore.contactInfo.email || customerEmail || '',
           firstName: checkoutStore.contactInfo.firstName || customerFirstName || '',
           lastName: checkoutStore.contactInfo.lastName || customerLastName || '',
           phone: checkoutStore.contactInfo.phone || customerPhone || '',
+          company: checkoutStore.contactInfo.company || '',
         },
         isGuestMode: checkoutStore.isGuestMode,
         addressMode: checkoutStore.addressMode,
@@ -386,6 +404,19 @@ export function CheckoutProvider({
     setState((prev) => ({ ...prev, termsAccepted: accepted }));
   }, []);
 
+  // Order extras
+  const setOrderNotes = useCallback((notes: string) => {
+    setState((prev) => ({ ...prev, orderNotes: notes }));
+  }, []);
+
+  const setIsGiftOrder = useCallback((isGift: boolean) => {
+    setState((prev) => ({ ...prev, isGiftOrder: isGift }));
+  }, []);
+
+  const setGiftMessage = useCallback((message: string) => {
+    setState((prev) => ({ ...prev, giftMessage: message }));
+  }, []);
+
   // Processing
   const setIsProcessing = useCallback((processing: boolean) => {
     setState((prev) => ({ ...prev, isProcessing: processing }));
@@ -432,6 +463,9 @@ export function CheckoutProvider({
     setBillingAddress,
     setLoyaltyPoints,
     setTermsAccepted,
+    setOrderNotes,
+    setIsGiftOrder,
+    setGiftMessage,
     setIsProcessing,
     setError,
     setPendingOrder,
@@ -456,6 +490,9 @@ export function CheckoutProvider({
     setBillingAddress,
     setLoyaltyPoints,
     setTermsAccepted,
+    setOrderNotes,
+    setIsGiftOrder,
+    setGiftMessage,
     setIsProcessing,
     setError,
     setPendingOrder,

@@ -12,6 +12,7 @@ export interface ContactInfo {
   lastName: string;
   email: string;
   phone: string;
+  company: string;
 }
 
 interface PersistedCheckoutState {
@@ -78,6 +79,7 @@ const DEFAULT_CONTACT_INFO: ContactInfo = {
   lastName: '',
   email: '',
   phone: '',
+  company: '',
 };
 
 const DEFAULT_SHIPPING_ADDRESS: ShippingAddress = {
