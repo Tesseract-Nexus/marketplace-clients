@@ -848,6 +848,7 @@ function TenantLayoutInner({
   const router = useRouter();
   const { user } = useAuth();
   const { currentTenant } = useTenant();
+  const { currentStorefront, themeLogoUrl } = useStorefront();
   const { branding, updateBranding } = useTheme();
 
   // DEV MODE: Skip all tenant checks
@@ -907,20 +908,24 @@ function TenantLayoutInner({
   }, [currentTenant?.id]);
 
   // Dynamic favicon update based on admin branding settings (from ThemeContext)
-  // Priority: 1) Admin branding settings faviconUrl, 2) Admin branding logoUrl, 3) Tenant logoUrl
+  // Priority: 1) Admin branding faviconUrl, 2) Admin branding logoUrl, 3) Tenant logoUrl, 4) Storefront logoUrl, 5) Theme logoUrl
   useEffect(() => {
     // Get the best available favicon URL with proper fallback
     // Check for non-empty strings (empty string is falsy but we want explicit check)
     const faviconFromBranding = branding?.general?.faviconUrl?.trim();
     const logoFromBranding = branding?.general?.logoUrl?.trim();
     const logoFromTenant = currentTenant?.logoUrl;
+    const logoFromStorefront = currentStorefront?.logoUrl;
+    const logoFromTheme = themeLogoUrl;
 
-    const faviconUrl = faviconFromBranding || logoFromBranding || logoFromTenant;
+    const faviconUrl = faviconFromBranding || logoFromBranding || logoFromTenant || logoFromStorefront || logoFromTheme;
 
     console.log('[TenantLayout] Favicon check:', {
       faviconFromBranding: faviconFromBranding ? 'set' : 'empty',
       logoFromBranding: logoFromBranding ? 'set' : 'empty',
       logoFromTenant: logoFromTenant ? 'set' : 'empty',
+      logoFromStorefront: logoFromStorefront ? 'set' : 'empty',
+      logoFromTheme: logoFromTheme ? 'set' : 'empty',
       using: faviconUrl ? 'found' : 'none',
     });
 
@@ -936,7 +941,7 @@ function TenantLayoutInner({
       link.href = faviconUrl;
       console.log('[TenantLayout] Favicon set to:', faviconUrl.substring(0, 60) + (faviconUrl.length > 60 ? '...' : ''));
     }
-  }, [branding?.general?.faviconUrl, branding?.general?.logoUrl, currentTenant?.logoUrl]);
+  }, [branding?.general?.faviconUrl, branding?.general?.logoUrl, currentTenant?.logoUrl, currentStorefront?.logoUrl, themeLogoUrl]);
 
   useEffect(() => {
     // DEV MODE: Skip tenant check entirely
