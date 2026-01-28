@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
     }
 
     const response = await fetch(
-      `${CUSTOMERS_BASE_URL}/api/v1/customers/${customerId}`,
+      `${CUSTOMERS_BASE_URL}/api/v1/storefront/customers/${customerId}`,
       { headers }
     );
 
@@ -184,7 +184,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const response = await fetch(
-      `${CUSTOMERS_BASE_URL}/api/v1/customers/${customerId}`,
+      `${CUSTOMERS_BASE_URL}/api/v1/storefront/customers/${customerId}`,
       {
         method: 'PATCH',
         headers,
