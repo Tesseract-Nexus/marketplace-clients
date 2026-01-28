@@ -523,13 +523,13 @@ export function ProductCard({
             />
           )}
 
-          {/* Navigation Arrows */}
+          {/* Navigation Arrows - smaller on mobile, show on hover for desktop */}
           {imageCount > 1 && (
             <>
               <button
                 onClick={goToPrevImage}
                 className={cn(
-                  "absolute left-1 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white transition-all touch-manipulation",
+                  "absolute left-1.5 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/90 transition-all touch-manipulation",
                   isTouchDevice
                     ? "w-8 h-8 active:scale-95"
                     : "w-7 h-7 opacity-0 group-hover:opacity-100 hover:bg-black/60"
@@ -541,7 +541,7 @@ export function ProductCard({
               <button
                 onClick={goToNextImage}
                 className={cn(
-                  "absolute right-1 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white transition-all touch-manipulation",
+                  "absolute right-1.5 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/90 transition-all touch-manipulation",
                   isTouchDevice
                     ? "w-8 h-8 active:scale-95"
                     : "w-7 h-7 opacity-0 group-hover:opacity-100 hover:bg-black/60"
@@ -553,17 +553,6 @@ export function ProductCard({
             </>
           )}
 
-          {/* Mobile Expand Button */}
-          {isTouchDevice && (
-            <button
-              onClick={openLightbox}
-              className="absolute bottom-3 right-3 z-20 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center text-white active:scale-95 transition-transform touch-manipulation"
-              aria-label="View larger image"
-            >
-              <Expand className="h-4 w-4" />
-            </button>
-          )}
-
           {/* Out of Stock Overlay */}
           {isOutOfStock && (
             <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-10">
@@ -573,11 +562,18 @@ export function ProductCard({
             </div>
           )}
 
-          {/* Image Counter */}
+          {/* Image Counter - positioned above action bar */}
           {imageCount > 1 && (
             <div className={cn(
-              "absolute z-20 bg-black/40 backdrop-blur-sm text-white text-[10px] font-medium rounded-full px-1.5 py-0.5",
-              isTouchDevice ? "bottom-14 left-1/2 -translate-x-1/2" : "bottom-2 right-2"
+              "absolute z-30 bg-black/40 backdrop-blur-sm text-white text-[10px] font-medium rounded-full px-1.5 py-0.5 transition-all duration-200",
+              // On mobile: always above action bar, centered
+              // On desktop: moves up when hovered to avoid overlap
+              isTouchDevice
+                ? "bottom-[52px] left-1/2 -translate-x-1/2"
+                : cn(
+                    "left-1/2 -translate-x-1/2",
+                    isHovered ? "bottom-[52px]" : "bottom-3"
+                  )
             )}>
               {currentImageIndex + 1}/{imageCount}
             </div>
@@ -591,17 +587,17 @@ export function ProductCard({
           {/* Badges */}
           <div className="absolute top-2 left-2 flex flex-col gap-1.5 z-10">
             {productConfig.showSaleBadge && hasDiscount && (
-              <Badge className="bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold px-2 py-0.5 shadow-md">
+              <Badge className="bg-[var(--badge-sale-bg)] text-[var(--badge-sale-text)] text-xs font-semibold px-2 py-0.5 shadow-md">
                 -{discountPercent}%
               </Badge>
             )}
             {productConfig.showStockStatus && product.inventoryStatus === 'LOW_STOCK' && (
-              <Badge className="bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold px-2 py-0.5 shadow-md">
+              <Badge className="bg-[var(--color-warning)] text-[var(--color-warning-foreground)] text-xs font-semibold px-2 py-0.5 shadow-md">
                 Low Stock
               </Badge>
             )}
             {productConfig.showStockStatus && product.inventoryStatus === 'OUT_OF_STOCK' && (
-              <Badge className="bg-zinc-700 text-white text-xs font-semibold px-2 py-0.5 shadow-lg">
+              <Badge className="bg-muted-foreground text-background text-xs font-semibold px-2 py-0.5 shadow-lg">
                 Sold Out
               </Badge>
             )}
@@ -716,78 +712,85 @@ export function ProductCard({
               opacity: isTouchDevice ? 1 : (isHovered ? 1 : 0),
               y: isTouchDevice ? 0 : (isHovered ? 0 : 10)
             }}
-            className="absolute inset-x-0 bottom-0 p-3 bg-white/95 dark:bg-zinc-900/95 backdrop-blur-sm border-t border-zinc-200 dark:border-zinc-700"
+            className={cn(
+              "absolute inset-x-0 bottom-0 bg-background/95 backdrop-blur-sm border-t border-border",
+              isTouchDevice ? "px-2 py-2" : "p-3"
+            )}
           >
-            <div className="flex gap-2">
+            <div className={cn(
+              "flex items-center justify-center",
+              isTouchDevice ? "gap-1.5" : "gap-2"
+            )}>
+              {/* Add to Cart Button */}
               <Button
                 size="sm"
                 variant={isOutOfStock ? "secondary" : "tenant-primary"}
                 className={cn(
-                  "flex-1",
+                  "flex-1 min-w-0",
                   isOutOfStock && "cursor-not-allowed opacity-80",
-                  isTouchDevice && "h-10 text-sm font-medium"
+                  isTouchDevice ? "h-9 text-xs font-medium px-2" : "h-9"
                 )}
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
               >
                 {isOutOfStock ? (
                   <>
-                    <Ban className="h-4 w-4 mr-1" />
-                    Sold Out
+                    <Ban className={cn(isTouchDevice ? "h-3.5 w-3.5" : "h-4 w-4", "mr-1 shrink-0")} />
+                    <span className="truncate">Sold Out</span>
                   </>
                 ) : (
                   <>
                     <ShoppingCart className={cn(
-                      "h-4 w-4 mr-1",
+                      isTouchDevice ? "h-3.5 w-3.5" : "h-4 w-4",
+                      "mr-1 shrink-0",
                       isAddingToCart && "animate-cart-bounce"
                     )} />
-                    {isAddingToCart ? 'Added!' : 'Add'}
+                    <span className="truncate">{isAddingToCart ? 'Added!' : (isTouchDevice ? 'Add' : 'Add to Cart')}</span>
                   </>
                 )}
               </Button>
-              {/* Quick Wishlist Button on Mobile */}
-              {isTouchDevice && productConfig.showWishlist && (
+
+              {/* Wishlist Button - Icon only on mobile */}
+              {productConfig.showWishlist && (
                 <Button
                   variant="secondary"
                   size="sm"
                   className={cn(
-                    "h-10 px-3 gap-1.5 font-medium",
+                    "shrink-0",
+                    isTouchDevice ? "h-9 w-9 p-0" : "h-9 px-3 gap-1.5",
                     isInList
-                      ? "bg-[var(--color-error-light)] text-[var(--wishlist-active)] border-[var(--wishlist-active)]/30"
-                      : "bg-white text-[var(--text-secondary)]"
+                      ? "bg-[var(--color-error-light)] text-[var(--wishlist-active)] border-[var(--wishlist-active)]/20 hover:bg-[var(--color-error-light)]"
+                      : "bg-background hover:bg-muted"
                   )}
-                  onClick={handleQuickAddToDefault}
+                  onClick={isTouchDevice ? handleQuickAddToDefault : undefined}
+                  title={isInList ? "Saved to wishlist" : "Save to wishlist"}
                 >
                   <Heart className={cn(
                     "h-4 w-4",
                     isInList && "fill-current",
                     isHeartAnimating && "animate-heart-pop"
                   )} />
-                  <span className="text-sm">{isInList ? 'Saved' : 'Save'}</span>
+                  {!isTouchDevice && <span className="text-sm">{isInList ? 'Saved' : 'Save'}</span>}
                 </Button>
               )}
-              {/* Quick View / Expand Image */}
-              {productConfig.showQuickView ? (
-                <Button
-                  variant="tenant-glass"
-                  size="sm"
-                  className="px-3"
-                  onClick={openQuickView}
-                  title="Quick view"
-                >
+
+              {/* Quick View / Expand - Icon only */}
+              <Button
+                variant="secondary"
+                size="sm"
+                className={cn(
+                  "shrink-0 bg-background hover:bg-muted",
+                  "h-9 w-9 p-0"
+                )}
+                onClick={productConfig.showQuickView ? openQuickView : openLightbox}
+                title={productConfig.showQuickView ? "Quick view" : "View larger image"}
+              >
+                {productConfig.showQuickView ? (
                   <Eye className="h-4 w-4" />
-                </Button>
-              ) : (
-                <Button
-                  variant="tenant-glass"
-                  size="sm"
-                  className="px-3"
-                  onClick={openLightbox}
-                  title="View larger image"
-                >
+                ) : (
                   <Expand className="h-4 w-4" />
-                </Button>
-              )}
+                )}
+              </Button>
             </div>
           </motion.div>
         </div>
