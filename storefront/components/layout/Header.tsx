@@ -511,12 +511,12 @@ export function Header() {
               className="flex items-center gap-2.5 shrink-0"
             >
               {settings.logoUrl && (
-                <div className="w-10 h-10 rounded-xl overflow-hidden bg-white/10 border border-border/30 shadow-sm flex items-center justify-center flex-shrink-0">
+                <div className="w-11 h-11 rounded-xl overflow-hidden bg-background border border-border/40 shadow-sm flex items-center justify-center flex-shrink-0">
                   <Image
                     src={settings.logoUrl}
                     alt={tenant?.name || 'Store'}
-                    width={40}
-                    height={40}
+                    width={44}
+                    height={44}
                     className="w-full h-full object-cover"
                   />
                 </div>

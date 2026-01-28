@@ -3,7 +3,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { useTenant } from './TenantContext';
 import { storefrontService } from '@/lib/services/storefrontService';
-import { storefrontSettingsApi, setCurrentStorefrontId, setCurrentTenantId } from '@/lib/api/storefront';
 import { apiClient } from '@/lib/api/client';
 
 export interface Storefront {
@@ -112,12 +111,18 @@ export function StorefrontProvider({ children }: StorefrontProviderProps) {
     }
     (async () => {
       try {
-        setCurrentStorefrontId(currentStorefront.id);
-        setCurrentTenantId(currentTenant.id);
-        const res = await storefrontSettingsApi.getSettings();
-        if (res.success && res.data) {
-          setThemeLogoUrl(res.data.logoUrl || undefined);
-          setThemeFaviconUrl(res.data.faviconUrl || undefined);
+        const res = await fetch('/api/storefront/settings', {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-storefront-id': currentStorefront.id,
+            'x-jwt-claim-tenant-id': currentTenant.id,
+          },
+          credentials: 'include',
+        });
+        const data = await res.json();
+        if (data.success && data.data) {
+          setThemeLogoUrl(data.data.logoUrl || undefined);
+          setThemeFaviconUrl(data.data.faviconUrl || undefined);
         }
       } catch {
         // Ignore — logo is non-critical
