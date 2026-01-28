@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-Tenant-ID': tenantId,
-      'X-Internal-Request': 'true',
+      'X-Internal-Service': 'storefront',
     };
     if (authorization && authorization !== 'Bearer ' && authorization !== 'Bearer') {
       headers['Authorization'] = authorization;

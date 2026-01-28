@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
 
     // Build headers for internal service call
     const headers: Record<string, string> = {
-      'X-Internal-Request': 'true',
+      'X-Internal-Service': 'storefront',
       'X-User-Id': customerId,
     };
     if (tenantId) {
@@ -170,7 +170,7 @@ export async function PUT(request: NextRequest) {
     // Build headers for internal service call
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      'X-Internal-Request': 'true',
+      'X-Internal-Service': 'storefront',
       'X-User-Id': customerId,
     };
     if (tenantId) {

@@ -117,7 +117,7 @@ export async function DELETE(
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-Tenant-ID': tenantId,
-      'X-Internal-Request': 'true',
+      'X-Internal-Service': 'storefront',
       'X-User-Id': auth.userId,
     };
     if (auth.authorization) {
@@ -198,7 +198,7 @@ export async function PUT(
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-Tenant-ID': tenantId,
-      'X-Internal-Request': 'true',
+      'X-Internal-Service': 'storefront',
       'X-User-Id': auth.userId,
     };
     if (auth.authorization) {
@@ -279,7 +279,7 @@ export async function PATCH(
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-Tenant-ID': tenantId,
-      'X-Internal-Request': 'true',
+      'X-Internal-Service': 'storefront',
       'X-User-Id': auth.userId,
     };
     if (auth.authorization) {

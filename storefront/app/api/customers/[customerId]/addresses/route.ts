@@ -140,7 +140,7 @@ export async function GET(
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-Tenant-ID': tenantId,
-      'X-Internal-Request': 'true',
+      'X-Internal-Service': 'storefront',
     };
     if (authorization && authorization !== 'Bearer ' && authorization !== 'Bearer') {
       headers['Authorization'] = authorization;
@@ -249,7 +249,7 @@ export async function POST(
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-Tenant-ID': tenantId,
-      'X-Internal-Request': 'true',
+      'X-Internal-Service': 'storefront',
     };
     if (authorization && authorization !== 'Bearer ' && authorization !== 'Bearer') {
       headers['Authorization'] = authorization;
