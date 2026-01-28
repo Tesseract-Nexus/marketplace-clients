@@ -286,13 +286,13 @@ export default function TaxRatesPage() {
           actions={
             <div className="flex items-center gap-2">
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={() => fetchData()}
                 disabled={loading || refreshing}
-                className="p-2.5"
+                className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
                 title="Refresh"
               >
-                <RefreshCw className={`h-4 w-4 ${(loading || refreshing) ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-5 h-5 text-muted-foreground ${(loading || refreshing) ? 'animate-spin' : ''}`} />
               </Button>
               <Button
                 onClick={() => {

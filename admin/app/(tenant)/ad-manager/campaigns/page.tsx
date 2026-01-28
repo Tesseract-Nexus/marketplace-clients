@@ -632,16 +632,16 @@ export default function AdCampaignsPage() {
               </div>
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   onClick={() => {
                     fetchCampaigns();
                     fetchStats();
                   }}
                   disabled={loading}
-                  className="justify-center p-2.5"
+                  className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
                   title="Refresh"
                 >
-                  <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
+                  <RefreshCw className={cn('w-5 h-5 text-muted-foreground', loading && 'animate-spin')} />
                 </Button>
                 <Button asChild className="justify-center">
                   <Link href="/ad-manager/campaigns/new">

@@ -391,13 +391,13 @@ export default function ApprovalsPage() {
             ]}
             actions={
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={loadApprovals}
                 disabled={loading}
-                className="p-2.5"
+                className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
                 title="Refresh"
               >
-                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-5 h-5 text-muted-foreground ${loading ? 'animate-spin' : ''}`} />
               </Button>
             }
           />

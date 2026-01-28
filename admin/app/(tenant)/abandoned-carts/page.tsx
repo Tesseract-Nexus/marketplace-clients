@@ -294,13 +294,13 @@ export default function AbandonedCartsPage() {
                 </span>
               )}
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={() => { fetchCarts(); fetchStats(); }}
                 disabled={loading}
-                className="p-2.5"
+                className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
                 title="Refresh"
               >
-                <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+                <RefreshCw className={cn("w-5 h-5 text-muted-foreground", loading && "animate-spin")} />
               </Button>
               {selectedCartIds.size > 0 ? (
                 <Button

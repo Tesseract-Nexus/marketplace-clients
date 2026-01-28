@@ -413,13 +413,12 @@ export default function TranslationSettingsPage() {
                   </div>
                 </div>
                 <Button
-                  variant="outline"
-                  size="sm"
+                  variant="ghost"
                   onClick={loadStats}
-                  className="flex items-center p-2.5"
+                  className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
                   title="Refresh"
                 >
-                  <RefreshCw className="h-4 w-4" />
+                  <RefreshCw className="w-5 h-5 text-muted-foreground" />
                 </Button>
               </div>
 

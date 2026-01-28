@@ -278,11 +278,12 @@ export default function CouponsPage() {
             <Button
               onClick={loadCoupons}
               disabled={loading}
-              variant="outline"
-              className="px-4 py-2 rounded-md bg-white hover:bg-muted transition-all disabled:opacity-50 border-2 border-border text-foreground"
+              variant="ghost"
+              className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
+              title="Refresh"
               aria-label="Refresh coupons list"
             >
-              <RefreshCw className={cn("w-5 h-5 text-foreground", loading && "animate-spin")} aria-hidden="true" />
+              <RefreshCw className={cn("w-5 h-5 text-muted-foreground", loading && "animate-spin")} aria-hidden="true" />
             </Button>
             <Button
               onClick={() => router.push('/coupons/new')}

@@ -139,13 +139,13 @@ export default function MauticIntegrationPage() {
           actions={
             <div className="flex gap-2">
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={handleRefreshConnection}
                 disabled={loading || syncing}
-                className="border-border hover:bg-muted p-2.5"
-                title="Refresh Status"
+                className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
+                title="Refresh"
               >
-                <RefreshCw className={cn("h-4 w-4", (loading || syncing) && "animate-spin")} />
+                <RefreshCw className={cn("w-5 h-5 text-muted-foreground", (loading || syncing) && "animate-spin")} />
               </Button>
               <Button variant="gradient" asChild>
                 <a href="https://dev-mautic.tesserix.app" target="_blank" rel="noopener noreferrer">

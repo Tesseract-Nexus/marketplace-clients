@@ -406,8 +406,8 @@ export default function AuditLogsPage() {
                     {TIMEZONES.map(tz => <SelectItem key={tz.value} value={tz.value}>{tz.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
-                <Button variant="outline" size="sm" onClick={() => { fetchLogs(); fetchSummary(); }} disabled={filtering}>
-                  <RefreshCw className={cn("h-4 w-4", filtering && "animate-spin")} />
+                <Button variant="ghost" onClick={() => { fetchLogs(); fetchSummary(); }} disabled={filtering} className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all" title="Refresh">
+                  <RefreshCw className={cn("w-5 h-5 text-muted-foreground", filtering && "animate-spin")} />
                 </Button>
                 <Button variant="outline" size="sm" onClick={() => handleExport('csv')} disabled={exporting}>
                   <Download className="h-4 w-4" />
@@ -424,8 +424,8 @@ export default function AuditLogsPage() {
 
                 {/* Quick Links */}
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1 h-8 text-xs p-2.5" onClick={() => { fetchLogs(); fetchSummary(); }} title="Refresh">
-                    <RefreshCw className="h-3 w-3" />
+                  <Button variant="ghost" className="flex-1 h-8 text-xs p-2.5 rounded-md bg-muted hover:bg-muted transition-all" onClick={() => { fetchLogs(); fetchSummary(); }} title="Refresh">
+                    <RefreshCw className="w-5 h-5 text-muted-foreground" />
                   </Button>
                 </div>
 

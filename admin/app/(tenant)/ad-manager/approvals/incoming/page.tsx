@@ -346,8 +346,8 @@ export default function IncomingApprovalsPage() {
                     {pendingCount} Pending
                   </Badge>
                 )}
-                <Button variant="outline" onClick={fetchSubmissions} disabled={loading} className="justify-center p-2.5" title="Refresh">
-                  <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
+                <Button variant="ghost" onClick={fetchSubmissions} disabled={loading} className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all" title="Refresh">
+                  <RefreshCw className={cn('w-5 h-5 text-muted-foreground', loading && 'animate-spin')} />
                 </Button>
               </div>
             </div>

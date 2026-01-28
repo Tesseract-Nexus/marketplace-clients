@@ -353,13 +353,13 @@ export default function OrderDetailsPage() {
           actions={
             <div className="flex items-center gap-2">
               <Button
-                variant="outline"
+                variant="ghost"
                 onClick={() => { loadOrder(); fetchValidTransitions(); }}
                 disabled={loading}
-                className="p-2.5"
+                className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
                 title="Refresh"
               >
-                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-5 h-5 text-muted-foreground ${loading ? 'animate-spin' : ''}`} />
               </Button>
               <Button variant="outline" onClick={() => router.push('/orders')}>
                 <ArrowLeft className="w-4 h-4 mr-2" />

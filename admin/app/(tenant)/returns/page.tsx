@@ -277,8 +277,8 @@ export default function ReturnsPage() {
             { label: 'Returns' },
           ]}
           actions={
-            <Button onClick={fetchReturns} className="bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all p-2.5" title="Refresh">
-              <RefreshCw className="h-4 w-4" />
+            <Button variant="ghost" onClick={fetchReturns} className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all" title="Refresh">
+              <RefreshCw className="w-5 h-5 text-muted-foreground" />
             </Button>
           }
         />

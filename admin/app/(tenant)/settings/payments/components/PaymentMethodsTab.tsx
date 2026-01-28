@@ -144,12 +144,13 @@ export function PaymentMethodsTab() {
               />
             </div>
             <Button
-              variant="outline"
-              size="icon"
+              variant="ghost"
               onClick={handleRefresh}
               disabled={refreshing}
+              className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
+              title="Refresh"
             >
-              <RefreshCw className={`h-4 w-4 ${refreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-5 h-5 text-muted-foreground ${refreshing ? 'animate-spin' : ''}`} />
             </Button>
           </div>
         </div>

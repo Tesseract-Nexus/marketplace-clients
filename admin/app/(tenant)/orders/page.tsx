@@ -509,13 +509,13 @@ export default function OrdersPage() {
           }
           actions={
             <Button
-              variant="outline"
+              variant="ghost"
               onClick={() => loadOrders()}
               disabled={loading || refreshing}
-              className="p-2.5"
+              className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
               title="Refresh"
             >
-              <RefreshCw className={`h-4 w-4 ${(loading || refreshing) ? 'animate-spin' : ''}`} />
+              <RefreshCw className={cn("w-5 h-5 text-muted-foreground", (loading || refreshing) && "animate-spin")} />
             </Button>
           }
         />

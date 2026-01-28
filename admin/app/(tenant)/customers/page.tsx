@@ -493,12 +493,12 @@ export default function CustomersPage() {
         <Button
           onClick={loadCustomers}
           disabled={loading}
-          variant="outline"
-          className="h-10 w-10 p-0 rounded-lg hover:bg-muted transition-colors"
-          title="Refresh customers list"
+          variant="ghost"
+          className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
+          title="Refresh"
           aria-label="Refresh customers list"
         >
-          <RefreshCw className={cn("w-4 h-4 text-muted-foreground", loading && "animate-spin")} aria-hidden="true" />
+          <RefreshCw className={cn("w-5 h-5 text-muted-foreground", loading && "animate-spin")} aria-hidden="true" />
         </Button>
       </FilterPanel>
 

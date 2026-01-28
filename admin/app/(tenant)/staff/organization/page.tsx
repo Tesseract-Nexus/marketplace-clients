@@ -266,7 +266,46 @@ export default function OrganizationPage() {
           parentDepartmentId: deptFormData.parentDepartmentId || undefined,
           departmentHeadId: deptFormData.departmentHeadId || undefined,
         };
-        await departmentService.create(createData);
+        const response = await departmentService.create(createData);
+
+        // Optimistically add to local state immediately
+        if (response.data) {
+          const newDept = response.data;
+          setDepartments(prev => [...prev, newDept]);
+          setExpandedDepts(prev => new Set([...prev, newDept.id]));
+
+          // Also update hierarchy data for immediate display
+          const newHierarchyItem: DepartmentHierarchy = {
+            department: newDept,
+            teams: [],
+            subDepartments: [],
+          };
+
+          if (newDept.parentDepartmentId) {
+            // Add as sub-department
+            setHierarchyData(prev => {
+              const addToParent = (items: DepartmentHierarchy[]): DepartmentHierarchy[] => {
+                return items.map(item => {
+                  if (item.department.id === newDept.parentDepartmentId) {
+                    return {
+                      ...item,
+                      subDepartments: [...(item.subDepartments || []), newHierarchyItem],
+                    };
+                  }
+                  if (item.subDepartments?.length) {
+                    return { ...item, subDepartments: addToParent(item.subDepartments) };
+                  }
+                  return item;
+                });
+              };
+              return addToParent(prev);
+            });
+          } else {
+            // Add as root department
+            setHierarchyData(prev => [...prev, newHierarchyItem]);
+          }
+        }
+
         toast.success('Department Created', `"${deptFormData.name}" has been successfully created.`);
       } else if (viewMode === 'edit-dept' && selectedDepartment) {
         const updateData: UpdateDepartmentRequest = {
@@ -276,13 +315,21 @@ export default function OrganizationPage() {
           parentDepartmentId: deptFormData.parentDepartmentId || undefined,
           departmentHeadId: deptFormData.departmentHeadId || undefined,
         };
-        await departmentService.update(selectedDepartment.id, updateData);
+        const response = await departmentService.update(selectedDepartment.id, updateData);
+
+        // Optimistically update local state immediately
+        if (response.data) {
+          setDepartments(prev => prev.map(d => d.id === selectedDepartment.id ? response.data! : d));
+        }
+
         toast.success('Department Updated', `"${deptFormData.name}" has been successfully updated.`);
       }
 
-      await loadData();
       setViewMode('list');
       setSelectedDepartment(null);
+
+      // Refresh data in background to sync hierarchy
+      loadData();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save department';
       setError(errorMessage);
@@ -358,7 +405,33 @@ export default function OrganizationPage() {
           defaultRoleId: teamFormData.defaultRoleId || undefined,
           maxCapacity: teamFormData.maxCapacity,
         };
-        await teamService.create(createData);
+        const response = await teamService.create(createData);
+
+        // Optimistically add to local state immediately
+        if (response.data) {
+          const newTeam = response.data;
+          setTeams(prev => [...prev, newTeam]);
+
+          // Also update hierarchy data for immediate display in hierarchy view
+          setHierarchyData(prev => {
+            const addTeamToDept = (items: DepartmentHierarchy[]): DepartmentHierarchy[] => {
+              return items.map(item => {
+                if (item.department.id === newTeam.departmentId) {
+                  return {
+                    ...item,
+                    teams: [...(item.teams || []), newTeam],
+                  };
+                }
+                if (item.subDepartments?.length) {
+                  return { ...item, subDepartments: addTeamToDept(item.subDepartments) };
+                }
+                return item;
+              });
+            };
+            return addTeamToDept(prev);
+          });
+        }
+
         toast.success('Team Created', `"${teamFormData.name}" has been successfully created.`);
       } else if (viewMode === 'edit-team' && selectedTeam) {
         const updateData: UpdateTeamRequest = {
@@ -369,13 +442,21 @@ export default function OrganizationPage() {
           defaultRoleId: teamFormData.defaultRoleId || undefined,
           maxCapacity: teamFormData.maxCapacity,
         };
-        await teamService.update(selectedTeam.id, updateData);
+        const response = await teamService.update(selectedTeam.id, updateData);
+
+        // Optimistically update local state immediately
+        if (response.data) {
+          setTeams(prev => prev.map(t => t.id === selectedTeam.id ? response.data! : t));
+        }
+
         toast.success('Team Updated', `"${teamFormData.name}" has been successfully updated.`);
       }
 
-      await loadData();
       setViewMode('list');
       setSelectedTeam(null);
+
+      // Refresh data in background to sync hierarchy
+      loadData();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to save team';
       setError(errorMessage);

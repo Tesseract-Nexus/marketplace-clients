@@ -438,8 +438,8 @@ export default function CustomerSegmentsPage() {
           ]}
           actions={
             <div className="flex gap-3">
-              <Button variant="outline" onClick={fetchSegments} disabled={loading} className="p-2.5" title="Refresh">
-                <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+              <Button variant="ghost" onClick={fetchSegments} disabled={loading} className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all" title="Refresh">
+                <RefreshCw className={cn("w-5 h-5 text-muted-foreground", loading && "animate-spin")} />
               </Button>
               <Button
                 onClick={() => { resetForm(); setShowCreateModal(true); }}

@@ -263,8 +263,8 @@ export default function LoyaltyProgramPage() {
           ]}
           actions={
             <div className="flex gap-2">
-              <Button variant="outline" onClick={fetchProgram} disabled={saving} className="p-2.5" title="Refresh">
-                <RefreshCw className={cn("h-4 w-4", loading && "animate-spin")} />
+              <Button variant="ghost" onClick={fetchProgram} disabled={saving} className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all" title="Refresh">
+                <RefreshCw className={cn("w-5 h-5 text-muted-foreground", loading && "animate-spin")} />
               </Button>
               <Button
                 onClick={handleSave}

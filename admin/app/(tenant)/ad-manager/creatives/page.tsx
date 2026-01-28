@@ -303,8 +303,8 @@ export default function CreativesPage() {
             ]}
             actions={
               <div className="flex items-center gap-2">
-                <Button variant="outline" onClick={fetchCreatives} disabled={loading} className="p-2.5" title="Refresh">
-                  <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
+                <Button variant="ghost" onClick={fetchCreatives} disabled={loading} className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all" title="Refresh">
+                  <RefreshCw className={cn('w-5 h-5 text-muted-foreground', loading && 'animate-spin')} />
                 </Button>
                 <Button asChild>
                   <Link href="/ad-manager/creatives/new">

@@ -410,13 +410,13 @@ export default function DelegationsPage() {
             actions={
               <div className="flex items-center gap-2">
                 <Button
-                  variant="outline"
+                  variant="ghost"
                   onClick={loadDelegations}
                   disabled={loading}
-                  className="p-2.5"
+                  className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
                   title="Refresh"
                 >
-                  <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`w-5 h-5 text-muted-foreground ${loading ? 'animate-spin' : ''}`} />
                 </Button>
                 <Button onClick={openCreateDialog}>
                   <Plus className="h-4 w-4 mr-2" />

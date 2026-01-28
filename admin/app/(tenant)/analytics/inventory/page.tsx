@@ -196,13 +196,12 @@ export default function InventoryAnalyticsPage() {
               <div className="w-px h-6 bg-muted" />
               <Button
                 variant="ghost"
-                size="sm"
                 onClick={handleRefresh}
                 disabled={isFetching}
-                className="text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg p-2.5"
+                className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
                 title="Refresh"
               >
-                <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`w-5 h-5 text-muted-foreground ${isFetching ? 'animate-spin' : ''}`} />
               </Button>
             </div>
           }

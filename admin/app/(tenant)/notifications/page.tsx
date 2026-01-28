@@ -268,8 +268,8 @@ export default function NotificationsPage() {
             <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-success' : 'bg-border'}`} />
             {isConnected ? 'Live' : 'Offline'}
           </Badge>
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing} className="p-2.5" title="Refresh">
-            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <Button variant="ghost" onClick={handleRefresh} disabled={isRefreshing} className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all" title="Refresh">
+            <RefreshCw className={`w-5 h-5 text-muted-foreground ${isRefreshing ? 'animate-spin' : ''}`} />
           </Button>
           {unreadCount > 0 && (
             <Button variant="outline" size="sm" onClick={markAllAsRead}>
