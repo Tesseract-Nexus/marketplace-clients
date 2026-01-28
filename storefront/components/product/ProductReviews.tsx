@@ -18,6 +18,7 @@ import {
   Review,
   ReviewsResponse,
   ReviewMedia,
+  ReactionResponse,
 } from '@/lib/api/reviews';
 import { cn } from '@/lib/utils';
 import { ReviewImageUpload, UploadedImage } from './ReviewImageUpload';
@@ -202,26 +203,53 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
     }
   };
 
-  const handleHelpful = async (reviewId: string) => {
+  const [reactionError, setReactionError] = useState<string | null>(null);
+
+  const handleReaction = async (reviewId: string, reactionType: 'HELPFUL' | 'NOT_HELPFUL') => {
+    // Check if user is authenticated
+    if (!isAuthenticated || !accessToken || !customer?.id) {
+      console.log('[ProductReviews] User not authenticated for reaction', { isAuthenticated, hasAccessToken: !!accessToken, customerId: customer?.id });
+      setReactionError('Please log in to react to reviews');
+      setTimeout(() => setReactionError(null), 3000);
+      return;
+    }
+
+    console.log('[ProductReviews] Sending reaction:', { reviewId, reactionType, userId: customer.id, tenantId, storefrontId });
+
     try {
-      await addReviewReaction(tenantId, storefrontId, accessToken || null, reviewId, 'HELPFUL');
-      setReviews((prev) =>
-        prev.map((r) =>
-          r.id === reviewId ? { ...r, helpfulCount: r.helpfulCount + 1 } : r
-        )
+      const response = await addReviewReaction(
+        tenantId,
+        storefrontId,
+        accessToken,
+        customer.id,
+        reviewId,
+        reactionType
       );
-    } catch {
-      // Silently fail
+
+      console.log('[ProductReviews] Reaction response:', response);
+
+      // Update the review with new counts and user's reaction state
+      setReviews((prev) =>
+        prev.map((r) => {
+          if (r.id !== reviewId) return r;
+          return {
+            ...r,
+            helpfulCount: response.helpfulCount,
+            notHelpfulCount: response.notHelpfulCount,
+            userReaction: response.action === 'removed' ? null : response.reactionType || null,
+          };
+        })
+      );
+    } catch (err) {
+      console.error('[ProductReviews] Reaction error:', err);
+      const message = err instanceof Error ? err.message : 'Failed to add reaction';
+      setReactionError(message);
+      setTimeout(() => setReactionError(null), 3000);
     }
   };
 
-  const handleNotHelpful = async (reviewId: string) => {
-    try {
-      await addReviewReaction(tenantId, storefrontId, accessToken || null, reviewId, 'NOT_HELPFUL');
-    } catch {
-      // Silently fail
-    }
-  };
+  const handleHelpful = (reviewId: string) => handleReaction(reviewId, 'HELPFUL');
+  const handleNotHelpful = (reviewId: string) => handleReaction(reviewId, 'NOT_HELPFUL');
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-IN', {
@@ -313,6 +341,14 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
         <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center gap-2">
           <CheckCircle className="h-5 w-5" />
           <span>Thank you! Your review has been submitted and is pending approval.</span>
+        </div>
+      )}
+
+      {/* Reaction Error Message */}
+      {reactionError && (
+        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg flex items-center gap-2">
+          <AlertCircle className="h-5 w-5" />
+          <span>{reactionError}</span>
         </div>
       )}
 
@@ -593,25 +629,54 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
                 })()
               )}
 
+              {/* Reaction Buttons */}
               <div className="mt-3 flex items-center gap-4">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-foreground"
-                  onClick={() => handleHelpful(review.id)}
-                >
-                  <ThumbsUp className="h-4 w-4 mr-1" />
-                  Helpful ({review.helpfulCount})
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-foreground"
-                  onClick={() => handleNotHelpful(review.id)}
-                >
-                  <ThumbsDown className="h-4 w-4 mr-1" />
-                  Not Helpful
-                </Button>
+                {/* Only show reaction buttons if user is not the review author */}
+                {review.userId !== customer?.id && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                        "text-muted-foreground hover:text-foreground transition-colors",
+                        review.userReaction === 'HELPFUL' && "text-green-600 hover:text-green-700 bg-green-50",
+                        !isAuthenticated && "opacity-60 cursor-not-allowed"
+                      )}
+                      onClick={() => handleHelpful(review.id)}
+                      disabled={!isAuthenticated}
+                      title={!isAuthenticated ? "Log in to react" : review.userReaction === 'HELPFUL' ? "Click to remove your reaction" : "Mark as helpful"}
+                    >
+                      <ThumbsUp className={cn(
+                        "h-4 w-4 mr-1",
+                        review.userReaction === 'HELPFUL' && "fill-current"
+                      )} />
+                      Helpful ({review.helpfulCount})
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className={cn(
+                        "text-muted-foreground hover:text-foreground transition-colors",
+                        review.userReaction === 'NOT_HELPFUL' && "text-red-600 hover:text-red-700 bg-red-50",
+                        !isAuthenticated && "opacity-60 cursor-not-allowed"
+                      )}
+                      onClick={() => handleNotHelpful(review.id)}
+                      disabled={!isAuthenticated}
+                      title={!isAuthenticated ? "Log in to react" : review.userReaction === 'NOT_HELPFUL' ? "Click to remove your reaction" : "Mark as not helpful"}
+                    >
+                      <ThumbsDown className={cn(
+                        "h-4 w-4 mr-1",
+                        review.userReaction === 'NOT_HELPFUL' && "fill-current"
+                      )} />
+                      Not Helpful ({review.notHelpfulCount || 0})
+                    </Button>
+                  </>
+                )}
+                {!isAuthenticated && (
+                  <span className="text-xs text-muted-foreground">
+                    <a href="/auth/login" className="underline hover:text-foreground">Log in</a> to react
+                  </span>
+                )}
               </div>
             </div>
           ))}

@@ -52,11 +52,23 @@ export interface Review {
   media?: ReviewMedia[];
   comments?: ReviewComment[] | Record<string, ReviewComment>;
   helpfulCount: number;
+  notHelpfulCount: number;
   reportCount: number;
   featured: boolean;
   verifiedPurchase: boolean;
   createdAt: string;
   updatedAt: string;
+  // Client-side tracking for user's reaction
+  userReaction?: 'HELPFUL' | 'NOT_HELPFUL' | null;
+}
+
+export interface ReactionResponse {
+  success: boolean;
+  message: string;
+  reactionType?: 'HELPFUL' | 'NOT_HELPFUL';
+  action: 'added' | 'removed' | 'changed';
+  helpfulCount: number;
+  notHelpfulCount: number;
 }
 
 export interface ReviewsResponse {
@@ -170,15 +182,23 @@ export async function addReviewReaction(
   tenantId: string,
   storefrontId: string,
   accessToken: string | null,
+  userId: string | null,
   reviewId: string,
   reactionType: 'HELPFUL' | 'NOT_HELPFUL'
-): Promise<void> {
+): Promise<ReactionResponse> {
+  if (!accessToken || !userId) {
+    throw new Error('You must be logged in to react to reviews');
+  }
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'X-Tenant-ID': tenantId,
     'X-Storefront-ID': storefrontId,
+    'Authorization': `Bearer ${accessToken}`,
+    'X-User-Id': userId,
   };
-  if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+
+  console.log('[reviews-api] addReviewReaction request:', { reviewId, reactionType, tenantId, userId });
 
   const response = await fetch(
     `/api/reviews/${reviewId}/reactions`,
@@ -189,9 +209,17 @@ export async function addReviewReaction(
     }
   );
 
+  const data = await response.json().catch(() => ({}));
+  console.log('[reviews-api] addReviewReaction response:', { status: response.status, ok: response.ok, data });
+
   if (!response.ok) {
-    throw new Error('Failed to add reaction');
+    if (response.status === 401) {
+      throw new Error('You must be logged in to react to reviews');
+    }
+    throw new Error(data.error?.message || data.error || 'Failed to add reaction');
   }
+
+  return data as ReactionResponse;
 }
 
 export async function checkVerifiedPurchase(
