@@ -137,7 +137,11 @@ export function Header() {
       position: 100, // Show after main links
     }));
 
-  const allNavLinks: StorefrontNavLink[] = [...sortedNavLinks, ...menuPages];
+  const allNavLinks: StorefrontNavLink[] = [
+    ...sortedNavLinks,
+    ...menuPages,
+    { id: 'cancellation-policy', label: 'Cancellation Policy', href: '/cancellation-policy', isExternal: false, position: 200 },
+  ];
 
   const handleLogout = async () => {
     try {

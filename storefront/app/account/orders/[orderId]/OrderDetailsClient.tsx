@@ -21,6 +21,7 @@ import {
   AlertCircle,
   ArrowLeft,
   Calendar,
+  Scale,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -742,6 +743,13 @@ export function OrderDetailsClient({ order, tracking, returns }: OrderDetailsCli
                   Request Return
                 </Button>
               )}
+
+              <Button variant="outline" className="w-full" asChild>
+                <Link href={getNavPath('/cancellation-policy')}>
+                  <Scale className="h-4 w-4 mr-2" />
+                  Cancellation Policy
+                </Link>
+              </Button>
 
               {canCancel && (
                 <Button
