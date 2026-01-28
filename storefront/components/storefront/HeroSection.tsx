@@ -147,8 +147,9 @@ export function HeroSection({ variant }: HeroSectionProps) {
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
 
         {/* Decorative floating blobs with glow - smaller on mobile */}
-        {/* Only show when animations are enabled (default true) */}
-        {homepageConfig.heroAnimationsEnabled !== false && (
+        {/* Only show for animated background type when animations are enabled */}
+        {(!homepageConfig.heroBackgroundType || homepageConfig.heroBackgroundType === 'animated') &&
+         homepageConfig.heroAnimationsEnabled !== false && (
           <div className="absolute inset-0 overflow-hidden pointer-events-none hidden sm:block">
             <motion.div
               className="absolute top-10 right-10 md:top-20 md:right-20 w-40 h-40 md:w-72 md:h-72 blob opacity-30 blur-xl"
