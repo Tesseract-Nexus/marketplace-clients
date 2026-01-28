@@ -359,7 +359,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
               {/* Image indicator dots for mobile */}
               {isTouchDevice && images.length > 1 && (
                 <div
-                  className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 bg-black/40 rounded-full px-3 py-1.5 z-10"
+                  className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 bg-black/40 rounded-full px-2 py-1 z-10"
                   onClick={(e) => e.stopPropagation()}
                 >
                   {images.map((_, idx) => (
@@ -370,10 +370,10 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                         setSelectedImage(idx);
                       }}
                       className={cn(
-                        'w-2 h-2 rounded-full transition-all',
+                        'w-1.5 h-1.5 rounded-full transition-all',
                         idx === selectedImage
-                          ? 'bg-white w-4'
-                          : 'bg-white/50'
+                          ? 'bg-white w-3'
+                          : 'bg-white/60'
                       )}
                       aria-label={`View image ${idx + 1}`}
                     />

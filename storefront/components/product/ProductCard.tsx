@@ -603,7 +603,29 @@ export function ProductCard({
             )}
           </div>
 
-          {/* Lists Dropdown - Desktop only, mobile uses quick add button */}
+          {/* Mobile Wishlist Button - Simple heart icon on top right */}
+          {productConfig.showWishlist && isTouchDevice && (
+            <button
+              type="button"
+              className={cn(
+                'absolute top-2.5 right-2.5 h-8 w-8 rounded-full transition-all duration-200 z-20',
+                'flex items-center justify-center',
+                isInList
+                  ? 'bg-[var(--wishlist-active)] text-white'
+                  : 'bg-background/90 backdrop-blur-sm text-muted-foreground shadow-md border border-border/50'
+              )}
+              onClick={handleQuickAddToDefault}
+              title={isInList ? 'Saved to wishlist' : 'Save to wishlist'}
+            >
+              <Heart className={cn(
+                'h-4 w-4 transition-all',
+                isInList && 'fill-current',
+                isHeartAnimating && 'animate-heart-pop'
+              )} />
+            </button>
+          )}
+
+          {/* Desktop Lists Dropdown */}
           {productConfig.showWishlist && !isTouchDevice && (
             <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
               <DropdownMenuTrigger asChild>
@@ -614,8 +636,8 @@ export function ProductCard({
                     'flex items-center justify-center',
                     'focus:outline-none focus:ring-2 focus:ring-offset-1',
                     isInList
-                      ? 'bg-rose-500 text-white hover:bg-rose-600 focus:ring-rose-500'
-                      : 'bg-white/90 backdrop-blur-sm text-zinc-600 hover:text-rose-500 shadow-md border border-zinc-200/50 focus:ring-rose-500'
+                      ? 'bg-[var(--wishlist-active)] text-white hover:opacity-90 focus:ring-[var(--wishlist-active)]'
+                      : 'bg-background/90 backdrop-blur-sm text-muted-foreground hover:text-[var(--wishlist-active)] shadow-md border border-border/50 focus:ring-[var(--wishlist-active)]'
                   )}
                   onClick={(e) => {
                     e.preventDefault();
@@ -714,83 +736,76 @@ export function ProductCard({
             }}
             className={cn(
               "absolute inset-x-0 bottom-0 bg-background/95 backdrop-blur-sm border-t border-border",
-              isTouchDevice ? "px-2 py-2" : "p-3"
+              isTouchDevice ? "px-3 py-2" : "p-3"
             )}
           >
-            <div className={cn(
-              "flex items-center justify-center",
-              isTouchDevice ? "gap-1.5" : "gap-2"
-            )}>
+            <div className="flex items-center justify-center gap-2">
               {/* Add to Cart Button */}
               <Button
                 size="sm"
                 variant={isOutOfStock ? "secondary" : "tenant-primary"}
                 className={cn(
-                  "flex-1 min-w-0",
+                  "flex-1 min-w-0 h-9",
                   isOutOfStock && "cursor-not-allowed opacity-80",
-                  isTouchDevice ? "h-9 text-xs font-medium px-2" : "h-9"
+                  isTouchDevice ? "text-sm font-medium" : ""
                 )}
                 onClick={handleAddToCart}
                 disabled={isOutOfStock}
               >
                 {isOutOfStock ? (
                   <>
-                    <Ban className={cn(isTouchDevice ? "h-3.5 w-3.5" : "h-4 w-4", "mr-1 shrink-0")} />
+                    <Ban className="h-4 w-4 mr-1.5 shrink-0" />
                     <span className="truncate">Sold Out</span>
                   </>
                 ) : (
                   <>
                     <ShoppingCart className={cn(
-                      isTouchDevice ? "h-3.5 w-3.5" : "h-4 w-4",
-                      "mr-1 shrink-0",
+                      "h-4 w-4 mr-1.5 shrink-0",
                       isAddingToCart && "animate-cart-bounce"
                     )} />
-                    <span className="truncate">{isAddingToCart ? 'Added!' : (isTouchDevice ? 'Add' : 'Add to Cart')}</span>
+                    <span className="truncate">{isAddingToCart ? 'Added!' : 'Add to Cart'}</span>
                   </>
                 )}
               </Button>
 
-              {/* Wishlist Button - Icon only on mobile */}
-              {productConfig.showWishlist && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className={cn(
-                    "shrink-0",
-                    isTouchDevice ? "h-9 w-9 p-0" : "h-9 px-3 gap-1.5",
-                    isInList
-                      ? "bg-[var(--color-error-light)] text-[var(--wishlist-active)] border-[var(--wishlist-active)]/20 hover:bg-[var(--color-error-light)]"
-                      : "bg-background hover:bg-muted"
+              {/* Desktop only: Wishlist and Quick View buttons */}
+              {!isTouchDevice && (
+                <>
+                  {productConfig.showWishlist && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className={cn(
+                        "shrink-0 h-9 px-3 gap-1.5",
+                        isInList
+                          ? "bg-[var(--color-error-light)] text-[var(--wishlist-active)] border-[var(--wishlist-active)]/20 hover:bg-[var(--color-error-light)]"
+                          : "bg-background hover:bg-muted"
+                      )}
+                      title={isInList ? "Saved to wishlist" : "Save to wishlist"}
+                    >
+                      <Heart className={cn(
+                        "h-4 w-4",
+                        isInList && "fill-current",
+                        isHeartAnimating && "animate-heart-pop"
+                      )} />
+                      <span className="text-sm">{isInList ? 'Saved' : 'Save'}</span>
+                    </Button>
                   )}
-                  onClick={isTouchDevice ? handleQuickAddToDefault : undefined}
-                  title={isInList ? "Saved to wishlist" : "Save to wishlist"}
-                >
-                  <Heart className={cn(
-                    "h-4 w-4",
-                    isInList && "fill-current",
-                    isHeartAnimating && "animate-heart-pop"
-                  )} />
-                  {!isTouchDevice && <span className="text-sm">{isInList ? 'Saved' : 'Save'}</span>}
-                </Button>
-              )}
 
-              {/* Quick View / Expand - Icon only */}
-              <Button
-                variant="secondary"
-                size="sm"
-                className={cn(
-                  "shrink-0 bg-background hover:bg-muted",
-                  "h-9 w-9 p-0"
-                )}
-                onClick={productConfig.showQuickView ? openQuickView : openLightbox}
-                title={productConfig.showQuickView ? "Quick view" : "View larger image"}
-              >
-                {productConfig.showQuickView ? (
-                  <Eye className="h-4 w-4" />
-                ) : (
-                  <Expand className="h-4 w-4" />
-                )}
-              </Button>
+                  {/* Quick View */}
+                  {productConfig.showQuickView && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="shrink-0 bg-background hover:bg-muted h-9 w-9 p-0"
+                      onClick={openQuickView}
+                      title="Quick view"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
+                  )}
+                </>
+              )}
             </div>
           </motion.div>
         </div>
