@@ -38,7 +38,7 @@ import { TenantSwitcher } from "@/components/TenantSwitcher";
 import { StorefrontSwitcher } from "@/components/StorefrontSwitcher";
 import { TenantProvider, useTenant } from "@/contexts/TenantContext";
 import { TenantApiProvider } from "@/contexts/TenantApiProvider";
-import { StorefrontProvider } from "@/contexts/StorefrontContext";
+import { StorefrontProvider, useStorefront } from "@/contexts/StorefrontContext";
 import { RefreshProvider } from "@/contexts/RefreshContext";
 import { AdminCurrencyProvider } from "@/contexts/AdminCurrencyContext";
 import { AdminLanguageProvider } from "@/contexts/AdminLanguageContext";
@@ -336,6 +336,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
   const router = useRouter();
   const { user } = useUser();
   const { currentTenant } = useTenant();
+  const { currentStorefront, themeLogoUrl } = useStorefront();
   const { maxPriorityLevel, isLoading: permissionsLoading } = usePermissions();
   const { logout } = useAuth();
 
@@ -599,15 +600,17 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               data-tour="sidebar-logo"
               className="flex items-center gap-3 rounded-lg transition-all duration-200 hover:opacity-80"
             >
-              {currentTenant?.logoUrl ? (
-                <img
-                  src={currentTenant.logoUrl}
-                  alt={currentTenant.name}
-                  className="w-8 h-8 rounded-lg object-cover"
-                />
+              {(currentTenant?.logoUrl || currentStorefront?.logoUrl || themeLogoUrl) ? (
+                <div className="w-10 h-10 rounded-xl overflow-hidden bg-sidebar-accent border border-sidebar-border shadow-sm flex items-center justify-center flex-shrink-0">
+                  <img
+                    src={currentTenant?.logoUrl || currentStorefront?.logoUrl || themeLogoUrl}
+                    alt={currentTenant?.name || 'Store'}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
               ) : (
                 <div
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-bold text-sm"
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-base flex-shrink-0 shadow-sm"
                   style={{ backgroundColor: currentTenant?.primaryColor || '#6366f1' }}
                 >
                   {currentTenant?.name?.charAt(0).toUpperCase() || 'T'}

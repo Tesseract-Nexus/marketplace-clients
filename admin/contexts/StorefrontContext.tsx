@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from 'react';
 import { useTenant } from './TenantContext';
 import { storefrontService } from '@/lib/services/storefrontService';
+import { storefrontSettingsApi, setCurrentStorefrontId, setCurrentTenantId } from '@/lib/api/storefront';
 import { apiClient } from '@/lib/api/client';
 
 export interface Storefront {
@@ -27,6 +28,8 @@ interface StorefrontContextType {
   switchStorefront: (storefrontId: string) => void;
   refreshStorefronts: () => Promise<void>;
   hasMultipleStorefronts: boolean;
+  themeLogoUrl?: string;
+  themeFaviconUrl?: string;
 }
 
 const StorefrontContext = createContext<StorefrontContextType | undefined>(undefined);
@@ -41,6 +44,8 @@ export function StorefrontProvider({ children }: StorefrontProviderProps) {
   const [currentStorefront, setCurrentStorefront] = useState<Storefront | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [themeLogoUrl, setThemeLogoUrl] = useState<string | undefined>();
+  const [themeFaviconUrl, setThemeFaviconUrl] = useState<string | undefined>();
 
   // Fetch storefronts for current tenant
   const fetchStorefronts = useCallback(async () => {
@@ -98,6 +103,28 @@ export function StorefrontProvider({ children }: StorefrontProviderProps) {
     fetchStorefronts();
   }, [fetchStorefronts]);
 
+  // Fetch theme settings (logo/favicon) when storefront changes
+  useEffect(() => {
+    if (!currentStorefront?.id || !currentTenant?.id) {
+      setThemeLogoUrl(undefined);
+      setThemeFaviconUrl(undefined);
+      return;
+    }
+    (async () => {
+      try {
+        setCurrentStorefrontId(currentStorefront.id);
+        setCurrentTenantId(currentTenant.id);
+        const res = await storefrontSettingsApi.getSettings();
+        if (res.success && res.data) {
+          setThemeLogoUrl(res.data.logoUrl || undefined);
+          setThemeFaviconUrl(res.data.faviconUrl || undefined);
+        }
+      } catch {
+        // Ignore — logo is non-critical
+      }
+    })();
+  }, [currentStorefront?.id, currentTenant?.id]);
+
   // Switch to a different storefront
   const switchStorefront = useCallback((storefrontId: string) => {
     const storefront = storefronts.find((s) => s.id === storefrontId);
@@ -127,6 +154,8 @@ export function StorefrontProvider({ children }: StorefrontProviderProps) {
     switchStorefront,
     refreshStorefronts,
     hasMultipleStorefronts: storefronts.length > 1,
+    themeLogoUrl,
+    themeFaviconUrl,
   }), [
     currentStorefront,
     storefronts,
@@ -134,6 +163,8 @@ export function StorefrontProvider({ children }: StorefrontProviderProps) {
     error,
     switchStorefront,
     refreshStorefronts,
+    themeLogoUrl,
+    themeFaviconUrl,
   ]);
 
   return (
