@@ -15,6 +15,8 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function CancellationPolicyPage() {
   const headersList = await headers();
   const tenantSlug = headersList.get('x-tenant-slug') || 'demo-store';
+  const headerTenantId = headersList.get('x-tenant-id');
+  const isCustomDomain = headersList.get('x-is-custom-domain') === 'true';
 
   const [resolution, tenantHost] = await Promise.all([
     resolveStorefront(tenantSlug),
@@ -23,9 +25,10 @@ export default async function CancellationPolicyPage() {
 
   const storefrontId = resolution?.id || tenantHost?.storefront_id || tenantHost?.tenant_id || '';
   const tenantId = resolution?.tenantId || tenantHost?.tenant_id || '';
-  // tenantHost.tenant_id is the authoritative tenant ID from the tenant-router,
-  // matching the JWT tenant_id the admin uses when saving settings
-  const adminTenantId = tenantHost?.tenant_id || tenantId;
+  // For custom domains: use headerTenantId (from custom-domain-service) as authoritative
+  // For standard domains: use tenantHost.tenant_id (from tenant-router)
+  // This ensures settings are fetched with the same tenant ID the admin uses when saving
+  const adminTenantId = (isCustomDomain && headerTenantId) ? headerTenantId : (tenantHost?.tenant_id || tenantId);
 
   const policy = await getCancellationPolicy(storefrontId, tenantId, adminTenantId);
 

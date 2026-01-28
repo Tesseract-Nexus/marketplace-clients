@@ -193,10 +193,12 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  // Get tenant slug and preview mode from headers (set by middleware)
+  // Get tenant slug, tenant ID, and preview mode from headers (set by middleware)
   const headersList = await headers();
   const slug = headersList.get('x-tenant-slug');
+  const headerTenantId = headersList.get('x-tenant-id');
   const isPreviewMode = headersList.get('x-preview-mode') === 'true';
+  const isCustomDomain = headersList.get('x-is-custom-domain') === 'true';
 
   // If no tenant slug, show landing page
   if (!slug) {
@@ -233,14 +235,17 @@ export default async function RootLayout({
 
   // Log ID resolution for debugging theme settings issues
   console.log(`[RootLayout] Tenant slug: ${slug}`);
+  console.log(`[RootLayout] Is custom domain: ${isCustomDomain}`);
+  console.log(`[RootLayout] Header tenant ID: ${headerTenantId}`);
   console.log(`[RootLayout] Resolution from vendor-service: id=${resolution?.id}, tenantId=${resolution?.tenantId}`);
   console.log(`[RootLayout] TenantHost from router: storefront_id=${tenantHost.storefront_id}, tenant_id=${tenantHost.tenant_id}`);
   console.log(`[RootLayout] Final IDs: storefrontId=${storefrontId}, tenantId=${tenantId}`);
 
   // Fetch theme settings, content pages, marketing settings, and localization in parallel
-  // tenantHost.tenant_id is the authoritative tenant ID from the tenant-router,
-  // matching the JWT tenant_id the admin uses when saving settings
-  const adminTenantId = tenantHost.tenant_id;
+  // For custom domains: use headerTenantId (from custom-domain-service) as authoritative
+  // For standard domains: use tenantHost.tenant_id (from tenant-router)
+  // This ensures settings are fetched with the same tenant ID the admin uses when saving
+  const adminTenantId = (isCustomDomain && headerTenantId) ? headerTenantId : tenantHost.tenant_id;
   const [themeSettings, contentPages, marketingConfig, localization, adminStoreName] = await Promise.all([
     getStorefrontTheme(storefrontId, tenantId),
     getContentPages(storefrontId, tenantId, adminTenantId),
@@ -307,6 +312,7 @@ export default async function RootLayout({
   }
 
   // Create tenant info
+  // Include adminTenantId so components can fetch admin-saved settings with the correct tenant ID
   const tenant: TenantInfo = {
     id: tenantHost.tenant_id,
     slug: tenantHost.slug,
@@ -314,6 +320,7 @@ export default async function RootLayout({
     storefrontId: storefrontId,
     logoUrl: settings.logoUrl,
     isActive: isStorefrontActive,
+    adminTenantId: adminTenantId,
   };
 
   // Create blocking script that sets CSS variables before any paint

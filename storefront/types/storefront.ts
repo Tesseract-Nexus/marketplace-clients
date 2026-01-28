@@ -1068,4 +1068,11 @@ export interface TenantInfo {
   storefrontId: string;
   logoUrl?: string;
   isActive: boolean;
+  /**
+   * The authoritative tenant ID for fetching admin-saved settings.
+   * For custom domains, this is the ID from custom-domain-service.
+   * For standard domains, this is the same as `id`.
+   * Use this when fetching settings (cancellation policy, content pages, etc.)
+   */
+  adminTenantId?: string;
 }

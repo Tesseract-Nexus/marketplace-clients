@@ -75,10 +75,11 @@ export function CancelOrderDialog({
   const [loadingPolicy, setLoadingPolicy] = useState(false);
 
   // Fetch cancellation policy when dialog opens
+  // Use adminTenantId (if available) to ensure we fetch settings saved by the admin
   useEffect(() => {
     if (open && tenant?.id && tenant?.storefrontId) {
       setLoadingPolicy(true);
-      getCancellationPolicy(tenant.storefrontId, tenant.id)
+      getCancellationPolicy(tenant.storefrontId, tenant.id, tenant.adminTenantId)
         .then((p) => {
           setPolicy(p);
           if (p && orderTotal != null && orderCreatedAt) {
@@ -89,7 +90,7 @@ export function CancelOrderDialog({
         })
         .finally(() => setLoadingPolicy(false));
     }
-  }, [open, tenant?.id, tenant?.storefrontId, orderTotal, orderCreatedAt, orderStatus]);
+  }, [open, tenant?.id, tenant?.storefrontId, tenant?.adminTenantId, orderTotal, orderCreatedAt, orderStatus]);
 
   const handleSubmit = async () => {
     if (!reason) {
