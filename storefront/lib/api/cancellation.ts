@@ -75,8 +75,9 @@ export async function getCancellationPolicy(
       queryParams.set('storefrontId', storefrontId);
     }
 
+    // Use BFF route to fetch cancellation settings from orders-service
     const response = await apiRequest<CancellationSettingsResponse>(
-      `${serviceUrls.orders}/api/v1/public/settings/cancellation?${queryParams.toString()}`,
+      `/api/cancellation/settings?${queryParams.toString()}`,
       { tenantId: effectiveTenantId, storefrontId, cache: 'no-store' }
     );
 

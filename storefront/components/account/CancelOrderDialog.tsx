@@ -109,6 +109,7 @@ export function CancelOrderDialog({
         {
           reason,
           notes: notes.trim() || undefined,
+          orderNumber,
         }
       );
 

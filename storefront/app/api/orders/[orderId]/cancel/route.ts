@@ -3,7 +3,8 @@ import { NextRequest, NextResponse } from 'next/server';
 // Remove /api/v1 suffix if present (env var may include it)
 const ORDERS_SERVICE_URL = (process.env.ORDERS_SERVICE_URL || 'http://localhost:3108').replace(/\/api\/v1\/?$/, '');
 
-// POST /api/orders/[orderId]/cancel - Cancel order
+// POST /api/orders/[orderId]/cancel - Cancel order (customer-facing)
+// Uses the storefront cancel endpoint which doesn't require admin RBAC permissions
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ orderId: string }> }
@@ -24,11 +25,14 @@ export async function POST(
       return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
     }
 
-    console.log('[BFF] Cancelling order:', orderId, 'reason:', body.reason);
+    console.log('[BFF] Cancelling order:', orderId, 'orderNumber:', body.orderNumber, 'reason:', body.reason);
 
     const authorization = request.headers.get('Authorization');
 
-    const response = await fetch(`${ORDERS_SERVICE_URL}/api/v1/orders/${orderId}/cancel`, {
+    // Use the storefront cancel endpoint which is designed for customer use
+    // and doesn't require admin RBAC permissions like orders:cancel
+    // The endpoint expects orderNumber (not orderId) in the request body
+    const response = await fetch(`${ORDERS_SERVICE_URL}/api/v1/storefront/orders/cancel`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -37,20 +41,36 @@ export async function POST(
         ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
         ...(authorization && { 'Authorization': authorization }),
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        orderNumber: body.orderNumber,
+        reason: body.reason,
+      }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error('[BFF] Cancel order error:', errorText);
-      let error = {};
+      let errorData: Record<string, unknown> = {};
       try {
-        error = JSON.parse(errorText);
+        errorData = JSON.parse(errorText);
       } catch {
-        error = { message: errorText };
+        errorData = { message: errorText };
       }
+
+      // Extract error message from potentially nested error object
+      // API may return { error: { message: "..." } } or { error: "..." } or { message: "..." }
+      let errorMessage = 'Failed to cancel order';
+      if (typeof errorData.error === 'object' && errorData.error !== null) {
+        const nestedError = errorData.error as Record<string, unknown>;
+        errorMessage = (nestedError.message as string) || (nestedError.code as string) || errorMessage;
+      } else if (typeof errorData.error === 'string') {
+        errorMessage = errorData.error;
+      } else if (typeof errorData.message === 'string') {
+        errorMessage = errorData.message;
+      }
+
       return NextResponse.json(
-        { error: (error as { error?: string; message?: string }).error || (error as { message?: string }).message || 'Failed to cancel order' },
+        { error: errorMessage },
         { status: response.status }
       );
     }

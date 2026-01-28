@@ -366,6 +366,7 @@ export type CancellationReason =
 export interface CancelOrderRequest {
   reason: CancellationReason;
   notes?: string;
+  orderNumber?: string;
 }
 
 export async function cancelOrder(
@@ -384,6 +385,7 @@ export async function cancelOrder(
     body: JSON.stringify({
       reason: data.reason,
       notes: data.notes,
+      orderNumber: data.orderNumber,
     }),
   });
 
