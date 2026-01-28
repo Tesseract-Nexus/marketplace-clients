@@ -12,6 +12,15 @@ export interface ShippingAddress {
   countryCode?: string;
 }
 
+export interface StoreAddress {
+  city?: string;
+  state?: string;
+  stateCode?: string;
+  zip?: string;
+  country: string;
+  countryCode: string;
+}
+
 export interface CartItem {
   id: string;
   productId?: string;
@@ -53,7 +62,8 @@ export function useTaxCalculation() {
     async (
       items: CartItem[],
       shippingAddress: ShippingAddress,
-      shippingAmount: number = 0
+      shippingAmount: number = 0,
+      storeAddress?: StoreAddress
     ): Promise<TaxCalculationResult> => {
       setIsLoading(true);
       setError(null);
@@ -76,6 +86,7 @@ export function useTaxCalculation() {
           },
           body: JSON.stringify({
             shippingAddress,
+            storeAddress,
             lineItems,
             shippingAmount,
           }),

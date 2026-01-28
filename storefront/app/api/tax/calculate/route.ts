@@ -12,6 +12,14 @@ export interface TaxCalculationRequest {
     country: string;
     countryCode?: string;
   };
+  storeAddress?: {
+    city?: string;
+    state?: string;
+    stateCode?: string;
+    zip?: string;
+    country: string;
+    countryCode: string;
+  };
   lineItems: {
     productId?: string;
     quantity: number;
@@ -54,6 +62,14 @@ export async function POST(request: NextRequest) {
     // Get tenant ID from headers or use default
     const tenantId = request.headers.get('X-Tenant-ID') || process.env.DEV_TENANT_ID || 'global';
 
+    // Map storeAddress to originAddress for tax service
+    const { storeAddress, ...restBody } = body;
+    const taxRequest = {
+      ...restBody,
+      tenantId,
+      originAddress: storeAddress, // Tax service expects originAddress for GST/VAT calculation
+    };
+
     // Forward request to tax service
     const response = await fetch(`${TAX_SERVICE_URL}/tax/calculate`, {
       method: 'POST',
@@ -61,10 +77,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
         'X-Tenant-ID': tenantId,
       },
-      body: JSON.stringify({
-        ...body,
-        tenantId,
-      }),
+      body: JSON.stringify(taxRequest),
     });
 
     if (!response.ok) {

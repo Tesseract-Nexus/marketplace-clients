@@ -274,6 +274,20 @@ export async function getMarketingSettings(
 }
 
 /**
+ * Store address for tax calculation
+ */
+export interface StoreAddress {
+  addressLine1?: string;
+  addressLine2?: string;
+  city?: string;
+  state?: string;
+  stateCode?: string;
+  zip?: string;
+  country: string;
+  countryCode: string;
+}
+
+/**
  * Store localization settings (currency, timezone, region)
  */
 export interface StoreLocalization {
@@ -285,6 +299,7 @@ export interface StoreLocalization {
   region: string;
   country: string;
   countryCode: string;
+  storeAddress?: StoreAddress;
 }
 
 /**
@@ -353,8 +368,21 @@ export async function getStoreLocalization(
       defaults.currency;
 
     // Get country info from store address
-    const country = storeInfo?.address?.country || '';
+    const storeAddr = storeInfo?.address || {};
+    const country = storeAddr?.country || '';
     const countryCode = getCountryCode(country);
+
+    // Build full store address for tax calculation
+    const storeAddress: StoreAddress | undefined = country ? {
+      addressLine1: storeAddr?.addressLine1 || storeAddr?.street,
+      addressLine2: storeAddr?.addressLine2,
+      city: storeAddr?.city,
+      state: storeAddr?.state,
+      stateCode: storeAddr?.stateCode,
+      zip: storeAddr?.zip || storeAddr?.postalCode,
+      country,
+      countryCode,
+    } : undefined;
 
     return {
       currency,
@@ -362,9 +390,10 @@ export async function getStoreLocalization(
       timezone: localization?.timezone || defaults.timezone,
       dateFormat: localization?.dateFormat || defaults.dateFormat,
       language: localization?.language || defaults.language,
-      region: localization?.region || country,
+      region: localization?.region || storeAddr?.state || country,
       country,
       countryCode,
+      storeAddress,
     };
   } catch (error) {
     console.error('Failed to fetch store localization:', error);
@@ -394,6 +423,7 @@ function getCountryCode(countryName: string): string {
   };
   return countryMap[countryName] || '';
 }
+
 
 /**
  * Fetch admin-configured store name from settings-service

@@ -362,6 +362,16 @@ function CheckoutContent() {
   const giftCardDiscount = getGiftCardTotal();
   const total = Math.max(0, subtotal + shipping + tax - discount - loyaltyDiscount - giftCardDiscount);
 
+  // Build store address from localization for tax calculation
+  const storeAddress = useMemo(() => {
+    if (!localization.countryCode && !localization.country) return undefined;
+    return {
+      country: localization.country || localization.countryCode,
+      countryCode: localization.countryCode || localization.country,
+      state: localization.region || undefined,
+    };
+  }, [localization.country, localization.countryCode, localization.region]);
+
   // Calculate tax when shipping address changes
   useEffect(() => {
     if (taxCalculationRef.current) clearTimeout(taxCalculationRef.current);
@@ -374,14 +384,14 @@ function CheckoutContent() {
           price: item.price,
           quantity: item.quantity,
         }));
-        calculateTax(cartItems, shippingAddress, shipping);
+        calculateTax(cartItems, shippingAddress, shipping, storeAddress);
       }, 500);
     }
 
     return () => {
       if (taxCalculationRef.current) clearTimeout(taxCalculationRef.current);
     };
-  }, [shippingAddress.city, shippingAddress.state, shippingAddress.zip, selectedItems, shipping, calculateTax]);
+  }, [shippingAddress.city, shippingAddress.state, shippingAddress.zip, selectedItems, shipping, calculateTax, storeAddress]);
 
   // Handle payment cancellation from Stripe redirect
   useEffect(() => {
