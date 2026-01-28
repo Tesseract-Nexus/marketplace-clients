@@ -976,17 +976,17 @@ function CheckoutContent() {
                   <div className="ml-4 text-xs text-muted-foreground space-y-1">
                     {taxResult.gstSummary.isInterstate ? (
                       <div className="flex justify-between">
-                        <span>IGST ({((taxResult.gstSummary.igst / (subtotal || 1)) * 100).toFixed(1)}%)</span>
+                        <span>IGST ({taxResult.taxBreakdown?.find(t => t.taxType === 'IGST')?.rate || 18}%)</span>
                         <span>{formatPrice(taxResult.gstSummary.igst)}</span>
                       </div>
                     ) : (
                       <>
                         <div className="flex justify-between">
-                          <span>CGST ({((taxResult.gstSummary.cgst / (subtotal || 1)) * 100).toFixed(1)}%)</span>
+                          <span>CGST ({taxResult.taxBreakdown?.find(t => t.taxType === 'CGST')?.rate || 9}%)</span>
                           <span>{formatPrice(taxResult.gstSummary.cgst)}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>SGST ({((taxResult.gstSummary.sgst / (subtotal || 1)) * 100).toFixed(1)}%)</span>
+                          <span>SGST ({taxResult.taxBreakdown?.find(t => t.taxType === 'SGST')?.rate || 9}%)</span>
                           <span>{formatPrice(taxResult.gstSummary.sgst)}</span>
                         </div>
                       </>
