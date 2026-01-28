@@ -876,24 +876,17 @@ export default function ProductsPage() {
     navigateToProduct(product.id, 'edit');
     // Load existing product images into uploadedImages state
     setUploadedImages(
-      (product.images || []).map((img) => {
-        if (typeof img === 'string') {
-          return {
-            id: `img_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-            url: img,
-            path: '',
-            fileName: img.split('/').pop() || 'image.jpg',
-            position: 0,
-            isPrimary: true,
-          };
-        }
+      (product.images || []).map((img, idx) => {
+        const url = typeof img === 'string' ? img : img.url;
+        const id = typeof img === 'string' ? undefined : img.id;
+        const position = typeof img === 'string' ? idx : (img.position ?? idx);
         return {
-          id: img.id || `img_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
-          url: img.url,
-          path: img.path || '',
-          fileName: img.fileName || img.url.split('/').pop() || 'image.jpg',
-          position: img.position ?? 0,
-          isPrimary: (img.position ?? 0) < MAX_PRIMARY_IMAGES,
+          id: id || `img_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`,
+          url,
+          path: '',
+          fileName: url.split('/').pop() || 'image.jpg',
+          position,
+          isPrimary: position < MAX_PRIMARY_IMAGES,
         };
       })
     );
