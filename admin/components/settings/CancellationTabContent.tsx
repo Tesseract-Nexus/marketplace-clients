@@ -93,8 +93,9 @@ export function CancellationTabContent() {
       }
 
       if (settings?.ecommerce?.cancellation) {
-        setData(settings.ecommerce.cancellation);
-        setSavedData(settings.ecommerce.cancellation);
+        const merged = { ...defaultSettings, ...settings.ecommerce.cancellation };
+        setData(merged);
+        setSavedData(merged);
         setSettingsId(settings.id);
       } else {
         setData(defaultSettings);

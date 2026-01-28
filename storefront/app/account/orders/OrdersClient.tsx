@@ -1,13 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Package, ChevronRight, Truck, CheckCircle2, Clock, XCircle, ShoppingBag, ArrowRight, Ban } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useTenant, useNavPath } from '@/context/TenantContext';
 import { cn } from '@/lib/utils';
@@ -15,32 +14,25 @@ import { Order } from '@/lib/api/storefront';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 import { CancelOrderDialog } from '@/components/account/CancelOrderDialog';
 
-// Animation variants
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-    },
+    transition: { staggerChildren: 0.05 },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 10 },
   visible: {
     opacity: 1,
     y: 0,
-    transition: {
-      type: 'spring',
-      stiffness: 100,
-      damping: 15,
-    },
+    transition: { type: 'spring', stiffness: 120, damping: 18 },
   },
   exit: {
     opacity: 0,
-    y: -20,
-    transition: { duration: 0.2 },
+    y: -10,
+    transition: { duration: 0.15 },
   },
 };
 
@@ -49,12 +41,23 @@ const emptyStateVariants = {
   visible: {
     opacity: 1,
     scale: 1,
-    transition: {
-      type: 'spring',
-      stiffness: 100,
-      damping: 15,
-      delay: 0.2,
-    },
+    transition: { type: 'spring', stiffness: 100, damping: 15, delay: 0.2 },
+  },
+};
+
+const previewVariants = {
+  hidden: { opacity: 0, y: -4, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: 'spring', stiffness: 300, damping: 25 },
+  },
+  exit: {
+    opacity: 0,
+    y: -4,
+    scale: 0.98,
+    transition: { duration: 0.15 },
   },
 };
 
@@ -66,28 +69,27 @@ interface StatusConfig {
   label: string;
   icon: typeof Clock;
   color: string;
+  dotColor?: string;
   showPulse?: boolean;
 }
 
-// Default status config
-const defaultStatus: StatusConfig = { label: 'Pending', icon: Clock, color: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' };
+const defaultStatus: StatusConfig = { label: 'Pending', icon: Clock, color: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300', dotColor: 'bg-gray-500' };
 
-// Status config supports both uppercase (from backend) and lowercase values
 const statusConfig: Record<string, StatusConfig> = {
-  pending: { label: 'Pending', icon: Clock, color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400', showPulse: true },
-  PENDING: { label: 'Pending', icon: Clock, color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400', showPulse: true },
-  confirmed: { label: 'Confirmed', icon: CheckCircle2, color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' },
-  CONFIRMED: { label: 'Confirmed', icon: CheckCircle2, color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400' },
-  processing: { label: 'Processing', icon: Package, color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400', showPulse: true },
-  PROCESSING: { label: 'Processing', icon: Package, color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400', showPulse: true },
-  shipped: { label: 'Shipped', icon: Truck, color: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400', showPulse: true },
-  SHIPPED: { label: 'Shipped', icon: Truck, color: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400', showPulse: true },
-  delivered: { label: 'Delivered', icon: CheckCircle2, color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' },
-  DELIVERED: { label: 'Delivered', icon: CheckCircle2, color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' },
-  cancelled: { label: 'Cancelled', icon: XCircle, color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' },
-  CANCELLED: { label: 'Cancelled', icon: XCircle, color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' },
-  refunded: { label: 'Refunded', icon: XCircle, color: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' },
-  REFUNDED: { label: 'Refunded', icon: XCircle, color: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300' },
+  pending: { label: 'Pending', icon: Clock, color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400', dotColor: 'bg-amber-500', showPulse: true },
+  PENDING: { label: 'Pending', icon: Clock, color: 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400', dotColor: 'bg-amber-500', showPulse: true },
+  confirmed: { label: 'Confirmed', icon: CheckCircle2, color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400', dotColor: 'bg-blue-500' },
+  CONFIRMED: { label: 'Confirmed', icon: CheckCircle2, color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400', dotColor: 'bg-blue-500' },
+  processing: { label: 'Processing', icon: Package, color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400', dotColor: 'bg-purple-500', showPulse: true },
+  PROCESSING: { label: 'Processing', icon: Package, color: 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400', dotColor: 'bg-purple-500', showPulse: true },
+  shipped: { label: 'Shipped', icon: Truck, color: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400', dotColor: 'bg-indigo-500', showPulse: true },
+  SHIPPED: { label: 'Shipped', icon: Truck, color: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400', dotColor: 'bg-indigo-500', showPulse: true },
+  delivered: { label: 'Delivered', icon: CheckCircle2, color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400', dotColor: 'bg-green-500' },
+  DELIVERED: { label: 'Delivered', icon: CheckCircle2, color: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400', dotColor: 'bg-green-500' },
+  cancelled: { label: 'Cancelled', icon: XCircle, color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400', dotColor: 'bg-red-500' },
+  CANCELLED: { label: 'Cancelled', icon: XCircle, color: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400', dotColor: 'bg-red-500' },
+  refunded: { label: 'Refunded', icon: XCircle, color: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300', dotColor: 'bg-gray-500' },
+  REFUNDED: { label: 'Refunded', icon: XCircle, color: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300', dotColor: 'bg-gray-500' },
 };
 
 function getStatusConfig(status: string | undefined): StatusConfig {
@@ -104,8 +106,10 @@ export function OrdersClient({ orders: ordersProp }: OrdersClientProps) {
   const [cancelOrderTotal, setCancelOrderTotal] = useState<number | undefined>();
   const [cancelOrderCreatedAt, setCancelOrderCreatedAt] = useState<string | undefined>();
   const [cancelOrderStatus, setCancelOrderStatus] = useState<string | undefined>();
+  const [hoveredOrderId, setHoveredOrderId] = useState<string | null>(null);
+  const showTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hideTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Ensure orders is always an array
   const orders = ordersProp || [];
 
   const filteredOrders =
@@ -115,6 +119,39 @@ export function OrdersClient({ orders: ordersProp }: OrdersClientProps) {
           (order) =>
             (order.status || '').toLowerCase() === activeTab.toLowerCase()
         );
+
+  const handleMouseEnter = useCallback((orderId: string) => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+    showTimeoutRef.current = setTimeout(() => {
+      setHoveredOrderId(orderId);
+    }, 300);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    if (showTimeoutRef.current) {
+      clearTimeout(showTimeoutRef.current);
+      showTimeoutRef.current = null;
+    }
+    hideTimeoutRef.current = setTimeout(() => {
+      setHoveredOrderId(null);
+    }, 200);
+  }, []);
+
+  const handlePreviewEnter = useCallback(() => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+  }, []);
+
+  const handlePreviewLeave = useCallback(() => {
+    hideTimeoutRef.current = setTimeout(() => {
+      setHoveredOrderId(null);
+    }, 200);
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -156,161 +193,203 @@ export function OrdersClient({ orders: ordersProp }: OrdersClientProps) {
               animate="visible"
               exit="hidden"
               variants={containerVariants}
-              className="space-y-4"
+              className="space-y-1"
             >
               {filteredOrders.length > 0 ? (
                 filteredOrders.map((order) => {
                   const status = getStatusConfig(order.status);
-                  const StatusIcon = status.icon;
+                  const items = order.items || [];
+                  const itemCount = items.length;
+                  const thumbs = items.slice(0, 3);
+                  const isCancellable = order.status === 'PENDING' || order.status === 'CONFIRMED';
 
                   return (
                     <motion.div
                       key={order.id}
                       variants={itemVariants}
                       layout
-                      className="border rounded-xl overflow-hidden bg-card hover:shadow-lg transition-all duration-300 group"
+                      className="relative"
                     >
-                      {/* Order Header */}
-                      <div className="bg-muted/30 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b">
-                        <div className="flex flex-wrap items-center gap-4 sm:gap-6">
-                          <div>
-                            <p className="text-xs text-muted-foreground uppercase tracking-wide"><TranslatedUIText text="Order" /></p>
-                            <p className="font-mono font-semibold text-sm">
-                              {order.orderNumber || `#${order.id.slice(0, 8)}`}
-                            </p>
-                          </div>
-                          <Separator orientation="vertical" className="h-8 hidden sm:block" />
-                          <div>
-                            <p className="text-xs text-muted-foreground uppercase tracking-wide"><TranslatedUIText text="Date" /></p>
-                            <p className="font-medium text-sm">
-                              {new Date(order.createdAt).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                              })}
-                            </p>
-                          </div>
-                          <Separator orientation="vertical" className="h-8 hidden sm:block" />
-                          <div>
-                            <p className="text-xs text-muted-foreground uppercase tracking-wide"><TranslatedUIText text="Total" /></p>
-                            <p className="font-bold text-tenant-primary">${order.total.toFixed(2)}</p>
-                          </div>
-                        </div>
-
-                        {/* Animated Status Badge */}
-                        <motion.div
-                          initial={{ scale: 0.9, opacity: 0 }}
-                          animate={{ scale: 1, opacity: 1 }}
-                          transition={{ delay: 0.1 }}
-                        >
-                          <Badge className={cn('gap-1.5 px-3 py-1', status.color)}>
-                            {status.showPulse && (
-                              <span className="relative flex h-2 w-2 mr-1">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75" />
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-current" />
-                              </span>
-                            )}
-                            <StatusIcon className="h-3.5 w-3.5" />
-                            {status.label}
-                          </Badge>
-                        </motion.div>
-                      </div>
-
-                      {/* Order Items */}
-                      <div className="p-4">
-                        <div className="space-y-3">
-                          {(order.items || []).slice(0, 3).map((item, idx) => (
-                            <motion.div
+                      {/* Compact Row */}
+                      <Link
+                        href={getNavPath(`/account/orders/${order.id}`)}
+                        className={cn(
+                          'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors group',
+                          'hover:bg-muted/50',
+                          hoveredOrderId === order.id && 'bg-muted/50'
+                        )}
+                        onMouseEnter={() => handleMouseEnter(order.id)}
+                        onMouseLeave={handleMouseLeave}
+                      >
+                        {/* Thumbnail Stack */}
+                        <div className="relative shrink-0" style={{ width: `${24 + (thumbs.length - 1) * 14}px`, height: '24px' }}>
+                          {thumbs.map((item, i) => (
+                            <div
                               key={item.id}
-                              initial={{ opacity: 0, x: -10 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: idx * 0.05 }}
-                              className="flex items-center gap-4 group/item"
+                              className="absolute top-0 w-6 h-6 rounded-full overflow-hidden ring-2 ring-card bg-muted"
+                              style={{ left: `${i * 14}px`, zIndex: thumbs.length - i }}
                             >
-                              <div className="relative w-16 h-16 rounded-lg overflow-hidden bg-muted shrink-0 ring-1 ring-border group-hover/item:ring-tenant-primary/50 transition-all">
-                                <Image
-                                  src={item.image || '/placeholder.svg'}
-                                  alt={item.name}
-                                  fill
-                                  className="object-cover group-hover/item:scale-105 transition-transform duration-300"
-                                />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-medium truncate group-hover/item:text-tenant-primary transition-colors">
-                                  {item.name}
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  Qty: {item.quantity} x ${item.price.toFixed(2)}
-                                </p>
-                              </div>
-                            </motion.div>
+                              <Image
+                                src={item.image || '/placeholder.svg'}
+                                alt={item.name}
+                                fill
+                                className="object-cover"
+                              />
+                            </div>
                           ))}
-                          {(order.items?.length || 0) > 3 && (
-                            <p className="text-sm text-muted-foreground pl-20">
-                              +{(order.items?.length || 0) - 3} more item{(order.items?.length || 0) - 3 !== 1 ? 's' : ''}
-                            </p>
-                          )}
                         </div>
 
-                        {/* Tracking Info */}
-                        {order.trackingNumber && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="mt-4 p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg flex items-center gap-3 border border-indigo-100 dark:border-indigo-900"
+                        {/* Order Info */}
+                        <span className="font-mono text-sm font-medium shrink-0">
+                          {order.orderNumber || `#${order.id.slice(0, 8)}`}
+                        </span>
+                        <span className="text-muted-foreground text-sm hidden sm:inline">·</span>
+                        <span className="text-sm text-muted-foreground hidden sm:inline shrink-0">
+                          {new Date(order.createdAt).toLocaleDateString('en-US', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                          })}
+                        </span>
+                        <span className="text-muted-foreground text-sm hidden sm:inline">·</span>
+                        <span className="text-sm text-muted-foreground hidden sm:inline shrink-0">
+                          {itemCount} item{itemCount !== 1 ? 's' : ''}
+                        </span>
+                        <span className="text-muted-foreground text-sm">·</span>
+                        <span className="text-sm font-bold text-tenant-primary shrink-0">
+                          ${order.total.toFixed(2)}
+                        </span>
+
+                        {/* Spacer */}
+                        <div className="flex-1 min-w-0" />
+
+                        {/* Cancel Button (hover only, desktop) */}
+                        {isCancellable && (
+                          <button
+                            className="hidden sm:flex opacity-0 group-hover:opacity-100 transition-opacity items-center justify-center w-7 h-7 rounded-md text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 shrink-0"
+                            title="Cancel Order"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              setCancelOrderId(order.id);
+                              setCancelOrderNumber(order.orderNumber);
+                              setCancelOrderTotal(order.total);
+                              setCancelOrderCreatedAt(order.createdAt);
+                              setCancelOrderStatus(order.status);
+                            }}
                           >
-                            <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center">
-                              <Truck className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                            <Ban className="h-4 w-4" />
+                          </button>
+                        )}
+
+                        {/* Status Badge */}
+                        <Badge className={cn('gap-1 px-2 py-0.5 text-xs shrink-0', status.color)}>
+                          {status.showPulse && (
+                            <span className="relative flex h-1.5 w-1.5">
+                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-current opacity-75" />
+                              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-current" />
+                            </span>
+                          )}
+                          {status.label}
+                        </Badge>
+
+                        {/* Chevron */}
+                        <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                      </Link>
+
+                      {/* Hover Preview (desktop only) */}
+                      <AnimatePresence>
+                        {hoveredOrderId === order.id && (
+                          <motion.div
+                            variants={previewVariants}
+                            initial="hidden"
+                            animate="visible"
+                            exit="exit"
+                            className="hidden sm:block absolute left-4 right-4 z-50 mt-1 bg-card border rounded-xl shadow-lg p-4"
+                            onMouseEnter={handlePreviewEnter}
+                            onMouseLeave={handlePreviewLeave}
+                          >
+                            {/* Product List */}
+                            <div className="space-y-2.5 mb-3">
+                              {items.slice(0, 3).map((item) => (
+                                <div key={item.id} className="flex items-center gap-3">
+                                  <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-muted shrink-0 ring-1 ring-border">
+                                    <Image
+                                      src={item.image || '/placeholder.svg'}
+                                      alt={item.name}
+                                      fill
+                                      className="object-cover"
+                                    />
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium truncate">{item.name}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {item.quantity} × ${item.price.toFixed(2)}
+                                    </p>
+                                  </div>
+                                </div>
+                              ))}
+                              {itemCount > 3 && (
+                                <p className="text-xs text-muted-foreground pl-[52px]">
+                                  +{itemCount - 3} more item{itemCount - 3 !== 1 ? 's' : ''}
+                                </p>
+                              )}
                             </div>
-                            <div>
-                              <p className="text-xs text-muted-foreground"><TranslatedUIText text="Tracking Number" /></p>
-                              <p className="font-mono text-sm font-medium">{order.trackingNumber}</p>
+
+                            {/* Tracking */}
+                            {order.trackingNumber && (
+                              <div className="flex items-center gap-2 mb-3 px-2.5 py-1.5 bg-indigo-50 dark:bg-indigo-950/30 rounded-md text-xs">
+                                <Truck className="h-3.5 w-3.5 text-indigo-500" />
+                                <span className="text-muted-foreground">Tracking:</span>
+                                <span className="font-mono font-medium">{order.trackingNumber}</span>
+                              </div>
+                            )}
+
+                            {/* Action Buttons */}
+                            <div className="flex items-center gap-2 pt-3 border-t">
+                              {isCancellable && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 text-xs gap-1 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300 dark:hover:bg-red-950/30"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    setCancelOrderId(order.id);
+                                    setCancelOrderNumber(order.orderNumber);
+                                    setCancelOrderTotal(order.total);
+                                    setCancelOrderCreatedAt(order.createdAt);
+                                    setCancelOrderStatus(order.status);
+                                  }}
+                                >
+                                  <Ban className="h-3 w-3" />
+                                  <TranslatedUIText text="Cancel" />
+                                </Button>
+                              )}
+                              {order.status === 'DELIVERED' && (
+                                <>
+                                  <Button variant="outline" size="sm" className="h-7 text-xs">
+                                    <TranslatedUIText text="Write Review" />
+                                  </Button>
+                                  <Button size="sm" className="h-7 text-xs btn-tenant-primary">
+                                    <TranslatedUIText text="Buy Again" />
+                                  </Button>
+                                </>
+                              )}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                asChild
+                                className="h-7 text-xs gap-1 ml-auto hover:border-tenant-primary hover:text-tenant-primary"
+                              >
+                                <Link href={getNavPath(`/account/orders/${order.id}`)}>
+                                  <TranslatedUIText text="View Details" />
+                                  <ArrowRight className="h-3 w-3" />
+                                </Link>
+                              </Button>
                             </div>
                           </motion.div>
                         )}
-
-                        {/* Action Buttons */}
-                        <div className="flex flex-wrap justify-end gap-3 mt-4 pt-4 border-t">
-                          {(order.status === 'PENDING' || order.status === 'CONFIRMED') && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="gap-1.5 text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-300 dark:hover:bg-red-950/30"
-                              onClick={() => {
-                                setCancelOrderId(order.id);
-                                setCancelOrderNumber(order.orderNumber);
-                                setCancelOrderTotal(order.total);
-                                setCancelOrderCreatedAt(order.createdAt);
-                                setCancelOrderStatus(order.status);
-                              }}
-                            >
-                              <Ban className="h-3.5 w-3.5" />
-                              <TranslatedUIText text="Cancel Order" />
-                            </Button>
-                          )}
-                          {order.status === 'DELIVERED' && (
-                            <Button variant="outline" size="sm" className="gap-1.5">
-                              <TranslatedUIText text="Write Review" />
-                            </Button>
-                          )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            asChild
-                            className="group/btn hover:border-tenant-primary hover:text-tenant-primary transition-colors"
-                          >
-                            <Link href={getNavPath(`/account/orders/${order.id}`)}>
-                              <TranslatedUIText text="View Details" />
-                              <ArrowRight className="h-4 w-4 ml-1 group-hover/btn:translate-x-0.5 transition-transform" />
-                            </Link>
-                          </Button>
-                          {order.status === 'DELIVERED' && (
-                            <Button className="btn-tenant-primary" size="sm">
-                              <TranslatedUIText text="Buy Again" />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
+                      </AnimatePresence>
                     </motion.div>
                   );
                 })
@@ -323,14 +402,8 @@ export function OrdersClient({ orders: ordersProp }: OrdersClientProps) {
                 >
                   <motion.div
                     className="w-24 h-24 mx-auto mb-6 rounded-full flex items-center justify-center bg-[var(--tenant-primary)]/10"
-                    animate={{
-                      scale: [1, 1.05, 1],
-                    }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                    }}
+                    animate={{ scale: [1, 1.05, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                   >
                     <Package className="h-12 w-12 text-tenant-primary" />
                   </motion.div>
