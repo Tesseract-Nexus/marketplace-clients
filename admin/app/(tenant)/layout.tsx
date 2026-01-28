@@ -51,6 +51,8 @@ import { PageTourProvider, PageTour } from "@/components/page-tour";
 import { SidebarMenuSearch } from "@/components/SidebarMenuSearch";
 import { AdminUIText } from "@/components/translation/AdminTranslatedText";
 import { useAuth } from "@/lib/auth";
+import { useTheme } from "@/contexts/ThemeContext";
+import { settingsService } from "@/lib/services/settingsService";
 
 // Role hierarchy: higher number = more permissions
 // Must match backend (staff-service migrations) priority levels
@@ -847,6 +849,7 @@ function TenantLayoutInner({
   const router = useRouter();
   const { user } = useAuth();
   const { currentTenant } = useTenant();
+  const { branding, updateBranding } = useTheme();
 
   // DEV MODE: Skip all tenant checks
   const devBypass = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true';
@@ -856,12 +859,49 @@ function TenantLayoutInner({
   // Track if we've already completed the check to prevent re-runs
   const hasCheckedRef = useRef(devBypass);
 
+  // Track if we've already loaded branding settings from the API
+  const brandingLoadedRef = useRef(false);
+
   // Extract stable values from user to avoid re-running effect on every auth state change
   const userTenantSlug = user?.tenantSlug;
 
-  // Dynamic favicon update based on tenant branding
+  // Load admin branding settings from settings service when tenant is available
+  // This ensures the branding (including favicon) is loaded from the authoritative source
   useEffect(() => {
-    const faviconUrl = currentTenant?.faviconUrl || currentTenant?.logoUrl;
+    if (!currentTenant?.id || brandingLoadedRef.current) return;
+
+    async function loadBrandingSettings() {
+      try {
+        const data = await settingsService.getSettingsByContext({
+          applicationId: 'admin-portal',
+          scope: 'global',
+          tenantId: currentTenant!.id,
+        });
+
+        if (data?.branding) {
+          // Merge with defaults to ensure all required properties exist
+          const loadedBranding = {
+            general: { ...branding.general, ...data.branding.general },
+            colors: { ...branding.colors, ...data.branding.colors },
+            appearance: { ...branding.appearance, ...data.branding.appearance },
+            advanced: { ...branding.advanced, ...data.branding.advanced },
+          };
+          updateBranding(loadedBranding);
+          brandingLoadedRef.current = true;
+        }
+      } catch (error) {
+        // Silently fail - localStorage branding will be used as fallback
+        console.debug('Failed to load admin branding settings:', error);
+      }
+    }
+
+    loadBrandingSettings();
+  }, [currentTenant?.id]);
+
+  // Dynamic favicon update based on admin branding settings (from ThemeContext)
+  // Priority: 1) Admin branding settings faviconUrl, 2) Admin branding logoUrl, 3) Tenant logoUrl
+  useEffect(() => {
+    const faviconUrl = branding?.general?.faviconUrl || branding?.general?.logoUrl || currentTenant?.logoUrl;
     if (faviconUrl) {
       // Find existing favicon link or create a new one
       let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement | null;
@@ -872,7 +912,7 @@ function TenantLayoutInner({
       }
       link.href = faviconUrl;
     }
-  }, [currentTenant?.faviconUrl, currentTenant?.logoUrl]);
+  }, [branding?.general?.faviconUrl, branding?.general?.logoUrl, currentTenant?.logoUrl]);
 
   useEffect(() => {
     // DEV MODE: Skip tenant check entirely
