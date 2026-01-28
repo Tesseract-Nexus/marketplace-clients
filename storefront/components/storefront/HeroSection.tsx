@@ -101,13 +101,17 @@ export function HeroSection({ variant }: HeroSectionProps) {
 
             case 'image':
               return homepageConfig.heroImage ? (
-                <Image
-                  src={homepageConfig.heroImage}
-                  alt="Hero background"
-                  fill
-                  priority
-                  className="object-cover"
-                />
+                <div className="absolute inset-0">
+                  <Image
+                    src={homepageConfig.heroImage}
+                    alt="Hero background"
+                    fill
+                    priority
+                    sizes="100vw"
+                    className="object-cover"
+                    style={{ objectFit: 'cover' }}
+                  />
+                </div>
               ) : <div className="w-full h-full bg-tenant-gradient" />;
 
             case 'static':
