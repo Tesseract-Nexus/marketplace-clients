@@ -23,9 +23,8 @@ export default async function CancellationPolicyPage() {
 
   const storefrontId = resolution?.id || tenantHost?.storefront_id || tenantHost?.tenant_id || '';
   const tenantId = resolution?.tenantId || tenantHost?.tenant_id || '';
-  const adminTenantId = tenantHost?.admin_tenant_id;
 
-  const policy = await getCancellationPolicy(storefrontId, tenantId, adminTenantId);
+  const policy = await getCancellationPolicy(storefrontId, tenantId);
 
   return <CancellationPolicyClient policyText={policy?.policyText || null} />;
 }
