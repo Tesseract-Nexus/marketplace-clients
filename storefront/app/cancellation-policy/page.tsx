@@ -23,8 +23,11 @@ export default async function CancellationPolicyPage() {
 
   const storefrontId = resolution?.id || tenantHost?.storefront_id || tenantHost?.tenant_id || '';
   const tenantId = resolution?.tenantId || tenantHost?.tenant_id || '';
+  // tenantHost.tenant_id is the authoritative tenant ID from the tenant-router,
+  // matching the JWT tenant_id the admin uses when saving settings
+  const adminTenantId = tenantHost?.tenant_id || tenantId;
 
-  const policy = await getCancellationPolicy(storefrontId, tenantId);
+  const policy = await getCancellationPolicy(storefrontId, tenantId, adminTenantId);
 
   return <CancellationPolicyClient policyText={policy?.policyText || null} />;
 }
