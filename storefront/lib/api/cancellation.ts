@@ -35,12 +35,30 @@ export interface CancellationFeeResult {
 }
 
 // ========================================
-// Fetch cancellation policy from settings
+// Fetch cancellation policy from orders-service
 // ========================================
 
-interface ApiResponse<T> {
-  success?: boolean;
-  data?: T;
+interface CancellationSettingsResponse {
+  success: boolean;
+  data?: {
+    id: string;
+    tenantId: string;
+    storefrontId?: string;
+    enabled: boolean;
+    requireReason: boolean;
+    allowPartialCancellation: boolean;
+    defaultFeeType: string;
+    defaultFeeValue: number;
+    refundMethod: string;
+    autoRefundEnabled: boolean;
+    nonCancellableStatuses: string[];
+    windows: CancellationWindow[];
+    cancellationReasons: string[];
+    requireApprovalForPolicyChanges: boolean;
+    policyText: string;
+  };
+  error?: string;
+  message?: string;
 }
 
 export async function getCancellationPolicy(
@@ -49,26 +67,43 @@ export async function getCancellationPolicy(
   adminTenantId?: string
 ): Promise<CancellationPolicy | null> {
   try {
-    const settingsTenantId = adminTenantId || tenantId;
+    const effectiveTenantId = adminTenantId || tenantId;
     const queryParams = new URLSearchParams({
-      applicationId: 'admin-portal',
-      scope: 'application',
-      tenantId: settingsTenantId,
+      tenantId: effectiveTenantId,
     });
+    if (storefrontId) {
+      queryParams.set('storefrontId', storefrontId);
+    }
 
-    const response = await apiRequest<ApiResponse<any>>(
-      `${serviceUrls.settings}/api/v1/public/settings/context?${queryParams.toString()}`,
-      { tenantId: settingsTenantId, storefrontId, cache: 'no-store' }
+    const response = await apiRequest<CancellationSettingsResponse>(
+      `${serviceUrls.orders}/api/v1/public/settings/cancellation?${queryParams.toString()}`,
+      { tenantId: effectiveTenantId, storefrontId, cache: 'no-store' }
     );
 
-    const data = response.data || response;
-    const cancellation = data?.ecommerce?.cancellation;
-
-    if (!cancellation || !cancellation.enabled) {
+    if (!response.success || !response.data) {
+      console.error('Failed to fetch cancellation settings:', response.error || response.message);
       return null;
     }
 
-    return cancellation as CancellationPolicy;
+    const settings = response.data;
+
+    if (!settings.enabled) {
+      return null;
+    }
+
+    // Map orders-service response to CancellationPolicy interface
+    return {
+      enabled: settings.enabled,
+      windows: settings.windows || [],
+      defaultFeeType: settings.defaultFeeType as 'percentage' | 'fixed',
+      defaultFeeValue: settings.defaultFeeValue,
+      nonCancellableStatuses: settings.nonCancellableStatuses || [],
+      requireReason: settings.requireReason,
+      allowPartialCancellation: settings.allowPartialCancellation,
+      refundMethod: settings.refundMethod as 'original_payment' | 'store_credit' | 'either',
+      policyText: settings.policyText || '',
+      cancellationReasons: settings.cancellationReasons || [],
+    };
   } catch (error) {
     console.error('Failed to fetch cancellation policy:', error);
     return null;
