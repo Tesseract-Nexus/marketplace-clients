@@ -100,6 +100,7 @@ const getTypeBadge = (type: ApprovalType) => {
     vendor_commission_change: 'Commission Change',
     vendor_contract_change: 'Contract Change',
     vendor_large_payout: 'Large Payout',
+    settings_change: 'Settings Change',
   };
   return <Badge variant="outline">{labels[type] || type}</Badge>;
 };
