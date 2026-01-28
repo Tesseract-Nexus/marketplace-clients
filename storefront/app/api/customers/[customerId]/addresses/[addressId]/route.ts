@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const CUSTOMERS_SERVICE_URL = process.env.CUSTOMERS_SERVICE_URL || 'http://localhost:8089/api/v1';
 const CUSTOMERS_BASE_URL = CUSTOMERS_SERVICE_URL.replace(/\/api\/v1\/?$/, '');
+const AUTH_BFF_URL = process.env.AUTH_BFF_INTERNAL_URL || process.env.AUTH_BFF_URL || 'http://localhost:8080';
 
 // Use storefront endpoints for customer-facing address operations
 // These endpoints use customer JWT auth instead of staff RBAC
@@ -21,16 +22,58 @@ function decodeJwtPayload(token: string): { sub?: string; customer_id?: string }
   }
 }
 
-// SECURITY: Validate that the customerId in URL path matches the authenticated customer
-function validateCustomerOwnership(authHeader: string, requestedCustomerId: string): boolean {
-  const tokenPayload = decodeJwtPayload(authHeader);
-  if (!tokenPayload) return false;
+/**
+ * Get auth context from either JWT or session cookie.
+ * Supports OAuth/session-based auth where accessToken is not available client-side.
+ */
+async function getAuthContext(request: NextRequest): Promise<{ customerId?: string; token?: string } | null> {
+  const authHeader = request.headers.get('Authorization');
 
-  const authenticatedCustomerId = tokenPayload.sub || tokenPayload.customer_id;
+  // Check if we have a valid JWT token
+  if (authHeader && authHeader !== 'Bearer ' && authHeader !== 'Bearer') {
+    const tokenPayload = decodeJwtPayload(authHeader);
+    if (tokenPayload?.sub) {
+      return { customerId: tokenPayload.sub, token: authHeader };
+    }
+  }
+
+  // Fall back to session-based auth (OAuth flow)
+  try {
+    const cookie = request.headers.get('cookie');
+    if (!cookie) return null;
+
+    const response = await fetch(`${AUTH_BFF_URL}/auth/session`, {
+      headers: {
+        'Cookie': cookie,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) return null;
+
+    const session = await response.json();
+    if (session.authenticated && session.user) {
+      return {
+        customerId: session.user.id,
+        // auth-bff may provide access_token for BFF-to-service calls
+        token: session.access_token ? `Bearer ${session.access_token}` : undefined,
+      };
+    }
+  } catch (error) {
+    console.error('[Address API] Failed to get session:', error);
+  }
+
+  return null;
+}
+
+// SECURITY: Validate that the customerId in URL path matches the authenticated customer
+function validateCustomerOwnership(authenticatedCustomerId: string | undefined, requestedCustomerId: string): boolean {
+  if (!authenticatedCustomerId) return false;
   return authenticatedCustomerId === requestedCustomerId;
 }
 
 // DELETE /api/customers/[customerId]/addresses/[addressId]
+// Supports both JWT and session-based (OAuth) authentication
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ customerId: string; addressId: string }> }
@@ -39,18 +82,35 @@ export async function DELETE(
     const { customerId, addressId } = await params;
     const tenantId = request.headers.get('X-Tenant-ID');
     const storefrontId = request.headers.get('X-Storefront-ID');
-    const authHeader = request.headers.get('Authorization');
 
-    if (!authHeader) {
+    // Get auth context from either JWT or session
+    const auth = await getAuthContext(request);
+    if (!auth?.customerId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // SECURITY: Prevent IDOR attacks
-    if (!validateCustomerOwnership(authHeader, customerId)) {
+    if (!validateCustomerOwnership(auth.customerId, customerId)) {
       return NextResponse.json(
         { error: 'Access denied: You can only delete your own addresses' },
         { status: 403 }
       );
+    }
+
+    // Build headers for internal service call
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Internal-Request': 'true',
+      'X-User-Id': auth.customerId,
+    };
+    if (tenantId) {
+      headers['X-Tenant-ID'] = tenantId;
+    }
+    if (storefrontId) {
+      headers['X-Storefront-ID'] = storefrontId;
+    }
+    if (auth.token) {
+      headers['Authorization'] = auth.token;
     }
 
     // Use storefront endpoint path
@@ -58,12 +118,7 @@ export async function DELETE(
       `${CUSTOMERS_BASE_URL}${STOREFRONT_API_PATH}/customers/${customerId}/addresses/${addressId}`,
       {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(tenantId && { 'X-Tenant-ID': tenantId }),
-          ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
-          'Authorization': authHeader,
-        },
+        headers,
       }
     );
 
@@ -86,6 +141,7 @@ export async function DELETE(
 }
 
 // PUT /api/customers/[customerId]/addresses/[addressId] - Update address
+// Supports both JWT and session-based (OAuth) authentication
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ customerId: string; addressId: string }> }
@@ -94,14 +150,15 @@ export async function PUT(
     const { customerId, addressId } = await params;
     const tenantId = request.headers.get('X-Tenant-ID');
     const storefrontId = request.headers.get('X-Storefront-ID');
-    const authHeader = request.headers.get('Authorization');
 
-    if (!authHeader) {
+    // Get auth context from either JWT or session
+    const auth = await getAuthContext(request);
+    if (!auth?.customerId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // SECURITY: Prevent IDOR attacks
-    if (!validateCustomerOwnership(authHeader, customerId)) {
+    if (!validateCustomerOwnership(auth.customerId, customerId)) {
       return NextResponse.json(
         { error: 'Access denied: You can only update your own addresses' },
         { status: 403 }
@@ -121,17 +178,28 @@ export async function PUT(
       delete transformedBody.countryCode;
     }
 
+    // Build headers for internal service call
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Internal-Request': 'true',
+      'X-User-Id': auth.customerId,
+    };
+    if (tenantId) {
+      headers['X-Tenant-ID'] = tenantId;
+    }
+    if (storefrontId) {
+      headers['X-Storefront-ID'] = storefrontId;
+    }
+    if (auth.token) {
+      headers['Authorization'] = auth.token;
+    }
+
     // Use storefront endpoint path
     const response = await fetch(
       `${CUSTOMERS_BASE_URL}${STOREFRONT_API_PATH}/customers/${customerId}/addresses/${addressId}`,
       {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(tenantId && { 'X-Tenant-ID': tenantId }),
-          ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
-          'Authorization': authHeader,
-        },
+        headers,
         body: JSON.stringify(transformedBody),
       }
     );
@@ -167,6 +235,7 @@ export async function PUT(
 }
 
 // PATCH /api/customers/[customerId]/addresses/[addressId] - Set as default
+// Supports both JWT and session-based (OAuth) authentication
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ customerId: string; addressId: string }> }
@@ -175,18 +244,35 @@ export async function PATCH(
     const { customerId, addressId } = await params;
     const tenantId = request.headers.get('X-Tenant-ID');
     const storefrontId = request.headers.get('X-Storefront-ID');
-    const authHeader = request.headers.get('Authorization');
 
-    if (!authHeader) {
+    // Get auth context from either JWT or session
+    const auth = await getAuthContext(request);
+    if (!auth?.customerId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     // SECURITY: Prevent IDOR attacks
-    if (!validateCustomerOwnership(authHeader, customerId)) {
+    if (!validateCustomerOwnership(auth.customerId, customerId)) {
       return NextResponse.json(
         { error: 'Access denied: You can only modify your own addresses' },
         { status: 403 }
       );
+    }
+
+    // Build headers for internal service call
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'X-Internal-Request': 'true',
+      'X-User-Id': auth.customerId,
+    };
+    if (tenantId) {
+      headers['X-Tenant-ID'] = tenantId;
+    }
+    if (storefrontId) {
+      headers['X-Storefront-ID'] = storefrontId;
+    }
+    if (auth.token) {
+      headers['Authorization'] = auth.token;
     }
 
     // Use storefront endpoint path - PATCH on the address ID sets it as default
@@ -194,12 +280,7 @@ export async function PATCH(
       `${CUSTOMERS_BASE_URL}${STOREFRONT_API_PATH}/customers/${customerId}/addresses/${addressId}`,
       {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(tenantId && { 'X-Tenant-ID': tenantId }),
-          ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
-          'Authorization': authHeader,
-        },
+        headers,
       }
     );
 

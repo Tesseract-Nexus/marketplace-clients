@@ -5,18 +5,13 @@ import { Camera, Mail, Phone, Edit2, Check, X, Loader2, MapPin, Plus, Trash2, Ho
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useTenant } from '@/context/TenantContext';
+import { useTenant, useLocalization } from '@/context/TenantContext';
 import { useAuthStore } from '@/store/auth';
 import { useWishlistStore } from '@/store/wishlist';
 import { toast } from 'sonner';
 import {
   CustomerAddress,
   AddressType,
-  getCustomerAddresses,
-  addCustomerAddress,
-  updateCustomerAddress,
-  deleteCustomerAddress,
-  setDefaultAddress,
 } from '@/lib/api/customers';
 import { AddressAutocomplete, type ParsedAddressData } from '@/components/AddressAutocomplete';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
@@ -26,6 +21,10 @@ export default function AccountPage() {
   const tenantId = tenant?.id || '';
   const storefrontId = tenant?.storefrontId || '';
   const { customer, accessToken, updateCustomer } = useAuthStore();
+
+  // Get store localization settings (country configured by admin)
+  const localization = useLocalization();
+  const storeCountryCode = localization.countryCode;
   const wishlistItems = useWishlistStore((state) => state.items);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -43,7 +42,8 @@ export default function AccountPage() {
   const [isAddingAddress, setIsAddingAddress] = useState(false);
   const [useManualEntry, setUseManualEntry] = useState(false);
   const [editingAddress, setEditingAddress] = useState<CustomerAddress | null>(null);
-  const defaultCountryCode = customer?.countryCode || 'AU';
+  // Use store country as default (restrict addresses to store location)
+  const defaultCountryCode = storeCountryCode || customer?.countryCode || 'AU';
   const [newAddress, setNewAddress] = useState({
     label: '',
     firstName: '',
@@ -71,15 +71,33 @@ export default function AccountPage() {
     }
   }, [customer]);
 
-  // Fetch addresses
+  // Fetch addresses - supports both JWT and session-based (OAuth) auth
   useEffect(() => {
     async function fetchAddresses() {
-      if (!customer?.id || !accessToken || !tenantId) return;
+      if (!customer?.id || !tenantId) return;
 
       setIsLoadingAddresses(true);
       try {
-        const data = await getCustomerAddresses(tenantId, storefrontId || '', customer.id, accessToken);
-        setAddresses(data);
+        const headers: Record<string, string> = {
+          'X-Tenant-ID': tenantId,
+          'X-Storefront-ID': storefrontId || '',
+        };
+        if (accessToken) {
+          headers['Authorization'] = `Bearer ${accessToken}`;
+        }
+
+        const response = await fetch(
+          `/api/customers/${customer.id}/addresses`,
+          {
+            headers,
+            credentials: 'include', // Important: send session cookies for OAuth
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          setAddresses(data.data || data.addresses || data || []);
+        }
       } catch (error) {
         console.error('Failed to fetch addresses:', error);
       } finally {
@@ -91,10 +109,11 @@ export default function AccountPage() {
   }, [customer?.id, accessToken, tenantId, storefrontId]);
 
   const handleAddAddress = async () => {
-    if (!customer?.id || !accessToken || !tenantId) {
+    // Support both JWT and session-based (OAuth) auth
+    // OAuth users may not have accessToken but can still save addresses via session cookies
+    if (!customer?.id || !tenantId) {
       console.error('Missing auth context for address save:', {
         hasCustomerId: !!customer?.id,
-        hasAccessToken: !!accessToken,
         hasTenantId: !!tenantId,
         tenantId,
       });
@@ -104,27 +123,56 @@ export default function AccountPage() {
 
     setIsAddingAddress(true);
     try {
+      // Build common headers and options for both JWT and session auth
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'X-Tenant-ID': tenantId,
+        'X-Storefront-ID': storefrontId || '',
+      };
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+
       if (editingAddress) {
         // Update existing address
-        const updated = await updateCustomerAddress(
-          tenantId,
-          storefrontId || '',
-          customer.id,
-          editingAddress.id,
-          { ...newAddress, isDefault: editingAddress.isDefault },
-          accessToken
+        const response = await fetch(
+          `/api/customers/${customer.id}/addresses/${editingAddress.id}`,
+          {
+            method: 'PUT',
+            headers,
+            credentials: 'include', // Important: send session cookies for OAuth
+            body: JSON.stringify({ ...newAddress, isDefault: editingAddress.isDefault }),
+          }
         );
+
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(error.error || error.message || 'Failed to update address');
+        }
+
+        const data = await response.json();
+        const updated = data.data || data;
         setAddresses(addresses.map(a => a.id === editingAddress.id ? updated : a));
         toast.success('Address updated successfully');
       } else {
         // Add new address
-        const created = await addCustomerAddress(
-          tenantId,
-          storefrontId || '',
-          customer.id,
-          { ...newAddress, isDefault: addresses.length === 0 },
-          accessToken
+        const response = await fetch(
+          `/api/customers/${customer.id}/addresses`,
+          {
+            method: 'POST',
+            headers,
+            credentials: 'include', // Important: send session cookies for OAuth
+            body: JSON.stringify({ ...newAddress, isDefault: addresses.length === 0 }),
+          }
         );
+
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(error.error || error.message || 'Failed to add address');
+        }
+
+        const data = await response.json();
+        const created = data.data || data;
         setAddresses([...addresses, created]);
         toast.success('Address added successfully');
       }
@@ -178,10 +226,31 @@ export default function AccountPage() {
   };
 
   const handleDeleteAddress = async (addressId: string) => {
-    if (!customer?.id || !accessToken || !tenantId) return;
+    if (!customer?.id || !tenantId) return;
 
     try {
-      await deleteCustomerAddress(tenantId, storefrontId || '', customer.id, addressId, accessToken);
+      const headers: Record<string, string> = {
+        'X-Tenant-ID': tenantId,
+        'X-Storefront-ID': storefrontId || '',
+      };
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+
+      const response = await fetch(
+        `/api/customers/${customer.id}/addresses/${addressId}`,
+        {
+          method: 'DELETE',
+          headers,
+          credentials: 'include', // Important: send session cookies for OAuth
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || error.message || 'Failed to delete address');
+      }
+
       setAddresses(addresses.filter(a => a.id !== addressId));
       toast.success('Address deleted');
     } catch (error) {
@@ -191,10 +260,32 @@ export default function AccountPage() {
   };
 
   const handleSetDefault = async (addressId: string) => {
-    if (!customer?.id || !accessToken || !tenantId) return;
+    if (!customer?.id || !tenantId) return;
 
     try {
-      await setDefaultAddress(tenantId, storefrontId || '', customer.id, addressId, accessToken);
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'X-Tenant-ID': tenantId,
+        'X-Storefront-ID': storefrontId || '',
+      };
+      if (accessToken) {
+        headers['Authorization'] = `Bearer ${accessToken}`;
+      }
+
+      const response = await fetch(
+        `/api/customers/${customer.id}/addresses/${addressId}`,
+        {
+          method: 'PATCH',
+          headers,
+          credentials: 'include', // Important: send session cookies for OAuth
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || error.message || 'Failed to set default address');
+      }
+
       setAddresses(addresses.map(a => ({ ...a, isDefault: a.id === addressId })));
       toast.success('Default address updated');
     } catch (error) {
@@ -454,6 +545,7 @@ export default function AccountPage() {
                   onAddressSelect={handleAddressAutoComplete}
                   onManualEntryToggle={setUseManualEntry}
                   placeholder="Start typing your address..."
+                  countryRestriction={storeCountryCode}
                   showCurrentLocation={true}
                 />
               </div>
