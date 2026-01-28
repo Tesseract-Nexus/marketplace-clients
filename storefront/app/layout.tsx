@@ -243,7 +243,7 @@ export default async function RootLayout({
     getContentPages(storefrontId, tenantId),
     getMarketingSettings(storefrontId, tenantId),
     getStoreLocalization(storefrontId, tenantId),
-    getStoreName(storefrontId, tenantId),
+    getStoreName(storefrontId, tenantHost.tenant_id),
   ]);
 
   // Pass themeTemplate to get correct default colors based on the selected theme

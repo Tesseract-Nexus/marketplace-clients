@@ -398,12 +398,12 @@ export async function getStoreName(
     const queryParams = new URLSearchParams({
       applicationId: 'admin-portal',
       scope: 'application',
-      tenantId: storefrontId
+      tenantId: tenantId
     });
 
     const response = await apiRequest<ApiResponse<any>>(
       `${serviceUrls.settings}/api/v1/public/settings/context?${queryParams.toString()}`,
-      { tenantId: storefrontId, storefrontId, cache: 'no-store' }
+      { tenantId, storefrontId, cache: 'no-store' }
     );
 
     const data = response.data || response;
