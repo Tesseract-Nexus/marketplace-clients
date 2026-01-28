@@ -351,7 +351,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
               )}
 
               {hasDiscount && (
-                <Badge className="absolute top-4 left-4 bg-red-500 text-white z-10">
+                <Badge className="absolute top-4 left-4 bg-[var(--badge-sale-bg)] text-[var(--badge-sale-text)] z-10">
                   -{discountPercent}% OFF
                 </Badge>
               )}
@@ -460,7 +460,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                     size="lg"
                     showPercentage={false}
                   />
-                  <Badge variant="secondary" className="text-green-600">
+                  <Badge variant="secondary" className="text-[var(--color-success)]">
                     Save {formatDisplayPrice(comparePrice - price)}
                   </Badge>
                 </>
@@ -475,10 +475,10 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                   className={cn(
                     'h-2 w-2 rounded-full',
                     product.inventoryStatus === 'IN_STOCK'
-                      ? 'bg-green-500'
+                      ? 'bg-[var(--color-success)]'
                       : product.inventoryStatus === 'LOW_STOCK'
-                      ? 'bg-yellow-500'
-                      : 'bg-red-500'
+                      ? 'bg-[var(--color-warning)]'
+                      : 'bg-[var(--color-error)]'
                   )}
                 />
                 <span className="text-sm">
@@ -523,7 +523,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                 <Button
                   variant={addedToCart ? "secondary" : "tenant-glow"}
                   size="xl"
-                  className={cn("flex-1", addedToCart && "bg-green-500 hover:bg-green-600 text-white")}
+                  className={cn("flex-1", addedToCart && "bg-[var(--color-success)] hover:opacity-90 text-[var(--color-success-foreground)]")}
                   onClick={handleAddToCart}
                   disabled={isAddingToCart || product.inventoryStatus === 'OUT_OF_STOCK'}
                 >
@@ -550,7 +550,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                   size="xl"
                   className={cn(
                     isTouchDevice && "h-12 w-12",
-                    isWishlisted && 'text-red-500 border-red-500'
+                    isWishlisted && 'text-[var(--wishlist-active)] border-[var(--wishlist-active)]'
                   )}
                   onClick={handleToggleWishlist}
                 >
@@ -586,8 +586,8 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                     <DropdownMenuItem onClick={copyLink} className="cursor-pointer">
                       {linkCopied ? (
                         <>
-                          <CheckCircle2 className="h-4 w-4 mr-2 text-green-500" />
-                          <span className="text-green-600">Link Copied!</span>
+                          <CheckCircle2 className="h-4 w-4 mr-2 text-[var(--color-success)]" />
+                          <span className="text-[var(--color-success)]">Link Copied!</span>
                         </>
                       ) : (
                         <>
@@ -766,7 +766,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                     size="lg"
                     className={cn(
                       "h-11 px-4 shrink-0",
-                      addedToCart && "bg-green-500 hover:bg-green-600 text-white"
+                      addedToCart && "bg-[var(--color-success)] hover:opacity-90 text-[var(--color-success-foreground)]"
                     )}
                     onClick={handleAddToCart}
                     disabled={isAddingToCart || product.inventoryStatus === 'OUT_OF_STOCK'}
