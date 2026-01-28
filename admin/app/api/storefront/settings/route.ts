@@ -19,28 +19,15 @@ const SETTINGS_SERVICE_URL = getServiceUrl('SETTINGS');
 function transformHomepageConfig(backendConfig: Record<string, unknown> | null): StorefrontSettings['homepageConfig'] {
   if (!backendConfig) return DEFAULT_STOREFRONT_SETTINGS.homepageConfig;
 
+  // Use spread to preserve all fields from backend, then transform specific fields
   return {
+    ...DEFAULT_STOREFRONT_SETTINGS.homepageConfig,
+    ...backendConfig,
+    // Transform showHero -> heroEnabled (backend uses showHero)
     heroEnabled: (backendConfig.showHero as boolean) ?? (backendConfig.heroEnabled as boolean) ?? DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroEnabled,
-    heroBackgroundType: (backendConfig.heroBackgroundType as StorefrontSettings['homepageConfig']['heroBackgroundType']) || DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroBackgroundType,
-    heroImage: backendConfig.heroImage as string | undefined,
-    heroVideo: backendConfig.heroVideo as string | undefined,
-    heroTitle: (backendConfig.heroTitle as string) || DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroTitle,
-    heroSubtitle: (backendConfig.heroSubtitle as string) || DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroSubtitle,
-    heroCtaText: (backendConfig.heroCtaText as string) || DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroCtaText,
-    heroCtaLink: (backendConfig.heroCtaLink as string) || DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroCtaLink,
-    heroOverlayOpacity: (backendConfig.heroOverlayOpacity as number) ?? DEFAULT_STOREFRONT_SETTINGS.homepageConfig.heroOverlayOpacity,
-    // Hero customization options
-    heroTextColor: backendConfig.heroTextColor as string | undefined,
+    // Ensure heroAnimationsEnabled defaults to true if not set
     heroAnimationsEnabled: (backendConfig.heroAnimationsEnabled as boolean) ?? true,
-    sections: (backendConfig.sections as StorefrontSettings['homepageConfig']['sections']) || DEFAULT_STOREFRONT_SETTINGS.homepageConfig.sections,
-    featuredProductIds: backendConfig.featuredProductIds as string[] | undefined,
-    featuredCategoryIds: backendConfig.featuredCategoryIds as string[] | undefined,
-    showNewsletter: (backendConfig.showNewsletter as boolean) ?? DEFAULT_STOREFRONT_SETTINGS.homepageConfig.showNewsletter,
-    newsletterTitle: backendConfig.newsletterTitle as string | undefined,
-    newsletterSubtitle: backendConfig.newsletterSubtitle as string | undefined,
-    showTestimonials: (backendConfig.showTestimonials as boolean) ?? false,
-    testimonials: backendConfig.testimonials as StorefrontSettings['homepageConfig']['testimonials'],
-  };
+  } as StorefrontSettings['homepageConfig'];
 }
 
 /**
