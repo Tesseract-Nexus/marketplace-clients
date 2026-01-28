@@ -44,6 +44,14 @@ const defaultSettings: CancellationSettings = {
   allowPartialCancellation: false,
   refundMethod: 'original_payment',
   policyText: '',
+  cancellationReasons: [
+    'I changed my mind',
+    'Found a better price elsewhere',
+    'Ordered by mistake',
+    'Shipping is taking too long',
+    'Payment issue',
+    'Other reason',
+  ],
 };
 
 const ORDER_STATUSES = ['PROCESSING', 'SHIPPED', 'DELIVERED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'READY_FOR_PICKUP'];
