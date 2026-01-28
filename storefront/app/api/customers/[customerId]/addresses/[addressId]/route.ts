@@ -58,8 +58,8 @@ async function getSessionToken(request: NextRequest): Promise<{ token?: string; 
  * Returns userId and optionally authorization token.
  */
 async function getAuthInfo(request: NextRequest): Promise<{ userId?: string; authorization?: string } | null> {
-  let authorization = request.headers.get('Authorization');
-  let userId = request.headers.get('X-User-Id');
+  let authorization: string | null = request.headers.get('Authorization');
+  let userId: string | null = request.headers.get('X-User-Id');
 
   // Check if authorization is empty or just "Bearer " (session-based auth)
   const hasValidAuth = authorization && authorization !== 'Bearer ' && authorization !== 'Bearer';
@@ -80,7 +80,7 @@ async function getAuthInfo(request: NextRequest): Promise<{ userId?: string; aut
   } else {
     // Extract user ID from JWT if we have valid auth
     const tokenPayload = decodeJwtPayload(authorization!);
-    userId = tokenPayload?.sub || tokenPayload?.customer_id || userId || undefined;
+    userId = tokenPayload?.sub || tokenPayload?.customer_id || userId || null;
   }
 
   return { userId: userId || undefined, authorization: authorization || undefined };

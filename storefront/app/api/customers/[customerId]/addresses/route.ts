@@ -124,7 +124,7 @@ export async function GET(
       }
     } else {
       // Extract user ID from JWT if we have valid auth
-      const tokenPayload = decodeJwtPayload(authorization);
+      const tokenPayload = decodeJwtPayload(authorization!);
       userId = tokenPayload?.sub || tokenPayload?.customer_id || userId;
     }
 
@@ -222,7 +222,7 @@ export async function POST(
       }
     } else {
       // Extract user ID from JWT if we have valid auth
-      const tokenPayload = decodeJwtPayload(authorization);
+      const tokenPayload = decodeJwtPayload(authorization!);
       userId = tokenPayload?.sub || tokenPayload?.customer_id || userId;
     }
 
