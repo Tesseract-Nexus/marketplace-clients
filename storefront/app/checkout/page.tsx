@@ -362,15 +362,20 @@ function CheckoutContent() {
   const giftCardDiscount = getGiftCardTotal();
   const total = Math.max(0, subtotal + shipping + tax - discount - loyaltyDiscount - giftCardDiscount);
 
-  // Build store address from localization for tax calculation
+  // Use full store address from localization for tax calculation (includes city for GST/VAT)
   const storeAddress = useMemo(() => {
+    // Prefer the full storeAddress if available (includes city, state, zip)
+    if (localization.storeAddress) {
+      return localization.storeAddress;
+    }
+    // Fallback to building from basic localization fields
     if (!localization.countryCode && !localization.country) return undefined;
     return {
       country: localization.country || localization.countryCode,
       countryCode: localization.countryCode || localization.country,
       state: localization.region || undefined,
     };
-  }, [localization.country, localization.countryCode, localization.region]);
+  }, [localization.storeAddress, localization.country, localization.countryCode, localization.region]);
 
   // Calculate tax when shipping address changes
   useEffect(() => {

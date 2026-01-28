@@ -63,11 +63,13 @@ export async function POST(request: NextRequest) {
     const tenantId = request.headers.get('X-Tenant-ID') || process.env.DEV_TENANT_ID || 'global';
 
     // Map storeAddress to originAddress for tax service
+    // Only include originAddress if it has required fields (city is required by tax service)
     const { storeAddress, ...restBody } = body;
+    const originAddress = storeAddress?.city && storeAddress?.country ? storeAddress : undefined;
     const taxRequest = {
       ...restBody,
       tenantId,
-      originAddress: storeAddress, // Tax service expects originAddress for GST/VAT calculation
+      originAddress, // Tax service expects originAddress for GST/VAT calculation
     };
 
     // Forward request to tax service (use public storefront endpoint)
