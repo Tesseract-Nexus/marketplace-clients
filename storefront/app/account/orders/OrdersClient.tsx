@@ -3,7 +3,7 @@
 import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Package, ChevronRight, Truck, CheckCircle2, Clock, XCircle, ShoppingBag, ArrowRight, Ban } from 'lucide-react';
+import { Package, ChevronRight, Truck, CheckCircle2, Clock, XCircle, ShoppingBag, ArrowRight, Ban, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -347,6 +347,19 @@ export function OrdersClient({ orders: ordersProp }: OrdersClientProps) {
 
                             {/* Action Buttons */}
                             <div className="flex items-center gap-2 pt-3 border-t">
+                              {order.receiptShortUrl && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  asChild
+                                  className="h-7 text-xs gap-1 hover:border-tenant-primary hover:text-tenant-primary"
+                                >
+                                  <a href={order.receiptShortUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                                    <Download className="h-3 w-3" />
+                                    <TranslatedUIText text="Invoice" />
+                                  </a>
+                                </Button>
+                              )}
                               {isCancellable && (
                                 <Button
                                   variant="outline"

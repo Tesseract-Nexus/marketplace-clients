@@ -764,6 +764,11 @@ export interface Order {
   customerVatNumber?: string;
   taxBreakdown?: TaxBreakdownItem[];
   trackingNumber?: string;
+  // Receipt / Invoice
+  receiptNumber?: string;
+  invoiceNumber?: string;
+  receiptShortUrl?: string;
+  receiptGeneratedAt?: string;
   createdAt: string;
   updatedAt: string;
 }

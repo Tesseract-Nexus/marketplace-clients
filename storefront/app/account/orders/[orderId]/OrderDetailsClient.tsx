@@ -22,6 +22,7 @@ import {
   ArrowLeft,
   Calendar,
   Scale,
+  FileText,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -724,13 +725,53 @@ export function OrderDetailsClient({ order, tracking, returns }: OrderDetailsCli
             </Card>
           )}
 
+          {/* Receipt / Invoice */}
+          {order.receiptNumber && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Receipt
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Receipt No.</span>
+                  <span className="font-mono font-medium">{order.receiptNumber}</span>
+                </div>
+                {order.invoiceNumber && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Invoice No.</span>
+                    <span className="font-mono font-medium">{order.invoiceNumber}</span>
+                  </div>
+                )}
+                {order.receiptGeneratedAt && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Generated</span>
+                    <span>{new Date(order.receiptGeneratedAt).toLocaleDateString()}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Actions */}
           <Card>
             <CardContent className="pt-6 space-y-3">
-              <Button variant="outline" className="w-full" disabled>
-                <Download className="h-4 w-4 mr-2" />
-                Download Invoice
-              </Button>
+              {order.receiptShortUrl ? (
+                <Button variant="outline" className="w-full" asChild>
+                  <a href={order.receiptShortUrl} target="_blank" rel="noopener noreferrer">
+                    <Download className="h-4 w-4 mr-2" />
+                    Download Invoice
+                    <ExternalLink className="h-3.5 w-3.5 ml-1.5 opacity-60" />
+                  </a>
+                </Button>
+              ) : (
+                <Button variant="outline" className="w-full" disabled>
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Invoice
+                </Button>
+              )}
 
               <Button variant="secondary" className="w-full" onClick={() => setShowReportDialog(true)}>
                 <AlertCircle className="h-4 w-4 mr-2" />
