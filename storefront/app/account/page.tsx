@@ -324,7 +324,7 @@ export default function AccountPage() {
 
   const handleSave = async () => {
     // Check for customer instead of accessToken (OAuth uses session cookies)
-    if (!customer?.id) return;
+    if (!customer?.id || !tenantId) return;
 
     setIsSaving(true);
     try {
@@ -332,6 +332,8 @@ export default function AccountPage() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          'X-Tenant-ID': tenantId,
+          'X-Storefront-ID': storefrontId || '',
           // Include Authorization if available (legacy auth), otherwise session cookies will be used
           ...(accessToken && { 'Authorization': `Bearer ${accessToken}` }),
         },
