@@ -45,6 +45,8 @@ import {
   Mail,
   FileText,
   ChevronRight,
+  Download,
+  ExternalLink,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { StatusBadge, StatusType } from '@/components/ui/status-badge';
@@ -163,8 +165,11 @@ export default function OrdersPage() {
         }
         break;
       case 'invoice':
-        // TODO: Generate invoice
-        router.push(`/orders/${order.id}?tab=invoice`);
+        if (order.receiptShortUrl) {
+          window.open(order.receiptShortUrl, '_blank', 'noopener,noreferrer');
+        } else {
+          router.push(`/orders/${order.id}?tab=invoice`);
+        }
         break;
     }
   };
@@ -696,6 +701,7 @@ export default function OrdersPage() {
                 <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden lg:table-cell">Payment</th>
                 <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden lg:table-cell">Fulfillment</th>
                 <th className="px-4 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Total</th>
+                <th className="px-4 py-3 text-center text-xs font-bold text-foreground uppercase tracking-wider hidden lg:table-cell">Receipt</th>
                 <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider hidden sm:table-cell">Date</th>
                 <th className="px-4 py-3 text-right text-xs font-bold text-foreground uppercase tracking-wider">Actions</th>
               </tr>
@@ -772,6 +778,42 @@ export default function OrdersPage() {
                       {formatCurrency(order.total, order.currencyCode)}
                     </p>
                   </td>
+                  <td className="px-4 py-4 hidden lg:table-cell">
+                    <div className="flex items-center justify-center">
+                      {order.receiptNumber ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (order.receiptShortUrl) {
+                              window.open(order.receiptShortUrl, '_blank', 'noopener,noreferrer');
+                            } else {
+                              router.push(`/orders/${order.id}?tab=invoice`);
+                            }
+                          }}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-primary bg-primary/10 rounded-md hover:bg-primary/20 transition-colors"
+                          title={`Receipt: ${order.receiptNumber}${order.invoiceNumber ? ` | Invoice: ${order.invoiceNumber}` : ''}`}
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          <span className="truncate max-w-[80px]">{order.receiptNumber}</span>
+                          <ExternalLink className="w-3 h-3 opacity-60" />
+                        </button>
+                      ) : order.paymentStatus === 'PAID' ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleQuickAction(e, 'invoice', order);
+                          }}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-muted-foreground bg-muted rounded-md hover:bg-muted/80 hover:text-foreground transition-colors"
+                          title="Generate receipt"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Generate</span>
+                        </button>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-4 py-4 hidden sm:table-cell">
                     <span className="text-sm text-muted-foreground whitespace-nowrap">
                       {new Date(order.orderDate).toLocaleDateString()}
@@ -843,7 +885,8 @@ export default function OrdersPage() {
                             className="w-full px-4 py-2.5 text-left text-sm text-foreground hover:bg-muted flex items-center gap-3 transition-colors"
                           >
                             <FileText className="w-4 h-4 text-muted-foreground" />
-                            <span>View Invoice</span>
+                            <span>{order.receiptNumber ? `Receipt ${order.receiptNumber}` : 'View Invoice'}</span>
+                            {order.receiptShortUrl && <ExternalLink className="w-3 h-3 text-muted-foreground ml-auto" />}
                           </button>
                         </div>
                       )}

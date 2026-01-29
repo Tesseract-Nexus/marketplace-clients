@@ -1028,6 +1028,13 @@ export interface Order {
   tags?: string[];
   metadata?: Record<string, any>;
 
+  // Receipt / Invoice
+  receiptNumber?: string;
+  invoiceNumber?: string;
+  receiptDocumentId?: string;
+  receiptShortUrl?: string;
+  receiptGeneratedAt?: string;
+
   // Timestamps
   orderDate: string;
   confirmedAt?: string;
