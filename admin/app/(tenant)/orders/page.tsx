@@ -826,7 +826,7 @@ export default function OrdersPage() {
                           <span className="truncate max-w-[80px]">{order.receiptNumber}</span>
                           <ExternalLink className="w-3 h-3 opacity-60" />
                         </button>
-                      ) : order.paymentStatus === 'PAID' ? (
+                      ) : (order.paymentStatus === 'PAID' || order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED') ? (
                         <button
                           onClick={(e) => handleGenerateReceipt(e, order)}
                           disabled={generatingReceiptId === order.id}

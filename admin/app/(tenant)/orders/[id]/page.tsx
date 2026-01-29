@@ -850,7 +850,7 @@ export default function OrderDetailsPage() {
                   </div>
                 ) : (
                   <div className="text-center py-6">
-                    {order.paymentStatus === 'PAID' ? (
+                    {(order.paymentStatus === 'PAID' || order.paymentStatus === 'REFUNDED' || order.paymentStatus === 'PARTIALLY_REFUNDED') ? (
                       <>
                         <p className="text-sm text-muted-foreground mb-4">No receipt has been generated for this order yet.</p>
                         <button
