@@ -36,6 +36,10 @@ import {
   Phone,
   RefreshCw,
   Hash,
+  FileText,
+  Download,
+  ExternalLink,
+  Eye,
 } from 'lucide-react';
 import { ShippingCard } from '@/components/orders/ShippingCard';
 
@@ -84,6 +88,7 @@ export default function OrderDetailsPage() {
   const [error, setError] = useState<string | null>(null);
   const [validTransitions, setValidTransitions] = useState<ValidTransitionsResponse | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [generatingReceipt, setGeneratingReceipt] = useState(false);
 
   const loadOrder = useCallback(async () => {
     try {
@@ -156,6 +161,27 @@ export default function OrderDetailsPage() {
       setError(err instanceof Error ? err.message : 'Failed to update fulfillment status');
     } finally {
       setUpdatingStatus(false);
+    }
+  };
+
+  const handleGenerateReceipt = async () => {
+    if (!order) return;
+    setGeneratingReceipt(true);
+    try {
+      const response = await orderService.generateReceipt(order.id);
+      const result = response?.data || response;
+      const doc = result as Record<string, unknown>;
+      setOrder({
+        ...order,
+        receiptNumber: (doc.receiptNumber as string) || order.receiptNumber,
+        receiptShortUrl: (doc.shortUrl as string) || order.receiptShortUrl,
+        receiptDocumentId: (doc.id as string) || order.receiptDocumentId,
+        receiptGeneratedAt: (doc.createdAt as string) || new Date().toISOString(),
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to generate receipt');
+    } finally {
+      setGeneratingReceipt(false);
     }
   };
 
@@ -759,6 +785,94 @@ export default function OrderDetailsPage() {
                 </CardContent>
               </Card>
             )}
+
+            {/* Receipt / Invoice */}
+            <Card>
+              <CardContent>
+                <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-muted-foreground" />
+                  Receipt / Invoice
+                </h3>
+                {order.receiptNumber ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-3 p-3 bg-muted rounded-xl">
+                      <div className="p-2 bg-primary/20 rounded-lg">
+                        <FileText className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-xs text-muted-foreground font-semibold">Receipt Number</p>
+                        <p className="font-semibold text-foreground">{order.receiptNumber}</p>
+                      </div>
+                    </div>
+                    {order.invoiceNumber && (
+                      <div className="flex items-center gap-3 p-3 bg-muted rounded-xl">
+                        <div className="p-2 bg-primary/10 rounded-lg">
+                          <Hash className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs text-muted-foreground font-semibold">Invoice Number</p>
+                          <p className="font-semibold text-foreground">{order.invoiceNumber}</p>
+                        </div>
+                      </div>
+                    )}
+                    {order.receiptGeneratedAt && (
+                      <div className="flex items-center gap-3 p-3 bg-muted rounded-xl">
+                        <div className="p-2 bg-success-muted rounded-lg">
+                          <Calendar className="w-4 h-4 text-success" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-xs text-muted-foreground font-semibold">Generated At</p>
+                          <p className="font-semibold text-foreground">{new Date(order.receiptGeneratedAt).toLocaleString()}</p>
+                        </div>
+                      </div>
+                    )}
+                    <div className="flex gap-2 mt-4">
+                      {order.receiptShortUrl && (
+                        <a
+                          href={order.receiptShortUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-xl hover:bg-primary/90 transition-colors"
+                        >
+                          <Download className="w-4 h-4" />
+                          Download Receipt
+                          <ExternalLink className="w-3.5 h-3.5 opacity-70" />
+                        </a>
+                      )}
+                      <button
+                        onClick={() => window.open(`/api/orders/${order.id}/receipt?format=html`, '_blank')}
+                        className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-primary bg-primary/10 rounded-xl hover:bg-primary/20 transition-colors"
+                      >
+                        <Eye className="w-4 h-4" />
+                        Preview
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-6">
+                    {order.paymentStatus === 'PAID' ? (
+                      <>
+                        <p className="text-sm text-muted-foreground mb-4">No receipt has been generated for this order yet.</p>
+                        <button
+                          onClick={handleGenerateReceipt}
+                          disabled={generatingReceipt}
+                          className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-primary rounded-xl hover:bg-primary/90 transition-colors disabled:opacity-50"
+                        >
+                          {generatingReceipt ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <FileText className="w-4 h-4" />
+                          )}
+                          {generatingReceipt ? 'Generating...' : 'Generate Receipt'}
+                        </button>
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Receipt will be available once payment is completed.</p>
+                    )}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

@@ -392,5 +392,9 @@ export const orderService = {
     return ordersService.getValidTransitions(id);
   },
 
+  generateReceipt: async (id: string, options?: { format?: string; template?: string; documentType?: string; sendEmail?: boolean }) => {
+    return ordersService.generateReceipt(id, options);
+  },
+
   isMockMode: () => USE_MOCK_DATA,
 };

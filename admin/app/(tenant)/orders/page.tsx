@@ -64,6 +64,7 @@ export default function OrdersPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [generatingReceiptId, setGeneratingReceiptId] = useState<string | null>(null);
 
   // Initialize filters from URL params
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
@@ -171,6 +172,34 @@ export default function OrdersPage() {
           router.push(`/orders/${order.id}?tab=invoice`);
         }
         break;
+    }
+  };
+
+  const handleGenerateReceipt = async (e: React.MouseEvent, order: Order) => {
+    e.stopPropagation();
+    setGeneratingReceiptId(order.id);
+    try {
+      const response = await orderService.generateReceipt(order.id);
+      const result = response?.data || response;
+      // Update the order in state with receipt info
+      setOrders(prev => prev.map(o => {
+        if (o.id === order.id) {
+          const doc = result as Record<string, unknown>;
+          return {
+            ...o,
+            receiptNumber: (doc.receiptNumber as string) || o.receiptNumber,
+            receiptShortUrl: (doc.shortUrl as string) || o.receiptShortUrl,
+            receiptDocumentId: (doc.id as string) || o.receiptDocumentId,
+            receiptGeneratedAt: (doc.createdAt as string) || new Date().toISOString(),
+          };
+        }
+        return o;
+      }));
+    } catch (err) {
+      console.error('Failed to generate receipt:', err);
+      setError(err instanceof Error ? err.message : 'Failed to generate receipt');
+    } finally {
+      setGeneratingReceiptId(null);
     }
   };
 
@@ -799,15 +828,17 @@ export default function OrdersPage() {
                         </button>
                       ) : order.paymentStatus === 'PAID' ? (
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleQuickAction(e, 'invoice', order);
-                          }}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-muted-foreground bg-muted rounded-md hover:bg-muted/80 hover:text-foreground transition-colors"
+                          onClick={(e) => handleGenerateReceipt(e, order)}
+                          disabled={generatingReceiptId === order.id}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-muted-foreground bg-muted rounded-md hover:bg-muted/80 hover:text-foreground transition-colors disabled:opacity-50"
                           title="Generate receipt"
                         >
-                          <Download className="w-3.5 h-3.5" />
-                          <span>Generate</span>
+                          {generatingReceiptId === order.id ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Download className="w-3.5 h-3.5" />
+                          )}
+                          <span>{generatingReceiptId === order.id ? 'Generating...' : 'Generate'}</span>
                         </button>
                       ) : (
                         <span className="text-xs text-muted-foreground">—</span>

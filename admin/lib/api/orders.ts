@@ -120,6 +120,16 @@ export class OrdersService {
   }
 
   /**
+   * Generate and store a receipt for an order
+   */
+  async generateReceipt(
+    id: string,
+    options?: { format?: string; template?: string; documentType?: string; sendEmail?: boolean }
+  ): Promise<ApiResponse<Record<string, unknown>>> {
+    return apiClient.post<ApiResponse<Record<string, unknown>>>(`/orders/${id}/receipt`, options || {});
+  }
+
+  /**
    * Get order analytics
    */
   async getOrderAnalytics(): Promise<ApiResponse<OrdersAnalytics>> {
