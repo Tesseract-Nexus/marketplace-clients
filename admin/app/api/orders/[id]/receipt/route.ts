@@ -22,6 +22,9 @@ export async function GET(
     }
 
     const headers = await getProxyHeaders(request) as Record<string, string>;
+    // Remove Content-Type for GET requests - backend checks this to decide
+    // whether to parse a JSON body, and an empty GET body causes EOF errors
+    delete headers['Content-Type'];
     const { searchParams } = new URL(request.url);
     const format = searchParams.get('format') || 'pdf';
 
