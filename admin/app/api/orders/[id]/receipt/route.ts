@@ -25,7 +25,7 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const format = searchParams.get('format') || 'pdf';
 
-    const backendUrl = `${ORDERS_SERVICE_URL}/api/v1/orders/${encodeURIComponent(id)}/receipt?format=${encodeURIComponent(format)}`;
+    const backendUrl = `${ORDERS_SERVICE_URL}/orders/${encodeURIComponent(id)}/receipt?format=${encodeURIComponent(format)}`;
     const response = await fetch(backendUrl, {
       method: 'GET',
       headers,
@@ -91,7 +91,7 @@ export async function POST(
       // Empty body is fine - defaults will be used
     }
 
-    const backendUrl = `${ORDERS_SERVICE_URL}/api/v1/orders/${encodeURIComponent(id)}/receipt/generate`;
+    const backendUrl = `${ORDERS_SERVICE_URL}/orders/${encodeURIComponent(id)}/receipt/generate`;
     const response = await fetch(backendUrl, {
       method: 'POST',
       headers: {
