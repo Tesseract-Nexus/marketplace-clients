@@ -827,9 +827,9 @@ export default function OrderDetailsPage() {
                       </div>
                     )}
                     <div className="flex gap-2 mt-4">
-                      {order.receiptShortUrl && (
+                      {order.receiptNumber && (
                         <a
-                          href={order.receiptShortUrl}
+                          href={`/api/orders/${order.id}/receipt?format=pdf`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-primary rounded-xl hover:bg-primary/90 transition-colors"
