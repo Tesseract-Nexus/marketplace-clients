@@ -14,7 +14,7 @@ interface AuthSessionProviderProps {
  * This provides additional fields (phone, country, etc.) not available
  * in the auth-bff session response.
  */
-async function fetchCustomerProfile(): Promise<{
+async function fetchCustomerProfile(tenantId?: string): Promise<{
   phone?: string;
   firstName?: string;
   lastName?: string;
@@ -25,8 +25,13 @@ async function fetchCustomerProfile(): Promise<{
   createdAt?: string;
 } | null> {
   try {
+    const headers: Record<string, string> = {};
+    if (tenantId) {
+      headers['X-Tenant-ID'] = tenantId;
+    }
     const response = await fetch('/api/auth/profile', {
       credentials: 'include',
+      headers,
     });
     if (!response.ok) return null;
     const result = await response.json();
@@ -131,7 +136,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
 
           // Fetch full customer profile to get additional fields (phone, country, etc.)
           // This runs after login so the store is already populated with basic session data
-          fetchCustomerProfile().then((profile) => {
+          fetchCustomerProfile(sessionUser.tenantId).then((profile) => {
             if (profile) {
               console.log('[AuthSessionProvider] Enriching auth store with full customer profile');
               updateCustomer({
