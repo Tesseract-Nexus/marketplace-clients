@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 
 // Remove /api/v1 suffix if present (env var may include it)
 const ORDERS_SERVICE_URL = (process.env.ORDERS_SERVICE_URL || 'http://localhost:3108').replace(/\/api\/v1\/?$/, '');
+const AUTH_BFF_URL = process.env.AUTH_BFF_INTERNAL_URL || process.env.AUTH_BFF_URL || 'http://localhost:8080';
 
 /**
  * Decode JWT payload to extract tenant_id (without verification — Istio validates the JWT).
@@ -18,50 +18,91 @@ function decodeJwtPayload(token: string): Record<string, string> | null {
 }
 
 /**
+ * Get access token from the auth-bff session endpoint using the browser's session cookie.
+ * This is required because the accessToken is stored server-side in the auth-bff session,
+ * not as a browser cookie — the browser only has the bff_session cookie.
+ */
+async function getSessionToken(request: NextRequest): Promise<{ token: string; tenantId?: string } | null> {
+  // First check if there's a direct Authorization header (from programmatic fetch calls)
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader?.startsWith('Bearer ')) {
+    const token = authHeader.slice(7);
+    const payload = decodeJwtPayload(token);
+    return { token, tenantId: payload?.tenant_id };
+  }
+
+  // For browser navigation: get the access token from auth-bff session using cookies
+  const cookie = request.headers.get('cookie');
+  if (!cookie) return null;
+
+  try {
+    const response = await fetch(`${AUTH_BFF_URL}/auth/session`, {
+      headers: {
+        'Cookie': cookie,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (!response.ok) return null;
+
+    const session = await response.json();
+    if (session.authenticated && session.user) {
+      const token = session.access_token || session.accessToken;
+      if (token) {
+        return {
+          token,
+          tenantId: session.user.tenantId || session.user.tenant_id,
+        };
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error('[BFF Receipt] Failed to get session token:', error);
+    return null;
+  }
+}
+
+/**
  * Resolves tenant ID using multiple sources (in priority order):
  * 1. x-tenant-id header (set by middleware for client-side fetch calls)
- * 2. JWT token tenant_id claim (works for browser navigation / <a> downloads)
+ * 2. Session/JWT tenant_id (from auth-bff session or JWT claim)
  * 3. Hostname-based resolution via tenant-router-service
  */
-async function resolveTenantId(request: NextRequest, accessToken: string | null): Promise<string | null> {
-  // 1. Middleware-injected header (client-side fetch calls send this)
+async function resolveTenantId(request: NextRequest, sessionTenantId?: string, accessToken?: string): Promise<string | null> {
+  // 1. Header (from middleware or client fetch)
   const fromHeader = request.headers.get('x-tenant-id') || request.headers.get('X-Tenant-ID');
   if (fromHeader) return fromHeader;
 
-  // 2. Extract from JWT token (browser navigation — middleware skips /api routes)
+  // 2. From session or JWT
+  if (sessionTenantId) return sessionTenantId;
   if (accessToken) {
     const payload = decodeJwtPayload(accessToken);
     if (payload?.tenant_id) return payload.tenant_id;
   }
 
-  // 3. Resolve from hostname via tenant-router-service
+  // 3. Resolve from hostname
   const host = request.headers.get('host') || '';
-  if (host) {
-    let slug: string | null = null;
+  let slug: string | null = null;
+  if (host.endsWith('.tesserix.app')) {
+    slug = host.split('.')[0] || null;
+  }
+  if (!slug) {
+    slug = request.headers.get('x-tenant-slug');
+  }
 
-    // Standard subdomain: {slug}.tesserix.app
-    if (host.endsWith('.tesserix.app')) {
-      slug = host.split('.')[0] || null;
-    }
-    // Localhost dev: extract from x-tenant-slug if available
-    if (!slug) {
-      slug = request.headers.get('x-tenant-slug');
-    }
-
-    if (slug) {
-      try {
-        const tenantRouterUrl = process.env.TENANT_ROUTER_SERVICE_URL || 'http://tenant-router-service:8089';
-        const resp = await fetch(`${tenantRouterUrl}/api/v1/hosts/${slug}`, {
-          cache: 'no-store',
-          headers: { 'Content-Type': 'application/json' },
-        });
-        if (resp.ok) {
-          const data = await resp.json();
-          if (data.tenant_id) return data.tenant_id;
-        }
-      } catch (err) {
-        console.error('[BFF] Failed to resolve tenant from slug:', err);
+  if (slug) {
+    try {
+      const tenantRouterUrl = process.env.TENANT_ROUTER_SERVICE_URL || 'http://tenant-router-service:8089';
+      const resp = await fetch(`${tenantRouterUrl}/api/v1/hosts/${slug}`, {
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data.tenant_id) return data.tenant_id;
       }
+    } catch (err) {
+      console.error('[BFF Receipt] Failed to resolve tenant from slug:', err);
     }
   }
 
@@ -72,11 +113,9 @@ async function resolveTenantId(request: NextRequest, accessToken: string | null)
  * GET /api/orders/[orderId]/receipt
  * Download receipt/invoice for a customer's own order.
  *
- * This endpoint is designed to work with BOTH:
- * - Client-side fetch calls (which send X-Tenant-ID + Authorization headers)
- * - Direct browser navigation via <a href> (which only sends cookies)
- *
- * The middleware skips /api routes, so we resolve tenant ID from multiple sources.
+ * Supports both:
+ * - Client-side fetch calls (X-Tenant-ID + Authorization headers)
+ * - Direct browser navigation via <a href> (session cookie → auth-bff → access token)
  */
 export async function GET(
   request: NextRequest,
@@ -85,28 +124,19 @@ export async function GET(
   try {
     const { orderId } = await params;
 
-    // Get auth: prefer Authorization header, fallback to accessToken cookie
-    let accessToken: string | null = null;
-    const authHeader = request.headers.get('Authorization');
-    if (authHeader?.startsWith('Bearer ')) {
-      accessToken = authHeader.slice(7);
-    }
-    if (!accessToken) {
-      const cookieStore = await cookies();
-      accessToken = cookieStore.get('accessToken')?.value || null;
-    }
-
-    if (!accessToken) {
+    // Get access token (from Authorization header or auth-bff session)
+    const session = await getSessionToken(request);
+    if (!session?.token) {
       return NextResponse.json(
         { error: 'Authentication required to download receipt' },
         { status: 401 }
       );
     }
 
-    // Resolve tenant ID (handles both fetch-with-headers and browser-navigation cases)
-    const tenantId = await resolveTenantId(request, accessToken);
+    // Resolve tenant ID
+    const tenantId = await resolveTenantId(request, session.tenantId, session.token);
     if (!tenantId) {
-      console.error('[BFF] Could not resolve tenant ID for receipt download');
+      console.error('[BFF Receipt] Could not resolve tenant ID');
       return NextResponse.json({ error: 'Could not determine tenant' }, { status: 400 });
     }
 
@@ -119,14 +149,14 @@ export async function GET(
     const response = await fetch(backendUrl, {
       headers: {
         'X-Tenant-ID': tenantId,
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${session.token}`,
         'X-Internal-Service': 'storefront',
       },
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`[BFF] Receipt fetch failed: ${response.status} - ${errorText}`);
+      console.error(`[BFF Receipt] Backend error: ${response.status} - ${errorText}`);
       return NextResponse.json(
         { error: errorText || 'Failed to get receipt' },
         { status: response.status }
@@ -154,7 +184,7 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('[BFF] Failed to get receipt:', error);
+    console.error('[BFF Receipt] Error:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }
