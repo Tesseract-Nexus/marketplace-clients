@@ -347,19 +347,17 @@ export function OrdersClient({ orders: ordersProp }: OrdersClientProps) {
 
                             {/* Action Buttons */}
                             <div className="flex items-center gap-2 pt-3 border-t">
-                              {order.receiptShortUrl && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  asChild
-                                  className="h-7 text-xs gap-1 hover:border-tenant-primary hover:text-tenant-primary"
-                                >
-                                  <a href={order.receiptShortUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                                    <Download className="h-3 w-3" />
-                                    <TranslatedUIText text="Invoice" />
-                                  </a>
-                                </Button>
-                              )}
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                asChild
+                                className="h-7 text-xs gap-1 hover:border-tenant-primary hover:text-tenant-primary"
+                              >
+                                <a href={`/api/orders/${order.id}/receipt?format=pdf`} download onClick={(e) => e.stopPropagation()}>
+                                  <Download className="h-3 w-3" />
+                                  <TranslatedUIText text="Invoice" />
+                                </a>
+                              </Button>
                               {isCancellable && (
                                 <Button
                                   variant="outline"
