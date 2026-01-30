@@ -48,6 +48,7 @@ import {
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 
 export default function CouponsPage() {
   const router = useRouter();
@@ -215,36 +216,118 @@ export default function CouponsPage() {
     return 'bg-success';
   };
 
-  const stats = [
+  // Computed stats
+  const totalCoupons = coupons.length;
+  const activeCoupons = coupons.filter(c => c.status === 'ACTIVE').length;
+  const expiredCoupons = coupons.filter(c => c.status === 'EXPIRED').length;
+  const draftCoupons = coupons.filter(c => c.status === 'DRAFT').length;
+  const totalUses = coupons.reduce((sum, c) => sum + c.currentUsageCount, 0);
+
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = React.useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Coupon Health',
+      currentValue: activeCoupons,
+      totalValue: totalCoupons || 1,
+      status: activeCoupons > 0 ? 'healthy' : expiredCoupons > 0 ? 'attention' : 'normal',
+      segments: [
+        { value: activeCoupons, color: 'success' },
+        { value: draftCoupons, color: 'warning' },
+        { value: expiredCoupons, color: 'error' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Coupon Status',
+        items: [
+          {
+            id: 'total',
+            label: 'Total Coupons',
+            value: totalCoupons,
+            icon: Ticket,
+            color: 'muted',
+            onClick: () => setStatusFilter('ALL'),
+            isActive: statusFilter === 'ALL',
+          },
+          {
+            id: 'active',
+            label: 'Active',
+            value: activeCoupons,
+            icon: CheckCircle,
+            color: 'success',
+            onClick: () => setStatusFilter('ACTIVE'),
+            isActive: statusFilter === 'ACTIVE',
+          },
+          {
+            id: 'draft',
+            label: 'Drafts',
+            value: draftCoupons,
+            icon: Clock,
+            color: 'warning',
+            onClick: () => setStatusFilter('DRAFT'),
+            isActive: statusFilter === 'DRAFT',
+          },
+          {
+            id: 'expired',
+            label: 'Expired',
+            value: expiredCoupons,
+            icon: XCircle,
+            color: 'error',
+            onClick: () => setStatusFilter('EXPIRED'),
+            isActive: statusFilter === 'EXPIRED',
+          },
+        ],
+      },
+      {
+        title: 'Usage',
+        items: [
+          {
+            id: 'totalUses',
+            label: 'Total Uses',
+            value: totalUses,
+            icon: TrendingUp,
+            color: 'primary',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [totalCoupons, activeCoupons, draftCoupons, expiredCoupons, totalUses, statusFilter]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = React.useMemo(() => [
     {
-      label: "Total Coupons",
-      value: coupons.length,
+      id: 'total',
+      label: 'Total',
+      value: totalCoupons,
       icon: Ticket,
-      textColor: "text-primary",
-      bgColor: "bg-primary/10"
+      color: 'default',
+      onClick: () => setStatusFilter('ALL'),
     },
     {
-      label: "Active",
-      value: coupons.filter(c => c.status === 'ACTIVE').length,
+      id: 'active',
+      label: 'Active',
+      value: activeCoupons,
       icon: CheckCircle,
-      textColor: "text-success",
-      bgColor: "bg-success/10"
+      color: 'success',
     },
     {
-      label: "Expired",
-      value: coupons.filter(c => c.status === 'EXPIRED').length,
+      id: 'expired',
+      label: 'Expired',
+      value: expiredCoupons,
       icon: XCircle,
-      textColor: "text-error",
-      bgColor: "bg-error-muted"
+      color: 'error',
     },
     {
-      label: "Total Uses",
-      value: coupons.reduce((sum, c) => sum + c.currentUsageCount, 0),
+      id: 'uses',
+      label: 'Uses',
+      value: totalUses,
       icon: TrendingUp,
-      textColor: "text-primary",
-      bgColor: "bg-primary/10"
-    }
-  ];
+      color: 'primary',
+    },
+  ], [totalCoupons, activeCoupons, expiredCoupons, totalUses]);
 
   return (
     <PermissionGate
@@ -265,7 +348,7 @@ export default function CouponsPage() {
         />
 
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white/80 backdrop-blur-sm rounded-2xl p-6 border border-border/50 shadow-lg">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card backdrop-blur-sm rounded-2xl p-6 border border-border/50 shadow-lg">
           <div>
             <div className="flex items-center gap-3 mb-2">
               <h1 className="text-3xl font-bold text-foreground">
@@ -298,35 +381,10 @@ export default function CouponsPage() {
         {/* Error Alert */}
         <PageError error={error} onDismiss={() => setError(null)} />
 
-        {/* Stats */}
-        {!loading && coupons.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <Card key={index} className="rounded-2xl border-border/50 bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-xl hover:border-primary/50/50 transition-all duration-300 group">
-                  <CardContent className="p-6 pt-6">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                        <p className={`text-3xl font-bold ${stat.textColor} mt-2`}>
-                          {stat.value}
-                        </p>
-                      </div>
-                      <div className={`p-3 rounded-md ${stat.bgColor} border border-border group-hover:scale-110 transition-transform`}>
-                        <Icon className="w-6 h-6 text-muted-foreground" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-        )}
-
+        <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
         {/* Search and Filters */}
         {!loading && (
-          <Card className="rounded-2xl border-border/50 bg-white/80 backdrop-blur-sm shadow-lg transition-all duration-300 relative z-30 overflow-visible">
+          <Card className="rounded-2xl border-border/50 bg-card backdrop-blur-sm shadow-lg transition-all duration-300 relative z-30 overflow-visible">
             <CardContent className="p-6 pt-6 overflow-visible">
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -407,7 +465,7 @@ export default function CouponsPage() {
 
         {/* Coupons List */}
         {loading ? (
-          <Card className="rounded-2xl border-border/50 bg-white/80 backdrop-blur-sm shadow-lg transition-all duration-300">
+          <Card className="rounded-2xl border-border/50 bg-card backdrop-blur-sm shadow-lg transition-all duration-300">
             <CardContent className="p-12 text-center pt-12">
               <RefreshCw className="w-12 h-12 mx-auto text-primary animate-spin mb-4" />
               <p className="text-muted-foreground font-medium">Loading coupons...</p>
@@ -422,7 +480,7 @@ export default function CouponsPage() {
               const isCopied = copiedCode === coupon.code;
 
               return (
-                <Card key={coupon.id} className="rounded-md border-border/50 bg-white/80 backdrop-blur-sm shadow hover:shadow-lg hover:border-primary/50/50 transition-all duration-300 group relative overflow-hidden">
+                <Card key={coupon.id} className="rounded-md border-border/50 bg-card backdrop-blur-sm shadow hover:shadow-lg hover:border-primary/50/50 transition-all duration-300 group relative overflow-hidden">
                   {/* Discount type color accent */}
                   <div className={cn(
                     "absolute top-0 left-0 right-0 h-1",
@@ -566,7 +624,7 @@ export default function CouponsPage() {
 
             {filteredCoupons.length === 0 && (
               <div className="col-span-full">
-                <Card className="rounded-2xl border-border/50 bg-white/80 backdrop-blur-sm shadow-lg transition-all duration-300">
+                <Card className="rounded-2xl border-border/50 bg-card backdrop-blur-sm shadow-lg transition-all duration-300">
                   <CardContent className="p-12 text-center pt-12">
                     <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
                       <Ticket className="w-10 h-10 text-primary" />
@@ -596,6 +654,7 @@ export default function CouponsPage() {
             )}
           </div>
         )}
+        </DataPageLayout>
 
         <ConfirmModal
           isOpen={modalConfig.isOpen}

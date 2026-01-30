@@ -40,6 +40,7 @@ import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
@@ -517,6 +518,126 @@ export default function CampaignsPage() {
     }
   };
 
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = React.useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Campaign Health',
+      currentValue: stats.activeCampaigns + stats.draftCampaigns,
+      totalValue: stats.totalCampaigns || 1,
+      status: stats.activeCampaigns > 0 ? 'healthy' : stats.draftCampaigns > 0 ? 'attention' : 'normal',
+      segments: [
+        { value: stats.activeCampaigns, color: 'success' },
+        { value: stats.scheduledCampaigns, color: 'primary' },
+        { value: stats.draftCampaigns, color: 'warning' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Campaign Status',
+        items: [
+          {
+            id: 'total',
+            label: 'Total Campaigns',
+            value: stats.totalCampaigns,
+            icon: Mail,
+            color: 'muted',
+            onClick: () => setFilterStatus(''),
+            isActive: filterStatus === '',
+          },
+          {
+            id: 'active',
+            label: 'Active',
+            value: stats.activeCampaigns,
+            icon: Send,
+            color: 'success',
+            onClick: () => setFilterStatus('SENDING'),
+            isActive: filterStatus === 'SENDING',
+          },
+          {
+            id: 'scheduled',
+            label: 'Scheduled',
+            value: stats.scheduledCampaigns,
+            icon: Timer,
+            color: 'primary',
+            onClick: () => setFilterStatus('SCHEDULED'),
+            isActive: filterStatus === 'SCHEDULED',
+          },
+          {
+            id: 'draft',
+            label: 'Drafts',
+            value: stats.draftCampaigns,
+            icon: Clock,
+            color: 'warning',
+            onClick: () => setFilterStatus('DRAFT'),
+            isActive: filterStatus === 'DRAFT',
+          },
+        ],
+      },
+      {
+        title: 'Performance',
+        items: [
+          {
+            id: 'sent',
+            label: 'Total Sent',
+            value: formatNumber(stats.totalSent),
+            icon: Send,
+            color: 'success',
+          },
+          {
+            id: 'openRate',
+            label: 'Avg Open Rate',
+            value: `${stats.avgOpenRate.toFixed(1)}%`,
+            icon: TrendingUp,
+            color: 'primary',
+          },
+          {
+            id: 'revenue',
+            label: 'Total Revenue',
+            value: formatCurrency(stats.totalRevenue),
+            icon: BarChart3,
+            color: 'success',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [stats, filterStatus]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = React.useMemo(() => [
+    {
+      id: 'total',
+      label: 'Total',
+      value: stats.totalCampaigns,
+      icon: Mail,
+      color: 'default',
+      onClick: () => setFilterStatus(''),
+    },
+    {
+      id: 'active',
+      label: 'Active',
+      value: stats.activeCampaigns,
+      icon: Send,
+      color: 'success',
+    },
+    {
+      id: 'draft',
+      label: 'Drafts',
+      value: stats.draftCampaigns,
+      icon: Clock,
+      color: 'warning',
+    },
+    {
+      id: 'openRate',
+      label: 'Open Rate',
+      value: `${stats.avgOpenRate.toFixed(1)}%`,
+      icon: TrendingUp,
+      color: 'primary',
+    },
+  ], [stats]);
+
   return (
     <PermissionGate
       permission={Permission.MARKETING_CAMPAIGNS_VIEW}
@@ -560,57 +681,7 @@ export default function CampaignsPage() {
         {/* Error Banner */}
         <PageError error={error} onRetry={fetchCampaigns} onDismiss={() => setError(null)} />
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Total Campaigns</p>
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Mail className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-primary">
-              {stats.totalCampaigns}
-            </p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Total Sent</p>
-              <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
-                <Send className="h-6 w-6 text-success" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-success">
-              {formatNumber(stats.totalSent)}
-            </p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Avg Open Rate</p>
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-primary">
-              {stats.avgOpenRate.toFixed(1)}%
-            </p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-              <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-warning" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-warning">
-              {formatCurrency(stats.totalRevenue)}
-            </p>
-          </div>
-        </div>
-
+        <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
         {/* Filters */}
         <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -909,6 +980,7 @@ export default function CampaignsPage() {
             </div>
           )}
         </div>
+        </DataPageLayout>
       </div>
 
       {/* Create Campaign Modal */}
@@ -1033,7 +1105,7 @@ export default function CampaignsPage() {
                         className={cn(
                           "px-3 py-1 text-xs font-medium rounded-md transition-colors flex items-center gap-1",
                           contentMode === 'text'
-                            ? "bg-white text-foreground shadow-sm"
+                            ? "bg-card text-foreground shadow-sm"
                             : "text-muted-foreground hover:text-foreground"
                         )}
                       >
@@ -1046,7 +1118,7 @@ export default function CampaignsPage() {
                         className={cn(
                           "px-3 py-1 text-xs font-medium rounded-md transition-colors flex items-center gap-1",
                           contentMode === 'html'
-                            ? "bg-white text-foreground shadow-sm"
+                            ? "bg-card text-foreground shadow-sm"
                             : "text-muted-foreground hover:text-foreground"
                         )}
                       >

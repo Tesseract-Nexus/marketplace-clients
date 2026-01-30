@@ -25,6 +25,7 @@ import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
@@ -259,6 +260,126 @@ export default function GiftCardsPage() {
     }
   };
 
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = React.useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Gift Card Health',
+      currentValue: stats.activeCards,
+      totalValue: stats.totalCards || 1,
+      status: stats.activeCards > 0 ? 'healthy' : stats.expiredCards > 0 ? 'attention' : 'normal',
+      segments: [
+        { value: stats.activeCards, color: 'success' },
+        { value: stats.redeemedCards, color: 'primary' },
+        { value: stats.expiredCards, color: 'error' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Card Status',
+        items: [
+          {
+            id: 'total',
+            label: 'Total Cards',
+            value: stats.totalCards,
+            icon: Gift,
+            color: 'muted',
+            onClick: () => setFilterStatus(''),
+            isActive: filterStatus === '',
+          },
+          {
+            id: 'active',
+            label: 'Active',
+            value: stats.activeCards,
+            icon: CreditCard,
+            color: 'success',
+            onClick: () => setFilterStatus('ACTIVE'),
+            isActive: filterStatus === 'ACTIVE',
+          },
+          {
+            id: 'redeemed',
+            label: 'Redeemed',
+            value: stats.redeemedCards,
+            icon: TrendingUp,
+            color: 'primary',
+            onClick: () => setFilterStatus('REDEEMED'),
+            isActive: filterStatus === 'REDEEMED',
+          },
+          {
+            id: 'expired',
+            label: 'Expired',
+            value: stats.expiredCards,
+            icon: Clock,
+            color: 'error',
+            onClick: () => setFilterStatus('EXPIRED'),
+            isActive: filterStatus === 'EXPIRED',
+          },
+        ],
+      },
+      {
+        title: 'Value',
+        items: [
+          {
+            id: 'totalValue',
+            label: 'Total Value',
+            value: formatCurrency(stats.totalValue),
+            icon: DollarSign,
+            color: 'primary',
+          },
+          {
+            id: 'remaining',
+            label: 'Remaining',
+            value: formatCurrency(stats.remainingValue),
+            icon: DollarSign,
+            color: 'success',
+          },
+          {
+            id: 'redeemed',
+            label: 'Redeemed',
+            value: formatCurrency(stats.redeemedValue),
+            icon: TrendingUp,
+            color: 'warning',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [stats, filterStatus, formatCurrency]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = React.useMemo(() => [
+    {
+      id: 'total',
+      label: 'Total',
+      value: stats.totalCards,
+      icon: Gift,
+      color: 'default',
+      onClick: () => setFilterStatus(''),
+    },
+    {
+      id: 'active',
+      label: 'Active',
+      value: stats.activeCards,
+      icon: CreditCard,
+      color: 'success',
+    },
+    {
+      id: 'redeemed',
+      label: 'Redeemed',
+      value: stats.redeemedCards,
+      icon: TrendingUp,
+      color: 'primary',
+    },
+    {
+      id: 'value',
+      label: 'Remaining',
+      value: formatCurrency(stats.remainingValue),
+      icon: DollarSign,
+      color: 'success',
+    },
+  ], [stats, formatCurrency]);
+
   return (
     <PermissionGate
       permission={Permission.GIFT_CARDS_READ}
@@ -296,69 +417,7 @@ export default function GiftCardsPage() {
         {/* Error Banner */}
         <PageError error={error} onRetry={fetchGiftCards} onDismiss={() => setError(null)} />
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Total Cards</p>
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Gift className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-primary">
-              {stats.totalCards}
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              {formatCurrency(stats.totalValue)} total value
-            </p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Active Cards</p>
-              <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
-                <CreditCard className="h-6 w-6 text-success" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-success">
-              {stats.activeCards}
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              {formatCurrency(stats.remainingValue)} remaining
-            </p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Redeemed</p>
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-primary">
-              {stats.redeemedCards}
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              {stats.redemptionRate.toFixed(1)}% redemption rate
-            </p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Redeemed Value</p>
-              <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
-                <DollarSign className="h-6 w-6 text-warning" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-warning">
-              {formatCurrency(stats.redeemedValue)}
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              Avg: {formatCurrency(stats.averageBalance)}
-            </p>
-          </div>
-        </div>
-
+        <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
         {/* Filters */}
         <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -457,7 +516,7 @@ export default function GiftCardsPage() {
                           {/* Mini gift card visual */}
                           <div className="w-14 h-9 rounded-md bg-primary shadow-sm flex items-center justify-center relative overflow-hidden">
                             <div className="absolute inset-0 bg-white/10" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 30%, 0 60%)' }} />
-                            <Gift className="h-4 w-4 text-white/80" />
+                            <Gift className="h-4 w-4 text-primary-foreground/80" />
                           </div>
                           <div>
                             <code className="font-mono text-sm font-bold text-foreground">{card.code}</code>
@@ -564,6 +623,7 @@ export default function GiftCardsPage() {
             </div>
           )}
         </div>
+        </DataPageLayout>
 
         {/* Create Modal */}
         {showCreateModal && (

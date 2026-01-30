@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { PageHeader } from '@/components/PageHeader';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
+import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -232,6 +233,108 @@ export default function LoyaltyProgramPage() {
     }
   };
 
+  // Sidebar configuration for DataPageLayout
+  const sidebarConfig = React.useMemo(() => {
+    const healthWidget: HealthWidgetConfig = {
+      label: 'Program Status',
+      currentValue: formData.isActive ? 1 : 0,
+      totalValue: 1,
+      status: formData.isActive ? 'healthy' : 'attention',
+      segments: [
+        { value: formData.isActive ? 1 : 0, color: formData.isActive ? 'success' : 'warning' },
+      ],
+    };
+
+    const sections: SidebarSection[] = [
+      {
+        title: 'Program Overview',
+        items: [
+          {
+            id: 'status',
+            label: 'Status',
+            value: formData.isActive ? 'Active' : 'Inactive',
+            icon: Award,
+            color: formData.isActive ? 'success' : 'warning',
+          },
+          {
+            id: 'pointsPerDollar',
+            label: 'Points per Dollar',
+            value: `${formData.pointsPerDollar}x`,
+            icon: TrendingUp,
+            color: 'primary',
+          },
+          {
+            id: 'tiers',
+            label: 'Loyalty Tiers',
+            value: formData.tiers.length,
+            icon: Users,
+            color: 'warning',
+          },
+        ],
+      },
+      {
+        title: 'Bonuses',
+        items: [
+          {
+            id: 'signup',
+            label: 'Signup Bonus',
+            value: formData.signupBonus,
+            icon: Gift,
+            color: 'success',
+          },
+          {
+            id: 'birthday',
+            label: 'Birthday Bonus',
+            value: formData.birthdayBonus,
+            icon: Gift,
+            color: 'primary',
+          },
+          {
+            id: 'referral',
+            label: 'Referral Bonus',
+            value: formData.referralBonus,
+            icon: Gift,
+            color: 'primary',
+          },
+        ],
+      },
+    ];
+
+    return { healthWidget, sections };
+  }, [formData]);
+
+  // Mobile stats for DataPageLayout
+  const mobileStats: SidebarStatItem[] = React.useMemo(() => [
+    {
+      id: 'status',
+      label: 'Status',
+      value: formData.isActive ? 'Active' : 'Inactive',
+      icon: Award,
+      color: formData.isActive ? 'success' : 'warning',
+    },
+    {
+      id: 'points',
+      label: 'Points/Dollar',
+      value: `${formData.pointsPerDollar}x`,
+      icon: TrendingUp,
+      color: 'primary',
+    },
+    {
+      id: 'tiers',
+      label: 'Tiers',
+      value: formData.tiers.length,
+      icon: Users,
+      color: 'warning',
+    },
+    {
+      id: 'signup',
+      label: 'Signup',
+      value: formData.signupBonus,
+      icon: Gift,
+      color: 'success',
+    },
+  ], [formData]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -297,65 +400,7 @@ export default function LoyaltyProgramPage() {
           </div>
         )}
 
-        {/* Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Program Status</p>
-              <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
-                <Award className="h-6 w-6 text-success" />
-              </div>
-            </div>
-            <span
-              className={cn(
-                'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border',
-                formData.isActive
-                  ? 'bg-success-muted text-success-foreground border-success/30'
-                  : 'bg-muted text-foreground border-border'
-              )}
-            >
-              {formData.isActive ? 'Active' : 'Inactive'}
-            </span>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Points per Dollar</p>
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-primary">
-              {formData.pointsPerDollar}x
-            </p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Signup Bonus</p>
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Gift className="h-6 w-6 text-primary" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-primary">
-              {formData.signupBonus}
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">points</p>
-          </div>
-
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-medium text-muted-foreground">Loyalty Tiers</p>
-              <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
-                <Users className="h-6 w-6 text-warning" />
-              </div>
-            </div>
-            <p className="text-3xl font-bold text-warning">
-              {formData.tiers.length}
-            </p>
-          </div>
-        </div>
-
+        <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
         {/* Tabs */}
         <div className="bg-card rounded-lg border border-border shadow-sm">
           <div className="border-b border-border">
@@ -417,7 +462,7 @@ export default function LoyaltyProgramPage() {
                         onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+                      <div className="w-11 h-6 bg-muted peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-border after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     </label>
                   </div>
 
@@ -532,14 +577,14 @@ export default function LoyaltyProgramPage() {
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <div className={cn(
-                        "w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-md",
+                        "w-12 h-12 rounded-xl flex items-center justify-center text-primary-foreground shadow-md",
                         tierStyle.iconBg
                       )}>
                         <TierIcon className="h-6 w-6" />
                       </div>
                       <div>
                         <span className={cn(
-                          "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-white shadow-sm",
+                          "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold text-primary-foreground shadow-sm",
                           tierStyle.badge
                         )}>
                           <ChevronUp className="h-3 w-3" />
@@ -557,7 +602,7 @@ export default function LoyaltyProgramPage() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRemoveTier(index)}
-                        className="hover:bg-error-muted hover:text-error bg-white/50"
+                        className="hover:bg-error-muted hover:text-error bg-card/50"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -565,7 +610,7 @@ export default function LoyaltyProgramPage() {
                   </div>
 
                   {/* Quick Stats */}
-                  <div className="grid grid-cols-2 gap-3 mb-4 p-3 bg-white/60 rounded-lg">
+                  <div className="grid grid-cols-2 gap-3 mb-4 p-3 bg-card/60 rounded-lg">
                     <div className="text-center">
                       <p className="text-2xl font-bold text-foreground">{tier.minimumPoints.toLocaleString()}</p>
                       <p className="text-xs text-muted-foreground">Points Required</p>
@@ -576,7 +621,7 @@ export default function LoyaltyProgramPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 bg-white/40 p-4 rounded-lg">
+                  <div className="grid grid-cols-2 gap-4 bg-card/40 p-4 rounded-lg">
                     <div>
                       <label className="block text-sm font-semibold text-foreground mb-2">
                         Tier Name
@@ -585,7 +630,7 @@ export default function LoyaltyProgramPage() {
                         value={tier.name}
                         onChange={(e) => handleTierChange(index, 'name', e.target.value)}
                         placeholder="e.g., Gold"
-                        className="bg-white"
+                        className="bg-background"
                       />
                     </div>
                     <div>
@@ -599,7 +644,7 @@ export default function LoyaltyProgramPage() {
                         onChange={(e) =>
                           handleTierChange(index, 'minimumPoints', parseInt(e.target.value) || 0)
                         }
-                        className="bg-white"
+                        className="bg-background"
                       />
                     </div>
                     <div>
@@ -615,7 +660,7 @@ export default function LoyaltyProgramPage() {
                         onChange={(e) =>
                           handleTierChange(index, 'discountPercent', parseFloat(e.target.value) || 0)
                         }
-                        className="bg-white"
+                        className="bg-background"
                       />
                     </div>
                     <div className="col-span-2">
@@ -656,7 +701,7 @@ export default function LoyaltyProgramPage() {
                   {/* Signup Bonus Card */}
                   <div className="p-5 rounded-xl border-2 border-success/30 bg-success/5 hover:shadow-lg transition-all">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-success flex items-center justify-center text-white shadow-md">
+                      <div className="w-12 h-12 rounded-xl bg-success flex items-center justify-center text-primary-foreground shadow-md">
                         <UserPlus className="h-6 w-6" />
                       </div>
                       <div>
@@ -672,7 +717,7 @@ export default function LoyaltyProgramPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, signupBonus: parseInt(e.target.value) || 0 })
                         }
-                        className="text-lg font-bold text-center bg-white pr-16"
+                        className="text-lg font-bold text-center bg-background pr-16"
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground">
                         points
@@ -683,7 +728,7 @@ export default function LoyaltyProgramPage() {
                   {/* Birthday Bonus Card */}
                   <div className="p-5 rounded-xl border-2 border-primary/30 bg-primary/5 hover:shadow-lg transition-all">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-white shadow-md">
+                      <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-md">
                         <Cake className="h-6 w-6" />
                       </div>
                       <div>
@@ -699,7 +744,7 @@ export default function LoyaltyProgramPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, birthdayBonus: parseInt(e.target.value) || 0 })
                         }
-                        className="text-lg font-bold text-center bg-white pr-16"
+                        className="text-lg font-bold text-center bg-background pr-16"
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground">
                         points
@@ -710,7 +755,7 @@ export default function LoyaltyProgramPage() {
                   {/* Referral Bonus Card */}
                   <div className="p-5 rounded-xl border-2 border-primary/30 bg-primary/5 hover:shadow-lg transition-all">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-white shadow-md">
+                      <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-primary-foreground shadow-md">
                         <Share2 className="h-6 w-6" />
                       </div>
                       <div>
@@ -726,7 +771,7 @@ export default function LoyaltyProgramPage() {
                         onChange={(e) =>
                           setFormData({ ...formData, referralBonus: parseInt(e.target.value) || 0 })
                         }
-                        className="text-lg font-bold text-center bg-white pr-16"
+                        className="text-lg font-bold text-center bg-background pr-16"
                       />
                       <span className="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-muted-foreground">
                         points
@@ -777,6 +822,7 @@ export default function LoyaltyProgramPage() {
             </div>
           )}
         </div>
+        </DataPageLayout>
       </div>
     </div>
     </PermissionGate>
