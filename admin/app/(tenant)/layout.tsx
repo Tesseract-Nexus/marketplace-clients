@@ -186,7 +186,6 @@ const navigation: NavItem[] = [
       { name: "Coupons", href: "/coupons" },
       { name: "Gift Cards", href: "/gift-cards" },
       { name: "Loyalty Program", href: "/loyalty" },
-      { name: "QR Codes", href: "/settings/qr-codes" },
     ],
   },
   {
