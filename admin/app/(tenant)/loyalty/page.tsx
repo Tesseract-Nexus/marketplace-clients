@@ -405,42 +405,42 @@ export default function LoyaltyProgramPage() {
         <div className="bg-card rounded-lg border border-border shadow-sm">
           <div className="border-b border-border">
             <nav className="flex">
-              <Button
-                variant="ghost"
+              <button
+                type="button"
                 onClick={() => setActiveTab('settings')}
                 className={cn(
-                  'flex-1 py-4 px-6 text-sm font-semibold border-b-2 rounded-none transition-colors',
+                  'flex-1 py-4 px-6 text-sm font-semibold border-b-2 transition-colors',
                   activeTab === 'settings'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                    ? 'border-primary text-primary bg-primary/5'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
                 )}
               >
                 General Settings
-              </Button>
-              <Button
-                variant="ghost"
+              </button>
+              <button
+                type="button"
                 onClick={() => setActiveTab('tiers')}
                 className={cn(
-                  'flex-1 py-4 px-6 text-sm font-semibold border-b-2 rounded-none transition-colors',
+                  'flex-1 py-4 px-6 text-sm font-semibold border-b-2 transition-colors',
                   activeTab === 'tiers'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                    ? 'border-primary text-primary bg-primary/5'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
                 )}
               >
                 Loyalty Tiers
-              </Button>
-              <Button
-                variant="ghost"
+              </button>
+              <button
+                type="button"
                 onClick={() => setActiveTab('bonuses')}
                 className={cn(
-                  'flex-1 py-4 px-6 text-sm font-semibold border-b-2 rounded-none transition-colors',
+                  'flex-1 py-4 px-6 text-sm font-semibold border-b-2 transition-colors',
                   activeTab === 'bonuses'
-                    ? 'border-primary text-primary'
-                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                    ? 'border-primary text-primary bg-primary/5'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'
                 )}
               >
                 Bonuses
-              </Button>
+              </button>
             </nav>
           </div>
 
