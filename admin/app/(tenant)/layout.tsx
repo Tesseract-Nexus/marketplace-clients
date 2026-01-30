@@ -107,7 +107,7 @@ const SIDEBAR_VISIBILITY: Record<string, boolean> = {
   catalog: process.env.NEXT_PUBLIC_SIDEBAR_CATALOG !== 'false',
   orders: process.env.NEXT_PUBLIC_SIDEBAR_ORDERS !== 'false',
   customers: process.env.NEXT_PUBLIC_SIDEBAR_CUSTOMERS !== 'false',
-  marketing: process.env.NEXT_PUBLIC_SIDEBAR_MARKETING === 'true', // Default: hidden (not prod ready, enable in v2)
+  marketing: process.env.NEXT_PUBLIC_SIDEBAR_MARKETING !== 'false', // Default: visible
   adManager: process.env.NEXT_PUBLIC_SIDEBAR_AD_MANAGER === 'true', // Default: hidden
   vendors: process.env.NEXT_PUBLIC_SIDEBAR_VENDORS !== 'false',
   team: process.env.NEXT_PUBLIC_SIDEBAR_TEAM !== 'false',
