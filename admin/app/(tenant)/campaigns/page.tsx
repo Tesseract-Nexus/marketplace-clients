@@ -33,6 +33,9 @@ import {
   Pause,
   Play,
   BarChart3,
+  X,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -132,9 +135,10 @@ export default function CampaignsPage() {
   const [filterStatus, setFilterStatus] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Modal state
+  // Inline form state
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showInlineForm, setShowInlineForm] = useState(false);
+  const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [creating, setCreating] = useState(false);
   const [sending, setSending] = useState<string | null>(null);
   const [pausingResuming, setPausingResuming] = useState<string | null>(null);
@@ -159,9 +163,7 @@ export default function CampaignsPage() {
   });
 
   // Edit state
-  const [showEditModal, setShowEditModal] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
-  const [editForm, setEditForm] = useState<Partial<Campaign>>({});
   const [saving, setSaving] = useState(false);
 
   // Fetch campaigns
@@ -357,13 +359,39 @@ export default function CampaignsPage() {
     return ((campaign.converted / campaign.clicked) * 100).toFixed(1) + '%';
   };
 
+  const resetForm = () => {
+    setCreateForm({
+      name: '',
+      description: '',
+      type: 'PROMOTION' as CampaignType,
+      channel: 'EMAIL' as CampaignChannel,
+      subject: '',
+      content: '',
+      segmentId: undefined,
+      htmlContent: '',
+    });
+    setContentMode('text');
+    setEditingCampaign(null);
+    setFormMode('create');
+  };
+
+  const handleOpenCreateForm = () => {
+    resetForm();
+    setShowInlineForm(true);
+  };
+
+  const handleCloseForm = () => {
+    setShowInlineForm(false);
+    resetForm();
+  };
+
   const handleCreateCampaign = async () => {
     if (!createForm.name.trim()) {
-      await showAlert({ title: 'Error', message: 'Please enter a campaign name.' });
+      toast.error('Validation Error', 'Please enter a campaign name.');
       return;
     }
     if (!createForm.content.trim()) {
-      await showAlert({ title: 'Error', message: 'Please enter campaign content.' });
+      toast.error('Validation Error', 'Please enter campaign content.');
       return;
     }
 
@@ -375,18 +403,7 @@ export default function CampaignsPage() {
       const isSuccess = ('success' in response && response.success) || ('id' in response);
       if (isSuccess) {
         toast.success('Campaign Created', 'Campaign created successfully!');
-        setShowCreateModal(false);
-        setCreateForm({
-          name: '',
-          description: '',
-          type: 'PROMOTION' as CampaignType,
-          channel: 'EMAIL' as CampaignChannel,
-          subject: '',
-          content: '',
-          segmentId: undefined,
-          htmlContent: '',
-        });
-        setContentMode('text');
+        handleCloseForm();
         fetchCampaigns();
         fetchStats();
       } else {
@@ -483,29 +500,42 @@ export default function CampaignsPage() {
 
   const handleEditCampaign = (campaign: Campaign) => {
     setEditingCampaign(campaign);
-    setEditForm({
+    setCreateForm({
       name: campaign.name,
-      description: campaign.description,
-      subject: campaign.subject,
-      content: campaign.content,
+      description: campaign.description || '',
       type: campaign.type,
       channel: campaign.channel,
+      subject: campaign.subject || '',
+      content: campaign.content || '',
+      segmentId: undefined,
+      htmlContent: '',
     });
-    setShowEditModal(true);
+    setFormMode('edit');
+    setShowInlineForm(true);
   };
 
   const handleSaveEdit = async () => {
     if (!editingCampaign) return;
 
+    if (!createForm.name.trim()) {
+      toast.error('Validation Error', 'Please enter a campaign name.');
+      return;
+    }
+
     try {
       setSaving(true);
-      const response = await apiClient.put<ApiResponse<Campaign>>(`/campaigns/${editingCampaign.id}`, editForm);
+      const response = await apiClient.put<ApiResponse<Campaign>>(`/campaigns/${editingCampaign.id}`, {
+        name: createForm.name,
+        description: createForm.description,
+        subject: createForm.subject,
+        content: createForm.content,
+        type: createForm.type,
+        channel: createForm.channel,
+      });
 
       if (response.success || ('id' in response)) {
         toast.success('Campaign Updated', 'Campaign updated successfully!');
-        setShowEditModal(false);
-        setEditingCampaign(null);
-        setEditForm({});
+        handleCloseForm();
         fetchCampaigns();
       } else {
         throw new Error((response as ApiResponse<Campaign>).error?.message || 'Failed to update campaign');
@@ -668,8 +698,9 @@ export default function CampaignsPage() {
                 <RefreshCw className={cn("w-5 h-5 text-muted-foreground", loading && "animate-spin")} />
               </Button>
               <Button
-                onClick={() => setShowCreateModal(true)}
+                onClick={handleOpenCreateForm}
                 variant="gradient"
+                disabled={showInlineForm}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Campaign
@@ -680,6 +711,198 @@ export default function CampaignsPage() {
 
         {/* Error Banner */}
         <PageError error={error} onRetry={fetchCampaigns} onDismiss={() => setError(null)} />
+
+        {/* Inline Form */}
+        {showInlineForm && (
+          <div className="bg-card rounded-lg border border-border shadow-sm animate-in slide-in-from-top duration-300">
+            <div className="border-b border-border p-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-foreground">
+                  {formMode === 'edit' ? 'Edit Campaign' : 'Create New Campaign'}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {formMode === 'edit'
+                    ? 'Update the details of your marketing campaign'
+                    : 'Create a new marketing campaign to engage your customers'}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCloseForm}
+                className="h-8 w-8 p-0 rounded-lg hover:bg-muted"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Campaign Name *
+                  </label>
+                  <Input
+                    placeholder="Summer Sale Campaign"
+                    value={createForm.name}
+                    onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-foreground mb-2">
+                      Type
+                    </label>
+                    <Select
+                      value={createForm.type}
+                      onChange={(value) => setCreateForm({ ...createForm, type: value as CampaignType })}
+                      options={campaignTypes.filter((t) => t.value !== '')}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-foreground mb-2">
+                      Channel
+                    </label>
+                    <Select
+                      value={createForm.channel}
+                      onChange={(value) => setCreateForm({ ...createForm, channel: value as CampaignChannel })}
+                      options={channels.filter((c) => c.value !== '')}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-2">
+                  Description
+                </label>
+                <textarea
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                  rows={2}
+                  placeholder="Describe your campaign..."
+                  value={createForm.description}
+                  onChange={(e) => setCreateForm({ ...createForm, description: e.target.value })}
+                />
+              </div>
+
+              {formMode === 'create' && (
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    <Target className="w-4 h-4 inline mr-1" />
+                    Target Audience
+                  </label>
+                  <select
+                    className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                    value={createForm.segmentId || ''}
+                    onChange={(e) => setCreateForm({ ...createForm, segmentId: e.target.value || undefined })}
+                    disabled={loadingSegments}
+                  >
+                    <option value="">All Customers</option>
+                    {segments.map((segment) => (
+                      <option key={segment.id} value={segment.id}>
+                        {segment.name} ({segment.customerCount.toLocaleString()} customers)
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {createForm.channel === 'EMAIL' && (
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Email Subject
+                  </label>
+                  <Input
+                    placeholder="Don't miss out on our summer sale!"
+                    value={createForm.subject}
+                    onChange={(e) => setCreateForm({ ...createForm, subject: e.target.value })}
+                  />
+                </div>
+              )}
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-semibold text-foreground">
+                    Message Content *
+                  </label>
+                  {createForm.channel === 'EMAIL' && formMode === 'create' && (
+                    <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
+                      <button
+                        type="button"
+                        onClick={() => setContentMode('text')}
+                        className={cn(
+                          "px-3 py-1 text-xs font-medium rounded-md transition-colors flex items-center gap-1",
+                          contentMode === 'text'
+                            ? "bg-card text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        <FileText className="w-3 h-3" />
+                        Text
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setContentMode('html')}
+                        className={cn(
+                          "px-3 py-1 text-xs font-medium rounded-md transition-colors flex items-center gap-1",
+                          contentMode === 'html'
+                            ? "bg-card text-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        <Code className="w-3 h-3" />
+                        HTML
+                      </button>
+                    </div>
+                  )}
+                </div>
+                {contentMode === 'text' ? (
+                  <textarea
+                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                    rows={4}
+                    placeholder="Your message content..."
+                    value={createForm.content}
+                    onChange={(e) => setCreateForm({ ...createForm, content: e.target.value })}
+                  />
+                ) : (
+                  <div className="space-y-2">
+                    <textarea
+                      className="w-full px-3 py-2 border border-border rounded-md bg-muted font-mono text-sm focus:outline-none focus:border-primary"
+                      rows={6}
+                      placeholder="<html><body><h1>Your Email</h1></body></html>"
+                      value={createForm.htmlContent}
+                      onChange={(e) => setCreateForm({ ...createForm, htmlContent: e.target.value })}
+                    />
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Code className="w-3 h-3" />
+                      <span>Variables: {'{{ customer_name }}'}, {'{{ product_name }}'}, {'{{ unsubscribe_link }}'}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                <Button variant="outline" onClick={handleCloseForm} disabled={creating || saving}>
+                  Cancel
+                </Button>
+                <Button
+                  onClick={formMode === 'edit' ? handleSaveEdit : handleCreateCampaign}
+                  disabled={creating || saving}
+                  variant="gradient"
+                >
+                  {(creating || saving) ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      {formMode === 'edit' ? 'Saving...' : 'Creating...'}
+                    </>
+                  ) : (
+                    formMode === 'edit' ? 'Save Changes' : 'Create Campaign'
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
         {/* Filters */}
@@ -740,8 +963,9 @@ export default function CampaignsPage() {
               </p>
               {!(searchQuery || filterType || filterChannel || filterStatus) && (
                 <Button
-                  onClick={() => setShowCreateModal(true)}
+                  onClick={handleOpenCreateForm}
                   variant="gradient"
+                  disabled={showInlineForm}
                 >
                   <Sparkles className="h-4 w-4 mr-2" />
                   Create Your First Campaign
@@ -983,214 +1207,6 @@ export default function CampaignsPage() {
         </DataPageLayout>
       </div>
 
-      {/* Create Campaign Modal */}
-      {showCreateModal && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[200] p-4 animate-in fade-in duration-200"
-          onClick={() => setShowCreateModal(false)}
-        >
-          <div
-            className="bg-card rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="border-b border-border p-6">
-              <h2 className="text-2xl font-bold text-foreground">Create New Campaign</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Create a new marketing campaign to engage your customers
-              </p>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-foreground mb-2">
-                  Campaign Name *
-                </label>
-                <Input
-                  placeholder="Summer Sale Campaign"
-                  value={createForm.name}
-                  onChange={(e) => setCreateForm({ ...createForm, name: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-foreground mb-2">
-                  Description
-                </label>
-                <textarea
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
-                  rows={3}
-                  placeholder="Describe your campaign..."
-                  value={createForm.description}
-                  onChange={(e) =>
-                    setCreateForm({ ...createForm, description: e.target.value })
-                  }
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-2">
-                    Campaign Type
-                  </label>
-                  <Select
-                    value={createForm.type}
-                    onChange={(value) => setCreateForm({ ...createForm, type: value as CampaignType })}
-                    options={campaignTypes.filter((t) => t.value !== '')}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-2">
-                    Channel
-                  </label>
-                  <Select
-                    value={createForm.channel}
-                    onChange={(value) => setCreateForm({ ...createForm, channel: value as CampaignChannel })}
-                    options={channels.filter((c) => c.value !== '')}
-                  />
-                </div>
-              </div>
-
-              {/* Target Audience / Segment Selector */}
-              <div>
-                <label className="block text-sm font-bold text-foreground mb-2">
-                  <Target className="w-4 h-4 inline mr-1" />
-                  Target Audience
-                </label>
-                <select
-                  className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
-                  value={createForm.segmentId || ''}
-                  onChange={(e) => setCreateForm({ ...createForm, segmentId: e.target.value || undefined })}
-                  disabled={loadingSegments}
-                >
-                  <option value="">All Customers</option>
-                  {segments.map((segment) => (
-                    <option key={segment.id} value={segment.id}>
-                      {segment.name} ({segment.customerCount.toLocaleString()} customers)
-                    </option>
-                  ))}
-                </select>
-                {segments.length === 0 && !loadingSegments && (
-                  <p className="text-xs text-muted-foreground mt-1">
-                    No segments available. Campaign will be sent to all customers.
-                  </p>
-                )}
-              </div>
-
-              {createForm.channel === 'EMAIL' && (
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-2">
-                    Email Subject
-                  </label>
-                  <Input
-                    placeholder="Don't miss out on our summer sale!"
-                    value={createForm.subject}
-                    onChange={(e) =>
-                      setCreateForm({ ...createForm, subject: e.target.value })
-                    }
-                  />
-                </div>
-              )}
-
-              {/* Content Editor with Mode Toggle */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-bold text-foreground">
-                    Message Content *
-                  </label>
-                  {createForm.channel === 'EMAIL' && (
-                    <div className="flex items-center gap-1 bg-muted rounded-lg p-1">
-                      <button
-                        type="button"
-                        onClick={() => setContentMode('text')}
-                        className={cn(
-                          "px-3 py-1 text-xs font-medium rounded-md transition-colors flex items-center gap-1",
-                          contentMode === 'text'
-                            ? "bg-card text-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground"
-                        )}
-                      >
-                        <FileText className="w-3 h-3" />
-                        Text
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setContentMode('html')}
-                        className={cn(
-                          "px-3 py-1 text-xs font-medium rounded-md transition-colors flex items-center gap-1",
-                          contentMode === 'html'
-                            ? "bg-card text-foreground shadow-sm"
-                            : "text-muted-foreground hover:text-foreground"
-                        )}
-                      >
-                        <Code className="w-3 h-3" />
-                        HTML
-                      </button>
-                    </div>
-                  )}
-                </div>
-                {contentMode === 'text' ? (
-                  <textarea
-                    className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
-                    rows={6}
-                    placeholder="Your message content..."
-                    value={createForm.content}
-                    onChange={(e) =>
-                      setCreateForm({ ...createForm, content: e.target.value })
-                    }
-                  />
-                ) : (
-                  <div className="space-y-2">
-                    <textarea
-                      className="w-full px-3 py-2 border border-border rounded-md bg-muted font-mono text-sm focus:outline-none focus:border-primary"
-                      rows={10}
-                      placeholder="<html>
-<body>
-  <h1>Your Email Title</h1>
-  <p>Your email content goes here...</p>
-  <a href='{{unsubscribe_link}}'>Unsubscribe</a>
-</body>
-</html>"
-                      value={createForm.htmlContent}
-                      onChange={(e) =>
-                        setCreateForm({ ...createForm, htmlContent: e.target.value })
-                      }
-                    />
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <Code className="w-3 h-3" />
-                      <span>Available variables: {'{'}{'{'} customer_name {'}'}{'}'}, {'{'}{'{'} product_name {'}'}{'}'}, {'{'}{'{'} unsubscribe_link {'}'}{'}'}.</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="border-t border-border p-6 flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => setShowCreateModal(false)}
-                disabled={creating}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleCreateCampaign}
-                disabled={creating}
-                variant="gradient"
-              >
-                {creating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Creating...
-                  </>
-                ) : (
-                  'Create Campaign'
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Campaign Details Modal */}
       {selectedCampaign && (
         <div
@@ -1309,8 +1325,9 @@ export default function CampaignsPage() {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    handleEditCampaign(selectedCampaign);
+                    const campaign = selectedCampaign;
                     setSelectedCampaign(null);
+                    handleEditCampaign(campaign);
                   }}
                 >
                   <Edit2 className="h-4 w-4 mr-2" />
@@ -1323,131 +1340,6 @@ export default function CampaignsPage() {
         </div>
       )}
 
-      {/* Edit Campaign Modal */}
-      {showEditModal && editingCampaign && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[200] p-4 animate-in fade-in duration-200"
-          onClick={() => {
-            setShowEditModal(false);
-            setEditingCampaign(null);
-          }}
-        >
-          <div
-            className="bg-card rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="border-b border-border p-6">
-              <h2 className="text-2xl font-bold text-foreground">Edit Campaign</h2>
-              <p className="text-sm text-muted-foreground mt-1">
-                Update the details of your marketing campaign
-              </p>
-            </div>
-
-            <div className="p-6 space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-foreground mb-2">
-                  Campaign Name *
-                </label>
-                <Input
-                  placeholder="Campaign name"
-                  value={editForm.name || ''}
-                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-foreground mb-2">
-                  Description
-                </label>
-                <textarea
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
-                  rows={3}
-                  placeholder="Describe your campaign..."
-                  value={editForm.description || ''}
-                  onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-2">
-                    Campaign Type
-                  </label>
-                  <Select
-                    value={editForm.type || editingCampaign.type}
-                    onChange={(value) => setEditForm({ ...editForm, type: value as CampaignType })}
-                    options={campaignTypes.filter((t) => t.value !== '')}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-2">
-                    Channel
-                  </label>
-                  <Select
-                    value={editForm.channel || editingCampaign.channel}
-                    onChange={(value) => setEditForm({ ...editForm, channel: value as CampaignChannel })}
-                    options={channels.filter((c) => c.value !== '')}
-                  />
-                </div>
-              </div>
-
-              {(editForm.channel === 'EMAIL' || editingCampaign.channel === 'EMAIL') && (
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-2">
-                    Email Subject
-                  </label>
-                  <Input
-                    placeholder="Email subject line"
-                    value={editForm.subject || ''}
-                    onChange={(e) => setEditForm({ ...editForm, subject: e.target.value })}
-                  />
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-bold text-foreground mb-2">
-                  Message Content *
-                </label>
-                <textarea
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
-                  rows={6}
-                  placeholder="Your message content..."
-                  value={editForm.content || ''}
-                  onChange={(e) => setEditForm({ ...editForm, content: e.target.value })}
-                />
-              </div>
-            </div>
-
-            <div className="border-t border-border p-6 flex justify-end gap-3">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowEditModal(false);
-                  setEditingCampaign(null);
-                  setEditForm({});
-                }}
-                disabled={saving}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSaveEdit}
-                disabled={saving || !editForm.name}
-                variant="gradient"
-              >
-                {saving ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Saving...
-                  </>
-                ) : (
-                  'Save Changes'
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
     </PermissionGate>
   );

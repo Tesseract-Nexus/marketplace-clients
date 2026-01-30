@@ -18,6 +18,7 @@ import {
   Mail,
   MessageSquare,
   Clock,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -82,8 +83,8 @@ export default function GiftCardsPage() {
   const [filterStatus, setFilterStatus] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Modal state
-  const [showCreateModal, setShowCreateModal] = useState(false);
+  // Inline form state
+  const [showInlineForm, setShowInlineForm] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedCard, setSelectedCard] = useState<GiftCard | null>(null);
   const [creating, setCreating] = useState(false);
@@ -214,6 +215,27 @@ export default function GiftCardsPage() {
     return null;
   };
 
+  const resetForm = () => {
+    setCreateForm({
+      initialBalance: '',
+      recipientEmail: '',
+      recipientName: '',
+      senderName: '',
+      message: '',
+      expiresInDays: '365',
+    });
+  };
+
+  const handleOpenCreateForm = () => {
+    resetForm();
+    setShowInlineForm(true);
+  };
+
+  const handleCloseForm = () => {
+    setShowInlineForm(false);
+    resetForm();
+  };
+
   const handleCreateCard = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -238,15 +260,7 @@ export default function GiftCardsPage() {
 
       if (response.success) {
         toast.success('Gift Card Created', 'Gift card created successfully!');
-        setShowCreateModal(false);
-        setCreateForm({
-          initialBalance: '',
-          recipientEmail: '',
-          recipientName: '',
-          senderName: '',
-          message: '',
-          expiresInDays: '365',
-        });
+        handleCloseForm();
         fetchGiftCards();
         fetchStats();
       } else {
@@ -404,8 +418,9 @@ export default function GiftCardsPage() {
                 <RefreshCw className={cn("w-5 h-5 text-muted-foreground", loading && "animate-spin")} />
               </Button>
               <Button
-                onClick={() => setShowCreateModal(true)}
+                onClick={handleOpenCreateForm}
                 className="bg-primary text-primary-foreground"
+                disabled={showInlineForm}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Create Gift Card
@@ -416,6 +431,117 @@ export default function GiftCardsPage() {
 
         {/* Error Banner */}
         <PageError error={error} onRetry={fetchGiftCards} onDismiss={() => setError(null)} />
+
+        {/* Inline Form */}
+        {showInlineForm && (
+          <div className="bg-card rounded-lg border border-border shadow-sm animate-in slide-in-from-top duration-300">
+            <div className="border-b border-border p-4 flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-foreground">Create Gift Card</h2>
+                <p className="text-sm text-muted-foreground">Create a new gift card with a unique code</p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCloseForm}
+                className="h-8 w-8 p-0 rounded-lg hover:bg-muted"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <form onSubmit={handleCreateCard} className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Amount *
+                  </label>
+                  <Input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={createForm.initialBalance}
+                    onChange={(e) => setCreateForm({ ...createForm, initialBalance: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Expires In (Days)
+                  </label>
+                  <Input
+                    type="number"
+                    value={createForm.expiresInDays}
+                    onChange={(e) => setCreateForm({ ...createForm, expiresInDays: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Recipient Name
+                  </label>
+                  <Input
+                    value={createForm.recipientName}
+                    onChange={(e) => setCreateForm({ ...createForm, recipientName: e.target.value })}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-foreground mb-2">
+                    Recipient Email
+                  </label>
+                  <Input
+                    type="email"
+                    value={createForm.recipientEmail}
+                    onChange={(e) => setCreateForm({ ...createForm, recipientEmail: e.target.value })}
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-2">
+                  Sender Name
+                </label>
+                <Input
+                  value={createForm.senderName}
+                  onChange={(e) => setCreateForm({ ...createForm, senderName: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-2">Message</label>
+                <textarea
+                  className="w-full min-h-[80px] px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                  value={createForm.message}
+                  onChange={(e) => setCreateForm({ ...createForm, message: e.target.value })}
+                  placeholder="Optional gift message..."
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCloseForm}
+                  disabled={creating}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={creating}
+                  className="bg-primary text-primary-foreground"
+                >
+                  {creating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    'Create Gift Card'
+                  )}
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
 
         <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
         {/* Filters */}
@@ -465,8 +591,9 @@ export default function GiftCardsPage() {
               </p>
               {!(searchQuery || filterStatus) && (
                 <Button
-                  onClick={() => setShowCreateModal(true)}
+                  onClick={handleOpenCreateForm}
                   className="bg-primary text-primary-foreground hover:bg-primary/90"
+                  disabled={showInlineForm}
                 >
                   <Sparkles className="h-4 w-4 mr-2" />
                   Create Your First Gift Card
@@ -624,118 +751,6 @@ export default function GiftCardsPage() {
           )}
         </div>
         </DataPageLayout>
-
-        {/* Create Modal */}
-        {showCreateModal && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl">
-              <div className="border-b border-border px-6 py-4">
-                <h2 className="text-2xl font-bold text-primary">
-                  Create Gift Card
-                </h2>
-                <p className="text-sm text-muted-foreground">Create a new gift card with a unique code</p>
-              </div>
-              <form onSubmit={handleCreateCard} className="p-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">
-                      Amount *
-                    </label>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0.01"
-                      value={createForm.initialBalance}
-                      onChange={(e) =>
-                        setCreateForm({ ...createForm, initialBalance: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">
-                      Expires In (Days)
-                    </label>
-                    <Input
-                      type="number"
-                      value={createForm.expiresInDays}
-                      onChange={(e) =>
-                        setCreateForm({ ...createForm, expiresInDays: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">
-                      Recipient Name
-                    </label>
-                    <Input
-                      value={createForm.recipientName}
-                      onChange={(e) =>
-                        setCreateForm({ ...createForm, recipientName: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-foreground mb-2">
-                      Recipient Email
-                    </label>
-                    <Input
-                      type="email"
-                      value={createForm.recipientEmail}
-                      onChange={(e) =>
-                        setCreateForm({ ...createForm, recipientEmail: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">
-                    Sender Name
-                  </label>
-                  <Input
-                    value={createForm.senderName}
-                    onChange={(e) => setCreateForm({ ...createForm, senderName: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">Message</label>
-                  <textarea
-                    className="w-full min-h-[80px] px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
-                    value={createForm.message}
-                    onChange={(e) => setCreateForm({ ...createForm, message: e.target.value })}
-                    placeholder="Optional gift message..."
-                  />
-                </div>
-                <div className="border-t pt-4 flex justify-end gap-3">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setShowCreateModal(false)}
-                    disabled={creating}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={creating}
-                    className="bg-primary text-primary-foreground"
-                  >
-                    {creating ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Creating...
-                      </>
-                    ) : (
-                      'Create Gift Card'
-                    )}
-                  </Button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
 
         {/* Details Modal */}
         {showDetailsModal && selectedCard && (
