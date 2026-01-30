@@ -758,20 +758,12 @@ export function OrderDetailsClient({ order, tracking, returns }: OrderDetailsCli
           {/* Actions */}
           <Card>
             <CardContent className="pt-6 space-y-3">
-              {order.receiptShortUrl ? (
-                <Button variant="outline" className="w-full" asChild>
-                  <a href={order.receiptShortUrl} target="_blank" rel="noopener noreferrer">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download Invoice
-                    <ExternalLink className="h-3.5 w-3.5 ml-1.5 opacity-60" />
-                  </a>
-                </Button>
-              ) : (
-                <Button variant="outline" className="w-full" disabled>
+              <Button variant="outline" className="w-full" asChild>
+                <a href={`/api/orders/${order.id}/receipt?format=pdf`} download>
                   <Download className="h-4 w-4 mr-2" />
                   Download Invoice
-                </Button>
-              )}
+                </a>
+              </Button>
 
               <Button variant="secondary" className="w-full" onClick={() => setShowReportDialog(true)}>
                 <AlertCircle className="h-4 w-4 mr-2" />
