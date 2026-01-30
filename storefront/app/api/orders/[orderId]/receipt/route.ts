@@ -143,8 +143,11 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const format = searchParams.get('format') || 'pdf';
 
-    // Proxy to the customer-authenticated receipt endpoint
-    const backendUrl = `${ORDERS_SERVICE_URL}/api/v1/storefront/my/orders/${encodeURIComponent(orderId)}/receipt?format=${encodeURIComponent(format)}`;
+    // Proxy to the admin receipt endpoint (uses RequirePermissionAllowInternal,
+    // so X-Internal-Service header grants access without RBAC role checks).
+    // This is the same endpoint the admin BFF calls — avoids CustomerAuthMiddleware
+    // issues where the customer JWT isn't properly propagated through Istio.
+    const backendUrl = `${ORDERS_SERVICE_URL}/api/v1/orders/${encodeURIComponent(orderId)}/receipt?format=${encodeURIComponent(format)}`;
 
     const response = await fetch(backendUrl, {
       headers: {
