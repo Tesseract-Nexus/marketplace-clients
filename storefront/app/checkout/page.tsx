@@ -479,6 +479,7 @@ function CheckoutContent() {
           country: shippingAddress.countryCode || shippingAddress.country || 'US',
           phone: contactInfo.phone
         },
+        customerId: isAuthenticated && customer?.id ? customer.id : undefined,
         customerEmail: (isAuthenticated && customer?.email) || contactInfo.email,
         customerPhone: contactInfo.phone,
         shippingMethod: getShippingMethodName(selectedShippingMethod) || 'standard',

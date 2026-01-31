@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
+import { extractCustomerId } from '@/lib/server/auth';
 
 // Remove /api/v1 suffix if present (env var may include it)
 const ORDERS_SERVICE_URL = (process.env.ORDERS_SERVICE_URL || 'http://localhost:3108').replace(/\/api\/v1\/?$/, '');
@@ -111,15 +112,15 @@ interface OrdersServiceRequest {
 }
 
 // Transform storefront request to orders-service format
-function transformRequest(body: StorefrontOrderRequest): OrdersServiceRequest {
+function transformRequest(body: StorefrontOrderRequest, accessToken?: string | null): OrdersServiceRequest {
   // Calculate subtotal
   const subtotal = body.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shippingCost = body.shippingCost ?? 9.99; // Default shipping
   const taxEstimate = subtotal * 0.08; // 8% fallback tax
   const total = subtotal + shippingCost + taxEstimate;
 
-  // Use provided customerId or generate a guest UUID
-  const customerId = body.customerId || uuidv4();
+  // Use provided customerId, or extract from JWT for authenticated checkout, or generate guest UUID
+  const customerId = body.customerId || (accessToken ? extractCustomerId(accessToken) : null) || uuidv4();
 
   // Determine currency based on country
   const currency = body.shippingAddress.country === 'IN' ? 'INR' : 'USD';
@@ -204,7 +205,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Transform storefront format to orders-service format
-    const transformedBody = transformRequest(body);
+    const transformedBody = transformRequest(body, accessToken);
     console.log('[BFF Orders] Transformed request for orders-service');
     console.log('[BFF Orders] Customer:', transformedBody.customer.email);
     console.log('[BFF Orders] Items:', transformedBody.items.length);
