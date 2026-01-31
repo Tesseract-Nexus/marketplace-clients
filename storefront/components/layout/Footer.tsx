@@ -175,7 +175,7 @@ export function Footer() {
   if (linkGroups.length === 0) {
     // Build organized footer structure from content pages as fallback
     const contentPages = (settings.contentPages || [])
-      .filter((p) => p.status === 'PUBLISHED' && p.showInFooter);
+      .filter((p) => p.status === 'PUBLISHED' && (p.showInFooter || p.showInMenu));
 
     // Create separate columns for better organization
     const shopLinks = [

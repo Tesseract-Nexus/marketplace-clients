@@ -179,21 +179,8 @@ export function Header() {
 
   const sortedNavLinks = [...(headerConfig?.navLinks || [])].sort((a, b) => a.position - b.position);
 
-  // Filter content pages for header menu
-  const menuPages: StorefrontNavLink[] = (settings.contentPages || [])
-    .filter((p) => p.status === 'PUBLISHED' && p.showInMenu)
-    .map((p) => ({
-      id: p.id,
-      label: p.title,
-      href: `/pages/${p.slug}`,
-      isExternal: false,
-      position: 100, // Show after main links
-    }));
-
   const allNavLinks: StorefrontNavLink[] = [
     ...sortedNavLinks,
-    ...menuPages,
-    { id: 'cancellation-policy', label: 'Cancellation Policy', href: '/cancellation-policy', isExternal: false, position: 200 },
   ];
 
   const handleLogout = async () => {
