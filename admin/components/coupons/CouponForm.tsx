@@ -280,109 +280,85 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background p-8">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      <div className="min-h-screen bg-background p-6">
+        <div className="flex items-center justify-center h-48">
+          <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background p-8">
-      <div className="space-y-6 animate-in fade-in duration-500">
-        {/* Breadcrumbs */}
-        <Breadcrumbs
-          items={[
-            { label: 'Dashboard', href: '/', icon: Home },
-            { label: 'Coupons', href: '/coupons', icon: Ticket },
-            { label: mode === 'create' ? 'Create' : 'Edit', icon: Edit },
-          ]}
-        />
-
+    <div className="min-h-screen bg-background p-6">
+      <div className="max-w-4xl mx-auto space-y-4 animate-in fade-in duration-300">
+        {/* Header with breadcrumbs and back button */}
         <div className="flex items-center justify-between">
+          <Breadcrumbs
+            items={[
+              { label: 'Dashboard', href: '/', icon: Home },
+              { label: 'Coupons', href: '/coupons', icon: Ticket },
+              { label: mode === 'create' ? 'Create' : 'Edit', icon: Edit },
+            ]}
+          />
           <Button
             onClick={() => router.push('/coupons')}
-            variant="outline"
-            className="px-4 py-2 text-sm font-semibold rounded-md border-2 border-border text-foreground hover:bg-muted hover:border-border transition-all"
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Coupons
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back
           </Button>
         </div>
 
         {/* Error Alert */}
         {error && (
-          <div className="bg-destructive/10 border-2 border-destructive/30 rounded-md p-4 flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
-            <div className="flex-1">
-              <h3 className="font-semibold text-destructive">Error</h3>
-              <p className="text-destructive text-sm mt-1">{error}</p>
-            </div>
+          <div className="bg-destructive/10 border border-destructive/30 rounded-md p-3 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+            <p className="text-destructive text-sm">{error}</p>
           </div>
         )}
 
-        {/* Live Coupon Preview */}
-        <Card className="rounded-2xl border-2 border-dashed border-primary/50 bg-primary/5 shadow-lg overflow-hidden">
-          <CardContent className="p-6">
-            <p className="text-xs font-bold text-primary mb-3 uppercase tracking-wide">Live Preview</p>
-            <div className="bg-card rounded-md p-5 shadow-md border border-primary/20">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                    <Ticket className="w-5 h-5 text-white" />
-                  </div>
-                  <div>
-                    <p className="font-bold font-mono text-lg text-foreground">
-                      {formData.code || 'COUPON-CODE'}
-                    </p>
-                    <p className="text-sm text-muted-foreground">{formData.name || 'Coupon Name'}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-primary">
-                    {formData.discountType === 'PERCENTAGE' && formData.discountValue
-                      ? `${formData.discountValue}%`
-                      : formData.discountType === 'FIXED_AMOUNT' && formData.discountValue
-                      ? `$${formData.discountValue}`
-                      : formData.discountType === 'FREE_SHIPPING'
-                      ? 'FREE'
-                      : '0%'}
-                  </p>
-                  <p className="text-xs text-muted-foreground uppercase">
-                    {formData.discountType === 'FREE_SHIPPING' ? 'Shipping' : 'Discount'}
-                  </p>
-                </div>
-              </div>
-              {formData.description && (
-                <p className="text-sm text-muted-foreground border-t border-border pt-3">
-                  {formData.description}
-                </p>
-              )}
-              {(formData.startDate || formData.endDate) && (
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border">
-                  <Clock className="w-4 h-4 text-muted-foreground" />
-                  <p className="text-xs text-muted-foreground">
-                    {formData.startDate && `From ${new Date(formData.startDate).toLocaleDateString()}`}
-                    {formData.startDate && formData.endDate && ' - '}
-                    {formData.endDate && `Until ${new Date(formData.endDate).toLocaleDateString()}`}
-                  </p>
-                </div>
-              )}
+        {/* Main Form Card */}
+        <div className="bg-card rounded-lg border border-border shadow-sm">
+          {/* Header */}
+          <div className="border-b border-border p-4 flex items-center justify-between">
+            <div>
+              <h1 className="text-lg font-bold text-foreground">
+                {mode === 'create' ? 'Create Coupon' : 'Edit Coupon'}
+              </h1>
+              <p className="text-sm text-muted-foreground">
+                {mode === 'create' ? 'Create a new discount coupon' : 'Update coupon details'}
+              </p>
             </div>
-          </CardContent>
-        </Card>
+            {/* Compact Live Preview */}
+            <div className="hidden sm:flex items-center gap-3 bg-muted rounded-lg px-4 py-2">
+              <div className="w-8 h-8 rounded-md bg-primary flex items-center justify-center">
+                <Ticket className="w-4 h-4 text-primary-foreground" />
+              </div>
+              <div className="text-right">
+                <p className="font-mono font-bold text-sm text-foreground">
+                  {formData.code || 'CODE'}
+                </p>
+                <p className="text-lg font-bold text-primary">
+                  {formData.discountType === 'PERCENTAGE' && formData.discountValue
+                    ? `${formData.discountValue}%`
+                    : formData.discountType === 'FIXED_AMOUNT' && formData.discountValue
+                    ? `$${formData.discountValue}`
+                    : formData.discountType === 'FREE_SHIPPING'
+                    ? 'FREE'
+                    : '—'}
+                </p>
+              </div>
+            </div>
+          </div>
 
-        <Card className="rounded-2xl border-primary/50/50 bg-white/80 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300">
-          <CardHeader className="border-b border-primary/20 p-6">
-            <CardTitle className="text-xl font-bold text-primary">
-              {mode === 'create' ? 'Create New Coupon' : 'Edit Coupon'}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-6 space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Form Content */}
+          <div className="p-4 space-y-4">
+            {/* Row 1: Code and Name */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-bold text-foreground mb-3">
+                <label className="block text-sm font-semibold text-foreground mb-1.5">
                   Coupon Code <span className="text-destructive">*</span>
                 </label>
                 <input
@@ -390,21 +366,18 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   value={formData.code}
                   onChange={(e) => handleFieldChange('code', e.target.value.toUpperCase())}
                   className={cn(
-                    "w-full px-4 py-3 border-2 rounded-md focus:outline-none focus:ring-2 font-mono font-bold",
-                    errors.code ? 'border-destructive focus:ring-red-500' : 'border-border focus:ring-ring'
+                    "w-full px-3 py-2 border rounded-md bg-background text-sm focus:outline-none focus:border-primary font-mono",
+                    errors.code ? 'border-destructive' : 'border-border'
                   )}
                   placeholder="SUMMER20"
                 />
                 {errors.code && (
-                  <div className="flex items-center gap-1 mt-1 text-destructive text-sm">
-                    <AlertCircle className="h-4 w-4" />
-                    <span>{errors.code}</span>
-                  </div>
+                  <p className="text-destructive text-xs mt-1">{errors.code}</p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-foreground mb-3">
+                <label className="block text-sm font-semibold text-foreground mb-1.5">
                   Coupon Name <span className="text-destructive">*</span>
                 </label>
                 <input
@@ -412,34 +385,21 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   value={formData.name}
                   onChange={(e) => handleFieldChange('name', e.target.value)}
                   className={cn(
-                    "w-full px-4 py-3 border-2 rounded-md focus:outline-none focus:ring-2",
-                    errors.name ? 'border-destructive focus:ring-red-500' : 'border-border focus:ring-ring'
+                    "w-full px-3 py-2 border rounded-md bg-background text-sm focus:outline-none focus:border-primary",
+                    errors.name ? 'border-destructive' : 'border-border'
                   )}
                   placeholder="Summer Sale"
                 />
                 {errors.name && (
-                  <div className="flex items-center gap-1 mt-1 text-destructive text-sm">
-                    <AlertCircle className="h-4 w-4" />
-                    <span>{errors.name}</span>
-                  </div>
+                  <p className="text-destructive text-xs mt-1">{errors.name}</p>
                 )}
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-foreground mb-3">Description</label>
-              <textarea
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-3 border-2 border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring resize-none"
-                rows={3}
-                placeholder="Describe this coupon..."
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Row 2: Discount Type and Value */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-bold text-foreground mb-3">Discount Type</label>
+                <label className="block text-sm font-semibold text-foreground mb-1.5">Discount Type</label>
                 <Select
                   value={formData.discountType || 'PERCENTAGE'}
                   onChange={(value) => setFormData({ ...formData, discountType: value as DiscountType })}
@@ -453,7 +413,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-foreground mb-3">
+                <label className="block text-sm font-semibold text-foreground mb-1.5">
                   Discount Value <span className="text-destructive">*</span>
                 </label>
                 <input
@@ -462,100 +422,120 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   value={formData.discountValue}
                   onChange={(e) => handleFieldChange('discountValue', e.target.value)}
                   className={cn(
-                    "w-full px-4 py-3 border-2 rounded-md focus:outline-none focus:ring-2",
-                    errors.discountValue ? 'border-destructive focus:ring-red-500' : 'border-border focus:ring-ring'
+                    "w-full px-3 py-2 border rounded-md bg-background text-sm focus:outline-none focus:border-primary",
+                    errors.discountValue ? 'border-destructive' : 'border-border'
                   )}
                   placeholder={formData.discountType === 'PERCENTAGE' ? '20' : '25.00'}
                 />
                 {errors.discountValue && (
-                  <div className="flex items-center gap-1 mt-1 text-destructive text-sm">
-                    <AlertCircle className="h-4 w-4" />
-                    <span>{errors.discountValue}</span>
-                  </div>
+                  <p className="text-destructive text-xs mt-1">{errors.discountValue}</p>
                 )}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Row 3: Description */}
+            <div>
+              <label className="block text-sm font-semibold text-foreground mb-1.5">Description</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary resize-none"
+                rows={2}
+                placeholder="Describe this coupon..."
+              />
+            </div>
+
+            {/* Row 4: Dates */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-bold text-foreground mb-3">Start Date</label>
+                <label className="block text-sm font-semibold text-foreground mb-1.5">Start Date</label>
                 <input
                   type="datetime-local"
                   value={formData.startDate ? new Date(formData.startDate).toISOString().slice(0, 16) : ''}
                   onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-foreground mb-3">End Date</label>
+                <label className="block text-sm font-semibold text-foreground mb-1.5">End Date</label>
                 <input
                   type="datetime-local"
                   value={formData.endDate ? new Date(formData.endDate).toISOString().slice(0, 16) : ''}
                   onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                  className="w-full px-4 py-3 border-2 border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Row 5: Limits */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-bold text-foreground mb-3">Total Usage Limit</label>
+                <label className="block text-sm font-semibold text-foreground mb-1.5">Total Usage Limit</label>
                 <input
                   type="number"
                   value={formData.totalUsageLimit || ''}
                   onChange={(e) => setFormData({ ...formData, totalUsageLimit: e.target.value ? parseInt(e.target.value) : undefined })}
-                  className="w-full px-4 py-3 border-2 border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                   placeholder="Unlimited"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-bold text-foreground mb-3">Per Customer Limit</label>
+                <label className="block text-sm font-semibold text-foreground mb-1.5">Per Customer Limit</label>
                 <input
                   type="number"
                   value={formData.perCustomerLimit || ''}
                   onChange={(e) => setFormData({ ...formData, perCustomerLimit: e.target.value ? parseInt(e.target.value) : undefined })}
-                  className="w-full px-4 py-3 border-2 border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
                   placeholder="Unlimited"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-semibold text-foreground mb-1.5">Min. Purchase</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={formData.restrictions?.minPurchaseAmount || ''}
+                  onChange={(e) => setFormData({
+                    ...formData,
+                    restrictions: { ...formData.restrictions, minPurchaseAmount: e.target.value }
+                  })}
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                  placeholder="$0.00"
                 />
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-bold text-foreground mb-3">Minimum Purchase Amount</label>
-              <input
-                type="number"
-                step="0.01"
-                value={formData.restrictions?.minPurchaseAmount || ''}
-                onChange={(e) => setFormData({
-                  ...formData,
-                  restrictions: { ...formData.restrictions, minPurchaseAmount: e.target.value }
-                })}
-                className="w-full px-4 py-3 border-2 border-border rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="0.00"
-              />
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <Button
-                onClick={handleSave}
-                disabled={saving || !formData.code || !formData.name || !formData.discountValue}
-                className="flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-all disabled:opacity-50 shadow-lg"
-              >
-                <Save className="w-5 h-5" />
-                {saving ? 'Saving...' : mode === 'create' ? 'Create Coupon' : 'Save Changes'}
-              </Button>
+            {/* Actions */}
+            <div className="flex justify-end gap-3 pt-4 border-t border-border">
               <Button
                 onClick={() => router.push('/coupons')}
                 variant="outline"
-                className="px-6 py-3 rounded-md border-2 border-border text-foreground hover:bg-muted transition-all"
               >
                 Cancel
               </Button>
+              <Button
+                onClick={handleSave}
+                disabled={saving || !formData.code || !formData.name || !formData.discountValue}
+                className="bg-primary text-primary-foreground"
+              >
+                {saving ? (
+                  <>
+                    <span className="animate-spin w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full mr-2" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    {mode === 'create' ? 'Create Coupon' : 'Save Changes'}
+                  </>
+                )}
+              </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
