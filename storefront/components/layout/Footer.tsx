@@ -175,7 +175,7 @@ export function Footer() {
   if (linkGroups.length === 0) {
     // Build organized footer structure from content pages as fallback
     const contentPages = (settings.contentPages || [])
-      .filter((p) => p.status === 'PUBLISHED' && (p.showInFooter || p.showInMenu));
+      .filter((p) => p.status === 'PUBLISHED' && p.showInFooter);
 
     // Create separate columns for better organization
     const shopLinks = [
@@ -238,6 +238,46 @@ export function Footer() {
       ...(companyLinks.length > 0 ? [{ id: 'company', title: 'Company', links: companyLinks }] : []),
       ...(policyLinks.length > 0 ? [{ id: 'legal', title: 'Legal', links: policyLinks }] : []),
     ].filter(g => g.links.length > 0);
+  }
+
+  // Always append content pages (About Us, Contact Us) and Cancellation Policy to footer
+  // These were moved from the header and must appear in the footer regardless of config
+  {
+    const menuContentPages = (settings.contentPages || [])
+      .filter((p) => p.status === 'PUBLISHED' && p.showInMenu);
+
+    const extraLinks = [
+      ...menuContentPages.map((p, idx) => ({
+        id: `menu-${p.id}`,
+        label: p.title,
+        href: `/pages/${p.slug}`,
+        isExternal: false,
+        position: idx * 10,
+      })),
+      { id: 'cancellation-policy', label: 'Cancellation Policy', href: '/cancellation-policy', isExternal: false, position: menuContentPages.length * 10 },
+    ];
+
+    // Deduplicate against existing footer links
+    const existingHrefs = new Set(
+      linkGroups.flatMap((g) => g.links.map((l) => l.href))
+    );
+    const newLinks = extraLinks.filter((l) => !existingHrefs.has(l.href));
+
+    if (newLinks.length > 0) {
+      const existingIdx = linkGroups.findIndex(
+        (g) => g.id === 'company' || g.id === 'legal' || g.id === 'information'
+      );
+      if (existingIdx >= 0) {
+        linkGroups = linkGroups.map((g, i) =>
+          i === existingIdx ? { ...g, links: [...g.links, ...newLinks] } : g
+        );
+      } else {
+        linkGroups = [
+          ...linkGroups,
+          { id: 'information', title: 'Information', links: newLinks },
+        ];
+      }
+    }
   }
 
   // Get column layout from config (default to 4)
