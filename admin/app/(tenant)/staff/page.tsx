@@ -1058,6 +1058,8 @@ export default function StaffPage() {
 
       <PageError error={error} onDismiss={() => setError(null)} />
 
+      {/* Don't render content if there's a permission/access error */}
+      {!error?.toLowerCase().includes('permission') && !error?.toLowerCase().includes('access') && !error?.toLowerCase().includes('forbidden') && (
       <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
       {/* Filter Panel with Quick Filters */}
       <FilterPanel
@@ -1298,6 +1300,7 @@ export default function StaffPage() {
         />
       )}
       </DataPageLayout>
+      )}
 
         <ConfirmModal
           isOpen={modalConfig.isOpen}

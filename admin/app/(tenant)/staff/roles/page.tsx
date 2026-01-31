@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { PermissionGate, Permission as GatePermission } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
+import { PageError } from '@/components/PageError';
 import { useRoleCapabilities } from '@/hooks/usePermission';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -878,13 +879,10 @@ export default function RolesPage() {
           }
         />
 
-        {error && (
-          <div className="p-4 bg-error-muted border-2 border-error/30 rounded-md text-error flex items-center gap-2">
-            <XCircle className="w-5 h-5" />
-            {error}
-          </div>
-        )}
+        <PageError error={error} onDismiss={() => setError(null)} />
 
+        {/* Don't render content if there's a permission/access error */}
+        {!error?.toLowerCase().includes('permission') && !error?.toLowerCase().includes('access') && !error?.toLowerCase().includes('forbidden') && (
         <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
         <div className="bg-card rounded-lg border border-border overflow-hidden">
           <div className="p-6">
@@ -1051,6 +1049,7 @@ export default function RolesPage() {
           />
         )}
         </DataPageLayout>
+        )}
 
         <ConfirmModal
           isOpen={modalConfig.isOpen}
