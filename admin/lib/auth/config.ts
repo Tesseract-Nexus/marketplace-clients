@@ -50,8 +50,9 @@ const configs: Record<string, AuthConfig> = {
     csrfUrl: '/auth/csrf',
     sessionCheckInterval: 300000, // 5 minutes (PERFORMANCE: reduced from 1 min)
     sessionRefreshThreshold: 300, // 5 minutes before expiry
-    keycloakUrl: 'https://devtest-customer-idp.tesserix.app',
-    keycloakRealm: 'tesserix-customer',
+    // Admin dashboard uses INTERNAL realm for staff/admin authentication
+    keycloakUrl: 'https://devtest-internal-idp.tesserix.app',
+    keycloakRealm: 'tesseract-internal',
   },
   staging: {
     bffBaseUrl: '',
