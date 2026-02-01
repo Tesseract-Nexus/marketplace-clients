@@ -146,15 +146,13 @@ function SetupPasswordContent() {
   };
 
   // Handle Google OAuth login
-  // Redirects to auth-bff on admin domain with kc_idp_hint=google
+  // Redirects to auth-bff (mounted at /auth on this domain via Istio) with kc_idp_hint=google
   // After Google consent, auth-bff sets a .tesserix.app session cookie and redirects back
   const handleGoogleLogin = () => {
     if (!sessionId) return;
 
-    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
-    const authBffOrigin = `https://dev-admin.${baseDomain}`;
     const callbackUrl = `${window.location.origin}/onboarding/setup-password/callback?session=${sessionId}&email=${encodeURIComponent(email)}`;
-    window.location.href = `${authBffOrigin}/auth/login?kc_idp_hint=google&returnTo=${encodeURIComponent(callbackUrl)}`;
+    window.location.href = `/auth/login?kc_idp_hint=google&returnTo=${encodeURIComponent(callbackUrl)}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
