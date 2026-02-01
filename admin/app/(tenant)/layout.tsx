@@ -744,8 +744,9 @@ function Header({ setSidebarOpen }: { setSidebarOpen: (open: boolean) => void })
             {showUserMenu && (
               <>
                 <div
-                  className="fixed inset-0 z-[9998]"
+                  className="fixed inset-0 z-[9998] bg-transparent"
                   onClick={() => setShowUserMenu(false)}
+                  onMouseDown={() => setShowUserMenu(false)}
                 />
                 <div className="absolute right-0 mt-2 w-64 bg-card rounded-xl shadow-lg border border-border z-[9999] animate-in fade-in slide-in-from-top-2 duration-200">
                   <div className="px-4 py-3 border-b border-border">
