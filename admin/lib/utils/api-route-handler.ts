@@ -314,34 +314,27 @@ export async function getProxyHeaders(incomingRequest?: Request, additionalHeade
     headers['x-jwt-claim-sub'] = bffToken.user_id;
   }
 
-  // Set x-jwt-claim-tenant-id from BFF token if not already set
-  if (!headers['x-jwt-claim-tenant-id'] && bffToken?.tenant_id) {
+  // CRITICAL: BFF session tenant_id takes PRIORITY over JWT tenant_id
+  // The BFF session is the authoritative source because:
+  // 1. It's from the validated login flow with current tenant context
+  // 2. JWT tokens can have stale/cached claims from Keycloak
+  // 3. When user switches tenants, BFF session is updated but JWT may not be refreshed
+  if (incomingRequest && !bffToken) {
+    bffToken = await getBffAccessToken(incomingRequest);
+  }
+  if (bffToken?.tenant_id) {
+    const jwtTenant = headers['x-jwt-claim-tenant-id'];
+    if (jwtTenant && jwtTenant !== bffToken.tenant_id) {
+      logger.debug('[Proxy Headers] BFF tenant override - JWT:', jwtTenant, '-> BFF:', bffToken.tenant_id);
+    }
     headers['x-jwt-claim-tenant-id'] = bffToken.tenant_id;
   }
 
-  // CRITICAL: Override x-jwt-claim-tenant-id with tenant ID from incoming request
-  // The tenant ID from the incoming request represents the "accessed tenant"
-  // which must take precedence over the JWT's tenant_id for proper multi-tenant data isolation.
+  // Override with incoming request header if present (for explicit tenant switching)
   if (incomingRequest) {
     const incomingTenantId = incomingRequest.headers.get('x-jwt-claim-tenant-id');
     if (incomingTenantId) {
       headers['x-jwt-claim-tenant-id'] = incomingTenantId;
-    }
-  }
-
-  // FALLBACK: If tenant_id is still not set (JWT doesn't have tenant_id claim),
-  // try to get it from BFF session. This handles the case where:
-  // 1. Browser sends Authorization header (so bffToken wasn't fetched above)
-  // 2. But the JWT doesn't contain tenant_id (Keycloak doesn't include custom claims by default)
-  // 3. BFF session has tenant_id from the login flow
-  if (!headers['x-jwt-claim-tenant-id'] && incomingRequest) {
-    // Only fetch BFF token if we haven't already
-    if (!bffToken) {
-      bffToken = await getBffAccessToken(incomingRequest);
-    }
-    if (bffToken?.tenant_id) {
-      headers['x-jwt-claim-tenant-id'] = bffToken.tenant_id;
-      logger.debug('[Proxy Headers] Got tenant_id from BFF session:', bffToken.tenant_id);
     }
   }
 
@@ -384,10 +377,13 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
     }
   }
 
+  // Track BFF tenant_id separately - it takes priority over JWT
+  let bffTenantId: string | undefined;
   if (authHeader) {
     headers['Authorization'] = authHeader;
 
     // Extract JWT claims and forward as x-jwt-claim-* headers
+    // NOTE: tenant_id from JWT is NOT used - BFF session is authoritative
     const token = authHeader.replace(/^Bearer\s+/i, '');
     const payload = decodeJwtPayload(token);
 
@@ -395,9 +391,8 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
       if (payload.sub) {
         headers['x-jwt-claim-sub'] = String(payload.sub);
       }
-      if (payload.tenant_id) {
-        headers['x-jwt-claim-tenant-id'] = String(payload.tenant_id);
-      }
+      // SKIP payload.tenant_id - BFF session is authoritative source
+      // JWT can have stale/cached tenant_id from Keycloak
       if (payload.staff_id) {
         headers['x-jwt-claim-staff-id'] = String(payload.staff_id);
       }
@@ -424,28 +419,27 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
     }
   }
 
-  // CRITICAL: Always prefer tenant ID from incoming request
-  // The tenant ID header represents the "accessed tenant" which MUST take precedence
-  // over the JWT/session tenant for proper multi-tenant data isolation.
+  // CRITICAL: BFF session tenant_id takes PRIORITY over JWT tenant_id
+  // The BFF session is the authoritative source because:
+  // 1. It's from the validated login flow with current tenant context
+  // 2. JWT tokens can have stale/cached claims from Keycloak
+  // 3. When user switches tenants, BFF session is updated but JWT may not be refreshed
+  const bffTokenForTenant = await getAccessTokenFromBFF();
+  if (bffTokenForTenant?.tenant_id) {
+    bffTenantId = bffTokenForTenant.tenant_id;
+    headers['x-jwt-claim-tenant-id'] = bffTenantId;
+    logger.debug('[Proxy Headers Async] Using BFF session tenant_id:', bffTenantId);
+  }
+
+  // Override with incoming request header if present (for explicit tenant switching)
   if (incomingRequest) {
     const incomingTenantId = incomingRequest.headers.get('x-jwt-claim-tenant-id');
     if (incomingTenantId) {
-      const jwtTenant = headers['x-jwt-claim-tenant-id'];
-      if (jwtTenant && jwtTenant !== incomingTenantId) {
-        logger.debug('[Proxy Headers] Tenant override - JWT:', jwtTenant, '-> Incoming:', incomingTenantId);
+      const currentTenant = headers['x-jwt-claim-tenant-id'];
+      if (currentTenant && currentTenant !== incomingTenantId) {
+        logger.debug('[Proxy Headers] Tenant override - Current:', currentTenant, '-> Incoming:', incomingTenantId);
       }
       headers['x-jwt-claim-tenant-id'] = incomingTenantId;
-    }
-  }
-
-  // FALLBACK: If tenant_id is still not set, try to get it from BFF session
-  // This handles the case where JWT doesn't have tenant_id claim (common with Keycloak)
-  // but the BFF session has tenant_id from the login flow
-  if (!headers['x-jwt-claim-tenant-id'] && incomingRequest) {
-    const bffToken = await getAccessTokenFromBFF();
-    if (bffToken?.tenant_id) {
-      headers['x-jwt-claim-tenant-id'] = bffToken.tenant_id;
-      logger.debug('[Proxy Headers Async] Got tenant_id from BFF session fallback:', bffToken.tenant_id);
     }
   }
 
