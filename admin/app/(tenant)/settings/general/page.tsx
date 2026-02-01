@@ -881,7 +881,7 @@ export default function GeneralSettingsPage() {
                                   })
                                 }
                                 autoDetectCountry
-                                countryCode={detectedCountryCode || undefined}
+                                countryCode={settings.store.countryCode || detectedCountryCode || undefined}
                               />
                             </div>
                           </div>
