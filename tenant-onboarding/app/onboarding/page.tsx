@@ -737,7 +737,7 @@ export default function OnboardingPage() {
 
     const loadCountries = async () => {
       try {
-        const response = await locationApi.getCountries();
+        const response = await locationApi.getCountries(undefined, undefined, 300);
         setCountries(Array.isArray(response) ? response : []);
         return Array.isArray(response) ? response : [];
       } catch { setCountries([]); return []; }
