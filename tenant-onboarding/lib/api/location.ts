@@ -143,55 +143,21 @@ class LocationAPI {
 
   // Location Detection
   async detectLocation(ip?: string): Promise<LocationData> {
-    try {
-      const queryParams = ip ? `?ip=${encodeURIComponent(ip)}` : '';
-      const response = await this.makeRequest<LocationDetectionResponse>(`/detect${queryParams}`);
-      return response.data!;
-    } catch (error) {
-      console.warn('Using mock location data - backend not available');
-      // Return mock location data with all fields
-      return {
-        ip: '0.0.0.0',
-        country: 'US',
-        country_name: 'United States',
-        calling_code: '+1',
-        flag_emoji: '🇺🇸',
-        state: 'US-CA',
-        state_name: 'California',
-        city: 'San Francisco',
-        postal_code: '94102',
-        latitude: 37.7749,
-        longitude: -122.4194,
-        timezone: 'America/Los_Angeles',
-        currency: 'USD',
-        locale: 'en_US',
-      };
-    }
+    const queryParams = ip ? `?ip=${encodeURIComponent(ip)}` : '';
+    const response = await this.makeRequest<LocationDetectionResponse>(`/detect${queryParams}`);
+    return response.data!;
   }
 
   // Countries
   async getCountries(search?: string, region?: string, limit = 50, offset = 0): Promise<Country[]> {
-    try {
-      const params = new URLSearchParams();
-      if (search) params.append('search', search);
-      if (region) params.append('region', region);
-      params.append('limit', limit.toString());
-      params.append('offset', offset.toString());
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
+    if (region) params.append('region', region);
+    params.append('limit', limit.toString());
+    params.append('offset', offset.toString());
 
-      const response = await this.makeRequest<CountriesResponse>(`/countries?${params}`);
-      // Return the data array from the response
-      return response.data || [];
-    } catch (error) {
-      console.warn('Using mock countries data - backend not available');
-      // Return mock data for development (matching API contract structure)
-      return [
-        { id: 'US', name: 'United States', phone_code: '+1', calling_code: '+1', capital: 'Washington', currency: 'USD', native_name: 'United States', region: 'Americas', subregion: 'Northern America', flag_emoji: '🇺🇸', active: true },
-        { id: 'GB', name: 'United Kingdom', phone_code: '+44', calling_code: '+44', capital: 'London', currency: 'GBP', native_name: 'United Kingdom', region: 'Europe', subregion: 'Northern Europe', flag_emoji: '🇬🇧', active: true },
-        { id: 'CA', name: 'Canada', phone_code: '+1', calling_code: '+1', capital: 'Ottawa', currency: 'CAD', native_name: 'Canada', region: 'Americas', subregion: 'Northern America', flag_emoji: '🇨🇦', active: true },
-        { id: 'AU', name: 'Australia', phone_code: '+61', calling_code: '+61', capital: 'Canberra', currency: 'AUD', native_name: 'Australia', region: 'Oceania', subregion: 'Australia and New Zealand', flag_emoji: '🇦🇺', active: true },
-        { id: 'IN', name: 'India', phone_code: '+91', calling_code: '+91', capital: 'New Delhi', currency: 'INR', native_name: 'भारत', region: 'Asia', subregion: 'Southern Asia', flag_emoji: '🇮🇳', active: true },
-      ];
-    }
+    const response = await this.makeRequest<CountriesResponse>(`/countries?${params}`);
+    return response.data || [];
   }
 
   async getCountry(countryId: string): Promise<Country> {
@@ -201,36 +167,11 @@ class LocationAPI {
 
   // States
   async getStates(countryId: string, search?: string): Promise<State[]> {
-    const mockStates: Record<string, State[]> = {
-      US: [
-        { id: 'CA', name: 'California', code: 'CA', country_id: 'US', type: 'state', active: true },
-        { id: 'NY', name: 'New York', code: 'NY', country_id: 'US', type: 'state', active: true },
-        { id: 'TX', name: 'Texas', code: 'TX', country_id: 'US', type: 'state', active: true },
-      ],
-      IN: [
-        { id: 'MH', name: 'Maharashtra', code: 'MH', country_id: 'IN', type: 'state', active: true },
-        { id: 'DL', name: 'Delhi', code: 'DL', country_id: 'IN', type: 'territory', active: true },
-        { id: 'KA', name: 'Karnataka', code: 'KA', country_id: 'IN', type: 'state', active: true },
-      ],
-    };
+    const params = new URLSearchParams();
+    if (search) params.append('search', search);
 
-    try {
-      const params = new URLSearchParams();
-      if (search) params.append('search', search);
-
-      const response = await this.makeRequest<StatesResponse>(`/countries/${countryId}/states?${params}`);
-
-      // If backend returns empty data, use mock data instead
-      if (!response.data || response.data.length === 0) {
-        console.warn(`Backend returned empty states for ${countryId}, using mock data`);
-        return mockStates[countryId] || [];
-      }
-
-      return response.data;
-    } catch (error) {
-      console.warn('Using mock states data - backend not available');
-      return mockStates[countryId] || [];
-    }
+    const response = await this.makeRequest<StatesResponse>(`/countries/${countryId}/states?${params}`);
+    return response.data || [];
   }
 
   async getAllStates(search?: string, countryId?: string, limit = 50, offset = 0): Promise<State[]> {
