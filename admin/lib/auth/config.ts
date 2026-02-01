@@ -52,7 +52,7 @@ const configs: Record<string, AuthConfig> = {
     sessionRefreshThreshold: 300, // 5 minutes before expiry
     // Admin dashboard uses INTERNAL realm for staff/admin authentication
     keycloakUrl: 'https://devtest-internal-idp.tesserix.app',
-    keycloakRealm: 'tesseract-internal',
+    keycloakRealm: 'tesserix-internal',
   },
   staging: {
     bffBaseUrl: '',
