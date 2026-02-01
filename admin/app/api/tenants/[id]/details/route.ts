@@ -299,7 +299,7 @@ export async function GET(
       store_setup: {
         subdomain: onboardingData?.store_setup?.subdomain || String(tenantData.subdomain || tenantData.slug || ''),
         currency: onboardingData?.store_setup?.currency || String(tenantData.default_currency || 'USD'),
-        timezone: onboardingData?.store_setup?.timezone || String(tenantData.default_timezone || 'UTC'),
+        timezone: onboardingData?.store_setup?.timezone || String(tenantData.default_timezone || 'America/Los_Angeles'),
         language: onboardingData?.store_setup?.language || 'en',
         logo_url: onboardingData?.store_setup?.logo_url || String(tenantData.logo_url || ''),
         primary_color: onboardingData?.store_setup?.primary_color || String(tenantData.primary_color || '#6366f1'),

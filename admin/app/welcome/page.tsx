@@ -108,9 +108,9 @@ function WelcomeContent() {
           description: session.business_information?.description || session.description,
           progress: 100,
           // FIX-MEDIUM: Extract timezone/currency/business_model from session
-          timezone: session.store_setup?.timezone || session.default_timezone || session.timezone || 'UTC',
-          currency: session.store_setup?.currency || session.default_currency || session.currency || 'USD',
-          businessModel: session.store_setup?.business_model || session.business_model || session.businessModel || 'ONLINE_STORE',
+          timezone: session.default_timezone || session.timezone || 'UTC',
+          currency: session.default_currency || session.currency || 'USD',
+          businessModel: session.business_model || session.businessModel || 'ONLINE_STORE',
         });
         setIsLoading(false);
         // Trigger celebration after data loads
