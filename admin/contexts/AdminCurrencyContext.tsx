@@ -43,7 +43,6 @@ interface AdminCurrencyContextValue {
 }
 
 const STORAGE_KEY = 'tesseract-admin-currency';
-const EXPLICIT_KEY = 'tesseract-admin-currency-explicit'; // Tracks if user explicitly chose a currency
 
 // ========================================
 // Context
@@ -68,30 +67,23 @@ export function AdminCurrencyProvider({ children }: AdminCurrencyProviderProps) 
   const [isLoadingRates, setIsLoadingRates] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize from localStorage on mount, but only honor it if user explicitly chose a currency.
-  // This prevents stale localStorage values (e.g. USD set by a previous bug) from overriding
-  // the correct store currency derived from tenant settings.
+  // Initialize from localStorage on mount
   useEffect(() => {
     if (typeof window === 'undefined' || isLoadingStoreCurrency) return;
 
     const stored = localStorage.getItem(STORAGE_KEY);
-    const isExplicit = localStorage.getItem(EXPLICIT_KEY) === 'true';
-
-    if (stored && isExplicit) {
-      // Only use stored currency if user explicitly chose it and it's valid
+    if (stored) {
+      // Only use stored currency if it's valid
       const isValid = SUPPORTED_CURRENCIES.some(c => c.code === stored);
       if (isValid) {
         setAdminCurrencyState(stored);
       } else {
+        // Invalid stored currency, default to store currency
         setAdminCurrencyState(storeCurrency);
       }
     } else {
-      // No explicit user preference — always follow the store's currency
+      // No stored preference - default to store's currency
       setAdminCurrencyState(storeCurrency);
-      // Clean up stale localStorage from before this fix
-      if (stored && !isExplicit) {
-        localStorage.removeItem(STORAGE_KEY);
-      }
     }
     setIsInitialized(true);
   }, [storeCurrency, isLoadingStoreCurrency]);
@@ -134,7 +126,6 @@ export function AdminCurrencyProvider({ children }: AdminCurrencyProviderProps) 
     setAdminCurrencyState(code);
     if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEY, code);
-      localStorage.setItem(EXPLICIT_KEY, 'true');
     }
   }, []);
 
