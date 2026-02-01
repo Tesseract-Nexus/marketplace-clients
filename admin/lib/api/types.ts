@@ -477,6 +477,7 @@ export type StaffAuthMethod =
   | 'password'
   | 'google_sso'
   | 'microsoft_sso'
+  | 'password_and_google'
   | 'invitation_pending'
   | 'sso_pending';
 
