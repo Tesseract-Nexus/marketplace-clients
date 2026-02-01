@@ -7,6 +7,7 @@ export type StaffAuthMethod =
   | 'password'
   | 'google_sso'
   | 'microsoft_sso'
+  | 'password_and_google'
   | 'invitation_pending'
   | 'sso_pending';
 
@@ -342,6 +343,7 @@ export const AUTH_METHOD_LABELS: Record<StaffAuthMethod, string> = {
   password: 'Password',
   google_sso: 'Google SSO',
   microsoft_sso: 'Microsoft SSO',
+  password_and_google: 'Password + Google',
   invitation_pending: 'Invitation Pending',
   sso_pending: 'SSO Pending',
 };

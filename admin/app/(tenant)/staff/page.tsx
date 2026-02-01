@@ -592,6 +592,7 @@ export default function StaffPage() {
       password: { icon: <Key className="w-4 h-4" />, color: 'text-primary', label: 'Password' },
       google_sso: { icon: <LogIn className="w-4 h-4" />, color: 'text-error', label: 'Google' },
       microsoft_sso: { icon: <LogIn className="w-4 h-4" />, color: 'text-primary', label: 'Microsoft' },
+      password_and_google: { icon: <Key className="w-4 h-4" />, color: 'text-primary', label: 'Password + Google' },
       invitation_pending: { icon: <Send className="w-4 h-4" />, color: 'text-warning', label: 'Invitation Pending' },
       sso_pending: { icon: <Clock className="w-4 h-4" />, color: 'text-warning', label: 'SSO Pending' },
     };
