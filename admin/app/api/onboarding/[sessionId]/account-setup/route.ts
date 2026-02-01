@@ -11,8 +11,8 @@ import { NextRequest } from 'next/server';
 import { proxyPost, SERVICES, validateRequest, errorResponse } from '../../../lib/api-handler';
 
 interface AccountSetupRequest {
-  password: string;
-  auth_method?: 'password' | 'social'; // Must match backend validation
+  password?: string;
+  auth_method?: 'password' | 'google'; // Must match backend validation
   timezone?: string;
   currency?: string;
   business_model?: 'ONLINE_STORE' | 'MARKETPLACE';
@@ -39,8 +39,8 @@ export async function POST(
     // Parse request body
     const body: AccountSetupRequest = await request.json();
 
-    // Validate required fields
-    if (!body.password || body.password.length < 8) {
+    // Validate required fields (password required only for password auth)
+    if (body.auth_method !== 'google' && (!body.password || body.password.length < 8)) {
       return errorResponse('Password must be at least 8 characters', 400);
     }
 

@@ -221,53 +221,11 @@ function WelcomeContent() {
       return;
     }
 
-    setIsSubmitting(true);
-
-    try {
-      // FIX-MEDIUM: Include timezone/currency/business_model in social login account-setup
-      const response = await fetch(`/api/onboarding/${sessionId}/account-setup`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          password: '', // No password for social login
-          auth_method: 'social',
-          timezone: onboardingData?.timezone || 'UTC',
-          currency: onboardingData?.currency || 'USD',
-          business_model: onboardingData?.businessModel || 'ONLINE_STORE',
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error?.message || 'Account setup failed');
-      }
-
-      // Extract admin URL from response - backend provides correct URL for both custom domains and subdomains
-      const responseData = result.data || result;
-      const adminUrl = responseData?.admin_url
-        || responseData?.tenant?.admin_url
-        || (() => {
-          // Fallback: construct URL from tenant slug
-          const tenantSlug = responseData?.tenant?.slug || responseData?.tenant_slug;
-          const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
-          return tenantSlug ? `https://${tenantSlug}-admin.${baseDomain}` : '/';
-        })();
-
-      toast.success(
-        `${provider.charAt(0).toUpperCase() + provider.slice(1)} Account Linked!`,
-        'Your account has been created successfully. Redirecting to dashboard...'
-      );
-      setTimeout(() => {
-        window.location.href = adminUrl;
-      }, 1500);
-    } catch (error) {
-      console.error('Social login setup error:', error);
-      setIsSubmitting(false);
-      toast.error('Setup Failed', error instanceof Error ? error.message : 'Failed to complete account setup');
-    }
+    // Redirect to auth-bff OAuth flow with kc_idp_hint for the provider
+    // After Google consent, auth-bff will redirect to /welcome/callback with a session cookie
+    const authBffUrl = process.env.NEXT_PUBLIC_AUTH_BFF_URL || '';
+    const callbackUrl = `/welcome/callback?sessionId=${sessionId}`;
+    window.location.href = `${authBffUrl}/auth/login?kc_idp_hint=${provider}&returnTo=${encodeURIComponent(callbackUrl)}`;
   };
 
   const getStrengthColor = () => {
