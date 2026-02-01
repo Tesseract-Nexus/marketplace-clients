@@ -33,9 +33,12 @@ function decodeJwtPayload(token: string): { sub?: string; customer_id?: string; 
 async function getAuthContext(request: NextRequest): Promise<{ customerId?: string; token?: string } | null> {
   const authHeader = request.headers.get('Authorization');
 
+  console.log('[Profile API] getAuthContext - authHeader:', authHeader ? 'present' : 'missing');
+
   // Check if we have a valid JWT token
   if (authHeader && authHeader !== 'Bearer ' && authHeader !== 'Bearer') {
     const tokenPayload = decodeJwtPayload(authHeader);
+    console.log('[Profile API] JWT payload sub:', tokenPayload?.sub);
     if (tokenPayload?.sub) {
       return { customerId: tokenPayload.sub, token: authHeader };
     }
@@ -44,8 +47,10 @@ async function getAuthContext(request: NextRequest): Promise<{ customerId?: stri
   // Fall back to session-based auth (OAuth flow)
   try {
     const cookie = request.headers.get('cookie');
+    console.log('[Profile API] Cookie header:', cookie ? `present (${cookie.length} chars)` : 'missing');
     if (!cookie) return null;
 
+    console.log('[Profile API] Calling auth-bff at:', AUTH_BFF_URL);
     const response = await fetch(`${AUTH_BFF_URL}/auth/session`, {
       headers: {
         'Cookie': cookie,
@@ -53,9 +58,16 @@ async function getAuthContext(request: NextRequest): Promise<{ customerId?: stri
       },
     });
 
-    if (!response.ok) return null;
+    console.log('[Profile API] auth-bff response status:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('[Profile API] auth-bff error response:', errorText);
+      return null;
+    }
 
     const session = await response.json();
+    console.log('[Profile API] Session authenticated:', session.authenticated, 'user:', session.user?.id);
     if (session.authenticated && session.user) {
       return {
         customerId: session.user.id,
