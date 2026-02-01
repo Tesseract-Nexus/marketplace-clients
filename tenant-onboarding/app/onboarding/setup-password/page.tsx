@@ -146,19 +146,15 @@ function SetupPasswordContent() {
   };
 
   // Handle Google OAuth login
-  // This stores the session info in localStorage before redirect so we can complete
-  // account setup after the OAuth callback
+  // Redirects to auth-bff on admin domain with kc_idp_hint=google
+  // After Google consent, auth-bff sets a .tesserix.app session cookie and redirects back
   const handleGoogleLogin = () => {
-    // Store session info for after OAuth callback
-    if (sessionId) {
-      localStorage.setItem('onboarding_session_for_oauth', JSON.stringify({
-        sessionId,
-        email,
-        timestamp: Date.now(),
-      }));
-    }
-    // Redirect to Google OAuth - the callback will handle account creation
-    window.location.href = authApi.getGoogleAuthUrl();
+    if (!sessionId) return;
+
+    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+    const authBffOrigin = `https://dev-admin.${baseDomain}`;
+    const callbackUrl = `${window.location.origin}/onboarding/setup-password/callback?session=${sessionId}&email=${encodeURIComponent(email)}`;
+    window.location.href = `${authBffOrigin}/auth/login?kc_idp_hint=google&returnTo=${encodeURIComponent(callbackUrl)}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
