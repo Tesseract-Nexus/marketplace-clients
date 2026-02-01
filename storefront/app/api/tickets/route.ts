@@ -12,7 +12,8 @@ async function getSessionToken(request: NextRequest): Promise<{ token?: string; 
     const cookie = request.headers.get('cookie');
     if (!cookie) return null;
 
-    const response = await fetch(`${AUTH_BFF_URL}/auth/session`, {
+    // Use /internal/get-token which returns access_token for BFF-to-service calls
+    const response = await fetch(`${AUTH_BFF_URL}/internal/get-token`, {
       headers: {
         'Cookie': cookie,
         'Accept': 'application/json',
@@ -21,12 +22,12 @@ async function getSessionToken(request: NextRequest): Promise<{ token?: string; 
 
     if (!response.ok) return null;
 
-    const session = await response.json();
-    if (session.authenticated && session.user) {
-      // auth-bff may provide access_token in session response for BFF-to-service calls
+    const tokenData = await response.json();
+    // /internal/get-token returns { access_token, user_id, tenant_id, tenant_slug, expires_at }
+    if (tokenData.user_id) {
       return {
-        token: session.access_token || session.accessToken,
-        userId: session.user.id,
+        token: tokenData.access_token,
+        userId: tokenData.user_id,
       };
     }
     return null;

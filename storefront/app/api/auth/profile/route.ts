@@ -33,46 +33,42 @@ function decodeJwtPayload(token: string): { sub?: string; customer_id?: string; 
 async function getAuthContext(request: NextRequest): Promise<{ customerId?: string; token?: string } | null> {
   const authHeader = request.headers.get('Authorization');
 
-  console.log('[Profile API] getAuthContext - authHeader:', authHeader ? 'present' : 'missing');
-
   // Check if we have a valid JWT token
   if (authHeader && authHeader !== 'Bearer ' && authHeader !== 'Bearer') {
     const tokenPayload = decodeJwtPayload(authHeader);
-    console.log('[Profile API] JWT payload sub:', tokenPayload?.sub);
     if (tokenPayload?.sub) {
       return { customerId: tokenPayload.sub, token: authHeader };
     }
   }
 
   // Fall back to session-based auth (OAuth flow)
+  // Use /internal/get-token which returns access_token for BFF-to-service calls
   try {
     const cookie = request.headers.get('cookie');
-    console.log('[Profile API] Cookie header:', cookie ? `present (${cookie.length} chars)` : 'missing');
-    if (!cookie) return null;
+    if (!cookie) {
+      console.log('[Profile API] No cookie header present');
+      return null;
+    }
 
-    console.log('[Profile API] Calling auth-bff at:', AUTH_BFF_URL);
-    const response = await fetch(`${AUTH_BFF_URL}/auth/session`, {
+    const response = await fetch(`${AUTH_BFF_URL}/internal/get-token`, {
       headers: {
         'Cookie': cookie,
         'Accept': 'application/json',
       },
     });
 
-    console.log('[Profile API] auth-bff response status:', response.status);
-
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[Profile API] auth-bff error response:', errorText);
+      console.error('[Profile API] get-token error:', response.status, errorText);
       return null;
     }
 
-    const session = await response.json();
-    console.log('[Profile API] Session authenticated:', session.authenticated, 'user:', session.user?.id);
-    if (session.authenticated && session.user) {
+    const tokenData = await response.json();
+    // /internal/get-token returns { access_token, user_id, tenant_id, tenant_slug, expires_at }
+    if (tokenData.user_id) {
       return {
-        customerId: session.user.id,
-        // auth-bff may provide access_token for BFF-to-service calls
-        token: session.access_token ? `Bearer ${session.access_token}` : undefined,
+        customerId: tokenData.user_id,
+        token: tokenData.access_token ? `Bearer ${tokenData.access_token}` : undefined,
       };
     }
   } catch (error) {

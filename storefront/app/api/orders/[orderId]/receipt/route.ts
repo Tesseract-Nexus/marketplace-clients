@@ -31,12 +31,13 @@ async function getSessionToken(request: NextRequest): Promise<{ token: string; t
     return { token, tenantId: payload?.tenant_id };
   }
 
-  // For browser navigation: get the access token from auth-bff session using cookies
+  // For browser navigation: get the access token from auth-bff using cookies
+  // Use /internal/get-token which returns access_token for BFF-to-service calls
   const cookie = request.headers.get('cookie');
   if (!cookie) return null;
 
   try {
-    const response = await fetch(`${AUTH_BFF_URL}/auth/session`, {
+    const response = await fetch(`${AUTH_BFF_URL}/internal/get-token`, {
       headers: {
         'Cookie': cookie,
         'Accept': 'application/json',
@@ -45,15 +46,13 @@ async function getSessionToken(request: NextRequest): Promise<{ token: string; t
 
     if (!response.ok) return null;
 
-    const session = await response.json();
-    if (session.authenticated && session.user) {
-      const token = session.access_token || session.accessToken;
-      if (token) {
-        return {
-          token,
-          tenantId: session.user.tenantId || session.user.tenant_id,
-        };
-      }
+    const tokenData = await response.json();
+    // /internal/get-token returns { access_token, user_id, tenant_id, tenant_slug, expires_at }
+    if (tokenData.access_token) {
+      return {
+        token: tokenData.access_token,
+        tenantId: tokenData.tenant_id,
+      };
     }
     return null;
   } catch (error) {
