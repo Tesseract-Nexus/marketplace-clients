@@ -57,8 +57,8 @@ export async function POST(
       {
         password: body.password,
         auth_method: body.auth_method || 'password',
-        timezone: body.timezone || 'UTC',
-        currency: body.currency || 'USD',
+        timezone: body.timezone || '',
+        currency: body.currency || '',
         business_model: body.business_model || 'ONLINE_STORE',
       }
     );

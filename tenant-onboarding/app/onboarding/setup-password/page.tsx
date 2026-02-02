@@ -178,8 +178,8 @@ function SetupPasswordContent() {
         password,
         auth_method: 'password',
         // Include store setup data for tenant configuration
-        timezone: storeSetup?.timezone || 'UTC',
-        currency: storeSetup?.currency || 'USD',
+        timezone: storeSetup?.timezone || '',
+        currency: storeSetup?.currency || '',
         business_model: storeSetup?.business_model || 'ONLINE_STORE',
       };
       devLog('[SetupPassword] Sending account setup with:', {
