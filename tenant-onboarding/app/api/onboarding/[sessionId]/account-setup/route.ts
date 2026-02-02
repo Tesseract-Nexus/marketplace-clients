@@ -40,8 +40,13 @@ export async function POST(
     const body: AccountSetupRequest = await request.json();
 
     // Validate required fields (password required only for password auth)
-    if (body.auth_method !== 'google' && (!body.password || body.password.length < 8)) {
-      return errorResponse('Password must be at least 8 characters', 400);
+    if (body.auth_method !== 'google') {
+      if (!body.password || body.password.length < 10) {
+        return errorResponse('Password must be at least 10 characters', 400);
+      }
+      if (!/[A-Z]/.test(body.password) || !/[a-z]/.test(body.password) || !/[0-9]/.test(body.password) || !/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(body.password)) {
+        return errorResponse('Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character', 400);
+      }
     }
 
     // Proxy to tenant-service account-setup endpoint

@@ -18,10 +18,11 @@ const devError = (...args: unknown[]) => isDev && console.error(...args);
 
 // Password requirements
 const PASSWORD_REQUIREMENTS = [
-  { id: 'length', label: 'At least 8 characters', check: (p: string) => p.length >= 8 },
+  { id: 'length', label: 'At least 10 characters', check: (p: string) => p.length >= 10 },
   { id: 'uppercase', label: 'One uppercase letter', check: (p: string) => /[A-Z]/.test(p) },
   { id: 'lowercase', label: 'One lowercase letter', check: (p: string) => /[a-z]/.test(p) },
   { id: 'number', label: 'One number', check: (p: string) => /[0-9]/.test(p) },
+  { id: 'special', label: 'One special character', check: (p: string) => /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(p) },
 ];
 
 type SetupState = 'input' | 'creating' | 'provisioning' | 'success' | 'error';
