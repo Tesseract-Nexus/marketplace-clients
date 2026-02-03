@@ -361,11 +361,24 @@ export async function getStoreLocalization(
     const storeInfo = ecommerce?.store || {};
     const pricing = ecommerce?.pricing || {};
 
+    // Debug logging for currency resolution
+    console.log('[getStoreLocalization] Settings response:', {
+      tenantId: settingsTenantId,
+      url: `${serviceUrls.settings}/api/v1/public/settings/context?${queryParams.toString()}`,
+      rawResponse: JSON.stringify(response).substring(0, 500),
+      hasData: !!data,
+      dataId: data?.id,
+      localizationCurrency: localization?.currency,
+      pricingCurrencies: pricing?.currencies,
+    });
+
     // Get currency from multiple possible locations
     const currency =
       localization?.currency?.code ||
       pricing?.currencies?.primary ||
       defaults.currency;
+
+    console.log('[getStoreLocalization] Resolved currency:', currency);
 
     // Get country info from store address
     const storeAddr = storeInfo?.address || {};
