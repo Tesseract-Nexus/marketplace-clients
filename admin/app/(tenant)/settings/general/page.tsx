@@ -12,10 +12,14 @@ import {
   Palette,
   Globe,
   XCircle,
+  Gift,
+  X,
+  CreditCard,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { useDialog } from '@/contexts/DialogContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -23,6 +27,7 @@ import { settingsService } from '@/lib/services/settingsService';
 import { storefrontService } from '@/lib/services/storefrontService';
 import { tenantService, type TenantDetails } from '@/lib/services/tenantService';
 import type { Storefront } from '@/lib/api/types';
+import type { GiftCardTemplateSettings } from '@/lib/types/settings';
 import { locationApi } from '@/lib/api/location';
 import { LocationConfirmationModal, type DetectedLocationData } from '@/components/settings/LocationConfirmationModal';
 import { CreateStorefrontModal } from '@/components/settings/CreateStorefrontModal';
@@ -120,8 +125,8 @@ export default function GeneralSettingsPage() {
 
   // Tab state - check URL parameter for initial tab
   const tabParam = searchParams.get('tab');
-  const initialTab = tabParam === 'domains' ? 'domains' : tabParam === 'theme' ? 'theme' : tabParam === 'cancellation' ? 'cancellation' : 'general';
-  const [activeTab, setActiveTab] = useState<'general' | 'theme' | 'domains' | 'cancellation'>(initialTab);
+  const initialTab = tabParam === 'domains' ? 'domains' : tabParam === 'theme' ? 'theme' : tabParam === 'cancellation' ? 'cancellation' : tabParam === 'giftcards' ? 'giftcards' : 'general';
+  const [activeTab, setActiveTab] = useState<'general' | 'theme' | 'domains' | 'cancellation' | 'giftcards'>(initialTab);
 
   // Storefront state
   const [storefronts, setStorefronts] = useState<Storefront[]>([]);
@@ -151,6 +156,17 @@ export default function GeneralSettingsPage() {
   // Get vendor ID from tenant context
   const vendorId = currentTenant?.id || '';
 
+  // Gift Card Templates state
+  const defaultGiftCardSettings: GiftCardTemplateSettings = {
+    enabled: true,
+    presetAmounts: [500, 1000, 2000, 5000, 10000],
+    allowCustomAmount: true,
+    minAmount: 100,
+    maxAmount: 50000,
+  };
+  const [giftCardSettings, setGiftCardSettings] = useState<GiftCardTemplateSettings>(defaultGiftCardSettings);
+  const [savedGiftCardSettings, setSavedGiftCardSettings] = useState<GiftCardTemplateSettings>(defaultGiftCardSettings);
+
   // Update active tab when URL parameter changes
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -160,6 +176,8 @@ export default function GeneralSettingsPage() {
       setActiveTab('theme');
     } else if (tab === 'cancellation') {
       setActiveTab('cancellation');
+    } else if (tab === 'giftcards') {
+      setActiveTab('giftcards');
     }
   }, [searchParams]);
 
@@ -334,6 +352,19 @@ export default function GeneralSettingsPage() {
         setSettings(mappedSettings);
         setSavedSettings(mappedSettings);
 
+        // Load gift card settings from marketing data
+        if (data.marketing?.giftCardTemplates) {
+          const gcSettings: GiftCardTemplateSettings = {
+            enabled: data.marketing.giftCardTemplates.enabled ?? true,
+            presetAmounts: data.marketing.giftCardTemplates.presetAmounts || [500, 1000, 2000, 5000, 10000],
+            allowCustomAmount: data.marketing.giftCardTemplates.allowCustomAmount ?? true,
+            minAmount: data.marketing.giftCardTemplates.minAmount ?? 100,
+            maxAmount: data.marketing.giftCardTemplates.maxAmount ?? 50000,
+          };
+          setGiftCardSettings(gcSettings);
+          setSavedGiftCardSettings(gcSettings);
+        }
+
         const finalCountryCode = countryCode || tenantDefaults?.store.countryCode;
         if (finalCountryCode) {
           setDetectedCountryCode(finalCountryCode);
@@ -460,6 +491,52 @@ export default function GeneralSettingsPage() {
     } catch (err) {
       console.error('Error saving settings:', err);
       toast.error('Error', 'Failed to save settings');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleSaveGiftCards = async () => {
+    if (!selectedStorefront) {
+      toast.error('Error', 'Please select a storefront first');
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+
+      const tenantId = currentTenant?.id || '';
+      if (!tenantId) {
+        toast.error('Error', 'Unable to save: No tenant context available');
+        return;
+      }
+
+      // Build settings payload with gift card settings in marketing
+      const payload = {
+        context: {
+          applicationId: 'admin-portal',
+          scope: 'application' as const,
+          tenantId: tenantId,
+        },
+        marketing: {
+          giftCardTemplates: giftCardSettings,
+        },
+      };
+
+      if (settingsId) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await settingsService.updateSettings(settingsId, payload as any, tenantId);
+      } else {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const newSettings = await settingsService.createSettings(payload as any, tenantId);
+        setSettingsId(newSettings.id);
+      }
+
+      setSavedGiftCardSettings(giftCardSettings);
+      toast.success('Success', 'Gift card settings saved successfully!');
+    } catch (err) {
+      console.error('Error saving gift card settings:', err);
+      toast.error('Error', 'Failed to save gift card settings');
     } finally {
       setIsSaving(false);
     }
@@ -680,6 +757,7 @@ export default function GeneralSettingsPage() {
   }, []);
 
   const hasChanges = JSON.stringify(settings) !== JSON.stringify(savedSettings);
+  const hasGiftCardChanges = JSON.stringify(giftCardSettings) !== JSON.stringify(savedGiftCardSettings);
 
   // Calculate setup progress
   const setupProgress = React.useMemo(() => {
@@ -755,11 +833,25 @@ export default function GeneralSettingsPage() {
                   Save Changes
                 </Button>
               )}
+              {activeTab === 'giftcards' && selectedStorefront && (
+                <Button
+                  onClick={handleSaveGiftCards}
+                  disabled={!hasGiftCardChanges || isSaving}
+                  className="bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                >
+                  {isSaving ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  Save Changes
+                </Button>
+              )}
             </div>
 
             {/* Tabs */}
             <div className="px-6 pb-4">
-              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'general' | 'theme' | 'domains' | 'cancellation')}>
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'general' | 'theme' | 'domains' | 'cancellation' | 'giftcards')}>
                 <TabsList className="inline-flex h-auto items-center justify-start rounded-xl bg-card border border-border p-1 shadow-sm">
                   <TabsTrigger
                     value="general"
@@ -788,6 +880,13 @@ export default function GeneralSettingsPage() {
                   >
                     <XCircle className="h-4 w-4" />
                     Cancellation
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="giftcards"
+                    className="flex items-center gap-2 px-4 py-2 text-sm rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+                  >
+                    <Gift className="h-4 w-4" />
+                    Gift Cards
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -1000,6 +1099,170 @@ export default function GeneralSettingsPage() {
                 >
                   <CancellationTabContent />
                 </Suspense>
+              </TabsContent>
+
+              {/* Gift Cards Tab Content */}
+              <TabsContent value="giftcards" className="h-full m-0 p-0">
+                {selectedStorefront ? (
+                  loading ? (
+                    <div className="flex items-center justify-center py-20">
+                      <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                    </div>
+                  ) : (
+                    <div className="max-w-2xl mx-auto p-6 space-y-6">
+                      {/* Gift Card Templates */}
+                      <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                            <CreditCard className="h-6 w-6 text-purple-500" />
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-xl font-bold text-foreground">Gift Card Templates</h3>
+                            <p className="text-sm text-muted-foreground">Configure gift card preset amounts for your storefront</p>
+                          </div>
+                          <Checkbox
+                            checked={giftCardSettings.enabled ?? true}
+                            onChange={(e) => setGiftCardSettings({ ...giftCardSettings, enabled: e.target.checked })}
+                            label="Enable"
+                          />
+                        </div>
+
+                        {giftCardSettings.enabled !== false && (
+                          <div className="space-y-6">
+                            {/* Preset Amounts */}
+                            <div>
+                              <label className="block text-sm font-semibold text-foreground mb-2">
+                                Preset Amounts
+                              </label>
+                              <p className="text-xs text-muted-foreground mb-3">
+                                These amounts will be shown as quick-select buttons on the storefront gift card page
+                              </p>
+                              <div className="flex flex-wrap gap-2 mb-3">
+                                {(giftCardSettings.presetAmounts || []).map((amount, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex items-center gap-1 px-3 py-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium"
+                                  >
+                                    <span>{amount.toLocaleString()}</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const newAmounts = [...(giftCardSettings.presetAmounts || [])];
+                                        newAmounts.splice(index, 1);
+                                        setGiftCardSettings({ ...giftCardSettings, presetAmounts: newAmounts });
+                                      }}
+                                      className="ml-1 hover:text-purple-900 dark:hover:text-purple-100"
+                                    >
+                                      <X className="h-3 w-3" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                              <div className="flex gap-2">
+                                <Input
+                                  type="number"
+                                  min="1"
+                                  placeholder="Enter amount"
+                                  className="w-40"
+                                  id="gift-card-amount-input"
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      e.preventDefault();
+                                      const input = e.target as HTMLInputElement;
+                                      const value = parseInt(input.value);
+                                      if (value > 0) {
+                                        const currentAmounts = giftCardSettings.presetAmounts || [];
+                                        if (!currentAmounts.includes(value)) {
+                                          const newAmounts = [...currentAmounts, value].sort((a, b) => a - b);
+                                          setGiftCardSettings({ ...giftCardSettings, presetAmounts: newAmounts });
+                                        }
+                                        input.value = '';
+                                      }
+                                    }
+                                  }}
+                                />
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    const input = document.getElementById('gift-card-amount-input') as HTMLInputElement;
+                                    const value = parseInt(input?.value || '0');
+                                    if (value > 0) {
+                                      const currentAmounts = giftCardSettings.presetAmounts || [];
+                                      if (!currentAmounts.includes(value)) {
+                                        const newAmounts = [...currentAmounts, value].sort((a, b) => a - b);
+                                        setGiftCardSettings({ ...giftCardSettings, presetAmounts: newAmounts });
+                                      }
+                                      if (input) input.value = '';
+                                    }
+                                  }}
+                                >
+                                  <Plus className="h-4 w-4 mr-1" />
+                                  Add
+                                </Button>
+                              </div>
+                            </div>
+
+                            {/* Custom Amount Settings */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                              <div className="md:col-span-1">
+                                <Checkbox
+                                  checked={giftCardSettings.allowCustomAmount ?? true}
+                                  onChange={(e) => setGiftCardSettings({ ...giftCardSettings, allowCustomAmount: e.target.checked })}
+                                  label="Allow Custom Amount"
+                                  description="Let customers enter their own amount"
+                                />
+                              </div>
+
+                              {giftCardSettings.allowCustomAmount !== false && (
+                                <>
+                                  <div>
+                                    <label className="block text-sm font-semibold text-foreground mb-2">
+                                      Minimum Amount
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      min="1"
+                                      value={giftCardSettings.minAmount ?? 100}
+                                      onChange={(e) => setGiftCardSettings({ ...giftCardSettings, minAmount: parseInt(e.target.value) || 1 })}
+                                    />
+                                    <p className="text-xs text-muted-foreground mt-1">Minimum custom amount allowed</p>
+                                  </div>
+
+                                  <div>
+                                    <label className="block text-sm font-semibold text-foreground mb-2">
+                                      Maximum Amount
+                                    </label>
+                                    <Input
+                                      type="number"
+                                      min="1"
+                                      value={giftCardSettings.maxAmount ?? 50000}
+                                      onChange={(e) => setGiftCardSettings({ ...giftCardSettings, maxAmount: parseInt(e.target.value) || 1 })}
+                                    />
+                                    <p className="text-xs text-muted-foreground mt-1">Maximum custom amount allowed</p>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )
+                ) : (
+                  <div className="flex items-center justify-center py-20">
+                    <div className="text-center max-w-md">
+                      <Gift className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-foreground mb-2">
+                        Select a Storefront
+                      </h3>
+                      <p className="text-muted-foreground text-sm">
+                        Please select a storefront from the sidebar to configure gift card settings.
+                      </p>
+                    </div>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>
