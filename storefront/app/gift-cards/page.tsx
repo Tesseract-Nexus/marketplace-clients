@@ -57,11 +57,9 @@ export default function GiftCardsPage() {
           setTemplates(loadedTemplates);
           // Select the first amount from the template, or default to first amount
           const firstTemplate = loadedTemplates[0];
-          if (firstTemplate?.amounts?.length > 0) {
-            setSelectedAmount(firstTemplate.amounts[0]);
-          } else {
-            setSelectedAmount(DEFAULT_AMOUNTS[0]);
-          }
+          const amounts = firstTemplate?.amounts ?? [];
+          const defaultAmount = DEFAULT_AMOUNTS[0] as number;
+          setSelectedAmount(amounts.length > 0 ? (amounts[0] as number) : defaultAmount);
         })
         .catch(console.error);
     }
