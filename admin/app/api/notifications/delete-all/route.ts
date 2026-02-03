@@ -3,6 +3,17 @@ import { proxyToBackend, handleApiError, getProxyHeaders, CACHE_CONFIG } from '@
 
 const NOTIFICATION_HUB_URL = process.env.NOTIFICATION_HUB_URL || 'http://notification-hub.devtest.svc.cluster.local:8080/api/v1';
 
+async function safeParseResponse(response: Response): Promise<any> {
+  const contentType = response.headers.get('content-type') || '';
+  const text = await response.text();
+  try {
+    if (contentType.includes('application/json') && text) return JSON.parse(text);
+    return { success: false, error: { code: 'UPSTREAM_ERROR', message: text.substring(0, 200) || `Backend returned ${response.status}` } };
+  } catch {
+    return { success: false, error: { code: 'PARSE_ERROR', message: text.substring(0, 200) } };
+  }
+}
+
 /**
  * DELETE /api/notifications/delete-all
  * Delete all notifications for the current user
@@ -16,7 +27,7 @@ export async function DELETE(request: NextRequest) {
       incomingRequest: request,
     });
 
-    const data = await response.json();
+    const data = await safeParseResponse(response);
 
     if (!response.ok) {
       return NextResponse.json(data, { status: response.status });

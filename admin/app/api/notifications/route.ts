@@ -4,6 +4,37 @@ import { proxyToBackend, handleApiError, getProxyHeaders } from '@/lib/utils/api
 const NOTIFICATION_HUB_URL = process.env.NOTIFICATION_HUB_URL || 'http://notification-hub.devtest.svc.cluster.local:8080/api/v1';
 
 /**
+ * Safely parse JSON response, handling non-JSON responses (e.g., gateway errors)
+ */
+async function safeParseResponse(response: Response): Promise<any> {
+  const contentType = response.headers.get('content-type') || '';
+  const text = await response.text();
+
+  try {
+    if (contentType.includes('application/json') && text) {
+      return JSON.parse(text);
+    }
+    // Non-JSON response (connection error, gateway timeout, etc.)
+    return {
+      success: false,
+      error: {
+        code: 'UPSTREAM_ERROR',
+        message: text.substring(0, 200) || `Backend returned ${response.status}`
+      }
+    };
+  } catch {
+    // JSON parse error
+    return {
+      success: false,
+      error: {
+        code: 'PARSE_ERROR',
+        message: text.substring(0, 200)
+      }
+    };
+  }
+}
+
+/**
  * GET /api/notifications
  * Fetch notifications for the current user
  * Uses proxyToBackend which properly extracts JWT claims and forwards Istio headers
@@ -19,7 +50,7 @@ export async function GET(request: NextRequest) {
       incomingRequest: request,
     });
 
-    const data = await response.json();
+    const data = await safeParseResponse(response);
 
     if (!response.ok) {
       return NextResponse.json(data, { status: response.status });
