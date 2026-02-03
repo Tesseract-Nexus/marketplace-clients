@@ -192,12 +192,8 @@ export function useTranslatedText(
   }, [initialValue]);
 
   useEffect(() => {
-    // Debug logging
-    console.log('[Translation] Effect running:', { text: text?.substring(0, 30), preferredLanguage, isHydrated, skip, effectiveSourceLang });
-
     // Don't translate until hydrated
     if (!isHydrated) {
-      console.log('[Translation] Skipping: not hydrated');
       return;
     }
 
@@ -209,14 +205,12 @@ export function useTranslatedText(
 
     // Skip translation conditions
     if (skip || preferredLanguage === 'en') {
-      console.log('[Translation] Skipping: English or skip flag', { skip, preferredLanguage });
       setTranslatedText(text);
       return;
     }
 
     // Check if source and target are the same
     if (effectiveSourceLang && effectiveSourceLang === preferredLanguage) {
-      console.log('[Translation] Skipping: source === target');
       setTranslatedText(text);
       return;
     }
@@ -224,14 +218,12 @@ export function useTranslatedText(
     // Check cache first (already done in initialValue, but recheck in case cache was updated)
     const cached = getCachedTranslation(cacheKey);
     if (cached) {
-      console.log('[Translation] Using cached:', cached.substring(0, 30));
       setTranslatedText(cached);
       return;
     }
 
     // Translate
     const doTranslate = async () => {
-      console.log('[Translation] Calling translate API for:', text?.substring(0, 30));
       // Cancel previous request
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -243,7 +235,6 @@ export function useTranslatedText(
 
       try {
         const result = await translate(text, context);
-        console.log('[Translation] Got result:', result?.substring(0, 30));
         setCachedTranslation(cacheKey, result);
         setTranslatedText(result);
       } catch (err) {
