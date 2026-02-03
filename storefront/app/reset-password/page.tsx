@@ -65,7 +65,7 @@ function ResetPasswordContent() {
 
     // Validate password
     if (password.length < 8) {
-      setError('Password must be at least 8 characters long');
+      setError('Password must be at least 10 characters long');
       return;
     }
 
@@ -263,7 +263,7 @@ function ResetPasswordContent() {
                 </button>
               </div>
               <p className="text-xs text-muted-foreground">
-                <TranslatedUIText text="Must be at least 8 characters with uppercase, lowercase, and number" />
+                <TranslatedUIText text="Must be at least 10 characters with uppercase, lowercase, and number" />
               </p>
             </div>
 

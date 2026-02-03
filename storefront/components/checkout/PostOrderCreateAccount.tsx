@@ -51,8 +51,8 @@ export function PostOrderCreateAccount({
       return;
     }
 
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters');
+    if (password.length < 10) {
+      setError('Password must be at least 10 characters');
       return;
     }
 
@@ -175,12 +175,12 @@ export function PostOrderCreateAccount({
                     <Input
                       id="password"
                       type="password"
-                      placeholder="Min. 8 characters"
+                      placeholder="Min. 10 characters"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="pl-10"
                       required
-                      minLength={8}
+                      minLength={10}
                     />
                   </div>
                 </div>

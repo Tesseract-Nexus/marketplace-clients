@@ -161,7 +161,7 @@ export default function RegisterPage() {
   };
 
   const passwordRequirements = [
-    { label: 'At least 8 characters', test: (p: string) => p.length >= 8 },
+    { label: 'At least 10 characters', test: (p: string) => p.length >= 10 },
     { label: 'Contains a number', test: (p: string) => /\d/.test(p) },
     { label: 'Contains uppercase letter', test: (p: string) => /[A-Z]/.test(p) },
     { label: 'Contains lowercase letter', test: (p: string) => /[a-z]/.test(p) },
