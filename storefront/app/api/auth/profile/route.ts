@@ -121,7 +121,10 @@ export async function GET(request: NextRequest) {
     }
 
     const data = await response.json();
-    return NextResponse.json({ success: true, data: data.data || data });
+    console.log('[Profile API] GET raw response from customers-service:', JSON.stringify(data));
+    const customerData = data.data || data;
+    console.log('[Profile API] GET customer phone:', customerData.phone || 'NOT PRESENT');
+    return NextResponse.json({ success: true, data: customerData });
   } catch (error) {
     console.error('[Profile API] GET error:', error);
     return NextResponse.json(
@@ -166,6 +169,11 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    // Debug logging for phone field
+    console.log('[Profile API] Raw request body:', JSON.stringify(body));
+    console.log('[Profile API] Phone field in body:', 'phone' in body, '| value:', body.phone);
+    console.log('[Profile API] Extracted updateData:', JSON.stringify(updateData));
+
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
         { success: false, error: 'No valid fields to update' },
@@ -173,7 +181,7 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    console.log(`[Profile API] Updating customer ${customerId}:`, updateData);
+    console.log(`[Profile API] Updating customer ${customerId} with data:`, JSON.stringify(updateData));
 
     // Build headers for internal service call
     const headers: Record<string, string> = {
@@ -218,7 +226,8 @@ export async function PUT(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log('[Profile API] Update successful:', data);
+    console.log('[Profile API] Update successful. Response data:', JSON.stringify(data));
+    console.log('[Profile API] Phone in response:', data.data?.phone || data.phone || 'NOT PRESENT');
 
     return NextResponse.json({
       success: true,

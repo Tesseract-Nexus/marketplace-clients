@@ -64,7 +64,7 @@ function ResetPasswordContent() {
     setError('');
 
     // Validate password
-    if (password.length < 8) {
+    if (password.length < 10) {
       setError('Password must be at least 10 characters long');
       return;
     }
@@ -250,7 +250,7 @@ function ResetPasswordContent() {
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-10 pr-10"
                   required
-                  minLength={8}
+                  minLength={10}
                   autoComplete="new-password"
                   autoFocus
                 />
@@ -281,7 +281,7 @@ function ResetPasswordContent() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="pl-10 pr-10"
                   required
-                  minLength={8}
+                  minLength={10}
                   autoComplete="new-password"
                 />
                 <button
