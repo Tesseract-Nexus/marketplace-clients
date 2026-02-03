@@ -15,10 +15,19 @@ export async function POST(
   try {
     const { id } = await params;
 
+    // Read the incoming request body (may be empty object {})
+    let body = {};
+    try {
+      body = await request.json();
+    } catch {
+      // No body or invalid JSON - use empty object
+    }
+
     const response = await proxyToBackend(CATEGORIES_SERVICE_URL, `categories/${id}/submit-for-approval`, {
       method: 'POST',
       headers: await getProxyHeaders(request),
       incomingRequest: request,
+      body, // Forward the request body to the backend
     });
 
     const data = await response.json();
