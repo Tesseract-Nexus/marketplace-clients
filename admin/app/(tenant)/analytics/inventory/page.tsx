@@ -13,7 +13,7 @@ import {
   ArrowDownRight,
 } from 'lucide-react';
 import { LastUpdatedStatus } from '@/components/LastUpdatedStatus';
-import { PermissionGate, Permission } from '@/components/permission-gate';
+import { PermissionGate, Permission, PermissionDeniedFallback } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
 import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/PageHeader';
@@ -38,7 +38,6 @@ import {
   formatChartAxisCurrency,
 } from '@/lib/utils/currency';
 import { cn } from '@/lib/utils';
-import { ErrorState } from '@/components/ui/error-state';
 
 const COLORS = ['#6366f1', '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', '#3b82f6', '#ef4444', '#14b8a6'];
 
@@ -160,6 +159,19 @@ export default function InventoryAnalyticsPage() {
     );
   }
 
+  // Show permission denied fallback if API returns permission error
+  // This has the same look and feel as PermissionGate's styled fallback
+  if (error && isPermissionError(error)) {
+    return (
+      <PermissionDeniedFallback
+        title="Inventory Analytics Access Required"
+        description={error instanceof ApiError && error.details?.required
+          ? `You need the "${error.details.required}" permission to view inventory analytics.`
+          : "You don't have the required permissions to view inventory analytics. Please contact your administrator to request access."}
+      />
+    );
+  }
+
   return (
     <PermissionGate
       permission={Permission.ANALYTICS_READ}
@@ -208,26 +220,12 @@ export default function InventoryAnalyticsPage() {
           }
         />
 
-        {error && isPermissionError(error) ? (
-          <ErrorState
-            type="permission_denied"
-            title="Inventory Analytics Access Required"
-            description={error instanceof ApiError && error.details?.required
-              ? `You need the "${error.details.required}" permission to view inventory analytics.`
-              : "You don't have the required permissions to view inventory analytics."}
-            suggestions={[
-              'Contact your administrator to request access',
-              'You may need a higher role to view analytics data',
-            ]}
-            showHomeButton
-            compact
-          />
-        ) : error ? (
+        {error && (
           <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-center gap-3">
             <AlertTriangle className="h-5 w-5 text-warning" />
             <p className="text-warning">{error instanceof Error ? error.message : 'Failed to load inventory analytics'}</p>
           </div>
-        ) : null}
+        )}
 
         {/* Key Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">

@@ -15,7 +15,7 @@ import {
   LayoutGrid,
 } from 'lucide-react';
 import { LastUpdatedStatus } from '@/components/LastUpdatedStatus';
-import { PermissionGate, Permission } from '@/components/permission-gate';
+import { PermissionGate, Permission, PermissionDeniedFallback } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/Select';
@@ -38,7 +38,6 @@ import {
 import { SafeChartContainer } from '@/components/ui/safe-chart-container';
 import { useTenantCurrency } from '@/hooks/useTenantCurrency';
 import { useSalesAnalytics, useInvalidateAnalytics, isPermissionError, ApiError } from '@/hooks/useAnalyticsQueries';
-import { ErrorState } from '@/components/ui/error-state';
 import {
   formatCurrency as formatCurrencyUtil,
   formatChartAxisCurrency,
@@ -187,6 +186,19 @@ export default function SalesAnalyticsPage() {
     );
   }
 
+  // Show permission denied fallback if API returns permission error
+  // This has the same look and feel as PermissionGate's styled fallback
+  if (error && isPermissionError(error)) {
+    return (
+      <PermissionDeniedFallback
+        title="Sales Analytics Access Required"
+        description={error instanceof ApiError && error.details?.required
+          ? `You need the "${error.details.required}" permission to view sales analytics.`
+          : "You don't have the required permissions to view sales analytics. Please contact your administrator to request access."}
+      />
+    );
+  }
+
   return (
     <PermissionGate
       permission={Permission.ANALYTICS_READ}
@@ -242,26 +254,12 @@ export default function SalesAnalyticsPage() {
           }
         />
 
-        {error && isPermissionError(error) ? (
-          <ErrorState
-            type="permission_denied"
-            title="Sales Analytics Access Required"
-            description={error instanceof ApiError && error.details?.required
-              ? `You need the "${error.details.required}" permission to view sales analytics.`
-              : "You don't have the required permissions to view sales analytics."}
-            suggestions={[
-              'Contact your administrator to request access',
-              'You may need a higher role to view analytics data',
-            ]}
-            showHomeButton
-            compact
-          />
-        ) : error ? (
+        {error && (
           <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-center gap-3">
             <AlertTriangle className="h-5 w-5 text-warning" />
             <p className="text-warning">{error instanceof Error ? error.message : 'Failed to load sales analytics'}</p>
           </div>
-        ) : null}
+        )}
 
         {/* Key Metrics */}
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
