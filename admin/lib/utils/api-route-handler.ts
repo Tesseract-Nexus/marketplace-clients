@@ -544,6 +544,9 @@ export async function proxyToBackend(
     // Use async version to support BFF session token retrieval
     const proxyHeaders = await getProxyHeadersAsync(incomingRequest, headers);
 
+    console.log('[proxyToBackend] URL:', url.toString());
+    console.log('[proxyToBackend] Final headers being sent:', JSON.stringify(proxyHeaders, null, 2));
+
     const response = await fetch(url.toString(), {
       method,
       headers: proxyHeaders,
