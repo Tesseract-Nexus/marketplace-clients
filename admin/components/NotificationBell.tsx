@@ -74,6 +74,7 @@ export function NotificationBell() {
     unreadCount,
     isConnected,
     isLoading,
+    hasNewNotification,
     markAsRead,
     markAllAsRead,
     deleteNotification,
@@ -357,8 +358,9 @@ export function NotificationBell() {
       >
         <Bell
           className={cn(
-            'w-5 h-5 transition-colors',
-            unreadCount > 0 ? 'text-primary' : 'text-muted-foreground'
+            'w-5 h-5 transition-all duration-300',
+            unreadCount > 0 ? 'text-primary' : 'text-muted-foreground',
+            hasNewNotification && 'animate-[ring_0.5s_ease-in-out_3]'
           )}
         />
 

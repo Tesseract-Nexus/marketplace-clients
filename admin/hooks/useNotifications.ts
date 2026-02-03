@@ -46,6 +46,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasNewNotification, setHasNewNotification] = useState(false);
 
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -59,17 +60,29 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isOnlineRef = useRef(typeof navigator !== 'undefined' ? navigator.onLine : true);
 
-  // Play notification sound
+  // Play notification sound using Web Audio API (no MP3 needed)
   const playNotificationSound = useCallback(() => {
     if (enableSound && typeof window !== 'undefined') {
       try {
-        const audio = new Audio('/sounds/notification.mp3');
-        audio.volume = 0.5;
-        audio.play().catch(() => {
-          // Audio play failed - user hasn't interacted with page yet
-        });
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        // Create a pleasant notification sound (two-tone)
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.frequency.setValueAtTime(600, audioContext.currentTime + 0.1);
+
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.2);
       } catch {
-        // Audio not supported
+        // Audio not supported or user hasn't interacted with page yet
       }
     }
   }, [enableSound]);
@@ -271,12 +284,24 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     }
 
     // Build WebSocket URL using API gateway (not admin host)
-    // Admin host: demo-store-admin.tesserix.app -> API host: demo-store-api.tesserix.app
+    // Supports multiple domain patterns:
+    // 1. admin.example.com -> api.example.com
+    // 2. example-admin.tesserix.app -> example-api.tesserix.app
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const adminHost = window.location.host;
-    // Convert admin host to API host: replace '-admin.' with '-api.'
-    // e.g., demo-store-admin.tesserix.app -> demo-store-api.tesserix.app
-    const apiHost = adminHost.replace('-admin.', '-api.');
+
+    let apiHost: string;
+    if (adminHost.startsWith('admin.')) {
+      // Pattern: admin.example.com -> api.example.com
+      apiHost = adminHost.replace(/^admin\./, 'api.');
+    } else if (adminHost.includes('-admin.')) {
+      // Pattern: example-admin.tesserix.app -> example-api.tesserix.app
+      apiHost = adminHost.replace('-admin.', '-api.');
+    } else {
+      // Fallback: use admin host as-is (for local dev)
+      apiHost = adminHost;
+    }
+
     const wsPath = '/api/v1/notifications/ws';
     // Use ticket-based auth instead of raw tokens
     const wsUrl = `${protocol}//${apiHost}${wsPath}?ticket=${encodeURIComponent(ticket)}&tenant_id=${encodeURIComponent(currentTenant.id)}&user_id=${encodeURIComponent(user.id)}`;
@@ -319,6 +344,9 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
                 if (!newNotification.isRead) {
                   setUnreadCount(prev => prev + 1);
                   playNotificationSound();
+                  // Trigger bell animation
+                  setHasNewNotification(true);
+                  setTimeout(() => setHasNewNotification(false), 3000); // Reset after 3s
                 }
                 break;
 
@@ -553,6 +581,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     isConnected,
     isLoading,
     error,
+    hasNewNotification,
     markAsRead,
     markAllAsRead,
     deleteNotification,
