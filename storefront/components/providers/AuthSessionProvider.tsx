@@ -138,8 +138,6 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
           // This runs after login so the store is already populated with basic session data
           fetchCustomerProfile(sessionUser.tenantId).then((profile) => {
             if (profile) {
-              console.log('[AuthSessionProvider] Profile from customers-service:', JSON.stringify(profile));
-              console.log('[AuthSessionProvider] Phone from profile:', profile.phone || 'NOT PRESENT');
               updateCustomer({
                 phone: profile.phone,
                 country: profile.country,
@@ -150,8 +148,6 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
                 ...(profile.lastName && { lastName: profile.lastName }),
                 ...(profile.createdAt && { createdAt: profile.createdAt }),
               });
-            } else {
-              console.log('[AuthSessionProvider] No profile returned from customers-service');
             }
           }).catch((err) => {
             console.warn('[AuthSessionProvider] Failed to fetch customer profile:', err);
