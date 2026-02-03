@@ -21,6 +21,7 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { useNotifications, Notification } from '@/hooks/useNotifications';
 import { useIsMobile } from '@/hooks/useMediaQuery';
 import { NotificationItem } from '@/components/notifications/NotificationItem';
@@ -219,63 +220,80 @@ export function NotificationBell() {
         </div>
 
         <div className="flex items-center gap-1">
-          {/* Connection status */}
-          <Badge
-            variant={isConnected ? 'outline' : 'secondary'}
-            className={cn(
-              'gap-1.5 text-xs',
-              isConnected ? 'border-success text-success' : 'text-muted-foreground'
-            )}
-          >
-            {isConnected ? (
-              <>
-                <Wifi className="w-3 h-3" />
-                <span className="hidden sm:inline">Live</span>
-              </>
-            ) : (
-              <>
-                <WifiOff className="w-3 h-3" />
-                <span className="hidden sm:inline">Offline</span>
-              </>
-            )}
-          </Badge>
+          {/* Connection status - icon only with tooltip */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div
+                  className={cn(
+                    'flex items-center justify-center w-8 h-8 rounded-lg',
+                    isConnected ? 'text-success' : 'text-muted-foreground'
+                  )}
+                >
+                  {isConnected ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                {isConnected ? 'Live updates active' : 'Offline - using polling'}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
 
-          {/* Actions */}
+          {/* Actions - icon only with tooltips */}
           {unreadCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-2 text-xs font-medium text-success hover:bg-success-muted hover:text-success"
-              onClick={markAllAsRead}
-              aria-label="Mark all as read"
-            >
-              <CheckCheck className="w-3.5 h-3.5 mr-1" />
-              <span className="hidden sm:inline">All read</span>
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-success hover:bg-success-muted hover:text-success"
+                    onClick={markAllAsRead}
+                    aria-label="Mark all as read"
+                  >
+                    <CheckCheck className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Mark all as read</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
 
           {notifications.length > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 px-2 text-xs font-medium text-error hover:bg-error-muted hover:text-error"
-              onClick={deleteAllNotifications}
-              aria-label="Clear all notifications"
-            >
-              <XCircle className="w-3.5 h-3.5 mr-1" />
-              <span className="hidden sm:inline">Clear</span>
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0 text-error hover:bg-error-muted hover:text-error"
+                    onClick={deleteAllNotifications}
+                    aria-label="Clear all notifications"
+                  >
+                    <XCircle className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Clear all</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
 
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
-            onClick={refresh}
-            aria-label="Refresh notifications"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-          </Button>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
+                  onClick={refresh}
+                  aria-label="Refresh notifications"
+                >
+                  <RotateCcw className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Refresh</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 
