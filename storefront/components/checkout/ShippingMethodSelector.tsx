@@ -12,11 +12,13 @@ import {
   getShippingMethods,
   getShippingRatesForOrder,
   getShippingSettings,
+  getAvailableCarriers,
   calculateShippingCost,
   getEstimatedDeliveryDate,
   type ShippingMethod,
   type ShippingRate,
   type WarehouseAddress,
+  type AvailableShippingCarrier,
 } from '@/lib/api/shipping';
 
 interface ShippingMethodSelectorProps {
@@ -72,6 +74,7 @@ export function ShippingMethodSelector({
   const { formatDisplayPrice } = usePriceFormatting();
   const [methods, setMethods] = useState<ShippingMethod[]>([]);
   const [carrierRates, setCarrierRates] = useState<ShippingRate[]>([]);
+  const [availableCarriers, setAvailableCarriers] = useState<AvailableShippingCarrier[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [usingCarrierRates, setUsingCarrierRates] = useState(false);
@@ -89,6 +92,20 @@ export function ShippingMethodSelector({
   const { translatedText: guaranteedText } = useTranslatedText('Guaranteed', { context: 'shipping' });
   const { translatedText: optionsAvailableText } = useTranslatedText('options available', { context: 'shipping' });
   const { translatedText: optionAvailableText } = useTranslatedText('option available', { context: 'shipping' });
+
+  // Fetch available carriers on mount (before address entry)
+  useEffect(() => {
+    const fetchCarriers = async () => {
+      if (!tenant) return;
+      try {
+        const carriers = await getAvailableCarriers(tenant.id, tenant.storefrontId, countryCode);
+        setAvailableCarriers(carriers.filter((c) => c.isEnabled));
+      } catch (err) {
+        console.log('[ShippingMethodSelector] Could not fetch available carriers:', err);
+      }
+    };
+    fetchCarriers();
+  }, [tenant, countryCode]);
 
   // Fetch warehouse address from shipping settings
   useEffect(() => {
@@ -232,6 +249,18 @@ export function ShippingMethodSelector({
     );
   }
 
+  // Carrier discovery indicator (shown when carriers are known but no rates yet)
+  const carrierIndicator =
+    availableCarriers.length > 0 && !usingCarrierRates && carrierRates.length === 0 ? (
+      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3 px-1">
+        <Truck className="h-3 w-3" />
+        <span>
+          Shipping via {availableCarriers.map((c) => c.displayName).join(', ')}
+          {!postalCode && ' — enter your address for live rates'}
+        </span>
+      </div>
+    ) : null;
+
   // Render carrier rates
   if (usingCarrierRates && carrierRates.length > 0) {
     return (
@@ -332,6 +361,7 @@ export function ShippingMethodSelector({
 
   return (
     <div className="space-y-3">
+      {carrierIndicator}
       <AnimatePresence mode="popLayout">
         {methods.map((method, index) => {
           const cost = calculateShippingCost(method, orderSubtotal);

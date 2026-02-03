@@ -554,12 +554,12 @@ export default function ProductsPage() {
     };
 
     if (showCategoryDropdown) {
-      // Use click event (not mousedown) since dropdown prevents default on mousedown
-      document.addEventListener('click', handleClickOutside);
+      // Use mousedown for outside click detection - buttons use stopPropagation to prevent closing
+      document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('click', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showCategoryDropdown]);
 
@@ -1974,7 +1974,6 @@ export default function ProductsPage() {
                         {showCategoryDropdown && (
                           <div
                             className="absolute z-[100] w-full mt-2 bg-card border-2 border-border rounded-xl shadow-xl max-h-64 overflow-y-auto"
-                            onMouseDown={(e) => e.preventDefault()}
                           >
                             {loadingCategories ? (
                               <div className="px-4 py-3 text-muted-foreground flex items-center gap-2">
@@ -1995,7 +1994,8 @@ export default function ProductsPage() {
                                       <button
                                         key={isCategory ? id : name}
                                         type="button"
-                                        onClick={() => {
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           if (isCategory) {
                                             setFormData(prev => ({ ...prev, categoryId: id }));
                                             setCategorySearchQuery('');
@@ -2005,6 +2005,7 @@ export default function ProductsPage() {
                                             handleCreateCategory(name);
                                           }
                                         }}
+                                        onMouseDown={(e) => e.stopPropagation()}
                                         className={cn(
                                           "w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-primary/10 transition-colors",
                                           isSelected && "bg-primary/10 text-primary"
@@ -2031,7 +2032,11 @@ export default function ProductsPage() {
                                 {categorySearchQuery.trim() && !categories.some(c => c.name.toLowerCase() === categorySearchQuery.toLowerCase()) && (
                                   <button
                                     type="button"
-                                    onClick={() => handleCreateCategory(categorySearchQuery)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleCreateCategory(categorySearchQuery);
+                                    }}
+                                    onMouseDown={(e) => e.stopPropagation()}
                                     disabled={creatingCategory}
                                     className="w-full px-4 py-3 text-left flex items-center gap-3 hover:bg-success-muted transition-colors border-t border-border text-success"
                                   >

@@ -13,6 +13,7 @@ import { ERROR_CODES } from './api-error';
 import { getAccessTokenFromBFF } from '@/app/api/lib/auth-helper';
 import { logger } from '../logger';
 import { validateCsrfRequest, createCsrfErrorResponse, requiresCsrfProtection } from '../security/csrf';
+import { logAuditEvent } from './audit-logger';
 
 const AUTH_BFF_INTERNAL_URL =
   process.env.AUTH_BFF_INTERNAL_URL || 'http://auth-bff.marketplace.svc.cluster.local:8080';
@@ -699,11 +700,15 @@ export async function proxyPost(
     const status = !response.ok ? response.status : (!isJson ? 502 : response.status);
     const nextResponse = NextResponse.json(data, { status });
 
+    // Fire-and-forget audit log
+    logAuditEvent(request, 'POST', path, response.ok, body, data);
+
     // Mutations should never be cached
     nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
 
     return nextResponse;
   } catch (error) {
+    logAuditEvent(request, 'POST', path, false, undefined, undefined, error);
     return handleApiError(error, `POST ${path}`);
   }
 }
@@ -735,10 +740,14 @@ export async function proxyPut(
     const { data, isJson } = await safeParseJson(response);
     const status = !response.ok ? response.status : (!isJson ? 502 : response.status);
     const nextResponse = NextResponse.json(data, { status });
+
+    logAuditEvent(request, 'PUT', path, response.ok, body, data);
+
     nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
 
     return nextResponse;
   } catch (error) {
+    logAuditEvent(request, 'PUT', path, false, undefined, undefined, error);
     return handleApiError(error, `PUT ${path}`);
   }
 }
@@ -770,10 +779,14 @@ export async function proxyPatch(
     const { data, isJson } = await safeParseJson(response);
     const status = !response.ok ? response.status : (!isJson ? 502 : response.status);
     const nextResponse = NextResponse.json(data, { status });
+
+    logAuditEvent(request, 'PATCH', path, response.ok, body, data);
+
     nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
 
     return nextResponse;
   } catch (error) {
+    logAuditEvent(request, 'PATCH', path, false, undefined, undefined, error);
     return handleApiError(error, `PATCH ${path}`);
   }
 }
@@ -804,6 +817,7 @@ export async function proxyDelete(
 
     // Handle 204 No Content response (successful deletion with no body)
     if (response.status === 204) {
+      logAuditEvent(request, 'DELETE', path, true, body);
       const nextResponse = new NextResponse(null, { status: 204 });
       nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
       return nextResponse;
@@ -812,10 +826,14 @@ export async function proxyDelete(
     const { data, isJson } = await safeParseJson(response);
     const status = !response.ok ? response.status : (!isJson ? 502 : response.status);
     const nextResponse = NextResponse.json(data, { status });
+
+    logAuditEvent(request, 'DELETE', path, response.ok, body, data);
+
     nextResponse.headers.set('Cache-Control', CACHE_CONFIG.NO_CACHE.cacheControl);
 
     return nextResponse;
   } catch (error) {
+    logAuditEvent(request, 'DELETE', path, false, undefined, undefined, error);
     return handleApiError(error, `DELETE ${path}`);
   }
 }

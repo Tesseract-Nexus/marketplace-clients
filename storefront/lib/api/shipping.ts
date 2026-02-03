@@ -119,6 +119,46 @@ export interface ShippingMethodsResponse {
 }
 
 // ========================================
+// Carrier Discovery Types & API
+// ========================================
+
+export interface AvailableShippingCarrier {
+  carrierType: string;
+  displayName: string;
+  isEnabled: boolean;
+  isPrimary: boolean;
+  isTestMode: boolean;
+  supportsRates: boolean;
+  supportsTracking: boolean;
+}
+
+export async function getAvailableCarriers(
+  tenantId: string,
+  storefrontId: string,
+  countryCode?: string
+): Promise<AvailableShippingCarrier[]> {
+  let url = '/api/shipping/carriers';
+  if (countryCode) {
+    url += `?country=${encodeURIComponent(countryCode)}`;
+  }
+
+  const response = await fetch(url, {
+    headers: {
+      'X-Tenant-ID': tenantId,
+      'X-Storefront-ID': storefrontId,
+    },
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.error?.message || error.message || 'Failed to fetch available carriers');
+  }
+
+  const result = await response.json();
+  return result.data?.carriers || [];
+}
+
+// ========================================
 // API Functions
 // ========================================
 
