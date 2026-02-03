@@ -12,12 +12,9 @@ const NOTIFICATION_HUB_URL = baseUrl.endsWith('/api/v1') ? baseUrl : `${baseUrl}
  */
 export async function GET(request: NextRequest) {
   try {
-    const proxyHeaders = await getProxyHeaders(request);
-    console.log('[Notifications API] Proxy headers:', JSON.stringify(proxyHeaders, null, 2));
-
     const response = await proxyToBackend(NOTIFICATION_HUB_URL, 'notifications/unread-count', {
       method: 'GET',
-      headers: proxyHeaders,
+      headers: await getProxyHeaders(request),
       incomingRequest: request,
     });
 
