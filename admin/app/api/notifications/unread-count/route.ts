@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { proxyToBackend, handleApiError, getProxyHeaders } from '@/lib/utils/api-route-handler';
 
-const NOTIFICATION_HUB_URL = process.env.NOTIFICATION_HUB_URL || 'http://notification-hub.devtest.svc.cluster.local:8080/api/v1';
+// Notification Hub URL - ensure /api/v1 path is included
+const baseUrl = process.env.NOTIFICATION_HUB_URL || 'http://notification-hub.marketplace.svc.cluster.local:8080';
+const NOTIFICATION_HUB_URL = baseUrl.endsWith('/api/v1') ? baseUrl : `${baseUrl}/api/v1`;
 
 /**
  * GET /api/notifications/unread-count
