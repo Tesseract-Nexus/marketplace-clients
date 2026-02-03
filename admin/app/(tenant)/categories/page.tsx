@@ -127,6 +127,7 @@ export default function CategoriesPage() {
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showBulkImport, setShowBulkImport] = useState(false);
 
@@ -399,6 +400,7 @@ export default function CategoriesPage() {
       return;
     }
 
+    setIsSaving(true);
     try {
       if (viewMode === 'create') {
         await categoryService.createCategory(formData as CreateCategoryRequest);
@@ -415,6 +417,8 @@ export default function CategoriesPage() {
       toast.error('Failed to Save Category', errorMsg);
       setError(errorMsg);
       console.error('Error saving category:', err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -1497,11 +1501,19 @@ export default function CategoriesPage() {
                 <div className="flex gap-3 pt-3 border-t border-border">
                   <Button
                     onClick={handleSaveCategory}
-                    disabled={!formData.name || !formData.slug}
+                    disabled={!formData.name || !formData.slug || isSaving}
                     className="flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Save className="w-4 h-4" />
-                    {viewMode === 'create' ? <AdminButtonText text="Create Category" /> : <AdminButtonText text="Save Changes" />}
+                    {isSaving ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Save className="w-4 h-4" />
+                    )}
+                    {viewMode === 'create' ? (
+                      isSaving ? <AdminButtonText text="Creating..." /> : <AdminButtonText text="Create Category" />
+                    ) : (
+                      isSaving ? <AdminButtonText text="Saving..." /> : <AdminButtonText text="Save Changes" />
+                    )}
                   </Button>
                   <Button
                     onClick={navigateToList}
