@@ -109,7 +109,8 @@ export async function generateCsrfToken(): Promise<string> {
   const randomPart = generateSecureToken(CSRF_TOKEN_LENGTH);
   const timestamp = Date.now().toString();
   const data = `${randomPart}.${timestamp}`;
-  const signature = await generateHmacSignature(data, getCsrfSecret());
+  const secret = await getCsrfSecretAsync();
+  const signature = await generateHmacSignature(data, secret);
   return `${data}.${signature}`;
 }
 
@@ -126,7 +127,8 @@ export async function validateCsrfToken(token: string): Promise<boolean> {
   const data = `${randomPart}.${timestamp}`;
 
   // Verify HMAC signature
-  const isValidSignature = await verifyHmacSignature(data, providedSignature, getCsrfSecret());
+  const secret = await getCsrfSecretAsync();
+  const isValidSignature = await verifyHmacSignature(data, providedSignature, secret);
   if (!isValidSignature) {
     return false;
   }
