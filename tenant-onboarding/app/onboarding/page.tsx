@@ -18,7 +18,6 @@ import { analytics } from '../../lib/analytics/posthog';
 import { getBrowserGeolocation, reverseGeocode, checkGeolocationPermission } from '../../lib/utils/geolocation';
 import { useAutoSave, useBrowserClose, useDraftRecovery, type DraftFormData } from '../../lib/hooks';
 import { config } from '../../lib/config/app';
-import { getCountryDefaults } from '../../lib/utils/country-defaults';
 import { normalizeDomain, validateDomain, generateUrls, validateStorefrontSubdomain, DEFAULT_STOREFRONT_SUBDOMAIN, type DomainValidationResult } from '../../lib/utils/domain';
 
 // Development-only logging utility
@@ -768,8 +767,7 @@ export default function OnboardingPage() {
       } catch { setStates([]); }
       if (location.city) addressForm.setValue('city', location.city);
       if (location.postal_code) addressForm.setValue('postalCode', location.postal_code);
-      storeSetupForm.setValue('currency', location.currency, { shouldValidate: true, shouldDirty: true });
-      storeSetupForm.setValue('timezone', location.timezone, { shouldValidate: true, shouldDirty: true });
+      // Don't auto-populate currency and timezone - let user select manually
     };
 
     Promise.all([detectLocation(), loadCountries(), loadCurrencies(), loadTimezones()])
@@ -1329,11 +1327,7 @@ export default function OnboardingPage() {
         postal_code: data.postalCode,
         country: data.country,
       } as any);
-      // Pre-fill currency and timezone based on address country
-      // Always set them to match the selected country - user can still change on next page
-      const countryDefaults = getCountryDefaults(data.country);
-      storeSetupForm.setValue('currency', countryDefaults.currency, { shouldValidate: true, shouldDirty: true });
-      storeSetupForm.setValue('timezone', countryDefaults.timezone, { shouldValidate: true, shouldDirty: true });
+      // Don't auto-populate currency and timezone - let user select manually
       setCurrentSection(3);
     } catch (error) {
       // Use OnboardingAPIError for better error handling
