@@ -25,14 +25,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Forward to staff-service (no tenant header needed - token contains tenant association)
-    const url = `${STAFF_SERVICE_URL}/auth/invitation/verify?token=${encodeURIComponent(token)}`;
+    // Forward to staff-service via POST with token in body (secure method)
+    const url = `${STAFF_SERVICE_URL}/auth/invitation/verify`;
 
     const response = await fetch(url, {
-      method: 'GET',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({ token }),
     });
 
     const data = await response.json();
