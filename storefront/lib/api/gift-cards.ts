@@ -217,10 +217,10 @@ function getDefaultTemplates(): GiftCardTemplate[] {
       id: 'default-1',
       name: 'Classic Gift Card',
       description: 'A timeless gift for any occasion',
-      amounts: [25, 50, 100, 150, 200],
-      allowCustomAmount: true,
-      minAmount: 10,
-      maxAmount: 500,
+      amounts: [100, 500, 1000, 2000, 5000],
+      allowCustomAmount: false,
+      minAmount: 100,
+      maxAmount: 50000,
     },
   ];
 }

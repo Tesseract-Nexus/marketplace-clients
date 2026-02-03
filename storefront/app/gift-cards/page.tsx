@@ -23,7 +23,7 @@ import {
 } from '@/lib/api/gift-cards';
 
 // Default amounts used as fallback if no template is loaded
-const DEFAULT_AMOUNTS = [25, 50, 75, 100, 150, 200];
+const DEFAULT_AMOUNTS = [100, 500, 1000, 2000, 5000];
 
 export default function GiftCardsPage() {
   const { tenant, settings } = useTenant();

@@ -23,7 +23,7 @@ const defaultTemplates = {
   name: 'Classic Gift Card',
   description: 'A timeless gift for any occasion',
   amounts: [100, 500, 1000, 2000, 5000],
-  allowCustomAmount: true,
+  allowCustomAmount: false,
   minAmount: 100,
   maxAmount: 50000,
 };

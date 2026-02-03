@@ -159,8 +159,8 @@ export default function GeneralSettingsPage() {
   // Gift Card Templates state
   const defaultGiftCardSettings: GiftCardTemplateSettings = {
     enabled: true,
-    presetAmounts: [500, 1000, 2000, 5000, 10000],
-    allowCustomAmount: true,
+    presetAmounts: [100, 500, 1000, 2000, 5000],
+    allowCustomAmount: false,
     minAmount: 100,
     maxAmount: 50000,
   };
