@@ -24,8 +24,9 @@ import { PageHeader } from '@/components/PageHeader';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { useTenantCurrency } from '@/hooks/useTenantCurrency';
-import { useCustomerAnalytics, useInvalidateAnalytics } from '@/hooks/useAnalyticsQueries';
+import { useCustomerAnalytics, useInvalidateAnalytics, isPermissionError, ApiError } from '@/hooks/useAnalyticsQueries';
 import { formatCurrency as formatCurrencyUtil } from '@/lib/utils/currency';
+import { ErrorState } from '@/components/ui/error-state';
 import {
   AreaChart,
   Area,
@@ -219,12 +220,26 @@ export default function CustomerAnalyticsPage() {
           }
         />
 
-        {error && (
+        {error && isPermissionError(error) ? (
+          <ErrorState
+            type="permission_denied"
+            title="Customer Analytics Access Required"
+            description={error instanceof ApiError && error.details?.required
+              ? `You need the "${error.details.required}" permission to view customer analytics.`
+              : "You don't have the required permissions to view customer analytics."}
+            suggestions={[
+              'Contact your administrator to request access',
+              'You may need a higher role to view analytics data',
+            ]}
+            showHomeButton
+            compact
+          />
+        ) : error ? (
           <div className="bg-warning-muted border border-warning/30 rounded-lg p-4 flex items-center gap-3">
             <AlertTriangle className="h-5 w-5 text-warning" />
             <p className="text-warning">{error instanceof Error ? error.message : 'Failed to load customer analytics'}</p>
           </div>
-        )}
+        ) : null}
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

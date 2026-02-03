@@ -6,6 +6,65 @@ import { useUser } from '@/contexts/UserContext';
 import { CACHE_TIMES, queryKeys } from '@/contexts/QueryProvider';
 
 /**
+ * Custom error class for API errors with additional context
+ */
+export class ApiError extends Error {
+  code: string;
+  field?: string;
+  details?: Record<string, unknown>;
+  status: number;
+
+  constructor(message: string, code: string, status: number, field?: string, details?: Record<string, unknown>) {
+    super(message);
+    this.name = 'ApiError';
+    this.code = code;
+    this.status = status;
+    this.field = field;
+    this.details = details;
+  }
+
+  isPermissionError(): boolean {
+    return this.code === 'FORBIDDEN' || this.code === 'UNAUTHORIZED' || this.status === 403 || this.status === 401;
+  }
+}
+
+/**
+ * Helper to check if an error is a permission error
+ */
+export function isPermissionError(error: unknown): boolean {
+  if (error instanceof ApiError) {
+    return error.isPermissionError();
+  }
+  if (error instanceof Error) {
+    const message = error.message.toLowerCase();
+    return message.includes('permission') || message.includes('forbidden') || message.includes('unauthorized') || message.includes('403');
+  }
+  return false;
+}
+
+/**
+ * Helper to parse API response and throw appropriate errors
+ */
+async function parseApiResponse<T>(response: Response, fallbackMessage: string): Promise<T> {
+  if (!response.ok) {
+    let errorData: { error?: { code?: string; message?: string; field?: string; details?: Record<string, unknown> } } = {};
+    try {
+      errorData = await response.json();
+    } catch {
+      // Response body might not be JSON
+    }
+
+    const error = errorData.error;
+    const message = error?.message || fallbackMessage;
+    const code = error?.code || (response.status === 403 ? 'FORBIDDEN' : 'UNKNOWN');
+
+    throw new ApiError(message, code, response.status, error?.field, error?.details);
+  }
+
+  return response.json();
+}
+
+/**
  * Analytics Query Hooks with React Query Caching
  *
  * These hooks provide cached data fetching for dashboard and analytics pages.
@@ -220,11 +279,7 @@ export function useAnalyticsOverview(dateRange: string = 'last30days') {
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch analytics overview');
-      }
-
-      const result = await response.json();
+      const result = await parseApiResponse<{ data: AnalyticsOverviewData }>(response, 'Failed to fetch analytics overview');
       return result.data;
     },
     enabled: !!tenantId,
@@ -254,11 +309,7 @@ export function useSalesAnalytics(dateRange: string = 'last30days') {
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch sales analytics');
-      }
-
-      return response.json();
+      return parseApiResponse<SalesAnalyticsData>(response, 'Failed to fetch sales analytics');
     },
     enabled: !!tenantId && !!userId,
     staleTime: CACHE_TIMES.VOLATILE, // 30 seconds - sales data changes more frequently
@@ -287,11 +338,7 @@ export function useCustomerAnalytics(dateRange: string = 'last30days') {
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch customer analytics');
-      }
-
-      return response.json();
+      return parseApiResponse<CustomerAnalyticsData>(response, 'Failed to fetch customer analytics');
     },
     enabled: !!tenantId && !!userId,
     staleTime: CACHE_TIMES.STANDARD, // 2 minutes - customer data is fairly stable
@@ -320,11 +367,7 @@ export function useInventoryAnalytics(dateRange: string = 'last30days') {
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch inventory analytics');
-      }
-
-      return response.json();
+      return parseApiResponse<InventoryAnalyticsData>(response, 'Failed to fetch inventory analytics');
     },
     enabled: !!tenantId && !!userId,
     staleTime: CACHE_TIMES.VOLATILE, // 30 seconds - inventory can change quickly
