@@ -221,12 +221,11 @@ export default function Home() {
       }`}>
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-semibold text-lg">T</span>
-            </div>
-            <span className="text-lg font-serif font-medium text-foreground">
-              Tesserix
-            </span>
+            <img
+              src="/logo.png"
+              alt="Mark8ly"
+              className="h-10 w-auto"
+            />
           </div>
 
           <nav className="hidden md:flex items-center gap-8">

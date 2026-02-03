@@ -17,11 +17,12 @@ export default function Header({ currentPage = 'other' }: HeaderProps) {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-[var(--border)]">
       <div className="max-w-6xl mx-auto px-6 sm:px-8">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 bg-[var(--primary)] rounded-lg flex items-center justify-center">
-              <span className="text-sm font-semibold text-[var(--primary-foreground)]">T</span>
-            </div>
-            <span className="text-lg font-semibold text-[var(--foreground)]">Tesserix</span>
+          <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
+            <img
+              src="/logo.png"
+              alt="Mark8ly"
+              className="h-10 w-auto"
+            />
           </Link>
           <div className="hidden md:flex items-center space-x-8">
             <a 
