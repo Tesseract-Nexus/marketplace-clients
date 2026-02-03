@@ -554,12 +554,12 @@ export default function ProductsPage() {
     };
 
     if (showCategoryDropdown) {
-      // Use mousedown to catch the click before it bubbles
-      document.addEventListener('mousedown', handleClickOutside);
+      // Use click event (not mousedown) since dropdown prevents default on mousedown
+      document.addEventListener('click', handleClickOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
     };
   }, [showCategoryDropdown]);
 
@@ -1972,7 +1972,10 @@ export default function ProductsPage() {
 
                         {/* Category Dropdown */}
                         {showCategoryDropdown && (
-                          <div className="absolute z-50 w-full mt-2 bg-card border-2 border-border rounded-xl shadow-xl max-h-64 overflow-y-auto">
+                          <div
+                            className="absolute z-[100] w-full mt-2 bg-card border-2 border-border rounded-xl shadow-xl max-h-64 overflow-y-auto"
+                            onMouseDown={(e) => e.preventDefault()}
+                          >
                             {loadingCategories ? (
                               <div className="px-4 py-3 text-muted-foreground flex items-center gap-2">
                                 <Loader2 className="w-4 h-4 animate-spin" />
