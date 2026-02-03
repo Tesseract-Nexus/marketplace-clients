@@ -58,6 +58,7 @@ export const config = {
     marketingService: getEnv('MARKETING_SERVICE_URL', 'NEXT_PUBLIC_MARKETING_SERVICE_URL', 'http://localhost:3007/api/v1'),
     giftCardsService: getEnv('GIFT_CARDS_SERVICE_URL', 'NEXT_PUBLIC_GIFT_CARDS_SERVICE_URL', 'http://localhost:3038/api/v1'),
     shippingService: getEnv('SHIPPING_SERVICE_URL', 'NEXT_PUBLIC_SHIPPING_SERVICE_URL', 'http://localhost:8088'),
+    tenantService: getEnv('TENANT_SERVICE_URL', 'NEXT_PUBLIC_TENANT_SERVICE_URL', 'http://localhost:8086/api/v1'),
   },
 
   // Feature flags

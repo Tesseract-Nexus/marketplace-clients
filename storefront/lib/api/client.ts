@@ -118,4 +118,5 @@ export const serviceUrls = {
   vendors: config.api.vendorsService,
   tickets: config.api.ticketsService,
   reviews: config.api.reviewsService,
+  tenants: config.api.tenantService,
 };

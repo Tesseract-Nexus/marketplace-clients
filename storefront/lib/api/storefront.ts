@@ -321,6 +321,7 @@ const currencySymbols: Record<string, string> = {
 /**
  * Fetch store localization settings from admin portal settings
  * This includes currency, timezone, region etc. configured in General Settings
+ * Falls back to tenant-service for currency if not found in settings-service
  */
 export async function getStoreLocalization(
   storefrontId: string,
@@ -337,6 +338,11 @@ export async function getStoreLocalization(
     country: '',
     countryCode: '',
   };
+
+  let currency = defaults.currency;
+  let timezone = defaults.timezone;
+  let localization: Record<string, any> = {};
+  let storeAddr: Record<string, any> = {};
 
   try {
     // Use adminTenantId (tenant-router ID) which matches the tenant ID the admin saves with
@@ -356,62 +362,78 @@ export async function getStoreLocalization(
     const data = response.data || response;
 
     // Extract localization from settings
-    const localization = data?.localization || {};
+    localization = data?.localization || {};
     const ecommerce = data?.ecommerce || {};
     const storeInfo = ecommerce?.store || {};
     const pricing = ecommerce?.pricing || {};
 
-    // Debug logging for currency resolution
-    console.log('[getStoreLocalization] Settings response:', {
-      tenantId: settingsTenantId,
-      url: `${serviceUrls.settings}/api/v1/public/settings/context?${queryParams.toString()}`,
-      rawResponse: JSON.stringify(response).substring(0, 500),
-      hasData: !!data,
-      dataId: data?.id,
-      localizationCurrency: localization?.currency,
-      pricingCurrencies: pricing?.currencies,
-    });
-
-    // Get currency from multiple possible locations
-    const currency =
+    // Get currency from multiple possible locations in settings-service
+    const settingsCurrency =
       localization?.currency?.code ||
       pricing?.currencies?.primary ||
-      defaults.currency;
+      null;
 
-    console.log('[getStoreLocalization] Resolved currency:', currency);
+    if (settingsCurrency) {
+      currency = settingsCurrency;
+    }
 
-    // Get country info from store address
-    const storeAddr = storeInfo?.address || {};
-    const country = storeAddr?.country || '';
-    const countryCode = getCountryCode(country);
+    timezone = localization?.timezone || defaults.timezone;
+    storeAddr = storeInfo?.address || {};
 
-    // Build full store address for tax calculation
-    const storeAddress: StoreAddress | undefined = country ? {
-      addressLine1: storeAddr?.addressLine1 || storeAddr?.street,
-      addressLine2: storeAddr?.addressLine2,
-      city: storeAddr?.city,
-      state: storeAddr?.state,
-      stateCode: storeAddr?.stateCode,
-      zip: storeAddr?.zip || storeAddr?.postalCode,
-      country,
-      countryCode,
-    } : undefined;
-
-    return {
-      currency,
-      currencySymbol: currencySymbols[currency] || currency,
-      timezone: localization?.timezone || defaults.timezone,
-      dateFormat: localization?.dateFormat || defaults.dateFormat,
-      language: localization?.language || defaults.language,
-      region: localization?.region || storeAddr?.state || country,
-      country,
-      countryCode,
-      storeAddress,
-    };
   } catch (error) {
-    console.error('Failed to fetch store localization:', error);
-    return defaults;
+    console.warn('[getStoreLocalization] Settings-service fetch failed:', error);
   }
+
+  // Fallback: If no currency from settings-service, fetch from tenant-service
+  // Currency is stored on the Tenant model during onboarding
+  if (currency === defaults.currency && tenantId) {
+    try {
+      // Note: TENANT_SERVICE_URL already includes /api/v1 in k8s deployment
+      const tenantResponse = await apiRequest<ApiResponse<any>>(
+        `${serviceUrls.tenants}/tenants/${tenantId}`,
+        { tenantId, storefrontId, cache: 'no-store' }
+      );
+
+      const tenantData = tenantResponse.data || tenantResponse;
+      if (tenantData?.default_currency) {
+        currency = tenantData.default_currency;
+        console.log('[getStoreLocalization] Currency from tenant-service:', currency);
+      }
+      if (tenantData?.default_timezone && timezone === defaults.timezone) {
+        timezone = tenantData.default_timezone;
+      }
+    } catch (tenantError) {
+      console.warn('[getStoreLocalization] Tenant-service fallback failed:', tenantError);
+    }
+  }
+
+  // Get country info from store address
+  const country = storeAddr?.country || '';
+  const countryCode = getCountryCode(country);
+
+  // Build full store address for tax calculation
+  const storeAddress: StoreAddress | undefined = country ? {
+    addressLine1: storeAddr?.addressLine1 || storeAddr?.street,
+    addressLine2: storeAddr?.addressLine2,
+    city: storeAddr?.city,
+    state: storeAddr?.state,
+    stateCode: storeAddr?.stateCode,
+    zip: storeAddr?.zip || storeAddr?.postalCode,
+    country,
+    countryCode,
+  } : undefined;
+
+  return {
+    currency,
+    currencySymbol: currencySymbols[currency] || currency,
+    timezone,
+    dateFormat: localization?.dateFormat || defaults.dateFormat,
+    language: localization?.language || defaults.language,
+    region: localization?.region || storeAddr?.state || country,
+    country,
+    countryCode,
+    storeAddress,
+  };
 }
 
 /**
