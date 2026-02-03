@@ -504,6 +504,14 @@ export interface MarketplaceSettings {
   };
 }
 
+export interface GiftCardTemplateSettings {
+  enabled?: boolean;
+  presetAmounts?: number[];
+  allowCustomAmount?: boolean;
+  minAmount?: number;
+  maxAmount?: number;
+}
+
 export interface MarketingSettings {
   features: {
     enablePromoBanners: boolean;
@@ -537,6 +545,7 @@ export interface MarketingSettings {
     enableSegmentTargeting: boolean;
     requireApproval: boolean;
   };
+  giftCardTemplates?: GiftCardTemplateSettings;
 }
 
 export type ContentPageType = 'STATIC' | 'BLOG' | 'FAQ' | 'POLICY' | 'LANDING' | 'CUSTOM';

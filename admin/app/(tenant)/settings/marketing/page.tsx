@@ -14,6 +14,9 @@ import {
   Loader2,
   Sparkles,
   Clock,
+  CreditCard,
+  Plus,
+  X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -61,6 +64,13 @@ const defaultMarketingData: MarketingSettings = {
     enableHtmlEmails: true,
     enableSegmentTargeting: true,
     requireApproval: false,
+  },
+  giftCardTemplates: {
+    enabled: true,
+    presetAmounts: [500, 1000, 2000, 5000, 10000],
+    allowCustomAmount: true,
+    minAmount: 100,
+    maxAmount: 50000,
   },
 };
 
@@ -146,6 +156,10 @@ export default function MarketingSettingsPage() {
           campaigns: {
             ...defaultMarketingData.campaigns,
             ...(settings.marketing.campaigns || {}),
+          },
+          giftCardTemplates: {
+            ...defaultMarketingData.giftCardTemplates,
+            ...(settings.marketing.giftCardTemplates || {}),
           },
         };
         setMarketingData(mergedData);
@@ -581,6 +595,144 @@ export default function MarketingSettingsPage() {
                   </div>
                 </div>
               )}
+
+              {/* Gift Card Templates */}
+              <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                    <CreditCard className="h-6 w-6 text-purple-500" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold text-foreground">Gift Card Templates</h3>
+                    <p className="text-sm text-muted-foreground">Configure gift card preset amounts for your storefront</p>
+                  </div>
+                  <Checkbox
+                    checked={marketingData.giftCardTemplates?.enabled ?? true}
+                    onChange={(e) => updateField(['giftCardTemplates', 'enabled'], e.target.checked)}
+                    label="Enable"
+                  />
+                </div>
+
+                {marketingData.giftCardTemplates?.enabled !== false && (
+                  <div className="space-y-6">
+                    {/* Preset Amounts */}
+                    <div>
+                      <label className="block text-sm font-semibold text-foreground mb-2">
+                        Preset Amounts
+                      </label>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        These amounts will be shown as quick-select buttons on the storefront gift card page
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {(marketingData.giftCardTemplates?.presetAmounts || []).map((amount, index) => (
+                          <div
+                            key={index}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full text-sm font-medium"
+                          >
+                            <span>{amount.toLocaleString()}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newAmounts = [...(marketingData.giftCardTemplates?.presetAmounts || [])];
+                                newAmounts.splice(index, 1);
+                                updateField(['giftCardTemplates', 'presetAmounts'], newAmounts);
+                              }}
+                              className="ml-1 hover:text-purple-900 dark:hover:text-purple-100"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="flex gap-2">
+                        <Input
+                          type="number"
+                          min="1"
+                          placeholder="Enter amount"
+                          className="w-40"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              const input = e.target as HTMLInputElement;
+                              const value = parseInt(input.value);
+                              if (value > 0) {
+                                const currentAmounts = marketingData.giftCardTemplates?.presetAmounts || [];
+                                if (!currentAmounts.includes(value)) {
+                                  const newAmounts = [...currentAmounts, value].sort((a, b) => a - b);
+                                  updateField(['giftCardTemplates', 'presetAmounts'], newAmounts);
+                                }
+                                input.value = '';
+                              }
+                            }
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={(e) => {
+                            const input = (e.target as HTMLElement).parentElement?.querySelector('input') as HTMLInputElement;
+                            const value = parseInt(input?.value || '0');
+                            if (value > 0) {
+                              const currentAmounts = marketingData.giftCardTemplates?.presetAmounts || [];
+                              if (!currentAmounts.includes(value)) {
+                                const newAmounts = [...currentAmounts, value].sort((a, b) => a - b);
+                                updateField(['giftCardTemplates', 'presetAmounts'], newAmounts);
+                              }
+                              if (input) input.value = '';
+                            }
+                          }}
+                        >
+                          <Plus className="h-4 w-4 mr-1" />
+                          Add
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Custom Amount Settings */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="md:col-span-1">
+                        <Checkbox
+                          checked={marketingData.giftCardTemplates?.allowCustomAmount ?? true}
+                          onChange={(e) => updateField(['giftCardTemplates', 'allowCustomAmount'], e.target.checked)}
+                          label="Allow Custom Amount"
+                          description="Let customers enter their own amount"
+                        />
+                      </div>
+
+                      {marketingData.giftCardTemplates?.allowCustomAmount !== false && (
+                        <>
+                          <div>
+                            <label className="block text-sm font-semibold text-foreground mb-2">
+                              Minimum Amount
+                            </label>
+                            <Input
+                              type="number"
+                              min="1"
+                              value={marketingData.giftCardTemplates?.minAmount ?? 100}
+                              onChange={(e) => updateField(['giftCardTemplates', 'minAmount'], parseInt(e.target.value) || 1)}
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">Minimum custom amount allowed</p>
+                          </div>
+
+                          <div>
+                            <label className="block text-sm font-semibold text-foreground mb-2">
+                              Maximum Amount
+                            </label>
+                            <Input
+                              type="number"
+                              min="1"
+                              value={marketingData.giftCardTemplates?.maxAmount ?? 50000}
+                              onChange={(e) => updateField(['giftCardTemplates', 'maxAmount'], parseInt(e.target.value) || 1)}
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">Maximum custom amount allowed</p>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )
         ) : (
