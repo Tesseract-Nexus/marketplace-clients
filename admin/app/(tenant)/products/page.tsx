@@ -528,17 +528,22 @@ export default function ProductsPage() {
   // Filter categories based on search query
   const getFilteredCategories = () => {
     const query = categorySearchQuery.toLowerCase().trim();
-    if (categories.length > 0) {
-      // Filter existing categories
-      return categories.filter(c =>
-        c.name.toLowerCase().includes(query)
-      );
-    } else {
-      // Show default options when no categories exist
-      return defaultCategoryOptions.filter(c =>
-        c.name.toLowerCase().includes(query)
-      );
-    }
+
+    // Filter existing categories that match the query
+    const existingMatches = categories.filter(c =>
+      c.name.toLowerCase().includes(query)
+    );
+
+    // Get names of existing categories (case-insensitive)
+    const existingNames = new Set(categories.map(c => c.name.toLowerCase()));
+
+    // Filter default categories that don't exist yet and match the query
+    const defaultMatches = defaultCategoryOptions
+      .filter(c => !existingNames.has(c.name.toLowerCase()))
+      .filter(c => c.name.toLowerCase().includes(query));
+
+    // Combine: existing categories first, then default options
+    return [...existingMatches, ...defaultMatches];
   };
 
   // Handle click outside category dropdown to close it
@@ -2028,13 +2033,15 @@ export default function ProductsPage() {
                                   </div>
                                 )}
 
-                                {/* Create new category option */}
-                                {categorySearchQuery.trim() && !categories.some(c => c.name.toLowerCase() === categorySearchQuery.toLowerCase()) && (
+                                {/* Create new category option - shown when typing something that doesn't match existing or default categories */}
+                                {categorySearchQuery.trim() &&
+                                 !categories.some(c => c.name.toLowerCase() === categorySearchQuery.toLowerCase().trim()) &&
+                                 !defaultCategoryOptions.some(c => c.name.toLowerCase() === categorySearchQuery.toLowerCase().trim()) && (
                                   <button
                                     type="button"
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      handleCreateCategory(categorySearchQuery);
+                                      handleCreateCategory(categorySearchQuery.trim());
                                     }}
                                     onMouseDown={(e) => e.stopPropagation()}
                                     disabled={creatingCategory}
@@ -2046,7 +2053,7 @@ export default function ProductsPage() {
                                       <Plus className="w-4 h-4" />
                                     )}
                                     <span className="font-medium">
-                                      {creatingCategory ? 'Creating...' : `Create "${categorySearchQuery}"`}
+                                      {creatingCategory ? 'Creating...' : `Create "${categorySearchQuery.trim()}"`}
                                     </span>
                                   </button>
                                 )}
