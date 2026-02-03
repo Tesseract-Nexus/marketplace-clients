@@ -28,7 +28,7 @@ const devError = (...args: unknown[]) => isDev && console.error(...args);
 
 // Default base domain for subdomain-based URLs (will be updated from runtime config)
 // URL format: {subdomain}-admin.{baseDomain}
-const DEFAULT_BASE_DOMAIN = 'tesserix.app';
+const DEFAULT_BASE_DOMAIN = 'mark8ly.app';
 
 /**
  * Generate a URL-friendly slug from business name
@@ -468,7 +468,7 @@ export default function OnboardingPage() {
         const response = await fetch('/api/config');
         if (response.ok) {
           const config = await response.json();
-          // Extract base domain from admin hostname (e.g., "dev-admin.tesserix.app" -> "tesserix.app")
+          // Extract base domain from admin hostname (e.g., "dev-admin.mark8ly.app" -> "mark8ly.app")
           if (config.admin?.hostname) {
             const hostname = config.admin.hostname;
             // Remove the environment prefix (dev-admin., prod-admin., admin.) to get base domain
@@ -1550,7 +1550,7 @@ export default function OnboardingPage() {
             <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
               <span className="text-white font-semibold text-lg">T</span>
             </div>
-            <span className="text-lg font-serif font-medium text-foreground">Tesserix</span>
+            <span className="text-lg font-serif font-medium text-foreground">Mark8ly</span>
           </button>
 
           <div className="flex items-center gap-4">
@@ -1841,7 +1841,7 @@ export default function OnboardingPage() {
                                 className="w-5 h-5 rounded border-warm-300 text-primary focus:ring-primary"
                               />
                               <label htmlFor="migrationInterest" className="text-sm text-warm-700 cursor-pointer">
-                                I&apos;m interested in migrating my products & categories to Tesserix
+                                I&apos;m interested in migrating my products & categories to Mark8ly
                               </label>
                             </div>
                           )}

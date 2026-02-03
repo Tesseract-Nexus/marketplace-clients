@@ -28,7 +28,7 @@ export default function TermsOfServicePage() {
             {/* Introduction */}
             <div className="p-6 bg-warm-50 rounded-xl border border-warm-200">
               <p className="text-foreground leading-relaxed m-0">
-                Welcome to Tesserix. These Terms of Service govern your use of our platform and services. By using Tesserix, you agree to these Terms. We've written these in plain language, but they're still a legal agreement.
+                Welcome to Mark8ly. These Terms of Service govern your use of our platform and services. By using Mark8ly, you agree to these Terms. We've written these in plain language, but they're still a legal agreement.
               </p>
             </div>
 
@@ -36,10 +36,10 @@ export default function TermsOfServicePage() {
             <section>
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">1. Accepting These Terms</h2>
               <p className="leading-relaxed">
-                By creating a Tesserix account or using our services, you agree to these Terms of Service, our Privacy Policy, and our Acceptable Use Policy.
+                By creating a Mark8ly account or using our services, you agree to these Terms of Service, our Privacy Policy, and our Acceptable Use Policy.
               </p>
               <p className="leading-relaxed mt-4">
-                <strong>Age Requirement:</strong> You must be at least 18 years old to use Tesserix.
+                <strong>Age Requirement:</strong> You must be at least 18 years old to use Mark8ly.
               </p>
             </section>
 
@@ -105,7 +105,7 @@ export default function TermsOfServicePage() {
 
               <h3 className="font-medium text-foreground text-lg mt-6 mb-3">Refunds</h3>
               <p className="leading-relaxed">
-                We offer refunds within 14 days of purchase. Contact support@tesserix.app. After 14 days, charges are non-refundable, but you can cancel anytime.
+                We offer refunds within 14 days of purchase. Contact support@mark8ly.app. After 14 days, charges are non-refundable, but you can cancel anytime.
               </p>
             </section>
 
@@ -127,7 +127,7 @@ export default function TermsOfServicePage() {
             <section>
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">6. Acceptable Use Policy</h2>
 
-              <h3 className="font-medium text-foreground text-lg mt-6 mb-3">You May Not Use Tesserix To</h3>
+              <h3 className="font-medium text-foreground text-lg mt-6 mb-3">You May Not Use Mark8ly To</h3>
 
               <h4 className="font-medium text-foreground mt-4 mb-2">Sell Illegal or Restricted Items:</h4>
               <ul className="list-disc pl-6 space-y-1">
@@ -171,7 +171,7 @@ export default function TermsOfServicePage() {
                 <strong>Your Property:</strong> You retain all rights to the content you upload.
               </p>
               <p className="leading-relaxed mt-2">
-                <strong>Our Property:</strong> Tesserix, our logo, and platform are protected by intellectual property laws.
+                <strong>Our Property:</strong> Mark8ly, our logo, and platform are protected by intellectual property laws.
               </p>
             </section>
 
@@ -220,7 +220,7 @@ export default function TermsOfServicePage() {
             <section>
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">12. Disclaimers</h2>
               <p className="leading-relaxed">
-                Tesserix is provided "as is." We don't guarantee sales, revenue, or that the service will be uninterrupted or error-free.
+                Mark8ly is provided "as is." We don't guarantee sales, revenue, or that the service will be uninterrupted or error-free.
               </p>
             </section>
 
@@ -228,7 +228,7 @@ export default function TermsOfServicePage() {
             <section>
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">13. Limitation of Liability</h2>
               <p className="leading-relaxed">
-                To the fullest extent permitted by law, Tesserix's total liability is limited to the amount you paid us in the 12 months before the claim arose. We're not liable for lost profits, lost data, or indirect damages.
+                To the fullest extent permitted by law, Mark8ly's total liability is limited to the amount you paid us in the 12 months before the claim arose. We're not liable for lost profits, lost data, or indirect damages.
               </p>
             </section>
 
@@ -236,7 +236,7 @@ export default function TermsOfServicePage() {
             <section>
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">14. Dispute Resolution</h2>
               <p className="leading-relaxed">
-                <strong>Informal Resolution:</strong> If you have a dispute, contact us first at legal@tesserix.app. We'll work in good faith to resolve it.
+                <strong>Informal Resolution:</strong> If you have a dispute, contact us first at legal@mark8ly.app. We'll work in good faith to resolve it.
               </p>
               <p className="leading-relaxed mt-4">
                 <strong>Governing Law:</strong> These Terms are governed by the laws of India. Disputes will be resolved in the courts of Maharashtra, India.
@@ -255,15 +255,15 @@ export default function TermsOfServicePage() {
             <section>
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">16. Contact Us</h2>
               <div className="mt-4 p-4 bg-warm-50 border border-warm-200 rounded-lg">
-                <p className="m-0"><strong>Legal Questions:</strong> <a href="mailto:legal@tesserix.app" className="text-primary hover:underline">legal@tesserix.app</a></p>
-                <p className="mt-2 mb-0"><strong>General Support:</strong> <a href="mailto:support@tesserix.app" className="text-primary hover:underline">support@tesserix.app</a></p>
+                <p className="m-0"><strong>Legal Questions:</strong> <a href="mailto:legal@mark8ly.app" className="text-primary hover:underline">legal@mark8ly.app</a></p>
+                <p className="mt-2 mb-0"><strong>General Support:</strong> <a href="mailto:support@mark8ly.app" className="text-primary hover:underline">support@mark8ly.app</a></p>
               </div>
             </section>
 
             {/* Closing */}
             <section className="mt-12 p-6 bg-sage-50 rounded-xl border border-sage-200">
               <p className="text-sage-700 font-medium m-0 text-center">
-                Thank you for choosing Tesserix. We're honored to be part of your business journey.
+                Thank you for choosing Mark8ly. We're honored to be part of your business journey.
               </p>
             </section>
 

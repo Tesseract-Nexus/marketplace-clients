@@ -70,7 +70,7 @@ export default function PricingPage() {
       support: 'Community',
     },
     {
-      platform: 'Tesserix',
+      platform: 'Mark8ly',
       freeTrialDays: `${trialMonths} months`,
       monthlyPrice: monthlyPrice,
       transactionFees: 'None',

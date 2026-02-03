@@ -14,11 +14,12 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
           <div className="md:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4 hover:opacity-80 transition-opacity">
-              <div className="w-9 h-9 bg-warm-100 rounded-lg flex items-center justify-center">
-                <span className="text-foreground font-semibold text-lg">T</span>
-              </div>
-              <span className="text-lg font-serif font-medium text-warm-50">Tesserix</span>
+            <Link href="/" className="flex items-center mb-4 hover:opacity-80 transition-opacity">
+              <img
+                src="/logo.png"
+                alt="Mark8ly"
+                className="h-14 w-auto brightness-0 invert"
+              />
             </Link>
             <p className="text-warm-400 text-sm leading-relaxed">
               The simplest way to launch and grow your online store. Built for creators, makers, and small businesses.
@@ -62,10 +63,10 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-warm-800/40 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-warm-500">
-            &copy; {currentYear} Tesserix. Made with care for people who make things.
+            &copy; {currentYear} Mark8ly. Made with care for people who make things.
           </p>
           <div className="flex items-center gap-4">
-            <a href="mailto:hello@tesserix.app" className="text-warm-500 hover:text-warm-300 transition-colors">
+            <a href="mailto:hello@mark8ly.com" className="text-warm-500 hover:text-warm-300 transition-colors">
               <Mail className="w-5 h-5" />
             </a>
             <a href="#" className="text-warm-500 hover:text-warm-300 transition-colors">

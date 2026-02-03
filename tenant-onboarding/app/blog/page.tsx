@@ -32,7 +32,7 @@ const upcomingTopics = [
   {
     icon: Heart,
     title: 'Behind the scenes',
-    description: 'How we build Tesserix and why',
+    description: 'How we build Mark8ly and why',
   },
 ];
 
@@ -49,7 +49,7 @@ export default function BlogPage() {
             Coming soon
           </div>
           <h1 className="font-serif text-4xl sm:text-5xl font-medium tracking-tight mb-6 text-foreground">
-            The Tesserix Blog
+            The Mark8ly Blog
           </h1>
           <p className="text-xl text-foreground-secondary max-w-2xl mx-auto mb-8">
             We are working on something. Stories, tips, and lessons from the

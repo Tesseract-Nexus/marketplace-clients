@@ -66,7 +66,7 @@ function CongratulationsPage({ completionData, idleCountdown }: { completionData
     if (completionData.admin_url) {
       window.location.href = `${completionData.admin_url}/login`;
     } else if (completionData.tenant_slug) {
-      const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+      const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.app';
       window.location.href = `https://${completionData.tenant_slug}-admin.${baseDomain}/login`;
     }
   };
@@ -110,7 +110,7 @@ function CongratulationsPage({ completionData, idleCountdown }: { completionData
 
           {completionData.tenant_slug && (
             <p className="text-lg font-semibold text-primary mb-8 animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
-              {completionData.tenant_slug}-admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}
+              {completionData.tenant_slug}-admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.app'}
             </p>
           )}
         </div>
@@ -232,7 +232,7 @@ function WelcomePage({ email, idleCountdown }: { email?: string; idleCountdown: 
           <h1 className="display-large text-[var(--foreground)] mb-6">
             Welcome to{' '}
             <span className="text-foreground">
-              Tesserix
+              Mark8ly
             </span>
           </h1>
 
@@ -289,7 +289,7 @@ function WelcomePage({ email, idleCountdown }: { email?: string; idleCountdown: 
               Our team is here to help you succeed every step of the way.
             </p>
             <button
-              onClick={() => window.open('mailto:support@tesserix.app', '_blank')}
+              onClick={() => window.open('mailto:support@mark8ly.app', '_blank')}
               className="button-secondary w-full py-3 text-sm font-medium"
             >
               Contact Us
@@ -1013,7 +1013,7 @@ function VerifyEmailContent() {
             Email Verified! 🎉
           </h2>
           <p className="text-lg text-[var(--foreground-secondary)] mb-6 animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
-            Welcome to Tesserix
+            Welcome to Mark8ly
           </p>
 
           {/* Email confirmation */}
@@ -1302,7 +1302,7 @@ function VerifyEmailContent() {
             {isVerified ? 'Account Verified!' : 'Email Verification'}
           </h1>
           <p className="body-large text-[var(--foreground-secondary)]">
-            {isVerified ? 'Your journey with Tesserix begins now' : 'Secure your account with email verification'}
+            {isVerified ? 'Your journey with Mark8ly begins now' : 'Secure your account with email verification'}
           </p>
         </div>
       </div>
