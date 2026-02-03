@@ -22,7 +22,8 @@ import {
   type CheckBalanceResponse,
 } from '@/lib/api/gift-cards';
 
-const PRESET_AMOUNTS = [25, 50, 75, 100, 150, 200];
+// Default amounts used as fallback if no template is loaded
+const DEFAULT_AMOUNTS = [25, 50, 75, 100, 150, 200];
 
 export default function GiftCardsPage() {
   const { tenant, settings } = useTenant();
@@ -31,7 +32,7 @@ export default function GiftCardsPage() {
 
   // Purchase state
   const [templates, setTemplates] = useState<GiftCardTemplate[]>([]);
-  const [selectedAmount, setSelectedAmount] = useState<number | null>(50);
+  const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState('');
   const [isCustomAmount, setIsCustomAmount] = useState(false);
   const [recipientEmail, setRecipientEmail] = useState('');
@@ -52,7 +53,16 @@ export default function GiftCardsPage() {
   useEffect(() => {
     if (tenant) {
       getGiftCardTemplates(tenant.id, tenant.storefrontId)
-        .then(setTemplates)
+        .then((loadedTemplates) => {
+          setTemplates(loadedTemplates);
+          // Select the first amount from the template, or default to first amount
+          const firstTemplate = loadedTemplates[0];
+          if (firstTemplate?.amounts?.length > 0) {
+            setSelectedAmount(firstTemplate.amounts[0]);
+          } else {
+            setSelectedAmount(DEFAULT_AMOUNTS[0]);
+          }
+        })
         .catch(console.error);
     }
   }, [tenant]);
@@ -240,7 +250,7 @@ export default function GiftCardsPage() {
                   <div>
                     <Label className="text-base font-semibold mb-4 block">Select Amount</Label>
                     <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-                      {PRESET_AMOUNTS.map((amount) => (
+                      {(template?.amounts || DEFAULT_AMOUNTS).map((amount) => (
                         <Button
                           key={amount}
                           variant={selectedAmount === amount && !isCustomAmount ? 'tenant-primary' : 'outline'}

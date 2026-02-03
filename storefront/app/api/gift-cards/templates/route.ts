@@ -17,16 +17,19 @@ interface SettingsResponse {
   };
 }
 
-// Default templates as fallback
+// Default templates as fallback (amounts in dollars for display)
 const defaultTemplates = {
   id: 'default-1',
   name: 'Classic Gift Card',
   description: 'A timeless gift for any occasion',
-  amounts: [500, 1000, 2000, 5000, 10000],
+  amounts: [5, 10, 20, 50, 100],
   allowCustomAmount: true,
-  minAmount: 100,
-  maxAmount: 50000,
+  minAmount: 1,
+  maxAmount: 500,
 };
+
+// Convert cents to dollars
+const centsToDollars = (cents: number) => cents / 100;
 
 /**
  * GET /api/gift-cards/templates
@@ -63,16 +66,17 @@ export async function GET(request: NextRequest) {
       }
 
       // If we have custom settings, use them
+      // Settings store amounts in cents, convert to dollars for display
       if (giftCardConfig && giftCardConfig.presetAmounts?.length > 0) {
         const templates = [
           {
             id: 'tenant-config',
             name: 'Gift Card',
             description: 'A perfect gift for any occasion',
-            amounts: giftCardConfig.presetAmounts,
+            amounts: giftCardConfig.presetAmounts.map(centsToDollars),
             allowCustomAmount: giftCardConfig.allowCustomAmount ?? true,
-            minAmount: giftCardConfig.minAmount ?? 100,
-            maxAmount: giftCardConfig.maxAmount ?? 50000,
+            minAmount: centsToDollars(giftCardConfig.minAmount ?? 100),
+            maxAmount: centsToDollars(giftCardConfig.maxAmount ?? 50000),
           },
         ];
         return NextResponse.json(templates);
