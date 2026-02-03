@@ -20,6 +20,7 @@ import {
 import { OTPInput } from '@/components/auth/OTPInput';
 import { getCurrentTenantSlug, isCustomDomain } from '@/lib/utils/tenant';
 import { SocialLogin } from '@/components/SocialLogin';
+import { BrandedLoader } from '@/components/ui/branded-loader';
 
 type LoginStep = 'email' | 'tenant-select' | 'password' | 'mfa' | 'success';
 
@@ -39,11 +40,8 @@ const ERROR_MESSAGES: Record<string, { title: string; message: string }> = {
 export default function LoginPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <BrandedLoader variant="full" size="lg" message="Loading..." />
       </div>
     }>
       <LoginPageContent />

@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Loader2 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { DashboardSkeleton } from '@/components/ui/table-skeleton';
 import { useOnRefresh } from '@/contexts/RefreshContext';
 import { DashboardLayoutProvider, useDashboardLayoutContext } from '@/contexts/DashboardLayoutContext';
 import { DraggableWidget, DashboardToolbar, RenderWidget } from '@/components/dashboard';
@@ -29,11 +29,7 @@ function DashboardContent({ data, loading, isFetching, dataUpdatedAt }: Dashboar
   }, [dataUpdatedAt]);
 
   if (loading || !isLoaded) {
-    return (
-      <div className="flex h-[80vh] items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   return (

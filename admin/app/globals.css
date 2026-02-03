@@ -587,3 +587,29 @@
   90% { transform: rotate(3deg); }
   100% { transform: rotate(0deg); }
 }
+
+/* =============================================================================
+   BRANDED LOADER ANIMATIONS
+   ============================================================================= */
+
+/* Gentle bounce animation for branded loader */
+@keyframes bounce-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 1.5s ease-in-out infinite;
+}
+
+/* Respect reduced motion for branded loader */
+@media (prefers-reduced-motion: reduce) {
+  .animate-bounce-gentle {
+    animation: none;
+    opacity: 0.8;
+  }
+}

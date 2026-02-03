@@ -2,18 +2,21 @@
 
 import { Loader2, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BrandedLoader } from '@/components/ui/branded-loader';
 
 interface PageLoadingProps {
   /** Loading message to display */
   message?: string;
-  /** Use full screen height */
+  /** Use full screen height - automatically uses branded loader */
   fullScreen?: boolean;
   /** Custom className for container */
   className?: string;
-  /** Variant: 'spinner' (default) or 'refresh' */
-  variant?: 'spinner' | 'refresh';
+  /** Variant: 'spinner', 'refresh', or 'branded'. Defaults to 'branded' for fullScreen, 'spinner' otherwise */
+  variant?: 'spinner' | 'refresh' | 'branded';
   /** Size of the spinner */
   size?: 'sm' | 'md' | 'lg';
+  /** Progress percentage for long operations (only with 'branded' variant) */
+  progress?: number;
 }
 
 const sizeClasses = {
@@ -25,26 +28,56 @@ const sizeClasses = {
 /**
  * PageLoading - Consistent loading state component
  *
+ * Uses branded loader automatically for fullScreen loading.
+ * Uses simple spinner for inline/section loading.
+ *
  * Usage:
  * ```tsx
- * // Full page loading
+ * // Full page loading - automatically uses branded logo
  * if (loading) return <PageLoading message="Loading orders..." fullScreen />;
  *
- * // Section loading
+ * // Section loading - uses simple spinner
  * {loading && <PageLoading message="Loading..." />}
  *
  * // With refresh icon variant
  * <PageLoading variant="refresh" message="Refreshing data..." />
+ *
+ * // Long operation with progress
+ * <PageLoading variant="branded" progress={45} message="Exporting data..." />
  * ```
  */
 export function PageLoading({
   message = 'Loading...',
   fullScreen = false,
   className,
-  variant = 'spinner',
+  variant,
   size = 'md',
+  progress,
 }: PageLoadingProps) {
-  const Icon = variant === 'refresh' ? RefreshCw : Loader2;
+  // Auto-select variant: branded for fullScreen, spinner for inline
+  const effectiveVariant = variant ?? (fullScreen ? 'branded' : 'spinner');
+
+  // Use branded loader for 'branded' variant
+  if (effectiveVariant === 'branded') {
+    return (
+      <div
+        className={cn(
+          'flex flex-col items-center justify-center',
+          fullScreen ? 'min-h-screen' : 'py-12',
+          className
+        )}
+      >
+        <BrandedLoader
+          variant={fullScreen ? 'full' : 'icon'}
+          size={size}
+          message={message}
+          progress={progress}
+        />
+      </div>
+    );
+  }
+
+  const Icon = effectiveVariant === 'refresh' ? RefreshCw : Loader2;
 
   return (
     <div
@@ -69,7 +102,10 @@ export function PageLoading({
 
 /**
  * TableLoading - Loading state for tables/lists
- * Shows a centered spinner within a container
+ * Uses branded icon loader for consistent branding
+ *
+ * Note: For better UX, consider using TableSkeleton from '@/components/ui/table-skeleton'
+ * which shows content structure and reduces perceived wait time.
  */
 export function TableLoading({
   message = 'Loading data...',
@@ -80,10 +116,7 @@ export function TableLoading({
 }) {
   return (
     <div className={cn('flex flex-col items-center justify-center py-12', className)}>
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      {message && (
-        <p className="mt-4 text-muted-foreground text-sm">{message}</p>
-      )}
+      <BrandedLoader variant="icon" size="md" message={message} />
     </div>
   );
 }

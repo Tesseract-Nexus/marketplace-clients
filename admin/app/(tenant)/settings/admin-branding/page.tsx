@@ -142,8 +142,8 @@ const defaultBrandingSettings: AdminBrandingSettings = {
   general: {
     adminTitle: 'Admin Panel',
     adminSubtitle: '',
-    logoUrl: '',
-    faviconUrl: '',
+    logoUrl: '/logo.png',
+    faviconUrl: '/logo-icon.png',
     loginPageTitle: 'Welcome Back',
     loginPageSubtitle: 'Sign in to your account',
   },

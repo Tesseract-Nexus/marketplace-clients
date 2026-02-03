@@ -3,5 +3,5 @@
 import { PageLoading } from '@/components/common/PageLoading';
 
 export default function Loading() {
-  return <PageLoading fullScreen size="lg" message="Loading..." />;
+  return <PageLoading variant="branded" fullScreen size="lg" message="Loading..." />;
 }

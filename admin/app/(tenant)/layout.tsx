@@ -53,6 +53,7 @@ import { AdminUIText } from "@/components/translation/AdminTranslatedText";
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { settingsService } from "@/lib/services/settingsService";
+import { BrandedLoader } from "@/components/ui/branded-loader";
 
 // Role hierarchy: higher number = more permissions
 // Must match backend (staff-service migrations) priority levels
@@ -600,22 +601,13 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               data-tour="sidebar-logo"
               className="flex items-center gap-3 rounded-lg transition-all duration-200 hover:opacity-80"
             >
-              {(currentTenant?.logoUrl || currentStorefront?.logoUrl || themeLogoUrl) ? (
-                <div className="w-10 h-10 rounded-xl overflow-hidden bg-sidebar-accent border border-sidebar-border shadow-sm flex items-center justify-center flex-shrink-0">
-                  <img
-                    src={currentTenant?.logoUrl || currentStorefront?.logoUrl || themeLogoUrl}
-                    alt={currentTenant?.name || 'Store'}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              ) : (
-                <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-base flex-shrink-0 shadow-sm"
-                  style={{ backgroundColor: currentTenant?.primaryColor || '#6366f1' }}
-                >
-                  {currentTenant?.name?.charAt(0).toUpperCase() || 'T'}
-                </div>
-              )}
+              <div className="w-10 h-10 rounded-xl overflow-hidden bg-sidebar-accent border border-sidebar-border shadow-sm flex items-center justify-center flex-shrink-0">
+                <img
+                  src={currentTenant?.logoUrl || currentStorefront?.logoUrl || themeLogoUrl || '/logo-icon.png'}
+                  alt={currentTenant?.name || 'Store'}
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <div className="flex flex-col">
                 <span className="text-sm font-semibold text-sidebar-active-text truncate max-w-[160px]">
                   {currentTenant?.name || 'Admin Portal'}
@@ -914,7 +906,7 @@ function TenantLayoutInner({
   }, [currentTenant?.id]);
 
   // Dynamic favicon update based on multiple sources
-  // Priority: 1) Admin branding faviconUrl, 2) Storefront theme faviconUrl, 3) Admin branding logoUrl, 4) Storefront logoUrl, 5) Tenant logoUrl, 6) Theme logoUrl
+  // Priority: 1) Admin branding faviconUrl, 2) Storefront theme faviconUrl, 3) Admin branding logoUrl, 4) Storefront logoUrl, 5) Tenant logoUrl, 6) Theme logoUrl, 7) Default logo
   useEffect(() => {
     const faviconUrl =
       branding?.general?.faviconUrl?.trim() ||
@@ -922,7 +914,8 @@ function TenantLayoutInner({
       branding?.general?.logoUrl?.trim() ||
       currentStorefront?.logoUrl ||
       currentTenant?.logoUrl ||
-      themeLogoUrl;
+      themeLogoUrl ||
+      '/logo-icon.png';  // Default fallback logo
 
     if (faviconUrl) {
       let link = document.querySelector("link[rel*='icon']") as HTMLLinkElement | null;
@@ -1030,10 +1023,7 @@ function TenantLayoutInner({
   if (isChecking) {
     return (
       <div className="flex h-screen items-center justify-center bg-muted">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
+        <BrandedLoader variant="icon" size="lg" message="Loading..." />
       </div>
     );
   }
@@ -1161,10 +1151,7 @@ export default function TenantLayout({
   if (effectiveAuthLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Checking authentication...</p>
-        </div>
+        <BrandedLoader variant="full" size="lg" message="Checking authentication..." />
       </div>
     );
   }
@@ -1173,10 +1160,7 @@ export default function TenantLayout({
   if (!effectiveIsAuthenticated) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Redirecting to login...</p>
-        </div>
+        <BrandedLoader variant="icon" size="lg" message="Redirecting to login..." />
       </div>
     );
   }
@@ -1185,10 +1169,7 @@ export default function TenantLayout({
   if (!isAuthorizedForAdminPortal) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Redirecting...</p>
-        </div>
+        <BrandedLoader variant="icon" size="lg" message="Redirecting..." />
       </div>
     );
   }
