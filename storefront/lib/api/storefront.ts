@@ -388,9 +388,10 @@ export async function getStoreLocalization(
   // Currency is stored on the Tenant model during onboarding
   if (currency === defaults.currency && tenantId) {
     try {
-      // Note: TENANT_SERVICE_URL already includes /api/v1 in k8s deployment
+      // Use internal endpoint - strip /api/v1 from serviceUrls.tenants if present
+      const tenantBaseUrl = serviceUrls.tenants.replace(/\/api\/v1\/?$/, '');
       const tenantResponse = await apiRequest<ApiResponse<any>>(
-        `${serviceUrls.tenants}/tenants/${tenantId}`,
+        `${tenantBaseUrl}/internal/tenants/${tenantId}`,
         { tenantId, storefrontId, cache: 'no-store' }
       );
 

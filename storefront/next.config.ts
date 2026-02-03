@@ -89,7 +89,7 @@ const nextConfig: NextConfig = {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "img-src 'self' data: blob: https://storage.googleapis.com https://storage.cloud.google.com https://*.storage.googleapis.com https://*.googleusercontent.com https://*.tesserix.app https://images.unsplash.com https://picsum.photos https://*.blob.core.windows.net",
       "font-src 'self' data: https://fonts.gstatic.com",
-      `connect-src 'self' https://*.tesserix.app https://storage.googleapis.com https://api.stripe.com https://*.razorpay.com wss://*.tesserix.app${devConnectSrc}`,
+      `connect-src 'self' https://*.tesserix.app https://storage.googleapis.com https://api.stripe.com https://*.razorpay.com https://api.frankfurter.app wss://*.tesserix.app${devConnectSrc}`,
       "frame-src 'self' https://js.stripe.com https://*.razorpay.com",
       "frame-ancestors 'self' https://*.tesserix.app",
       "form-action 'self'",
