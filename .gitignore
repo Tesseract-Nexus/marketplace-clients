@@ -190,3 +190,6 @@ _archive/test-results/
 **.png
 tests/**/*.png
 **/*.pngterraform/.terraform/
+
+# Allow public assets for tenant-onboarding
+!tenant-onboarding/public/*.png
