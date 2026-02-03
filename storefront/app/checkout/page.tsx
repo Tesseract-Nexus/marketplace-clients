@@ -38,6 +38,7 @@ import {
   CheckoutReviewStep,
 } from '@/components/checkout/steps';
 import { PostOrderCreateAccount } from '@/components/checkout/PostOrderCreateAccount';
+import { MobileOrderSummary } from '@/components/checkout/MobileOrderSummary';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 
 // Unit conversion helpers
@@ -1034,6 +1035,59 @@ function CheckoutContent() {
           </div>
         </div>
       </div>
+
+      {/* Mobile Order Summary - Floating at bottom */}
+      <MobileOrderSummary
+        itemCount={selectedItems.length}
+        total={total}
+        formatPrice={formatPrice}
+      >
+        <div className="space-y-3 mb-3">
+          {selectedItems.slice(0, 3).map((item) => (
+            <div key={item.id} className="flex gap-3">
+              <div className="relative w-10 h-10 rounded overflow-hidden bg-muted flex-shrink-0">
+                <Image
+                  src={item.image || '/placeholder.svg'}
+                  alt={item.name}
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{item.name}</p>
+                <p className="text-xs text-muted-foreground">{item.quantity} × {formatPrice(item.price)}</p>
+              </div>
+            </div>
+          ))}
+          {selectedItems.length > 3 && (
+            <p className="text-xs text-muted-foreground">
+              +{selectedItems.length - 3} <TranslatedUIText text="more items" />
+            </p>
+          )}
+        </div>
+        <Separator className="my-3" />
+        <div className="space-y-1.5 text-sm">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground"><TranslatedUIText text="Subtotal" /></span>
+            <span>{formatPrice(subtotal)}</span>
+          </div>
+          {selectedShippingMethod && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground"><TranslatedUIText text="Shipping" /></span>
+              <span>{shipping === 0 ? <TranslatedUIText text="FREE" /> : formatPrice(shipping)}</span>
+            </div>
+          )}
+          {tax > 0 && (
+            <div className="flex justify-between">
+              <span className="text-muted-foreground"><TranslatedUIText text="Tax" /></span>
+              <span>{formatPrice(tax)}</span>
+            </div>
+          )}
+        </div>
+      </MobileOrderSummary>
+
+      {/* Spacer for mobile to prevent content hiding behind fixed summary */}
+      <div className="lg:hidden h-16" />
     </div>
   );
 }

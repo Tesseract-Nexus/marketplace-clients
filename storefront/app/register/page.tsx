@@ -249,7 +249,7 @@ export default function RegisterPage() {
             email: result.user.email,
             firstName: result.user.first_name || '',
             lastName: result.user.last_name || '',
-            phone: result.user.phone || formData.phone || '',
+            phone: formData.phone || '',
             createdAt: new Date().toISOString(),
             tenantId: result.user.tenant_id,
           });

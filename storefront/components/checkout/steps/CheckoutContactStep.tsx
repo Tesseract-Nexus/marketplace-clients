@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { User, Mail, Phone, ChevronRight, LogIn, Building2 } from 'lucide-react';
+import { User, Mail, Phone, ChevronRight, Building2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useCheckout } from '@/context/CheckoutContext';
 import { useCheckoutConfig, useNavPath } from '@/context/TenantContext';
 import { GuestCheckoutBanner } from '@/components/checkout/GuestCheckoutBanner';
+import { CheckoutTrustFooter } from '@/components/checkout/CheckoutTrustFooter';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -285,23 +286,14 @@ export function CheckoutContactStep({
         </motion.p>
       )}
 
-      {/* Login prompt for guests */}
+      {/* Login prompt for guests - inline link */}
       {!isAuthenticated && isGuestMode && (
-        <div className="mt-6 p-4 rounded-lg border border-dashed">
-          <div className="flex items-center gap-3">
-            <LogIn className="h-5 w-5 text-muted-foreground" />
-            <div className="flex-1">
-              <p className="text-sm">
-                <TranslatedUIText text="Already have an account?" />
-              </p>
-            </div>
-            <Button variant="outline" size="sm" asChild>
-              <Link href={getNavPath('/auth/login?redirect=/checkout')}>
-                <TranslatedUIText text="Log In" />
-              </Link>
-            </Button>
-          </div>
-        </div>
+        <p className="mt-4 text-sm text-muted-foreground text-center">
+          <TranslatedUIText text="Already have an account?" />{' '}
+          <Link href={getNavPath('/login?redirect=/checkout')} className="text-tenant-primary hover:underline font-medium">
+            <TranslatedUIText text="Log In" />
+          </Link>
+        </p>
       )}
 
       {/* Continue button */}
@@ -316,6 +308,9 @@ export function CheckoutContactStep({
           <ChevronRight className="h-4 w-4 ml-2" />
         </Button>
       </div>
+
+      {/* Trust indicators */}
+      <CheckoutTrustFooter />
     </motion.div>
   );
 }

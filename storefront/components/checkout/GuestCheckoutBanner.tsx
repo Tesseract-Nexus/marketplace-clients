@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { User, LogIn, Gift, Package, Home, type LucideIcon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { User, LogIn, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavPath } from '@/context/TenantContext';
 
@@ -12,78 +13,70 @@ interface GuestCheckoutBannerProps {
 
 export function GuestCheckoutBanner({ onContinueAsGuest }: GuestCheckoutBannerProps) {
   const getNavPath = useNavPath();
+  const [showBenefits, setShowBenefits] = useState(false);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-100 dark:border-blue-800 rounded-xl p-5 mb-6"
+      className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border border-blue-100 dark:border-blue-800 rounded-lg p-4 mb-6"
     >
-      <div className="flex items-start gap-4">
-        <div className="flex-shrink-0">
-          <div className="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
-            <User className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex-shrink-0 w-9 h-9 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center">
+            <User className="h-4 w-4 text-blue-600 dark:text-blue-400" />
           </div>
-        </div>
-        <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">
-            Sign in for a better experience
-          </h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-            Track your orders, save addresses, and access exclusive member benefits.
-          </p>
-
-          <div className="flex flex-wrap gap-3">
-            <Button asChild variant="default" size="sm" className="btn-tenant-primary gap-2">
-              <Link href={getNavPath('/login?redirect=/checkout')}>
-                <LogIn className="h-4 w-4" />
-                Sign In
-              </Link>
-            </Button>
-            <Button asChild variant="outline" size="sm" className="gap-2">
-              <Link href={getNavPath('/register?redirect=/checkout')}>
-                <Gift className="h-4 w-4" />
-                Create Account
-              </Link>
-            </Button>
-          </div>
-
-          <div className="flex items-center gap-3 mt-4 pt-4 border-t border-blue-200 dark:border-blue-700">
-            <span className="text-sm text-gray-500 dark:text-gray-400">or</span>
+          <div className="min-w-0">
+            <p className="font-medium text-sm text-gray-900 dark:text-gray-100">
+              Sign in for faster checkout
+            </p>
             <button
-              onClick={onContinueAsGuest}
-              className="text-sm font-medium text-tenant-primary hover:underline"
+              onClick={() => setShowBenefits(!showBenefits)}
+              className="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1"
             >
-              Continue as Guest
+              {showBenefits ? 'Hide' : 'View'} benefits
+              {showBenefits ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Benefits list */}
-      <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-700">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          {[
-            { icon: Package, text: 'Track orders easily' },
-            { icon: Home, text: 'Save addresses' },
-            { icon: Gift, text: 'Earn rewards' },
-          ].map((benefit, index) => {
-            const BenefitIcon = benefit.icon;
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 * index }}
-                className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400"
-              >
-                <BenefitIcon className="h-4 w-4 text-blue-500" aria-hidden="true" />
-                <span>{benefit.text}</span>
-              </motion.div>
-            );
-          })}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Button asChild variant="default" size="sm" className="btn-tenant-primary h-8 text-xs">
+            <Link href={getNavPath('/login?redirect=/checkout')}>
+              <LogIn className="h-3 w-3 mr-1" />
+              Sign In
+            </Link>
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onContinueAsGuest}
+            className="h-8 text-xs text-muted-foreground hover:text-foreground"
+          >
+            Guest
+          </Button>
         </div>
       </div>
+
+      {/* Collapsible benefits */}
+      <AnimatePresence>
+        {showBenefits && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="overflow-hidden"
+          >
+            <div className="flex flex-wrap gap-x-4 gap-y-1 mt-3 pt-3 border-t border-blue-200 dark:border-blue-700 text-xs text-gray-600 dark:text-gray-400">
+              <span>✓ Track orders</span>
+              <span>✓ Save addresses</span>
+              <span>✓ Earn rewards</span>
+              <span>✓ Faster checkout</span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }

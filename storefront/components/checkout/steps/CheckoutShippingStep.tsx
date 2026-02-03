@@ -23,6 +23,7 @@ import { CustomerAddress } from '@/lib/api/customers';
 import { ShippingMethod, ShippingRate } from '@/lib/api/shipping';
 import type { DetectedLocation } from '@/hooks/useLocationDetection';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
+import { CheckoutTrustFooter } from '@/components/checkout/CheckoutTrustFooter';
 import { useLocalization } from '@/context/TenantContext';
 import { cn } from '@/lib/utils';
 
@@ -582,6 +583,9 @@ export function CheckoutShippingStep({
           <ChevronRight className="h-4 w-4 ml-2" />
         </Button>
       </div>
+
+      {/* Trust indicators */}
+      <CheckoutTrustFooter />
 
       {/* Location Confirmation Modal */}
       <LocationConfirmationModal

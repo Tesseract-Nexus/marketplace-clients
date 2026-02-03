@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   CreditCard,
   Smartphone,
@@ -11,6 +11,8 @@ import {
   Shield,
   Check,
   Loader2,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
@@ -63,6 +65,16 @@ const providerLogos: Record<string, { bg: string; text: string; letter: string }
   Manual: defaultLogo,
 };
 
+// Get compact badge list for each provider
+const getProviderBadges = (provider: string, type: string): string[] => {
+  if (provider === 'Stripe') return ['Cards', 'Apple Pay', 'Google Pay'];
+  if (provider === 'PayPal') return ['PayPal', 'Pay Later'];
+  if (provider === 'Razorpay') return ['Cards', 'UPI', 'Netbanking', 'Wallets'];
+  if (type === 'bnpl') return ['Interest-free'];
+  if (type === 'cod') return ['Pay on delivery'];
+  return [];
+};
+
 // Calculate BNPL installment preview
 const calculateInstallments = (total: number, provider: string): string => {
   if (provider === 'Afterpay') {
@@ -85,11 +97,13 @@ export function PaymentMethodSelector({
   orderTotal = 0,
   currency = 'USD',
 }: PaymentMethodSelectorProps) {
+  const [expandedMethod, setExpandedMethod] = useState<string | null>(null);
+
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        <span className="ml-2 text-muted-foreground">
+      <div className="flex items-center justify-center py-6">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        <span className="ml-2 text-sm text-muted-foreground">
           <TranslatedUIText text="Loading payment methods..." />
         </span>
       </div>
@@ -98,9 +112,9 @@ export function PaymentMethodSelector({
 
   if (methods.length === 0) {
     return (
-      <div className="text-center py-8 text-muted-foreground">
-        <CreditCard className="h-8 w-8 mx-auto mb-2 opacity-50" />
-        <p><TranslatedUIText text="No payment methods available" /></p>
+      <div className="text-center py-6 text-muted-foreground">
+        <CreditCard className="h-6 w-6 mx-auto mb-2 opacity-50" />
+        <p className="text-sm"><TranslatedUIText text="No payment methods available" /></p>
       </div>
     );
   }
@@ -131,21 +145,22 @@ export function PaymentMethodSelector({
   );
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {sortedTypes.map((type) => (
         <div key={type}>
           {sortedTypes.length > 1 && (
-            <h4 className="text-sm font-medium text-muted-foreground mb-2">
+            <h4 className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wide">
               {typeLabels[type] || type}
             </h4>
           )}
           <div className="space-y-2">
             {groupedMethods[type]?.map((method) => {
               const isSelected = selectedMethod === method.code;
-              const Icon = methodTypeIcons[method.type] || CreditCard;
               const logo = providerLogos[method.provider] || defaultLogo;
               const isBnpl = method.type === 'bnpl';
               const installmentText = isBnpl ? calculateInstallments(orderTotal, method.provider) : '';
+              const badges = getProviderBadges(method.provider, method.type);
+              const isExpanded = expandedMethod === method.code;
 
               return (
                 <motion.button
@@ -154,31 +169,31 @@ export function PaymentMethodSelector({
                   onClick={() => !disabled && onSelect(method.code)}
                   disabled={disabled}
                   className={cn(
-                    'w-full text-left rounded-xl border-2 p-4 transition-all duration-200',
+                    'w-full text-left rounded-lg border p-3 transition-all duration-200',
                     isSelected
                       ? 'border-tenant-primary bg-tenant-primary/5 ring-1 ring-tenant-primary/20'
-                      : 'border-border hover:border-tenant-primary/50 hover:bg-muted/50',
+                      : 'border-border hover:border-tenant-primary/50 hover:bg-muted/30',
                     disabled && 'opacity-50 cursor-not-allowed'
                   )}
-                  whileTap={disabled ? {} : { scale: 0.99 }}
+                  whileTap={disabled ? {} : { scale: 0.995 }}
                 >
-                  <div className="flex items-start gap-4">
+                  <div className="flex items-center gap-3">
                     {/* Selection indicator */}
                     <div
                       className={cn(
-                        'flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center mt-0.5',
+                        'flex-shrink-0 w-4 h-4 rounded-full border-2 flex items-center justify-center',
                         isSelected
                           ? 'border-tenant-primary bg-tenant-primary'
                           : 'border-muted-foreground/40'
                       )}
                     >
-                      {isSelected && <Check className="h-3 w-3 text-white" />}
+                      {isSelected && <Check className="h-2.5 w-2.5 text-white" />}
                     </div>
 
                     {/* Provider logo */}
                     <div
                       className={cn(
-                        'flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br',
+                        'flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center bg-gradient-to-br',
                         logo.bg
                       )}
                     >
@@ -186,97 +201,94 @@ export function PaymentMethodSelector({
                         <img
                           src={method.iconUrl}
                           alt={method.provider}
-                          className="w-6 h-6 object-contain"
+                          className="w-5 h-5 object-contain"
                         />
                       ) : (
-                        <span className={cn('font-bold text-lg', logo.text)}>
+                        <span className={cn('font-bold text-sm', logo.text)}>
                           {logo.letter}
                         </span>
                       )}
                     </div>
 
-                    {/* Method info */}
+                    {/* Method info - compact */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-sm">
                           {method.displayName || method.name}
                         </span>
                         {method.isTestMode && (
-                          <span className="text-xs px-1.5 py-0.5 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded">
+                          <span className="text-[10px] px-1 py-0.5 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded">
                             Test
                           </span>
                         )}
-                        <span className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
-                          <Shield className="h-3 w-3" />
-                          <TranslatedUIText text="Secure" />
-                        </span>
+                        <Shield className="h-3 w-3 text-green-500 flex-shrink-0" />
                       </div>
 
-                      <p className="text-sm text-muted-foreground mt-0.5">
-                        {method.checkoutMessage || method.description}
-                      </p>
+                      {/* Compact badges - show first 2 inline, rest on expand */}
+                      {badges.length > 0 && (
+                        <div className="flex items-center gap-1 mt-1">
+                          <span className="text-[10px] text-muted-foreground">
+                            {badges.slice(0, 2).join(' • ')}
+                            {badges.length > 2 && !isExpanded && (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setExpandedMethod(isExpanded ? null : method.code);
+                                }}
+                                className="ml-1 text-tenant-primary hover:underline"
+                              >
+                                +{badges.length - 2} more
+                              </button>
+                            )}
+                          </span>
+                        </div>
+                      )}
 
                       {/* BNPL installment preview */}
                       {isBnpl && installmentText && orderTotal > 0 && (
-                        <p className="text-sm font-medium text-tenant-primary mt-1">
+                        <p className="text-xs font-medium text-tenant-primary mt-0.5">
                           {installmentText}
                         </p>
                       )}
-
-                      {/* Supported payment types badge */}
-                      <div className="flex flex-wrap gap-1.5 mt-2">
-                        {method.provider === 'Stripe' && (
-                          <>
-                            <span className="text-xs px-2 py-0.5 bg-muted rounded border">
-                              <TranslatedUIText text="Cards" />
-                            </span>
-                            <span className="text-xs px-2 py-0.5 bg-muted rounded border">
-                              Apple Pay
-                            </span>
-                            <span className="text-xs px-2 py-0.5 bg-muted rounded border">
-                              Google Pay
-                            </span>
-                          </>
-                        )}
-                        {method.provider === 'PayPal' && (
-                          <>
-                            <span className="text-xs px-2 py-0.5 bg-muted rounded border">
-                              PayPal
-                            </span>
-                            <span className="text-xs px-2 py-0.5 bg-muted rounded border">
-                              Pay Later
-                            </span>
-                          </>
-                        )}
-                        {method.provider === 'Razorpay' && (
-                          <>
-                            <span className="text-xs px-2 py-0.5 bg-muted rounded border">
-                              <TranslatedUIText text="Cards" />
-                            </span>
-                            <span className="text-xs px-2 py-0.5 bg-muted rounded border">
-                              UPI
-                            </span>
-                            <span className="text-xs px-2 py-0.5 bg-muted rounded border">
-                              Netbanking
-                            </span>
-                            <span className="text-xs px-2 py-0.5 bg-muted rounded border">
-                              Wallets
-                            </span>
-                          </>
-                        )}
-                        {method.type === 'bnpl' && (
-                          <span className="text-xs px-2 py-0.5 bg-muted rounded border">
-                            <TranslatedUIText text="Interest-free" />
-                          </span>
-                        )}
-                        {method.type === 'cod' && (
-                          <span className="text-xs px-2 py-0.5 bg-muted rounded border">
-                            <TranslatedUIText text="Pay on delivery" />
-                          </span>
-                        )}
-                      </div>
                     </div>
+
+                    {/* Expand/collapse for details */}
+                    {(method.checkoutMessage || badges.length > 2) && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setExpandedMethod(isExpanded ? null : method.code);
+                        }}
+                        className="flex-shrink-0 p-1 text-muted-foreground hover:text-foreground"
+                      >
+                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      </button>
+                    )}
                   </div>
+
+                  {/* Expanded details */}
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      className="mt-2 pt-2 border-t border-dashed text-xs text-muted-foreground"
+                    >
+                      {method.checkoutMessage && (
+                        <p className="mb-2">{method.checkoutMessage}</p>
+                      )}
+                      {badges.length > 2 && (
+                        <div className="flex flex-wrap gap-1">
+                          {badges.map((badge, idx) => (
+                            <span key={idx} className="px-1.5 py-0.5 bg-muted rounded text-[10px]">
+                              {badge}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
                 </motion.button>
               );
             })}

@@ -13,6 +13,7 @@ import { LoyaltyPointsRedemption } from '@/components/checkout/LoyaltyPointsRede
 import { PaymentMethodSelector, EnabledPaymentMethod } from '@/components/checkout/PaymentMethodSelector';
 import { useCartStore } from '@/store/cart';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
+import { CheckoutTrustFooter } from '@/components/checkout/CheckoutTrustFooter';
 import { cn } from '@/lib/utils';
 
 interface CheckoutPaymentStepProps {
@@ -334,6 +335,9 @@ export function CheckoutPaymentStep({
           <ChevronRight className="h-4 w-4 ml-2" />
         </Button>
       </div>
+
+      {/* Trust indicators */}
+      <CheckoutTrustFooter />
     </motion.div>
   );
 }
