@@ -102,10 +102,12 @@ export function Select({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    // Use click event (not mousedown) since dropdown prevents default on mousedown
+    // This ensures button clicks register before the close handler fires
+    document.addEventListener('click', handleClickOutside);
     document.addEventListener('keydown', handleEscape);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('click', handleClickOutside);
       document.removeEventListener('keydown', handleEscape);
     };
   }, []);
@@ -134,6 +136,7 @@ export function Select({
         zIndex: 9999,
       }}
       className="bg-popover border border-border rounded-md shadow-lg overflow-hidden animate-in fade-in-0 zoom-in-95 duration-100"
+      onMouseDown={(e) => e.preventDefault()}
     >
       <div className="max-h-60 overflow-y-auto py-1">
         {options.map((option) => {
