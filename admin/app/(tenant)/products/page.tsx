@@ -186,6 +186,7 @@ export default function ProductsPage() {
   const [categorySearchQuery, setCategorySearchQuery] = useState('');
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [creatingCategory, setCreatingCategory] = useState(false);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
   // Default categories shown when no categories exist for the tenant
   const defaultCategoryOptions = [
@@ -539,6 +540,28 @@ export default function ProductsPage() {
       );
     }
   };
+
+  // Handle click outside category dropdown to close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        categoryDropdownRef.current &&
+        !categoryDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowCategoryDropdown(false);
+        setCategorySearchQuery('');
+      }
+    };
+
+    if (showCategoryDropdown) {
+      // Use mousedown to catch the click before it bubbles
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showCategoryDropdown]);
 
   // Handle image upload with progress modal
   const handleImageUpload = async (files: FileList) => {
@@ -1917,7 +1940,7 @@ export default function ProductsPage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="relative">
+                      <div className="relative" ref={categoryDropdownRef}>
                         <label className="block text-sm font-bold text-foreground mb-3">
                           Category <span className="text-error">*</span>
                         </label>
@@ -2024,16 +2047,6 @@ export default function ProductsPage() {
                           </div>
                         )}
 
-                        {/* Click outside to close */}
-                        {showCategoryDropdown && (
-                          <div
-                            className="fixed inset-0 z-40"
-                            onClick={() => {
-                              setShowCategoryDropdown(false);
-                              setCategorySearchQuery('');
-                            }}
-                          />
-                        )}
                       </div>
 
                       <div>
