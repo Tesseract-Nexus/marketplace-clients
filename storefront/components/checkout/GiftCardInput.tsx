@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { CreditCard, X, Check, Loader2, AlertCircle, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useTenant } from '@/context/TenantContext';
+import { useTenant, useCurrency } from '@/context/TenantContext';
 import { applyGiftCard, formatGiftCardCode, type AppliedGiftCard } from '@/lib/api/gift-cards';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 import { useTranslatedText } from '@/hooks/useTranslatedText';
@@ -27,6 +27,7 @@ export function GiftCardInput({
   disabled = false,
 }: GiftCardInputProps) {
   const { tenant } = useTenant();
+  const { symbol: currencySymbol } = useCurrency();
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -114,7 +115,7 @@ export function GiftCardInput({
                     {formatGiftCardCode(gc.code)}
                   </span>
                   <p className="text-xs text-purple-600 dark:text-purple-400">
-                    <TranslatedUIText text="Balance" />: ${gc.balance.toFixed(2)}
+                    <TranslatedUIText text="Balance" />: {currencySymbol}{gc.balance.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -133,7 +134,7 @@ export function GiftCardInput({
             <div className="flex items-center gap-2">
               <span className="text-xs text-purple-600 dark:text-purple-400"><TranslatedUIText text="Apply" />:</span>
               <div className="flex-1 relative">
-                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">{currencySymbol}</span>
                 <Input
                   type="number"
                   min={0}

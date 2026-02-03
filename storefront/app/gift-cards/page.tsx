@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useTenant } from '@/context/TenantContext';
+import { useTenant, useCurrency } from '@/context/TenantContext';
 import { cn } from '@/lib/utils';
 import {
   getGiftCardTemplates,
@@ -26,6 +26,7 @@ const PRESET_AMOUNTS = [25, 50, 75, 100, 150, 200];
 
 export default function GiftCardsPage() {
   const { tenant, settings } = useTenant();
+  const { symbol: currencySymbol } = useCurrency();
   const [activeTab, setActiveTab] = useState('purchase');
 
   // Purchase state
@@ -134,7 +135,7 @@ export default function GiftCardsPage() {
         </motion.div>
         <h1 className="text-3xl font-bold mb-2">Gift Card Sent!</h1>
         <p className="text-muted-foreground mb-6 max-w-md">
-          A ${finalAmount.toFixed(2)} gift card has been sent to {recipientEmail}.
+          A {currencySymbol}{finalAmount.toFixed(2)} gift card has been sent to {recipientEmail}.
           They will receive an email with the gift card code shortly.
         </p>
         <Button onClick={resetPurchaseForm} variant="tenant-gradient" size="lg">
@@ -223,7 +224,7 @@ export default function GiftCardsPage() {
                         <div>
                           <p className="text-sm opacity-80 mb-1">Gift Card Value</p>
                           <p className="text-3xl font-bold">
-                            ${finalAmount.toFixed(2)}
+                            {currencySymbol}{finalAmount.toFixed(2)}
                           </p>
                         </div>
                       </div>
@@ -249,7 +250,7 @@ export default function GiftCardsPage() {
                           )}
                           onClick={() => handleAmountSelect(amount)}
                         >
-                          ${amount}
+                          {currencySymbol}{amount}
                         </Button>
                       ))}
                     </div>
@@ -257,10 +258,10 @@ export default function GiftCardsPage() {
                     {template?.allowCustomAmount && (
                       <div className="mt-4">
                         <Label htmlFor="custom-amount" className="text-sm text-muted-foreground">
-                          Or enter a custom amount (${template.minAmount}-${template.maxAmount})
+                          Or enter a custom amount ({currencySymbol}{template.minAmount}-{currencySymbol}{template.maxAmount})
                         </Label>
                         <div className="relative mt-2">
-                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">$</span>
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{currencySymbol}</span>
                           <Input
                             id="custom-amount"
                             type="number"
@@ -353,7 +354,7 @@ export default function GiftCardsPage() {
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4">
                     <div className="text-center sm:text-left">
                       <p className="text-sm text-muted-foreground">Total</p>
-                      <p className="text-2xl font-bold">${finalAmount.toFixed(2)}</p>
+                      <p className="text-2xl font-bold">{currencySymbol}{finalAmount.toFixed(2)}</p>
                     </div>
                     <Button
                       variant="tenant-glow"
@@ -438,7 +439,7 @@ export default function GiftCardsPage() {
                       >
                         <p className="text-sm text-muted-foreground mb-2">Available Balance</p>
                         <p className="text-4xl font-bold text-tenant-primary mb-4">
-                          ${balanceResult.balance.toFixed(2)}
+                          {currencySymbol}{balanceResult.balance.toFixed(2)}
                         </p>
                         <div className="flex items-center justify-center gap-2">
                           <Badge
