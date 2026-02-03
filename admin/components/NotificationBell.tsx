@@ -8,8 +8,6 @@ import {
   ExternalLink,
   RotateCcw,
   XCircle,
-  Wifi,
-  WifiOff,
   Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -73,7 +71,6 @@ export function NotificationBell() {
   const {
     notifications,
     unreadCount,
-    isConnected,
     isLoading,
     hasNewNotification,
     markAsRead,
@@ -220,25 +217,6 @@ export function NotificationBell() {
         </div>
 
         <div className="flex items-center gap-1">
-          {/* Connection status - icon only with tooltip */}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div
-                  className={cn(
-                    'flex items-center justify-center w-8 h-8 rounded-lg',
-                    isConnected ? 'text-success' : 'text-muted-foreground'
-                  )}
-                >
-                  {isConnected ? <Wifi className="w-4 h-4" /> : <WifiOff className="w-4 h-4" />}
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                {isConnected ? 'Live updates active' : 'Offline - using polling'}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
           {/* Actions - icon only with tooltips */}
           {unreadCount > 0 && (
             <TooltipProvider>
@@ -392,13 +370,6 @@ export function NotificationBell() {
           </>
         )}
 
-        {/* Connection indicator (desktop only) */}
-        {!isMobile && isConnected && (
-          <span
-            className="absolute bottom-0.5 right-0.5 w-2 h-2 bg-success rounded-full ring-2 ring-background"
-            title="Real-time updates active"
-          />
-        )}
       </Button>
 
       {/* Mobile: Bottom Sheet */}
