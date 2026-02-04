@@ -219,12 +219,12 @@ export default function Home() {
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background border-b border-border ${
         scrolled ? 'shadow-sm' : ''
       }`}>
-        <div className="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
-          <a href="/" className="flex items-center h-16 overflow-hidden">
+        <div className="max-w-5xl mx-auto px-6 h-24 flex items-center justify-between">
+          <a href="/" className="flex items-center h-20 overflow-hidden">
             <img
               src="/logo.png"
               alt="Mark8ly"
-              className="h-44 w-auto -mt-8 -mb-12"
+              className="h-52 w-auto -mt-8 -mb-16"
             />
           </a>
 
