@@ -40,6 +40,7 @@ import { useDialog } from '@/contexts/DialogContext';
 import { useToast } from '@/contexts/ToastContext';
 import { StoreSelector } from '@/components/settings/StoreSelector';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Select } from '@/components/Select';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import type { ContentPage, ContentPageType, ContentPageStatus } from '@/lib/types/settings';
@@ -868,17 +869,11 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
 
         {/* Mobile: Dropdown navigation */}
         <div className="md:hidden mb-4">
-          <select
+          <Select
             value={activeTab}
-            onChange={(e) => setActiveTab(e.target.value as TabId)}
-            className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:border-primary"
-          >
-            {TABS.map((tab) => (
-              <option key={tab.id} value={tab.id}>
-                {tab.label}
-              </option>
-            ))}
-          </select>
+            onChange={(value) => setActiveTab(value as TabId)}
+            options={TABS.map((tab) => ({ value: tab.id, label: tab.label }))}
+          />
         </div>
 
         {/* Desktop: Horizontal tabs */}
@@ -1076,17 +1071,13 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                     </div>
 
                     <div className="space-y-4">
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.homepageConfig.heroEnabled}
-                          onChange={(e) =>
-                            updateHomepageConfig({ heroEnabled: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm font-medium">Enable hero section</span>
-                      </label>
+                      <Checkbox
+                        checked={settings.homepageConfig.heroEnabled}
+                        onCheckedChange={(checked) =>
+                          updateHomepageConfig({ heroEnabled: checked })
+                        }
+                        label="Enable hero section"
+                      />
 
                       {settings.homepageConfig.heroEnabled && (
                         <div className="grid gap-4 md:grid-cols-2">
@@ -1200,20 +1191,14 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                           {/* Animation Toggle - only show for animated background */}
                           {(settings.homepageConfig.heroBackgroundType === 'animated' || !settings.homepageConfig.heroBackgroundType) && (
                             <div className="md:col-span-2">
-                              <label className="flex items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  checked={settings.homepageConfig.heroAnimationsEnabled !== false}
-                                  onChange={(e) =>
-                                    updateHomepageConfig({ heroAnimationsEnabled: e.target.checked })
-                                  }
-                                  className="rounded border-border text-primary focus:ring-purple-500"
-                                />
-                                <span className="text-sm font-medium">Enable floating blob animations</span>
-                              </label>
-                              <p className="text-xs text-muted-foreground mt-1 ml-6">
-                                Decorative animated color blobs that add depth to the hero section
-                              </p>
+                              <Checkbox
+                                checked={settings.homepageConfig.heroAnimationsEnabled !== false}
+                                onCheckedChange={(checked) =>
+                                  updateHomepageConfig({ heroAnimationsEnabled: checked })
+                                }
+                                label="Enable floating blob animations"
+                                description="Decorative animated color blobs that add depth to the hero section"
+                              />
                             </div>
                           )}
 
@@ -1246,17 +1231,13 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
 
                   {/* Newsletter */}
                   <div className="border-t border-border pt-8">
-                    <label className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={settings.homepageConfig.showNewsletter}
-                        onChange={(e) =>
-                          updateHomepageConfig({ showNewsletter: e.target.checked })
-                        }
-                        className="rounded border-border text-primary focus:ring-purple-500"
-                      />
-                      <span className="text-sm font-medium">Show newsletter signup</span>
-                    </label>
+                    <Checkbox
+                      checked={settings.homepageConfig.showNewsletter}
+                      onCheckedChange={(checked) =>
+                        updateHomepageConfig({ showNewsletter: checked })
+                      }
+                      label="Show newsletter signup"
+                    />
                   </div>
                 </div>
               )}
@@ -1268,17 +1249,13 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                   <div>
                     <h3 className="text-lg font-semibold mb-4">Announcement Bar</h3>
                     <div className="space-y-4">
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.headerConfig.showAnnouncement}
-                          onChange={(e) =>
-                            updateHeaderConfig({ showAnnouncement: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm font-medium">Show announcement bar</span>
-                      </label>
+                      <Checkbox
+                        checked={settings.headerConfig.showAnnouncement}
+                        onCheckedChange={(checked) =>
+                          updateHeaderConfig({ showAnnouncement: checked })
+                        }
+                        label="Show announcement bar"
+                      />
 
                       {settings.headerConfig.showAnnouncement && (
                         <div className="space-y-6">
@@ -1380,20 +1357,14 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                           <div className="border-t border-border pt-4">
                             <h4 className="text-sm font-semibold mb-3">Behavior</h4>
                             <div className="space-y-3">
-                              <label className="flex items-center gap-2">
-                                <input
-                                  type="checkbox"
-                                  checked={settings.headerConfig.announcementDismissible || false}
-                                  onChange={(e) =>
-                                    updateHeaderConfig({ announcementDismissible: e.target.checked })
-                                  }
-                                  className="rounded border-border text-primary focus:ring-purple-500"
-                                />
-                                <span className="text-sm font-medium">Allow visitors to dismiss</span>
-                              </label>
-                              <p className="text-xs text-muted-foreground ml-6">
-                                Shows a close button. Dismissal is remembered for the session.
-                              </p>
+                              <Checkbox
+                                checked={settings.headerConfig.announcementDismissible || false}
+                                onCheckedChange={(checked) =>
+                                  updateHeaderConfig({ announcementDismissible: checked })
+                                }
+                                label="Allow visitors to dismiss"
+                                description="Shows a close button. Dismissal is remembered for the session."
+                              />
                             </div>
 
                             {/* Countdown Timer */}
@@ -1444,48 +1415,32 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                   <div className="border-t border-border pt-8">
                     <h4 className="font-medium text-foreground mb-4">Header Options</h4>
                     <div className="space-y-3">
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.headerConfig.stickyHeader}
-                          onChange={(e) =>
-                            updateHeaderConfig({ stickyHeader: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Sticky header (stays visible on scroll)</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.headerConfig.showSearch}
-                          onChange={(e) =>
-                            updateHeaderConfig({ showSearch: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Show search bar</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.headerConfig.showCart}
-                          onChange={(e) => updateHeaderConfig({ showCart: e.target.checked })}
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Show cart icon</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.headerConfig.showAccount}
-                          onChange={(e) =>
-                            updateHeaderConfig({ showAccount: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Show account icon</span>
-                      </label>
+                      <Checkbox
+                        checked={settings.headerConfig.stickyHeader}
+                        onCheckedChange={(checked) =>
+                          updateHeaderConfig({ stickyHeader: checked })
+                        }
+                        label="Sticky header (stays visible on scroll)"
+                      />
+                      <Checkbox
+                        checked={settings.headerConfig.showSearch}
+                        onCheckedChange={(checked) =>
+                          updateHeaderConfig({ showSearch: checked })
+                        }
+                        label="Show search bar"
+                      />
+                      <Checkbox
+                        checked={settings.headerConfig.showCart}
+                        onCheckedChange={(checked) => updateHeaderConfig({ showCart: checked })}
+                        label="Show cart icon"
+                      />
+                      <Checkbox
+                        checked={settings.headerConfig.showAccount}
+                        onCheckedChange={(checked) =>
+                          updateHeaderConfig({ showAccount: checked })
+                        }
+                        label="Show account icon"
+                      />
                     </div>
                   </div>
                 </div>
@@ -1529,72 +1484,72 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                         <label className="block text-sm font-medium text-foreground mb-1">
                           Grid Columns (Desktop)
                         </label>
-                        <select
-                          value={settings.productConfig.gridColumns}
-                          onChange={(e) =>
+                        <Select
+                          value={String(settings.productConfig.gridColumns)}
+                          onChange={(value) =>
                             updateProductConfig({
-                              gridColumns: parseInt(e.target.value) as 2 | 3 | 4,
+                              gridColumns: parseInt(value) as 2 | 3 | 4,
                             })
                           }
-                          className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
-                        >
-                          <option value={2}>2 Columns</option>
-                          <option value={3}>3 Columns</option>
-                          <option value={4}>4 Columns</option>
-                        </select>
+                          options={[
+                            { value: '2', label: '2 Columns' },
+                            { value: '3', label: '3 Columns' },
+                            { value: '4', label: '4 Columns' },
+                          ]}
+                        />
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-1">
                           Card Style
                         </label>
-                        <select
+                        <Select
                           value={settings.productConfig.cardStyle}
-                          onChange={(e) =>
-                            updateProductConfig({ cardStyle: e.target.value as any })
+                          onChange={(value) =>
+                            updateProductConfig({ cardStyle: value as any })
                           }
-                          className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
-                        >
-                          <option value="default">Default</option>
-                          <option value="minimal">Minimal</option>
-                          <option value="bordered">Bordered</option>
-                          <option value="elevated">Elevated (Shadow)</option>
-                        </select>
+                          options={[
+                            { value: 'default', label: 'Default' },
+                            { value: 'minimal', label: 'Minimal' },
+                            { value: 'bordered', label: 'Bordered' },
+                            { value: 'elevated', label: 'Elevated (Shadow)' },
+                          ]}
+                        />
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-1">
                           Image Aspect Ratio
                         </label>
-                        <select
+                        <Select
                           value={settings.productConfig.imageAspectRatio}
-                          onChange={(e) =>
-                            updateProductConfig({ imageAspectRatio: e.target.value as any })
+                          onChange={(value) =>
+                            updateProductConfig({ imageAspectRatio: value as any })
                           }
-                          className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
-                        >
-                          <option value="square">Square (1:1)</option>
-                          <option value="portrait">Portrait (3:4)</option>
-                          <option value="landscape">Landscape (4:3)</option>
-                        </select>
+                          options={[
+                            { value: 'square', label: 'Square (1:1)' },
+                            { value: 'portrait', label: 'Portrait (3:4)' },
+                            { value: 'landscape', label: 'Landscape (4:3)' },
+                          ]}
+                        />
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-1">
                           Hover Effect
                         </label>
-                        <select
+                        <Select
                           value={settings.productConfig.hoverEffect}
-                          onChange={(e) =>
-                            updateProductConfig({ hoverEffect: e.target.value as any })
+                          onChange={(value) =>
+                            updateProductConfig({ hoverEffect: value as any })
                           }
-                          className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
-                        >
-                          <option value="none">None</option>
-                          <option value="zoom">Zoom</option>
-                          <option value="fade">Fade</option>
-                          <option value="slide">Slide</option>
-                        </select>
+                          options={[
+                            { value: 'none', label: 'None' },
+                            { value: 'zoom', label: 'Zoom' },
+                            { value: 'fade', label: 'Fade' },
+                            { value: 'slide', label: 'Slide' },
+                          ]}
+                        />
                       </div>
                     </div>
                   </div>
@@ -1602,61 +1557,41 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                   <div className="border-t border-border pt-8">
                     <h4 className="font-medium text-foreground mb-4">Display Options</h4>
                     <div className="grid gap-3 md:grid-cols-2">
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.productConfig.showQuickView}
-                          onChange={(e) =>
-                            updateProductConfig({ showQuickView: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Enable quick view</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.productConfig.showWishlist}
-                          onChange={(e) =>
-                            updateProductConfig({ showWishlist: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Show wishlist button</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.productConfig.showRatings}
-                          onChange={(e) =>
-                            updateProductConfig({ showRatings: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Show ratings</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.productConfig.showSaleBadge}
-                          onChange={(e) =>
-                            updateProductConfig({ showSaleBadge: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Show sale badges</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.productConfig.showStockStatus}
-                          onChange={(e) =>
-                            updateProductConfig({ showStockStatus: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Show stock status</span>
-                      </label>
+                      <Checkbox
+                        checked={settings.productConfig.showQuickView}
+                        onCheckedChange={(checked) =>
+                          updateProductConfig({ showQuickView: checked })
+                        }
+                        label="Enable quick view"
+                      />
+                      <Checkbox
+                        checked={settings.productConfig.showWishlist}
+                        onCheckedChange={(checked) =>
+                          updateProductConfig({ showWishlist: checked })
+                        }
+                        label="Show wishlist button"
+                      />
+                      <Checkbox
+                        checked={settings.productConfig.showRatings}
+                        onCheckedChange={(checked) =>
+                          updateProductConfig({ showRatings: checked })
+                        }
+                        label="Show ratings"
+                      />
+                      <Checkbox
+                        checked={settings.productConfig.showSaleBadge}
+                        onCheckedChange={(checked) =>
+                          updateProductConfig({ showSaleBadge: checked })
+                        }
+                        label="Show sale badges"
+                      />
+                      <Checkbox
+                        checked={settings.productConfig.showStockStatus}
+                        onCheckedChange={(checked) =>
+                          updateProductConfig({ showStockStatus: checked })
+                        }
+                        label="Show stock status"
+                      />
                     </div>
                   </div>
                 </div>
@@ -1669,113 +1604,82 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                     <h3 className="text-lg font-semibold mb-4">Checkout Settings</h3>
 
                     <div className="space-y-4">
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.checkoutConfig.guestCheckoutEnabled}
-                          onChange={(e) =>
-                            updateCheckoutConfig({ guestCheckoutEnabled: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm font-medium">Allow guest checkout</span>
-                        <span className="text-xs text-muted-foreground">
-                          (Customers can checkout without creating an account)
-                        </span>
-                      </label>
+                      <Checkbox
+                        checked={settings.checkoutConfig.guestCheckoutEnabled}
+                        onCheckedChange={(checked) =>
+                          updateCheckoutConfig({ guestCheckoutEnabled: checked })
+                        }
+                        label="Allow guest checkout"
+                        description="Customers can checkout without creating an account"
+                      />
                     </div>
                   </div>
 
                   <div className="border-t border-border pt-8">
                     <h4 className="font-medium text-foreground mb-4">Required Fields</h4>
                     <div className="space-y-3">
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.checkoutConfig.requirePhone}
-                          onChange={(e) =>
-                            updateCheckoutConfig({ requirePhone: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Require phone number</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.checkoutConfig.requireCompany}
-                          onChange={(e) =>
-                            updateCheckoutConfig({ requireCompany: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Require company name</span>
-                      </label>
+                      <Checkbox
+                        checked={settings.checkoutConfig.requirePhone}
+                        onCheckedChange={(checked) =>
+                          updateCheckoutConfig({ requirePhone: checked })
+                        }
+                        label="Require phone number"
+                      />
+                      <Checkbox
+                        checked={settings.checkoutConfig.requireCompany}
+                        onCheckedChange={(checked) =>
+                          updateCheckoutConfig({ requireCompany: checked })
+                        }
+                        label="Require company name"
+                      />
                     </div>
                   </div>
 
                   <div className="border-t border-border pt-8">
                     <h4 className="font-medium text-foreground mb-4">Additional Options</h4>
                     <div className="space-y-3">
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.checkoutConfig.showOrderNotes}
-                          onChange={(e) =>
-                            updateCheckoutConfig({ showOrderNotes: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Allow order notes</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.checkoutConfig.showGiftOptions}
-                          onChange={(e) =>
-                            updateCheckoutConfig({ showGiftOptions: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Show gift options</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.checkoutConfig.showTrustBadges}
-                          onChange={(e) =>
-                            updateCheckoutConfig({ showTrustBadges: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Show trust badges</span>
-                      </label>
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={settings.checkoutConfig.showPaymentIcons}
-                          onChange={(e) =>
-                            updateCheckoutConfig({ showPaymentIcons: e.target.checked })
-                          }
-                          className="rounded border-border text-primary focus:ring-purple-500"
-                        />
-                        <span className="text-sm">Show payment method icons</span>
-                      </label>
+                      <Checkbox
+                        checked={settings.checkoutConfig.showOrderNotes}
+                        onCheckedChange={(checked) =>
+                          updateCheckoutConfig({ showOrderNotes: checked })
+                        }
+                        label="Allow order notes"
+                      />
+                      <Checkbox
+                        checked={settings.checkoutConfig.showGiftOptions}
+                        onCheckedChange={(checked) =>
+                          updateCheckoutConfig({ showGiftOptions: checked })
+                        }
+                        label="Show gift options"
+                      />
+                      <Checkbox
+                        checked={settings.checkoutConfig.showTrustBadges}
+                        onCheckedChange={(checked) =>
+                          updateCheckoutConfig({ showTrustBadges: checked })
+                        }
+                        label="Show trust badges"
+                      />
+                      <Checkbox
+                        checked={settings.checkoutConfig.showPaymentIcons}
+                        onCheckedChange={(checked) =>
+                          updateCheckoutConfig({ showPaymentIcons: checked })
+                        }
+                        label="Show payment method icons"
+                      />
                     </div>
                   </div>
 
                   <div className="border-t border-border pt-8">
                     <h4 className="font-medium text-foreground mb-4">Terms & Conditions</h4>
-                    <label className="flex items-center gap-2 mb-4">
-                      <input
-                        type="checkbox"
+                    <div className="mb-4">
+                      <Checkbox
                         checked={settings.checkoutConfig.showTermsCheckbox}
-                        onChange={(e) =>
-                          updateCheckoutConfig({ showTermsCheckbox: e.target.checked })
+                        onCheckedChange={(checked) =>
+                          updateCheckoutConfig({ showTermsCheckbox: checked })
                         }
-                        className="rounded border-border text-primary focus:ring-purple-500"
+                        label="Require terms acceptance"
                       />
-                      <span className="text-sm">Require terms acceptance</span>
+                    </div>
                     </label>
 
                     {settings.checkoutConfig.showTermsCheckbox && (
@@ -1919,36 +1823,28 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                             </div>
 
                             <div className="flex flex-wrap gap-4">
-                              <label className="flex items-center gap-2 text-sm cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={editingPage?.showInMenu || pageForm.showInMenu}
-                                  onChange={(e) => {
-                                    if (editingPage) {
-                                      setEditingPage({ ...editingPage, showInMenu: e.target.checked });
-                                    } else {
-                                      setPageForm({ ...pageForm, showInMenu: e.target.checked });
-                                    }
-                                  }}
-                                  className="rounded border-border text-primary"
-                                />
-                                Show in Menu
-                              </label>
-                              <label className="flex items-center gap-2 text-sm cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={editingPage?.showInFooter || pageForm.showInFooter}
-                                  onChange={(e) => {
-                                    if (editingPage) {
-                                      setEditingPage({ ...editingPage, showInFooter: e.target.checked });
-                                    } else {
-                                      setPageForm({ ...pageForm, showInFooter: e.target.checked });
-                                    }
-                                  }}
-                                  className="rounded border-border text-primary"
-                                />
-                                Show in Footer
-                              </label>
+                              <Checkbox
+                                checked={editingPage?.showInMenu || pageForm.showInMenu}
+                                onCheckedChange={(checked) => {
+                                  if (editingPage) {
+                                    setEditingPage({ ...editingPage, showInMenu: checked });
+                                  } else {
+                                    setPageForm({ ...pageForm, showInMenu: checked });
+                                  }
+                                }}
+                                label="Show in Menu"
+                              />
+                              <Checkbox
+                                checked={editingPage?.showInFooter || pageForm.showInFooter}
+                                onCheckedChange={(checked) => {
+                                  if (editingPage) {
+                                    setEditingPage({ ...editingPage, showInFooter: checked });
+                                  } else {
+                                    setPageForm({ ...pageForm, showInFooter: checked });
+                                  }
+                                }}
+                                label="Show in Footer"
+                              />
                             </div>
                           </div>
 
