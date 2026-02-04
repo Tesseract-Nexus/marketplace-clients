@@ -46,7 +46,7 @@ function Mark8lyIcon({ size = 32, className }: { size?: number; className?: stri
  */
 function FullLogoLoader({ size = 80 }: { size?: number }) {
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div className="flex flex-col items-center gap-1">
       <div className="relative">
         {/* Logo image */}
         <img
@@ -109,7 +109,7 @@ export function BrandedLoader({
       aria-live="polite"
       aria-label={message || 'Loading'}
       className={cn(
-        'flex flex-col items-center justify-center gap-2',
+        'flex flex-col items-center justify-center gap-1',
         className
       )}
     >
