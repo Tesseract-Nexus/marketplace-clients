@@ -16,12 +16,12 @@ export default function Header({ currentPage = 'other' }: HeaderProps) {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-[var(--border)]">
       <div className="max-w-6xl mx-auto px-6 sm:px-8">
-        <div className="flex justify-between items-center h-28">
-          <Link href="/" className="flex items-center hover:opacity-80 transition-opacity h-24 overflow-hidden">
+        <div className="flex justify-between items-center h-20">
+          <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
             <img
               src="/logo.png"
               alt="Mark8ly"
-              className="h-60 w-auto -mt-8 -mb-20"
+              className="h-16 w-auto object-contain"
             />
           </Link>
           <div className="hidden md:flex items-center space-x-8">

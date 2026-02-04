@@ -219,12 +219,12 @@ export default function Home() {
       <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background border-b border-border ${
         scrolled ? 'shadow-sm' : ''
       }`}>
-        <div className="max-w-5xl mx-auto px-6 h-28 flex items-center justify-between">
-          <a href="/" className="flex items-center h-24 overflow-hidden">
+        <div className="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
+          <a href="/" className="flex items-center">
             <img
               src="/logo.png"
               alt="Mark8ly"
-              className="h-60 w-auto -mt-8 -mb-20"
+              className="h-16 w-auto object-contain"
             />
           </a>
 
@@ -286,7 +286,7 @@ export default function Home() {
       </header>
 
       {/* Hero */}
-      <section className="pt-28 pb-20 px-6 reveal-once">
+      <section className="pt-32 pb-20 px-6 reveal-once">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-[1.1fr_0.9fr] gap-16 items-center">
           <div>
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-sage-50 text-sage-700 text-sm font-medium border border-sage-200 mb-6 gap-2">
