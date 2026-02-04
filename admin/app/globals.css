@@ -260,7 +260,7 @@
 }
 
 .dark {
-  /* Core colors - Charcoal theme with subtle warmth */
+  /* Core colors - Charcoal theme with subtle warmth for depth */
   --background: oklch(0.08 0.018 270);
   --foreground: oklch(0.97 0.005 250);
   --card: oklch(0.13 0.022 268);
