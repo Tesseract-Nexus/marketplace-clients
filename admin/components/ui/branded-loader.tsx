@@ -17,10 +17,10 @@ interface BrandedLoaderProps {
 }
 
 const sizeConfig = {
-  sm: { icon: 24, logo: 40, text: 'text-xs' },
-  md: { icon: 32, logo: 60, text: 'text-sm' },
-  lg: { icon: 48, logo: 80, text: 'text-base' },
-  xl: { icon: 64, logo: 120, text: 'text-lg' },
+  sm: { icon: 32, logo: 64, text: 'text-xs' },
+  md: { icon: 48, logo: 96, text: 'text-sm' },
+  lg: { icon: 64, logo: 128, text: 'text-base' },
+  xl: { icon: 80, logo: 160, text: 'text-lg' },
 };
 
 /**
@@ -46,7 +46,7 @@ function Mark8lyIcon({ size = 32, className }: { size?: number; className?: stri
  */
 function FullLogoLoader({ size = 80 }: { size?: number }) {
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-2">
       <div className="relative">
         {/* Logo image */}
         <img
@@ -109,7 +109,7 @@ export function BrandedLoader({
       aria-live="polite"
       aria-label={message || 'Loading'}
       className={cn(
-        'flex flex-col items-center justify-center gap-3',
+        'flex flex-col items-center justify-center gap-2',
         className
       )}
     >
