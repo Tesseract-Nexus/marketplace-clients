@@ -41,8 +41,8 @@ export async function GET(request: NextRequest) {
 
   try {
     // Try to fetch settings from the settings service
-    // Use settings/context endpoint with proper query params
-    const settingsUrl = `${SETTINGS_SERVICE_URL}/settings/context?applicationId=admin-portal&scope=application&tenantId=${tenantId}`;
+    // Use public settings endpoint (no auth required for storefront)
+    const settingsUrl = `${SETTINGS_SERVICE_URL}/api/v1/public/settings/context?applicationId=admin-portal&scope=application&tenantId=${tenantId}`;
 
     const response = await fetch(settingsUrl, {
       headers: {
