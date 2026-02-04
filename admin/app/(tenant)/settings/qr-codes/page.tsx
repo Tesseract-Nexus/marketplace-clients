@@ -594,7 +594,7 @@ export default function QRCodesPage() {
             <div>
               <Label htmlFor="encryption">Encryption</Label>
               <Select
-                value={wifiData.encryption}
+                value={wifiData.encryption || 'WPA'}
                 onChange={(value) => setWifiData({ ...wifiData, encryption: value as 'WPA' | 'WEP' | 'nopass' })}
                 options={[
                   { value: 'WPA', label: 'WPA/WPA2' },
