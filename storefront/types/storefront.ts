@@ -164,6 +164,7 @@ export interface StorefrontSettings {
   accentColor?: string;
   logoUrl?: string;
   faviconUrl?: string;
+  metaDescription?: string;
   fontPrimary: string;
   fontSecondary: string;
   colorMode: ColorMode;

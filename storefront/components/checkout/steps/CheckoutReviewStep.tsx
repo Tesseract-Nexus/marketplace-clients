@@ -271,7 +271,7 @@ export function CheckoutReviewStep({
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => goToStep('payment')}
+              onClick={() => goToStep('shipping')}
               className="h-7 text-xs text-tenant-primary hover:text-tenant-primary hover:bg-tenant-primary/10"
             >
               <Edit2 className="h-3 w-3 mr-1" />

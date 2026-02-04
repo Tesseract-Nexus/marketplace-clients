@@ -5,7 +5,7 @@ import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import { StorefrontSettings } from '@/types/storefront';
 import { generateCssVariables, isDarkTheme, isEditorialTheme } from '@/lib/theme/theme-utils';
 import { loadFonts } from '@/lib/theme/fonts';
-import { PushNotificationProvider } from '@/components/notifications';
+import { logger } from '@/lib/logger';
 
 // ========================================
 // Theme Provider Props
@@ -23,7 +23,7 @@ interface ThemeProviderProps {
 export function ThemeProvider({ children, settings }: ThemeProviderProps) {
   // Debug: Log theme settings for troubleshooting
   useEffect(() => {
-    console.log('[ThemeProvider] Settings received:', {
+    logger.debug('[ThemeProvider] Settings received:', {
       colorMode: settings.colorMode,
       themeTemplate: settings.themeTemplate,
       primaryColor: settings.primaryColor,
@@ -58,7 +58,7 @@ export function ThemeProvider({ children, settings }: ThemeProviderProps) {
       result = 'system';
     }
 
-    console.log('[ThemeProvider] Computed defaultTheme:', result, {
+    logger.debug('[ThemeProvider] Computed defaultTheme:', result, {
       colorMode: settings.colorMode,
       themeTemplate: settings.themeTemplate,
       isDarkTemplate: isDarkTheme(settings.themeTemplate),
@@ -162,9 +162,7 @@ export function ThemeProvider({ children, settings }: ThemeProviderProps) {
       enableSystem={settings.colorMode === 'system' || settings.colorMode === 'both'}
       disableTransitionOnChange
     >
-      <PushNotificationProvider>
-        {children}
-      </PushNotificationProvider>
+      {children}
     </NextThemesProvider>
   );
 }

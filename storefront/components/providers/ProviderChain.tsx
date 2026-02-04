@@ -14,7 +14,8 @@ import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider';
 import { CookieConsentBanner } from '@/components/ui/CookieConsentBanner';
 import { Toaster } from '@/components/ui/sonner';
 import { OrganizationJsonLd, WebSiteJsonLd } from '@/components/seo/JsonLd';
-import type { StorefrontSettings, TenantInfo, StoreLocalization } from '@/types/storefront';
+import type { StorefrontSettings, TenantInfo } from '@/types/storefront';
+import type { StoreLocalization } from '@/lib/api/storefront';
 
 interface ProviderChainProps {
   children: ReactNode;
@@ -50,7 +51,7 @@ export function ProviderChain({
       />
       <WebSiteJsonLd name={storeName} url={baseUrl} searchUrl={`${baseUrl}/search`} />
       <QueryProvider>
-        <TenantProvider tenant={tenant} settings={settings} localization={localization}>
+        <TenantProvider tenant={tenant} settings={settings} localization={localization ?? undefined}>
           <CurrencyProvider>
             <ThemeProvider settings={settings}>
               <TranslationProviderWrapper>

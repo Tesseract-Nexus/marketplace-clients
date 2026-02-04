@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Truck, MapPin, Edit2, ChevronRight, ChevronLeft, Loader2, CreditCard, Ticket, Gift, Star, Checkbox as CheckboxIcon } from 'lucide-react';
+import { Truck, MapPin, Edit2, ChevronRight, ChevronLeft, Loader2, CreditCard, Ticket, Gift, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

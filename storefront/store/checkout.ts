@@ -5,7 +5,7 @@ import { CustomerAddress } from '@/lib/api/customers';
 import { ShippingMethod, ShippingRate } from '@/lib/api/shipping';
 import { ShippingAddress } from '@/hooks/useTaxCalculation';
 
-export type CheckoutStep = 'contact' | 'shipping' | 'payment' | 'review';
+export type CheckoutStep = 'contact' | 'shipping' | 'review';
 
 export interface ContactInfo {
   firstName: string;
