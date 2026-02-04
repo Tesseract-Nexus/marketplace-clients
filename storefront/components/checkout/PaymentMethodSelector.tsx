@@ -216,11 +216,6 @@ export function PaymentMethodSelector({
                         <span className="font-medium text-sm">
                           {method.displayName || method.name}
                         </span>
-                        {method.isTestMode && (
-                          <span className="text-[10px] px-1 py-0.5 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded">
-                            Test
-                          </span>
-                        )}
                         <Shield className="h-3 w-3 text-green-500 flex-shrink-0" />
                       </div>
 

@@ -70,6 +70,32 @@ export interface GlobalSearchResult {
   categories: SearchResult<CategorySearchResult>;
 }
 
+// Typesense response types
+interface TypesenseHit<T> {
+  document: T;
+  highlights?: Array<{ field: string; snippet: string }>;
+  text_match?: number;
+}
+
+interface TypesenseFacetCount {
+  value: string;
+  count: number;
+}
+
+interface TypesenseFacet {
+  field_name: string;
+  counts: TypesenseFacetCount[];
+}
+
+interface TypesenseSearchResponse<T> {
+  hits?: TypesenseHit<T>[];
+  found?: number;
+  search_time_ms?: number;
+  page?: number;
+  out_of?: number;
+  facet_counts?: TypesenseFacet[];
+}
+
 // ========================================
 // Search Functions
 // ========================================
@@ -144,13 +170,14 @@ export async function searchProducts(
     }
 
     // Transform Typesense response to our format
+    const data = result.data as TypesenseSearchResponse<ProductSearchResult> | undefined;
     return {
-      hits: result.data?.hits?.map((hit: any) => hit.document) || [],
-      found: result.data?.found || 0,
-      search_time_ms: result.data?.search_time_ms || 0,
-      page: result.data?.page || 1,
-      out_of: result.data?.out_of || 0,
-      facets: transformFacets(result.data?.facet_counts),
+      hits: data?.hits?.map((hit) => hit.document) || [],
+      found: data?.found || 0,
+      search_time_ms: data?.search_time_ms || 0,
+      page: data?.page || 1,
+      out_of: data?.out_of || 0,
+      facets: transformFacets(data?.facet_counts),
     };
   } catch (error) {
     console.error('Search products error:', error);
@@ -201,13 +228,14 @@ export async function searchCategories(
     }
 
     const result = await response.json();
+    const data = result.data as TypesenseSearchResponse<CategorySearchResult> | undefined;
 
     return {
-      hits: result.data?.hits?.map((hit: any) => hit.document) || [],
-      found: result.data?.found || 0,
-      search_time_ms: result.data?.search_time_ms || 0,
-      page: result.data?.page || 1,
-      out_of: result.data?.out_of || 0,
+      hits: data?.hits?.map((hit) => hit.document) || [],
+      found: data?.found || 0,
+      search_time_ms: data?.search_time_ms || 0,
+      page: data?.page || 1,
+      out_of: data?.out_of || 0,
     };
   } catch (error) {
     console.error('Search categories error:', error);
@@ -254,11 +282,14 @@ export async function globalSearch(
     }
 
     const result = await response.json();
-    const data = result.data || {};
+    const data = result.data as {
+      products?: TypesenseSearchResponse<ProductSearchResult>;
+      categories?: TypesenseSearchResponse<CategorySearchResult>;
+    } | undefined;
 
     return {
-      products: transformSearchResult(data.products),
-      categories: transformSearchResult(data.categories),
+      products: transformSearchResult<ProductSearchResult>(data?.products),
+      categories: transformSearchResult<CategorySearchResult>(data?.categories),
     };
   } catch (error) {
     console.error('Global search error:', error);
@@ -376,13 +407,13 @@ export async function searchProductsWithFacets(
 // Helper Functions
 // ========================================
 
-function transformSearchResult(data: any): SearchResult<any> {
+function transformSearchResult<T>(data: TypesenseSearchResponse<T> | undefined): SearchResult<T> {
   if (!data) {
     return { hits: [], found: 0, search_time_ms: 0, page: 1, out_of: 0 };
   }
 
   return {
-    hits: data.hits?.map((hit: any) => hit.document) || [],
+    hits: data.hits?.map((hit) => hit.document) || [],
     found: data.found || 0,
     search_time_ms: data.search_time_ms || 0,
     page: data.page || 1,
@@ -391,14 +422,14 @@ function transformSearchResult(data: any): SearchResult<any> {
   };
 }
 
-function transformFacets(facetCounts: any[]): Record<string, FacetCount[]> | undefined {
+function transformFacets(facetCounts: TypesenseFacet[] | undefined): Record<string, FacetCount[]> | undefined {
   if (!facetCounts || facetCounts.length === 0) {
     return undefined;
   }
 
   const facets: Record<string, FacetCount[]> = {};
   for (const facet of facetCounts) {
-    facets[facet.field_name] = facet.counts.map((c: any) => ({
+    facets[facet.field_name] = facet.counts.map((c) => ({
       value: c.value,
       count: c.count,
     }));
