@@ -36,6 +36,7 @@ import {
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { Badge } from '@/components/ui/badge';
@@ -3031,11 +3032,8 @@ export default function ProductsPage() {
 
         {/* Products List - Table Layout */}
         {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="text-center">
-              <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-              <p className="mt-4 text-muted-foreground">Loading products...</p>
-            </div>
+          <div className="bg-card rounded-lg border border-border overflow-hidden">
+            <TableSkeleton rows={8} columns={7} />
           </div>
         ) : (
           <div className="bg-card rounded-lg border border-border overflow-x-auto">

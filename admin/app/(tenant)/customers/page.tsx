@@ -14,6 +14,7 @@ import { Stepper, StepperNavigation, Step } from '@/components/Stepper';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Pagination } from '@/components/Pagination';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
@@ -506,6 +507,9 @@ export default function CustomersPage() {
       <div className="bg-card rounded-lg border border-border overflow-hidden">
         {/* Desktop Table View */}
         <div className="hidden md:block overflow-x-auto">
+          {loading ? (
+            <TableSkeleton rows={8} columns={8} />
+          ) : (
           <table className="w-full">
             <thead className="bg-muted border-b border-border">
               <tr>
@@ -520,16 +524,7 @@ export default function CustomersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {loading ? (
-                <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center">
-                    <div className="flex flex-col items-center">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
-                      <span className="text-muted-foreground">Loading customers...</span>
-                    </div>
-                  </td>
-                </tr>
-              ) : filteredCustomers.length === 0 ? (
+              {filteredCustomers.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-6 py-12 text-center text-muted-foreground">
                     No customers found
@@ -633,15 +628,13 @@ export default function CustomersPage() {
               )}
             </tbody>
           </table>
+          )}
         </div>
 
         {/* Mobile Card View */}
         <div className="md:hidden">
           {loading ? (
-            <div className="p-6 text-center">
-              <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
-              <span className="text-muted-foreground">Loading customers...</span>
-            </div>
+            <TableSkeleton rows={5} columns={3} />
           ) : filteredCustomers.length === 0 ? (
             <div className="p-6 text-center text-muted-foreground">
               No customers found

@@ -43,6 +43,7 @@ import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { cn } from '@/lib/utils';
@@ -942,10 +943,7 @@ export default function CampaignsPage() {
         {/* Campaigns Table */}
         <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="ml-3 text-muted-foreground">Loading campaigns...</span>
-            </div>
+            <TableSkeleton rows={6} columns={7} />
           ) : campaigns.length === 0 ? (
             <div className="text-center py-16">
               <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">

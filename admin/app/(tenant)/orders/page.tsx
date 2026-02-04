@@ -9,6 +9,7 @@ import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import {
   AdminUIText,
   AdminButtonText,
@@ -690,11 +691,7 @@ export default function OrdersPage() {
       {/* Orders Table */}
       <div className="bg-card rounded-lg border border-border overflow-x-auto">
         {loading ? (
-          <div className="p-12 text-center">
-            <Loader2 className="w-12 h-12 mx-auto text-primary animate-spin mb-4" />
-            <p className="text-muted-foreground font-medium"><AdminUIText text="Loading orders..." /></p>
-            <p className="text-muted-foreground text-sm mt-1"><AdminUIText text="Please wait while we fetch your data" /></p>
-          </div>
+          <TableSkeleton rows={8} columns={8} />
         ) : paginatedOrders.length === 0 ? (
           <div className="p-16 text-center">
             <div className="bg-muted p-8 rounded-full border border-border inline-block">

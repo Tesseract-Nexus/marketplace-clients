@@ -57,6 +57,7 @@ import { Stepper, StepperNavigation, Step } from '@/components/Stepper';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Pagination } from '@/components/Pagination';
 import { staffService } from '@/lib/services/staffService';
 import { roleService } from '@/lib/api/rbac';
@@ -1150,10 +1151,7 @@ export default function StaffPage() {
       <div className="bg-card rounded-lg border border-border overflow-visible relative z-40">
         <div className="p-6 overflow-visible relative">
           {loading ? (
-            <div className="text-center py-12">
-              <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-              <p className="mt-4 text-muted-foreground">Loading staff...</p>
-            </div>
+            <TableSkeleton rows={8} columns={6} />
           ) : filteredStaff.length === 0 ? (
             <div className="text-center py-12">
               <Users className="w-16 h-16 text-muted-foreground mx-auto mb-4" />

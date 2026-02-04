@@ -1,14 +1,18 @@
 'use client';
 
 import React from 'react';
-import { Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 
 export interface DataListContainerProps {
   /** Loading state */
   loading?: boolean;
-  /** Loading message */
+  /** Loading message (deprecated - skeleton doesn't use text) */
   loadingMessage?: string;
+  /** Number of skeleton rows to show */
+  skeletonRows?: number;
+  /** Number of skeleton columns to show */
+  skeletonColumns?: number;
   /** Whether the list is empty */
   isEmpty?: boolean;
   /** Empty state message */
@@ -39,7 +43,9 @@ export interface DataListContainerProps {
  */
 export function DataListContainer({
   loading = false,
-  loadingMessage = 'Loading...',
+  loadingMessage: _loadingMessage,
+  skeletonRows = 5,
+  skeletonColumns = 5,
   isEmpty = false,
   emptyMessage = 'No items found',
   emptyIcon,
@@ -51,12 +57,11 @@ export function DataListContainer({
     return (
       <div
         className={cn(
-          'bg-card rounded-lg border border-border shadow-sm p-12 text-center',
+          'bg-card rounded-lg border border-border shadow-sm overflow-hidden',
           className
         )}
       >
-        <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-3" />
-        <p className="text-muted-foreground">{loadingMessage}</p>
+        <TableSkeleton rows={skeletonRows} columns={skeletonColumns} />
       </div>
     );
   }

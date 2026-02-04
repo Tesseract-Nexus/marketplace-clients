@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
+import { TableSkeleton, ListSkeleton } from '@/components/ui/table-skeleton';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { StatusBadge, StatusType } from '@/components/ui/status-badge';
@@ -1678,9 +1679,8 @@ export default function InventoryPage() {
               {/* Tab Content */}
               <TabsContent value="stock-levels" className="mt-4">
                 {loading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <span className="ml-2 text-muted-foreground">Loading stock levels...</span>
+                  <div className="bg-card rounded-lg border border-border overflow-hidden">
+                    <TableSkeleton rows={8} columns={6} />
                   </div>
                 ) : error ? (
                   <div className="p-6 text-center">
@@ -1878,9 +1878,8 @@ export default function InventoryPage() {
 
               <TabsContent value="warehouses" className="mt-4">
                 {loading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <span className="ml-2 text-muted-foreground">Loading warehouses...</span>
+                  <div className="bg-card rounded-lg border border-border overflow-hidden">
+                    <TableSkeleton rows={5} columns={6} />
                   </div>
                 ) : (
                 <div className="bg-card rounded-lg border border-border overflow-x-auto">
@@ -1983,9 +1982,8 @@ export default function InventoryPage() {
 
               <TabsContent value="suppliers" className="mt-4">
                 {loading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <span className="ml-2 text-muted-foreground">Loading suppliers...</span>
+                  <div className="bg-card rounded-lg border border-border overflow-hidden">
+                    <TableSkeleton rows={5} columns={5} />
                   </div>
                 ) : (
                 <div className="bg-card rounded-lg border border-border overflow-x-auto">
@@ -2092,9 +2090,8 @@ export default function InventoryPage() {
 
               <TabsContent value="purchase-orders" className="mt-4">
                 {loading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <span className="ml-2 text-muted-foreground">Loading purchase orders...</span>
+                  <div className="bg-card rounded-lg border border-border overflow-hidden">
+                    <TableSkeleton rows={5} columns={6} />
                   </div>
                 ) : (
                 <div className="bg-card rounded-lg border border-border overflow-x-auto">
@@ -2202,9 +2199,8 @@ export default function InventoryPage() {
 
               <TabsContent value="transfers" className="mt-4">
                 {loading ? (
-                  <div className="flex items-center justify-center py-12">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <span className="ml-2 text-muted-foreground">Loading transfers...</span>
+                  <div className="bg-card rounded-lg border border-border overflow-hidden">
+                    <TableSkeleton rows={5} columns={6} />
                   </div>
                 ) : (
                 <div className="bg-card rounded-lg border border-border overflow-x-auto">

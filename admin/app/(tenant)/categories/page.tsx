@@ -44,6 +44,7 @@ import {
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -970,11 +971,7 @@ export default function CategoriesPage() {
       {/* Loading State */}
       {loading && categories.length === 0 && (
         <div className="bg-card rounded-lg border border-border overflow-hidden">
-          <div className="p-12 text-center">
-            <Loader2 className="w-16 h-16 mx-auto text-primary animate-spin mb-4" />
-            <p className="text-foreground font-semibold text-lg mb-2"><AdminUIText text="Loading categories..." /></p>
-            <p className="text-muted-foreground text-sm"><AdminUIText text="Please wait while we fetch your data" /></p>
-          </div>
+          <TableSkeleton rows={6} columns={5} />
         </div>
       )}
 
