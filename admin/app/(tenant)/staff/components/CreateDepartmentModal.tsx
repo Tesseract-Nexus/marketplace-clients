@@ -10,6 +10,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { Select } from '@/components/Select';
 import { departmentService } from '@/lib/api/rbac';
 import type { Department, CreateDepartmentRequest } from '@/lib/api/rbacTypes';
 
@@ -181,17 +182,15 @@ export function CreateDepartmentModal({
               <label className="block text-sm font-medium text-foreground mb-1.5">
                 Parent Department
               </label>
-              <select
+              <Select
                 value={formData.parentDepartmentId}
-                onChange={(e) => setFormData({ ...formData, parentDepartmentId: e.target.value })}
-                className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary transition-all"
+                onChange={(value) => setFormData({ ...formData, parentDepartmentId: value })}
+                options={[
+                  { value: '', label: 'No parent (root department)' },
+                  ...existingDepartments.map(dept => ({ value: dept.id, label: dept.name })),
+                ]}
                 disabled={isSubmitting}
-              >
-                <option value="">No parent (root department)</option>
-                {existingDepartments.map(dept => (
-                  <option key={dept.id} value={dept.id}>{dept.name}</option>
-                ))}
-              </select>
+              />
             </div>
           )}
 

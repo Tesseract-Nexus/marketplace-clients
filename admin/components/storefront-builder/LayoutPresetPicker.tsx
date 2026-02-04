@@ -3,6 +3,7 @@
 import React from 'react';
 import { Check, Layout, Grid, Columns, Rows, LayoutGrid, LayoutList, Menu, Footprints } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   ContainerWidth,
   ContentPadding,
@@ -562,15 +563,11 @@ export function CategoryLayoutPicker({ value, showBanner, onChange, onBannerChan
         </div>
       </div>
 
-      <label className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          checked={showBanner}
-          onChange={(e) => onBannerChange(e.target.checked)}
-          className="rounded border-border text-primary focus:ring-ring focus:ring-offset-2"
-        />
-        <span className="text-sm">Show category banner image</span>
-      </label>
+      <Checkbox
+        checked={showBanner}
+        onCheckedChange={(checked) => onBannerChange(checked)}
+        label="Show category banner image"
+      />
     </div>
   );
 }

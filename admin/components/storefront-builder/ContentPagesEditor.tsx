@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select } from '@/components/Select';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
@@ -432,29 +434,23 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1">Page Type</label>
-                  <select
+                  <Select
                     value={editingPage.type}
-                    onChange={(e) => setEditingPage({ ...editingPage, type: e.target.value as ContentPageType })}
-                    className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
-                  >
-                    {PAGE_TYPES.map((type) => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(value) => setEditingPage({ ...editingPage, type: value as ContentPageType })}
+                    options={PAGE_TYPES.map((type) => ({ value: type.value, label: type.label }))}
+                  />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-1">Status</label>
-                  <select
+                  <Select
                     value={editingPage.status}
-                    onChange={(e) => setEditingPage({ ...editingPage, status: e.target.value as ContentPageStatus })}
-                    className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
-                  >
-                    <option value="DRAFT">Draft</option>
-                    <option value="PUBLISHED">Published</option>
-                    <option value="ARCHIVED">Archived</option>
-                  </select>
+                    onChange={(value) => setEditingPage({ ...editingPage, status: value as ContentPageStatus })}
+                    options={[
+                      { value: 'DRAFT', label: 'Draft' },
+                      { value: 'PUBLISHED', label: 'Published' },
+                      { value: 'ARCHIVED', label: 'Archived' },
+                    ]}
+                  />
                 </div>
               </div>
 
@@ -498,42 +494,30 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
               <div className="border-t border-border pt-4">
                 <h4 className="font-medium text-foreground mb-3">Display Options</h4>
                 <div className="grid gap-3 sm:grid-cols-3">
-                  <label className="flex items-center gap-3 p-3 rounded-lg border border-border cursor-pointer hover:bg-muted">
-                    <input
-                      type="checkbox"
+                  <div className="p-3 rounded-lg border border-border hover:bg-muted">
+                    <Checkbox
                       checked={editingPage.showInMenu}
-                      onChange={(e) => setEditingPage({ ...editingPage, showInMenu: e.target.checked })}
-                      className="w-4 h-4 text-primary rounded border-border focus:ring-purple-500"
+                      onCheckedChange={(checked) => setEditingPage({ ...editingPage, showInMenu: checked })}
+                      label="Show in Menu"
+                      description="Add to navigation"
                     />
-                    <div>
-                      <p className="font-medium text-sm">Show in Menu</p>
-                      <p className="text-xs text-muted-foreground">Add to navigation</p>
-                    </div>
-                  </label>
-                  <label className="flex items-center gap-3 p-3 rounded-lg border border-border cursor-pointer hover:bg-muted">
-                    <input
-                      type="checkbox"
+                  </div>
+                  <div className="p-3 rounded-lg border border-border hover:bg-muted">
+                    <Checkbox
                       checked={editingPage.showInFooter}
-                      onChange={(e) => setEditingPage({ ...editingPage, showInFooter: e.target.checked })}
-                      className="w-4 h-4 text-primary rounded border-border focus:ring-purple-500"
+                      onCheckedChange={(checked) => setEditingPage({ ...editingPage, showInFooter: checked })}
+                      label="Show in Footer"
+                      description="Add to footer links"
                     />
-                    <div>
-                      <p className="font-medium text-sm">Show in Footer</p>
-                      <p className="text-xs text-muted-foreground">Add to footer links</p>
-                    </div>
-                  </label>
-                  <label className="flex items-center gap-3 p-3 rounded-lg border border-border cursor-pointer hover:bg-muted">
-                    <input
-                      type="checkbox"
+                  </div>
+                  <div className="p-3 rounded-lg border border-border hover:bg-muted">
+                    <Checkbox
                       checked={editingPage.isFeatured}
-                      onChange={(e) => setEditingPage({ ...editingPage, isFeatured: e.target.checked })}
-                      className="w-4 h-4 text-primary rounded border-border focus:ring-purple-500"
+                      onCheckedChange={(checked) => setEditingPage({ ...editingPage, isFeatured: checked })}
+                      label="Featured"
+                      description="Highlight this page"
                     />
-                    <div>
-                      <p className="font-medium text-sm">Featured</p>
-                      <p className="text-xs text-muted-foreground">Highlight this page</p>
-                    </div>
-                  </label>
+                  </div>
                 </div>
               </div>
             </div>

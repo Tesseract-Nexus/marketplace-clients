@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Stepper, StepperNavigation } from '@/components/Stepper';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { Pagination } from '@/components/Pagination';
@@ -3041,11 +3042,9 @@ export default function ProductsPage() {
               <thead className="bg-muted border-b border-border">
                 <tr>
                   <th className="px-4 py-3 text-left">
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={selectedProducts.size === paginatedProducts.length && paginatedProducts.length > 0}
-                      onChange={handleSelectAll}
-                      className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                      onCheckedChange={handleSelectAll}
                     />
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-bold text-foreground uppercase tracking-wider">
@@ -3116,11 +3115,9 @@ export default function ProductsPage() {
                         )}
                       >
                         <td className="px-4 py-3">
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={selectedProducts.has(product.id)}
-                            onChange={() => handleSelectProduct(product.id)}
-                            className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0 cursor-pointer"
+                            onCheckedChange={() => handleSelectProduct(product.id)}
                           />
                         </td>
                         <td className="px-4 py-3">

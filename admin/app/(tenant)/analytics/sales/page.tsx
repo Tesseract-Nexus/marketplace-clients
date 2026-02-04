@@ -501,17 +501,11 @@ export default function SalesAnalyticsPage() {
         <div className="bg-card rounded-xl border border-border/60 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300 overflow-hidden">
           {/* Mobile Tab Selector */}
           <div className="md:hidden p-4 border-b border-border">
-            <select
+            <Select
               value={activeTab}
-              onChange={(e) => setActiveTab(e.target.value as SalesTabId)}
-              className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:border-primary"
-            >
-              {SALES_TABS.map((tab) => (
-                <option key={tab.id} value={tab.id}>
-                  {tab.label}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setActiveTab(value as SalesTabId)}
+              options={SALES_TABS.map((tab) => ({ value: tab.id, label: tab.label }))}
+            />
           </div>
 
           {/* Desktop Tabs */}

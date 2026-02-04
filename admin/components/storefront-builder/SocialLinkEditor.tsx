@@ -3,6 +3,7 @@
 import React from 'react';
 import { Trash2, Facebook, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Select } from '@/components/Select';
 import { StorefrontSocialLink } from '@/lib/api/types';
 
 interface SocialLinkEditorProps {
@@ -38,17 +39,11 @@ export function SocialLinkEditor({ social, onUpdate, onDelete }: SocialLinkEdito
       </div>
 
       <div className="flex-1 grid grid-cols-3 gap-3">
-        <select
+        <Select
           value={social.platform}
-          onChange={(e) => onUpdate({ platform: e.target.value as StorefrontSocialLink['platform'] })}
-          className="h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
-        >
-          {SOCIAL_PLATFORMS.map((platform) => (
-            <option key={platform.value} value={platform.value}>
-              {platform.label}
-            </option>
-          ))}
-        </select>
+          onChange={(value) => onUpdate({ platform: value as StorefrontSocialLink['platform'] })}
+          options={SOCIAL_PLATFORMS.map((platform) => ({ value: platform.value, label: platform.label }))}
+        />
 
         <input
           type="url"

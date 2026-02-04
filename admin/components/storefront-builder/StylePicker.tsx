@@ -3,6 +3,7 @@
 import React from 'react';
 import { Check, Circle, Square, RectangleHorizontal, Layers, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   BorderRadius,
   ButtonStyle,
@@ -424,15 +425,11 @@ export function AnimationSpeedPicker({
         </div>
       </div>
 
-      <label className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          checked={hoverEffects}
-          onChange={(e) => onHoverEffectsChange(e.target.checked)}
-          className="rounded border-border text-primary focus:ring-ring focus:ring-offset-2"
-        />
-        <span className="text-sm">Enable hover effects on interactive elements</span>
-      </label>
+      <Checkbox
+        checked={hoverEffects}
+        onCheckedChange={(checked) => onHoverEffectsChange(checked)}
+        label="Enable hover effects on interactive elements"
+      />
     </div>
   );
 }

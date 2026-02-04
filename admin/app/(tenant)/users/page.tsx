@@ -19,6 +19,7 @@ import {
   Filter,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -694,17 +695,11 @@ export default function UsersHubPage() {
                 </div>
 
                 <div>
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={formData.accountEnabled}
-                      onChange={(e) => setFormData({ ...formData, accountEnabled: e.target.checked })}
-                      className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
-                    />
-                    <span className="text-sm font-semibold text-foreground">
-                      Account Enabled
-                    </span>
-                  </label>
+                  <Checkbox
+                    checked={formData.accountEnabled}
+                    onCheckedChange={(checked) => setFormData({ ...formData, accountEnabled: checked })}
+                    label="Account Enabled"
+                  />
                 </div>
               </div>
 

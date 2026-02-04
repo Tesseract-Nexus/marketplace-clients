@@ -1134,14 +1134,14 @@ export default function OrganizationPage() {
           <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
           {/* Mobile Tab Selector */}
           <div className="md:hidden mb-4">
-            <select
+            <Select
               value={activeTab}
-              onChange={(e) => handleTabChange(e.target.value)}
-              className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:border-primary"
-            >
-              <option value="hierarchy">Departments & Teams</option>
-              <option value="teams">Teams</option>
-            </select>
+              onChange={handleTabChange}
+              options={[
+                { value: 'hierarchy', label: 'Departments & Teams' },
+                { value: 'teams', label: 'Teams' },
+              ]}
+            />
           </div>
 
           {/* Desktop Tabs */}

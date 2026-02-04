@@ -10,6 +10,7 @@ import { StatusBadge, getStatusFromMapping } from '@/components/ui/status-badge'
 import { cn } from '@/lib/utils';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Stepper, StepperNavigation, Step } from '@/components/Stepper';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
@@ -897,17 +898,12 @@ export default function CustomersPage() {
 
                 {currentStep === 3 && (
                   <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-4 bg-muted rounded-md border border-border">
-                      <input
-                        type="checkbox"
-                        id="marketingOptIn"
+                    <div className="p-4 bg-muted rounded-md border border-border">
+                      <Checkbox
                         checked={formData.marketingOptIn || false}
-                        onChange={(e) => setFormData({ ...formData, marketingOptIn: e.target.checked })}
-                        className="h-4 w-4 rounded-md border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                        onCheckedChange={(checked) => setFormData({ ...formData, marketingOptIn: checked })}
+                        label="Subscribe to marketing communications"
                       />
-                      <label htmlFor="marketingOptIn" className="text-sm font-medium text-foreground">
-                        Subscribe to marketing communications
-                      </label>
                     </div>
                   </div>
                 )}

@@ -19,6 +19,8 @@ import {
 import { StorefrontNavLink } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select } from '@/components/Select';
 
 interface NavigationBuilderProps {
   links: StorefrontNavLink[];
@@ -322,46 +324,42 @@ function NavItemEditor({
             {/* Icon */}
             <div>
               <label className="block text-xs font-medium text-muted-foreground mb-1">Icon</label>
-              <select
+              <Select
                 value={link.icon || ''}
-                onChange={(e) => onUpdate({ icon: e.target.value || undefined })}
-                className="w-full h-9 px-3 text-sm border border-border rounded-md bg-background focus:outline-none focus:border-primary"
-              >
-                <option value="">No icon</option>
-                {AVAILABLE_ICONS.map((icon) => (
-                  <option key={icon} value={icon}>{icon}</option>
-                ))}
-              </select>
+                onChange={(value) => onUpdate({ icon: value || undefined })}
+                options={[
+                  { value: '', label: 'No icon' },
+                  ...AVAILABLE_ICONS.map((icon) => ({ value: icon, label: icon })),
+                ]}
+              />
             </div>
           </div>
 
           {/* Mega Menu Settings (only for top-level items) */}
           {depth === 0 && (
             <div className="pt-4 border-t border-border">
-              <label className="flex items-center gap-2 mb-3">
-                <input
-                  type="checkbox"
+              <div className="flex items-center gap-2 mb-3">
+                <Checkbox
                   checked={link.isMegaMenu || false}
-                  onChange={(e) => onUpdate({ isMegaMenu: e.target.checked })}
-                  className="rounded border-border text-primary"
+                  onCheckedChange={(checked) => onUpdate({ isMegaMenu: checked })}
+                  label="Enable Mega Menu"
                 />
-                <span className="text-sm font-medium">Enable Mega Menu</span>
                 <LayoutGrid className="h-4 w-4 text-muted-foreground" />
-              </label>
+              </div>
 
               {link.isMegaMenu && (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-muted-foreground mb-1">Columns</label>
-                    <select
-                      value={link.megaMenuColumns || 3}
-                      onChange={(e) => onUpdate({ megaMenuColumns: parseInt(e.target.value) as 2 | 3 | 4 })}
-                      className="w-full h-9 px-3 text-sm border border-border rounded-md bg-background focus:outline-none focus:border-primary"
-                    >
-                      <option value={2}>2 Columns</option>
-                      <option value={3}>3 Columns</option>
-                      <option value={4}>4 Columns</option>
-                    </select>
+                    <Select
+                      value={String(link.megaMenuColumns || 3)}
+                      onChange={(value) => onUpdate({ megaMenuColumns: parseInt(value) as 2 | 3 | 4 })}
+                      options={[
+                        { value: '2', label: '2 Columns' },
+                        { value: '3', label: '3 Columns' },
+                        { value: '4', label: '4 Columns' },
+                      ]}
+                    />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-muted-foreground mb-1">Featured Image</label>

@@ -50,6 +50,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select, SelectOption } from '@/components/Select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Breadcrumbs } from '@/components/Breadcrumbs';
 import { categoryService } from '@/lib/services/categoryService';
 import { FilterPanel } from '@/components/data-listing';
@@ -730,15 +731,12 @@ export default function CategoriesPage() {
           >
             <div className="flex items-center gap-3 flex-1 min-w-0">
               {/* Checkbox */}
-              <input
-                type="checkbox"
-                checked={isSelected}
-                onChange={(e) => {
-                  e.stopPropagation();
-                  toggleSelectCategory(category.id);
-                }}
-                className="w-4 h-4 rounded border-border text-primary focus:ring-ring"
-              />
+              <div onClick={(e) => e.stopPropagation()}>
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={() => toggleSelectCategory(category.id)}
+                />
+              </div>
 
               {/* Expand/Collapse */}
               {hasChildren && (
@@ -1150,23 +1148,17 @@ export default function CategoriesPage() {
             {/* Select All Header */}
             {filteredCategories.length > 0 && (
               <div className="flex items-center gap-3 px-2 mb-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={selectedCategories.size === filteredCategories.length && filteredCategories.length > 0}
-                    onChange={() => {
-                      if (selectedCategories.size === filteredCategories.length) {
-                        setSelectedCategories(new Set());
-                      } else {
-                        setSelectedCategories(new Set(filteredCategories.map(c => c.id)));
-                      }
-                    }}
-                    className="w-4 h-4 rounded border-border text-primary focus:ring-ring"
-                  />
-                  <span className="text-sm text-muted-foreground font-medium">
-                    <AdminUIText text={`Select all (${filteredCategories.length})`} />
-                  </span>
-                </label>
+                <Checkbox
+                  checked={selectedCategories.size === filteredCategories.length && filteredCategories.length > 0}
+                  onCheckedChange={() => {
+                    if (selectedCategories.size === filteredCategories.length) {
+                      setSelectedCategories(new Set());
+                    } else {
+                      setSelectedCategories(new Set(filteredCategories.map(c => c.id)));
+                    }
+                  }}
+                  label={`Select all (${filteredCategories.length})`}
+                />
               </div>
             )}
             {filteredCategories.length === 0 ? (
@@ -1481,17 +1473,12 @@ export default function CategoriesPage() {
                 </div>
 
                 {/* Active Status */}
-                <div className="flex items-center gap-2 pt-2">
-                  <input
-                    type="checkbox"
-                    id="isActive"
+                <div className="pt-2">
+                  <Checkbox
                     checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    className="w-4 h-4 rounded border-border text-primary focus:ring-ring"
+                    onCheckedChange={(checked) => setFormData({ ...formData, isActive: checked })}
+                    label="Active Category"
                   />
-                  <label htmlFor="isActive" className="text-sm font-semibold text-foreground">
-                    <AdminFormLabel text="Active Category" as="span" />
-                  </label>
                 </div>
 
                 {/* Form Actions */}

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
@@ -436,15 +437,11 @@ export default function DelegationsPage() {
           {/* Filters */}
           <div className="bg-card rounded-lg border border-border p-4">
             <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={includeExpired}
-                  onChange={(e) => setIncludeExpired(e.target.checked)}
-                  className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
-                />
-                <span className="text-sm text-foreground">Include expired & revoked</span>
-              </label>
+              <Checkbox
+                checked={includeExpired}
+                onCheckedChange={(checked) => setIncludeExpired(checked)}
+                label="Include expired & revoked"
+              />
             </div>
           </div>
 

@@ -39,6 +39,7 @@ import { PageError } from '@/components/PageError';
 import { useRoleCapabilities } from '@/hooks/usePermission';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { PageHeader } from '@/components/PageHeader';
 import { Pagination } from '@/components/Pagination';
@@ -672,31 +673,23 @@ export default function RolesPage() {
                 </div>
 
                 <div className="space-y-3">
-                  <label className="flex items-center gap-3 p-3 bg-muted rounded-md cursor-pointer hover:bg-muted transition-colors">
-                    <input
-                      type="checkbox"
+                  <div className="p-3 bg-muted rounded-md hover:bg-muted transition-colors">
+                    <Checkbox
                       checked={formData.canManageStaff}
-                      onChange={(e) => setFormData({ ...formData, canManageStaff: e.target.checked })}
-                      className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                      onCheckedChange={(checked) => setFormData({ ...formData, canManageStaff: checked })}
+                      label="Can Manage Staff"
+                      description="Create, edit, deactivate staff members"
                     />
-                    <div>
-                      <p className="font-medium">Can Manage Staff</p>
-                      <p className="text-xs text-muted-foreground">Create, edit, deactivate staff members</p>
-                    </div>
-                  </label>
+                  </div>
 
-                  <label className="flex items-center gap-3 p-3 bg-muted rounded-md cursor-pointer hover:bg-muted transition-colors">
-                    <input
-                      type="checkbox"
+                  <div className="p-3 bg-muted rounded-md hover:bg-muted transition-colors">
+                    <Checkbox
                       checked={formData.canCreateRoles}
-                      onChange={(e) => setFormData({ ...formData, canCreateRoles: e.target.checked })}
-                      className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                      onCheckedChange={(checked) => setFormData({ ...formData, canCreateRoles: checked })}
+                      label="Can Create Roles"
+                      description="Create new roles with equal or lower priority"
                     />
-                    <div>
-                      <p className="font-medium">Can Create Roles</p>
-                      <p className="text-xs text-muted-foreground">Create new roles with equal or lower priority</p>
-                    </div>
-                  </label>
+                  </div>
                 </div>
               </div>
             </div>
@@ -757,28 +750,22 @@ export default function RolesPage() {
                         {isExpanded && (
                           <div className="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white">
                             {categoryPerms.map(perm => (
-                              <label
+                              <div
                                 key={perm.id}
                                 className={cn(
-                                  "flex items-start gap-2 p-2 rounded-lg cursor-pointer transition-colors",
+                                  "p-2 rounded-lg transition-colors",
                                   selectedPermissionIds.has(perm.id)
                                     ? "bg-primary/10 hover:bg-primary/20"
                                     : "hover:bg-muted"
                                 )}
                               >
-                                <input
-                                  type="checkbox"
+                                <Checkbox
                                   checked={selectedPermissionIds.has(perm.id)}
-                                  onChange={() => togglePermission(perm.id)}
-                                  className="h-4 w-4 mt-0.5 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                                  onCheckedChange={() => togglePermission(perm.id)}
+                                  label={perm.displayName}
+                                  description={perm.description}
                                 />
-                                <div>
-                                  <p className="text-sm font-medium">{perm.displayName}</p>
-                                  {perm.description && (
-                                    <p className="text-xs text-muted-foreground">{perm.description}</p>
-                                  )}
-                                </div>
-                              </label>
+                              </div>
                             ))}
                           </div>
                         )}

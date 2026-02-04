@@ -14,6 +14,7 @@ import { qrCodeService } from '@/lib/services/qrService';
 import { storefrontService } from '@/lib/services/storefrontService';
 import type { Storefront } from '@/lib/api/types';
 import { Select } from '@/components/Select';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   QRCodeType,
   QRCodeQuality,
@@ -592,27 +593,21 @@ export default function QRCodesPage() {
             </div>
             <div>
               <Label htmlFor="encryption">Encryption</Label>
-              <select
-                id="encryption"
-                className="w-full h-10 rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:border-primary"
+              <Select
                 value={wifiData.encryption}
-                onChange={(e) => setWifiData({ ...wifiData, encryption: e.target.value as 'WPA' | 'WEP' | 'nopass' })}
-              >
-                <option value="WPA">WPA/WPA2</option>
-                <option value="WEP">WEP</option>
-                <option value="nopass">No Password</option>
-              </select>
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                id="hidden"
-                type="checkbox"
-                checked={wifiData.hidden || false}
-                onChange={(e) => setWifiData({ ...wifiData, hidden: e.target.checked })}
-                className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                onChange={(value) => setWifiData({ ...wifiData, encryption: value as 'WPA' | 'WEP' | 'nopass' })}
+                options={[
+                  { value: 'WPA', label: 'WPA/WPA2' },
+                  { value: 'WEP', label: 'WEP' },
+                  { value: 'nopass', label: 'No Password' },
+                ]}
               />
-              <Label htmlFor="hidden">Hidden Network</Label>
             </div>
+            <Checkbox
+              checked={wifiData.hidden || false}
+              onCheckedChange={(checked) => setWifiData({ ...wifiData, hidden: checked })}
+              label="Hidden Network"
+            />
           </div>
         );
 
@@ -847,16 +842,15 @@ export default function QRCodesPage() {
           <div className="space-y-4">
             <div>
               <Label htmlFor="paymentType">Payment Type</Label>
-              <select
-                id="paymentType"
-                className="w-full h-10 rounded-md border border-border bg-background px-3 text-sm focus:outline-none focus:border-primary"
+              <Select
                 value={paymentData.type}
-                onChange={(e) => setPaymentData({ ...paymentData, type: e.target.value as 'upi' | 'bitcoin' | 'ethereum' })}
-              >
-                <option value="upi">UPI</option>
-                <option value="bitcoin">Bitcoin</option>
-                <option value="ethereum">Ethereum</option>
-              </select>
+                onChange={(value) => setPaymentData({ ...paymentData, type: value as 'upi' | 'bitcoin' | 'ethereum' })}
+                options={[
+                  { value: 'upi', label: 'UPI' },
+                  { value: 'bitcoin', label: 'Bitcoin' },
+                  { value: 'ethereum', label: 'Ethereum' },
+                ]}
+              />
             </div>
             {paymentData.type === 'upi' && (
               <>
@@ -1034,17 +1028,16 @@ export default function QRCodesPage() {
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="quality" className="text-sm font-medium">Quality</Label>
-                  <select
-                    id="quality"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  <Select
                     value={qrQuality}
-                    onChange={(e) => setQrQuality(e.target.value as QRCodeQuality)}
-                  >
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                    <option value="highest">Highest</option>
-                  </select>
+                    onChange={(value) => setQrQuality(value as QRCodeQuality)}
+                    options={[
+                      { value: 'low', label: 'Low' },
+                      { value: 'medium', label: 'Medium' },
+                      { value: 'high', label: 'High' },
+                      { value: 'highest', label: 'Highest' },
+                    ]}
+                  />
                 </div>
               </div>
             </div>

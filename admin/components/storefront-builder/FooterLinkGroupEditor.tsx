@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { Trash2, Plus, GripVertical, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { StorefrontNavLink, StorefrontFooterLinkGroup } from '@/lib/api/types';
 
 interface FooterLinkEditorProps {
@@ -32,15 +33,13 @@ function FooterLinkEditor({ link, onUpdate, onDelete }: FooterLinkEditorProps) {
         className="flex-1 px-2 py-1 text-sm border border-border rounded focus:outline-none focus:ring-1 focus:ring-purple-500"
       />
 
-      <label className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
-        <input
-          type="checkbox"
+      <div className="flex items-center gap-1 text-xs text-muted-foreground shrink-0">
+        <Checkbox
           checked={link.isExternal}
-          onChange={(e) => onUpdate({ isExternal: e.target.checked })}
-          className="rounded border-border text-primary focus:ring-ring focus:ring-offset-2"
+          onCheckedChange={(checked) => onUpdate({ isExternal: checked })}
         />
         <ExternalLink className="h-3 w-3" />
-      </label>
+      </div>
 
       <Button
         variant="ghost"

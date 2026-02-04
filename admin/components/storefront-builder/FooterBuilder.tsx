@@ -14,6 +14,8 @@ import {
   Link as LinkIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select } from '@/components/Select';
 import {
   StorefrontFooterConfig,
   StorefrontFooterLinkGroup,
@@ -289,16 +291,12 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
           {/* Contact Info */}
           <CollapsibleSection id="contact" title="Contact Information" icon={LinkIcon} isOpen={activeSection === 'contact'} onToggle={handleToggleSection}>
             <div className="space-y-4">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={config.showContactInfo}
-                  onChange={(e) => onChange({ showContactInfo: e.target.checked })}
-                  className="rounded border-border text-primary"
-                  disabled={disabled}
-                />
-                <span className="text-sm font-medium">Show contact information</span>
-              </label>
+              <Checkbox
+                checked={config.showContactInfo}
+                onCheckedChange={(checked) => onChange({ showContactInfo: checked })}
+                disabled={disabled}
+                label="Show contact information"
+              />
 
               {config.showContactInfo && (
                 <div className="grid gap-4 md:grid-cols-2">
@@ -343,16 +341,12 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
           {/* Social Links */}
           <CollapsibleSection id="social" title="Social Links" icon={LinkIcon} isOpen={activeSection === 'social'} onToggle={handleToggleSection}>
             <div className="space-y-4">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={config.showSocialIcons}
-                  onChange={(e) => onChange({ showSocialIcons: e.target.checked })}
-                  className="rounded border-border text-primary"
-                  disabled={disabled}
-                />
-                <span className="text-sm font-medium">Show social icons</span>
-              </label>
+              <Checkbox
+                checked={config.showSocialIcons}
+                onCheckedChange={(checked) => onChange({ showSocialIcons: checked })}
+                disabled={disabled}
+                label="Show social icons"
+              />
 
               {config.showSocialIcons && (
                 <SocialLinksManager
@@ -366,16 +360,12 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
           {/* Payment Methods */}
           <CollapsibleSection id="payment" title="Payment Methods" icon={CreditCard} isOpen={activeSection === 'payment'} onToggle={handleToggleSection}>
             <div className="space-y-4">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={config.showPaymentIcons || false}
-                  onChange={(e) => onChange({ showPaymentIcons: e.target.checked })}
-                  className="rounded border-border text-primary"
-                  disabled={disabled}
-                />
-                <span className="text-sm font-medium">Show payment method icons</span>
-              </label>
+              <Checkbox
+                checked={config.showPaymentIcons || false}
+                onCheckedChange={(checked) => onChange({ showPaymentIcons: checked })}
+                disabled={disabled}
+                label="Show payment method icons"
+              />
 
               {config.showPaymentIcons && (
                 <div className="grid grid-cols-3 md:grid-cols-4 gap-2">
@@ -409,16 +399,12 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
           {/* Trust Badges */}
           <CollapsibleSection id="trust" title="Trust Badges" icon={Shield} isOpen={activeSection === 'trust'} onToggle={handleToggleSection}>
             <div className="space-y-4">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={config.showTrustBadges || false}
-                  onChange={(e) => onChange({ showTrustBadges: e.target.checked })}
-                  className="rounded border-border text-primary"
-                  disabled={disabled}
-                />
-                <span className="text-sm font-medium">Show trust badges</span>
-              </label>
+              <Checkbox
+                checked={config.showTrustBadges || false}
+                onCheckedChange={(checked) => onChange({ showTrustBadges: checked })}
+                disabled={disabled}
+                label="Show trust badges"
+              />
 
               {config.showTrustBadges && (
                 <>
@@ -456,21 +442,22 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                           placeholder="Badge text"
                           disabled={disabled}
                         />
-                        <select
+                        <Select
                           value={badge.icon || ''}
-                          onChange={(e) => handleUpdateTrustBadge(badge.id, { icon: e.target.value || undefined })}
-                          className="h-9 px-3 text-sm border border-border rounded-md bg-background focus:outline-none focus:border-primary"
+                          onChange={(value) => handleUpdateTrustBadge(badge.id, { icon: value || undefined })}
+                          options={[
+                            { value: '', label: 'No icon' },
+                            { value: 'Shield', label: 'Shield' },
+                            { value: 'Truck', label: 'Truck' },
+                            { value: 'RefreshCw', label: 'Refund' },
+                            { value: 'Headphones', label: 'Support' },
+                            { value: 'BadgeCheck', label: 'Verified' },
+                            { value: 'Lock', label: 'Secure' },
+                            { value: 'Award', label: 'Award' },
+                          ]}
                           disabled={disabled}
-                        >
-                          <option value="">No icon</option>
-                          <option value="Shield">Shield</option>
-                          <option value="Truck">Truck</option>
-                          <option value="RefreshCw">Refund</option>
-                          <option value="Headphones">Support</option>
-                          <option value="BadgeCheck">Verified</option>
-                          <option value="Lock">Secure</option>
-                          <option value="Award">Award</option>
-                        </select>
+                          className="h-9 w-32"
+                        />
                         <input
                           type="text"
                           value={badge.href || ''}
@@ -512,16 +499,12 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
           {/* Newsletter & Copyright */}
           <CollapsibleSection id="bottom" title="Newsletter & Copyright" icon={LinkIcon} isOpen={activeSection === 'bottom'} onToggle={handleToggleSection}>
             <div className="space-y-4">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={config.showNewsletter}
-                  onChange={(e) => onChange({ showNewsletter: e.target.checked })}
-                  className="rounded border-border text-primary"
-                  disabled={disabled}
-                />
-                <span className="text-sm font-medium">Show newsletter signup</span>
-              </label>
+              <Checkbox
+                checked={config.showNewsletter}
+                onCheckedChange={(checked) => onChange({ showNewsletter: checked })}
+                disabled={disabled}
+                label="Show newsletter signup"
+              />
 
               <div>
                 <label className="block text-sm font-medium mb-1">Copyright Text</label>
@@ -535,16 +518,12 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                 />
               </div>
 
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={config.showPoweredBy}
-                  onChange={(e) => onChange({ showPoweredBy: e.target.checked })}
-                  className="rounded border-border text-primary"
-                  disabled={disabled}
-                />
-                <span className="text-sm font-medium">Show "Powered by" branding</span>
-              </label>
+              <Checkbox
+                checked={config.showPoweredBy}
+                onCheckedChange={(checked) => onChange({ showPoweredBy: checked })}
+                disabled={disabled}
+                label='Show "Powered by" branding'
+              />
             </div>
           </CollapsibleSection>
         </>

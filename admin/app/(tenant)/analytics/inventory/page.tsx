@@ -16,6 +16,7 @@ import { LastUpdatedStatus } from '@/components/LastUpdatedStatus';
 import { PermissionGate, Permission, PermissionDeniedFallback } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
 import { Button } from '@/components/ui/button';
+import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import {
@@ -344,19 +345,14 @@ export default function InventoryAnalyticsPage() {
         <div className="bg-card rounded-xl border border-border/60 shadow-sm hover:shadow-xl hover:border-primary/30/50 transition-all duration-300">
           {/* Mobile Tab Selector */}
           <div className="md:hidden p-4 border-b border-border">
-            <select
+            <Select
               value={activeTab}
-              onChange={(e) => setActiveTab(e.target.value as InventoryTabId)}
-              className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary"
-            >
-              {INVENTORY_TABS.map((tab) => (
-                <option key={tab.id} value={tab.id}>
-                  {tab.label}
-                  {tab.id === 'low-stock' && data?.lowStockCount ? ` (${data.lowStockCount})` : ''}
-                  {tab.id === 'out-of-stock' && data?.outOfStockCount ? ` (${data.outOfStockCount})` : ''}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setActiveTab(value as InventoryTabId)}
+              options={INVENTORY_TABS.map((tab) => ({
+                value: tab.id,
+                label: `${tab.label}${tab.id === 'low-stock' && data?.lowStockCount ? ` (${data.lowStockCount})` : ''}${tab.id === 'out-of-stock' && data?.outOfStockCount ? ` (${data.outOfStockCount})` : ''}`,
+              }))}
+            />
           </div>
 
           {/* Desktop Tabs */}
