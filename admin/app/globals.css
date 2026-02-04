@@ -606,9 +606,24 @@
   animation: bounce-gentle 1.5s ease-in-out infinite;
 }
 
+/* Slow spin animation for loader border */
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 1.5s linear infinite;
+}
+
 /* Respect reduced motion for branded loader */
 @media (prefers-reduced-motion: reduce) {
-  .animate-bounce-gentle {
+  .animate-bounce-gentle,
+  .animate-spin-slow {
     animation: none;
     opacity: 0.8;
   }

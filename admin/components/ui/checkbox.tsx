@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { CheckIcon } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 export interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'type'> {
   label?: string;
@@ -20,10 +20,28 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
       onCheckedChange?.(e.target.checked);
     };
 
+    const checkboxStyles = cn(
+      'w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center',
+      'transition-all duration-150 ease-out',
+      'border-muted-foreground/40 hover:border-accent/70',
+      'peer-checked:bg-accent peer-checked:border-accent',
+      'peer-checked:scale-100 scale-100',
+      'peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background',
+      'peer-disabled:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:hover:border-muted-foreground/40',
+      className
+    );
+
+    const checkmarkStyles = cn(
+      'w-3 h-3 text-accent-foreground',
+      'transition-all duration-150 ease-out',
+      'opacity-0 scale-0',
+      'peer-checked:opacity-100 peer-checked:scale-100'
+    );
+
     if (label || description) {
       return (
         <label htmlFor={inputId} className="flex items-start gap-3 cursor-pointer group">
-          <div className="relative flex items-center justify-center">
+          <div className="relative flex items-center justify-center mt-0.5">
             <input
               type="checkbox"
               id={inputId}
@@ -32,25 +50,14 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
               onChange={handleChange}
               {...props}
             />
-            <div
-              className={cn(
-                'w-5 h-5 rounded border-2 transition-all duration-200 flex items-center justify-center',
-                'peer-checked:bg-primary',
-                'peer-checked:border-transparent peer-checked:shadow-md peer-checked:shadow-primary/30',
-                'peer-focus:ring-2 peer-focus:ring-ring peer-focus:ring-offset-2',
-                'peer-disabled:opacity-50 peer-disabled:cursor-not-allowed',
-                'border-border hover:border-primary/70',
-                'group-hover:border-primary/70',
-                className
-              )}
-            >
-              <CheckIcon className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
+            <div className={cn(checkboxStyles, 'group-hover:border-accent/70')}>
+              <Check className={checkmarkStyles} strokeWidth={3} />
             </div>
           </div>
           {(label || description) && (
             <div className="flex-1">
               {label && (
-                <span className="font-semibold text-foreground block">{label}</span>
+                <span className="font-medium text-foreground block">{label}</span>
               )}
               {description && (
                 <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
@@ -71,18 +78,8 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           onChange={handleChange}
           {...props}
         />
-        <div
-          className={cn(
-            'w-5 h-5 rounded border-2 transition-all duration-200 flex items-center justify-center',
-            'peer-checked:bg-primary',
-            'peer-checked:border-transparent peer-checked:shadow-md peer-checked:shadow-primary/30',
-            'peer-focus:ring-2 peer-focus:ring-ring peer-focus:ring-offset-2',
-            'peer-disabled:opacity-50 peer-disabled:cursor-not-allowed',
-            'border-border hover:border-primary/70 cursor-pointer',
-            className
-          )}
-        >
-          <CheckIcon className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
+        <div className={cn(checkboxStyles, 'cursor-pointer')}>
+          <Check className={checkmarkStyles} strokeWidth={3} />
         </div>
       </div>
     );

@@ -17,17 +17,17 @@ interface BrandedLoaderProps {
 }
 
 const sizeConfig = {
-  sm: { icon: 32, logo: 64, text: 'text-xs' },
-  md: { icon: 48, logo: 96, text: 'text-sm' },
-  lg: { icon: 64, logo: 128, text: 'text-base' },
-  xl: { icon: 80, logo: 160, text: 'text-lg' },
+  sm: { icon: 40, logo: 80, border: 56, borderWidth: 2, text: 'text-xs' },
+  md: { icon: 56, logo: 112, border: 72, borderWidth: 3, text: 'text-sm' },
+  lg: { icon: 72, logo: 144, border: 96, borderWidth: 3, text: 'text-base' },
+  xl: { icon: 96, logo: 192, border: 120, borderWidth: 4, text: 'text-lg' },
 };
 
 /**
  * Mark8ly Icon - Rocket with Cart (using actual logo image)
  * Used for quick loading states
  */
-function Mark8lyIcon({ size = 32, className }: { size?: number; className?: string }) {
+function Mark8lyIcon({ size = 40, className }: { size?: number; className?: string }) {
   return (
     <img
       src="/logo-icon.png"
@@ -41,26 +41,63 @@ function Mark8lyIcon({ size = 32, className }: { size?: number; className?: stri
 }
 
 /**
+ * Animated Border Ring
+ * Creates a spinning gradient border effect
+ */
+function AnimatedBorderRing({
+  size,
+  borderWidth,
+  className
+}: {
+  size: number;
+  borderWidth: number;
+  className?: string;
+}) {
+  return (
+    <div
+      className={cn('absolute inset-0 rounded-full animate-spin-slow', className)}
+      style={{
+        width: size,
+        height: size,
+        background: `conic-gradient(from 0deg, transparent 0deg, var(--accent) 60deg, transparent 120deg)`,
+        mask: `radial-gradient(farthest-side, transparent calc(100% - ${borderWidth}px), black calc(100% - ${borderWidth}px))`,
+        WebkitMask: `radial-gradient(farthest-side, transparent calc(100% - ${borderWidth}px), black calc(100% - ${borderWidth}px))`,
+      }}
+    />
+  );
+}
+
+/**
  * Full Mark8ly Logo Loader
  * Used for initial app load and major transitions
  */
-function FullLogoLoader({ size = 80 }: { size?: number }) {
+function FullLogoLoader({ size = 96, borderSize = 120, borderWidth = 4 }: { size?: number; borderSize?: number; borderWidth?: number }) {
   return (
-    <div className="flex flex-col items-center gap-1">
-      <div className="relative">
-        {/* Logo image */}
+    <div className="flex flex-col items-center">
+      <div
+        className="relative flex items-center justify-center"
+        style={{ width: borderSize, height: borderSize }}
+      >
+        {/* Animated border ring */}
+        <AnimatedBorderRing size={borderSize} borderWidth={borderWidth} />
+
+        {/* Static background ring */}
+        <div
+          className="absolute inset-0 rounded-full border-muted/30"
+          style={{
+            borderWidth: borderWidth,
+            borderStyle: 'solid',
+          }}
+        />
+
+        {/* Logo image - centered */}
         <img
           src="/logo.png"
           alt=""
           width={size}
           height={size}
-          className="object-contain animate-pulse"
+          className="object-contain relative z-10"
           aria-hidden="true"
-        />
-        {/* Subtle glow effect */}
-        <div
-          className="absolute inset-0 bg-primary/10 rounded-full blur-xl animate-pulse"
-          style={{ transform: 'scale(1.2)' }}
         />
       </div>
     </div>
@@ -71,17 +108,17 @@ function FullLogoLoader({ size = 80 }: { size?: number }) {
  * BrandedLoader - Tiered loading component
  *
  * Variants:
- * - 'full': Full logo with animation (initial load, major transitions)
- * - 'icon': Simplified rocket icon (page navigation, medium waits)
+ * - 'full': Full logo with animated border (initial load, major transitions)
+ * - 'icon': Simplified rocket icon with border (page navigation, medium waits)
  * - 'minimal': Simple spinner (quick actions, inline loading)
  *
  * Usage:
  * ```tsx
- * // Initial app load
- * <BrandedLoader variant="full" size="xl" message="Loading admin panel..." />
+ * // Initial app load - no message, just animated logo
+ * <BrandedLoader variant="full" size="xl" />
  *
  * // Page navigation
- * <BrandedLoader variant="icon" message="Loading orders..." />
+ * <BrandedLoader variant="icon" />
  *
  * // Quick inline loading
  * <BrandedLoader variant="minimal" size="sm" />
@@ -99,49 +136,52 @@ export function BrandedLoader({
 }: BrandedLoaderProps) {
   const config = sizeConfig[size];
 
-  // Respect reduced motion preferences
-  const prefersReducedMotion = typeof window !== 'undefined'
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
   return (
     <div
       role="status"
       aria-live="polite"
       aria-label={message || 'Loading'}
       className={cn(
-        'flex flex-col items-center justify-center gap-1',
+        'flex flex-col items-center justify-center gap-3',
         className
       )}
     >
       {/* Loader visual based on variant */}
       {variant === 'full' && (
-        <FullLogoLoader size={config.logo} />
+        <FullLogoLoader
+          size={config.logo}
+          borderSize={config.logo + 32}
+          borderWidth={config.borderWidth}
+        />
       )}
 
       {variant === 'icon' && (
-        <div className={cn(
-          'relative',
-          !prefersReducedMotion && 'animate-bounce-gentle'
-        )}>
-          <Mark8lyIcon size={config.icon} />
+        <div
+          className="relative flex items-center justify-center"
+          style={{ width: config.border, height: config.border }}
+        >
+          {/* Animated border ring */}
+          <AnimatedBorderRing size={config.border} borderWidth={config.borderWidth} />
+
+          {/* Static background ring */}
+          <div
+            className="absolute inset-0 rounded-full border-muted/30"
+            style={{
+              borderWidth: config.borderWidth,
+              borderStyle: 'solid',
+            }}
+          />
+
+          {/* Icon - centered */}
+          <Mark8lyIcon size={config.icon} className="relative z-10" />
         </div>
       )}
 
       {variant === 'minimal' && (
         <Loader2
-          className={cn(
-            'text-primary',
-            !prefersReducedMotion && 'animate-spin'
-          )}
+          className="text-primary animate-spin"
           style={{ width: config.icon * 0.75, height: config.icon * 0.75 }}
         />
-      )}
-
-      {/* Message */}
-      {message && (
-        <p className={cn('text-muted-foreground', config.text)}>
-          {message}
-        </p>
       )}
 
       {/* Progress bar for long operations */}
@@ -149,7 +189,7 @@ export function BrandedLoader({
         <div className="w-48 max-w-full">
           <div className="h-1.5 bg-muted rounded-full overflow-hidden">
             <div
-              className="h-full bg-primary rounded-full transition-all duration-300 ease-out"
+              className="h-full bg-accent rounded-full transition-all duration-300 ease-out"
               style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
             />
           </div>
@@ -171,10 +211,10 @@ export function BrandedLoader({
 /**
  * InitialLoader - Full screen branded loader for app initialization
  */
-export function InitialLoader({ message = 'Loading...' }: { message?: string }) {
+export function InitialLoader() {
   return (
     <div className="fixed inset-0 bg-background flex items-center justify-center z-50">
-      <BrandedLoader variant="full" size="xl" message={message} />
+      <BrandedLoader variant="full" size="xl" />
     </div>
   );
 }
@@ -182,19 +222,13 @@ export function InitialLoader({ message = 'Loading...' }: { message?: string }) 
 /**
  * PageLoader - Branded loader for page transitions
  */
-export function PageLoader({
-  message = 'Loading...',
-  fullScreen = false
-}: {
-  message?: string;
-  fullScreen?: boolean;
-}) {
+export function PageLoader({ fullScreen = false }: { fullScreen?: boolean }) {
   return (
     <div className={cn(
       'flex items-center justify-center',
       fullScreen ? 'min-h-screen' : 'py-16'
     )}>
-      <BrandedLoader variant="icon" size="lg" message={message} />
+      <BrandedLoader variant="icon" size="lg" />
     </div>
   );
 }
