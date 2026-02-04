@@ -80,7 +80,7 @@ test.describe('Currency Conversion', () => {
 
         // Check localStorage
         const storedCurrency = await page.evaluate(() => {
-          return localStorage.getItem('tesserix-display-currency');
+          return localStorage.getItem('mark8ly-display-currency');
         });
 
         expect(storedCurrency).toBe('EUR');

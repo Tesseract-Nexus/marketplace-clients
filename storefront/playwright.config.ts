@@ -20,7 +20,7 @@ export default defineConfig({
   ],
   use: {
     // Default to demo-store deployed environment for E2E tests
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://demo-store.tesserix.app',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'https://demo-store.mark8ly.app',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',

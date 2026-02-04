@@ -82,7 +82,7 @@ async function resolveTenantId(request: NextRequest, sessionTenantId?: string, a
   // 3. Resolve from hostname
   const host = request.headers.get('host') || '';
   let slug: string | null = null;
-  if (host.endsWith('.tesserix.app')) {
+  if (host.endsWith('.mark8ly.app')) {
     slug = host.split('.')[0] || null;
   }
   if (!slug) {

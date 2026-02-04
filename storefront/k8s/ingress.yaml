@@ -26,7 +26,7 @@ metadata:
       add_header Permissions-Policy "camera=(), microphone=(), geolocation=(self), payment=(self)" always;
     # Enable CORS for API routes
     nginx.ingress.kubernetes.io/enable-cors: "true"
-    nginx.ingress.kubernetes.io/cors-allow-origin: "https://*.tesserix.app"
+    nginx.ingress.kubernetes.io/cors-allow-origin: "https://*.mark8ly.app"
     nginx.ingress.kubernetes.io/cors-allow-methods: "GET, PUT, POST, DELETE, PATCH, OPTIONS"
     nginx.ingress.kubernetes.io/cors-allow-headers: "DNT,X-CustomHeader,Keep-Alive,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Authorization,X-Tenant-ID"
     # GKE managed certificate
@@ -37,12 +37,12 @@ metadata:
 spec:
   tls:
   - hosts:
-    - "*.tesserix.app"
-    - "demo-store.tesserix.app"
-    secretName: tesserix-tls-secret
+    - "*.mark8ly.app"
+    - "demo-store.mark8ly.app"
+    secretName: mark8ly-tls-secret
   rules:
   # Wildcard rule for tenant storefronts
-  - host: "*.tesserix.app"
+  - host: "*.mark8ly.app"
     http:
       paths:
       - path: /
@@ -53,7 +53,7 @@ spec:
             port:
               number: 80
   # Demo store
-  - host: "demo-store.tesserix.app"
+  - host: "demo-store.mark8ly.app"
     http:
       paths:
       - path: /
@@ -73,8 +73,8 @@ metadata:
   namespace: default
 spec:
   domains:
-  - "*.tesserix.app"
-  - "demo-store.tesserix.app"
+  - "*.mark8ly.app"
+  - "demo-store.mark8ly.app"
 
 ---
 # Backend Config for health checks

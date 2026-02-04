@@ -7,7 +7,7 @@ import { test, expect } from '@playwright/test';
  * Tests against the deployed devtest storefront.
  */
 
-const BASE_URL = 'https://demo-store.tesserix.app';
+const BASE_URL = 'https://demo-store.mark8ly.app';
 const TEST_ACCOUNTS = [
   { email: 'lipsha03@gmail.com', password: 'Test@1234' },
   { email: 'samyak.rout1988@gmail.com', password: 'Test@1234' },

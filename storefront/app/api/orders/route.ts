@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { extractCustomerId } from '@/lib/server/auth';
+import { logger } from '@/lib/logger';
 
 // Remove /api/v1 suffix if present (env var may include it)
 const ORDERS_SERVICE_URL = (process.env.ORDERS_SERVICE_URL || 'http://localhost:3108').replace(/\/api\/v1\/?$/, '');
@@ -178,11 +179,11 @@ export async function POST(request: NextRequest) {
     const tenantId = request.headers.get('X-Tenant-ID');
     const storefrontId = request.headers.get('X-Storefront-ID');
 
-    console.log('[BFF Orders] POST request received');
-    console.log('[BFF Orders] Headers - Tenant:', tenantId, 'Storefront:', storefrontId);
+    logger.debug('[BFF Orders] POST request received');
+    logger.debug('[BFF Orders] Headers - Tenant:', tenantId, 'Storefront:', storefrontId);
 
     if (!tenantId) {
-      console.log('[BFF Orders] Error: No tenant ID');
+      logger.warn('[BFF Orders] Error: No tenant ID');
       return NextResponse.json({ error: 'Tenant ID required' }, { status: 400 });
     }
 
@@ -194,21 +195,21 @@ export async function POST(request: NextRequest) {
     try {
       const bodyText = await request.text();
       if (!bodyText) {
-        console.log('[BFF Orders] Error: Empty body');
+        logger.warn('[BFF Orders] Error: Empty body');
         return NextResponse.json({ error: 'Request body is empty' }, { status: 400 });
       }
       body = JSON.parse(bodyText);
-      console.log('[BFF Orders] Parsed body - items count:', body.items?.length);
+      logger.debug('[BFF Orders] Parsed body - items count:', body.items?.length);
     } catch (parseError) {
-      console.error('[BFF Orders] Body parse error:', parseError);
+      logger.error('[BFF Orders] Body parse error:', parseError);
       return NextResponse.json({ error: 'Invalid request body - JSON parse failed' }, { status: 400 });
     }
 
     // Transform storefront format to orders-service format
     const transformedBody = transformRequest(body, accessToken);
-    console.log('[BFF Orders] Transformed request for orders-service');
-    console.log('[BFF Orders] Customer:', transformedBody.customer.email);
-    console.log('[BFF Orders] Items:', transformedBody.items.length);
+    logger.debug('[BFF Orders] Transformed request for orders-service');
+    logger.debug('[BFF Orders] Customer:', transformedBody.customer.email);
+    logger.debug('[BFF Orders] Items:', transformedBody.items.length);
 
     // Build headers - include Authorization if present for authenticated checkout
     const headers: Record<string, string> = {
@@ -235,11 +236,11 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(transformedBody),
     });
 
-    console.log('[BFF Orders] Orders service response status:', response.status);
+    logger.debug('[BFF Orders] Orders service response status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[BFF Orders] Orders service error:', errorText);
+      logger.error('[BFF Orders] Orders service error:', errorText);
       let errorObj: { error?: string; message?: string } = {};
       try {
         errorObj = JSON.parse(errorText);
@@ -257,10 +258,10 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log('[BFF Orders] Order created:', data.id || data.orderNumber);
+    logger.info('[BFF Orders] Order created:', data.id || data.orderNumber);
     return NextResponse.json(data);
   } catch (error) {
-    console.error('[BFF Orders] Failed to create order:', error);
+    logger.error('[BFF Orders] Failed to create order:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }

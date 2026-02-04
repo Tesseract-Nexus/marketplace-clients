@@ -7,7 +7,7 @@ import { useTranslation } from '@/context/TranslationContext';
 // Persistent Translation Cache
 // ========================================
 
-const CACHE_KEY = 'tesserix-translations';
+const CACHE_KEY = 'mark8ly-translations';
 const CACHE_VERSION = 'v1';
 const MAX_CACHE_SIZE = 500; // Maximum number of translations to cache
 

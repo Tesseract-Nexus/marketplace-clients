@@ -6,6 +6,29 @@ import { GOOGLE_FONTS } from '@/types/storefront';
 
 const FONT_WEIGHTS = [300, 400, 500, 600, 700, 800];
 
+/**
+ * Generate Google Fonts URL for server-side preloading
+ * Filters and deduplicates fonts, returns null if no valid fonts
+ */
+export function getGoogleFontsUrl(fonts: (string | undefined)[]): string | null {
+  const validFonts = fonts.filter(
+    (f): f is string => Boolean(f) && GOOGLE_FONTS.some((gf) => gf.name === f)
+  );
+  const uniqueFonts = [...new Set(validFonts)];
+
+  if (uniqueFonts.length === 0) return null;
+
+  const familyParams = uniqueFonts
+    .map((font) => {
+      const formattedName = font.replace(/\s+/g, '+');
+      const weightString = FONT_WEIGHTS.join(';');
+      return `family=${formattedName}:wght@${weightString}`;
+    })
+    .join('&');
+
+  return `https://fonts.googleapis.com/css2?${familyParams}&display=swap`;
+}
+
 export function getFontUrl(fontName: string, weights: number[] = FONT_WEIGHTS): string {
   const formattedName = fontName.replace(/\s+/g, '+');
   const weightString = weights.join(';');

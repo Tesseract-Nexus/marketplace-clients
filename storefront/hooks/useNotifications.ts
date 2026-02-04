@@ -254,11 +254,11 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     }
 
     // Build WebSocket URL using API gateway (not storefront host)
-    // Storefront host: demo-store.tesserix.app -> API host: demo-store-api.tesserix.app
+    // Storefront host: demo-store.mark8ly.app -> API host: demo-store-api.mark8ly.app
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const storefrontHost = window.location.host;
     // Convert storefront host to API host by adding '-api' before the domain
-    // e.g., demo-store.tesserix.app -> demo-store-api.tesserix.app
+    // e.g., demo-store.mark8ly.app -> demo-store-api.mark8ly.app
     const hostParts = storefrontHost.split('.');
     const apiHost = hostParts.length >= 2
       ? `${hostParts[0]}-api.${hostParts.slice(1).join('.')}`

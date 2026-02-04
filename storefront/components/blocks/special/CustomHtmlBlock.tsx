@@ -2,15 +2,16 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { sanitizeHtml } from '@/lib/utils/sanitize';
 import type { CustomHtmlBlockConfig } from '@/types/blocks';
 import type { BlockComponentProps } from '../BlockRenderer';
 
 /**
  * CustomHtmlBlock - Renders custom HTML content
  *
- * SECURITY NOTE: This component can optionally sandbox content in an iframe
- * to prevent XSS attacks. When `sandboxed` is true, content is rendered
- * in an isolated iframe with restricted permissions.
+ * SECURITY NOTE: This component uses DOMPurify for XSS protection.
+ * When `sandboxed` is true, content is additionally rendered in an
+ * isolated iframe with restricted permissions for extra security.
  */
 export function CustomHtmlBlock({ config }: BlockComponentProps<CustomHtmlBlockConfig>) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -21,10 +22,10 @@ export function CustomHtmlBlock({ config }: BlockComponentProps<CustomHtmlBlockC
   useEffect(() => {
     if (config.sandboxed || !containerRef.current) return;
 
-    // In production, you'd want to use a library like DOMPurify
-    // to sanitize the HTML before rendering
-    const sanitizedHtml = sanitizeHtml(config.html, config.allowScripts);
-    containerRef.current.innerHTML = sanitizedHtml;
+    // Use DOMPurify for proper XSS protection
+    // Note: allowScripts is intentionally ignored for security - scripts are always stripped
+    const sanitized = sanitizeHtml(config.html);
+    containerRef.current.innerHTML = sanitized;
 
     // Inject custom CSS if provided
     if (config.css) {
@@ -117,37 +118,6 @@ export function CustomHtmlBlock({ config }: BlockComponentProps<CustomHtmlBlockC
       }}
     />
   );
-}
-
-/**
- * Basic HTML sanitization
- * In production, use a proper library like DOMPurify
- */
-function sanitizeHtml(html: string, allowScripts?: boolean): string {
-  if (allowScripts) {
-    // Warning: This is potentially dangerous
-    // Only use when you trust the content source
-    return html;
-  }
-
-  // Remove script tags and event handlers
-  let sanitized = html
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/on\w+\s*=\s*["'][^"']*["']/gi, '')
-    .replace(/on\w+\s*=\s*[^\s>]*/gi, '')
-    .replace(/javascript:/gi, '');
-
-  // Remove potentially dangerous tags
-  const dangerousTags = ['iframe', 'object', 'embed', 'form', 'input', 'button'];
-  dangerousTags.forEach((tag) => {
-    const regex = new RegExp(`<${tag}\\b[^>]*>.*?</${tag}>`, 'gi');
-    sanitized = sanitized.replace(regex, '');
-    // Also handle self-closing
-    const selfClosingRegex = new RegExp(`<${tag}\\b[^>]*/>`, 'gi');
-    sanitized = sanitized.replace(selfClosingRegex, '');
-  });
-
-  return sanitized;
 }
 
 export default CustomHtmlBlock;

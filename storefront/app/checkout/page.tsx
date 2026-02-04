@@ -34,7 +34,6 @@ import { CheckoutProgress } from '@/components/checkout/CheckoutProgress';
 import {
   CheckoutContactStep,
   CheckoutShippingStep,
-  CheckoutPaymentStep,
   CheckoutReviewStep,
 } from '@/components/checkout/steps';
 import { PostOrderCreateAccount } from '@/components/checkout/PostOrderCreateAccount';
@@ -839,14 +838,6 @@ function CheckoutContent() {
                   packageWeight={packageWeightKg}
                   packageDimensions={packageDimensions}
                   isLoadingProductShipping={isLoadingProductShipping}
-                />
-              )}
-
-              {currentStep === 'payment' && (
-                <CheckoutPaymentStep
-                  key="payment"
-                  gatewayType={gatewayType}
-                  orderSubtotal={subtotal}
                   shipping={shipping}
                   tax={tax}
                   enabledPaymentMethods={enabledPaymentMethods}

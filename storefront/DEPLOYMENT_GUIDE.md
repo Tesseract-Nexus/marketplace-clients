@@ -7,11 +7,11 @@ The application **will not function** without these variables.
 
 | Variable | Description | Example (Production) |
 |----------|-------------|----------------------|
-| `NEXT_PUBLIC_APP_URL` | The public URL of the storefront. **CRITICAL** for server-side fetches. | `https://store.tesserix.app` |
-| `NEXT_PUBLIC_PRODUCTS_API_URL` | URL for the Products Microservice | `https://api.tesserix.app/products/v1` |
-| `NEXT_PUBLIC_ORDERS_SERVICE_URL` | URL for the Orders Microservice | `https://api.tesserix.app/orders/v1` |
-| `NEXT_PUBLIC_CATEGORIES_API_URL` | URL for the Categories Microservice | `https://api.tesserix.app/categories/v1` |
-| `NEXT_PUBLIC_SETTINGS_API_URL` | URL for the Settings/Tenant Microservice | `https://api.tesserix.app/settings/v1` |
+| `NEXT_PUBLIC_APP_URL` | The public URL of the storefront. **CRITICAL** for server-side fetches. | `https://store.mark8ly.app` |
+| `NEXT_PUBLIC_PRODUCTS_API_URL` | URL for the Products Microservice | `https://api.mark8ly.app/products/v1` |
+| `NEXT_PUBLIC_ORDERS_SERVICE_URL` | URL for the Orders Microservice | `https://api.mark8ly.app/orders/v1` |
+| `NEXT_PUBLIC_CATEGORIES_API_URL` | URL for the Categories Microservice | `https://api.mark8ly.app/categories/v1` |
+| `NEXT_PUBLIC_SETTINGS_API_URL` | URL for the Settings/Tenant Microservice | `https://api.mark8ly.app/settings/v1` |
 
 ## Authentication (Azure AD)
 Required for user login and account management.

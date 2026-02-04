@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, Lock, Shield, Eye, EyeOff, Smartphone, Loader2, CheckCircle, Globe, Languages, AlertTriangle } from 'lucide-react';
+import { Bell, Lock, Shield, Eye, EyeOff, Loader2, CheckCircle, Globe, Languages, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,7 +19,6 @@ import {
 } from '@/components/ui/dialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useTenant } from '@/context/TenantContext';
-import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { useAuthStore } from '@/store/auth';
 import { getPreferences, updatePreferences, NotificationPreferences } from '@/lib/api/notifications';
 import { deactivateAccount } from '@/lib/api/auth';
@@ -238,24 +237,6 @@ export default function SettingsPage() {
     savePreferences(newNotifications);
   };
 
-  // Push notifications
-  const {
-    isSupported: isPushSupported,
-    isEnabled: isPushEnabled,
-    isLoading: isPushLoading,
-    permission: pushPermission,
-    enableNotifications,
-    disableNotifications,
-  } = usePushNotifications();
-
-  const handlePushToggle = async (enabled: boolean) => {
-    if (enabled) {
-      await enableNotifications();
-    } else {
-      await disableNotifications();
-    }
-  };
-
   // Handle account deactivation
   const handleDeactivateAccount = async () => {
     setIsDeactivating(true);
@@ -316,37 +297,6 @@ export default function SettingsPage() {
             </div>
           ) : (
             <>
-          {/* Push Notifications */}
-          {isPushSupported && (
-            <>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Smartphone className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="font-medium"><TranslatedUIText text="Push Notifications" /></p>
-                    <p className="text-sm text-muted-foreground">
-                      <TranslatedUIText text="Get instant updates on your device" />
-                      {pushPermission === 'denied' && (
-                        <span className="text-red-500 block">
-                          <TranslatedUIText text="Blocked - please enable in browser settings" />
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {isPushLoading && <Loader2 className="h-4 w-4 animate-spin" />}
-                  <Switch
-                    checked={isPushEnabled}
-                    onCheckedChange={handlePushToggle}
-                    disabled={isPushLoading || pushPermission === 'denied'}
-                  />
-                </div>
-              </div>
-              <Separator />
-            </>
-          )}
-
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium"><TranslatedUIText text="Email Notifications" /></p>

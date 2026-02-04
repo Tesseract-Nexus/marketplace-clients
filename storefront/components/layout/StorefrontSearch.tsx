@@ -58,7 +58,7 @@ interface RecentSearch {
 const MAX_HISTORY_ITEMS = 8;
 
 function getSearchHistoryKey(tenantId: string): string {
-  return `tesserix_storefront_search_${tenantId}`;
+  return `mark8ly_storefront_search_${tenantId}`;
 }
 
 function getSearchHistory(tenantId: string): RecentSearch[] {

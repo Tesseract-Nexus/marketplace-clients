@@ -303,7 +303,7 @@ const sanitizedContent = DOMPurify.sanitize(page.content, {
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                           INGRESS (Kong/Istio)                       │
-│                        dev-store.tesserix.app                        │
+│                        dev-store.mark8ly.app                        │
 └─────────────────────────────────────────────────────────────────────┘
                                     │
                     ┌───────────────┼───────────────┐
@@ -423,15 +423,15 @@ NOTIFICATION_SERVICE_URL=http://notification-service.devtest.svc.cluster.local:8
 
 ```bash
 # Application URLs
-NEXT_PUBLIC_APP_URL=https://dev-store.tesserix.app
-NEXT_PUBLIC_STOREFRONT_URL=https://dev-store.tesserix.app
+NEXT_PUBLIC_APP_URL=https://dev-store.mark8ly.app
+NEXT_PUBLIC_STOREFRONT_URL=https://dev-store.mark8ly.app
 
 # API Endpoints (browser requests through ingress)
-NEXT_PUBLIC_PRODUCTS_API_URL=https://dev-store.tesserix.app/api/v1
-NEXT_PUBLIC_ORDERS_API_URL=https://dev-store.tesserix.app/api/v1
-NEXT_PUBLIC_CATEGORIES_API_URL=https://dev-store.tesserix.app/api/v1
-NEXT_PUBLIC_SETTINGS_API_URL=https://dev-store.tesserix.app/api/v1
-NEXT_PUBLIC_NOTIFICATION_API_URL=https://dev-store.tesserix.app/api/v1
+NEXT_PUBLIC_PRODUCTS_API_URL=https://dev-store.mark8ly.app/api/v1
+NEXT_PUBLIC_ORDERS_API_URL=https://dev-store.mark8ly.app/api/v1
+NEXT_PUBLIC_CATEGORIES_API_URL=https://dev-store.mark8ly.app/api/v1
+NEXT_PUBLIC_SETTINGS_API_URL=https://dev-store.mark8ly.app/api/v1
+NEXT_PUBLIC_NOTIFICATION_API_URL=https://dev-store.mark8ly.app/api/v1
 
 # Payment Gateways (REQUIRED - no defaults!)
 NEXT_PUBLIC_RAZORPAY_KEY_ID=<your-razorpay-key>
@@ -448,7 +448,7 @@ NEXT_PUBLIC_FIREBASE_VAPID_KEY=<vapid-key>
 # Azure AD (if enabled)
 NEXT_PUBLIC_AZURE_CLIENT_ID=<client-id>
 NEXT_PUBLIC_AZURE_AUTHORITY=https://login.microsoftonline.com/<tenant-id>
-NEXT_PUBLIC_REDIRECT_URI=https://dev-store.tesserix.app
+NEXT_PUBLIC_REDIRECT_URI=https://dev-store.mark8ly.app
 
 # Feature Flags
 NEXT_PUBLIC_ENABLE_REVIEWS=true
@@ -714,7 +714,7 @@ Content-Security-Policy: default-src 'self'; script-src 'self' https://js.stripe
 images: {
   remotePatterns: [
     { protocol: "https", hostname: "images.unsplash.com" },
-    { protocol: "https", hostname: "*.tesserix.app" },
+    { protocol: "https", hostname: "*.mark8ly.app" },
     { protocol: "https", hostname: "*.blob.core.windows.net" }
   ],
   formats: ["image/avif", "image/webp"]
@@ -953,7 +953,7 @@ kubectl get endpoints -n devtest storefront
 
 4. **Verify health**
    ```bash
-   curl https://dev-store.tesserix.app/api/health
+   curl https://dev-store.mark8ly.app/api/health
    ```
 
 5. **Smoke test**
@@ -980,7 +980,7 @@ kubectl get endpoints -n devtest storefront
 3. **Verify recovery**
    ```bash
    kubectl get pods -n devtest -l app=storefront
-   curl https://dev-store.tesserix.app/api/health
+   curl https://dev-store.mark8ly.app/api/health
    ```
 
 ### Incident Response

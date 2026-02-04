@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 
 // Remove /api/v1 suffix if present (env var may include it)
 const PAYMENT_SERVICE_URL = (process.env.PAYMENT_SERVICE_URL || 'http://localhost:3107').replace(/\/api\/v1\/?$/, '');
@@ -23,9 +24,9 @@ export async function POST(request: NextRequest) {
     // Transform gateway type to uppercase (payment service expects STRIPE, RAZORPAY, etc.)
     const gatewayType = body.gatewayType?.toUpperCase() || body.gatewayType;
 
-    console.log('[BFF] Creating payment intent for tenant:', tenantId);
-    console.log('[BFF] Payment gateway:', gatewayType);
-    console.log('[BFF] Order ID:', body.orderId);
+    logger.debug('[BFF] Creating payment intent for tenant:', tenantId);
+    logger.debug('[BFF] Payment gateway:', gatewayType);
+    logger.debug('[BFF] Order ID:', body.orderId);
 
     const response = await fetch(`${PAYMENT_SERVICE_URL}/api/v1/payments/create-intent`, {
       method: 'POST',
@@ -40,11 +41,11 @@ export async function POST(request: NextRequest) {
       }),
     });
 
-    console.log('[BFF] Payment service response status:', response.status);
+    logger.debug('[BFF] Payment service response status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[BFF] Payment service error:', errorText);
+      logger.error('[BFF] Payment service error:', errorText);
       let error = {};
       try {
         error = JSON.parse(errorText);
@@ -58,13 +59,10 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log('[BFF] Payment intent created:', data.paymentIntentId);
-    console.log('[BFF] Stripe session URL:', data.stripeSessionUrl);
-    console.log('[BFF] Stripe session ID:', data.stripeSessionId);
-    console.log('[BFF] Full response:', JSON.stringify(data, null, 2));
+    logger.info('[BFF] Payment intent created:', data.paymentIntentId);
     return NextResponse.json(data);
   } catch (error) {
-    console.error('[BFF] Failed to create payment intent:', error);
+    logger.error('[BFF] Failed to create payment intent:', error);
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },
       { status: 500 }

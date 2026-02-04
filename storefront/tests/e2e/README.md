@@ -1,6 +1,6 @@
 # Storefront E2E Tests
 
-End-to-end tests for the Tesserix Storefront application using Playwright.
+End-to-end tests for the Mark8ly Storefront application using Playwright.
 
 ## Quick Start
 
@@ -19,12 +19,12 @@ npm run test:e2e:headed
 
 ## Prerequisites
 
-The storefront is a multi-tenant application. Tests run against the deployed `demo-store.tesserix.app` environment by default.
+The storefront is a multi-tenant application. Tests run against the deployed `demo-store.mark8ly.app` environment by default.
 
 To run against a different environment:
 
 ```bash
-PLAYWRIGHT_BASE_URL=https://your-store.tesserix.app npm run test:e2e
+PLAYWRIGHT_BASE_URL=https://your-store.mark8ly.app npm run test:e2e
 ```
 
 ## Environment Variables

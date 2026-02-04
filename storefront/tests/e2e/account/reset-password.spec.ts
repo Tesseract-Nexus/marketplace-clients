@@ -5,7 +5,7 @@ import { test, expect } from '@playwright/test';
  * Triggers forgot password flow for test accounts
  */
 
-const BASE_URL = 'https://demo-store.tesserix.app';
+const BASE_URL = 'https://demo-store.mark8ly.app';
 const TEST_EMAILS = [
   'lipsha03@gmail.com',
   'samyak.rout1988@gmail.com',

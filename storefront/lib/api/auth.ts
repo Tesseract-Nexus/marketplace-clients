@@ -5,7 +5,7 @@ import { Customer } from '@/store/auth';
  *
  * This module provides authentication functions for storefront customers.
  * Authentication is handled by auth-bff which integrates with Keycloak's
- * customer realm (tesserix-customer).
+ * customer realm (mark8ly-customer).
  *
  * Auth Flow:
  * 1. Customer clicks login -> redirect to /auth/login

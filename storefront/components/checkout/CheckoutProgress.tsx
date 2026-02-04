@@ -15,8 +15,7 @@ interface StepConfig {
 
 const STEPS: StepConfig[] = [
   { id: 'contact', label: 'Contact', shortLabel: 'Info', icon: <User className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> },
-  { id: 'shipping', label: 'Shipping', shortLabel: 'Ship', icon: <Truck className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> },
-  { id: 'payment', label: 'Payment', shortLabel: 'Pay', icon: <CreditCard className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> },
+  { id: 'shipping', label: 'Shipping & Payment', shortLabel: 'Ship & Pay', icon: <Truck className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> },
   { id: 'review', label: 'Review', shortLabel: 'Done', icon: <Check className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> },
 ];
 

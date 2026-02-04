@@ -1,6 +1,6 @@
 # Helm Chart Updates for Storefront
 
-Since I cannot directly access the `tesserix-k8s` repository, please apply the following changes to your Helm chart manually.
+Since I cannot directly access the `mark8ly-k8s` repository, please apply the following changes to your Helm chart manually.
 
 ## 1. Update `values.yaml`
 
@@ -12,7 +12,7 @@ storefront:
   env:
     # App URL (Critical for server-side absolute URLs)
     - name: NEXT_PUBLIC_APP_URL
-      value: "https://dev-store.tesserix.app"
+      value: "https://dev-store.mark8ly.app"
     
     # Azure AD Auth
     - name: NEXT_PUBLIC_AZURE_CLIENT_ID
@@ -20,27 +20,27 @@ storefront:
     - name: NEXT_PUBLIC_AZURE_AUTHORITY
       value: "https://login.microsoftonline.com/YOUR_TENANT_ID"
     - name: NEXT_PUBLIC_REDIRECT_URI
-      value: "https://dev-store.tesserix.app"
+      value: "https://dev-store.mark8ly.app"
 
     # Microservice URLs (Must be publicly accessible for client-side)
     - name: NEXT_PUBLIC_PRODUCTS_API_URL
-      value: "https://api.tesserix.app/products/v1"
+      value: "https://api.mark8ly.app/products/v1"
     - name: NEXT_PUBLIC_ORDERS_SERVICE_URL
-      value: "https://api.tesserix.app/orders/v1"
+      value: "https://api.mark8ly.app/orders/v1"
     - name: NEXT_PUBLIC_CATEGORIES_API_URL
-      value: "https://api.tesserix.app/categories/v1"
+      value: "https://api.mark8ly.app/categories/v1"
     - name: NEXT_PUBLIC_COUPONS_API_URL
-      value: "https://api.tesserix.app/coupons/v1"
+      value: "https://api.mark8ly.app/coupons/v1"
     - name: NEXT_PUBLIC_REVIEWS_API_URL
-      value: "https://api.tesserix.app/reviews/v1"
+      value: "https://api.mark8ly.app/reviews/v1"
     - name: NEXT_PUBLIC_SETTINGS_API_URL
-      value: "https://api.tesserix.app/settings/v1"
+      value: "https://api.mark8ly.app/settings/v1"
     - name: NEXT_PUBLIC_TENANT_API_URL
-      value: "https://api.tesserix.app/tenant/v1"
+      value: "https://api.mark8ly.app/tenant/v1"
     - name: NEXT_PUBLIC_TAX_SERVICE_URL
-      value: "https://api.tesserix.app/tax/v1"
+      value: "https://api.mark8ly.app/tax/v1"
     - name: NEXT_PUBLIC_PAYMENT_SERVICE_URL
-      value: "https://api.tesserix.app/payment/v1"
+      value: "https://api.mark8ly.app/payment/v1"
     
     # Feature Flags
     - name: NEXT_PUBLIC_ENABLE_REVIEWS

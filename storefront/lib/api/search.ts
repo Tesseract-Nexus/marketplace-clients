@@ -92,7 +92,7 @@ function getSearchUrl(): string {
     return '/api/search/typesense';
   }
   // Server-side: Use API gateway or internal service URL
-  const baseUrl = process.env.SEARCH_SERVICE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://dev-api.tesserix.app';
+  const baseUrl = process.env.SEARCH_SERVICE_URL || process.env.NEXT_PUBLIC_API_URL || 'https://dev-api.mark8ly.app';
   return `${baseUrl}/api/v1/search`;
 }
 

@@ -6,7 +6,7 @@ import { ShippingMethod, ShippingRate } from '@/lib/api/shipping';
 import { ShippingAddress } from '@/hooks/useTaxCalculation';
 import { useCheckoutStore, useCheckoutHydration } from '@/store/checkout';
 
-export type CheckoutStep = 'contact' | 'shipping' | 'payment' | 'review';
+export type CheckoutStep = 'contact' | 'shipping' | 'review';
 
 export interface ContactInfo {
   firstName: string;
@@ -111,7 +111,7 @@ interface CheckoutContextValue extends CheckoutState {
   getProgressPercent: () => number;
 }
 
-const STEPS_ORDER: CheckoutStep[] = ['contact', 'shipping', 'payment', 'review'];
+const STEPS_ORDER: CheckoutStep[] = ['contact', 'shipping', 'review'];
 
 const DEFAULT_CONTACT_INFO: ContactInfo = {
   firstName: '',

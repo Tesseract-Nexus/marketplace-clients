@@ -287,5 +287,5 @@ metadata:
   name: storefront-config
   namespace: default
 data:
-  api-url: "https://api.tesserix.app"
-  ws-url: "wss://ws.tesserix.app"
+  api-url: "https://api.mark8ly.app"
+  ws-url: "wss://ws.mark8ly.app"

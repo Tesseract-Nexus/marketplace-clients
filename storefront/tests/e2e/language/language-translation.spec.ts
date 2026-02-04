@@ -182,7 +182,7 @@ test.describe('Language Translation', () => {
         return keys.some(key =>
           key.includes('language') ||
           key.includes('translation') ||
-          key.includes('tesserix')
+          key.includes('mark8ly')
         );
       });
 

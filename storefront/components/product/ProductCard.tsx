@@ -460,7 +460,7 @@ export function ProductCard({
                 >
                   <Image
                     src={imageError ? FALLBACK_PLACEHOLDER : (allImages[currentImageIndex] || imageUrl)}
-                    alt={product.name}
+                    alt={allImages.length > 1 ? `${product.name} - Image ${currentImageIndex + 1} of ${allImages.length}` : product.name}
                     fill
                     className={cn(
                       "object-cover pointer-events-none",
@@ -489,7 +489,7 @@ export function ProductCard({
               >
                 <Image
                   src={imageError ? FALLBACK_PLACEHOLDER : currentImage}
-                  alt={product.name}
+                  alt={imageCount > 1 ? `${product.name} - Image ${currentImageIndex + 1} of ${imageCount}` : product.name}
                   fill
                   className={cn(
                     'object-cover',
@@ -531,24 +531,24 @@ export function ProductCard({
                 className={cn(
                   "absolute left-1.5 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/90 transition-all touch-manipulation",
                   isTouchDevice
-                    ? "w-8 h-8 active:scale-95"
-                    : "w-7 h-7 opacity-0 group-hover:opacity-100 hover:bg-black/60"
+                    ? "w-11 h-11 active:scale-95"
+                    : "w-8 h-8 opacity-0 group-hover:opacity-100 hover:bg-black/60"
                 )}
                 aria-label="Previous image"
               >
-                <ChevronLeft className={isTouchDevice ? "h-4 w-4" : "h-3.5 w-3.5"} />
+                <ChevronLeft className={isTouchDevice ? "h-5 w-5" : "h-4 w-4"} />
               </button>
               <button
                 onClick={goToNextImage}
                 className={cn(
                   "absolute right-1.5 top-1/2 -translate-y-1/2 z-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center text-white/90 transition-all touch-manipulation",
                   isTouchDevice
-                    ? "w-8 h-8 active:scale-95"
-                    : "w-7 h-7 opacity-0 group-hover:opacity-100 hover:bg-black/60"
+                    ? "w-11 h-11 active:scale-95"
+                    : "w-8 h-8 opacity-0 group-hover:opacity-100 hover:bg-black/60"
                 )}
                 aria-label="Next image"
               >
-                <ChevronRight className={isTouchDevice ? "h-4 w-4" : "h-3.5 w-3.5"} />
+                <ChevronRight className={isTouchDevice ? "h-5 w-5" : "h-4 w-4"} />
               </button>
             </>
           )}

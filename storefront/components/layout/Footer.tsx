@@ -581,12 +581,12 @@ export function Footer() {
               <p className="text-sm text-muted-foreground">
                 <TranslatedUIText text="Powered by" />{' '}
                 <a
-                  href="https://tesserix.app"
+                  href="https://mark8ly.app"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-semibold text-tenant-primary hover:underline transition-colors"
                 >
-                  Tesserix
+                  Mark8ly
                 </a>
               </p>
             )}

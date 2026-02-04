@@ -8,7 +8,7 @@ import {
 } from '@/lib/api/storefront';
 import { resolveTenantInfo } from '@/lib/tenant';
 
-const BASE_DOMAIN = process.env.BASE_DOMAIN || 'tesserix.app';
+const BASE_DOMAIN = process.env.BASE_DOMAIN || 'mark8ly.app';
 
 // Helper to extract tenant slug from host (mirroring middleware logic)
 function getTenantFromHost(host: string): string | null {

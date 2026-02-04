@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-// Base domain for tenant subdomains (e.g., tesserix.app)
-const BASE_DOMAIN = process.env.BASE_DOMAIN || 'tesserix.app';
+// Simple debug logger for middleware (Edge runtime compatible)
+const isDev = process.env.NODE_ENV !== 'production';
+const debugLog = (...args: unknown[]) => isDev && console.log(...args);
+
+// Base domain for tenant subdomains (e.g., mark8ly.app)
+const BASE_DOMAIN = process.env.BASE_DOMAIN || 'mark8ly.app';
 
 // Custom domain service URL for domain resolution
 const CUSTOM_DOMAIN_SERVICE_URL = process.env.CUSTOM_DOMAIN_SERVICE_URL || 'http://custom-domain-service.marketplace.svc.cluster.local:8093';
@@ -27,12 +31,12 @@ const STATIC_PATHS = [
 ];
 
 /**
- * Check if a hostname is a custom domain (not tesserix.app or localhost)
+ * Check if a hostname is a custom domain (not mark8ly.app or localhost)
  */
 function isCustomDomain(host: string): boolean {
   const hostname = (host.split(':')[0] || '').toLowerCase();
 
-  // Not custom if it's tesserix.app
+  // Not custom if it's mark8ly.app
   if (hostname.endsWith(`.${BASE_DOMAIN}`) || hostname === BASE_DOMAIN) {
     return false;
   }
@@ -74,7 +78,7 @@ async function resolveCustomDomain(domain: string): Promise<{ tenantSlug: string
   // Check cache first
   const cached = resolvedDomains.get(domain);
   if (cached && now - cached.timestamp < DOMAIN_CACHE_TTL) {
-    console.log('[Storefront Middleware] Custom domain resolved from cache:', domain, '->', cached.tenantSlug);
+    debugLog('[Storefront Middleware] Custom domain resolved from cache:', domain, '->', cached.tenantSlug);
     return { tenantSlug: cached.tenantSlug, tenantId: cached.tenantId };
   }
 
@@ -100,13 +104,13 @@ async function resolveCustomDomain(domain: string): Promise<{ tenantSlug: string
           tenantId: result.tenant_id,
           timestamp: now,
         });
-        console.log('[Storefront Middleware] Custom domain resolved via API:', domain, '->', result.tenant_slug);
+        debugLog('[Storefront Middleware] Custom domain resolved via API:', domain, '->', result.tenant_slug);
         return { tenantSlug: result.tenant_slug, tenantId: result.tenant_id };
       }
     }
 
     if (response.status === 404) {
-      console.log('[Storefront Middleware] Custom domain not found:', domain);
+      debugLog('[Storefront Middleware] Custom domain not found:', domain);
       return null;
     }
 
@@ -123,7 +127,7 @@ async function resolveCustomDomain(domain: string): Promise<{ tenantSlug: string
 }
 
 // Extract tenant slug from hostname
-// e.g., demo-store.tesserix.app -> demo-store
+// e.g., demo-store.mark8ly.app -> demo-store
 function getTenantFromHost(host: string): string | null {
   // Remove port if present
   const hostname = host.split(':')[0] || '';
@@ -182,24 +186,24 @@ export async function middleware(request: NextRequest) {
   if (isCustomDomain(host)) {
     isCustomDomainRequest = true;
     const baseDomain = extractBaseDomain(host);
-    console.log('[Storefront Middleware] Detected custom domain:', host, '-> base domain:', baseDomain);
+    debugLog('[Storefront Middleware] Detected custom domain:', host, '-> base domain:', baseDomain);
 
     // Resolve the custom domain to get tenant info
     const resolved = await resolveCustomDomain(baseDomain);
     if (resolved) {
       tenantSlug = resolved.tenantSlug;
       tenantId = resolved.tenantId;
-      console.log('[Storefront Middleware] Custom domain resolved:', baseDomain, '-> tenant:', tenantSlug);
+      debugLog('[Storefront Middleware] Custom domain resolved:', baseDomain, '-> tenant:', tenantSlug);
     } else {
       // Fallback: Check if VirtualService injected headers
       tenantSlug = getTenantFromHeaders(request);
       tenantId = request.headers.get('x-tenant-id');
       if (tenantSlug) {
-        console.log('[Storefront Middleware] Custom domain fallback - tenant from headers:', tenantSlug);
+        debugLog('[Storefront Middleware] Custom domain fallback - tenant from headers:', tenantSlug);
       }
     }
   } else {
-    // Standard tesserix.app or localhost domain - extract from hostname
+    // Standard mark8ly.app or localhost domain - extract from hostname
     tenantSlug = getTenantFromHost(host);
 
     // If not found in hostname, check headers (for VirtualService-injected custom domains)

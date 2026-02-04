@@ -32,8 +32,8 @@ This document tracks the implementation status of storefront features.
 - [x] Saved addresses CRUD functionality
 
 ### Routing & Multi-Tenancy
-- [x] Hostname-based tenant routing (`[slug].tesserix.app`)
-- [x] Middleware rewrites subdomain to path (`demo-store.tesserix.app/` → `/demo-store`)
+- [x] Hostname-based tenant routing (`[slug].mark8ly.app`)
+- [x] Middleware rewrites subdomain to path (`demo-store.mark8ly.app/` → `/demo-store`)
 - [x] Dynamic tenant validation via `tenant-router-service`
 - [x] Removed hardcoded tenant list - uses live API
 - [x] 404 for invalid tenant slugs

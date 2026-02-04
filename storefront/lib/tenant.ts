@@ -33,8 +33,8 @@ export async function resolveTenantFromHeaders(): Promise<TenantHostInfo | null>
       return {
         tenant_id: tenantId,
         slug: tenantSlug,
-        admin_host: `${tenantSlug}-admin.tesserix.app`,
-        storefront_host: customDomain || `${tenantSlug}.tesserix.app`,
+        admin_host: `${tenantSlug}-admin.mark8ly.app`,
+        storefront_host: customDomain || `${tenantSlug}.mark8ly.app`,
         status: 'active',
         is_custom_domain: !!customDomain,
         primary_domain: customDomain || undefined,
@@ -91,7 +91,7 @@ export async function resolveTenantFromCustomDomain(domain: string): Promise<Ten
       return {
         tenant_id: data.tenant_id,
         slug: data.tenant_slug,
-        admin_host: `${data.tenant_slug}-admin.tesserix.app`,
+        admin_host: `${data.tenant_slug}-admin.mark8ly.app`,
         storefront_host: domain,
         status: data.is_active ? 'active' : 'inactive',
         is_custom_domain: true,
@@ -107,7 +107,7 @@ export async function resolveTenantFromCustomDomain(domain: string): Promise<Ten
 /**
  * Smart tenant resolution that tries multiple methods:
  * 1. Request headers (for custom domains, set by Istio)
- * 2. Subdomain extraction (for *.tesserix.app)
+ * 2. Subdomain extraction (for *.mark8ly.app)
  * 3. Custom domain lookup (fallback)
  */
 export async function resolveTenantSmart(host: string): Promise<{ info: TenantHostInfo | null; source: TenantResolutionSource | null }> {
@@ -117,8 +117,8 @@ export async function resolveTenantSmart(host: string): Promise<{ info: TenantHo
     return { info: fromHeaders, source: 'header' };
   }
 
-  // Method 2: Built-in subdomain (*.tesserix.app)
-  if (host.endsWith('.tesserix.app')) {
+  // Method 2: Built-in subdomain (*.mark8ly.app)
+  if (host.endsWith('.mark8ly.app')) {
     const slug = host.split('.')[0];
     if (slug && slug !== 'www') {
       const fromSubdomain = await resolveTenantInfo(slug);

@@ -45,7 +45,7 @@ interface CurrencyContextValue {
   supportedCurrencies: CurrencyInfo[];
 }
 
-const STORAGE_KEY = 'tesserix-display-currency';
+const STORAGE_KEY = 'mark8ly-display-currency';
 
 // ========================================
 // Context
