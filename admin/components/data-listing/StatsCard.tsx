@@ -87,7 +87,7 @@ export function StatsCard({
   return (
     <div
       className={cn(
-        'bg-card rounded-lg border border-border shadow-sm',
+        'bg-card rounded-lg border border-border',
         isCompact ? 'p-3' : 'p-4 sm:p-6',
         className
       )}

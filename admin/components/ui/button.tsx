@@ -9,22 +9,22 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/85 hover:shadow-md hover:-translate-y-0.5",
+        default: "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
         destructive:
-          "bg-destructive text-white shadow-sm hover:bg-destructive/85 hover:shadow-md hover:-translate-y-0.5 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
+          "bg-destructive text-white shadow-sm hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:
           "border bg-background shadow-xs hover:bg-accent hover:text-accent-foreground hover:border-accent-foreground/20 hover:shadow-sm dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
         secondary:
-          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/70 hover:shadow-md hover:-translate-y-0.5",
+          "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
         ghost:
           "hover:bg-accent hover:text-accent-foreground hover:shadow-sm dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline hover:text-primary/80",
         gradient:
-          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/85 hover:shadow-md hover:-translate-y-0.5",
+          "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90",
         success:
-          "bg-success text-success-foreground shadow-sm hover:bg-success/85 hover:shadow-md hover:-translate-y-0.5",
+          "bg-success text-success-foreground shadow-sm hover:bg-success/90",
         warning:
-          "bg-warning text-warning-foreground shadow-sm hover:bg-warning/85 hover:shadow-md hover:-translate-y-0.5",
+          "bg-warning text-warning-foreground shadow-sm hover:bg-warning/90",
       },
       size: {
         default: "h-10 px-4 py-2 has-[>svg]:px-3",

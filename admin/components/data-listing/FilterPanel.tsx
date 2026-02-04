@@ -88,7 +88,7 @@ export function FilterPanel({
   return (
     <div
       className={cn(
-        'bg-card rounded-lg border border-border shadow-sm',
+        'bg-card rounded-lg border border-border',
         className
       )}
     >
@@ -142,7 +142,7 @@ export function FilterPanel({
                 variant="ghost"
                 size="sm"
                 onClick={onClearAll}
-                className="h-9 text-muted-foreground hover:text-foreground"
+                className="h-9 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
               >
                 <X className="h-4 w-4 mr-1" />
                 <span className="hidden sm:inline">Clear</span>

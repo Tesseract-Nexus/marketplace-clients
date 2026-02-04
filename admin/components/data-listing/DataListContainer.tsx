@@ -57,7 +57,7 @@ export function DataListContainer({
     return (
       <div
         className={cn(
-          'bg-card rounded-lg border border-border shadow-sm overflow-hidden',
+          'bg-card rounded-lg border border-border overflow-hidden',
           className
         )}
       >
@@ -70,7 +70,7 @@ export function DataListContainer({
     return (
       <div
         className={cn(
-          'bg-card rounded-lg border border-border shadow-sm p-12 text-center',
+          'bg-card rounded-lg border border-border p-12 text-center',
           className
         )}
       >
