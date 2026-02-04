@@ -112,19 +112,13 @@ export function MinimalNav() {
                     onClick={() => setMenuOpen(false)}
                     className="flex items-center gap-2"
                   >
-                    {settings.logoUrl ? (
-                      <Image
-                        src={settings.logoUrl}
-                        alt={tenant?.name || 'Store'}
-                        width={100}
-                        height={32}
-                        className="h-8 w-auto object-contain"
-                      />
-                    ) : (
-                      <span className="text-xl font-bold gradient-text">
-                        {tenant?.name || 'Store'}
-                      </span>
-                    )}
+                    <Image
+                      src={settings.logoUrl || '/logo.png'}
+                      alt={tenant?.name || 'Store'}
+                      width={100}
+                      height={32}
+                      className="h-8 w-auto object-contain"
+                    />
                   </Link>
                   <Button
                     variant="ghost"

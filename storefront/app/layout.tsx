@@ -173,9 +173,9 @@ export default async function RootLayout({
           </>
         ) : (
           <>
-            <link rel="icon" href="/logo-icon.svg" />
-            <link rel="shortcut icon" href="/logo-icon.svg" />
-            <link rel="apple-touch-icon" href="/logo-icon.svg" />
+            <link rel="icon" href="/logo-icon.png" />
+            <link rel="shortcut icon" href="/logo-icon.png" />
+            <link rel="apple-touch-icon" href="/logo-icon.png" />
           </>
         )}
         {/* Dynamic page title and description */}

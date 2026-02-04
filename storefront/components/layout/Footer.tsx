@@ -351,17 +351,11 @@ export function Footer() {
           <div className="lg:col-span-4 space-y-6">
             {/* Logo */}
             <Link href={getNavPath('/')} className="inline-block group">
-              {settings.logoUrl ? (
-                <img
-                  src={settings.logoUrl}
-                  alt={tenant?.name || 'Store'}
-                  className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
-                />
-              ) : (
-                <span className="text-2xl font-bold bg-gradient-to-r from-tenant-primary to-tenant-secondary bg-clip-text text-transparent">
-                  {tenant?.name || 'Store'}
-                </span>
-              )}
+              <img
+                src={settings.logoUrl || '/logo.png'}
+                alt={tenant?.name || 'Store'}
+                className="h-10 w-auto object-contain transition-transform group-hover:scale-105"
+              />
             </Link>
 
             {/* Tagline or Description */}

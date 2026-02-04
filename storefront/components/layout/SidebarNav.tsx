@@ -105,22 +105,16 @@ export function SidebarNav({ position = 'left' }: SidebarNavProps) {
           isExpanded ? 'justify-between' : 'justify-center'
         )}>
           <Link href={getNavPath('/')} className="flex items-center gap-2 min-w-0">
-            {settings.logoUrl ? (
-              <Image
-                src={settings.logoUrl}
-                alt={tenant?.name || 'Store'}
-                width={isExpanded ? 100 : 32}
-                height={32}
-                className={cn(
-                  'object-contain transition-all duration-300',
-                  isExpanded ? 'h-8 w-auto' : 'h-8 w-8'
-                )}
-              />
-            ) : (
-              <div className="h-8 w-8 rounded-lg flex items-center justify-center text-on-tenant-primary font-bold bg-tenant-primary">
-                {tenant?.name?.[0] || 'S'}
-              </div>
-            )}
+            <Image
+              src={settings.logoUrl || '/logo.png'}
+              alt={tenant?.name || 'Store'}
+              width={isExpanded ? 100 : 32}
+              height={32}
+              className={cn(
+                'object-contain transition-all duration-300',
+                isExpanded ? 'h-8 w-auto' : 'h-8 w-8'
+              )}
+            />
             <AnimatePresence>
               {isExpanded && (
                 <motion.span

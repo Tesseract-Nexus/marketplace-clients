@@ -48,21 +48,36 @@ export async function apiRequest<T>(
     (headers as Record<string, string>)['X-Internal-Service'] = 'storefront';
   }
 
-  const response = await fetch(url, {
-    ...fetchOptions,
-    headers,
-  });
+  // Add timeout to prevent hanging requests (5 seconds default)
+  const timeout = (fetchOptions as { timeout?: number }).timeout || 5000;
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new ApiError(
-      errorData.error?.message || `Request failed with status ${response.status}`,
-      response.status,
-      errorData.error?.code
-    );
+  try {
+    const response = await fetch(url, {
+      ...fetchOptions,
+      headers,
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new ApiError(
+        errorData.error?.message || `Request failed with status ${response.status}`,
+        response.status,
+        errorData.error?.code
+      );
+    }
+
+    return response.json();
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new ApiError('Request timeout', 408, 'TIMEOUT');
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 // ========================================
