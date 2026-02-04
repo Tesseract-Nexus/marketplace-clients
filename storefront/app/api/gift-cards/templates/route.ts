@@ -18,11 +18,12 @@ interface SettingsResponse {
 }
 
 // Default templates as fallback (amounts in display currency)
+// Must match admin defaults in settings/general/page.tsx
 const defaultTemplates = {
   id: 'default-1',
   name: 'Classic Gift Card',
   description: 'A timeless gift for any occasion',
-  amounts: [100, 500, 1000, 2000, 5000],
+  amounts: [500, 1000, 2000, 5000, 10000],
   allowCustomAmount: false,
   minAmount: 100,
   maxAmount: 50000,
@@ -72,7 +73,7 @@ export async function GET(request: NextRequest) {
             name: 'Gift Card',
             description: 'A perfect gift for any occasion',
             amounts: giftCardConfig.presetAmounts,
-            allowCustomAmount: giftCardConfig.allowCustomAmount ?? true,
+            allowCustomAmount: giftCardConfig.allowCustomAmount ?? false,
             minAmount: giftCardConfig.minAmount ?? 100,
             maxAmount: giftCardConfig.maxAmount ?? 50000,
           },

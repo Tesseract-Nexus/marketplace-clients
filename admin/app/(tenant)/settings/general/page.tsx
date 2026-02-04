@@ -157,9 +157,10 @@ export default function GeneralSettingsPage() {
   const vendorId = currentTenant?.id || '';
 
   // Gift Card Templates state
+  // Default amounts: [500, 1000, 2000, 5000, 10000] - must match storefront defaults
   const defaultGiftCardSettings: GiftCardTemplateSettings = {
     enabled: true,
-    presetAmounts: [100, 500, 1000, 2000, 5000],
+    presetAmounts: [500, 1000, 2000, 5000, 10000],
     allowCustomAmount: false,
     minAmount: 100,
     maxAmount: 50000,
@@ -357,7 +358,7 @@ export default function GeneralSettingsPage() {
           const gcSettings: GiftCardTemplateSettings = {
             enabled: data.marketing.giftCardTemplates.enabled ?? true,
             presetAmounts: data.marketing.giftCardTemplates.presetAmounts || [500, 1000, 2000, 5000, 10000],
-            allowCustomAmount: data.marketing.giftCardTemplates.allowCustomAmount ?? true,
+            allowCustomAmount: data.marketing.giftCardTemplates.allowCustomAmount ?? false,
             minAmount: data.marketing.giftCardTemplates.minAmount ?? 100,
             maxAmount: data.marketing.giftCardTemplates.maxAmount ?? 50000,
           };

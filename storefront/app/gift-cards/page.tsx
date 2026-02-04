@@ -23,7 +23,8 @@ import {
 } from '@/lib/api/gift-cards';
 
 // Default amounts used as fallback if no template is loaded
-const DEFAULT_AMOUNTS = [100, 500, 1000, 2000, 5000];
+// Must match admin defaults in settings/general/page.tsx
+const DEFAULT_AMOUNTS = [500, 1000, 2000, 5000, 10000];
 
 export default function GiftCardsPage() {
   const { tenant, settings } = useTenant();
