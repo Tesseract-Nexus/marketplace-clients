@@ -423,7 +423,7 @@ export default function QRCodesPage() {
 
   const getShareText = () => {
     const typeLabel = qrTypeConfigs.find(c => c.type === selectedType)?.name || 'QR Code';
-    return `Check out this ${typeLabel} QR Code generated with Tesserix!`;
+    return `Check out this ${typeLabel} QR Code generated with mark8ly!`;
   };
 
   const handleShareFacebook = () => {

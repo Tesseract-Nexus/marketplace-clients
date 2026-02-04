@@ -144,7 +144,7 @@ export function TestimonialPromptBanner({ className }: TestimonialPromptBannerPr
                   </span>
                 </h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  You&apos;ve been using Tesserix for a while now. We&apos;d love to hear about your experience!
+                  You&apos;ve been using mark8ly for a while now. We&apos;d love to hear about your experience!
                   Your testimonial helps other businesses discover how we can help them grow.
                 </p>
               </div>

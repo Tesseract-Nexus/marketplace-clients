@@ -8,7 +8,7 @@ import { AuthProvider } from "@/lib/auth";
 import { CsrfTokenInitializer } from "@/hooks/useCsrfToken";
 
 export const metadata: Metadata = {
-  title: "Admin Panel - Tesserix",
+  title: "Admin Panel - mark8ly",
   description: "Multi-tenant ecommerce admin panel",
   icons: {
     icon: [

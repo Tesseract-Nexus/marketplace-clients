@@ -49,7 +49,7 @@ function CallbackContent() {
             return tenantSlug ? `https://${tenantSlug}-admin.${baseDomain}` : '/';
           })();
 
-        toast.success('Account Created!', 'Welcome to Tesserix. Redirecting to your dashboard...');
+        toast.success('Account Created!', 'Welcome to mark8ly. Redirecting to your dashboard...');
         setTimeout(() => {
           window.location.href = adminUrl;
         }, 1500);

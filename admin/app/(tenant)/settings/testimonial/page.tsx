@@ -233,7 +233,7 @@ export default function TestimonialSettingsPage() {
       <div className="space-y-6 animate-in fade-in duration-500">
         <PageHeader
           title="Your Testimonial"
-          description="Share your experience with Tesserix to help other businesses"
+          description="Share your experience with mark8ly to help other businesses"
           breadcrumbs={[
             { label: 'Home', href: '/' },
             { label: 'Settings', href: '/settings' },
@@ -313,7 +313,7 @@ export default function TestimonialSettingsPage() {
                 <Label htmlFor="quote">Your Testimonial *</Label>
                 <Textarea
                   id="quote"
-                  placeholder="Share your experience with Tesserix. What problems did it solve? How has it helped your business?"
+                  placeholder="Share your experience with mark8ly. What problems did it solve? How has it helped your business?"
                   value={formData.quote}
                   onChange={(e) => setFormData(prev => ({ ...prev, quote: e.target.value }))}
                   rows={5}
