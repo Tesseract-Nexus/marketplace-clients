@@ -216,17 +216,17 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
       {/* Header */}
-      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 overflow-hidden ${
-        scrolled ? 'bg-background/95 backdrop-blur-sm border-b border-border' : 'bg-transparent'
+      <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 bg-background border-b border-border ${
+        scrolled ? 'shadow-sm' : ''
       }`}>
         <div className="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-3 h-20 overflow-hidden">
+          <a href="/" className="flex items-center h-16 overflow-hidden">
             <img
               src="/logo.png"
               alt="Mark8ly"
-              className="h-56 w-auto -mt-12 -mb-20"
+              className="h-44 w-auto -mt-8 -mb-12"
             />
-          </div>
+          </a>
 
           <nav className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-sm text-foreground-secondary hover:text-foreground transition-colors">Features</a>
