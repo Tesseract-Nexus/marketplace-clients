@@ -1680,7 +1680,6 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                         label="Require terms acceptance"
                       />
                     </div>
-                    </label>
 
                     {settings.checkoutConfig.showTermsCheckbox && (
                       <div className="grid gap-4 md:grid-cols-2">
