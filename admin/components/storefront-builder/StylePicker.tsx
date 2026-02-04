@@ -429,7 +429,7 @@ export function AnimationSpeedPicker({
           type="checkbox"
           checked={hoverEffects}
           onChange={(e) => onHoverEffectsChange(e.target.checked)}
-          className="rounded border-border text-primary focus:ring-purple-500"
+          className="rounded border-border text-primary focus:ring-ring focus:ring-offset-2"
         />
         <span className="text-sm">Enable hover effects on interactive elements</span>
       </label>

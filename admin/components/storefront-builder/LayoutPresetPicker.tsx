@@ -567,7 +567,7 @@ export function CategoryLayoutPicker({ value, showBanner, onChange, onBannerChan
           type="checkbox"
           checked={showBanner}
           onChange={(e) => onBannerChange(e.target.checked)}
-          className="rounded border-border text-primary focus:ring-purple-500"
+          className="rounded border-border text-primary focus:ring-ring focus:ring-offset-2"
         />
         <span className="text-sm">Show category banner image</span>
       </label>

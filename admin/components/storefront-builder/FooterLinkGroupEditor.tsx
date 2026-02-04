@@ -37,7 +37,7 @@ function FooterLinkEditor({ link, onUpdate, onDelete }: FooterLinkEditorProps) {
           type="checkbox"
           checked={link.isExternal}
           onChange={(e) => onUpdate({ isExternal: e.target.checked })}
-          className="rounded border-border text-primary focus:ring-purple-500"
+          className="rounded border-border text-primary focus:ring-ring focus:ring-offset-2"
         />
         <ExternalLink className="h-3 w-3" />
       </label>
