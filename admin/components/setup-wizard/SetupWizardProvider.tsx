@@ -7,9 +7,9 @@ import React, {
   useCallback,
   useMemo,
   useEffect,
-  useRef,
   ReactNode,
 } from 'react';
+import { usePathname } from 'next/navigation';
 import {
   SetupWizardContextValue,
   SetupWizardState,
@@ -23,6 +23,20 @@ import {
 } from './types';
 import { useTenant } from '@/contexts/TenantContext';
 import { useUser } from '@/contexts/UserContext';
+
+// Routes where the wizard should NOT auto-open (edit pages, detail pages, etc.)
+const SUPPRESSED_ROUTES = [
+  '/edit',
+  '/new',
+  '/details',
+  '/view',
+  '/settings/',
+];
+
+// Check if current route should suppress wizard auto-open
+function shouldSuppressWizard(pathname: string): boolean {
+  return SUPPRESSED_ROUTES.some(route => pathname.includes(route));
+}
 
 const SetupWizardContext = createContext<SetupWizardContextValue | undefined>(undefined);
 
@@ -48,12 +62,10 @@ interface SetupWizardProviderProps {
 export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
   const { currentTenant } = useTenant();
   const { user } = useUser();
+  const pathname = usePathname();
   const [state, setState] = useState<SetupWizardState>(INITIAL_STATE);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
-
-  // Track if we've already shown the wizard this session to prevent re-opening
-  const hasShownWizardThisSession = useRef(false);
 
   // Generate storage key based on tenant ID and user ID for per-user tracking
   const getStorageKey = useCallback(() => {
@@ -61,6 +73,31 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
     const userPart = user?.id || 'anonymous';
     return `${STORAGE_PREFIX}_${tenantPart}_${userPart}`;
   }, [currentTenant?.id, user?.id]);
+
+  // Session storage key for tracking if wizard was shown this session
+  const getSessionKey = useCallback(() => {
+    return `${getStorageKey()}_session_shown`;
+  }, [getStorageKey]);
+
+  // Check if wizard was already shown this session (persists across page navigations)
+  const hasShownThisSession = useCallback(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      return sessionStorage.getItem(getSessionKey()) === 'true';
+    } catch {
+      return false;
+    }
+  }, [getSessionKey]);
+
+  // Mark wizard as shown this session
+  const markShownThisSession = useCallback(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      sessionStorage.setItem(getSessionKey(), 'true');
+    } catch (error) {
+      console.error('Failed to save session state:', error);
+    }
+  }, [getSessionKey]);
 
   // Load state from localStorage on mount
   useEffect(() => {
@@ -75,13 +112,14 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
         setState((prev) => ({
           ...prev,
           ...parsed,
-          // Don't restore isOpen or isMinimized - these should be fresh each session
+          // Don't restore isOpen - this should be fresh each session
           isOpen: false,
-          isMinimized: false,
+          // Restore isMinimized if wizard was minimized before
+          isMinimized: parsed.isMinimized || false,
         }));
 
         // Check if wizard was already completed or dismissed permanently
-        if (parsed.completedAt || parsed.neverShowAgain) {
+        if (parsed.completedAt || parsed.neverShowAgain || parsed.dismissedAt) {
           setIsFirstTimeUser(false);
         }
       }
@@ -99,9 +137,10 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
     try {
       const stateToSave = {
         ...state,
-        // Don't persist UI state
+        // Don't persist isOpen (should be fresh each session)
         isOpen: undefined,
-        isMinimized: undefined,
+        // DO persist isMinimized so it's restored on page refresh
+        isMinimized: state.isMinimized,
       };
       localStorage.setItem(storageKey, JSON.stringify(stateToSave));
     } catch (error) {
@@ -114,20 +153,25 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
   useEffect(() => {
     if (!hasInitialized || !currentTenant?.id || !user?.id) return;
 
-    // If already completed or dismissed, not a first-time user
+    // If already completed or dismissed permanently, not a first-time user
     if (state.completedAt || state.neverShowAgain) {
       setIsFirstTimeUser(false);
       return;
     }
 
-    // If wizard was dismissed this session, don't show again
+    // If wizard was dismissed (even temporarily), don't show again
     if (state.dismissedAt) {
       setIsFirstTimeUser(false);
       return;
     }
 
-    // If we've already shown the wizard this session, don't show again
-    if (hasShownWizardThisSession.current) {
+    // If we've already shown the wizard this session (using sessionStorage), don't show again
+    if (hasShownThisSession()) {
+      return;
+    }
+
+    // Don't auto-open on suppressed routes (edit pages, detail pages, etc.)
+    if (pathname && shouldSuppressWizard(pathname)) {
       return;
     }
 
@@ -164,7 +208,7 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
 
     // Auto-open wizard for first-time users (only once per session)
     if (shouldShowWizard) {
-      hasShownWizardThisSession.current = true;
+      markShownThisSession();
       setState((prev) => ({ ...prev, isOpen: true }));
     }
   }, [
@@ -172,11 +216,14 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
     currentTenant?.id,
     user?.id,
     user?.createdAt,
+    pathname,
     state.completedAt,
     state.neverShowAgain,
     state.dismissedAt,
     state.completedSteps.length,
     state.skippedSteps.length,
+    hasShownThisSession,
+    markShownThisSession,
   ]);
 
   // Actions
@@ -306,18 +353,18 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
   // Reset
   const resetWizard = useCallback(() => {
     setState(INITIAL_STATE);
-    // Reset the session flag so wizard can show again
-    hasShownWizardThisSession.current = false;
     if (currentTenant?.id && user?.id) {
       const storageKey = getStorageKey();
+      const sessionKey = getSessionKey();
       try {
         localStorage.removeItem(storageKey);
+        sessionStorage.removeItem(sessionKey);
       } catch (error) {
-        console.error('Failed to remove wizard state from localStorage:', error);
+        console.error('Failed to remove wizard state from storage:', error);
       }
     }
     setIsFirstTimeUser(true);
-  }, [currentTenant?.id, user?.id, getStorageKey]);
+  }, [currentTenant?.id, user?.id, getStorageKey, getSessionKey]);
 
   // Memoize context value
   const contextValue = useMemo<SetupWizardContextValue>(
