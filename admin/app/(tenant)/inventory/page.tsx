@@ -51,6 +51,7 @@ import type {
 import type { Product, InventoryStatus } from '@/lib/api/types';
 import { BulkImportModal } from '@/components/BulkImportModal';
 import { Select } from '@/components/Select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { WarehouseLogoUploader, MediaItem } from '@/components/MediaUploader';
 import { DefaultMediaURLs } from '@/lib/api/types';
 
@@ -979,17 +980,17 @@ export default function InventoryPage() {
 
             {/* Mobile Tab Selector */}
             <div className="md:hidden mb-4">
-              <select
+              <Select
                 value={activeTab}
-                onChange={(e) => navigateToTab(e.target.value as TabType)}
-                className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm font-medium focus:outline-none focus:border-primary"
-              >
-                <option value="stock-levels">Stock Levels ({products.length})</option>
-                <option value="warehouses">Warehouses ({warehouses.length})</option>
-                <option value="suppliers">Suppliers ({suppliers.length})</option>
-                <option value="purchase-orders">Purchase Orders ({purchaseOrders.length})</option>
-                <option value="transfers">Transfers ({transfers.length})</option>
-              </select>
+                onChange={(value) => navigateToTab(value as TabType)}
+                options={[
+                  { value: 'stock-levels', label: `Stock Levels (${products.length})` },
+                  { value: 'warehouses', label: `Warehouses (${warehouses.length})` },
+                  { value: 'suppliers', label: `Suppliers (${suppliers.length})` },
+                  { value: 'purchase-orders', label: `Purchase Orders (${purchaseOrders.length})` },
+                  { value: 'transfers', label: `Transfers (${transfers.length})` },
+                ]}
+              />
             </div>
 
             {/* Desktop Tabs */}
@@ -1051,15 +1052,11 @@ export default function InventoryPage() {
                         className="w-40"
                       />
 
-                      <label className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <input
-                          type="checkbox"
-                          checked={autoRefreshEnabled}
-                          onChange={(e) => setAutoRefreshEnabled(e.target.checked)}
-                          className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
-                        />
-                        Auto-refresh
-                      </label>
+                      <Checkbox
+                        checked={autoRefreshEnabled}
+                        onCheckedChange={(checked) => setAutoRefreshEnabled(checked)}
+                        label="Auto-refresh"
+                      />
 
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Clock className="h-3.5 w-3.5" />
@@ -1167,15 +1164,15 @@ export default function InventoryPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1">Status</label>
-                      <select
+                      <Select
                         value={warehouseForm.status}
-                        onChange={(e) => setWarehouseForm({ ...warehouseForm, status: e.target.value as WarehouseFormData['status'] })}
-                        className="w-full h-10 px-3 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <option value="ACTIVE">Active</option>
-                        <option value="INACTIVE">Inactive</option>
-                        <option value="CLOSED">Closed</option>
-                      </select>
+                        onChange={(value) => setWarehouseForm({ ...warehouseForm, status: value as WarehouseFormData['status'] })}
+                        options={[
+                          { value: 'ACTIVE', label: 'Active' },
+                          { value: 'INACTIVE', label: 'Inactive' },
+                          { value: 'CLOSED', label: 'Closed' },
+                        ]}
+                      />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1258,17 +1255,12 @@ export default function InventoryPage() {
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        id="isDefault"
+                    <div className="flex items-center">
+                      <Checkbox
                         checked={warehouseForm.isDefault}
-                        onChange={(e) => setWarehouseForm({ ...warehouseForm, isDefault: e.target.checked })}
-                        className="h-4 w-4 rounded border-border text-primary focus:ring-2 focus:ring-ring focus:ring-offset-0"
+                        onCheckedChange={(checked) => setWarehouseForm({ ...warehouseForm, isDefault: checked })}
+                        label="Default Warehouse"
                       />
-                      <label htmlFor="isDefault" className="text-sm font-medium text-foreground">
-                        Default Warehouse
-                      </label>
                     </div>
                     <div className="flex items-center gap-2">
                       <label className="text-sm font-medium text-foreground">Priority:</label>
@@ -1337,15 +1329,15 @@ export default function InventoryPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1">Status</label>
-                      <select
+                      <Select
                         value={supplierForm.status}
-                        onChange={(e) => setSupplierForm({ ...supplierForm, status: e.target.value as SupplierFormData['status'] })}
-                        className="w-full h-10 px-3 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <option value="ACTIVE">Active</option>
-                        <option value="INACTIVE">Inactive</option>
-                        <option value="BLACKLISTED">Blacklisted</option>
-                      </select>
+                        onChange={(value) => setSupplierForm({ ...supplierForm, status: value as SupplierFormData['status'] })}
+                        options={[
+                          { value: 'ACTIVE', label: 'Active' },
+                          { value: 'INACTIVE', label: 'Inactive' },
+                          { value: 'BLACKLISTED', label: 'Blacklisted' },
+                        ]}
+                      />
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1412,17 +1404,17 @@ export default function InventoryPage() {
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1">Payment Terms</label>
-                      <select
+                      <Select
                         value={supplierForm.paymentTerms}
-                        onChange={(e) => setSupplierForm({ ...supplierForm, paymentTerms: e.target.value })}
-                        className="w-full h-10 px-3 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <option value="Net 15">Net 15</option>
-                        <option value="Net 30">Net 30</option>
-                        <option value="Net 45">Net 45</option>
-                        <option value="Net 60">Net 60</option>
-                        <option value="Due on Receipt">Due on Receipt</option>
-                      </select>
+                        onChange={(value) => setSupplierForm({ ...supplierForm, paymentTerms: value })}
+                        options={[
+                          { value: 'Net 15', label: 'Net 15' },
+                          { value: 'Net 30', label: 'Net 30' },
+                          { value: 'Net 45', label: 'Net 45' },
+                          { value: 'Net 60', label: 'Net 60' },
+                          { value: 'Due on Receipt', label: 'Due on Receipt' },
+                        ]}
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1">Lead Time (days)</label>
@@ -1475,29 +1467,27 @@ export default function InventoryPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1">Supplier *</label>
-                      <select
+                      <Select
                         value={purchaseOrderForm.supplierId}
-                        onChange={(e) => setPurchaseOrderForm({ ...purchaseOrderForm, supplierId: e.target.value })}
-                        className="w-full h-10 px-3 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <option value="">Select Supplier</option>
-                        {suppliers.filter(s => s.status === 'ACTIVE').map(supplier => (
-                          <option key={supplier.id} value={supplier.id}>{supplier.name}</option>
-                        ))}
-                      </select>
+                        onChange={(value) => setPurchaseOrderForm({ ...purchaseOrderForm, supplierId: value })}
+                        placeholder="Select Supplier"
+                        options={suppliers.filter(s => s.status === 'ACTIVE').map(supplier => ({
+                          value: supplier.id,
+                          label: supplier.name,
+                        }))}
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1">Warehouse *</label>
-                      <select
+                      <Select
                         value={purchaseOrderForm.warehouseId}
-                        onChange={(e) => setPurchaseOrderForm({ ...purchaseOrderForm, warehouseId: e.target.value })}
-                        className="w-full h-10 px-3 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <option value="">Select Warehouse</option>
-                        {warehouses.filter(w => w.status === 'ACTIVE').map(warehouse => (
-                          <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
-                        ))}
-                      </select>
+                        onChange={(value) => setPurchaseOrderForm({ ...purchaseOrderForm, warehouseId: value })}
+                        placeholder="Select Warehouse"
+                        options={warehouses.filter(w => w.status === 'ACTIVE').map(warehouse => ({
+                          value: warehouse.id,
+                          label: warehouse.name,
+                        }))}
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1">Order Date</label>
@@ -1586,29 +1576,27 @@ export default function InventoryPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1">From Warehouse *</label>
-                      <select
+                      <Select
                         value={transferForm.fromWarehouseId}
-                        onChange={(e) => setTransferForm({ ...transferForm, fromWarehouseId: e.target.value })}
-                        className="w-full h-10 px-3 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <option value="">Select Source Warehouse</option>
-                        {warehouses.filter(w => w.status === 'ACTIVE' && w.id !== transferForm.toWarehouseId).map(warehouse => (
-                          <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
-                        ))}
-                      </select>
+                        onChange={(value) => setTransferForm({ ...transferForm, fromWarehouseId: value })}
+                        placeholder="Select Source Warehouse"
+                        options={warehouses.filter(w => w.status === 'ACTIVE' && w.id !== transferForm.toWarehouseId).map(warehouse => ({
+                          value: warehouse.id,
+                          label: warehouse.name,
+                        }))}
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-foreground mb-1">To Warehouse *</label>
-                      <select
+                      <Select
                         value={transferForm.toWarehouseId}
-                        onChange={(e) => setTransferForm({ ...transferForm, toWarehouseId: e.target.value })}
-                        className="w-full h-10 px-3 rounded-md border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <option value="">Select Destination Warehouse</option>
-                        {warehouses.filter(w => w.status === 'ACTIVE' && w.id !== transferForm.fromWarehouseId).map(warehouse => (
-                          <option key={warehouse.id} value={warehouse.id}>{warehouse.name}</option>
-                        ))}
-                      </select>
+                        onChange={(value) => setTransferForm({ ...transferForm, toWarehouseId: value })}
+                        placeholder="Select Destination Warehouse"
+                        options={warehouses.filter(w => w.status === 'ACTIVE' && w.id !== transferForm.fromWarehouseId).map(warehouse => ({
+                          value: warehouse.id,
+                          label: warehouse.name,
+                        }))}
+                      />
                     </div>
                   </div>
                   <div>
@@ -2164,18 +2152,19 @@ export default function InventoryPage() {
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-2">
-                              <select
+                              <Select
                                 value={po.status}
-                                onChange={(e) => handleUpdatePOStatus(po.id, e.target.value)}
-                                className="h-8 px-2 text-xs rounded border border-border bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                              >
-                                <option value="DRAFT">Draft</option>
-                                <option value="SUBMITTED">Submitted</option>
-                                <option value="APPROVED">Approved</option>
-                                <option value="ORDERED">Ordered</option>
-                                <option value="RECEIVED">Received</option>
-                                <option value="CANCELLED">Cancelled</option>
-                              </select>
+                                onChange={(value) => handleUpdatePOStatus(po.id, value)}
+                                size="sm"
+                                options={[
+                                  { value: 'DRAFT', label: 'Draft' },
+                                  { value: 'SUBMITTED', label: 'Submitted' },
+                                  { value: 'APPROVED', label: 'Approved' },
+                                  { value: 'ORDERED', label: 'Ordered' },
+                                  { value: 'RECEIVED', label: 'Received' },
+                                  { value: 'CANCELLED', label: 'Cancelled' },
+                                ]}
+                              />
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -2267,16 +2256,17 @@ export default function InventoryPage() {
                           </td>
                           <td className="px-6 py-4 text-right">
                             <div className="flex items-center justify-end gap-2">
-                              <select
+                              <Select
                                 value={transfer.status}
-                                onChange={(e) => handleUpdateTransferStatus(transfer.id, e.target.value)}
-                                className="h-8 px-2 text-xs rounded border border-border bg-white focus:outline-none focus:ring-2 focus:ring-violet-500"
-                              >
-                                <option value="PENDING">Pending</option>
-                                <option value="IN_TRANSIT">In Transit</option>
-                                <option value="COMPLETED">Completed</option>
-                                <option value="CANCELLED">Cancelled</option>
-                              </select>
+                                onChange={(value) => handleUpdateTransferStatus(transfer.id, value)}
+                                size="sm"
+                                options={[
+                                  { value: 'PENDING', label: 'Pending' },
+                                  { value: 'IN_TRANSIT', label: 'In Transit' },
+                                  { value: 'COMPLETED', label: 'Completed' },
+                                  { value: 'CANCELLED', label: 'Cancelled' },
+                                ]}
+                              />
                               <Button
                                 variant="ghost"
                                 size="sm"
