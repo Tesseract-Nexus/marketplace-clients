@@ -19,6 +19,7 @@ import {
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { CardGridSkeleton } from '@/components/ui/table-skeleton';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -226,12 +227,7 @@ export default function StoresPage() {
             </div>
 
             {isTenantLoading ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto" />
-                  <p className="mt-2 text-muted-foreground">Loading stores...</p>
-                </CardContent>
-              </Card>
+              <CardGridSkeleton count={3} />
             ) : filteredTenants.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
@@ -309,12 +305,7 @@ export default function StoresPage() {
             </div>
 
             {loading ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <Loader2 className="w-8 h-8 animate-spin text-success mx-auto" />
-                  <p className="mt-2 text-muted-foreground">Loading storefronts...</p>
-                </CardContent>
-              </Card>
+              <CardGridSkeleton count={3} />
             ) : filteredStorefronts.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">

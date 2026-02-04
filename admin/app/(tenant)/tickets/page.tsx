@@ -8,6 +8,7 @@ import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } f
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { useTenant } from '@/contexts/TenantContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -558,10 +559,7 @@ export default function TicketsPage() {
         {/* Tickets Table */}
         <div className="bg-card rounded-lg border border-border overflow-x-auto">
           {loading ? (
-            <div className="p-12 text-center">
-              <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-              <p className="mt-3 text-muted-foreground">Loading tickets...</p>
-            </div>
+            <TableSkeleton rows={6} columns={7} />
           ) : paginatedTickets.length === 0 ? (
             <div className="p-12 text-center text-muted-foreground">
               No tickets found

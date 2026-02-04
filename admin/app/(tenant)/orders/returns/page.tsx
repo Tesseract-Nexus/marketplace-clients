@@ -7,6 +7,7 @@ import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { Pagination } from '@/components/Pagination';
+import { BrandedLoader } from '@/components/ui/branded-loader';
 import { useDialog } from '@/contexts/DialogContext';
 import { useToast } from '@/contexts/ToastContext';
 import { returnsService, Return } from '@/lib/services/returnsService';
@@ -357,10 +358,7 @@ export default function ReturnsPage() {
   if (loading && returns.length === 0) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-muted-foreground">Loading returns...</p>
-        </div>
+        <BrandedLoader variant="icon" size="lg" message="Loading returns..." />
       </div>
     );
   }

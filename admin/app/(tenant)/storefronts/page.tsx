@@ -21,6 +21,7 @@ import {
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { CardGridSkeleton } from '@/components/ui/table-skeleton';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
@@ -408,10 +409,7 @@ export default function StorefrontsPage() {
 
         <CardContent>
           {loading ? (
-            <div className="text-center py-12">
-              <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-              <p className="mt-4 text-muted-foreground">Loading storefronts...</p>
-            </div>
+            <CardGridSkeleton count={6} />
           ) : filteredStorefronts.length === 0 ? (
             <div className="text-center py-12">
               <Store className="w-16 h-16 text-muted-foreground mx-auto mb-4" />

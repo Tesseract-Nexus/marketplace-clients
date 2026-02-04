@@ -3,6 +3,8 @@
 import React, { useState, useEffect, ReactNode } from 'react';
 import { Loader2, Plus, Store } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { BrandedLoader } from '@/components/ui/branded-loader';
+import { FormSkeleton } from '@/components/ui/table-skeleton';
 import { PageHeader } from '@/components/PageHeader';
 import { StoreSelector } from './StoreSelector';
 import { storefrontService } from '@/lib/services/storefrontService';
@@ -175,10 +177,7 @@ export function SettingsPageWrapper({
   if (loadingStorefronts && !storefronts.length) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-muted">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 text-primary animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading storefronts...</p>
-        </div>
+        <BrandedLoader variant="icon" size="lg" message="Loading storefronts..." />
       </div>
     );
   }
@@ -216,9 +215,8 @@ export function SettingsPageWrapper({
 
         {selectedStorefront ? (
           loading ? (
-            <div className="bg-card rounded-xl border border-border p-12 text-center">
-              <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
-              <p className="text-muted-foreground">Loading settings...</p>
+            <div className="bg-card rounded-xl border border-border overflow-hidden">
+              <FormSkeleton />
             </div>
           ) : (
             <>

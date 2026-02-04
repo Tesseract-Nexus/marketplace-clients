@@ -5,7 +5,8 @@ import { useTenant } from './TenantContext';
 import { useUser } from './UserContext';
 import { apiClient } from '@/lib/api/client';
 import { enhancedApiClient } from '@/lib/api/enhanced-client';
-import { Loader2, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import { BrandedLoader } from '@/components/ui/branded-loader';
 
 // DEV AUTH BYPASS - Skip tenant checks when enabled
 const DEV_AUTH_BYPASS = process.env.NEXT_PUBLIC_DEV_AUTH_BYPASS === 'true';
@@ -173,10 +174,11 @@ export function TenantApiProvider({ children, requireTenant = true }: TenantApiP
   if (requireTenant && (isLoading || userLoading)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">{isLoading ? 'Loading tenant context...' : 'Loading user context...'}</p>
-        </div>
+        <BrandedLoader
+          variant="full"
+          size="lg"
+          message={isLoading ? 'Loading tenant context...' : 'Loading user context...'}
+        />
       </div>
     );
   }

@@ -51,6 +51,7 @@ import { Stepper, StepperNavigation, Step } from '@/components/Stepper';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { StatusBadge, StatusType } from '@/components/ui/status-badge';
 import { Badge } from '@/components/ui/badge';
@@ -1072,10 +1073,7 @@ export default function VendorsPage() {
           </div>
 
           {loading ? (
-            <div className="text-center py-12">
-              <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" />
-              <p className="mt-4 text-muted-foreground">Loading vendors...</p>
-            </div>
+            <TableSkeleton rows={6} columns={7} />
           ) : filteredVendors.length === 0 ? (
             <div className="text-center py-12">
               <Building2 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />

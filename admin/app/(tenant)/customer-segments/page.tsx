@@ -22,6 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { cn } from '@/lib/utils';
 import { useTenant } from '@/contexts/TenantContext';
@@ -486,6 +487,9 @@ export default function CustomerSegmentsPage() {
 
         {/* Segments Table */}
         <div className="bg-card rounded-lg border border-border shadow-sm overflow-hidden">
+          {loading ? (
+            <TableSkeleton rows={6} columns={6} />
+          ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-muted border-b border-border">
@@ -499,16 +503,7 @@ export default function CustomerSegmentsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {loading ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center">
-                      <div className="flex flex-col items-center">
-                        <Loader2 className="h-8 w-8 animate-spin text-primary mb-2" />
-                        <span className="text-muted-foreground">Loading segments...</span>
-                      </div>
-                    </td>
-                  </tr>
-                ) : filteredSegments.length === 0 ? (
+                {filteredSegments.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
                       No segments found
@@ -580,6 +575,7 @@ export default function CustomerSegmentsPage() {
               </tbody>
             </table>
           </div>
+          )}
         </div>
         </DataPageLayout>
       </div>

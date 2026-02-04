@@ -20,6 +20,7 @@ import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { DataPageLayout, type HealthWidgetConfig, type SidebarStatItem } from '@/components/DataPageLayout';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
 import { apiClient } from '@/lib/api/client';
@@ -341,9 +342,7 @@ export default function AbandonedCartsPage() {
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
+            <TableSkeleton rows={6} columns={6} />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">

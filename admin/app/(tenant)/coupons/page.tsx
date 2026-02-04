@@ -48,6 +48,7 @@ import {
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
+import { CardGridSkeleton } from '@/components/ui/table-skeleton';
 import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 
 export default function CouponsPage() {
@@ -465,12 +466,7 @@ export default function CouponsPage() {
 
         {/* Coupons List */}
         {loading ? (
-          <Card className="rounded-2xl border-border/50 bg-card backdrop-blur-sm shadow-lg transition-all duration-300">
-            <CardContent className="p-12 text-center pt-12">
-              <RefreshCw className="w-12 h-12 mx-auto text-primary animate-spin mb-4" />
-              <p className="text-muted-foreground font-medium">Loading coupons...</p>
-            </CardContent>
-          </Card>
+          <CardGridSkeleton count={8} />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 relative z-10">
             {filteredCoupons.map((coupon) => {

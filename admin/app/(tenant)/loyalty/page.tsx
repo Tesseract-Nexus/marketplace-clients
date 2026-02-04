@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { PageHeader } from '@/components/PageHeader';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
+import { BrandedLoader } from '@/components/ui/branded-loader';
 import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
@@ -338,10 +339,7 @@ export default function LoyaltyProgramPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="flex items-center gap-3">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <span className="text-muted-foreground">Loading loyalty program...</span>
-        </div>
+        <BrandedLoader variant="icon" size="lg" message="Loading loyalty program..." />
       </div>
     );
   }

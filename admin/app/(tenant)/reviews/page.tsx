@@ -12,6 +12,7 @@ import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
 import { PageLoading } from '@/components/common';
+import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Pagination } from '@/components/Pagination';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
@@ -575,10 +576,7 @@ export default function ReviewsPage() {
       {/* Reviews Table */}
       <div className="bg-card rounded-lg border border-border overflow-x-auto">
         {loading ? (
-          <div className="p-12 text-center">
-            <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto" />
-            <p className="mt-3 text-muted-foreground">Loading reviews...</p>
-          </div>
+          <TableSkeleton rows={6} columns={7} />
         ) : paginatedReviews.length === 0 ? (
           <div className="p-12 text-center text-muted-foreground">
             No reviews found
