@@ -18,7 +18,7 @@ export function Footer() {
               <img
                 src="/logo.png"
                 alt="Mark8ly"
-                className="h-20 w-auto brightness-0 invert -ml-2"
+                className="h-28 w-auto brightness-0 invert -ml-4"
               />
             </Link>
             <p className="text-warm-400 text-sm leading-relaxed">
