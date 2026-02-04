@@ -74,7 +74,7 @@ function MobilePreview({ config }: { config: MobileConfig }) {
   return (
     <div className="relative w-[280px] h-[560px] mx-auto">
       {/* Phone Frame */}
-      <div className="absolute inset-0 border-[12px] border-foreground rounded-[36px] bg-white overflow-hidden">
+      <div className="absolute inset-0 border-[12px] border-foreground rounded-[36px] bg-background overflow-hidden">
         {/* Status Bar */}
         <div className="h-6 bg-muted flex items-center justify-between px-4">
           <span className="text-[10px] text-muted-foreground">9:41</span>
@@ -88,7 +88,7 @@ function MobilePreview({ config }: { config: MobileConfig }) {
         {/* Header */}
         <div
           className={cn(
-            'flex items-center justify-between px-3 bg-white border-b',
+            'flex items-center justify-between px-3 bg-background border-b',
             config.headerStyle === 'compact' ? 'h-10' : config.headerStyle === 'minimal' ? 'h-8' : 'h-12'
           )}
         >
@@ -123,7 +123,7 @@ function MobilePreview({ config }: { config: MobileConfig }) {
 
         {/* Bottom Navigation */}
         {config.showBottomNav !== false && (
-          <div className="absolute bottom-0 left-0 right-0 h-14 bg-white border-t flex items-center justify-around px-2">
+          <div className="absolute bottom-0 left-0 right-0 h-14 bg-background border-t flex items-center justify-around px-2">
             {bottomNavItems.slice(0, 5).map((item) => {
               const option = BOTTOM_NAV_OPTIONS.find((o) => o.value === item);
               if (!option) return null;

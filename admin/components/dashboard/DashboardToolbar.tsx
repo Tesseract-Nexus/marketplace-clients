@@ -83,7 +83,7 @@ export function DashboardToolbar({ isFetching, lastUpdated }: DashboardToolbarPr
             </div>
           )}
 
-          <div className="relative z-30 flex items-center gap-2 bg-white/80 backdrop-blur-sm border border-border rounded-lg p-1.5 shadow-sm">
+          <div className="relative z-30 flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-border rounded-lg p-1.5 shadow-sm">
             {/* Date Range Selector */}
             {!isEditMode && (
               <>

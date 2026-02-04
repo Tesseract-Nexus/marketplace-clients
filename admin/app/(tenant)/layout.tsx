@@ -931,7 +931,7 @@ function TenantLayoutInner({
   useEffect(() => {
     // DEV MODE: Skip tenant check entirely
     if (devBypass) {
-      console.log('[TenantLayoutInner] 🔓 DEV AUTH BYPASS - skipping tenant check');
+      console.log('[TenantLayoutInner] [DEV-AUTH] BYPASS - skipping tenant check');
       return;
     }
 
@@ -1123,7 +1123,7 @@ export default function TenantLayout({
   // Log dev mode status on mount
   useEffect(() => {
     if (DEV_AUTH_BYPASS) {
-      console.log('[TenantLayout] 🔓 DEV AUTH BYPASS ENABLED - Authentication disabled for local development');
+      console.log('[TenantLayout] [DEV-AUTH] BYPASS ENABLED - Authentication disabled for local development');
       console.log('[TenantLayout] Mock user:', DEV_MOCK_USER.email, 'roles:', DEV_MOCK_USER.roles);
       console.log('[TenantLayout] Login page still accessible at /login for testing');
     }

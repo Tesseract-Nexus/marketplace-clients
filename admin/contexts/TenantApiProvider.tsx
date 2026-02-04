@@ -114,7 +114,7 @@ export function TenantApiProvider({ children, requireTenant = true }: TenantApiP
   // Log dev bypass status
   useEffect(() => {
     if (DEV_AUTH_BYPASS) {
-      console.log('[TenantApiProvider] 🔓 DEV AUTH BYPASS - using mock tenant:', DEV_MOCK_TENANT.slug);
+      console.log('[TenantApiProvider] [DEV-AUTH] BYPASS - using mock tenant:', DEV_MOCK_TENANT.slug);
     }
   }, []);
 

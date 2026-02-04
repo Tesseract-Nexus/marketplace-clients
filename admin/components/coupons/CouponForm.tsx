@@ -366,7 +366,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   value={formData.code}
                   onChange={(e) => handleFieldChange('code', e.target.value.toUpperCase())}
                   className={cn(
-                    "w-full px-3 py-2 border rounded-md bg-background text-sm focus:outline-none focus:border-primary font-mono",
+                    "w-full px-3 py-2 border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary font-mono",
                     errors.code ? 'border-destructive' : 'border-border'
                   )}
                   placeholder="SUMMER20"
@@ -385,7 +385,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   value={formData.name}
                   onChange={(e) => handleFieldChange('name', e.target.value)}
                   className={cn(
-                    "w-full px-3 py-2 border rounded-md bg-background text-sm focus:outline-none focus:border-primary",
+                    "w-full px-3 py-2 border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary",
                     errors.name ? 'border-destructive' : 'border-border'
                   )}
                   placeholder="Summer Sale"
@@ -422,7 +422,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   value={formData.discountValue}
                   onChange={(e) => handleFieldChange('discountValue', e.target.value)}
                   className={cn(
-                    "w-full px-3 py-2 border rounded-md bg-background text-sm focus:outline-none focus:border-primary",
+                    "w-full px-3 py-2 border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary",
                     errors.discountValue ? 'border-destructive' : 'border-border'
                   )}
                   placeholder={formData.discountType === 'PERCENTAGE' ? '20' : '25.00'}
@@ -439,7 +439,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary resize-none"
+                className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary resize-none"
                 rows={2}
                 placeholder="Describe this coupon..."
               />
@@ -453,7 +453,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   type="datetime-local"
                   value={formData.startDate ? new Date(formData.startDate).toISOString().slice(0, 16) : ''}
                   onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary"
                 />
               </div>
 
@@ -463,7 +463,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   type="datetime-local"
                   value={formData.endDate ? new Date(formData.endDate).toISOString().slice(0, 16) : ''}
                   onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary"
                 />
               </div>
             </div>
@@ -476,7 +476,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   type="number"
                   value={formData.totalUsageLimit || ''}
                   onChange={(e) => setFormData({ ...formData, totalUsageLimit: e.target.value ? parseInt(e.target.value) : undefined })}
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary"
                   placeholder="Unlimited"
                 />
               </div>
@@ -487,7 +487,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                   type="number"
                   value={formData.perCustomerLimit || ''}
                   onChange={(e) => setFormData({ ...formData, perCustomerLimit: e.target.value ? parseInt(e.target.value) : undefined })}
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary"
                   placeholder="Unlimited"
                 />
               </div>
@@ -502,7 +502,7 @@ export function CouponForm({ couponId, mode }: CouponFormProps) {
                     ...formData,
                     restrictions: { ...formData.restrictions, minPurchaseAmount: e.target.value }
                   })}
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary"
                   placeholder="$0.00"
                 />
               </div>

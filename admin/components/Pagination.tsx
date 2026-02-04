@@ -66,7 +66,7 @@ export function Pagination({
   }
 
   return (
-    <div className="flex items-center justify-between border-t border-border bg-white px-4 py-3 sm:px-6 rounded-b-lg">
+    <div className="flex items-center justify-between border-t border-border bg-card px-4 py-3 sm:px-6 rounded-b-lg">
       <div className="flex flex-1 items-center justify-between">
         <div className="flex items-center gap-4">
           <p className="text-sm text-foreground">

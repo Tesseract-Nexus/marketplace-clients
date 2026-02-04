@@ -1271,7 +1271,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                                 onChange={(e) =>
                                   updateHeaderConfig({ announcementText: e.target.value })
                                 }
-                                placeholder="🎉 Free shipping on orders over $50!"
+                                placeholder="Free shipping on orders over $50!"
                                 className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                               />
                             </div>
@@ -1299,7 +1299,7 @@ export function StorefrontThemeContent({ embedded = false, selectedStorefrontId 
                                 onChange={(e) =>
                                   updateHeaderConfig({ announcementIcon: e.target.value })
                                 }
-                                placeholder="🎉 or 🔥 or ⚡"
+                                placeholder="e.g. SALE, HOT, NEW"
                                 className="w-full h-10 px-3 rounded-md border border-border bg-background text-sm focus:outline-none focus:border-primary"
                               />
                               <p className="text-xs text-muted-foreground mt-1">Add an emoji to grab attention</p>

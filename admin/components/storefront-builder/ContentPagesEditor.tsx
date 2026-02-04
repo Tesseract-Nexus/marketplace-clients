@@ -293,7 +293,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
             {filteredPages.map((page) => (
               <div
                 key={page.id}
-                className="p-4 bg-white hover:bg-muted transition-colors flex items-center justify-between"
+                className="p-4 bg-card hover:bg-muted transition-colors flex items-center justify-between"
               >
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">

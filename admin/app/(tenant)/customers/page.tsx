@@ -14,6 +14,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Stepper, StepperNavigation, Step } from '@/components/Stepper';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
+import { EmptyState } from '@/components/common/PageError';
 import { PageLoading } from '@/components/common';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Pagination } from '@/components/Pagination';
@@ -527,8 +528,18 @@ export default function CustomersPage() {
             <tbody className="divide-y divide-border">
               {filteredCustomers.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-6 py-12 text-center text-muted-foreground">
-                    No customers found
+                  <td colSpan={8}>
+                    <EmptyState
+                      icon={Users}
+                      title={customers.length === 0 ? "No customers yet" : "No customers found"}
+                      message={customers.length === 0 ? "Get started by adding your first customer" : "Try adjusting your search or filters"}
+                      action={customers.length === 0 ? (
+                        <Button onClick={() => setShowCreateModal(true)}>
+                          <Plus className="h-4 w-4 mr-2" />
+                          Add Customer
+                        </Button>
+                      ) : undefined}
+                    />
                   </td>
                 </tr>
               ) : (
@@ -637,9 +648,17 @@ export default function CustomersPage() {
           {loading ? (
             <TableSkeleton rows={5} columns={3} />
           ) : filteredCustomers.length === 0 ? (
-            <div className="p-6 text-center text-muted-foreground">
-              No customers found
-            </div>
+            <EmptyState
+              icon={Users}
+              title={customers.length === 0 ? "No customers yet" : "No customers found"}
+              message={customers.length === 0 ? "Get started by adding your first customer" : "Try adjusting your search or filters"}
+              action={customers.length === 0 ? (
+                <Button onClick={() => setShowCreateModal(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Customer
+                </Button>
+              ) : undefined}
+            />
           ) : (
             <div className="divide-y divide-border">
               {paginatedCustomers.map((customer) => (

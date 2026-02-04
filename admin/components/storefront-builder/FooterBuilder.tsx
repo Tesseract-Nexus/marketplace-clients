@@ -246,7 +246,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                     type="text"
                     value={config.footerBgColor || '#1f2937'}
                     onChange={(e) => onChange({ footerBgColor: e.target.value })}
-                    className="flex-1 h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                    className="flex-1 h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary"
                     disabled={disabled}
                   />
                 </div>
@@ -265,7 +265,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                     type="text"
                     value={config.footerTextColor || '#f9fafb'}
                     onChange={(e) => onChange({ footerTextColor: e.target.value })}
-                    className="flex-1 h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                    className="flex-1 h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary"
                     disabled={disabled}
                   />
                 </div>
@@ -307,7 +307,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                       value={config.contactEmail || ''}
                       onChange={(e) => onChange({ contactEmail: e.target.value })}
                       placeholder="support@example.com"
-                      className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                      className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary"
                       disabled={disabled}
                     />
                   </div>
@@ -318,7 +318,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                       value={config.contactPhone || ''}
                       onChange={(e) => onChange({ contactPhone: e.target.value })}
                       placeholder="+1 (555) 123-4567"
-                      className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                      className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary"
                       disabled={disabled}
                     />
                   </div>
@@ -329,7 +329,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                       onChange={(e) => onChange({ contactAddress: e.target.value })}
                       placeholder="123 Main St, City, State 12345"
                       rows={2}
-                      className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                      className="w-full px-3 py-2 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary"
                       disabled={disabled}
                     />
                   </div>
@@ -438,7 +438,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                           type="text"
                           value={badge.label}
                           onChange={(e) => handleUpdateTrustBadge(badge.id, { label: e.target.value })}
-                          className="flex-1 h-9 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                          className="flex-1 h-9 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary"
                           placeholder="Badge text"
                           disabled={disabled}
                         />
@@ -462,7 +462,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                           type="text"
                           value={badge.href || ''}
                           onChange={(e) => handleUpdateTrustBadge(badge.id, { href: e.target.value || undefined })}
-                          className="w-32 h-9 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                          className="w-32 h-9 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary"
                           placeholder="Link (optional)"
                           disabled={disabled}
                         />
@@ -513,7 +513,7 @@ export function FooterBuilder({ config, onChange, disabled }: FooterBuilderProps
                   value={config.copyrightText || ''}
                   onChange={(e) => onChange({ copyrightText: e.target.value })}
                   placeholder="© 2024 Your Company. All rights reserved."
-                  className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                  className="w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary"
                   disabled={disabled}
                 />
               </div>

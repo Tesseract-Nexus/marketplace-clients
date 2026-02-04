@@ -115,7 +115,8 @@ export function DeleteTenantModal({
             {step !== 'processing' && step !== 'success' && (
               <button
                 onClick={handleClose}
-                className="p-1 hover:bg-white/20 rounded-lg transition-colors"
+                className="p-2.5 hover:bg-white/20 rounded-lg transition-colors"
+                aria-label="Close modal"
               >
                 <X className="h-5 w-5 text-white" />
               </button>

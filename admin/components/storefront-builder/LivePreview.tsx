@@ -173,6 +173,7 @@ export function LivePreview({ settings, tenantSlug, className, contentPages = []
         type="button"
         onClick={() => setMode(mode)}
         title={DEVICE_LABELS[mode]}
+        aria-label={DEVICE_LABELS[mode]}
         className={cn(
           'p-2 rounded-lg transition-colors',
           currentMode === mode

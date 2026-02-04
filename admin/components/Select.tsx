@@ -178,7 +178,7 @@ export function Select({
         className={cn(
           "w-full flex items-center justify-between gap-2 transition-colors text-left",
           "border border-border rounded-md bg-background",
-          "focus:outline-none focus:border-primary",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary",
           sizeClasses[size],
           leftIcon && "pl-9",
           isOpen && "border-primary",

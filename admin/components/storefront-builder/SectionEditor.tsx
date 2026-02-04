@@ -234,7 +234,7 @@ export function SectionEditor({ sections, onChange, disabled }: SectionEditorPro
                     disabled={disabled}
                     className={cn(
                       'w-full font-medium bg-transparent border-0 p-0',
-                      'focus:outline-none focus:ring-0',
+                      'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring',
                       section.enabled ? 'text-foreground' : 'text-muted-foreground'
                     )}
                     placeholder="Section title"

@@ -307,7 +307,7 @@ export function CascadeDeleteModal({
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 p-2 rounded-lg bg-white/80 hover:bg-white transition-colors shadow-md"
+            className="absolute top-4 right-4 p-2 rounded-lg bg-muted/80 hover:bg-muted transition-colors shadow-md"
           >
             <X className="w-4 h-4 text-muted-foreground" />
           </button>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Store, Save } from 'lucide-react';
+import { Store, Save, Settings, ShoppingCart } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -52,9 +52,9 @@ export default function MarketplaceSettingsPage() {
           description="Configure multi-vendor marketplace features"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: '⚙️ Settings', href: '/settings' },
-            { label: '🛒 Ecommerce' },
-            { label: '🏪 Marketplace' },
+            { label: 'Settings', href: '/settings', icon: Settings },
+            { label: 'Ecommerce', icon: ShoppingCart },
+            { label: 'Marketplace', icon: Store },
           ]}
           actions={
             <Button onClick={handleSave} disabled={!hasChanges || saving} className="bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50">

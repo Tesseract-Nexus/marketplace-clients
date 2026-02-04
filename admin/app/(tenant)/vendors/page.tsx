@@ -50,6 +50,7 @@ import { Select } from '@/components/Select';
 import { Stepper, StepperNavigation, Step } from '@/components/Stepper';
 import { PageHeader } from '@/components/PageHeader';
 import { PageError } from '@/components/PageError';
+import { EmptyState } from '@/components/common/PageError';
 import { PageLoading } from '@/components/common';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -1075,11 +1076,19 @@ export default function VendorsPage() {
           {loading ? (
             <TableSkeleton rows={6} columns={7} />
           ) : filteredVendors.length === 0 ? (
-            <div className="text-center py-12">
-              <Building2 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground text-lg">No vendors found</p>
-              <p className="text-muted-foreground mt-2">Try adjusting your search or filters</p>
-            </div>
+            <EmptyState
+              icon={Building2}
+              title={vendors.length === 0 ? "No vendors yet" : "No vendors found"}
+              message={vendors.length === 0 ? "Get started by adding your first vendor" : "Try adjusting your search or filters"}
+              action={vendors.length === 0 ? (
+                <PermissionGate permission={Permission.VENDORS_CREATE}>
+                  <Button onClick={() => setViewMode('create')}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Vendor
+                  </Button>
+                </PermissionGate>
+              ) : undefined}
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">

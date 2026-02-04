@@ -148,7 +148,7 @@ export function ConfirmModal({
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="absolute top-4 right-4 p-2 rounded-lg bg-white/80 hover:bg-white transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
+            className="absolute top-4 right-4 p-2 rounded-lg bg-muted/80 hover:bg-muted transition-colors shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X className="w-4 h-4 text-muted-foreground" />
           </button>

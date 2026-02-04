@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { CreditCard, Plus, Edit, Trash2, Eye, EyeOff, CheckCircle, XCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { CreditCard, Plus, Edit, Trash2, Eye, EyeOff, CheckCircle, XCircle, AlertCircle, Loader2, Settings } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageLoading } from '@/components/common';
 import { Button } from '@/components/ui/button';
@@ -163,8 +163,8 @@ export default function PaymentGatewayPage() {
           description="Configure and manage payment gateway integrations"
           breadcrumbs={[
             { label: 'Home', href: '/' },
-            { label: '⚙️ Settings', href: '/settings' },
-            { label: '💳 Payment Gateway' },
+            { label: 'Settings', href: '/settings', icon: Settings },
+            { label: 'Payment Gateway', icon: CreditCard },
           ]}
           actions={
             <Button

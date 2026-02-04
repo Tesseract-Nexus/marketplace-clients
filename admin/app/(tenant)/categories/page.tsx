@@ -991,6 +991,7 @@ export default function CategoriesPage() {
             setActiveFilter('ALL');
             setSearchQuery('');
           }}
+          className="mb-6"
           searchDataTour="search-categories"
           filterDataTour="category-filters"
         >

@@ -85,19 +85,21 @@ export function WizardModal({ children }: WizardModalProps) {
         <div className="absolute top-0 right-0 p-3 flex items-center gap-1 z-10">
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={minimizeWizard}
-            className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-foreground"
+            className="rounded-lg text-muted-foreground hover:text-foreground"
             title="Minimize"
+            aria-label="Minimize wizard"
           >
             <Minimize2 className="w-4 h-4" />
           </Button>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={() => dismissWizard(false)}
-            className="h-8 w-8 p-0 rounded-lg text-muted-foreground hover:text-foreground"
+            className="rounded-lg text-muted-foreground hover:text-foreground"
             title="Close"
+            aria-label="Close wizard"
           >
             <X className="w-4 h-4" />
           </Button>

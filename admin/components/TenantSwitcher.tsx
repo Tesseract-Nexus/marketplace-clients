@@ -239,7 +239,7 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
                   placeholder="Search businesses..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-10 pl-10 pr-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                  className="w-full h-10 pl-10 pr-3 border border-border rounded-md bg-background text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus:border-primary"
                   autoFocus
                 />
               </div>

@@ -130,7 +130,7 @@ export function AddDomainModal({ isOpen, onClose, onDomainAdded }: AddDomainModa
         <div className="relative bg-gradient-to-r from-primary to-primary/80 px-6 py-5">
           <button
             onClick={handleClose}
-            className="absolute top-4 right-4 p-1.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            className="absolute top-4 right-4 p-2.5 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
             aria-label="Close modal"
           >
             <X className="h-4 w-4 text-white" />
