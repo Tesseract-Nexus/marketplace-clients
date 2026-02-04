@@ -21,7 +21,7 @@ export default function Header({ currentPage = 'other' }: HeaderProps) {
             <img
               src="/logo.png"
               alt="Mark8ly"
-              className="h-64 w-auto -my-24"
+              className="h-64 w-auto -mb-24 -mt-16"
             />
           </Link>
           <div className="hidden md:flex items-center space-x-8">
