@@ -224,7 +224,7 @@ export default function Home() {
             <img
               src="/logo.png"
               alt="Mark8ly"
-              className="h-36 w-auto -my-10"
+              className="h-48 w-auto -my-16"
             />
           </div>
 
