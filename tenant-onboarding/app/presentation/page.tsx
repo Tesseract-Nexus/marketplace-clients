@@ -399,9 +399,11 @@ export default function PresentationPage() {
       </div>
 
       {/* Slide Counter */}
-      <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 z-50 text-xs sm:text-sm text-muted-foreground">
-        {currentSlide + 1} / {totalSlides}
-        <span className="md:hidden ml-2 text-foreground-tertiary">• Swipe to navigate</span>
+      <div className="absolute bottom-4 sm:bottom-6 left-4 sm:left-6 z-50 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+        <span className="text-xs sm:text-sm text-muted-foreground">
+          {currentSlide + 1} / {totalSlides}
+        </span>
+        <span className="md:hidden text-[10px] text-foreground-tertiary/70">Swipe to navigate</span>
       </div>
 
       {/* Navigation Arrows - hidden on mobile, use swipe instead */}
@@ -421,9 +423,10 @@ export default function PresentationPage() {
       </button>
 
       {/* Main Content */}
-      <div className="relative h-full flex items-center justify-center p-4 sm:p-8 md:p-12 lg:p-16">
-        <div className="max-w-6xl w-full">
-          <div className={`transition-all duration-500 ${isAnimating ? 'opacity-0 translate-y-8' : 'opacity-100 translate-y-0'}`}>
+      <div className="relative h-full overflow-y-auto pt-12 pb-16 sm:pt-8 sm:pb-8 md:pt-12 md:pb-12 lg:pt-16 lg:pb-16">
+        <div className="min-h-full flex items-center justify-center px-4 sm:px-8 md:px-12 lg:px-16">
+          <div className="max-w-6xl w-full">
+            <div className={`transition-all duration-500 ${isAnimating ? 'opacity-0 translate-y-8' : 'opacity-100 translate-y-0'}`}>
 
             {/* Slide 0: Title */}
             {currentSlide === 0 && (
@@ -812,6 +815,7 @@ export default function PresentationPage() {
               </div>
             )}
 
+            </div>
           </div>
         </div>
       </div>
