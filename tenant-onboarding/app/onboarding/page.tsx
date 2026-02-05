@@ -2812,140 +2812,146 @@ export default function OnboardingPage() {
                                   </div>
                                   <div>
                                     <p className="text-sm font-semibold text-foreground">DNS Configuration Required</p>
-                                    <p className="text-xs text-muted-foreground">Add this record to your domain provider (GoDaddy, Cloudflare, Namecheap, etc.)</p>
+                                    <p className="text-xs text-muted-foreground">Add these records to your domain provider (GoDaddy, Cloudflare, Namecheap, etc.)</p>
                                   </div>
                                 </div>
 
-                                {/* Verification Method Selector */}
-                                {customDomainValidation.verificationRecords && customDomainValidation.verificationRecords.length > 1 && (
-                                  <div className="mb-4">
-                                    <p className="text-xs font-medium text-muted-foreground mb-2">Choose verification method:</p>
-                                    <div className="flex gap-2">
-                                      <button
-                                        type="button"
-                                        onClick={() => setSelectedVerificationMethod('CNAME')}
-                                        className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                          selectedVerificationMethod === 'CNAME'
-                                            ? 'bg-primary text-white'
-                                            : 'bg-warm-100 text-foreground hover:bg-warm-200'
-                                        }`}
-                                      >
-                                        CNAME Record
-                                        <span className="block text-xs opacity-75 mt-0.5">Recommended</span>
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={() => setSelectedVerificationMethod('TXT')}
-                                        className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                          selectedVerificationMethod === 'TXT'
-                                            ? 'bg-primary text-white'
-                                            : 'bg-warm-100 text-foreground hover:bg-warm-200'
-                                        }`}
-                                      >
-                                        TXT Record
-                                        <span className="block text-xs opacity-75 mt-0.5">Alternative</span>
-                                      </button>
+                                {/* Step 1: Domain Verification */}
+                                <div className="p-4 bg-primary/5 rounded-xl border-2 border-primary/20">
+                                  <div className="flex items-center gap-2 mb-3">
+                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                                      <span className="text-sm font-bold text-primary">1</span>
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-semibold text-primary">Domain Verification (Required)</p>
+                                      <p className="text-xs text-primary/70">Verify ownership of your domain</p>
                                     </div>
                                   </div>
-                                )}
 
-                                {/* Get the selected verification record */}
-                                {(() => {
-                                  const selectedRecord = customDomainValidation.verificationRecords?.find(r => r.type === selectedVerificationMethod) || customDomainValidation.verificationRecord;
-                                  if (!selectedRecord) return null;
-                                  return (
-                                    <div className="bg-warm-50 rounded-lg overflow-hidden">
-                                      {/* DNS Record Table */}
-                                      <div className="overflow-x-auto">
-                                        <table className="w-full text-sm">
-                                          <thead>
-                                            <tr className="border-b border-warm-200">
-                                              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3 w-20">Type</th>
-                                              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">Host / Name</th>
-                                              <th className="text-left text-xs font-medium text-muted-foreground uppercase tracking-wide px-4 py-3">Value / Points To</th>
-                                            </tr>
-                                          </thead>
-                                          <tbody>
-                                            <tr>
-                                              <td className="px-4 py-3 align-top">
-                                                <span className={`inline-flex items-center px-2.5 py-1 rounded-md font-mono font-semibold text-xs ${
-                                                  selectedRecord.type === 'CNAME'
-                                                    ? 'bg-sage-100 text-sage-700'
-                                                    : 'bg-primary/10 text-primary'
-                                                }`}>
-                                                  {selectedRecord.type}
-                                                </span>
-                                              </td>
-                                              <td className="px-4 py-3 align-top">
-                                                <div className="flex items-start gap-2">
-                                                  <code className="flex-1 font-mono text-sm text-foreground bg-white px-3 py-2 rounded-lg break-all select-all">
-                                                    {selectedRecord.host}
-                                                  </code>
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => copyToClipboard(selectedRecord.host || '', 'verification-host')}
-                                                    className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-1"
-                                                    title="Copy host"
-                                                  >
-                                                    {copiedItem === 'verification-host' ? (
-                                                      <><Check className="w-4 h-4 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
-                                                    ) : (
-                                                      <Copy className="w-4 h-4" />
-                                                    )}
-                                                  </button>
-                                                </div>
-                                              </td>
-                                              <td className="px-4 py-3 align-top">
-                                                <div className="flex items-start gap-2">
-                                                  <code className="flex-1 font-mono text-sm text-foreground bg-white px-3 py-2 rounded-lg break-all select-all">
-                                                    {selectedRecord.value}
-                                                  </code>
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => copyToClipboard(selectedRecord.value || '', 'verification-value')}
-                                                    className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-1"
-                                                    title="Copy value"
-                                                  >
-                                                    {copiedItem === 'verification-value' ? (
-                                                      <><Check className="w-4 h-4 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
-                                                    ) : (
-                                                      <Copy className="w-4 h-4" />
-                                                    )}
-                                                  </button>
-                                                </div>
-                                              </td>
-                                            </tr>
-                                          </tbody>
-                                        </table>
+                                  {/* Verification Method Selector */}
+                                  {customDomainValidation.verificationRecords && customDomainValidation.verificationRecords.length > 1 && (
+                                    <div className="mb-3">
+                                      <p className="text-xs font-medium text-muted-foreground mb-2">Choose verification method:</p>
+                                      <div className="flex gap-2">
+                                        <button
+                                          type="button"
+                                          onClick={() => setSelectedVerificationMethod('CNAME')}
+                                          className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                            selectedVerificationMethod === 'CNAME'
+                                              ? 'bg-primary text-white'
+                                              : 'bg-warm-100 text-foreground hover:bg-warm-200'
+                                          }`}
+                                        >
+                                          CNAME Record
+                                          <span className="block text-xs opacity-75 mt-0.5">Recommended</span>
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => setSelectedVerificationMethod('TXT')}
+                                          className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                                            selectedVerificationMethod === 'TXT'
+                                              ? 'bg-primary text-white'
+                                              : 'bg-warm-100 text-foreground hover:bg-warm-200'
+                                          }`}
+                                        >
+                                          TXT Record
+                                          <span className="block text-xs opacity-75 mt-0.5">Alternative</span>
+                                        </button>
                                       </div>
                                     </div>
-                                  );
-                                })()}
+                                  )}
+
+                                  {/* Get the selected verification record */}
+                                  {(() => {
+                                    const selectedRecord = customDomainValidation.verificationRecords?.find(r => r.type === selectedVerificationMethod) || customDomainValidation.verificationRecord;
+                                    if (!selectedRecord) return null;
+                                    return (
+                                      <div className="bg-white rounded-lg overflow-hidden border border-primary/20">
+                                        {/* DNS Record Table */}
+                                        <div className="overflow-x-auto">
+                                          <table className="w-full text-sm">
+                                            <thead>
+                                              <tr className="border-b border-primary/10 bg-primary/5">
+                                                <th className="text-left text-xs font-medium text-primary/70 uppercase tracking-wide px-4 py-3 w-20">Type</th>
+                                                <th className="text-left text-xs font-medium text-primary/70 uppercase tracking-wide px-4 py-3">Host / Name</th>
+                                                <th className="text-left text-xs font-medium text-primary/70 uppercase tracking-wide px-4 py-3">Value / Points To</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              <tr>
+                                                <td className="px-4 py-3 align-top">
+                                                  <span className={`inline-flex items-center px-2.5 py-1 rounded-md font-mono font-semibold text-xs ${
+                                                    selectedRecord.type === 'CNAME'
+                                                      ? 'bg-sage-100 text-sage-700'
+                                                      : 'bg-primary/10 text-primary'
+                                                  }`}>
+                                                    {selectedRecord.type}
+                                                  </span>
+                                                </td>
+                                                <td className="px-4 py-3 align-top">
+                                                  <div className="flex items-start gap-2">
+                                                    <code className="flex-1 font-mono text-sm text-foreground bg-warm-50 px-3 py-2 rounded-lg break-all select-all">
+                                                      {selectedRecord.host}
+                                                    </code>
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => copyToClipboard(selectedRecord.host || '', 'verification-host')}
+                                                      className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-1"
+                                                      title="Copy host"
+                                                    >
+                                                      {copiedItem === 'verification-host' ? (
+                                                        <><Check className="w-4 h-4 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
+                                                      ) : (
+                                                        <Copy className="w-4 h-4" />
+                                                      )}
+                                                    </button>
+                                                  </div>
+                                                </td>
+                                                <td className="px-4 py-3 align-top">
+                                                  <div className="flex items-start gap-2">
+                                                    <code className="flex-1 font-mono text-sm text-foreground bg-warm-50 px-3 py-2 rounded-lg break-all select-all">
+                                                      {selectedRecord.value}
+                                                    </code>
+                                                    <button
+                                                      type="button"
+                                                      onClick={() => copyToClipboard(selectedRecord.value || '', 'verification-value')}
+                                                      className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-1"
+                                                      title="Copy value"
+                                                    >
+                                                      {copiedItem === 'verification-value' ? (
+                                                        <><Check className="w-4 h-4 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
+                                                      ) : (
+                                                        <Copy className="w-4 h-4" />
+                                                      )}
+                                                    </button>
+                                                  </div>
+                                                </td>
+                                              </tr>
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      </div>
+                                    );
+                                  })()}
+                                </div>
 
                                 {/* Quick Help */}
                                 <div className="mt-4 p-3 bg-warm-100 rounded-lg border border-warm-300">
                                   <p className="text-sm text-foreground-secondary">
-                                    <strong className="font-semibold text-foreground">Where to add this?</strong> Log in to your domain provider and find DNS settings, Zone Editor, or DNS Management. Add a new record with the values above.
+                                    <strong className="font-semibold text-foreground">Where to add this?</strong> Log in to your domain provider and find DNS settings, Zone Editor, or DNS Management. Add new records with the values above.
                                   </p>
                                 </div>
 
-                                {/* Email Setup Info (Optional) */}
-                                <div className="mt-4 p-3 bg-primary/5 rounded-lg border border-primary/20">
-                                  <p className="text-sm text-foreground-secondary">
-                                    <strong className="font-semibold text-foreground">Email Setup (Optional):</strong> Want to send emails from your custom domain (e.g., contact@{storeSetupForm.watch('customDomain')})? You can configure SPF, DKIM, and MX records later in Admin Settings → Domains.
-                                  </p>
-                                </div>
-
-                                {/* Routing A Records Section */}
+                                {/* Step 2: Routing A Records Section */}
                                 {customDomainValidation.routingRecords && customDomainValidation.routingRecords.length > 0 && (
                                   <div className="mt-4 p-4 bg-red-50 rounded-xl border-2 border-red-200">
                                     <div className="flex items-center justify-between mb-3">
                                       <div className="flex items-center gap-2">
                                         <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
-                                          <AlertCircle className="w-4 h-4 text-red-600" />
+                                          <span className="text-sm font-bold text-red-600">2</span>
                                         </div>
                                         <div>
-                                          <p className="text-sm font-semibold text-red-700">Step 2: Routing A Records (Required)</p>
+                                          <p className="text-sm font-semibold text-red-700">Routing A Records (Required)</p>
                                           <p className="text-xs text-red-600">Point your domain to our servers</p>
                                         </div>
                                       </div>
@@ -3033,16 +3039,16 @@ export default function OnboardingPage() {
                                   </div>
                                 )}
 
-                                {/* CNAME Delegation for Automatic SSL */}
+                                {/* Step 3: CNAME Delegation for Automatic SSL */}
                                 {customDomainValidation.cnameDelegationRecord && customDomainValidation.cnameDelegationEnabled && (
                                   <div className="mt-4 p-4 bg-emerald-50 rounded-xl border-2 border-emerald-200">
                                     <div className="flex items-center justify-between mb-3">
                                       <div className="flex items-center gap-2">
                                         <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                                          <Shield className="w-4 h-4 text-emerald-600" />
+                                          <span className="text-sm font-bold text-emerald-600">3</span>
                                         </div>
                                         <div>
-                                          <p className="text-sm font-semibold text-emerald-700">Step 3: Automatic SSL Certificate (Recommended)</p>
+                                          <p className="text-sm font-semibold text-emerald-700">Automatic SSL Certificate (Recommended)</p>
                                           <p className="text-xs text-emerald-600">Add once, certificates auto-renew forever</p>
                                         </div>
                                       </div>
