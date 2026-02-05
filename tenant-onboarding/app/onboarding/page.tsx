@@ -3294,20 +3294,30 @@ export default function OnboardingPage() {
                                 <span className="text-muted-foreground">Business Model:</span>
                                 <span className="text-foreground font-medium">{storeSetupForm.watch('businessModel') === 'ONLINE_STORE' ? 'Online Store' : 'Marketplace'}</span>
                               </div>
-                              <div className="flex justify-between">
-                                <span className="text-muted-foreground">Admin URL:</span>
-                                <span className="text-foreground font-medium">{storeSetupForm.watch('subdomain')}-admin.{baseDomain}</span>
-                              </div>
+                              {/* Only show Admin URL if NOT using custom domain */}
+                              {!(storeSetupForm.watch('useCustomDomain') && storeSetupForm.watch('customDomain')) && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Admin URL:</span>
+                                  <span className="text-foreground font-medium">{storeSetupForm.watch('subdomain')}-admin.{baseDomain}</span>
+                                </div>
+                              )}
+                              {/* Show custom domain URLs when using custom domain */}
+                              {storeSetupForm.watch('useCustomDomain') && storeSetupForm.watch('customDomain') && (
+                                <>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Store URL:</span>
+                                    <span className="text-foreground font-medium">{storeSetupForm.watch('customDomain')}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Admin URL:</span>
+                                    <span className="text-foreground font-medium">admin.{storeSetupForm.watch('customDomain')}</span>
+                                  </div>
+                                </>
+                              )}
                               <div className="flex justify-between">
                                 <span className="text-muted-foreground">Currency:</span>
                                 <span className="text-foreground font-medium">{storeSetupForm.watch('currency')}</span>
                               </div>
-                              {storeSetupForm.watch('useCustomDomain') && storeSetupForm.watch('customDomain') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Custom Domain:</span>
-                                  <span className="text-foreground font-medium">{storeSetupForm.watch('customDomain')}</span>
-                                </div>
-                              )}
                             </div>
                           </div>
 

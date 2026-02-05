@@ -108,9 +108,12 @@ function CongratulationsPage({ completionData, idleCountdown }: { completionData
             Your store has been successfully created and is ready to go!
           </p>
 
-          {completionData.tenant_slug && (
+          {/* Show admin URL - use custom domain if available, otherwise fallback to subdomain */}
+          {(completionData.admin_url || completionData.tenant_slug) && (
             <p className="text-lg font-semibold text-primary mb-8 animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
-              {completionData.tenant_slug}-admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.app'}
+              {completionData.admin_url
+                ? completionData.admin_url.replace(/^https?:\/\//, '')
+                : `${completionData.tenant_slug}-admin.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.app'}`}
             </p>
           )}
         </div>
