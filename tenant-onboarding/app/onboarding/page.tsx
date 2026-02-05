@@ -78,13 +78,11 @@ const JOB_TITLES = [
 ];
 
 const steps = [
-  { id: 0, label: 'Your Business', icon: Building2 },
-  { id: 1, label: 'About You', icon: User },
-  { id: 2, label: 'Location', icon: MapPin },
-  { id: 3, label: 'Store Setup', icon: Store },
-  { id: 4, label: 'Custom Domain', icon: Link2, optional: true },
-  { id: 5, label: 'Documents', icon: FileText, optional: true },
-  { id: 6, label: 'Launch', icon: Rocket },
+  { id: 0, label: 'Business & Contact', icon: Building2 },
+  { id: 1, label: 'Location', icon: MapPin },
+  { id: 2, label: 'Store Setup', icon: Store },
+  { id: 3, label: 'Documents', icon: FileText, optional: true },
+  { id: 4, label: 'Launch', icon: Rocket },
 ];
 
 export default function OnboardingPage() {
@@ -115,6 +113,7 @@ export default function OnboardingPage() {
   } = useOnboardingStore();
 
   const [currentSection, setCurrentSection] = useState(0);
+  const [businessContactSubStep, setBusinessContactSubStep] = useState<'business' | 'contact'>('business');
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [currencies, setCurrencies] = useState<Currency[]>([]);
@@ -372,7 +371,6 @@ export default function OnboardingPage() {
   });
 
   // Track if custom domain URLs are being edited
-  const [isEditingCustomUrls, setIsEditingCustomUrls] = useState(false);
 
   // Track if storefrontSlug was manually edited
   const [storefrontSlugManuallyEdited, setStorefrontSlugManuallyEdited] = useState(false);
@@ -1223,7 +1221,8 @@ export default function OnboardingPage() {
         storeSetupForm.setValue('storefrontSlug', generatedSlug);
       }
 
-      setCurrentSection(1);
+      // Move to contact sub-step within the same section
+      setBusinessContactSubStep('contact');
     } catch (error) {
       // Use OnboardingAPIError for better error handling
       if (error instanceof OnboardingAPIError) {
@@ -1290,7 +1289,7 @@ export default function OnboardingPage() {
           loadStates(phoneCountry);
         }
       }
-      setCurrentSection(2);
+      setCurrentSection(1); // Move to Location step
     } catch (error) {
       // Use OnboardingAPIError for better error handling
       if (error instanceof OnboardingAPIError) {
@@ -1347,7 +1346,7 @@ export default function OnboardingPage() {
         country: data.country,
       } as any);
       // Don't auto-populate currency and timezone - let user select manually
-      setCurrentSection(3);
+      setCurrentSection(2); // Move to Store Setup step
     } catch (error) {
       // Use OnboardingAPIError for better error handling
       if (error instanceof OnboardingAPIError) {
@@ -1387,22 +1386,17 @@ export default function OnboardingPage() {
       return;
     }
 
-    // Move to Custom Domain step
-    setCurrentSection(4);
-  };
-
-  // Handler for Custom Domain step - moves to Documents step (or Review if documents disabled)
-  const handleCustomDomainContinue = () => {
+    // Move to Documents step (or Launch if documents disabled)
     if (config.features.documents.enabled) {
-      setCurrentSection(5);
+      setCurrentSection(3);
     } else {
-      setCurrentSection(6);
+      setCurrentSection(4);
     }
   };
 
-  // Handler for Documents step - moves to Review step
+  // Handler for Documents step - moves to Launch step
   const handleDocumentsContinue = () => {
-    setCurrentSection(6);
+    setCurrentSection(4);
   };
 
   const handleStoreSetupSubmit = async (data: StoreSetupForm) => {
@@ -1754,8 +1748,8 @@ export default function OnboardingPage() {
           <div className="relative">
             <div className="bg-card border border-border rounded-2xl p-8 sm:p-10 shadow-card">
 
-              {/* Step 1: Business Information */}
-              {currentSection === 0 && (
+              {/* Step 0a: Business Information */}
+              {currentSection === 0 && businessContactSubStep === 'business' && (
                 <form onSubmit={businessForm.handleSubmit(handleBusinessSubmit)} className="space-y-6" noValidate>
                   <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
@@ -1934,8 +1928,8 @@ export default function OnboardingPage() {
                 </form>
               )}
 
-              {/* Step 2: Contact Details */}
-              {currentSection === 1 && (
+              {/* Step 0b: Contact Details */}
+              {currentSection === 0 && businessContactSubStep === 'contact' && (
                 <form onSubmit={contactForm.handleSubmit(handleContactSubmit)} className="space-y-6" noValidate>
                   <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
@@ -2039,7 +2033,7 @@ export default function OnboardingPage() {
                   <div className="pt-6 flex gap-4">
                     <button
                       type="button"
-                      onClick={() => setCurrentSection(0)}
+                      onClick={() => setBusinessContactSubStep('business')}
                       className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                     >
                       <ArrowLeft className="w-5 h-5" /> Back
@@ -2055,8 +2049,8 @@ export default function OnboardingPage() {
                 </form>
               )}
 
-              {/* Step 3: Business Address */}
-              {currentSection === 2 && (
+              {/* Step 1: Business Address (Location) */}
+              {currentSection === 1 && (
                 <form onSubmit={addressForm.handleSubmit(handleAddressSubmit)} className="space-y-6" noValidate>
                   <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
@@ -2169,7 +2163,7 @@ export default function OnboardingPage() {
                   <div className="pt-6 flex gap-4">
                     <button
                       type="button"
-                      onClick={() => setCurrentSection(1)}
+                      onClick={() => { setCurrentSection(0); setBusinessContactSubStep('contact'); }}
                       className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                     >
                       <ArrowLeft className="w-5 h-5" /> Back
@@ -2185,11 +2179,11 @@ export default function OnboardingPage() {
                 </form>
               )}
 
-              {/* Steps 4-7: Store Setup, Custom Domain, Documents, Review */}
-              {(currentSection === 3 || currentSection === 4 || currentSection === 5 || currentSection === 6) && (
+              {/* Steps 2-4: Store Setup (with Custom Domain), Documents, Launch */}
+              {(currentSection === 2 || currentSection === 3 || currentSection === 4) && (
                 <form onSubmit={storeSetupForm.handleSubmit(handleStoreSetupSubmit, (errors) => devError('[StoreSetup] Validation errors:', errors))} className="space-y-6" noValidate>
                   {/* Section-specific headers */}
-                  {currentSection === 3 && (
+                  {currentSection === 2 && (
                     <div className="mb-8">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
@@ -2203,21 +2197,7 @@ export default function OnboardingPage() {
                     </div>
                   )}
 
-                  {currentSection === 4 && (
-                    <div className="mb-8">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
-                          <Link2 className="w-6 h-6 text-warm-600" />
-                        </div>
-                        <div>
-                          <h1 className="text-2xl font-serif font-medium text-foreground">Custom Domain</h1>
-                          <p className="text-muted-foreground">Connect your own domain (optional)</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {currentSection === 5 && (
+                  {currentSection === 3 && (
                     <div className="mb-8">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
@@ -2231,7 +2211,7 @@ export default function OnboardingPage() {
                     </div>
                   )}
 
-                  {currentSection === 6 && (
+                  {currentSection === 4 && (
                     <div className="mb-8">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
@@ -2246,8 +2226,8 @@ export default function OnboardingPage() {
                   )}
 
                   <div className="space-y-5">
-                    {/* Section 3: Store Setup Fields */}
-                    {currentSection === 3 && (
+                    {/* Section 2: Store Setup Fields */}
+                    {currentSection === 2 && (
                       <>
                         {/* Business Model Selection */}
                         <div>
@@ -2529,8 +2509,8 @@ export default function OnboardingPage() {
                       </>
                     )}
 
-                    {/* Section 4: Custom Domain */}
-                    {currentSection === 4 && (
+                    {/* Custom Domain (part of Store Setup) */}
+                    {currentSection === 2 && (
                       <>
                     {/* Custom Domain Section Toggle */}
                     <div className="pt-4">
@@ -2682,41 +2662,18 @@ export default function OnboardingPage() {
                               )}
                             </div>
 
-                            {/* Generated URLs Preview */}
+                            {/* Generated URLs Preview (Read-only) */}
                             {(() => {
                               const domainInput = storeSetupForm.watch('customDomain');
-                              const customAdminSubdomain = storeSetupForm.watch('customAdminSubdomain') || 'admin';
-                              // Default to 'www' - apex domains are NOT supported
-                              const customStorefrontSubdomain = storeSetupForm.watch('customStorefrontSubdomain') || DEFAULT_STOREFRONT_SUBDOMAIN;
-                              const storefrontSubdomainError = validateStorefrontSubdomain(customStorefrontSubdomain);
                               const urls = domainInput ? generateUrls(domainInput, {
-                                adminSubdomain: customAdminSubdomain,
-                                storefrontSubdomain: customStorefrontSubdomain,
+                                adminSubdomain: 'admin',
+                                storefrontSubdomain: DEFAULT_STOREFRONT_SUBDOMAIN,
                               }) : null;
                               if (!urls || !domainInput || domainInput.length < 4) return null;
 
                               return (
                                 <div className="p-4 bg-white rounded-xl border-2 border-warm-200">
-                                  <div className="flex items-center justify-between mb-3">
-                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Your Store URLs</p>
-                                    <button
-                                      type="button"
-                                      onClick={() => setIsEditingCustomUrls(!isEditingCustomUrls)}
-                                      className="flex items-center gap-1.5 text-xs font-medium text-primary hover:text-primary/80 transition-colors"
-                                    >
-                                      {isEditingCustomUrls ? (
-                                        <>
-                                          <X className="w-3.5 h-3.5" />
-                                          Done
-                                        </>
-                                      ) : (
-                                        <>
-                                          <Pencil className="w-3.5 h-3.5" />
-                                          Customize
-                                        </>
-                                      )}
-                                    </button>
-                                  </div>
+                                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Your Store URLs</p>
                                   <div className="space-y-3">
                                     {/* Admin URL */}
                                     <div className="p-3 bg-warm-50 rounded-lg">
@@ -2729,26 +2686,11 @@ export default function OnboardingPage() {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                           <p className="text-xs text-muted-foreground">Admin Dashboard</p>
-                                          {isEditingCustomUrls ? (
-                                            <div className="flex items-center gap-1 mt-1">
-                                              <span className="text-sm text-muted-foreground">https://</span>
-                                              <input
-                                                type="text"
-                                                {...storeSetupForm.register('customAdminSubdomain')}
-                                                placeholder="admin"
-                                                className="w-24 px-2 py-1 text-sm font-semibold bg-white border border-warm-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
-                                              />
-                                              <span className="text-sm text-muted-foreground">.{urls.baseDomain}</span>
-                                            </div>
-                                          ) : (
-                                            <p className="text-sm font-semibold text-foreground truncate">
-                                              {urls.admin}
-                                            </p>
-                                          )}
+                                          <p className="text-sm font-semibold text-foreground truncate">{urls.admin}</p>
                                         </div>
                                       </div>
                                     </div>
-                                    {/* Storefront URLs */}
+                                    {/* Storefront URL */}
                                     <div className="p-3 bg-warm-50 rounded-lg">
                                       <div className="flex items-center gap-3">
                                         <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
@@ -2758,47 +2700,14 @@ export default function OnboardingPage() {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                           <p className="text-xs text-muted-foreground">Storefront (Customer-facing)</p>
-                                          {isEditingCustomUrls ? (
-                                            <div className="mt-1 space-y-2">
-                                              <div className="flex items-center gap-1">
-                                                <span className="text-sm text-muted-foreground">https://</span>
-                                                <input
-                                                  type="text"
-                                                  {...storeSetupForm.register('customStorefrontSubdomain')}
-                                                  placeholder="www"
-                                                  className={`w-32 px-2 py-1 text-sm font-semibold bg-white border rounded focus:outline-none focus:ring-1 focus:ring-primary ${storefrontSubdomainError ? 'border-red-400' : 'border-warm-300'}`}
-                                                />
-                                                <span className="text-sm text-muted-foreground">.{urls.baseDomain}</span>
-                                              </div>
-                                              {storefrontSubdomainError ? (
-                                                <p className="text-xs text-red-500">
-                                                  {storefrontSubdomainError}
-                                                </p>
-                                              ) : (
-                                                <p className="text-xs text-muted-foreground">
-                                                  Enter a subdomain like &quot;www&quot; or &quot;store&quot;, or leave empty for apex domain.
-                                                </p>
-                                              )}
-                                            </div>
-                                          ) : (
-                                            <div className="space-y-1">
-                                              <p className="text-sm font-semibold text-foreground">
-                                                https://{urls.baseDomain}
-                                              </p>
-                                              <p className="text-sm font-semibold text-foreground">
-                                                https://www.{urls.baseDomain}
-                                              </p>
-                                            </div>
-                                          )}
+                                          <p className="text-sm font-semibold text-foreground">https://www.{urls.baseDomain}</p>
                                         </div>
                                       </div>
                                     </div>
                                   </div>
-                                  {!isEditingCustomUrls && (
-                                    <p className="mt-3 text-xs text-muted-foreground text-center">
-                                      Click &quot;Customize&quot; to change URL subdomains
-                                    </p>
-                                  )}
+                                  <p className="mt-3 text-xs text-muted-foreground text-center">
+                                    URL structure can be customized later in Settings
+                                  </p>
                                 </div>
                               );
                             })()}
@@ -3229,35 +3138,11 @@ export default function OnboardingPage() {
                       )}
                     </div>
 
-                        {/* Section 4: Navigation buttons */}
-                        <div className="pt-6 flex gap-4">
-                          <button
-                            type="button"
-                            onClick={() => setCurrentSection(3)}
-                            className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
-                          >
-                            <ArrowLeft className="w-5 h-5" /> Back
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleCustomDomainContinue}
-                            className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
-                          >
-                            <SkipForward className="w-5 h-5" /> Skip
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleCustomDomainContinue}
-                            className="flex-1 h-14 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 group"
-                          >
-                            Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
-                          </button>
-                        </div>
                       </>
                     )}
 
-                    {/* Section 3: Currency, Timezone, Language (continuation) */}
-                    {currentSection === 3 && (
+                    {/* Section 2: Currency, Timezone, Language (continuation of Store Setup) */}
+                    {currentSection === 2 && (
                       <>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -3316,11 +3201,11 @@ export default function OnboardingPage() {
                       />
                     </div>
 
-                        {/* Section 3: Continue/Back buttons */}
+                        {/* Section 2: Continue/Back buttons */}
                         <div className="pt-6 flex gap-4">
                           <button
                             type="button"
-                            onClick={() => setCurrentSection(2)}
+                            onClick={() => setCurrentSection(1)}
                             className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                           >
                             <ArrowLeft className="w-5 h-5" /> Back
@@ -3336,8 +3221,8 @@ export default function OnboardingPage() {
                       </>
                     )}
 
-                    {/* Section 5: Documents */}
-                    {currentSection === 5 && (
+                    {/* Section 3: Documents */}
+                    {currentSection === 3 && (
                       <>
                         <div className="p-6 bg-warm-50 rounded-xl border border-warm-200">
                           <p className="text-sm text-muted-foreground mb-4">
@@ -3368,11 +3253,11 @@ export default function OnboardingPage() {
                           />
                         </div>
 
-                        {/* Section 5: Navigation buttons */}
+                        {/* Section 3: Navigation buttons */}
                         <div className="pt-6 flex gap-4">
                           <button
                             type="button"
-                            onClick={() => setCurrentSection(4)}
+                            onClick={() => setCurrentSection(2)}
                             className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                           >
                             <ArrowLeft className="w-5 h-5" /> Back
@@ -3395,8 +3280,8 @@ export default function OnboardingPage() {
                       </>
                     )}
 
-                    {/* Section 6: Review & Launch */}
-                    {currentSection === 6 && (
+                    {/* Section 4: Review & Launch */}
+                    {currentSection === 4 && (
                       <>
                         <div className="space-y-4">
                           <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
@@ -3431,11 +3316,11 @@ export default function OnboardingPage() {
                           </p>
                         </div>
 
-                        {/* Section 6: Navigation buttons */}
+                        {/* Section 4: Navigation buttons */}
                         <div className="pt-6 flex gap-4">
                           <button
                             type="button"
-                            onClick={() => setCurrentSection(config.features.documents.enabled ? 5 : 4)}
+                            onClick={() => setCurrentSection(config.features.documents.enabled ? 3 : 2)}
                             className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                           >
                             <ArrowLeft className="w-5 h-5" /> Back
