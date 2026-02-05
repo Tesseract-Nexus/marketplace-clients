@@ -68,7 +68,7 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     }
 
     return (
-      <div className="relative inline-flex items-center justify-center">
+      <label htmlFor={inputId} className="relative inline-flex items-center justify-center cursor-pointer">
         <input
           type="checkbox"
           id={inputId}
@@ -77,10 +77,10 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
           onChange={handleChange}
           {...props}
         />
-        <div className={cn(checkboxStyles, 'cursor-pointer')}>
+        <div className={checkboxStyles}>
           <Check className={checkmarkStyles} strokeWidth={3} />
         </div>
-      </div>
+      </label>
     );
   }
 );
