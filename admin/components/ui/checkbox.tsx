@@ -23,18 +23,18 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
     const checkboxStyles = cn(
       'w-[18px] h-[18px] rounded-[5px] border-2 flex items-center justify-center',
       'transition-all duration-150 ease-out',
-      'border-muted-foreground/40 hover:border-primary',
-      'peer-checked:border-primary',
+      'border-muted-foreground/40 hover:border-primary bg-background',
+      'peer-checked:border-primary peer-checked:bg-primary',
       'peer-focus-visible:ring-2 peer-focus-visible:ring-ring peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-background',
       'peer-disabled:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:hover:border-muted-foreground/40',
       className
     );
 
     const checkmarkStyles = cn(
-      'w-3.5 h-3.5 text-primary',
+      'w-3.5 h-3.5',
       'transition-all duration-150 ease-out',
-      'opacity-0 scale-75',
-      'peer-checked:opacity-100 peer-checked:scale-100'
+      'opacity-0 scale-75 text-primary',
+      'peer-checked:opacity-100 peer-checked:scale-100 peer-checked:text-primary-foreground'
     );
 
     if (label || description) {
