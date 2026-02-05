@@ -221,11 +221,17 @@ export default function Home() {
       }`}>
         <div className="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
           <a href="/" className="flex items-center">
-            <img
-              src="/logo.png"
-              alt="mark8ly"
-              className="h-16 w-auto object-contain"
-            />
+            <div className="relative">
+              <div
+                className="absolute bottom-0 left-0 right-0 h-[45%] rounded-b-lg z-0"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}
+              />
+              <img
+                src="/logo.png"
+                alt="mark8ly"
+                className="h-16 w-auto object-contain relative z-10"
+              />
+            </div>
           </a>
 
           <nav className="hidden md:flex items-center gap-8">

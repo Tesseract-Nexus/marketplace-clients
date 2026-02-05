@@ -18,11 +18,17 @@ export default function Header({ currentPage = 'other' }: HeaderProps) {
       <div className="max-w-6xl mx-auto px-6 sm:px-8">
         <div className="flex justify-between items-center h-20">
           <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
-            <img
-              src="/logo.png"
-              alt="mark8ly"
-              className="h-16 w-auto object-contain"
-            />
+            <div className="relative">
+              <div
+                className="absolute bottom-0 left-0 right-0 h-[45%] rounded-b-lg z-0"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}
+              />
+              <img
+                src="/logo.png"
+                alt="mark8ly"
+                className="h-16 w-auto object-contain relative z-10"
+              />
+            </div>
           </Link>
           <div className="hidden md:flex items-center space-x-8">
             <a 
