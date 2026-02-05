@@ -28,7 +28,7 @@ export default function PrivacyPolicyPage() {
             {/* Introduction */}
             <div className="p-6 bg-warm-50 rounded-xl border border-warm-200">
               <p className="text-foreground leading-relaxed m-0">
-                At Mark8ly, we believe your data is yours. We only collect what we need to provide you with a great service, and we're transparent about how we use it.
+                At mark8ly, we believe your data is yours. We only collect what we need to provide you with a great service, and we're transparent about how we use it.
               </p>
             </div>
 
@@ -36,7 +36,7 @@ export default function PrivacyPolicyPage() {
             <section>
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">1. Who We Are</h2>
               <p className="leading-relaxed">
-                Mark8ly is an e-commerce platform that helps small businesses launch and manage online stores. We're based in India and serve customers globally.
+                mark8ly is an e-commerce platform that helps small businesses launch and manage online stores. We're based in India and serve customers globally.
               </p>
               <p className="leading-relaxed mt-4">
                 <strong>Contact:</strong> privacy@mark8ly.app
@@ -178,7 +178,7 @@ export default function PrivacyPolicyPage() {
             <section>
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">10. Children's Privacy</h2>
               <p className="leading-relaxed">
-                Mark8ly is not intended for children under 16. We don't knowingly collect information from children. If you believe your child has provided us with personal data, contact us at privacy@mark8ly.app.
+                mark8ly is not intended for children under 16. We don't knowingly collect information from children. If you believe your child has provided us with personal data, contact us at privacy@mark8ly.app.
               </p>
             </section>
 

@@ -17,7 +17,7 @@ export default function AboutPage() {
             We believe every small business deserves a beautiful online store
           </h1>
           <p className="text-xl text-foreground-secondary leading-relaxed">
-            Mark8ly makes it simple for creators, makers, and small business owners to sell online—without the technical headaches or hidden fees.
+            mark8ly makes it simple for creators, makers, and small business owners to sell online—without the technical headaches or hidden fees.
           </p>
         </div>
       </section>
@@ -28,7 +28,7 @@ export default function AboutPage() {
           <h2 className="font-serif text-3xl font-medium text-foreground mb-6">How We Started</h2>
           <div className="prose prose-lg text-foreground-secondary">
             <p className="leading-relaxed mb-4">
-              We built Mark8ly because we saw too many talented people struggling with the same problem: they had amazing products but couldn't afford the expensive platforms, transaction fees, and developers needed to sell online.
+              We built mark8ly because we saw too many talented people struggling with the same problem: they had amazing products but couldn't afford the expensive platforms, transaction fees, and developers needed to sell online.
             </p>
             <p className="leading-relaxed">
               We knew there had to be a better way. So we created a platform that's powerful enough for growth, simple enough to set up in an afternoon, and fair enough that you keep more of what you earn.

@@ -196,7 +196,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
               <div className="w-9 h-9 bg-terracotta-500 rounded-lg flex items-center justify-center">
                 <span className="text-sm font-semibold text-white">T</span>
               </div>
-              <span className="text-base font-semibold text-foreground">Mark8ly</span>
+              <span className="text-base font-semibold text-foreground">mark8ly</span>
             </div>
           </div>
         </div>

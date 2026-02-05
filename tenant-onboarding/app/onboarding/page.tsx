@@ -8,7 +8,7 @@ import { SearchableSelect, type SelectOption } from '../../components/Searchable
 import { DocumentsSection } from '../../components/DocumentsSection';
 import { VerificationScore, useVerificationScore } from '../../components/VerificationScore';
 import { type UploadedDocument } from '../../components/DocumentUpload';
-import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldCheck, ShieldAlert, Pencil, X, Eye, EyeOff, Shield } from 'lucide-react';
+import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldCheck, ShieldAlert, Pencil, X, Eye, EyeOff, Shield, Rocket, SkipForward } from 'lucide-react';
 import { useOnboardingStore, type DetectedLocation, type PersistedDocument } from '../../lib/store/onboarding-store';
 import { businessInfoSchema, contactDetailsSchema, businessAddressSchema, storeSetupSchema, MARKETPLACE_PLATFORMS, type BusinessInfoForm, type ContactDetailsForm, type BusinessAddressForm, type StoreSetupForm } from '../../lib/validations/onboarding';
 import { onboardingApi, OnboardingAPIError } from '../../lib/api/onboarding';
@@ -81,7 +81,10 @@ const steps = [
   { id: 0, label: 'Your Business', icon: Building2 },
   { id: 1, label: 'About You', icon: User },
   { id: 2, label: 'Location', icon: MapPin },
-  { id: 3, label: 'Launch', icon: Settings },
+  { id: 3, label: 'Store Setup', icon: Store },
+  { id: 4, label: 'Custom Domain', icon: Link2, optional: true },
+  { id: 5, label: 'Documents', icon: FileText, optional: true },
+  { id: 6, label: 'Launch', icon: Rocket },
 ];
 
 export default function OnboardingPage() {
@@ -203,6 +206,22 @@ export default function OnboardingPage() {
   const [businessProofDocument, setBusinessProofDocumentLocal] = useState<UploadedDocument | null>(null);
   const [logoDocument, setLogoDocumentLocal] = useState<UploadedDocument | null>(null);
   const [showDocumentsSection, setShowDocumentsSection] = useState(false);
+
+  // Copy button feedback state - tracks which item was recently copied
+  const [copiedItem, setCopiedItem] = useState<string | null>(null);
+  const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Helper function to copy text and show feedback
+  const copyToClipboard = useCallback((text: string, itemId: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedItem(itemId);
+    if (copyTimeoutRef.current) {
+      clearTimeout(copyTimeoutRef.current);
+    }
+    copyTimeoutRef.current = setTimeout(() => {
+      setCopiedItem(null);
+    }, 2000);
+  }, []);
 
   // Base domain for subdomain-based store URL display (fetched from runtime config)
   // URL format: {subdomain}-admin.{baseDomain}
@@ -1348,6 +1367,44 @@ export default function OnboardingPage() {
     } finally { setIsLoading(false); }
   };
 
+  // Handler for Store Setup step - validates basic fields and moves to Custom Domain step
+  const handleStoreSetupContinue = async () => {
+    setValidationErrors({});
+
+    // Validate basic store setup fields
+    const basicFieldsValid = await storeSetupForm.trigger(['businessModel', 'subdomain', 'storefrontSlug', 'currency', 'timezone', 'language']);
+    if (!basicFieldsValid) {
+      return;
+    }
+
+    // Validate subdomain availability
+    if (slugValidation.isChecking) {
+      setValidationErrors({ storeSetup: 'Please wait for URL validation to complete.' });
+      return;
+    }
+    if (slugValidation.isAvailable === false) {
+      setValidationErrors({ storeSetup: slugValidation.message || 'The selected URL is not available. Please choose a different one.' });
+      return;
+    }
+
+    // Move to Custom Domain step
+    setCurrentSection(4);
+  };
+
+  // Handler for Custom Domain step - moves to Documents step (or Review if documents disabled)
+  const handleCustomDomainContinue = () => {
+    if (config.features.documents.enabled) {
+      setCurrentSection(5);
+    } else {
+      setCurrentSection(6);
+    }
+  };
+
+  // Handler for Documents step - moves to Review step
+  const handleDocumentsContinue = () => {
+    setCurrentSection(6);
+  };
+
   const handleStoreSetupSubmit = async (data: StoreSetupForm) => {
     setIsLoading(true);
     setValidationErrors({});
@@ -1542,15 +1599,23 @@ export default function OnboardingPage() {
 
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
           <button
             onClick={() => router.push('/')}
-            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+            className="flex items-center hover:opacity-80 transition-opacity"
           >
-            <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
-              <span className="text-white font-semibold text-lg">T</span>
+            <div className="relative">
+              {/* Dark gradient behind logo for white text readability */}
+              <div
+                className="absolute bottom-0 left-0 right-0 h-[45%] rounded-b-lg z-0"
+                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}
+              />
+              <img
+                src="/logo.png"
+                alt="mark8ly"
+                className="h-16 w-auto object-contain relative z-10"
+              />
             </div>
-            <span className="text-lg font-serif font-medium text-foreground">Mark8ly</span>
           </button>
 
           <div className="flex items-center gap-4">
@@ -1604,7 +1669,7 @@ export default function OnboardingPage() {
 
       {/* Main Content */}
       <main className={`pt-32 pb-20 px-6 ${draftRecoveryState.hasDraft ? 'pt-44' : ''}`}>
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-3xl mx-auto">
           {/* Progress Steps */}
           <div className="mb-12">
             <div className="flex items-start justify-center gap-4 sm:gap-6 mb-8">
@@ -1841,7 +1906,7 @@ export default function OnboardingPage() {
                                 className="w-5 h-5 rounded border-warm-300 text-primary focus:ring-primary"
                               />
                               <label htmlFor="migrationInterest" className="text-sm text-warm-700 cursor-pointer">
-                                I&apos;m interested in migrating my products & categories to Mark8ly
+                                I&apos;m interested in migrating my products & categories to mark8ly
                               </label>
                             </div>
                           )}
@@ -2120,25 +2185,73 @@ export default function OnboardingPage() {
                 </form>
               )}
 
-              {/* Step 4: Store Setup */}
-              {currentSection === 3 && (
+              {/* Steps 4-7: Store Setup, Custom Domain, Documents, Review */}
+              {(currentSection === 3 || currentSection === 4 || currentSection === 5 || currentSection === 6) && (
                 <form onSubmit={storeSetupForm.handleSubmit(handleStoreSetupSubmit, (errors) => devError('[StoreSetup] Validation errors:', errors))} className="space-y-6" noValidate>
-                  <div className="mb-8">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
-                        <Store className="w-6 h-6 text-warm-600" />
-                      </div>
-                      <div>
-                        <h1 className="text-2xl font-serif font-medium text-foreground">Almost there!</h1>
-                        <p className="text-muted-foreground">Just a few more details to get you live</p>
+                  {/* Section-specific headers */}
+                  {currentSection === 3 && (
+                    <div className="mb-8">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
+                          <Store className="w-6 h-6 text-warm-600" />
+                        </div>
+                        <div>
+                          <h1 className="text-2xl font-serif font-medium text-foreground">Set up your store</h1>
+                          <p className="text-muted-foreground">Configure your store settings</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  )}
+
+                  {currentSection === 4 && (
+                    <div className="mb-8">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
+                          <Link2 className="w-6 h-6 text-warm-600" />
+                        </div>
+                        <div>
+                          <h1 className="text-2xl font-serif font-medium text-foreground">Custom Domain</h1>
+                          <p className="text-muted-foreground">Connect your own domain (optional)</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentSection === 5 && (
+                    <div className="mb-8">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
+                          <FileText className="w-6 h-6 text-warm-600" />
+                        </div>
+                        <div>
+                          <h1 className="text-2xl font-serif font-medium text-foreground">Documents & Verification</h1>
+                          <p className="text-muted-foreground">Upload documents to verify your business (optional)</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentSection === 6 && (
+                    <div className="mb-8">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
+                          <Rocket className="w-6 h-6 text-warm-600" />
+                        </div>
+                        <div>
+                          <h1 className="text-2xl font-serif font-medium text-foreground">Ready to launch!</h1>
+                          <p className="text-muted-foreground">Review your settings and launch your store</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="space-y-5">
-                    {/* Business Model Selection */}
-                    <div>
-                      <label className={labelClass}>Business Model *</label>
+                    {/* Section 3: Store Setup Fields */}
+                    {currentSection === 3 && (
+                      <>
+                        {/* Business Model Selection */}
+                        <div>
+                          <label className={labelClass}>Business Model *</label>
                       <p className="text-xs text-muted-foreground mb-3">Choose how you want to sell</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <label
@@ -2413,7 +2526,12 @@ export default function OnboardingPage() {
                         )}
                       </div>
                     </div>
+                      </>
+                    )}
 
+                    {/* Section 4: Custom Domain */}
+                    {currentSection === 4 && (
+                      <>
                     {/* Custom Domain Section Toggle */}
                     <div className="pt-4">
                       <button
@@ -2765,11 +2883,15 @@ export default function OnboardingPage() {
                                                   </code>
                                                   <button
                                                     type="button"
-                                                    onClick={() => navigator.clipboard.writeText(selectedRecord.host || '')}
-                                                    className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                                                    onClick={() => copyToClipboard(selectedRecord.host || '', 'verification-host')}
+                                                    className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-1"
                                                     title="Copy host"
                                                   >
-                                                    <Copy className="w-4 h-4" />
+                                                    {copiedItem === 'verification-host' ? (
+                                                      <><Check className="w-4 h-4 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
+                                                    ) : (
+                                                      <Copy className="w-4 h-4" />
+                                                    )}
                                                   </button>
                                                 </div>
                                               </td>
@@ -2780,11 +2902,15 @@ export default function OnboardingPage() {
                                                   </code>
                                                   <button
                                                     type="button"
-                                                    onClick={() => navigator.clipboard.writeText(selectedRecord.value || '')}
-                                                    className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors"
+                                                    onClick={() => copyToClipboard(selectedRecord.value || '', 'verification-value')}
+                                                    className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-1"
                                                     title="Copy value"
                                                   >
-                                                    <Copy className="w-4 h-4" />
+                                                    {copiedItem === 'verification-value' ? (
+                                                      <><Check className="w-4 h-4 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
+                                                    ) : (
+                                                      <Copy className="w-4 h-4" />
+                                                    )}
                                                   </button>
                                                 </div>
                                               </td>
@@ -2864,11 +2990,15 @@ export default function OnboardingPage() {
                                                   <code className="font-mono text-sm text-foreground">{record.host}</code>
                                                   <button
                                                     type="button"
-                                                    onClick={() => navigator.clipboard.writeText(record.host)}
-                                                    className="p-1 text-muted-foreground hover:text-primary rounded transition-colors"
+                                                    onClick={() => copyToClipboard(record.host, `routing-host-${index}`)}
+                                                    className="p-1 text-muted-foreground hover:text-primary rounded transition-colors flex items-center gap-1"
                                                     title="Copy"
                                                   >
-                                                    <Copy className="w-3.5 h-3.5" />
+                                                    {copiedItem === `routing-host-${index}` ? (
+                                                      <><Check className="w-3.5 h-3.5 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
+                                                    ) : (
+                                                      <Copy className="w-3.5 h-3.5" />
+                                                    )}
                                                   </button>
                                                 </div>
                                               </td>
@@ -2879,11 +3009,15 @@ export default function OnboardingPage() {
                                                   </code>
                                                   <button
                                                     type="button"
-                                                    onClick={() => navigator.clipboard.writeText(record.value)}
-                                                    className="p-1 text-muted-foreground hover:text-primary rounded transition-colors"
+                                                    onClick={() => copyToClipboard(record.value, `routing-value-${index}`)}
+                                                    className="p-1 text-muted-foreground hover:text-primary rounded transition-colors flex items-center gap-1"
                                                     title="Copy (copies actual value)"
                                                   >
-                                                    <Copy className="w-3.5 h-3.5" />
+                                                    {copiedItem === `routing-value-${index}` ? (
+                                                      <><Check className="w-3.5 h-3.5 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
+                                                    ) : (
+                                                      <Copy className="w-3.5 h-3.5" />
+                                                    )}
                                                   </button>
                                                 </div>
                                               </td>
@@ -2935,11 +3069,15 @@ export default function OnboardingPage() {
                                                 <code className="font-mono text-sm text-foreground break-all">{customDomainValidation.cnameDelegationRecord.host}</code>
                                                 <button
                                                   type="button"
-                                                  onClick={() => navigator.clipboard.writeText(customDomainValidation.cnameDelegationRecord?.host || '')}
-                                                  className="p-1 text-muted-foreground hover:text-primary rounded transition-colors flex-shrink-0"
+                                                  onClick={() => copyToClipboard(customDomainValidation.cnameDelegationRecord?.host || '', 'ssl-host')}
+                                                  className="p-1 text-muted-foreground hover:text-primary rounded transition-colors flex-shrink-0 flex items-center gap-1"
                                                   title="Copy"
                                                 >
-                                                  <Copy className="w-3.5 h-3.5" />
+                                                  {copiedItem === 'ssl-host' ? (
+                                                    <><Check className="w-3.5 h-3.5 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
+                                                  ) : (
+                                                    <Copy className="w-3.5 h-3.5" />
+                                                  )}
                                                 </button>
                                               </div>
                                             </td>
@@ -2948,11 +3086,15 @@ export default function OnboardingPage() {
                                                 <code className="font-mono text-sm text-emerald-700 font-semibold break-all">{customDomainValidation.cnameDelegationRecord.value}</code>
                                                 <button
                                                   type="button"
-                                                  onClick={() => navigator.clipboard.writeText(customDomainValidation.cnameDelegationRecord?.value || '')}
-                                                  className="p-1 text-muted-foreground hover:text-primary rounded transition-colors flex-shrink-0"
+                                                  onClick={() => copyToClipboard(customDomainValidation.cnameDelegationRecord?.value || '', 'ssl-value')}
+                                                  className="p-1 text-muted-foreground hover:text-primary rounded transition-colors flex-shrink-0 flex items-center gap-1"
                                                   title="Copy"
                                                 >
-                                                  <Copy className="w-3.5 h-3.5" />
+                                                  {copiedItem === 'ssl-value' ? (
+                                                    <><Check className="w-3.5 h-3.5 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
+                                                  ) : (
+                                                    <Copy className="w-3.5 h-3.5" />
+                                                  )}
                                                 </button>
                                               </div>
                                             </td>
@@ -3151,6 +3293,36 @@ export default function OnboardingPage() {
                       )}
                     </div>
 
+                        {/* Section 4: Navigation buttons */}
+                        <div className="pt-6 flex gap-4">
+                          <button
+                            type="button"
+                            onClick={() => setCurrentSection(3)}
+                            className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
+                          >
+                            <ArrowLeft className="w-5 h-5" /> Back
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleCustomDomainContinue}
+                            className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
+                          >
+                            <SkipForward className="w-5 h-5" /> Skip
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleCustomDomainContinue}
+                            className="flex-1 h-14 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 group"
+                          >
+                            Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                          </button>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Section 3: Currency, Timezone, Language (continuation) */}
+                    {currentSection === 3 && (
+                      <>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className={labelClass}>Currency *</label>
@@ -3208,77 +3380,140 @@ export default function OnboardingPage() {
                       />
                     </div>
 
-                    {/* Documents Section Toggle */}
-                    {config.features.documents.enabled && (
-                      <div className="pt-4">
-                        <button
-                          type="button"
-                          onClick={() => setShowDocumentsSection(!showDocumentsSection)}
-                          className="w-full flex items-center justify-between p-4 bg-warm-50 border border-warm-200 rounded-xl hover:border-warm-300 transition-colors group"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-                              <FileText className="w-5 h-5 text-white" />
-                            </div>
-                            <div className="text-left">
-                              <p className="font-semibold text-foreground">Documents & Verification</p>
-                              <p className="text-sm text-muted-foreground">
-                                {config.features.documents.requireAddressProof || config.features.documents.requireBusinessProof
-                                  ? 'Required documents for verification'
-                                  : 'Optional - increase your trust score'}
-                              </p>
-                            </div>
-                          </div>
-                          <div className={`w-8 h-8 rounded-full bg-white flex items-center justify-center transition-transform ${showDocumentsSection ? 'rotate-180' : ''}`}>
-                            <ArrowRight className="w-4 h-4 text-muted-foreground rotate-90" />
-                          </div>
-                        </button>
-
-                        {/* Expandable Documents Section */}
-                        {showDocumentsSection && (
-                          <div className="mt-6 animate-in slide-in-from-top-2 duration-200">
-                            <DocumentsSection
-                              countryCode={addressForm.watch('country') || ''}
-                              sessionId={sessionId || undefined}
-                              addressProofType={addressProofType}
-                              onAddressProofTypeChange={setAddressProofType}
-                              addressProofDocument={addressProofDocument}
-                              onAddressProofDocumentChange={setAddressProofDocument}
-                              businessProofType={businessProofType}
-                              onBusinessProofTypeChange={setBusinessProofType}
-                              businessProofDocument={businessProofDocument}
-                              onBusinessProofDocumentChange={setBusinessProofDocument}
-                              logoDocument={logoDocument}
-                              onLogoDocumentChange={setLogoDocument}
-                              verificationState={{
-                                emailVerified: false, // Will be true after email verification step
-                                phoneVerified: false, // Will be true after phone verification
-                                businessInfoComplete: !!(businessInfo as any)?.business_name && !!(businessInfo as any)?.business_type,
-                                addressComplete: !!(businessAddress as any)?.street_address && !!(businessAddress as any)?.city,
-                                storeConfigComplete: !!storeSetupForm.watch('subdomain') && !!storeSetupForm.watch('currency'),
-                              }}
-                            />
-                          </div>
-                        )}
-                      </div>
+                        {/* Section 3: Continue/Back buttons */}
+                        <div className="pt-6 flex gap-4">
+                          <button
+                            type="button"
+                            onClick={() => setCurrentSection(2)}
+                            className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
+                          >
+                            <ArrowLeft className="w-5 h-5" /> Back
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleStoreSetupContinue}
+                            className="flex-1 h-14 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 group"
+                          >
+                            Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                          </button>
+                        </div>
+                      </>
                     )}
-                  </div>
 
-                  <div className="pt-6 flex gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setCurrentSection(2)}
-                      className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
-                    >
-                      <ArrowLeft className="w-5 h-5" /> Back
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="flex-1 h-14 bg-sage-600 hover:bg-sage-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
-                    >
-                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Launch Store <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" /></>}
-                    </button>
+                    {/* Section 5: Documents */}
+                    {currentSection === 5 && (
+                      <>
+                        <div className="p-6 bg-warm-50 rounded-xl border border-warm-200">
+                          <p className="text-sm text-muted-foreground mb-4">
+                            {config.features.documents.requireAddressProof || config.features.documents.requireBusinessProof
+                              ? 'Upload the required documents to verify your business.'
+                              : 'Upload documents to increase your trust score and unlock additional features. This step is optional.'}
+                          </p>
+                          <DocumentsSection
+                            countryCode={addressForm.watch('country') || ''}
+                            sessionId={sessionId || undefined}
+                            addressProofType={addressProofType}
+                            onAddressProofTypeChange={setAddressProofType}
+                            addressProofDocument={addressProofDocument}
+                            onAddressProofDocumentChange={setAddressProofDocument}
+                            businessProofType={businessProofType}
+                            onBusinessProofTypeChange={setBusinessProofType}
+                            businessProofDocument={businessProofDocument}
+                            onBusinessProofDocumentChange={setBusinessProofDocument}
+                            logoDocument={logoDocument}
+                            onLogoDocumentChange={setLogoDocument}
+                            verificationState={{
+                              emailVerified: false,
+                              phoneVerified: false,
+                              businessInfoComplete: !!(businessInfo as any)?.business_name && !!(businessInfo as any)?.business_type,
+                              addressComplete: !!(businessAddress as any)?.street_address && !!(businessAddress as any)?.city,
+                              storeConfigComplete: !!storeSetupForm.watch('subdomain') && !!storeSetupForm.watch('currency'),
+                            }}
+                          />
+                        </div>
+
+                        {/* Section 5: Navigation buttons */}
+                        <div className="pt-6 flex gap-4">
+                          <button
+                            type="button"
+                            onClick={() => setCurrentSection(4)}
+                            className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
+                          >
+                            <ArrowLeft className="w-5 h-5" /> Back
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleDocumentsContinue}
+                            className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
+                          >
+                            <SkipForward className="w-5 h-5" /> Skip
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleDocumentsContinue}
+                            className="flex-1 h-14 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 group"
+                          >
+                            Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                          </button>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Section 6: Review & Launch */}
+                    {currentSection === 6 && (
+                      <>
+                        <div className="space-y-4">
+                          <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
+                            <div className="flex items-center gap-3 mb-3">
+                              <Check className="w-5 h-5 text-sage-600" />
+                              <span className="font-medium text-foreground">Store Setup Complete</span>
+                            </div>
+                            <div className="grid gap-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Business Model:</span>
+                                <span className="text-foreground font-medium">{storeSetupForm.watch('businessModel') === 'ONLINE_STORE' ? 'Online Store' : 'Marketplace'}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Admin URL:</span>
+                                <span className="text-foreground font-medium">{storeSetupForm.watch('subdomain')}-admin.{baseDomain}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Currency:</span>
+                                <span className="text-foreground font-medium">{storeSetupForm.watch('currency')}</span>
+                              </div>
+                              {storeSetupForm.watch('useCustomDomain') && storeSetupForm.watch('customDomain') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Custom Domain:</span>
+                                  <span className="text-foreground font-medium">{storeSetupForm.watch('customDomain')}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <p className="text-sm text-muted-foreground text-center">
+                            You can always change these settings later in your admin panel.
+                          </p>
+                        </div>
+
+                        {/* Section 6: Navigation buttons */}
+                        <div className="pt-6 flex gap-4">
+                          <button
+                            type="button"
+                            onClick={() => setCurrentSection(config.features.documents.enabled ? 5 : 4)}
+                            className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
+                          >
+                            <ArrowLeft className="w-5 h-5" /> Back
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={isLoading}
+                            className="flex-1 h-14 bg-sage-600 hover:bg-sage-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
+                          >
+                            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Launch Store <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" /></>}
+                          </button>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </form>
               )}

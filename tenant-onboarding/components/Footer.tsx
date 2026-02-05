@@ -17,7 +17,7 @@ export function Footer() {
             <Link href="/" className="flex items-center mb-4 hover:opacity-80 transition-opacity">
               <img
                 src="/logo.png"
-                alt="Mark8ly"
+                alt="mark8ly"
                 className="h-64 w-auto brightness-0 invert -ml-12 -my-16"
               />
             </Link>
@@ -63,7 +63,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-warm-800/40 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-warm-500">
-            &copy; {currentYear} Mark8ly. Made with care for people who make things.
+            &copy; {currentYear} mark8ly. Made with care for people who make things.
           </p>
           <div className="flex items-center gap-4">
             <a href="mailto:hello@mark8ly.com" className="text-warm-500 hover:text-warm-300 transition-colors">

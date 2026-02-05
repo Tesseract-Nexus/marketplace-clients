@@ -20,7 +20,7 @@ export default function Header({ currentPage = 'other' }: HeaderProps) {
           <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
             <img
               src="/logo.png"
-              alt="Mark8ly"
+              alt="mark8ly"
               className="h-16 w-auto object-contain"
             />
           </Link>

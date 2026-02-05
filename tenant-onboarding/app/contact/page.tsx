@@ -64,7 +64,7 @@ export default function ContactPage() {
                 sales@mark8ly.app
               </a>
               <p className="text-foreground-secondary mt-2 text-sm">
-                Questions about pricing, features, or whether Mark8ly is right for you.
+                Questions about pricing, features, or whether mark8ly is right for you.
               </p>
               <p className="text-sm text-sage-600 mt-3">Average response: Under 1 hour</p>
             </div>
@@ -126,7 +126,7 @@ export default function ContactPage() {
             <div className="flex gap-3">
               <MapPin className="w-5 h-5 text-foreground-tertiary flex-shrink-0 mt-1" />
               <div className="text-foreground-secondary">
-                <p>Mark8ly</p>
+                <p>mark8ly</p>
                 <p>Mumbai, Maharashtra</p>
                 <p>India</p>
                 <p className="text-sm mt-2 italic">We operate remotely-first, but if you're in the area and want to meet, drop us a note.</p>
@@ -159,7 +159,7 @@ export default function ContactPage() {
             href="/onboarding"
             className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground font-medium rounded-xl hover:bg-primary-hover transition-colors"
           >
-            Try Mark8ly Free
+            Try mark8ly Free
             <ArrowRight className="w-5 h-5" />
           </Link>
         </div>

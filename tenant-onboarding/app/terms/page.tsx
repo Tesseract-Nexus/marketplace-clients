@@ -28,7 +28,7 @@ export default function TermsOfServicePage() {
             {/* Introduction */}
             <div className="p-6 bg-warm-50 rounded-xl border border-warm-200">
               <p className="text-foreground leading-relaxed m-0">
-                Welcome to Mark8ly. These Terms of Service govern your use of our platform and services. By using Mark8ly, you agree to these Terms. We've written these in plain language, but they're still a legal agreement.
+                Welcome to mark8ly. These Terms of Service govern your use of our platform and services. By using mark8ly, you agree to these Terms. We've written these in plain language, but they're still a legal agreement.
               </p>
             </div>
 
@@ -36,10 +36,10 @@ export default function TermsOfServicePage() {
             <section>
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">1. Accepting These Terms</h2>
               <p className="leading-relaxed">
-                By creating a Mark8ly account or using our services, you agree to these Terms of Service, our Privacy Policy, and our Acceptable Use Policy.
+                By creating a mark8ly account or using our services, you agree to these Terms of Service, our Privacy Policy, and our Acceptable Use Policy.
               </p>
               <p className="leading-relaxed mt-4">
-                <strong>Age Requirement:</strong> You must be at least 18 years old to use Mark8ly.
+                <strong>Age Requirement:</strong> You must be at least 18 years old to use mark8ly.
               </p>
             </section>
 
@@ -127,7 +127,7 @@ export default function TermsOfServicePage() {
             <section>
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">6. Acceptable Use Policy</h2>
 
-              <h3 className="font-medium text-foreground text-lg mt-6 mb-3">You May Not Use Mark8ly To</h3>
+              <h3 className="font-medium text-foreground text-lg mt-6 mb-3">You May Not Use mark8ly To</h3>
 
               <h4 className="font-medium text-foreground mt-4 mb-2">Sell Illegal or Restricted Items:</h4>
               <ul className="list-disc pl-6 space-y-1">
@@ -171,7 +171,7 @@ export default function TermsOfServicePage() {
                 <strong>Your Property:</strong> You retain all rights to the content you upload.
               </p>
               <p className="leading-relaxed mt-2">
-                <strong>Our Property:</strong> Mark8ly, our logo, and platform are protected by intellectual property laws.
+                <strong>Our Property:</strong> mark8ly, our logo, and platform are protected by intellectual property laws.
               </p>
             </section>
 
@@ -220,7 +220,7 @@ export default function TermsOfServicePage() {
             <section>
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">12. Disclaimers</h2>
               <p className="leading-relaxed">
-                Mark8ly is provided "as is." We don't guarantee sales, revenue, or that the service will be uninterrupted or error-free.
+                mark8ly is provided "as is." We don't guarantee sales, revenue, or that the service will be uninterrupted or error-free.
               </p>
             </section>
 
@@ -228,7 +228,7 @@ export default function TermsOfServicePage() {
             <section>
               <h2 className="font-serif text-2xl font-medium text-foreground mb-4">13. Limitation of Liability</h2>
               <p className="leading-relaxed">
-                To the fullest extent permitted by law, Mark8ly's total liability is limited to the amount you paid us in the 12 months before the claim arose. We're not liable for lost profits, lost data, or indirect damages.
+                To the fullest extent permitted by law, mark8ly's total liability is limited to the amount you paid us in the 12 months before the claim arose. We're not liable for lost profits, lost data, or indirect damages.
               </p>
             </section>
 
@@ -263,7 +263,7 @@ export default function TermsOfServicePage() {
             {/* Closing */}
             <section className="mt-12 p-6 bg-sage-50 rounded-xl border border-sage-200">
               <p className="text-sage-700 font-medium m-0 text-center">
-                Thank you for choosing Mark8ly. We're honored to be part of your business journey.
+                Thank you for choosing mark8ly. We're honored to be part of your business journey.
               </p>
             </section>
 

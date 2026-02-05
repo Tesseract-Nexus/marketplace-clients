@@ -33,8 +33,8 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   // Basic metadata
   title: {
-    default: 'Mark8ly - Launch Your Online Store in Minutes',
-    template: '%s | Mark8ly',
+    default: 'mark8ly - Launch Your Online Store in Minutes',
+    template: '%s | mark8ly',
   },
   description: 'The simplest way to create and launch your online store. Start free for 12 months, then just ₹299/mo. No coding required. Built for creators, makers, and small businesses.',
   keywords: [
@@ -51,9 +51,9 @@ export const metadata: Metadata = {
     'D2C ecommerce',
     'direct to consumer',
   ],
-  authors: [{ name: 'Mark8ly' }],
-  creator: 'Mark8ly',
-  publisher: 'Mark8ly',
+  authors: [{ name: 'mark8ly' }],
+  creator: 'mark8ly',
+  publisher: 'mark8ly',
 
   // Robots
   robots: {
@@ -73,15 +73,15 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: siteUrl,
-    siteName: 'Mark8ly',
-    title: 'Mark8ly - Launch Your Online Store in Minutes',
+    siteName: 'mark8ly',
+    title: 'mark8ly - Launch Your Online Store in Minutes',
     description: 'The simplest way to create and launch your online store. Start free for 12 months, then ₹299/mo. No coding required. Built for creators and small businesses.',
     images: [
       {
         url: `${siteUrl}/og-image.png`,
         width: 1200,
         height: 630,
-        alt: 'Mark8ly - E-commerce Made Simple',
+        alt: 'mark8ly - E-commerce Made Simple',
       },
     ],
   },
@@ -89,7 +89,7 @@ export const metadata: Metadata = {
   // Twitter
   twitter: {
     card: 'summary_large_image',
-    title: 'Mark8ly - Launch Your Online Store in Minutes',
+    title: 'mark8ly - Launch Your Online Store in Minutes',
     description: 'The simplest way to create and launch your online store. Start free for 12 months, then ₹299/mo. No coding required.',
     images: [`${siteUrl}/og-image.png`],
     creator: '@mark8ly',
@@ -118,7 +118,7 @@ export const metadata: Metadata = {
   category: 'technology',
 
   // Additional
-  applicationName: 'Mark8ly',
+  applicationName: 'mark8ly',
   referrer: 'origin-when-cross-origin',
   formatDetection: {
     email: false,
@@ -134,7 +134,7 @@ const jsonLd = {
     {
       '@type': 'Organization',
       '@id': `${siteUrl}/#organization`,
-      name: 'Mark8ly',
+      name: 'mark8ly',
       url: siteUrl,
       logo: {
         '@type': 'ImageObject',
@@ -157,7 +157,7 @@ const jsonLd = {
       '@type': 'WebSite',
       '@id': `${siteUrl}/#website`,
       url: siteUrl,
-      name: 'Mark8ly',
+      name: 'mark8ly',
       description: 'The simplest way to create and launch your online store',
       publisher: { '@id': `${siteUrl}/#organization` },
       potentialAction: {
@@ -169,7 +169,7 @@ const jsonLd = {
     {
       '@type': 'SoftwareApplication',
       '@id': `${siteUrl}/#software`,
-      name: 'Mark8ly',
+      name: 'mark8ly',
       applicationCategory: 'BusinessApplication',
       operatingSystem: 'Web',
       offers: {
@@ -207,7 +207,7 @@ const jsonLd = {
           name: "I'm not very technical. Can I still use this?",
           acceptedAnswer: {
             '@type': 'Answer',
-            text: 'Absolutely. We built this for people who want to focus on their business, not on learning software. If you can use email, you can use Mark8ly.',
+            text: 'Absolutely. We built this for people who want to focus on their business, not on learning software. If you can use email, you can use mark8ly.',
           },
         },
         {
@@ -223,7 +223,7 @@ const jsonLd = {
           name: 'Are there transaction fees or payment processing fees?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: "You'll pay standard payment processing fees (around 2% for UPI, 2-3% for cards). But unlike other platforms, Mark8ly doesn't take an extra cut. Your money is your money.",
+            text: "You'll pay standard payment processing fees (around 2% for UPI, 2-3% for cards). But unlike other platforms, mark8ly doesn't take an extra cut. Your money is your money.",
           },
         },
         {

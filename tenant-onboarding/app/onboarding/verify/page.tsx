@@ -232,7 +232,7 @@ function WelcomePage({ email, idleCountdown }: { email?: string; idleCountdown: 
           <h1 className="display-large text-[var(--foreground)] mb-6">
             Welcome to{' '}
             <span className="text-foreground">
-              Mark8ly
+              mark8ly
             </span>
           </h1>
 
@@ -1013,7 +1013,7 @@ function VerifyEmailContent() {
             Email Verified! 🎉
           </h2>
           <p className="text-lg text-[var(--foreground-secondary)] mb-6 animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
-            Welcome to Mark8ly
+            Welcome to mark8ly
           </p>
 
           {/* Email confirmation */}
@@ -1302,7 +1302,7 @@ function VerifyEmailContent() {
             {isVerified ? 'Account Verified!' : 'Email Verification'}
           </h1>
           <p className="body-large text-[var(--foreground-secondary)]">
-            {isVerified ? 'Your journey with Mark8ly begins now' : 'Secure your account with email verification'}
+            {isVerified ? 'Your journey with mark8ly begins now' : 'Secure your account with email verification'}
           </p>
         </div>
       </div>

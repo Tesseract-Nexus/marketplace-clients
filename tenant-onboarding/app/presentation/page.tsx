@@ -145,7 +145,7 @@ const fallbackTestimonials: Testimonial[] = [
     role: 'CEO',
     company: 'Artisan Goods Co.',
     avatar: 'SK',
-    content: 'Mark8ly transformed our business. We went from a local shop to selling in 15 countries within 6 months.',
+    content: 'mark8ly transformed our business. We went from a local shop to selling in 15 countries within 6 months.',
     rating: 5,
   },
   {
@@ -436,7 +436,7 @@ export default function PresentationPage() {
                   <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
                     <span className="text-white font-bold text-xl">T</span>
                   </div>
-                  <span className="text-xl font-serif font-semibold text-foreground">Mark8ly</span>
+                  <span className="text-xl font-serif font-semibold text-foreground">mark8ly</span>
                 </div>
                 <h1 className="text-5xl sm:text-6xl md:text-7xl font-serif font-medium mb-6">
                   <span className="text-foreground">The Future of</span>
@@ -755,7 +755,7 @@ export default function PresentationPage() {
                     <thead>
                       <tr className="bg-warm-100">
                         <th className="p-2.5 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">Feature</th>
-                        <th className="p-2.5 sm:p-4 text-left text-xs sm:text-sm font-semibold text-foreground-secondary bg-warm-200/50">Mark8ly</th>
+                        <th className="p-2.5 sm:p-4 text-left text-xs sm:text-sm font-semibold text-foreground-secondary bg-warm-200/50">mark8ly</th>
                         <th className="p-2.5 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">Shopify</th>
                         <th className="p-2.5 sm:p-4 text-left text-xs sm:text-sm font-semibold text-muted-foreground">WooCommerce</th>
                       </tr>
@@ -784,7 +784,7 @@ export default function PresentationPage() {
                   <span className="text-foreground-secondary">Your Business?</span>
                 </h2>
                 <p className="text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-xl mx-auto">
-                  Join thousands of brands already growing with Mark8ly. Start your free trial today.
+                  Join thousands of brands already growing with mark8ly. Start your free trial today.
                 </p>
                 <div className="flex items-center justify-center gap-4 mb-8 sm:mb-10">
                   <button

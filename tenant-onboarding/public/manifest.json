@@ -1,7 +1,7 @@
 {
-  "name": "Mark8ly - E-commerce Platform",
-  "short_name": "Mark8ly",
-  "description": "Launch your online store in minutes with Mark8ly",
+  "name": "mark8ly - E-commerce Platform",
+  "short_name": "mark8ly",
+  "description": "Launch your online store in minutes with mark8ly",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

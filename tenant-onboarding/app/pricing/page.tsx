@@ -70,7 +70,7 @@ export default function PricingPage() {
       support: 'Community',
     },
     {
-      platform: 'Mark8ly',
+      platform: 'mark8ly',
       freeTrialDays: `${trialMonths} months`,
       monthlyPrice: monthlyPrice,
       transactionFees: 'None',

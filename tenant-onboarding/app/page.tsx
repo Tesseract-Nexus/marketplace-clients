@@ -86,7 +86,7 @@ const fallbackPricingFeatures = [
 const fallbackFaqs = [
   {
     question: 'I\'m not very technical. Can I still use this?',
-    answer: 'Absolutely. We built this for people who want to focus on their business, not on learning software. If you can use email, you can use Mark8ly. And if you get stuck, we\'re here to help—no judgment, just friendly guidance.',
+    answer: 'Absolutely. We built this for people who want to focus on their business, not on learning software. If you can use email, you can use mark8ly. And if you get stuck, we\'re here to help—no judgment, just friendly guidance.',
   },
   {
     question: 'What happens after the 12 months free?',
@@ -120,7 +120,7 @@ const fallbackFaqs = [
 
 const fallbackTestimonials: Array<{ quote: string; name: string; role: string; company?: string; initials: string }> = [
   {
-    quote: "I spent months trying to figure out Shopify. With Mark8ly, I had my store up in an afternoon. It just... works.",
+    quote: "I spent months trying to figure out Shopify. With mark8ly, I had my store up in an afternoon. It just... works.",
     name: "Sarah Chen",
     role: "Founder",
     company: "BloomBox",
@@ -223,7 +223,7 @@ export default function Home() {
           <a href="/" className="flex items-center">
             <img
               src="/logo.png"
-              alt="Mark8ly"
+              alt="mark8ly"
               className="h-16 w-auto object-contain"
             />
           </a>
@@ -332,7 +332,7 @@ export default function Home() {
               })}
             </div>
           </div>
-          <div className="relative" role="img" aria-label="Preview of Mark8ly admin dashboard showing revenue of ₹1,03,750, 284 orders, 3.2K visitors, and a sales growth chart">
+          <div className="relative" role="img" aria-label="Preview of mark8ly admin dashboard showing revenue of ₹1,03,750, 284 orders, 3.2K visitors, and a sales growth chart">
             {/* Dashboard mockup */}
             <div className="rounded-2xl border border-warm-200 bg-white shadow-lg p-5 transform hover:scale-[1.02] transition-transform duration-300" aria-hidden="true">
               {/* Browser bar */}

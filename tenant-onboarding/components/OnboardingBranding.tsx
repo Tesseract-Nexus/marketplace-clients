@@ -12,7 +12,7 @@ const steps = [
   {
     icon: Rocket,
     title: 'Launch Your Business into the Future',
-    description: 'Mark8ly provides the ultimate platform to build, manage, and scale your online business with ease.',
+    description: 'mark8ly provides the ultimate platform to build, manage, and scale your online business with ease.',
   },
   {
     icon: Zap,
