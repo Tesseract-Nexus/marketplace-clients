@@ -2938,12 +2938,88 @@ export default function OnboardingPage() {
                                 {/* Quick Help */}
                                 <div className="mt-4 p-3 bg-warm-100 rounded-lg border border-warm-300">
                                   <p className="text-sm text-foreground-secondary">
-                                    <strong className="font-semibold text-foreground">Where to add this?</strong> Log in to your domain provider and find DNS settings, Zone Editor, or DNS Management. Add new records with the values above.
+                                    <strong className="font-semibold text-foreground">Where to add this?</strong> Log in to your domain provider and find DNS settings, Zone Editor, or DNS Management. Add the record above.
                                   </p>
                                 </div>
 
-                                {/* Step 2: Routing A Records Section */}
-                                {customDomainValidation.routingRecords && customDomainValidation.routingRecords.length > 0 && (
+                                {/* Verify Step 1 */}
+                                <div className="mt-4 p-4 bg-white rounded-xl border-2 border-warm-200">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <h4 className="text-sm font-semibold text-foreground">Verify Domain Ownership</h4>
+                                    <button
+                                      type="button"
+                                      onClick={verifyDomainDNS}
+                                      disabled={domainVerification.isVerifying}
+                                      className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                                    >
+                                      {domainVerification.isVerifying ? (
+                                        <>
+                                          <Loader2 className="w-4 h-4 animate-spin" />
+                                          Verifying...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <RefreshCw className="w-4 h-4" />
+                                          Verify Now
+                                        </>
+                                      )}
+                                    </button>
+                                  </div>
+
+                                  {/* Verification Status */}
+                                  {domainVerification.lastChecked && (
+                                    <div className={`flex items-center gap-3 p-4 rounded-lg ${
+                                      domainVerification.dnsVerified
+                                        ? 'bg-sage-50 border-2 border-sage-300'
+                                        : domainVerification.dnsRecordFound
+                                          ? 'bg-amber-50 border-2 border-amber-200'
+                                          : 'bg-red-50 border-2 border-red-200'
+                                    }`}>
+                                      {domainVerification.dnsVerified ? (
+                                        <div className="w-10 h-10 rounded-full bg-sage-100 flex items-center justify-center flex-shrink-0">
+                                          <Check className="w-6 h-6 text-sage-600" />
+                                        </div>
+                                      ) : domainVerification.dnsRecordFound ? (
+                                        <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+                                          <AlertCircle className="w-6 h-6 text-amber-600" />
+                                        </div>
+                                      ) : (
+                                        <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                                          <AlertCircle className="w-6 h-6 text-red-600" />
+                                        </div>
+                                      )}
+                                      <div className="flex-1">
+                                        <p className={`text-base font-semibold ${
+                                          domainVerification.dnsVerified
+                                            ? 'text-sage-700'
+                                            : domainVerification.dnsRecordFound
+                                              ? 'text-amber-700'
+                                              : 'text-red-700'
+                                        }`}>
+                                          {domainVerification.dnsVerified ? 'Domain Ownership Verified!' : domainVerification.dnsRecordFound ? 'DNS Record Found (Incorrect Value)' : 'DNS Record Not Found'}
+                                        </p>
+                                        <p className={`text-sm mt-1 ${
+                                          domainVerification.dnsVerified
+                                            ? 'text-sage-600'
+                                            : domainVerification.dnsRecordFound
+                                              ? 'text-amber-600'
+                                              : 'text-red-600'
+                                        }`}>
+                                          {domainVerification.dnsVerified ? 'Proceed to Step 2 below to complete your DNS setup.' : domainVerification.message}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {!domainVerification.lastChecked && (
+                                    <p className="text-sm text-muted-foreground">
+                                      After adding the DNS record above, click &quot;Verify Now&quot; to confirm ownership.
+                                    </p>
+                                  )}
+                                </div>
+
+                                {/* Step 2: Routing A Records Section - Only show after verification */}
+                                {domainVerification.dnsVerified && customDomainValidation.routingRecords && customDomainValidation.routingRecords.length > 0 && (
                                   <div className="mt-4 p-4 bg-red-50 rounded-xl border-2 border-red-200">
                                     <div className="flex items-center justify-between mb-3">
                                       <div className="flex items-center gap-2">
@@ -3039,8 +3115,8 @@ export default function OnboardingPage() {
                                   </div>
                                 )}
 
-                                {/* Step 3: CNAME Delegation for Automatic SSL */}
-                                {customDomainValidation.cnameDelegationRecord && customDomainValidation.cnameDelegationEnabled && (
+                                {/* Step 3: CNAME Delegation for Automatic SSL - Only show after verification */}
+                                {domainVerification.dnsVerified && customDomainValidation.cnameDelegationRecord && customDomainValidation.cnameDelegationEnabled && (
                                   <div className="mt-4 p-4 bg-emerald-50 rounded-xl border-2 border-emerald-200">
                                     <div className="flex items-center justify-between mb-3">
                                       <div className="flex items-center gap-2">
@@ -3118,153 +3194,7 @@ export default function OnboardingPage() {
                                   </div>
                                 )}
 
-                                {/* Domain Verification Section */}
-                                <div className="mt-4 p-4 bg-white rounded-xl border-2 border-warm-200">
-                                  <div className="flex items-center justify-between mb-3">
-                                    <h4 className="text-sm font-semibold text-foreground">Verify DNS Configuration</h4>
-                                    <button
-                                      type="button"
-                                      onClick={verifyDomainDNS}
-                                      disabled={domainVerification.isVerifying}
-                                      className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
-                                    >
-                                      {domainVerification.isVerifying ? (
-                                        <>
-                                          <Loader2 className="w-4 h-4 animate-spin" />
-                                          Verifying...
-                                        </>
-                                      ) : (
-                                        <>
-                                          <RefreshCw className="w-4 h-4" />
-                                          Verify Now
-                                        </>
-                                      )}
-                                    </button>
-                                  </div>
-
-                                  {/* Verification Status */}
-                                  {domainVerification.lastChecked && (
-                                    <div className="space-y-3">
-                                      {/* DNS Status */}
-                                      <div className={`flex items-center gap-3 p-4 rounded-lg ${
-                                        domainVerification.dnsVerified
-                                          ? 'bg-sage-50 border-2 border-sage-300'
-                                          : domainVerification.dnsRecordFound
-                                            ? 'bg-amber-50 border-2 border-amber-200'
-                                            : 'bg-red-50 border-2 border-red-200'
-                                      }`}>
-                                        {domainVerification.dnsVerified ? (
-                                          <div className="w-10 h-10 rounded-full bg-sage-100 flex items-center justify-center flex-shrink-0">
-                                            <Check className="w-6 h-6 text-sage-600" />
-                                          </div>
-                                        ) : domainVerification.dnsRecordFound ? (
-                                          <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                                            <AlertCircle className="w-6 h-6 text-amber-600" />
-                                          </div>
-                                        ) : (
-                                          <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                                            <AlertCircle className="w-6 h-6 text-red-600" />
-                                          </div>
-                                        )}
-                                        <div className="flex-1">
-                                          <p className={`text-base font-semibold ${
-                                            domainVerification.dnsVerified
-                                              ? 'text-sage-700'
-                                              : domainVerification.dnsRecordFound
-                                                ? 'text-amber-700'
-                                                : 'text-red-700'
-                                          }`}>
-                                            {domainVerification.dnsVerified ? 'DNS Ownership Verified' : domainVerification.dnsRecordFound ? 'DNS Record Found (Incorrect Value)' : 'DNS Record Not Found'}
-                                          </p>
-                                          <p className={`text-sm mt-1 ${
-                                            domainVerification.dnsVerified
-                                              ? 'text-sage-600'
-                                              : domainVerification.dnsRecordFound
-                                                ? 'text-amber-600'
-                                                : 'text-red-600'
-                                          }`}>
-                                            {domainVerification.message}
-                                          </p>
-                                        </div>
-                                      </div>
-
-                                      {/* SSL Status */}
-                                      {domainVerification.dnsVerified && (
-                                        <div className={`flex items-center gap-3 p-4 rounded-lg ${
-                                          domainVerification.sslStatus === 'active'
-                                            ? 'bg-sage-50 border-2 border-sage-300'
-                                            : domainVerification.sslStatus === 'failed'
-                                              ? 'bg-red-50 border-2 border-red-200'
-                                              : 'bg-primary/5 border-2 border-primary/20'
-                                        }`}>
-                                          {domainVerification.sslStatus === 'active' ? (
-                                            <div className="w-10 h-10 rounded-full bg-sage-100 flex items-center justify-center flex-shrink-0">
-                                              <ShieldCheck className="w-6 h-6 text-sage-600" />
-                                            </div>
-                                          ) : domainVerification.sslStatus === 'failed' ? (
-                                            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                                              <ShieldAlert className="w-6 h-6 text-red-600" />
-                                            </div>
-                                          ) : (
-                                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                              <ShieldCheck className="w-6 h-6 text-primary" />
-                                            </div>
-                                          )}
-                                          <div className="flex-1">
-                                            <p className={`text-base font-semibold ${
-                                              domainVerification.sslStatus === 'active'
-                                                ? 'text-sage-700'
-                                                : domainVerification.sslStatus === 'failed'
-                                                  ? 'text-red-700'
-                                                  : 'text-foreground'
-                                            }`}>
-                                              {domainVerification.sslStatus === 'active'
-                                                ? 'SSL Certificate Active'
-                                                : domainVerification.sslStatus === 'failed'
-                                                  ? 'SSL Certificate Failed'
-                                                  : 'SSL Certificate Will Be Provisioned'}
-                                            </p>
-                                            <p className={`text-sm mt-1 ${
-                                              domainVerification.sslStatus === 'active'
-                                                ? 'text-sage-600'
-                                                : domainVerification.sslStatus === 'failed'
-                                                  ? 'text-red-600'
-                                                  : 'text-foreground-secondary'
-                                            }`}>
-                                              {domainVerification.sslStatus === 'active'
-                                                ? 'Your domain is secured with HTTPS'
-                                                : domainVerification.sslStatus === 'failed'
-                                                  ? 'Certificate provisioning failed. Please contact support.'
-                                                  : 'A free Let\'s Encrypt SSL certificate will be automatically provisioned after you complete setup (usually within 2-5 minutes)'}
-                                            </p>
-                                          </div>
-                                        </div>
-                                      )}
-
-                                      {/* Security Note */}
-                                      {domainVerification.dnsVerified && (
-                                        <div className="p-3 bg-warm-100 rounded-lg border border-warm-200">
-                                          <p className="text-xs text-foreground-tertiary">
-                                            <strong className="font-semibold text-foreground-secondary">Security Note:</strong> DNS verification proves you own this domain. Only you can add DNS records at your domain provider, preventing unauthorized claims.
-                                          </p>
-                                        </div>
-                                      )}
-
-                                      {/* Last Checked */}
-                                      <p className="text-xs text-muted-foreground text-right">
-                                        Verified at: {domainVerification.lastChecked.toLocaleTimeString()}
-                                      </p>
-                                    </div>
-                                  )}
-
-                                  {/* Initial State - No verification yet */}
-                                  {!domainVerification.lastChecked && !domainVerification.isVerifying && (
-                                    <p className="text-sm text-muted-foreground">
-                                      After adding the DNS record above, click &quot;Verify Now&quot; to check if the changes have propagated.
-                                    </p>
-                                  )}
-                                </div>
-
+                                {/* DNS Propagation Note */}
                                 <p className="mt-3 text-xs text-muted-foreground flex items-start gap-2">
                                   <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
                                   <span>DNS changes can take up to 48 hours to propagate. You can complete setup now and verify the domain later in Settings.</span>
