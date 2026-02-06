@@ -20,12 +20,18 @@ import {
   AlertCircle,
   Send,
   FileText,
+  Pause,
+  Play,
+  Loader2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { StatusBadge, type StatusType } from '@/components/ui/status-badge';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageHeader } from '@/components/PageHeader';
 import { PageLoading } from '@/components/common';
 import { cn } from '@/lib/utils';
+import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { apiClient } from '@/lib/api/client';
 import type { Campaign } from '@/lib/api/types';
 
@@ -38,11 +44,14 @@ interface ApiResponse<T = unknown> {
 export default function CampaignDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const id = params.id as string;
 
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const formatNumber = (num: number) => {
     return new Intl.NumberFormat('en-US').format(num);
@@ -65,17 +74,30 @@ export default function CampaignDetailPage() {
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    const config: Record<string, { class: string; variant: 'success' | 'default' | 'warning' | 'info' }> = {
-      DRAFT: { class: 'bg-muted text-foreground border-border', variant: 'default' },
-      SCHEDULED: { class: 'bg-primary/20 text-primary border-primary/30', variant: 'info' },
-      SENDING: { class: 'bg-primary/10 text-primary border-primary/30', variant: 'info' },
-      SENT: { class: 'bg-success-muted text-success-foreground border-success/30', variant: 'success' },
-      COMPLETED: { class: 'bg-success/10 text-success border-success/30', variant: 'success' },
-      PAUSED: { class: 'bg-warning-muted text-warning border-warning/30', variant: 'warning' },
-      CANCELLED: { class: 'bg-error-muted text-error border-error/30', variant: 'warning' },
+  const getCampaignStatusType = (status: string): StatusType => {
+    const mapping: Record<string, StatusType> = {
+      DRAFT: 'neutral',
+      SCHEDULED: 'info',
+      SENDING: 'info',
+      SENT: 'success',
+      COMPLETED: 'success',
+      PAUSED: 'warning',
+      CANCELLED: 'error',
     };
-    return config[status] || config.DRAFT;
+    return mapping[status] || 'neutral';
+  };
+
+  const getStatusBadgeVariant = (status: string): 'success' | 'default' | 'warning' | 'info' => {
+    const mapping: Record<string, 'success' | 'default' | 'warning' | 'info'> = {
+      DRAFT: 'default',
+      SCHEDULED: 'info',
+      SENDING: 'info',
+      SENT: 'success',
+      COMPLETED: 'success',
+      PAUSED: 'warning',
+      CANCELLED: 'warning',
+    };
+    return mapping[status] || 'default';
   };
 
   const getCampaignTypeIcon = (type: string) => {
@@ -124,6 +146,60 @@ export default function CampaignDetailPage() {
       setLoading(false);
     }
   }, [id]);
+
+  const handleSend = async () => {
+    const confirmed = await showConfirm({
+      title: 'Send Campaign',
+      message: 'Are you sure you want to send this campaign? This action cannot be undone.',
+    });
+    if (!confirmed) return;
+    try {
+      setActionLoading(true);
+      await apiClient.post<ApiResponse<{ message: string }>>(`/campaigns/${id}/send`, {});
+      toast.success('Campaign Sent', 'Campaign is being sent!');
+      fetchCampaign();
+    } catch (err) {
+      toast.error('Send Failed', err instanceof Error ? err.message : 'Failed to send campaign.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handlePause = async () => {
+    const confirmed = await showConfirm({
+      title: 'Pause Campaign',
+      message: 'Are you sure you want to pause this campaign? You can resume it later.',
+    });
+    if (!confirmed) return;
+    try {
+      setActionLoading(true);
+      await apiClient.put<ApiResponse<Campaign>>(`/campaigns/${id}`, { status: 'PAUSED' });
+      toast.success('Campaign Paused', 'Campaign paused successfully!');
+      fetchCampaign();
+    } catch (err) {
+      toast.error('Pause Failed', err instanceof Error ? err.message : 'Failed to pause campaign.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleResume = async () => {
+    const confirmed = await showConfirm({
+      title: 'Resume Campaign',
+      message: 'Are you sure you want to resume this campaign?',
+    });
+    if (!confirmed) return;
+    try {
+      setActionLoading(true);
+      await apiClient.put<ApiResponse<Campaign>>(`/campaigns/${id}`, { status: 'SENDING' });
+      toast.success('Campaign Resumed', 'Campaign resumed successfully!');
+      fetchCampaign();
+    } catch (err) {
+      toast.error('Resume Failed', err instanceof Error ? err.message : 'Failed to resume campaign.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -174,7 +250,6 @@ export default function CampaignDetailPage() {
     );
   }
 
-  const statusBadge = getStatusBadge(campaign.status);
   const TypeIcon = getCampaignTypeIcon(campaign.type);
   const ChannelIcon = getChannelIcon(campaign.channel);
   const hasSentData = campaign.status !== 'DRAFT' && campaign.delivered > 0;
@@ -199,16 +274,53 @@ export default function CampaignDetailPage() {
             ]}
             badge={{
               label: campaign.status,
-              variant: statusBadge.variant,
+              variant: getStatusBadgeVariant(campaign.status),
             }}
             actions={
-              <Button
-                variant="outline"
-                onClick={() => router.push('/campaigns')}
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Campaigns
-              </Button>
+              <PermissionGate permission={Permission.MARKETING_CAMPAIGNS_VIEW} fallback="hidden">
+                <div className="flex gap-2">
+                  {campaign.status === 'DRAFT' && (
+                    <Button
+                      variant="default"
+                      onClick={handleSend}
+                      disabled={actionLoading}
+                      className="bg-success hover:bg-success/90 text-success-foreground"
+                    >
+                      {actionLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                      Send Campaign
+                    </Button>
+                  )}
+                  {(campaign.status === 'SCHEDULED' || campaign.status === 'SENDING') && (
+                    <Button
+                      variant="default"
+                      onClick={handlePause}
+                      disabled={actionLoading}
+                      className="bg-warning hover:bg-warning/90 text-warning-foreground"
+                    >
+                      {actionLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Pause className="h-4 w-4 mr-2" />}
+                      Pause
+                    </Button>
+                  )}
+                  {campaign.status === 'PAUSED' && (
+                    <Button
+                      variant="default"
+                      onClick={handleResume}
+                      disabled={actionLoading}
+                      className="bg-success hover:bg-success/90 text-success-foreground"
+                    >
+                      {actionLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
+                      Resume
+                    </Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push('/campaigns')}
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back
+                  </Button>
+                </div>
+              </PermissionGate>
             }
           />
 
@@ -310,6 +422,28 @@ export default function CampaignDetailPage() {
                       </div>
                     </div>
 
+                    {/* Failed & Unsubscribed */}
+                    {(campaign.failed > 0 || campaign.unsubscribed > 0) && (
+                      <div className="grid grid-cols-2 gap-4">
+                        {campaign.failed > 0 && (
+                          <div className="bg-error/5 border border-error/30 rounded-lg p-4 text-center">
+                            <p className="text-2xl font-bold text-error">{formatNumber(campaign.failed)}</p>
+                            <p className="text-xs text-error mt-1 font-medium">
+                              Failed ({calculateRate(campaign.failed, campaign.totalRecipients)})
+                            </p>
+                          </div>
+                        )}
+                        {campaign.unsubscribed > 0 && (
+                          <div className="bg-warning/5 border border-warning/30 rounded-lg p-4 text-center">
+                            <p className="text-2xl font-bold text-warning">{formatNumber(campaign.unsubscribed)}</p>
+                            <p className="text-xs text-warning mt-1 font-medium">
+                              Unsubscribed ({calculateRate(campaign.unsubscribed, campaign.delivered)})
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {/* Revenue highlight */}
                     <div className="bg-muted/50 border border-border rounded-lg p-4">
                       <div className="flex justify-between items-center">
@@ -355,20 +489,9 @@ export default function CampaignDetailPage() {
                 <div className="p-6 space-y-4">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground mb-2">Campaign Status</p>
-                    <span className={cn(
-                      'inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold border',
-                      statusBadge.class
-                    )}>
+                    <StatusBadge status={getCampaignStatusType(campaign.status)} size="lg">
                       {campaign.status}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-1">Type</p>
-                    <p className="text-sm font-semibold text-foreground">{campaign.type.replace(/_/g, ' ')}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-1">Channel</p>
-                    <p className="text-sm font-semibold text-foreground">{campaign.channel}</p>
+                    </StatusBadge>
                   </div>
                 </div>
               </div>
@@ -417,6 +540,18 @@ export default function CampaignDetailPage() {
                     <p className="text-sm font-medium text-muted-foreground mb-1">Last Updated</p>
                     <p className="text-sm text-foreground">{formatDateTime(campaign.updatedAt)}</p>
                   </div>
+                  {campaign.sentAt && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">Sent At</p>
+                      <p className="text-sm text-foreground">{formatDateTime(campaign.sentAt)}</p>
+                    </div>
+                  )}
+                  {campaign.completedAt && (
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">Completed At</p>
+                      <p className="text-sm text-foreground">{formatDateTime(campaign.completedAt)}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

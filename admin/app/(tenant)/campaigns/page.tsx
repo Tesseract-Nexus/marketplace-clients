@@ -47,6 +47,7 @@ import { PageLoading } from '@/components/common';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { StatusBadge, type StatusType } from '@/components/ui/status-badge';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -333,6 +334,19 @@ export default function CampaignsPage() {
       default:
         return { icon: Mail, color: 'text-muted-foreground', bg: 'bg-muted' };
     }
+  };
+
+  const getCampaignStatusType = (status: string): StatusType => {
+    const mapping: Record<string, StatusType> = {
+      DRAFT: 'neutral',
+      SCHEDULED: 'info',
+      SENDING: 'info',
+      SENT: 'success',
+      COMPLETED: 'success',
+      PAUSED: 'warning',
+      CANCELLED: 'error',
+    };
+    return mapping[status] || 'neutral';
   };
 
   const formatNumber = (num: number) => {
@@ -907,6 +921,7 @@ export default function CampaignsPage() {
         )}
 
         <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
+        <div className="space-y-6">
         {/* Filters */}
         <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -1052,15 +1067,9 @@ export default function CampaignsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span
-                          className={cn(
-                            'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold border',
-                            getStatusColor(campaign.status)
-                          )}
-                        >
-                          {getStatusIcon(campaign.status)}
+                        <StatusBadge status={getCampaignStatusType(campaign.status)}>
                           {campaign.status}
-                        </span>
+                        </StatusBadge>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
@@ -1119,7 +1128,7 @@ export default function CampaignsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center justify-end gap-1">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -1202,6 +1211,7 @@ export default function CampaignsPage() {
               </table>
             </div>
           )}
+        </div>
         </div>
         </DataPageLayout>
       </div>

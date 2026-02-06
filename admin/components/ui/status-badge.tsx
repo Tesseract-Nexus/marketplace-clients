@@ -127,6 +127,23 @@ export const statusMappings = {
     ACTIVE: "success" as StatusType,
     INACTIVE: "neutral" as StatusType,
   },
+  // Campaign statuses
+  campaign: {
+    DRAFT: "neutral" as StatusType,
+    SCHEDULED: "info" as StatusType,
+    SENDING: "info" as StatusType,
+    SENT: "success" as StatusType,
+    COMPLETED: "success" as StatusType,
+    PAUSED: "warning" as StatusType,
+    CANCELLED: "error" as StatusType,
+  },
+  // Gift Card statuses
+  giftCard: {
+    ACTIVE: "success" as StatusType,
+    REDEEMED: "info" as StatusType,
+    EXPIRED: "error" as StatusType,
+    CANCELLED: "neutral" as StatusType,
+  },
 } as const
 
 interface StatusBadgeProps

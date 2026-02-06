@@ -12,6 +12,11 @@ import {
   Calendar,
   Shield,
   AlertCircle,
+  Copy,
+  CheckCircle,
+  Loader2,
+  XCircle,
+  PlayCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge, type StatusType } from '@/components/ui/status-badge';
@@ -19,6 +24,8 @@ import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageHeader } from '@/components/PageHeader';
 import { PageLoading } from '@/components/common';
 import { cn } from '@/lib/utils';
+import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { useTenantCurrency } from '@/hooks/useTenantCurrency';
 import { apiClient } from '@/lib/api/client';
 import type { GiftCard } from '@/lib/api/types';
@@ -32,12 +39,16 @@ interface ApiResponse<T = unknown> {
 export default function GiftCardDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const { currency } = useTenantCurrency();
   const id = params.id as string;
 
   const [giftCard, setGiftCard] = useState<GiftCard | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const formatCurrency = useCallback((amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -116,6 +127,49 @@ export default function GiftCardDetailPage() {
     }
   }, [id]);
 
+  const handleCopyCode = () => {
+    if (!giftCard) return;
+    navigator.clipboard.writeText(giftCard.code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDisable = async () => {
+    const confirmed = await showConfirm({
+      title: 'Disable Gift Card',
+      message: 'Are you sure you want to disable this gift card? The remaining balance will become unusable.',
+    });
+    if (!confirmed) return;
+    try {
+      setActionLoading(true);
+      await apiClient.put<ApiResponse<GiftCard>>(`/gift-cards/${id}`, { status: 'CANCELLED' });
+      toast.success('Card Disabled', 'Gift card has been disabled.');
+      fetchGiftCard();
+    } catch (err) {
+      toast.error('Action Failed', err instanceof Error ? err.message : 'Failed to disable gift card.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleReactivate = async () => {
+    const confirmed = await showConfirm({
+      title: 'Reactivate Gift Card',
+      message: 'Are you sure you want to reactivate this gift card?',
+    });
+    if (!confirmed) return;
+    try {
+      setActionLoading(true);
+      await apiClient.put<ApiResponse<GiftCard>>(`/gift-cards/${id}`, { status: 'ACTIVE' });
+      toast.success('Card Reactivated', 'Gift card has been reactivated.');
+      fetchGiftCard();
+    } catch (err) {
+      toast.error('Action Failed', err instanceof Error ? err.message : 'Failed to reactivate gift card.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (id) {
       fetchGiftCard();
@@ -190,13 +244,38 @@ export default function GiftCardDetailPage() {
               variant: getStatusBadgeVariant(giftCard.status),
             }}
             actions={
-              <Button
-                variant="outline"
-                onClick={() => router.push('/gift-cards')}
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Gift Cards
-              </Button>
+              <div className="flex gap-2">
+                <PermissionGate permission={Permission.GIFT_CARDS_EDIT} fallback="hidden">
+                  {giftCard.status === 'ACTIVE' && (
+                    <Button
+                      variant="destructive"
+                      onClick={handleDisable}
+                      disabled={actionLoading}
+                    >
+                      {actionLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <XCircle className="h-4 w-4 mr-2" />}
+                      Disable Card
+                    </Button>
+                  )}
+                  {giftCard.status === 'CANCELLED' && (
+                    <Button
+                      variant="default"
+                      onClick={handleReactivate}
+                      disabled={actionLoading}
+                      className="bg-success hover:bg-success/90 text-success-foreground"
+                    >
+                      {actionLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <PlayCircle className="h-4 w-4 mr-2" />}
+                      Reactivate
+                    </Button>
+                  )}
+                </PermissionGate>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/gift-cards')}
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back
+                </Button>
+              </div>
             }
           />
 
@@ -219,6 +298,19 @@ export default function GiftCardDetailPage() {
                       <code className="text-2xl font-mono font-bold text-foreground tracking-wider">
                         {giftCard.code}
                       </code>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleCopyCode}
+                        className="h-8 w-8 p-0 rounded-lg hover:bg-muted"
+                        title="Copy code"
+                      >
+                        {copied ? (
+                          <CheckCircle className="h-4 w-4 text-success" />
+                        ) : (
+                          <Copy className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
                     </div>
                   </div>
 
@@ -352,8 +444,14 @@ export default function GiftCardDetailPage() {
                     </StatusBadge>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-muted-foreground mb-1">Currency</p>
-                    <p className="text-sm font-semibold text-foreground">{giftCard.currencyCode}</p>
+                    <p className="text-sm font-medium text-muted-foreground mb-1">Remaining Balance</p>
+                    <p className={cn(
+                      "text-lg font-bold",
+                      balancePercentage >= 50 ? "text-success" : balancePercentage >= 25 ? "text-warning" : "text-error"
+                    )}>
+                      {formatCurrency(giftCard.currentBalance)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{balancePercentage}% of {formatCurrency(giftCard.initialBalance)}</p>
                   </div>
                 </div>
               </div>

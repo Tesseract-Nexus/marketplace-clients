@@ -15,6 +15,12 @@ import {
   Shield,
   AlertCircle,
   Edit2,
+  Copy,
+  CheckCircle,
+  Loader2,
+  PlayCircle,
+  PauseCircle,
+  Files,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { StatusBadge, type StatusType } from '@/components/ui/status-badge';
@@ -22,17 +28,23 @@ import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageHeader } from '@/components/PageHeader';
 import { PageLoading } from '@/components/common';
 import { cn } from '@/lib/utils';
+import { useDialog } from '@/contexts/DialogContext';
+import { useToast } from '@/contexts/ToastContext';
 import { couponService } from '@/lib/services/couponService';
 import type { Coupon, DiscountType } from '@/lib/api/types';
 
 export default function CouponDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const { showConfirm } = useDialog();
+  const toast = useToast();
   const id = params.id as string;
 
   const [coupon, setCoupon] = useState<Coupon | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -144,6 +156,66 @@ export default function CouponDetailPage() {
     }
   }, [id]);
 
+  const handleCopyCode = () => {
+    if (!coupon) return;
+    navigator.clipboard.writeText(coupon.code);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleActivate = async () => {
+    const confirmed = await showConfirm({
+      title: 'Activate Coupon',
+      message: 'Are you sure you want to activate this coupon?',
+    });
+    if (!confirmed) return;
+    try {
+      setActionLoading(true);
+      await couponService.updateCouponStatus(id, 'ACTIVE');
+      toast.success('Coupon Activated', 'Coupon is now active.');
+      fetchCoupon();
+    } catch (err) {
+      toast.error('Action Failed', err instanceof Error ? err.message : 'Failed to activate coupon.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeactivate = async () => {
+    const confirmed = await showConfirm({
+      title: 'Deactivate Coupon',
+      message: 'Are you sure you want to deactivate this coupon? Customers will no longer be able to use it.',
+    });
+    if (!confirmed) return;
+    try {
+      setActionLoading(true);
+      await couponService.updateCouponStatus(id, 'INACTIVE');
+      toast.success('Coupon Deactivated', 'Coupon has been deactivated.');
+      fetchCoupon();
+    } catch (err) {
+      toast.error('Action Failed', err instanceof Error ? err.message : 'Failed to deactivate coupon.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDuplicate = async () => {
+    try {
+      setActionLoading(true);
+      const response = await couponService.duplicateCoupon(id);
+      if (response.success && response.data) {
+        toast.success('Coupon Duplicated', 'A copy of this coupon has been created.');
+        router.push(`/coupons/${response.data.id}`);
+      } else {
+        throw new Error('Failed to duplicate coupon');
+      }
+    } catch (err) {
+      toast.error('Duplicate Failed', err instanceof Error ? err.message : 'Failed to duplicate coupon.');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (id) {
       fetchCoupon();
@@ -221,19 +293,64 @@ export default function CouponDetailPage() {
             }}
             actions={
               <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => router.push(`/coupons/${coupon.id}/edit`)}
-                >
-                  <Edit2 className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
+                {coupon.status === 'DRAFT' && (
+                  <Button
+                    variant="default"
+                    onClick={handleActivate}
+                    disabled={actionLoading}
+                    className="bg-success hover:bg-success/90 text-success-foreground"
+                  >
+                    {actionLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <PlayCircle className="h-4 w-4 mr-2" />}
+                    Activate
+                  </Button>
+                )}
+                {coupon.status === 'ACTIVE' && (
+                  <Button
+                    variant="default"
+                    onClick={handleDeactivate}
+                    disabled={actionLoading}
+                    className="bg-warning hover:bg-warning/90 text-warning-foreground"
+                  >
+                    {actionLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <PauseCircle className="h-4 w-4 mr-2" />}
+                    Deactivate
+                  </Button>
+                )}
+                {coupon.status === 'INACTIVE' && (
+                  <Button
+                    variant="default"
+                    onClick={handleActivate}
+                    disabled={actionLoading}
+                    className="bg-success hover:bg-success/90 text-success-foreground"
+                  >
+                    {actionLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <PlayCircle className="h-4 w-4 mr-2" />}
+                    Activate
+                  </Button>
+                )}
+                {(coupon.status === 'EXPIRED' || coupon.status === 'DEPLETED') && (
+                  <Button
+                    variant="outline"
+                    onClick={handleDuplicate}
+                    disabled={actionLoading}
+                  >
+                    {actionLoading ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Files className="h-4 w-4 mr-2" />}
+                    Duplicate
+                  </Button>
+                )}
+                {coupon.status !== 'EXPIRED' && coupon.status !== 'DEPLETED' && (
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push(`/coupons/${coupon.id}/edit`)}
+                  >
+                    <Edit2 className="h-4 w-4 mr-2" />
+                    Edit
+                  </Button>
+                )}
                 <Button
                   variant="outline"
                   onClick={() => router.push('/coupons')}
                 >
                   <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Coupons
+                  Back
                 </Button>
               </div>
             }
@@ -254,9 +371,24 @@ export default function CouponDetailPage() {
                   {/* Coupon Code */}
                   <div>
                     <p className="text-sm font-medium text-muted-foreground mb-1">Coupon Code</p>
-                    <code className="text-2xl font-mono font-bold text-foreground tracking-wider">
-                      {coupon.code}
-                    </code>
+                    <div className="flex items-center gap-3">
+                      <code className="text-2xl font-mono font-bold text-foreground tracking-wider">
+                        {coupon.code}
+                      </code>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleCopyCode}
+                        className="h-8 w-8 p-0 rounded-lg hover:bg-muted"
+                        title="Copy code"
+                      >
+                        {copied ? (
+                          <CheckCircle className="h-4 w-4 text-success" />
+                        ) : (
+                          <Copy className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
 
                   {coupon.name && (
