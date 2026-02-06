@@ -59,7 +59,7 @@ export function useLoyalty() {
       throw new Error('Not authenticated');
     }
     // Auto-pass customer's dateOfBirth from profile if available
-    await enroll(tenant.id, tenant.storefrontId, customer.id, undefined, referralCode, customer.dateOfBirth);
+    await enroll(tenant.id, tenant.storefrontId, customer.id, referralCode, customer.dateOfBirth);
   }, [tenant, isAuthenticated, customer?.id, customer?.dateOfBirth, enroll]);
 
   const redeem = useCallback(async (points: number, orderId: string) => {
