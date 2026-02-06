@@ -2,17 +2,49 @@ import { NextRequest, NextResponse } from 'next/server';
 import { config } from '@/lib/config';
 
 const MARKETING_SERVICE_URL = config.api.marketingService;
+const AUTH_BFF_URL = process.env.AUTH_BFF_INTERNAL_URL || process.env.AUTH_BFF_URL || 'http://localhost:8080';
 
-// Helper to extract customer ID from JWT
-function extractCustomerId(token: string): string | null {
-  try {
-    const parts = token.split('.');
-    if (parts.length !== 3 || !parts[1]) return null;
-    const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
-    return payload.sub || payload.customer_id || payload.id || null;
-  } catch {
-    return null;
+/**
+ * Get customer ID from headers, JWT, or session cookie.
+ */
+async function resolveCustomerId(request: NextRequest): Promise<string | null> {
+  // 1. Explicit header (sent by client with customer.id from auth store)
+  const headerCustomerId = request.headers.get('X-Customer-ID');
+  if (headerCustomerId) return headerCustomerId;
+
+  // 2. Extract from JWT Authorization header
+  const authHeader = request.headers.get('Authorization');
+  if (authHeader && authHeader !== 'Bearer ' && authHeader !== 'Bearer') {
+    try {
+      const parts = authHeader.replace('Bearer ', '').split('.');
+      if (parts.length === 3 && parts[1]) {
+        const payload = JSON.parse(Buffer.from(parts[1], 'base64').toString());
+        if (payload.sub) return payload.sub;
+      }
+    } catch { /* ignore */ }
   }
+
+  // 3. Fall back to session-based auth (OAuth flow)
+  try {
+    const cookie = request.headers.get('cookie');
+    if (!cookie) return null;
+
+    const forwardedHost = request.headers.get('x-forwarded-host') || request.headers.get('host') || '';
+    const response = await fetch(`${AUTH_BFF_URL}/internal/get-token`, {
+      headers: {
+        'Cookie': cookie,
+        'X-Forwarded-Host': forwardedHost,
+        'Accept': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      const tokenData = await response.json();
+      if (tokenData.user_id) return tokenData.user_id;
+    }
+  } catch { /* ignore */ }
+
+  return null;
 }
 
 /**
@@ -23,32 +55,30 @@ export async function POST(request: NextRequest) {
   try {
     const tenantId = request.headers.get('X-Tenant-ID');
     const storefrontId = request.headers.get('X-Storefront-ID');
-    const customerId = request.headers.get('X-Customer-ID');
-    const accessToken = request.cookies.get('accessToken')?.value ||
-      request.headers.get('Authorization')?.replace('Bearer ', '');
 
     if (!tenantId) {
       return NextResponse.json({ error: 'Missing tenant ID' }, { status: 400 });
     }
 
-    // Get customer ID from header or extract from token
-    let customerIdToUse = customerId;
-    if (!customerIdToUse && accessToken) {
-      customerIdToUse = extractCustomerId(accessToken);
-    }
-
+    const customerIdToUse = await resolveCustomerId(request);
     if (!customerIdToUse) {
       return NextResponse.json({ error: 'Customer ID required' }, { status: 400 });
     }
 
-    // Get optional referral code from request body
+    // Get optional fields from request body
     let referralCode: string | undefined;
+    let dateOfBirth: string | undefined;
     try {
       const body = await request.json();
       referralCode = body.referralCode;
+      dateOfBirth = body.dateOfBirth;
     } catch {
-      // No body or invalid JSON - that's ok, referral code is optional
+      // No body or invalid JSON - that's ok, fields are optional
     }
+
+    const requestBody: Record<string, string> = {};
+    if (referralCode) requestBody.referralCode = referralCode;
+    if (dateOfBirth) requestBody.dateOfBirth = dateOfBirth;
 
     const response = await fetch(
       `${MARKETING_SERVICE_URL}/storefront/loyalty/enroll`,
@@ -60,7 +90,7 @@ export async function POST(request: NextRequest) {
           'X-Storefront-ID': storefrontId || '',
           'X-Customer-ID': customerIdToUse,
         },
-        body: JSON.stringify({ referralCode }),
+        body: JSON.stringify(requestBody),
       }
     );
 

@@ -33,10 +33,10 @@ export interface LoyaltyState {
 
   // Actions
   fetchProgram: (tenantId: string, storefrontId: string) => Promise<void>;
-  fetchCustomerLoyalty: (tenantId: string, storefrontId: string, customerId: string, accessToken: string) => Promise<void>;
-  fetchTransactions: (tenantId: string, storefrontId: string, accessToken: string) => Promise<void>;
-  enroll: (tenantId: string, storefrontId: string, accessToken: string, referralCode?: string, dateOfBirth?: string) => Promise<void>;
-  redeemPoints: (tenantId: string, storefrontId: string, points: number, orderId: string, accessToken: string) => Promise<{ success: boolean; dollarValue: number }>;
+  fetchCustomerLoyalty: (tenantId: string, storefrontId: string, customerId: string) => Promise<void>;
+  fetchTransactions: (tenantId: string, storefrontId: string, customerId: string) => Promise<void>;
+  enroll: (tenantId: string, storefrontId: string, customerId: string, referralCode?: string, dateOfBirth?: string) => Promise<void>;
+  redeemPoints: (tenantId: string, storefrontId: string, points: number, orderId: string, customerId: string) => Promise<{ success: boolean; dollarValue: number }>;
   updateBalance: (newBalance: number) => void;
   reset: () => void;
 }
@@ -74,10 +74,10 @@ export const useLoyaltyStore = create<LoyaltyState>()(
         }
       },
 
-      fetchCustomerLoyalty: async (tenantId, storefrontId, customerId, accessToken) => {
+      fetchCustomerLoyalty: async (tenantId, storefrontId, customerId) => {
         set({ isLoadingCustomer: true, error: null });
         try {
-          const customerLoyalty = await getCustomerLoyalty(tenantId, storefrontId, customerId, accessToken);
+          const customerLoyalty = await getCustomerLoyalty(tenantId, storefrontId, customerId);
           set({ customerLoyalty, isLoadingCustomer: false, hasFetchedCustomer: true });
         } catch (error) {
           set({
@@ -88,10 +88,10 @@ export const useLoyaltyStore = create<LoyaltyState>()(
         }
       },
 
-      fetchTransactions: async (tenantId, storefrontId, accessToken) => {
+      fetchTransactions: async (tenantId, storefrontId, customerId) => {
         set({ isLoadingTransactions: true, error: null });
         try {
-          const result = await getLoyaltyTransactions(tenantId, storefrontId, accessToken, { limit: 20 });
+          const result = await getLoyaltyTransactions(tenantId, storefrontId, customerId, { limit: 20 });
           set({ transactions: result.transactions, isLoadingTransactions: false });
         } catch (error) {
           set({
@@ -101,10 +101,10 @@ export const useLoyaltyStore = create<LoyaltyState>()(
         }
       },
 
-      enroll: async (tenantId, storefrontId, accessToken, referralCode, dateOfBirth) => {
+      enroll: async (tenantId, storefrontId, customerId, referralCode, dateOfBirth) => {
         set({ isEnrolling: true, error: null });
         try {
-          const customerLoyalty = await enrollInLoyalty(tenantId, storefrontId, accessToken, referralCode, dateOfBirth);
+          const customerLoyalty = await enrollInLoyalty(tenantId, storefrontId, customerId, referralCode, dateOfBirth);
           set({ customerLoyalty, isEnrolling: false });
         } catch (error) {
           set({
@@ -115,10 +115,10 @@ export const useLoyaltyStore = create<LoyaltyState>()(
         }
       },
 
-      redeemPoints: async (tenantId, storefrontId, points, orderId, accessToken) => {
+      redeemPoints: async (tenantId, storefrontId, points, orderId, customerId) => {
         set({ isRedeeming: true, error: null });
         try {
-          const result = await redeemPointsApi(tenantId, storefrontId, points, orderId, accessToken);
+          const result = await redeemPointsApi(tenantId, storefrontId, points, orderId, customerId);
           if (result.success) {
             set((state) => ({
               customerLoyalty: state.customerLoyalty

@@ -37,7 +37,6 @@ export default function LoyaltyPage() {
 
   const [enrollError, setEnrollError] = useState<string | null>(null);
   const [referralCodeInput, setReferralCodeInput] = useState('');
-  const [birthdayInput, setBirthdayInput] = useState('');
   const [copiedCode, setCopiedCode] = useState(false);
 
   useEffect(() => {
@@ -49,7 +48,7 @@ export default function LoyaltyPage() {
   const handleEnroll = async () => {
     setEnrollError(null);
     try {
-      await enrollInProgram(referralCodeInput || undefined, birthdayInput || undefined);
+      await enrollInProgram(referralCodeInput || undefined);
     } catch (error) {
       setEnrollError(error instanceof Error ? error.message : 'Failed to enroll');
     }
@@ -153,23 +152,11 @@ export default function LoyaltyPage() {
               </div>
             )}
 
-            {/* Birthday Input */}
+            {/* Birthday Bonus Info */}
             {program.birthdayBonus > 0 && (
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Your birthday (optional)
-                </label>
-                <div className="max-w-xs">
-                  <Input
-                    type="date"
-                    value={birthdayInput}
-                    onChange={(e) => setBirthdayInput(e.target.value)}
-                  />
-                </div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Earn {program.birthdayBonus} bonus points on your birthday!
-                </p>
-              </div>
+              <p className="text-sm text-muted-foreground mb-6">
+                Earn {program.birthdayBonus} bonus points on your birthday! Set your birthday in your profile settings.
+              </p>
             )}
 
             <Button

@@ -6,7 +6,7 @@ import { calculatePointsForPurchase, calculateRedemptionValue } from '@/lib/api/
 
 export function useLoyalty() {
   const { tenant } = useTenant();
-  const { customer, accessToken, isAuthenticated } = useAuthStore();
+  const { customer, isAuthenticated } = useAuthStore();
   const {
     program,
     customerLoyalty,
@@ -36,10 +36,10 @@ export function useLoyalty() {
 
   // Fetch customer loyalty when authenticated (only once per session)
   useEffect(() => {
-    if (tenant && isAuthenticated && customer?.id && accessToken && !hasFetchedCustomer && !isLoadingCustomer) {
-      fetchCustomerLoyalty(tenant.id, tenant.storefrontId, customer.id, accessToken);
+    if (tenant && isAuthenticated && customer?.id && !hasFetchedCustomer && !isLoadingCustomer) {
+      fetchCustomerLoyalty(tenant.id, tenant.storefrontId, customer.id);
     }
-  }, [tenant, isAuthenticated, customer?.id, accessToken, hasFetchedCustomer, isLoadingCustomer, fetchCustomerLoyalty]);
+  }, [tenant, isAuthenticated, customer?.id, hasFetchedCustomer, isLoadingCustomer, fetchCustomerLoyalty]);
 
   // Reset customer loyalty when logged out
   useEffect(() => {
@@ -49,24 +49,25 @@ export function useLoyalty() {
   }, [isAuthenticated, reset]);
 
   const loadTransactions = useCallback(() => {
-    if (tenant && accessToken) {
-      fetchTransactions(tenant.id, tenant.storefrontId, accessToken);
+    if (tenant && customer?.id) {
+      fetchTransactions(tenant.id, tenant.storefrontId, customer.id);
     }
-  }, [tenant, accessToken, fetchTransactions]);
+  }, [tenant, customer?.id, fetchTransactions]);
 
-  const enrollInProgram = useCallback(async (referralCode?: string, dateOfBirth?: string) => {
-    if (!tenant || !accessToken) {
+  const enrollInProgram = useCallback(async (referralCode?: string) => {
+    if (!tenant || !isAuthenticated || !customer?.id) {
       throw new Error('Not authenticated');
     }
-    await enroll(tenant.id, tenant.storefrontId, accessToken, referralCode, dateOfBirth);
-  }, [tenant, accessToken, enroll]);
+    // Auto-pass customer's dateOfBirth from profile if available
+    await enroll(tenant.id, tenant.storefrontId, customer.id, undefined, referralCode, customer.dateOfBirth);
+  }, [tenant, isAuthenticated, customer?.id, customer?.dateOfBirth, enroll]);
 
   const redeem = useCallback(async (points: number, orderId: string) => {
-    if (!tenant || !accessToken) {
+    if (!tenant || !isAuthenticated || !customer?.id) {
       throw new Error('Not authenticated');
     }
-    return redeemPoints(tenant.id, tenant.storefrontId, points, orderId, accessToken);
-  }, [tenant, accessToken, redeemPoints]);
+    return redeemPoints(tenant.id, tenant.storefrontId, points, orderId, customer.id);
+  }, [tenant, isAuthenticated, customer?.id, redeemPoints]);
 
   // Helper calculations
   const pointsBalance = customerLoyalty?.pointsBalance ?? 0;

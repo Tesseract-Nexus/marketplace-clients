@@ -100,8 +100,7 @@ export async function getLoyaltyProgram(
 export async function getCustomerLoyalty(
   tenantId: string,
   storefrontId: string,
-  customerId: string,
-  accessToken: string
+  customerId: string
 ): Promise<CustomerLoyalty | null> {
   try {
     const response = await fetch('/api/loyalty/customer', {
@@ -110,8 +109,9 @@ export async function getCustomerLoyalty(
         'Content-Type': 'application/json',
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
-        'Authorization': `Bearer ${accessToken}`,
+        'X-Customer-ID': customerId,
       },
+      credentials: 'include',
     });
 
     if (!response.ok) {
@@ -132,13 +132,13 @@ export async function getCustomerLoyalty(
 export async function enrollInLoyalty(
   tenantId: string,
   storefrontId: string,
-  accessToken: string,
+  customerId: string,
   referralCode?: string,
   dateOfBirth?: string
 ): Promise<CustomerLoyalty> {
   const body: Record<string, string | undefined> = {};
   if (referralCode) body.referralCode = referralCode;
-  if (dateOfBirth) body.dateOfBirth = `${dateOfBirth}T00:00:00Z`;
+  if (dateOfBirth) body.dateOfBirth = dateOfBirth.includes('T') ? dateOfBirth : `${dateOfBirth}T00:00:00Z`;
 
   const response = await fetch('/api/loyalty/enroll', {
     method: 'POST',
@@ -146,8 +146,9 @@ export async function enrollInLoyalty(
       'Content-Type': 'application/json',
       'X-Tenant-ID': tenantId,
       'X-Storefront-ID': storefrontId,
-      'Authorization': `Bearer ${accessToken}`,
+      'X-Customer-ID': customerId,
     },
+    credentials: 'include',
     body: JSON.stringify(body),
   });
 
@@ -162,7 +163,7 @@ export async function enrollInLoyalty(
 export async function getLoyaltyTransactions(
   tenantId: string,
   storefrontId: string,
-  accessToken: string,
+  customerId: string,
   options?: { limit?: number; offset?: number }
 ): Promise<{ transactions: LoyaltyTransaction[]; total: number }> {
   const params = new URLSearchParams();
@@ -175,8 +176,9 @@ export async function getLoyaltyTransactions(
       'Content-Type': 'application/json',
       'X-Tenant-ID': tenantId,
       'X-Storefront-ID': storefrontId,
-      'Authorization': `Bearer ${accessToken}`,
+      'X-Customer-ID': customerId,
     },
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -192,7 +194,7 @@ export async function redeemPoints(
   storefrontId: string,
   points: number,
   orderId: string,
-  accessToken: string
+  customerId: string
 ): Promise<RedemptionResult> {
   const response = await fetch('/api/loyalty/redeem', {
     method: 'POST',
@@ -200,8 +202,9 @@ export async function redeemPoints(
       'Content-Type': 'application/json',
       'X-Tenant-ID': tenantId,
       'X-Storefront-ID': storefrontId,
-      'Authorization': `Bearer ${accessToken}`,
+      'X-Customer-ID': customerId,
     },
+    credentials: 'include',
     body: JSON.stringify({ points, orderId }),
   });
 
