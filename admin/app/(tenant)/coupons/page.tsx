@@ -7,7 +7,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { Button } from '@/components/ui/button';
 import { ConfirmModal } from '@/components/ConfirmModal';
 import { Select } from '@/components/Select';
-import { Breadcrumbs } from '@/components/Breadcrumbs';
+import { PageHeader } from '@/components/PageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { StatusBadge, StatusType } from '@/components/ui/status-badge';
 import { couponService } from '@/lib/services/couponService';
@@ -40,7 +40,6 @@ import {
   Gift,
   CalendarClock,
   Loader2,
-  Home,
   FileEdit,
   Pause,
   AlertTriangle,
@@ -353,52 +352,45 @@ export default function CouponsPage() {
     >
     <div className="min-h-screen bg-background">
       <div className="space-y-6 animate-in fade-in duration-500">
-        {/* Breadcrumbs */}
-        <Breadcrumbs
-          items={[
-            { label: 'Dashboard', href: '/', icon: Home },
-            { label: 'Coupons', icon: Ticket },
+        <PageHeader
+          title="Coupons"
+          description="Create and manage discount coupons"
+          breadcrumbs={[
+            { label: 'Home', href: '/' },
+            { label: 'Marketing', href: '/campaigns' },
+            { label: 'Coupons' },
           ]}
-        />
-
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-card backdrop-blur-sm rounded-2xl p-6 border border-border/50 shadow-lg">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="text-3xl font-bold text-foreground">
-                Coupons Management
-              </h1>
+          actions={
+            <div className="flex gap-2">
+              <Button
+                onClick={loadCoupons}
+                disabled={loading}
+                variant="ghost"
+                className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
+                title="Refresh"
+                aria-label="Refresh coupons list"
+              >
+                <RefreshCw className={cn("w-5 h-5 text-muted-foreground", loading && "animate-spin")} aria-hidden="true" />
+              </Button>
+              <Button
+                onClick={() => router.push('/coupons/new')}
+                className="bg-primary text-primary-foreground"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Create Coupon
+              </Button>
             </div>
-            <p className="text-muted-foreground">Create and manage discount coupons</p>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              onClick={loadCoupons}
-              disabled={loading}
-              variant="ghost"
-              className="p-2.5 rounded-md bg-muted hover:bg-muted transition-all"
-              title="Refresh"
-              aria-label="Refresh coupons list"
-            >
-              <RefreshCw className={cn("w-5 h-5 text-muted-foreground", loading && "animate-spin")} aria-hidden="true" />
-            </Button>
-            <Button
-              onClick={() => router.push('/coupons/new')}
-              className="px-4 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              Create Coupon
-            </Button>
-          </div>
-        </div>
+          }
+        />
 
         {/* Error Alert */}
         <PageError error={error} onDismiss={() => setError(null)} />
 
         <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
+        <div className="space-y-6">
         {/* Search and Filters */}
         {!loading && (
-          <Card className="rounded-2xl border-border/50 bg-card backdrop-blur-sm shadow-lg transition-all duration-300 relative z-30 overflow-visible">
+          <Card className="rounded-lg border-border bg-card shadow-sm relative z-30 overflow-visible">
             <CardContent className="p-6 pt-6 overflow-visible">
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -489,7 +481,7 @@ export default function CouponsPage() {
               const isCopied = copiedCode === coupon.code;
 
               return (
-                <Card key={coupon.id} className="rounded-md border-border/50 bg-card backdrop-blur-sm shadow hover:shadow-lg hover:border-primary/50/50 transition-all duration-300 group relative overflow-hidden">
+                <Card key={coupon.id} className="rounded-lg border-border bg-card shadow-sm hover:shadow-md hover:border-primary/30 transition-all duration-300 group relative overflow-hidden">
                   {/* Discount type color accent */}
                   <div className={cn(
                     "absolute top-0 left-0 right-0 h-1",
@@ -633,7 +625,7 @@ export default function CouponsPage() {
 
             {filteredCoupons.length === 0 && (
               <div className="col-span-full">
-                <Card className="rounded-2xl border-border/50 bg-card backdrop-blur-sm shadow-lg transition-all duration-300">
+                <Card className="rounded-lg border-border bg-card shadow-sm">
                   <CardContent className="p-12 text-center pt-12">
                     <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-primary/10 flex items-center justify-center">
                       <Ticket className="w-10 h-10 text-primary" />
@@ -651,7 +643,7 @@ export default function CouponsPage() {
                     {!(searchQuery || statusFilter !== 'ALL' || discountTypeFilter !== 'ALL') && (
                       <Button
                         onClick={() => router.push('/coupons/new')}
-                        className="px-6 py-3 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-lg inline-flex items-center gap-2"
+                        className="bg-primary text-primary-foreground hover:bg-primary/90"
                       >
                         <Sparkles className="w-5 h-5" />
                         Create Your First Coupon
@@ -663,6 +655,7 @@ export default function CouponsPage() {
             )}
           </div>
         )}
+        </div>
         </DataPageLayout>
 
         <ConfirmModal

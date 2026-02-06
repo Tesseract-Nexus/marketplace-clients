@@ -14,6 +14,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { StatusBadge, type StatusType } from '@/components/ui/status-badge';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageHeader } from '@/components/PageHeader';
 import { PageLoading } from '@/components/common';
@@ -63,14 +64,24 @@ export default function GiftCardDetailPage() {
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    const config: Record<string, { class: string; variant: 'success' | 'default' | 'warning' | 'info' }> = {
-      ACTIVE: { class: 'bg-success-muted text-success-foreground border-success/30', variant: 'success' },
-      REDEEMED: { class: 'bg-primary/20 text-primary border-primary/30', variant: 'info' },
-      EXPIRED: { class: 'bg-error-muted text-error border-error/30', variant: 'warning' },
-      CANCELLED: { class: 'bg-muted text-foreground border-border', variant: 'default' },
+  const getGiftCardStatusType = (status: string): StatusType => {
+    const mapping: Record<string, StatusType> = {
+      ACTIVE: 'success',
+      REDEEMED: 'info',
+      EXPIRED: 'error',
+      CANCELLED: 'neutral',
     };
-    return config[status] || config.ACTIVE;
+    return mapping[status] || 'neutral';
+  };
+
+  const getStatusBadgeVariant = (status: string): 'success' | 'default' | 'warning' | 'info' => {
+    const mapping: Record<string, 'success' | 'default' | 'warning' | 'info'> = {
+      ACTIVE: 'success',
+      REDEEMED: 'info',
+      EXPIRED: 'warning',
+      CANCELLED: 'default',
+    };
+    return mapping[status] || 'default';
   };
 
   const getBalancePercentage = (current: number, initial: number) => {
@@ -155,7 +166,6 @@ export default function GiftCardDetailPage() {
   }
 
   const balancePercentage = getBalancePercentage(giftCard.currentBalance, giftCard.initialBalance);
-  const statusBadge = getStatusBadge(giftCard.status);
 
   return (
     <PermissionGate
@@ -177,7 +187,7 @@ export default function GiftCardDetailPage() {
             ]}
             badge={{
               label: giftCard.status,
-              variant: statusBadge.variant,
+              variant: getStatusBadgeVariant(giftCard.status),
             }}
             actions={
               <Button
@@ -337,12 +347,9 @@ export default function GiftCardDetailPage() {
                 <div className="p-6 space-y-4">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground mb-2">Card Status</p>
-                    <span className={cn(
-                      'inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold border',
-                      statusBadge.class
-                    )}>
+                    <StatusBadge status={getGiftCardStatusType(giftCard.status)} size="lg">
                       {giftCard.status}
-                    </span>
+                    </StatusBadge>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground mb-1">Currency</p>

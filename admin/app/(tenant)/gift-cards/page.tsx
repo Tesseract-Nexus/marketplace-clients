@@ -30,6 +30,7 @@ import { PageLoading } from '@/components/common';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { PermissionGate, Permission } from '@/components/permission-gate';
+import { StatusBadge, type StatusType } from '@/components/ui/status-badge';
 import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
 import { useToast } from '@/contexts/ToastContext';
@@ -170,14 +171,14 @@ export default function GiftCardsPage() {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const getStatusBadgeClass = (status: string) => {
-    const classes: Record<string, string> = {
-      ACTIVE: 'bg-success-muted text-success-foreground border-success/30',
-      REDEEMED: 'bg-primary/20 text-primary border-primary/30',
-      EXPIRED: 'bg-error-muted text-error border-error/30',
-      CANCELLED: 'bg-muted text-foreground border-border',
+  const getGiftCardStatusType = (status: string): StatusType => {
+    const mapping: Record<string, StatusType> = {
+      ACTIVE: 'success',
+      REDEEMED: 'info',
+      EXPIRED: 'error',
+      CANCELLED: 'neutral',
     };
-    return classes[status] || classes.ACTIVE;
+    return mapping[status] || 'neutral';
   };
 
   const getBalancePercentage = (current: number, initial: number) => {
@@ -546,6 +547,7 @@ export default function GiftCardsPage() {
         )}
 
         <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
+        <div className="space-y-6">
         {/* Filters */}
         <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -700,14 +702,9 @@ export default function GiftCardsPage() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <span
-                          className={cn(
-                            'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border',
-                            getStatusBadgeClass(card.status)
-                          )}
-                        >
+                        <StatusBadge status={getGiftCardStatusType(card.status)}>
                           {card.status}
-                        </span>
+                        </StatusBadge>
                       </td>
                       <td className="px-6 py-4">
                         {card.expiresAt ? (
@@ -732,7 +729,7 @@ export default function GiftCardsPage() {
                           variant="ghost"
                           size="sm"
                           onClick={() => router.push(`/gift-cards/${card.id}`)}
-                          className="h-8 px-3 hover:bg-primary/10 hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="h-8 px-3 hover:bg-primary/10 hover:text-primary transition-colors"
                         >
                           <Eye className="h-4 w-4 mr-1" />
                           View
@@ -745,6 +742,7 @@ export default function GiftCardsPage() {
               </table>
             </div>
           )}
+        </div>
         </div>
         </DataPageLayout>
 

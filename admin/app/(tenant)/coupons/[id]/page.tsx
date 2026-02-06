@@ -17,6 +17,7 @@ import {
   Edit2,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { StatusBadge, type StatusType } from '@/components/ui/status-badge';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageHeader } from '@/components/PageHeader';
 import { PageLoading } from '@/components/common';
@@ -51,15 +52,26 @@ export default function CouponDetailPage() {
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    const config: Record<string, { class: string; variant: 'success' | 'default' | 'warning' | 'info' }> = {
-      DRAFT: { class: 'bg-muted text-foreground border-border', variant: 'default' },
-      ACTIVE: { class: 'bg-success-muted text-success-foreground border-success/30', variant: 'success' },
-      INACTIVE: { class: 'bg-warning-muted text-warning border-warning/30', variant: 'warning' },
-      EXPIRED: { class: 'bg-error-muted text-error border-error/30', variant: 'warning' },
-      DEPLETED: { class: 'bg-error-muted text-error border-error/30', variant: 'warning' },
+  const getCouponStatusType = (status: string): StatusType => {
+    const mapping: Record<string, StatusType> = {
+      DRAFT: 'neutral',
+      ACTIVE: 'success',
+      INACTIVE: 'warning',
+      EXPIRED: 'error',
+      DEPLETED: 'error',
     };
-    return config[status] || config.DRAFT;
+    return mapping[status] || 'neutral';
+  };
+
+  const getStatusBadgeVariant = (status: string): 'success' | 'default' | 'warning' | 'info' => {
+    const mapping: Record<string, 'success' | 'default' | 'warning' | 'info'> = {
+      DRAFT: 'default',
+      ACTIVE: 'success',
+      INACTIVE: 'warning',
+      EXPIRED: 'warning',
+      DEPLETED: 'warning',
+    };
+    return mapping[status] || 'default';
   };
 
   const getDiscountIcon = (type: DiscountType) => {
@@ -181,7 +193,6 @@ export default function CouponDetailPage() {
     );
   }
 
-  const statusBadge = getStatusBadge(coupon.status);
   const DiscountIcon = getDiscountIcon(coupon.discountType);
   const hasUsageLimit = coupon.totalUsageLimit !== undefined && coupon.totalUsageLimit > 0;
   const usagePercentage = getUsagePercentage(coupon.currentUsageCount, coupon.totalUsageLimit);
@@ -206,7 +217,7 @@ export default function CouponDetailPage() {
             ]}
             badge={{
               label: coupon.status,
-              variant: statusBadge.variant,
+              variant: getStatusBadgeVariant(coupon.status),
             }}
             actions={
               <div className="flex gap-2">
@@ -362,12 +373,9 @@ export default function CouponDetailPage() {
                 <div className="p-6 space-y-4">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground mb-2">Coupon Status</p>
-                    <span className={cn(
-                      'inline-flex items-center px-3 py-1.5 rounded-full text-sm font-semibold border',
-                      statusBadge.class
-                    )}>
+                    <StatusBadge status={getCouponStatusType(coupon.status)} size="lg">
                       {coupon.status}
-                    </span>
+                    </StatusBadge>
                   </div>
                   <div>
                     <p className="text-sm font-medium text-muted-foreground mb-1">Discount</p>
