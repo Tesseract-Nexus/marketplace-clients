@@ -5,8 +5,8 @@ import type { NextRequest } from 'next/server';
 const isDev = process.env.NODE_ENV !== 'production';
 const debugLog = (...args: unknown[]) => isDev && console.log(...args);
 
-// Base domain for tenant subdomains (e.g., mark8ly.app)
-const BASE_DOMAIN = process.env.BASE_DOMAIN || 'mark8ly.app';
+// Base domain for tenant subdomains (e.g., tesserix.app)
+const BASE_DOMAIN = process.env.BASE_DOMAIN || 'tesserix.app';
 
 // Custom domain service URL for domain resolution
 const CUSTOM_DOMAIN_SERVICE_URL = process.env.CUSTOM_DOMAIN_SERVICE_URL || 'http://custom-domain-service.marketplace.svc.cluster.local:8093';
@@ -31,12 +31,12 @@ const STATIC_PATHS = [
 ];
 
 /**
- * Check if a hostname is a custom domain (not mark8ly.app or localhost)
+ * Check if a hostname is a custom domain (not tesserix.app or localhost)
  */
 function isCustomDomain(host: string): boolean {
   const hostname = (host.split(':')[0] || '').toLowerCase();
 
-  // Not custom if it's mark8ly.app
+  // Not custom if it's tesserix.app
   if (hostname.endsWith(`.${BASE_DOMAIN}`) || hostname === BASE_DOMAIN) {
     return false;
   }
@@ -127,7 +127,7 @@ async function resolveCustomDomain(domain: string): Promise<{ tenantSlug: string
 }
 
 // Extract tenant slug from hostname
-// e.g., demo-store.mark8ly.app -> demo-store
+// e.g., demo-store.tesserix.app -> demo-store
 function getTenantFromHost(host: string): string | null {
   // Remove port if present
   const hostname = host.split(':')[0] || '';
@@ -203,7 +203,7 @@ export async function middleware(request: NextRequest) {
       }
     }
   } else {
-    // Standard mark8ly.app or localhost domain - extract from hostname
+    // Standard tesserix.app or localhost domain - extract from hostname
     tenantSlug = getTenantFromHost(host);
 
     // If not found in hostname, check headers (for VirtualService-injected custom domains)

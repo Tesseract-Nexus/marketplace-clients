@@ -41,12 +41,12 @@ export default async function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <body className={`${inter.variable} font-sans antialiased`}>
           <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-br from-violet-500 to-purple-600 p-8 text-white">
-            <h1 className="mb-4 text-4xl font-bold">Mark8ly Storefront</h1>
+            <h1 className="mb-4 text-4xl font-bold">Tesserix Storefront</h1>
             <p className="mb-8 text-lg opacity-90">
               Access your store via your tenant subdomain
             </p>
             <p className="text-sm opacity-75">
-              Example: demo-store.mark8ly.app
+              Example: demo-store.tesserix.app
             </p>
           </div>
         </body>
