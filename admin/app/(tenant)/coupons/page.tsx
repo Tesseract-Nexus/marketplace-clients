@@ -21,6 +21,7 @@ import {
   Search,
   Plus,
   Edit,
+  Eye,
   Trash2,
   Copy,
   CheckCircle,
@@ -584,8 +585,8 @@ export default function CouponsPage() {
                         className="flex-1 h-7 rounded-md bg-muted hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors text-xs font-medium"
                         variant="ghost"
                       >
-                        <Edit className="w-3 h-3 mr-1" />
-                        Edit
+                        <Eye className="w-3 h-3 mr-1" />
+                        View
                       </Button>
                       <Button
                         onClick={() => handleCopyCode(coupon.code)}

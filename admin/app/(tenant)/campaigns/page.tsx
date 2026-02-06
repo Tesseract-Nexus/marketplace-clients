@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Plus,
   Send,
@@ -121,6 +122,7 @@ const DEFAULT_STATS: CampaignStats = {
 };
 
 export default function CampaignsPage() {
+  const router = useRouter();
   const { showAlert, showConfirm } = useDialog();
   const toast = useToast();
 
@@ -137,7 +139,6 @@ export default function CampaignsPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // Inline form state
-  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [showInlineForm, setShowInlineForm] = useState(false);
   const [formMode, setFormMode] = useState<'create' | 'edit'>('create');
   const [creating, setCreating] = useState(false);
@@ -1122,7 +1123,7 @@ export default function CampaignsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => setSelectedCampaign(campaign)}
+                            onClick={() => router.push(`/campaigns/${campaign.id}`)}
                             className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10 transition-colors"
                             title="View details"
                             aria-label="View campaign details"
@@ -1204,139 +1205,6 @@ export default function CampaignsPage() {
         </div>
         </DataPageLayout>
       </div>
-
-      {/* Campaign Details Modal */}
-      {selectedCampaign && (
-        <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[200] p-4 animate-in fade-in duration-200"
-          onClick={() => setSelectedCampaign(null)}
-        >
-          <div
-            className="bg-card rounded-lg shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-in zoom-in duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="border-b border-border p-6">
-              <h2 className="text-2xl font-bold text-foreground">{selectedCampaign.name}</h2>
-              <p className="text-sm text-muted-foreground mt-1">{selectedCampaign.description}</p>
-            </div>
-
-            <div className="p-6 space-y-6">
-              <div className="grid grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1">Type</label>
-                  <p className="text-sm text-foreground">{selectedCampaign.type}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1">
-                    Channel
-                  </label>
-                  <p className="text-sm text-foreground">{selectedCampaign.channel}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1">Status</label>
-                  <span
-                    className={cn(
-                      'inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold border',
-                      getStatusColor(selectedCampaign.status)
-                    )}
-                  >
-                    {selectedCampaign.status}
-                  </span>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1">
-                    Recipients
-                  </label>
-                  <p className="text-sm text-foreground">
-                    {formatNumber(selectedCampaign.totalRecipients)}
-                  </p>
-                </div>
-              </div>
-
-              {selectedCampaign.status !== 'DRAFT' && selectedCampaign.delivered > 0 && (
-                <div className="space-y-4">
-                  <h4 className="font-bold text-foreground">Campaign Analytics</h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <div className="bg-primary/5 border border-primary/30 rounded-lg p-4 text-center">
-                      <p className="text-2xl font-bold text-primary">
-                        {formatNumber(selectedCampaign.delivered)}
-                      </p>
-                      <p className="text-xs text-primary mt-1">Delivered</p>
-                    </div>
-                    <div className="bg-success/5 border border-success/30 rounded-lg p-4 text-center">
-                      <p className="text-2xl font-bold text-success-foreground">
-                        {formatNumber(selectedCampaign.opened)}
-                      </p>
-                      <p className="text-xs text-success mt-1">
-                        Opened ({calculateOpenRate(selectedCampaign)})
-                      </p>
-                    </div>
-                    <div className="bg-primary/5 border border-primary/30 rounded-lg p-4 text-center">
-                      <p className="text-2xl font-bold text-primary">
-                        {formatNumber(selectedCampaign.clicked)}
-                      </p>
-                      <p className="text-xs text-primary mt-1">
-                        Clicked ({calculateClickRate(selectedCampaign)})
-                      </p>
-                    </div>
-                    <div className="bg-warning/5 border border-warning/30 rounded-lg p-4 text-center">
-                      <p className="text-2xl font-bold text-warning-foreground">
-                        {formatNumber(selectedCampaign.converted)}
-                      </p>
-                      <p className="text-xs text-warning mt-1">
-                        Converted ({calculateConversionRate(selectedCampaign)})
-                      </p>
-                    </div>
-                  </div>
-                  <div className="bg-muted border border-primary/30 rounded-lg p-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-bold text-foreground">Total Revenue</span>
-                      <span className="text-2xl font-bold text-primary">
-                        {formatCurrency(selectedCampaign.revenue)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedCampaign.subject && (
-                <div>
-                  <label className="block text-sm font-bold text-foreground mb-1">Subject</label>
-                  <p className="text-sm text-foreground bg-muted p-3 rounded border border-border">
-                    {selectedCampaign.subject}
-                  </p>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-bold text-foreground mb-1">Content</label>
-                <div className="bg-muted p-4 rounded border border-border">
-                  <p className="text-sm text-foreground whitespace-pre-wrap">
-                    {selectedCampaign.content}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t border-border p-6 flex justify-end gap-3">
-              {(selectedCampaign.status === 'DRAFT' || selectedCampaign.status === 'PAUSED') && (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    const campaign = selectedCampaign;
-                    setSelectedCampaign(null);
-                    handleEditCampaign(campaign);
-                  }}
-                >
-                  <Edit2 className="h-4 w-4 mr-2" />
-                  Edit Campaign
-                </Button>
-              )}
-              <Button variant="gradient" onClick={() => setSelectedCampaign(null)}>Close</Button>
-            </div>
-          </div>
-        </div>
-      )}
 
     </div>
     </PermissionGate>
