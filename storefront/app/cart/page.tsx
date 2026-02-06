@@ -14,7 +14,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useNavPath } from '@/context/TenantContext';
 import { useCartStore } from '@/store/cart';
 import { CouponInput } from '@/components/checkout/CouponInput';
-import { FreeShippingProgress } from '@/components/cart/FreeShippingProgress';
 import { RecentlyViewedProducts } from '@/components/product/RecentlyViewedProducts';
 import { usePriceFormatting } from '@/context/CurrencyContext';
 import { useCartValidation, getStatusBadgeInfo, formatPriceChange } from '@/hooks/useCartValidation';
@@ -552,13 +551,6 @@ export default function CartPage() {
                     <span>{formatDisplayPrice(tax)}</span>
                   </div>
                 </div>
-
-                {/* Free Shipping Progress - shows progress towards free shipping threshold */}
-                <FreeShippingProgress
-                  subtotal={selectedSubtotal}
-                  threshold={50}
-                  className="my-4 bg-muted/30"
-                />
 
                 <Separator className="my-5" />
 
