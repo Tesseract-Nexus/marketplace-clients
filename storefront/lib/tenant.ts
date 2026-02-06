@@ -261,13 +261,13 @@ interface AuthBffSession {
 }
 
 /**
- * Gets user session from auth-bff using the bff_session cookie.
+ * Gets user session from auth-bff using the bff_storefront_session cookie.
  * This supports OAuth/OIDC flows where JWT tokens aren't exposed.
  */
 async function getSessionFromAuthBff(): Promise<AuthBffSession | null> {
   try {
     const cookieStore = await cookies();
-    const bffSession = cookieStore.get('bff_session')?.value;
+    const bffSession = cookieStore.get('bff_storefront_session')?.value;
 
     if (!bffSession) {
       return null;
@@ -276,9 +276,13 @@ async function getSessionFromAuthBff(): Promise<AuthBffSession | null> {
     // Call auth-bff session endpoint with the session cookie
     const authBffUrl = process.env.AUTH_BFF_INTERNAL_URL || process.env.AUTH_BFF_URL || 'http://localhost:8080';
 
+    // Include X-Forwarded-Host so auth-bff reads the correct cookie name
+    const host = (await headers()).get('host') || '';
+
     const response = await fetch(`${authBffUrl}/auth/session`, {
       headers: {
-        'Cookie': `bff_session=${bffSession}`,
+        'Cookie': `bff_storefront_session=${bffSession}`,
+        'X-Forwarded-Host': host,
         'Accept': 'application/json',
       },
       cache: 'no-store',

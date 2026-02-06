@@ -77,9 +77,6 @@ async function proxyToAuthBff(
       headers.set('X-CSRF-Token', csrfToken);
     }
 
-    // Mark this as a customer/storefront auth request (not admin)
-    headers.set('X-Auth-Context', 'customer');
-
     // Build request options
     const fetchOptions: RequestInit = {
       method,
