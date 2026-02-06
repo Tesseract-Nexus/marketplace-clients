@@ -81,12 +81,24 @@ export default function CouponsPage() {
     loadCoupons();
   }, []);
 
+  const normalizeCoupon = (raw: any): Coupon => ({
+    ...raw,
+    discountType: raw.discountType || raw.type || 'FIXED_AMOUNT',
+    applicability: raw.applicability || 'ALL_PRODUCTS',
+    status: raw.status || (raw.isActive ? 'ACTIVE' : 'INACTIVE'),
+    totalUsageLimit: raw.totalUsageLimit ?? raw.maxUsage,
+    perCustomerLimit: raw.perCustomerLimit ?? raw.usagePerCustomer,
+    currentUsageCount: raw.currentUsageCount ?? raw.currentUsage ?? 0,
+    startDate: raw.startDate || raw.validFrom,
+    endDate: raw.endDate || raw.validUntil,
+  });
+
   const loadCoupons = async () => {
     try {
       setLoading(true);
       setError(null);
       const response = await couponService.getCoupons();
-      setCoupons(response.data);
+      setCoupons((response.data || []).map(normalizeCoupon));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load coupons');
       console.error('Error loading coupons:', err);

@@ -94,6 +94,24 @@ export default function CouponDetailPage() {
     return 'bg-success';
   };
 
+  const normalizeCoupon = (raw: any): Coupon => {
+    return {
+      ...raw,
+      discountType: raw.discountType || raw.type || 'FIXED_AMOUNT',
+      applicability: raw.applicability || 'ALL_PRODUCTS',
+      status: raw.status || (raw.isActive ? 'ACTIVE' : 'INACTIVE'),
+      totalUsageLimit: raw.totalUsageLimit ?? raw.maxUsage,
+      perCustomerLimit: raw.perCustomerLimit ?? raw.usagePerCustomer,
+      currentUsageCount: raw.currentUsageCount ?? raw.currentUsage ?? 0,
+      startDate: raw.startDate || raw.validFrom,
+      endDate: raw.endDate || raw.validUntil,
+      restrictions: raw.restrictions || {
+        minPurchaseAmount: raw.minOrderAmount,
+        maxDiscountAmount: raw.maxDiscount,
+      },
+    };
+  };
+
   const fetchCoupon = useCallback(async () => {
     try {
       setLoading(true);
@@ -102,7 +120,7 @@ export default function CouponDetailPage() {
       const response = await couponService.getCoupon(id);
 
       if (response.success && response.data) {
-        setCoupon(response.data);
+        setCoupon(normalizeCoupon(response.data));
       } else {
         throw new Error('Failed to fetch coupon');
       }
