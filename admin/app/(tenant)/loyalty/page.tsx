@@ -13,6 +13,8 @@ import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
 import { useToast } from '@/contexts/ToastContext';
 import { apiClient } from '@/lib/api/client';
+import { useAdminCurrencyContext } from '@/contexts/AdminCurrencyContext';
+import { getCurrencyInfo } from '@/lib/api/currency';
 import type { LoyaltyProgram, LoyaltyTier } from '@/lib/api/types';
 
 // API Response wrapper type
@@ -29,25 +31,27 @@ const DEFAULT_TIERS: LoyaltyTier[] = [
     name: 'Bronze',
     minimumPoints: 0,
     discountPercent: 0,
-    benefits: 'Earn 1 point per dollar',
+    benefits: 'Earn 1 point per unit spent',
   },
   {
     name: 'Silver',
     minimumPoints: 1000,
     discountPercent: 5,
-    benefits: '5% discount + Earn 1 point per dollar',
+    benefits: '5% discount + Earn 1 point per unit spent',
   },
   {
     name: 'Gold',
     minimumPoints: 5000,
     discountPercent: 10,
-    benefits: '10% discount + Earn 1 point per dollar + Exclusive offers',
+    benefits: '10% discount + Earn 1 point per unit spent + Exclusive offers',
   },
 ];
 
 export default function LoyaltyProgramPage() {
   const { showAlert, showConfirm } = useDialog();
   const toast = useToast();
+  const { storeCurrency } = useAdminCurrencyContext();
+  const currencySymbol = getCurrencyInfo(storeCurrency)?.symbol || storeCurrency;
   const [activeTab, setActiveTab] = useState<TabType>('settings');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -259,7 +263,7 @@ export default function LoyaltyProgramPage() {
           },
           {
             id: 'pointsPerDollar',
-            label: 'Points per Dollar',
+            label: `Points per ${currencySymbol}1`,
             value: `${formData.pointsPerDollar}x`,
             icon: TrendingUp,
             color: 'primary',
@@ -315,7 +319,7 @@ export default function LoyaltyProgramPage() {
     },
     {
       id: 'points',
-      label: 'Points/Dollar',
+      label: `Points/${currencySymbol}1`,
       value: `${formData.pointsPerDollar}x`,
       icon: TrendingUp,
       color: 'primary',
@@ -491,7 +495,7 @@ export default function LoyaltyProgramPage() {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-foreground mb-2">
-                        Points per Dollar Spent
+                        Points per {currencySymbol}1 Spent
                       </label>
                       <Input
                         type="number"
@@ -503,7 +507,7 @@ export default function LoyaltyProgramPage() {
                         }
                       />
                       <p className="text-xs text-muted-foreground mt-1">
-                        How many points customers earn per dollar
+                        How many points customers earn per {currencySymbol}1
                       </p>
                     </div>
 
@@ -792,7 +796,7 @@ export default function LoyaltyProgramPage() {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-foreground">Earn on every purchase:</span>
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-primary/20 text-primary border border-primary/30">
-                      {formData.pointsPerDollar} point per $1
+                      {formData.pointsPerDollar} point per {currencySymbol}1
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
