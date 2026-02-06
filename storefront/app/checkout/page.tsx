@@ -594,8 +594,8 @@ function CheckoutContent() {
         }
 
         // Redeem loyalty points after successful payment
-        if (loyaltyPointsApplied > 0 && isAuthenticated && customer?.id && accessToken) {
-          redeemPoints(tenant.id, tenant.storefrontId, loyaltyPointsApplied, order.id, accessToken)
+        if (loyaltyPointsApplied > 0 && isAuthenticated && customer?.id) {
+          redeemPoints(tenant.id, tenant.storefrontId, loyaltyPointsApplied, order.id, customer.id)
             .catch((err) => console.warn('Failed to redeem loyalty points:', err));
         }
 

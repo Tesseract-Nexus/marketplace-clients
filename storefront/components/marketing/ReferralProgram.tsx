@@ -62,10 +62,10 @@ export function ReferralProgram({ variant = 'full', className }: ReferralProgram
 
   // Fetch customer loyalty data if not available
   useEffect(() => {
-    if (tenant && isAuthenticated && accessToken && customer?.id && !customerLoyalty) {
-      fetchCustomerLoyalty(tenant.id, tenant.storefrontId, customer.id, accessToken);
+    if (tenant && isAuthenticated && customer?.id && !customerLoyalty) {
+      fetchCustomerLoyalty(tenant.id, tenant.storefrontId, customer.id);
     }
-  }, [tenant, isAuthenticated, accessToken, customer?.id, customerLoyalty, fetchCustomerLoyalty]);
+  }, [tenant, isAuthenticated, customer?.id, customerLoyalty, fetchCustomerLoyalty]);
 
   // Fetch referral stats
   useEffect(() => {
