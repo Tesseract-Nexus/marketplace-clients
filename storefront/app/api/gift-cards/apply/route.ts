@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
           'X-Storefront-ID': storefrontId || '',
         },
         body: JSON.stringify({
-          code: body.code.replace(/-/g, ''),
+          code: body.code.trim().toUpperCase(),
         }),
       }
     );

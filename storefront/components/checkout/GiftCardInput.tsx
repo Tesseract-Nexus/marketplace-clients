@@ -52,8 +52,8 @@ export function GiftCardInput({
     }
 
     // Check if already applied
-    const cleanCode = code.replace(/-/g, '').trim().toUpperCase();
-    if (appliedGiftCards.some(gc => gc.code.replace(/-/g, '') === cleanCode)) {
+    const formattedCode = code.trim().toUpperCase();
+    if (appliedGiftCards.some(gc => gc.code === formattedCode)) {
       setError(alreadyAppliedText);
       return;
     }
@@ -62,7 +62,7 @@ export function GiftCardInput({
     setError(null);
 
     try {
-      const response = await applyGiftCard(tenant.id, tenant.storefrontId, cleanCode);
+      const response = await applyGiftCard(tenant.id, tenant.storefrontId, formattedCode);
 
       if (response.valid && response.giftCard) {
         // Calculate amount to use (up to remaining balance or gift card balance)

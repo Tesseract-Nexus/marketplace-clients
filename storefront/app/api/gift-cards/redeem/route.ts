@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
           ...(accessToken && { 'Authorization': `Bearer ${accessToken}` }),
         },
         body: JSON.stringify({
-          code: body.code.replace(/-/g, ''),
+          code: body.code.trim().toUpperCase(),
           amount: body.amount,
           orderId: body.orderId,
         }),
