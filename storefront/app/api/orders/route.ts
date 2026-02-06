@@ -56,6 +56,9 @@ interface StorefrontOrderRequest {
   shippingBaseRate?: number;      // Original carrier rate before markup
   shippingMarkupAmount?: number;  // Markup amount applied
   shippingMarkupPercent?: number; // Markup percentage (e.g., 10 for 10%)
+  // Loyalty points redemption
+  loyaltyPointsRedeemed?: number;
+  loyaltyDiscount?: number;
   notes?: string;
   status?: string;
 }
@@ -127,7 +130,7 @@ function transformRequest(body: StorefrontOrderRequest, accessToken?: string | n
   // Use currency from checkout (tenant's localization), fallback to country-based guess
   const currency = body.currency || (body.shippingAddress.country === 'IN' ? 'INR' : 'USD');
 
-  return {
+  const transformed: OrdersServiceRequest = {
     customerId,
     currency,
     items: body.items.map(item => ({
@@ -172,6 +175,20 @@ function transformRequest(body: StorefrontOrderRequest, accessToken?: string | n
     },
     notes: body.notes,
   };
+
+  // Add loyalty points discount if applicable
+  if (body.loyaltyPointsRedeemed && body.loyaltyDiscount) {
+    transformed.discounts = [
+      ...(transformed.discounts || []),
+      {
+        discountType: 'loyalty',
+        amount: body.loyaltyDiscount,
+        description: `Loyalty points redemption (${body.loyaltyPointsRedeemed} pts)`,
+      },
+    ];
+  }
+
+  return transformed;
 }
 
 // POST /api/orders - Create order

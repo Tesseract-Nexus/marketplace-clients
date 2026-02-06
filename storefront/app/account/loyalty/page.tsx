@@ -121,7 +121,7 @@ export default function LoyaltyPage() {
               Join Our Rewards Program
             </h1>
             <p className="text-lg text-muted-foreground mb-6">
-              {program.description || `Earn ${program.pointsPerDollar} point${program.pointsPerDollar !== 1 ? 's' : ''} for every dollar you spend and unlock exclusive rewards.`}
+              {program.description || `Earn ${program.pointsPerDollar} point${program.pointsPerDollar !== 1 ? 's' : ''} for every ${currencySymbol}1 you spend and unlock exclusive rewards.`}
             </p>
 
             {enrollError && (
@@ -183,7 +183,7 @@ export default function LoyaltyPage() {
               </div>
               <h3 className="font-semibold mb-1 text-foreground">Earn Points</h3>
               <p className="text-sm text-muted-foreground">
-                Get {program.pointsPerDollar} point{program.pointsPerDollar !== 1 ? 's' : ''} for every dollar spent
+                Get {program.pointsPerDollar} point{program.pointsPerDollar !== 1 ? 's' : ''} for every {currencySymbol}1 spent
               </p>
             </div>
             <div className="p-5 rounded-xl bg-tenant-primary/5 border border-tenant-primary/10 hover:border-tenant-primary/30 transition-colors">
@@ -267,7 +267,7 @@ export default function LoyaltyPage() {
                 <span className="text-white font-medium">pts</span>
               </div>
               <p className="text-sm text-white mt-2">
-                Worth ${pointsValue.toFixed(2)} in rewards
+                Worth {currencySymbol}{pointsValue.toFixed(2)} in rewards
               </p>
             </div>
 

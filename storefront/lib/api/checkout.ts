@@ -50,6 +50,9 @@ export interface CreateOrderRequest {
   shippingBaseRate?: number;      // Original carrier rate before markup
   shippingMarkupAmount?: number;  // Markup amount applied
   shippingMarkupPercent?: number; // Markup percentage (e.g., 10 for 10%)
+  // Loyalty points redemption
+  loyaltyPointsRedeemed?: number;
+  loyaltyDiscount?: number;
 }
 
 export interface Order {
@@ -136,6 +139,8 @@ export async function createOrder(
       isGiftOrder: orderData.isGiftOrder,
       giftMessage: orderData.giftMessage,
       companyName: orderData.companyName,
+      loyaltyPointsRedeemed: orderData.loyaltyPointsRedeemed,
+      loyaltyDiscount: orderData.loyaltyDiscount,
       status: 'pending',
     }),
   });

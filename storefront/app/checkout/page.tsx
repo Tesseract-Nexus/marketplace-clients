@@ -28,6 +28,7 @@ import {
   type CreateOrderRequest
 } from '@/lib/api/checkout';
 import { recordCustomerOrder } from '@/lib/api/customers';
+import { redeemPoints } from '@/lib/api/loyalty';
 import { ShippingMethod, ShippingRate } from '@/lib/api/shipping';
 import { CheckoutProvider, useCheckout } from '@/context/CheckoutContext';
 import { CheckoutProgress } from '@/components/checkout/CheckoutProgress';
@@ -506,6 +507,8 @@ function CheckoutContent() {
         isGiftOrder: isGiftOrder || undefined,
         giftMessage: isGiftOrder ? giftMessage : undefined,
         companyName: contactInfo.company || undefined,
+        loyaltyPointsRedeemed: loyaltyPointsApplied > 0 ? loyaltyPointsApplied : undefined,
+        loyaltyDiscount: loyaltyDiscount > 0 ? loyaltyDiscount : undefined,
       };
 
       const order = await createOrder(tenant.id, tenant.storefrontId, createOrderData);
@@ -588,6 +591,12 @@ function CheckoutContent() {
             orderNumber: order.orderNumber,
             totalAmount: total,
           }, accessToken).catch(console.warn);
+        }
+
+        // Redeem loyalty points after successful payment
+        if (loyaltyPointsApplied > 0 && isAuthenticated && customer?.id && accessToken) {
+          redeemPoints(tenant.id, tenant.storefrontId, loyaltyPointsApplied, order.id, accessToken)
+            .catch((err) => console.warn('Failed to redeem loyalty points:', err));
         }
 
         // Redirect to success page with payment session ID
