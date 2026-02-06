@@ -71,7 +71,7 @@ export default function AccountPage() {
         lastName: customer.lastName || '',
         email: customer.email || '',
         phone: customer.phone || '',
-        dateOfBirth: customer.dateOfBirth ? customer.dateOfBirth.split('T')[0] : '',
+        dateOfBirth: customer.dateOfBirth?.split('T')[0] ?? '',
       });
     }
   }, [customer]);
