@@ -77,10 +77,12 @@ export default function LoyaltyProgramPage() {
       setLoading(true);
       setError(null);
 
-      const response = await apiClient.get<ApiResponse<LoyaltyProgram>>('/loyalty/program');
+      const response = await apiClient.get<LoyaltyProgram | ApiResponse<LoyaltyProgram>>('/loyalty/program');
 
-      if (response.success && response.data) {
-        const program = response.data;
+      // Marketing service returns the program object directly (not wrapped in {success, data})
+      const program = ('data' in response && response.data) ? response.data as LoyaltyProgram : response as LoyaltyProgram;
+
+      if (program && program.id) {
         setProgramExists(true);
         setFormData({
           name: program.name || 'Rewards Program',
@@ -221,14 +223,15 @@ export default function LoyaltyProgramPage() {
       };
 
       const response = programExists
-        ? await apiClient.put<ApiResponse<LoyaltyProgram>>('/loyalty/program', payload)
-        : await apiClient.post<ApiResponse<LoyaltyProgram>>('/loyalty/program', payload);
+        ? await apiClient.put<LoyaltyProgram>('/loyalty/program', payload)
+        : await apiClient.post<LoyaltyProgram>('/loyalty/program', payload);
 
-      if (response.success) {
+      // Marketing service returns the program object directly
+      if (response && (response as any).id) {
         setProgramExists(true);
         toast.success('Success', 'Loyalty program saved successfully!');
       } else {
-        throw new Error(response.error?.message || 'Failed to save loyalty program');
+        throw new Error('Failed to save loyalty program');
       }
     } catch (err) {
       console.error('Failed to save loyalty program:', err);
