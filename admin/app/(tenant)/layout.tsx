@@ -378,7 +378,7 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
 
   const toggleExpanded = (name: string) => {
     setExpandedItems((prev) =>
-      prev.includes(name) ? prev.filter((item) => item !== name) : [...prev, name]
+      prev.includes(name) ? prev.filter((item) => item !== name) : [name]
     );
   };
 
@@ -409,15 +409,12 @@ function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
     return expandedParents;
   };
 
-  // Auto-expand parent items when pathname changes
+  // Auto-expand parent items when pathname changes (accordion: only active section)
   useEffect(() => {
     if (pathname && filteredNavigation.length > 0) {
       const parentsToExpand = findExpandedParents(filteredNavigation, pathname);
       if (parentsToExpand.length > 0) {
-        setExpandedItems((prev) => {
-          const newExpanded = [...new Set([...prev, ...parentsToExpand])];
-          return newExpanded;
-        });
+        setExpandedItems(parentsToExpand);
       }
     }
   }, [pathname, filteredNavigation]);
