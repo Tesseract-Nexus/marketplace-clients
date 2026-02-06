@@ -138,7 +138,7 @@ export async function enrollInLoyalty(
 ): Promise<CustomerLoyalty> {
   const body: Record<string, string | undefined> = {};
   if (referralCode) body.referralCode = referralCode;
-  if (dateOfBirth) body.dateOfBirth = dateOfBirth;
+  if (dateOfBirth) body.dateOfBirth = `${dateOfBirth}T00:00:00Z`;
 
   const response = await fetch('/api/loyalty/enroll', {
     method: 'POST',

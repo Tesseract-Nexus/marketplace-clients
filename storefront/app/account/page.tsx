@@ -5,7 +5,7 @@ import { Camera, Mail, Phone, Edit2, Check, X, Loader2, MapPin, Plus, Trash2, Ho
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useTenant, useLocalization } from '@/context/TenantContext';
+import { useTenant, useLocalization, useFormatPrice } from '@/context/TenantContext';
 import { useAuthStore } from '@/store/auth';
 import { useWishlistStore } from '@/store/wishlist';
 import { toast } from 'sonner';
@@ -26,6 +26,7 @@ export default function AccountPage() {
   // Get store localization settings (country configured by admin)
   const localization = useLocalization();
   const storeCountryCode = localization.countryCode;
+  const formatPrice = useFormatPrice();
   const { customerLoyalty, program } = useLoyalty();
   const wishlistItems = useWishlistStore((state) => state.items);
   const [isEditing, setIsEditing] = useState(false);
@@ -347,7 +348,7 @@ export default function AccountPage() {
           firstName: profile.firstName,
           lastName: profile.lastName,
           phone: profile.phone,
-          ...(profile.dateOfBirth && { dateOfBirth: profile.dateOfBirth }),
+          ...(profile.dateOfBirth && { dateOfBirth: `${profile.dateOfBirth}T00:00:00Z` }),
         }),
       });
 
@@ -906,7 +907,7 @@ export default function AccountPage() {
         </div>
         <div className="bg-card rounded-xl border p-6 text-center">
           <p className="text-3xl font-bold" style={{ color: settings.primaryColor }}>
-            ${(customer?.totalSpent ?? 0).toFixed(0)}
+            {formatPrice(customer?.totalSpent ?? 0)}
           </p>
           <p className="text-sm text-muted-foreground mt-1"><TranslatedUIText text="Total Spent" /></p>
         </div>
