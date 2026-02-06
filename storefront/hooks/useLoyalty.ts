@@ -54,11 +54,11 @@ export function useLoyalty() {
     }
   }, [tenant, accessToken, fetchTransactions]);
 
-  const enrollInProgram = useCallback(async (referralCode?: string) => {
+  const enrollInProgram = useCallback(async (referralCode?: string, dateOfBirth?: string) => {
     if (!tenant || !accessToken) {
       throw new Error('Not authenticated');
     }
-    await enroll(tenant.id, tenant.storefrontId, accessToken, referralCode);
+    await enroll(tenant.id, tenant.storefrontId, accessToken, referralCode, dateOfBirth);
   }, [tenant, accessToken, enroll]);
 
   const redeem = useCallback(async (points: number, orderId: string) => {

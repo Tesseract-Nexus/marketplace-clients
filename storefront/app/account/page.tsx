@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Camera, Mail, Phone, Edit2, Check, X, Loader2, MapPin, Plus, Trash2, Home, Building, Tag, Pencil } from 'lucide-react';
+import { Camera, Mail, Phone, Edit2, Check, X, Loader2, MapPin, Plus, Trash2, Home, Building, Tag, Pencil, Calendar, Copy, Share2, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -15,6 +15,7 @@ import {
 } from '@/lib/api/customers';
 import { AddressAutocomplete, type ParsedAddressData } from '@/components/AddressAutocomplete';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
+import { useLoyalty } from '@/hooks/useLoyalty';
 
 export default function AccountPage() {
   const { settings, tenant } = useTenant();
@@ -25,14 +26,17 @@ export default function AccountPage() {
   // Get store localization settings (country configured by admin)
   const localization = useLocalization();
   const storeCountryCode = localization.countryCode;
+  const { customerLoyalty, program } = useLoyalty();
   const wishlistItems = useWishlistStore((state) => state.items);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [copiedReferral, setCopiedReferral] = useState(false);
   const [profile, setProfile] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phone: '',
+    dateOfBirth: '',
   });
 
   // Address state
@@ -67,6 +71,7 @@ export default function AccountPage() {
         lastName: customer.lastName || '',
         email: customer.email || '',
         phone: customer.phone || '',
+        dateOfBirth: customer.dateOfBirth ? customer.dateOfBirth.split('T')[0] : '',
       });
     }
   }, [customer]);
@@ -342,6 +347,7 @@ export default function AccountPage() {
           firstName: profile.firstName,
           lastName: profile.lastName,
           phone: profile.phone,
+          ...(profile.dateOfBirth && { dateOfBirth: profile.dateOfBirth }),
         }),
       });
 
@@ -479,6 +485,28 @@ export default function AccountPage() {
                 />
               ) : (
                 <p className="py-2 px-3 bg-muted rounded-lg flex-1">{profile.phone}</p>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="dateOfBirth"><TranslatedUIText text="Date of Birth" /></Label>
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              {isEditing ? (
+                <Input
+                  id="dateOfBirth"
+                  type="date"
+                  value={profile.dateOfBirth}
+                  onChange={(e) => setProfile({ ...profile, dateOfBirth: e.target.value })}
+                  className="flex-1"
+                />
+              ) : (
+                <p className="py-2 px-3 bg-muted rounded-lg flex-1">
+                  {profile.dateOfBirth
+                    ? new Date(profile.dateOfBirth + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+                    : 'Not set'}
+                </p>
               )}
             </div>
           </div>
@@ -799,6 +827,69 @@ export default function AccountPage() {
           </div>
         )}
       </div>
+
+      {/* Referral Code Section */}
+      {customerLoyalty?.referralCode && (
+        <div className="bg-card rounded-xl border p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Gift className="h-5 w-5 text-tenant-primary" />
+            <h3 className="text-lg font-semibold"><TranslatedUIText text="Your Referral Code" /></h3>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">
+            <TranslatedUIText text="Share your code with friends" />
+            {program?.referralBonus ? ` and earn ${program.referralBonus} bonus points each!` : ''}
+          </p>
+          <div className="flex items-center gap-2">
+            <div className="flex-1 max-w-xs bg-muted border rounded-lg px-4 py-2.5 font-mono text-lg tracking-widest text-foreground">
+              {customerLoyalty.referralCode}
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(customerLoyalty.referralCode!);
+                  setCopiedReferral(true);
+                  setTimeout(() => setCopiedReferral(false), 2000);
+                } catch {
+                  // Fallback handled by share
+                }
+              }}
+              className="shrink-0"
+            >
+              {copiedReferral ? (
+                <Check className="h-4 w-4 text-green-600" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={async () => {
+                if (navigator.share) {
+                  try {
+                    await navigator.share({
+                      title: `Join ${program?.name || 'our rewards program'}!`,
+                      text: `Use my referral code ${customerLoyalty.referralCode} to get ${program?.referralBonus || 0} bonus points when you sign up!`,
+                      url: window.location.origin,
+                    });
+                  } catch {
+                    // User cancelled share
+                  }
+                } else {
+                  await navigator.clipboard.writeText(customerLoyalty.referralCode!);
+                  setCopiedReferral(true);
+                  setTimeout(() => setCopiedReferral(false), 2000);
+                }
+              }}
+              className="shrink-0"
+            >
+              <Share2 className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       <div className="grid sm:grid-cols-3 gap-4">
         <div className="bg-card rounded-xl border p-6 text-center">

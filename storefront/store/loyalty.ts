@@ -35,7 +35,7 @@ export interface LoyaltyState {
   fetchProgram: (tenantId: string, storefrontId: string) => Promise<void>;
   fetchCustomerLoyalty: (tenantId: string, storefrontId: string, customerId: string, accessToken: string) => Promise<void>;
   fetchTransactions: (tenantId: string, storefrontId: string, accessToken: string) => Promise<void>;
-  enroll: (tenantId: string, storefrontId: string, accessToken: string, referralCode?: string) => Promise<void>;
+  enroll: (tenantId: string, storefrontId: string, accessToken: string, referralCode?: string, dateOfBirth?: string) => Promise<void>;
   redeemPoints: (tenantId: string, storefrontId: string, points: number, orderId: string, accessToken: string) => Promise<{ success: boolean; dollarValue: number }>;
   updateBalance: (newBalance: number) => void;
   reset: () => void;
@@ -101,10 +101,10 @@ export const useLoyaltyStore = create<LoyaltyState>()(
         }
       },
 
-      enroll: async (tenantId, storefrontId, accessToken, referralCode) => {
+      enroll: async (tenantId, storefrontId, accessToken, referralCode, dateOfBirth) => {
         set({ isEnrolling: true, error: null });
         try {
-          const customerLoyalty = await enrollInLoyalty(tenantId, storefrontId, accessToken, referralCode);
+          const customerLoyalty = await enrollInLoyalty(tenantId, storefrontId, accessToken, referralCode, dateOfBirth);
           set({ customerLoyalty, isEnrolling: false });
         } catch (error) {
           set({

@@ -37,6 +37,7 @@ export default function LoyaltyPage() {
 
   const [enrollError, setEnrollError] = useState<string | null>(null);
   const [referralCodeInput, setReferralCodeInput] = useState('');
+  const [birthdayInput, setBirthdayInput] = useState('');
   const [copiedCode, setCopiedCode] = useState(false);
 
   useEffect(() => {
@@ -48,7 +49,7 @@ export default function LoyaltyPage() {
   const handleEnroll = async () => {
     setEnrollError(null);
     try {
-      await enrollInProgram(referralCodeInput || undefined);
+      await enrollInProgram(referralCodeInput || undefined, birthdayInput || undefined);
     } catch (error) {
       setEnrollError(error instanceof Error ? error.message : 'Failed to enroll');
     }
@@ -148,6 +149,25 @@ export default function LoyaltyPage() {
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">
                   Get an extra {program.referralBonus} bonus points!
+                </p>
+              </div>
+            )}
+
+            {/* Birthday Input */}
+            {program.birthdayBonus > 0 && (
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Your birthday (optional)
+                </label>
+                <div className="max-w-xs">
+                  <Input
+                    type="date"
+                    value={birthdayInput}
+                    onChange={(e) => setBirthdayInput(e.target.value)}
+                  />
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Earn {program.birthdayBonus} bonus points on your birthday!
                 </p>
               </div>
             )}

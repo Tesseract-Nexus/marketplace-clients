@@ -133,8 +133,13 @@ export async function enrollInLoyalty(
   tenantId: string,
   storefrontId: string,
   accessToken: string,
-  referralCode?: string
+  referralCode?: string,
+  dateOfBirth?: string
 ): Promise<CustomerLoyalty> {
+  const body: Record<string, string | undefined> = {};
+  if (referralCode) body.referralCode = referralCode;
+  if (dateOfBirth) body.dateOfBirth = dateOfBirth;
+
   const response = await fetch('/api/loyalty/enroll', {
     method: 'POST',
     headers: {
@@ -143,7 +148,7 @@ export async function enrollInLoyalty(
       'X-Storefront-ID': storefrontId,
       'Authorization': `Bearer ${accessToken}`,
     },
-    body: JSON.stringify({ referralCode: referralCode || undefined }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {

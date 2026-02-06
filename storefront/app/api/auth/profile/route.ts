@@ -162,7 +162,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Only allow updating specific fields
-    const allowedFields = ['firstName', 'lastName', 'phone'];
+    const allowedFields = ['firstName', 'lastName', 'phone', 'dateOfBirth'];
     const updateData: Record<string, unknown> = {};
     for (const field of allowedFields) {
       if (field in body) {
