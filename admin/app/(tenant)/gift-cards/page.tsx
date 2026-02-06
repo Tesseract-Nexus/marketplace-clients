@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Gift,
   Plus,
@@ -70,6 +71,7 @@ const DEFAULT_STATS: GiftCardStats = {
 };
 
 export default function GiftCardsPage() {
+  const router = useRouter();
   const { showAlert, showConfirm } = useDialog();
   const toast = useToast();
   const { currency } = useTenantCurrency();
@@ -86,8 +88,6 @@ export default function GiftCardsPage() {
 
   // Inline form state
   const [showInlineForm, setShowInlineForm] = useState(false);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [selectedCard, setSelectedCard] = useState<GiftCard | null>(null);
   const [creating, setCreating] = useState(false);
 
   // Form state
@@ -730,10 +730,7 @@ export default function GiftCardsPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => {
-                            setSelectedCard(card);
-                            setShowDetailsModal(true);
-                          }}
+                          onClick={() => router.push(`/gift-cards/${card.id}`)}
                           className="h-8 px-3 hover:bg-primary/10 hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           <Eye className="h-4 w-4 mr-1" />
@@ -750,90 +747,6 @@ export default function GiftCardsPage() {
         </div>
         </DataPageLayout>
 
-        {/* Details Modal */}
-        {showDetailsModal && selectedCard && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-            <div className="bg-card rounded-lg shadow-xl w-full max-w-2xl">
-              <div className="border-b border-border px-6 py-4">
-                <h2 className="text-2xl font-bold text-primary">
-                  Gift Card Details
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Code: <code className="font-mono">{selectedCard.code}</code>
-                </p>
-              </div>
-              <div className="p-6 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm font-semibold text-foreground mb-1">Initial Balance</p>
-                    <p className="text-lg font-bold text-foreground">
-                      {formatCurrency(selectedCard.initialBalance)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground mb-1">Current Balance</p>
-                    <p className="text-lg font-bold text-foreground">
-                      {formatCurrency(selectedCard.currentBalance)}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground mb-1">Status</p>
-                    <span
-                      className={cn(
-                        'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border',
-                        getStatusBadgeClass(selectedCard.status)
-                      )}
-                    >
-                      {selectedCard.status}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-foreground mb-1">Usage Count</p>
-                    <p className="text-sm text-foreground">{selectedCard.usageCount}</p>
-                  </div>
-                  {selectedCard.recipientName && (
-                    <div>
-                      <p className="text-sm font-semibold text-foreground mb-1">Recipient</p>
-                      <p className="text-sm text-foreground">{selectedCard.recipientName}</p>
-                      {selectedCard.recipientEmail && (
-                        <p className="text-sm text-muted-foreground">{selectedCard.recipientEmail}</p>
-                      )}
-                    </div>
-                  )}
-                  {selectedCard.senderName && (
-                    <div>
-                      <p className="text-sm font-semibold text-foreground mb-1">Sender</p>
-                      <p className="text-sm text-foreground">{selectedCard.senderName}</p>
-                    </div>
-                  )}
-                  {selectedCard.expiresAt && (
-                    <div>
-                      <p className="text-sm font-semibold text-foreground mb-1">Expires</p>
-                      <p className="text-sm text-foreground">{formatDate(selectedCard.expiresAt)}</p>
-                    </div>
-                  )}
-                  <div>
-                    <p className="text-sm font-semibold text-foreground mb-1">Created</p>
-                    <p className="text-sm text-foreground">{formatDate(selectedCard.createdAt)}</p>
-                  </div>
-                </div>
-                {selectedCard.message && (
-                  <div>
-                    <p className="text-sm font-semibold text-foreground mb-1">Message</p>
-                    <p className="text-sm text-foreground bg-muted p-3 rounded-lg border">
-                      {selectedCard.message}
-                    </p>
-                  </div>
-                )}
-              </div>
-              <div className="border-t border-border px-6 py-4 flex justify-end">
-                <Button onClick={() => setShowDetailsModal(false)} variant="outline">
-                  Close
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
     </PermissionGate>
