@@ -14,6 +14,8 @@ import { cn } from '@/lib/utils';
 
 // Auth pages that should render without header/footer navigation
 const AUTH_PAGES = [
+  '/login',
+  '/register',
   '/verify-email',
   '/forgot-password',
   '/reset-password',
