@@ -50,9 +50,13 @@ async function getAuthContext(request: NextRequest): Promise<{ customerId?: stri
       return null;
     }
 
+    // Forward host so auth-bff reads the correct session cookie (bff_storefront_session)
+    const forwardedHost = request.headers.get('x-forwarded-host') || request.headers.get('host') || '';
+
     const response = await fetch(`${AUTH_BFF_URL}/internal/get-token`, {
       headers: {
         'Cookie': cookie,
+        'X-Forwarded-Host': forwardedHost,
         'Accept': 'application/json',
       },
     });

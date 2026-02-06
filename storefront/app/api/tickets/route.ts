@@ -12,10 +12,14 @@ async function getSessionToken(request: NextRequest): Promise<{ token?: string; 
     const cookie = request.headers.get('cookie');
     if (!cookie) return null;
 
+    // Forward host so auth-bff reads the correct session cookie (bff_storefront_session)
+    const forwardedHost = request.headers.get('x-forwarded-host') || request.headers.get('host') || '';
+
     // Use /internal/get-token which returns access_token for BFF-to-service calls
     const response = await fetch(`${AUTH_BFF_URL}/internal/get-token`, {
       headers: {
         'Cookie': cookie,
+        'X-Forwarded-Host': forwardedHost,
         'Accept': 'application/json',
       },
     });
