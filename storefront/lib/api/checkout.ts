@@ -29,6 +29,7 @@ export interface CreateOrderRequest {
   items: OrderItem[];
   shippingAddress: Address;
   billingAddress: Address;
+  currency?: string;
   customerId?: string;
   customerEmail: string;
   customerPhone?: string;
@@ -108,6 +109,7 @@ export async function createOrder(
     },
     body: JSON.stringify({
       tenantId,
+      currency: orderData.currency,
       customerId: orderData.customerId,
       customerEmail: orderData.customerEmail,
       customerPhone: orderData.customerPhone,

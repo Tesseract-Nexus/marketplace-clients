@@ -451,6 +451,7 @@ function CheckoutContent() {
 
       // Create order
       const createOrderData: CreateOrderRequest = {
+        currency: localization.currency,
         items: selectedItems.map(item => ({
           productId: item.productId,
           variantId: item.variantId,

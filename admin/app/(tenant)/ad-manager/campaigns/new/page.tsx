@@ -32,6 +32,7 @@ import { adManagerService } from '@/lib/services/adManagerService';
 import type { AdCreative, CreateAdCampaignRequest, AdBidStrategy, AdPaymentType } from '@/lib/api/types';
 import { cn } from '@/lib/utils';
 import { PaymentStep } from './components/PaymentStep';
+import { useTenantCurrency } from '@/hooks/useTenantCurrency';
 
 const STEPS = [
   { id: 'details', title: 'Campaign Details', icon: Megaphone },
@@ -658,6 +659,7 @@ function ReviewStep({
 export default function NewCampaignPage() {
   const router = useRouter();
   const { showAlert } = useDialog();
+  const { currency } = useTenantCurrency();
   const [currentStep, setCurrentStep] = useState(0);
   const [saving, setSaving] = useState(false);
   const [creatives, setCreatives] = useState<AdCreative[]>([]);
@@ -841,7 +843,7 @@ export default function NewCampaignPage() {
               budgetTotal={formData.budgetTotal}
               startDate={formData.startDate}
               endDate={formData.endDate}
-              currency="USD"
+              currency={currency}
               paymentType={formData.paymentType}
               setPaymentType={(type) => setFormData({ ...formData, paymentType: type })}
             />

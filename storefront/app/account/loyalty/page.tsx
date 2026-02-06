@@ -8,13 +8,14 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
-import { useTenant } from '@/context/TenantContext';
+import { useTenant, useCurrency } from '@/context/TenantContext';
 import { useLoyalty } from '@/hooks/useLoyalty';
 import { formatPoints, getTierColor } from '@/lib/api/loyalty';
 import { cn } from '@/lib/utils';
 
 export default function LoyaltyPage() {
   const { tenant } = useTenant();
+  const { symbol: currencySymbol } = useCurrency();
   const {
     program,
     customerLoyalty,
@@ -308,7 +309,7 @@ export default function LoyaltyPage() {
             <Gift className="h-5 w-5 text-tenant-primary" />
           </div>
           <p className="text-2xl font-bold text-foreground">{program.pointsPerDollar}x</p>
-          <p className="text-sm text-muted-foreground">Points per $1</p>
+          <p className="text-sm text-muted-foreground">Points per {currencySymbol}1</p>
         </motion.div>
         <motion.div
           initial={{ opacity: 0, y: 20 }}

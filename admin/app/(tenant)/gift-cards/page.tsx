@@ -250,6 +250,7 @@ export default function GiftCardsPage() {
 
       const payload: CreateGiftCardRequest = {
         initialBalance: parseFloat(createForm.initialBalance),
+        currencyCode: currency,
         recipientEmail: createForm.recipientEmail || undefined,
         recipientName: createForm.recipientName || undefined,
         senderName: createForm.senderName || undefined,

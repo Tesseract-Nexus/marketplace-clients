@@ -9,6 +9,7 @@ const ORDERS_SERVICE_URL = (process.env.ORDERS_SERVICE_URL || 'http://localhost:
 // Storefront request format (from checkout page)
 interface StorefrontOrderRequest {
   tenantId?: string;
+  currency?: string;
   customerId?: string;
   customerEmail: string;
   customerPhone?: string;
@@ -123,8 +124,8 @@ function transformRequest(body: StorefrontOrderRequest, accessToken?: string | n
   // Use provided customerId, or extract from JWT for authenticated checkout, or generate guest UUID
   const customerId = body.customerId || (accessToken ? extractCustomerId(accessToken) : null) || uuidv4();
 
-  // Determine currency based on country
-  const currency = body.shippingAddress.country === 'IN' ? 'INR' : 'USD';
+  // Use currency from checkout (tenant's localization), fallback to country-based guess
+  const currency = body.currency || (body.shippingAddress.country === 'IN' ? 'INR' : 'USD');
 
   return {
     customerId,
