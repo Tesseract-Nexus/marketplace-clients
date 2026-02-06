@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronLeft, Check, Loader2 } from 'lucide-react';
+import { ChevronLeft, Check, Loader2, Ticket, Gift, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -39,6 +39,9 @@ import {
 import { PostOrderCreateAccount } from '@/components/checkout/PostOrderCreateAccount';
 import { MobileOrderSummary } from '@/components/checkout/MobileOrderSummary';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
+import { CouponInput } from '@/components/checkout/CouponInput';
+import { GiftCardInput } from '@/components/checkout/GiftCardInput';
+import { LoyaltyPointsRedemption } from '@/components/checkout/LoyaltyPointsRedemption';
 
 // Unit conversion helpers
 const convertWeightToKg = (value: number, unit?: string) => {
@@ -81,8 +84,12 @@ function CheckoutContent() {
     removeItem,
     updateQuantity,
     appliedCoupon,
+    setAppliedCoupon,
     clearAppliedCoupon,
     appliedGiftCards,
+    addGiftCard,
+    removeGiftCard,
+    updateGiftCardAmount,
     getGiftCardTotal,
     clearGiftCards,
   } = useCartStore();
@@ -102,6 +109,7 @@ function CheckoutContent() {
     isGuestMode,
     loyaltyDiscount,
     loyaltyPointsApplied,
+    setLoyaltyPoints,
     orderNotes,
     isGiftOrder,
     giftMessage,
@@ -998,6 +1006,55 @@ function CheckoutContent() {
                     ))}
                   </div>
                 )}
+              </div>
+
+              {/* Discounts & Rewards */}
+              <Separator className="my-4" />
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold flex items-center gap-2">
+                  <Ticket className="h-4 w-4" />
+                  <TranslatedUIText text="Discounts & Rewards" />
+                </h3>
+
+                {/* Coupon Code */}
+                <CouponInput
+                  orderValue={subtotal}
+                  appliedCoupon={appliedCoupon}
+                  onApply={setAppliedCoupon}
+                  onRemove={clearAppliedCoupon}
+                  disabled={isProcessing}
+                />
+
+                {/* Gift Card */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <Gift className="h-3.5 w-3.5 text-purple-600" />
+                    <span className="text-xs font-medium"><TranslatedUIText text="Gift Card" /></span>
+                  </div>
+                  <GiftCardInput
+                    orderTotal={total + giftCardDiscount}
+                    appliedGiftCards={appliedGiftCards}
+                    onApply={addGiftCard}
+                    onRemove={removeGiftCard}
+                    onUpdateAmount={updateGiftCardAmount}
+                    disabled={isProcessing}
+                  />
+                </div>
+
+                {/* Loyalty Points */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <Star className="h-3.5 w-3.5 text-yellow-600" />
+                    <span className="text-xs font-medium"><TranslatedUIText text="Loyalty Points" /></span>
+                  </div>
+                  <LoyaltyPointsRedemption
+                    orderSubtotal={subtotal}
+                    appliedPoints={loyaltyPointsApplied}
+                    onApplyPoints={(points, dollarValue) => setLoyaltyPoints(points, dollarValue)}
+                    onRemovePoints={() => setLoyaltyPoints(0, 0)}
+                    disabled={isProcessing}
+                  />
+                </div>
               </div>
 
               <Separator className="my-4" />

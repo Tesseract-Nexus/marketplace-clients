@@ -1,13 +1,12 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { Truck, MapPin, Edit2, ChevronRight, ChevronLeft, Loader2, CreditCard, Ticket, Gift, Star } from 'lucide-react';
+import { Truck, MapPin, Edit2, ChevronRight, ChevronLeft, Loader2, CreditCard } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Separator } from '@/components/ui/separator';
 import {
   Select,
   SelectContent,
@@ -29,10 +28,6 @@ import { CheckoutTrustFooter } from '@/components/checkout/CheckoutTrustFooter';
 import { useLocalization } from '@/context/TenantContext';
 import { cn } from '@/lib/utils';
 import { PaymentMethodSelector, EnabledPaymentMethod } from '@/components/checkout/PaymentMethodSelector';
-import { CouponInput } from '@/components/checkout/CouponInput';
-import { GiftCardInput } from '@/components/checkout/GiftCardInput';
-import { LoyaltyPointsRedemption } from '@/components/checkout/LoyaltyPointsRedemption';
-import { useCartStore } from '@/store/cart';
 
 interface Country {
   id: string;
@@ -92,9 +87,6 @@ export function CheckoutShippingStep({
     setShippingMethod,
     billingAddressSameAsShipping,
     setBillingAddressSameAsShipping,
-    loyaltyPointsApplied,
-    loyaltyDiscount,
-    setLoyaltyPoints,
     nextStep,
     prevStep,
     setError,
@@ -102,20 +94,7 @@ export function CheckoutShippingStep({
     isProcessing,
   } = useCheckout();
 
-  const {
-    appliedCoupon,
-    setAppliedCoupon,
-    clearAppliedCoupon,
-    appliedGiftCards,
-    addGiftCard,
-    removeGiftCard,
-    updateGiftCardAmount,
-    getGiftCardTotal,
-  } = useCartStore();
-
-  const discount = appliedCoupon?.discountAmount ?? 0;
-  const giftCardDiscount = getGiftCardTotal();
-  const orderTotal = Math.max(0, orderSubtotal + shipping + tax - discount - loyaltyDiscount - giftCardDiscount);
+  const orderTotal = orderSubtotal + shipping + tax;
 
   // Get store localization settings (country configured by admin)
   const localization = useLocalization();
@@ -284,7 +263,7 @@ export function CheckoutShippingStep({
     }
 
     if (!selectedShippingMethod) {
-      setError('Please select a shipping method');
+      setError('Shipping is not available for this address. Please check your address details.');
       return;
     }
 
@@ -569,33 +548,22 @@ export function CheckoutShippingStep({
         )}
       </AnimatePresence>
 
-      {/* Shipping Method Selection */}
-      <div className="mt-6 pt-6 border-t">
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Truck className="h-5 w-5" />
-          <TranslatedUIText text="Shipping Method" />
-        </h3>
-        {isLoadingProductShipping ? (
-          <div className="flex items-center justify-center py-8">
-            <Loader2 className="h-6 w-6 animate-spin text-primary mr-2" />
-            <span className="text-gray-500">Loading shipping options...</span>
-          </div>
-        ) : (
-          <ShippingMethodSelector
-            orderSubtotal={orderSubtotal}
-            countryCode={shippingAddress.countryCode || shippingAddress.country}
-            postalCode={shippingAddress.zip}
-            city={shippingAddress.city}
-            state={shippingAddress.state}
-            selectedMethodId={selectedShippingMethod?.id}
-            onSelect={handleShippingMethodSelect}
-            disabled={isProcessing}
-            packageWeight={packageWeight}
-            weightUnit="kg"
-            packageDimensions={packageDimensions}
-            useCarrierRates={true}
-          />
-        )}
+      {/* Hidden shipping method selector — auto-selects cheapest carrier rate from Delhivery */}
+      <div className="hidden">
+        <ShippingMethodSelector
+          orderSubtotal={orderSubtotal}
+          countryCode={shippingAddress.countryCode || shippingAddress.country}
+          postalCode={shippingAddress.zip}
+          city={shippingAddress.city}
+          state={shippingAddress.state}
+          selectedMethodId={selectedShippingMethod?.id}
+          onSelect={handleShippingMethodSelect}
+          disabled={isProcessing}
+          packageWeight={packageWeight}
+          weightUnit="kg"
+          packageDimensions={packageDimensions}
+          useCarrierRates={true}
+        />
       </div>
 
       {/* Payment Method Selection */}
@@ -627,95 +595,6 @@ export function CheckoutShippingStep({
             </span>
           </Label>
         </div>
-      </div>
-
-      {/* Discounts Section */}
-      <div className="mt-6 pt-6 border-t">
-        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Ticket className="h-5 w-5" />
-          <TranslatedUIText text="Discounts & Rewards" />
-        </h3>
-
-        <div className="space-y-4">
-          {/* Coupon Code */}
-          <div className="p-4 rounded-lg border">
-            <CouponInput
-              orderValue={orderSubtotal}
-              appliedCoupon={appliedCoupon}
-              onApply={setAppliedCoupon}
-              onRemove={clearAppliedCoupon}
-              disabled={isProcessing}
-            />
-          </div>
-
-          {/* Gift Card */}
-          <div className="p-4 rounded-lg border">
-            <div className="flex items-center gap-2 mb-3">
-              <Gift className="h-4 w-4 text-purple-600" />
-              <span className="font-medium text-sm">
-                <TranslatedUIText text="Gift Card" />
-              </span>
-            </div>
-            <GiftCardInput
-              orderTotal={orderTotal + giftCardDiscount}
-              appliedGiftCards={appliedGiftCards}
-              onApply={addGiftCard}
-              onRemove={removeGiftCard}
-              onUpdateAmount={updateGiftCardAmount}
-              disabled={isProcessing}
-            />
-          </div>
-
-          {/* Loyalty Points */}
-          <div className="p-4 rounded-lg border">
-            <div className="flex items-center gap-2 mb-3">
-              <Star className="h-4 w-4 text-yellow-600" />
-              <span className="font-medium text-sm">
-                <TranslatedUIText text="Loyalty Points" />
-              </span>
-            </div>
-            <LoyaltyPointsRedemption
-              orderSubtotal={orderSubtotal}
-              appliedPoints={loyaltyPointsApplied}
-              onApplyPoints={(points, dollarValue) => setLoyaltyPoints(points, dollarValue)}
-              onRemovePoints={() => setLoyaltyPoints(0, 0)}
-              disabled={isProcessing}
-            />
-          </div>
-        </div>
-
-        {/* Applied Discounts Summary */}
-        {(discount > 0 || loyaltyDiscount > 0 || giftCardDiscount > 0) && (
-          <div className="mt-4 p-4 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
-            <h4 className="text-sm font-medium text-green-700 dark:text-green-400 mb-2">
-              <TranslatedUIText text="Applied Discounts" />
-            </h4>
-            <div className="space-y-1 text-sm">
-              {discount > 0 && (
-                <div className="flex justify-between text-green-600">
-                  <span><TranslatedUIText text="Coupon" /> ({appliedCoupon?.coupon.code})</span>
-                  <span>-${discount.toFixed(2)}</span>
-                </div>
-              )}
-              {loyaltyDiscount > 0 && (
-                <div className="flex justify-between text-yellow-600">
-                  <span><TranslatedUIText text="Loyalty Points" /> ({loyaltyPointsApplied.toLocaleString()})</span>
-                  <span>-${loyaltyDiscount.toFixed(2)}</span>
-                </div>
-              )}
-              {giftCardDiscount > 0 && (
-                <div className="flex justify-between text-purple-600">
-                  <span><TranslatedUIText text="Gift Card" /></span>
-                  <span>-${giftCardDiscount.toFixed(2)}</span>
-                </div>
-              )}
-              <div className="pt-2 mt-2 border-t border-green-200 dark:border-green-800 flex justify-between font-medium text-green-700 dark:text-green-400">
-                <span><TranslatedUIText text="Total Savings" /></span>
-                <span>-${(discount + loyaltyDiscount + giftCardDiscount).toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Error message */}
