@@ -164,7 +164,7 @@ export function AddressForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customer?.id || !accessToken || !tenant) return;
+    if (!customer?.id || !tenant) return;
 
     setIsLoading(true);
     setError('');

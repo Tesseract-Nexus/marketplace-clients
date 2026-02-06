@@ -54,16 +54,20 @@ export async function getCustomerAddresses(
   tenantId: string,
   storefrontId: string,
   customerId: string,
-  accessToken: string
+  accessToken?: string | null
 ): Promise<CustomerAddress[]> {
+  const headers: Record<string, string> = {
+    'X-Tenant-ID': tenantId,
+    'X-Storefront-ID': storefrontId,
+  };
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
   const response = await fetch(
     `/api/customers/${customerId}/addresses`,
     {
-      headers: {
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId,
-        'Authorization': `Bearer ${accessToken}`,
-      },
+      headers,
+      credentials: 'include',
     }
   );
 
@@ -81,18 +85,22 @@ export async function addCustomerAddress(
   storefrontId: string,
   customerId: string,
   address: CreateAddressRequest,
-  accessToken: string
+  accessToken?: string | null
 ): Promise<CustomerAddress> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Tenant-ID': tenantId,
+    'X-Storefront-ID': storefrontId,
+  };
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
   const response = await fetch(
     `/api/customers/${customerId}/addresses`,
     {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId,
-        'Authorization': `Bearer ${accessToken}`,
-      },
+      headers,
+      credentials: 'include',
       body: JSON.stringify(address),
     }
   );
@@ -112,18 +120,22 @@ export async function updateCustomerAddress(
   customerId: string,
   addressId: string,
   address: UpdateAddressRequest,
-  accessToken: string
+  accessToken?: string | null
 ): Promise<CustomerAddress> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Tenant-ID': tenantId,
+    'X-Storefront-ID': storefrontId,
+  };
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
   const response = await fetch(
     `/api/customers/${customerId}/addresses/${addressId}`,
     {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId,
-        'Authorization': `Bearer ${accessToken}`,
-      },
+      headers,
+      credentials: 'include',
       body: JSON.stringify(address),
     }
   );
@@ -142,17 +154,21 @@ export async function deleteCustomerAddress(
   storefrontId: string,
   customerId: string,
   addressId: string,
-  accessToken: string
+  accessToken?: string | null
 ): Promise<void> {
+  const headers: Record<string, string> = {
+    'X-Tenant-ID': tenantId,
+    'X-Storefront-ID': storefrontId,
+  };
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
   const response = await fetch(
     `/api/customers/${customerId}/addresses/${addressId}`,
     {
       method: 'DELETE',
-      headers: {
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId,
-        'Authorization': `Bearer ${accessToken}`,
-      },
+      headers,
+      credentials: 'include',
     }
   );
 
@@ -167,18 +183,22 @@ export async function setDefaultAddress(
   storefrontId: string,
   customerId: string,
   addressId: string,
-  accessToken: string
+  accessToken?: string | null
 ): Promise<CustomerAddress> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Tenant-ID': tenantId,
+    'X-Storefront-ID': storefrontId,
+  };
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
   const response = await fetch(
     `/api/customers/${customerId}/addresses/${addressId}`,
     {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId,
-        'Authorization': `Bearer ${accessToken}`,
-      },
+      headers,
+      credentials: 'include',
     }
   );
 

@@ -43,7 +43,7 @@ export function AddressSelector({
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (customer?.id && accessToken) {
+    if (customer?.id) {
       loadAddresses();
     } else {
       setIsLoading(false);
@@ -51,7 +51,7 @@ export function AddressSelector({
   }, [customer?.id, accessToken]);
 
   const loadAddresses = async () => {
-    if (!customer?.id || !accessToken || !tenant) return;
+    if (!customer?.id || !tenant) return;
 
     setIsLoading(true);
     try {
@@ -83,7 +83,7 @@ export function AddressSelector({
   };
 
   const handleDelete = async (addressId: string) => {
-    if (!customer?.id || !accessToken || !tenant) return;
+    if (!customer?.id || !tenant) return;
 
     setDeletingId(addressId);
     try {
@@ -110,7 +110,7 @@ export function AddressSelector({
   };
 
   const handleSetDefault = async (addressId: string) => {
-    if (!customer?.id || !accessToken || !tenant) return;
+    if (!customer?.id || !tenant) return;
 
     try {
       await setDefaultAddress(
@@ -148,7 +148,7 @@ export function AddressSelector({
     setEditingAddress(null);
   };
 
-  if (!customer || !accessToken) {
+  if (!customer) {
     return null;
   }
 
