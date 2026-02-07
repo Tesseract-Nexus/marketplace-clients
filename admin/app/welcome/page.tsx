@@ -522,9 +522,9 @@ function WelcomeContent() {
         {/* Footer */}
         <p className="text-center text-[10px] text-muted-foreground mt-4">
           By creating an account, you agree to our{' '}
-          <Button className="text-primary hover:text-primary font-medium">Terms</Button>
+          <a href="/terms" className="text-primary hover:underline font-medium">Terms</a>
           {' '}and{' '}
-          <Button className="text-primary hover:text-primary font-medium">Privacy Policy</Button>
+          <a href="/privacy" className="text-primary hover:underline font-medium">Privacy Policy</a>
         </p>
       </div>
 
