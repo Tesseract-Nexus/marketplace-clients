@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { PageHeader } from '@/components/PageHeader';
 import { useTenant } from '@/contexts/TenantContext';
 import { DeleteTenantModal } from '@/components/settings/DeleteTenantModal';
+import { MFASettings } from '@/components/settings/MFASettings';
 import { useRouter } from 'next/navigation';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 
@@ -118,6 +119,9 @@ export default function AccountSettingsPage() {
             </div>
           </div>
         </div>
+
+        {/* Two-Factor Authentication */}
+        <MFASettings />
 
         {/* Owner Information */}
         {isOwner && (

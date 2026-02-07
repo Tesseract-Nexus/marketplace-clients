@@ -509,6 +509,113 @@ export async function sendMfaCode(
   }
 }
 
+// ============================================================================
+// TOTP Authenticator App Functions
+// ============================================================================
+
+export async function getTotpStatus(): Promise<{
+  success: boolean;
+  totp_enabled: boolean;
+  backup_codes_remaining: number;
+  message?: string;
+}> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/totp/status`, {
+      credentials: 'include',
+      headers: { 'Accept': 'application/json' },
+    });
+    return await response.json();
+  } catch (error) {
+    logger.error('[Auth] TOTP status fetch failed:', error);
+    return { success: false, totp_enabled: false, backup_codes_remaining: 0, message: 'Failed to check TOTP status' };
+  }
+}
+
+export async function initiateTotpSetup(): Promise<{
+  success: boolean;
+  setup_session?: string;
+  totp_uri?: string;
+  manual_entry_key?: string;
+  backup_codes?: string[];
+  message?: string;
+}> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/totp/setup/initiate`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+    });
+    return await response.json();
+  } catch (error) {
+    logger.error('[Auth] TOTP setup initiation failed:', error);
+    return { success: false, message: 'Failed to start TOTP setup' };
+  }
+}
+
+export async function confirmTotpSetup(
+  setupSession: string,
+  code: string
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/totp/setup/confirm`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ setup_session: setupSession, code }),
+    });
+    return await response.json();
+  } catch (error) {
+    logger.error('[Auth] TOTP setup confirmation failed:', error);
+    return { success: false, message: 'Failed to confirm TOTP setup' };
+  }
+}
+
+export async function disableTotp(code: string): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/totp/disable`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code }),
+    });
+    return await response.json();
+  } catch (error) {
+    logger.error('[Auth] TOTP disable failed:', error);
+    return { success: false, message: 'Failed to disable TOTP' };
+  }
+}
+
+export async function regenerateBackupCodes(code: string): Promise<{
+  success: boolean;
+  backup_codes?: string[];
+  message?: string;
+}> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/totp/backup-codes/regenerate`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code }),
+    });
+    return await response.json();
+  } catch (error) {
+    logger.error('[Auth] Backup code regeneration failed:', error);
+    return { success: false, message: 'Failed to regenerate backup codes' };
+  }
+}
+
 export default {
   // Session management
   getSession,
@@ -525,4 +632,10 @@ export default {
   checkAccountStatus,
   verifyMfa,
   sendMfaCode,
+  // TOTP
+  getTotpStatus,
+  initiateTotpSetup,
+  confirmTotpSetup,
+  disableTotp,
+  regenerateBackupCodes,
 };

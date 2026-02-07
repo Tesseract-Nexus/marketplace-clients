@@ -628,6 +628,32 @@ class OnboardingAPI {
     });
   }
 
+  // TOTP Authenticator App Methods
+
+  async initiateTotpSetup(sessionId: string, email: string, tenantName?: string): Promise<{
+    setup_session: string;
+    totp_uri: string;
+    manual_entry_key: string;
+    backup_codes: string[];
+  }> {
+    return this.makeRequest('/auth/totp/setup/initiate', {
+      method: 'POST',
+      body: JSON.stringify({ session_id: sessionId, email, tenant_name: tenantName }),
+    });
+  }
+
+  async confirmTotpSetup(setupSession: string, code: string, sessionId: string): Promise<{
+    success: boolean;
+    message: string;
+    totp_secret_encrypted?: string;
+    backup_code_hashes?: string[];
+  }> {
+    return this.makeRequest('/auth/totp/setup/confirm', {
+      method: 'POST',
+      body: JSON.stringify({ setup_session: setupSession, code, session_id: sessionId }),
+    });
+  }
+
   // Legacy methods for backward compatibility
   async sendVerification(email: string): Promise<{ success: boolean }> {
     console.warn('sendVerification(email) is deprecated. Use sendEmailVerification(sessionId, email) instead.');
