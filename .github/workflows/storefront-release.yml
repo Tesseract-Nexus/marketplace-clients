@@ -183,8 +183,9 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             NODE_ENV=production
-          no-cache: true
-          platforms: linux/amd64,linux/arm64
+          cache-from: type=gha,scope=storefront-release
+          cache-to: type=gha,mode=max,scope=storefront-release
+          platforms: linux/amd64
 
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
@@ -250,7 +251,7 @@ jobs:
             - **Registry:** \`${{ env.REGISTRY }}\`
             - **Image:** \`${{ env.IMAGE_NAME }}\`
             - **Version:** \`${version}\`
-            - **Platforms:** linux/amd64, linux/arm64
+            - **Platforms:** linux/amd64
             - **Digest:** \`${{ steps.build.outputs.digest }}\`
 
             ### Tags
