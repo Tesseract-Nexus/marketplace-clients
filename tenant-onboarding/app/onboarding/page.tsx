@@ -1541,23 +1541,28 @@ export default function OnboardingPage() {
       });
       nextStep();
 
-      // Complete the onboarding session
-      try {
-        await onboardingApi.completeOnboarding(sessionId);
-      } catch (completeError) {
-        devError('Failed to complete onboarding:', completeError);
-        // Continue anyway — store setup was saved successfully
+      // Pass session and email as URL params for the verify page
+      // This ensures the verify page works even before store rehydration completes
+      // Priority: store > form values > fetch from session API (most reliable fallback)
+      const verifyParams = new URLSearchParams();
+      if (sessionId) verifyParams.set('session', sessionId);
+
+      let emailForVerify = contactDetails.email || contactForm.getValues('email');
+
+      // If email is still not available, fetch from session API as final fallback
+      // This handles cases where store rehydration hasn't completed after page refresh
+      if (!emailForVerify && sessionId) {
+        try {
+          const session = await onboardingApi.getOnboardingSession(sessionId);
+          // Handle both legacy (contact_details/contact_info) and new (contact_information array) formats
+          emailForVerify = session.contact_details?.email || session.contact_info?.email || session.contact_information?.[0]?.email || '';
+        } catch (fetchError) {
+          console.error('Failed to fetch email from session:', fetchError);
+        }
       }
 
-      // Use the dev admin URL for the welcome redirect.
-      // Tenant-specific routing (VirtualService, DNS, SSL) doesn't exist until
-      // CompleteAccountSetup runs on the welcome page, so we must use the
-      // dev-admin URL which always has working routing.
-      const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
-      const welcomeUrl = `https://dev-admin.${baseDomain}/welcome?sessionId=${sessionId}`;
-
-      console.log('[Onboarding] Redirecting to admin welcome:', welcomeUrl);
-      window.location.href = welcomeUrl;
+      if (emailForVerify) verifyParams.set('email', emailForVerify as string);
+      router.push(`/onboarding/verify?${verifyParams.toString()}`);
     } catch (error) {
       // Use OnboardingAPIError for better error handling
       if (error instanceof OnboardingAPIError) {
