@@ -366,7 +366,7 @@ function CheckoutContent() {
   // Calculate totals
   const subtotal = selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = appliedCoupon?.coupon.discountType === 'free_shipping' ? 0 : shippingCost;
-  const tax = taxResult?.taxAmount ?? subtotal * 0.08;
+  const tax = taxResult?.taxAmount ?? 0;
   const discount = appliedCoupon?.discountAmount ?? 0;
   const giftCardDiscount = getGiftCardTotal();
   const total = Math.max(0, subtotal + shipping + tax - discount - loyaltyDiscount - giftCardDiscount);
@@ -978,6 +978,8 @@ function CheckoutContent() {
                   </span>
                   {isTaxLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : !taxResult ? (
+                    <span className="text-sm text-muted-foreground"><TranslatedUIText text="Calculated at checkout" /></span>
                   ) : (
                     <span>{formatPrice(tax)}</span>
                   )}

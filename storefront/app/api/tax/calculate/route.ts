@@ -72,19 +72,20 @@ export async function POST(request: NextRequest) {
       originAddress, // Tax service expects originAddress for GST/VAT calculation
     };
 
+    console.log('[Tax Route] Calculating tax for tenant:', tenantId, 'address:', taxRequest.shippingAddress?.countryCode || taxRequest.shippingAddress?.country);
+
     // Forward request to tax service (use public storefront endpoint)
     const response = await fetch(`${TAX_SERVICE_URL}/storefront/tax/calculate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
       },
       body: JSON.stringify(taxRequest),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Tax service error:', response.status, errorText);
+      console.error('[Tax Route] Tax service error:', response.status, errorText);
 
       // Return fallback calculation if tax service fails
       const subtotal = body.lineItems?.reduce(
