@@ -63,7 +63,8 @@ export function useTaxCalculation() {
       items: CartItem[],
       shippingAddress: ShippingAddress,
       shippingAmount: number = 0,
-      storeAddress?: StoreAddress
+      storeAddress?: StoreAddress,
+      tenantId?: string
     ): Promise<TaxCalculationResult> => {
       setIsLoading(true);
       setError(null);
@@ -85,6 +86,7 @@ export function useTaxCalculation() {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
+            tenantId,
             shippingAddress,
             storeAddress,
             lineItems,

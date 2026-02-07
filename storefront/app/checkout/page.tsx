@@ -410,7 +410,7 @@ function CheckoutContent() {
           price: item.price,
           quantity: item.quantity,
         }));
-        calculateTax(cartItems, shippingAddress, shipping, storeAddress);
+        calculateTax(cartItems, shippingAddress, shipping, storeAddress, tenant?.id);
       }, 500);
     }
 

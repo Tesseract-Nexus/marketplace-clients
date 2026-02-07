@@ -59,12 +59,12 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Get tenant ID from headers or use default
-    const tenantId = request.headers.get('X-Tenant-ID') || process.env.DEV_TENANT_ID || 'global';
+    // Get tenant ID from request body (preferred), then fallback to env
+    const tenantId = body.tenantId || process.env.DEV_TENANT_ID || 'global';
 
     // Map storeAddress to originAddress for tax service
     // Only include originAddress if it has required fields (city is required by tax service)
-    const { storeAddress, ...restBody } = body;
+    const { storeAddress, tenantId: _bodyTenantId, ...restBody } = body;
     const originAddress = storeAddress?.city && storeAddress?.country ? storeAddress : undefined;
     const taxRequest = {
       ...restBody,
