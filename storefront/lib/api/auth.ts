@@ -1012,6 +1012,192 @@ export async function regenerateBackupCodes(code: string): Promise<{
 }
 
 // ============================================================================
+// PASSKEY (WebAuthn) Functions
+// ============================================================================
+
+import { browserSupportsWebAuthn, startRegistration, startAuthentication } from '@simplewebauthn/browser';
+
+export interface PasskeyInfo {
+  credential_id: string;
+  name: string;
+  created_at: string;
+  last_used_at?: string;
+  device_type: string;
+  backed_up: boolean;
+}
+
+/**
+ * Check if the current browser supports WebAuthn/passkeys
+ */
+export function isPasskeySupported(): boolean {
+  try {
+    return browserSupportsWebAuthn();
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Register a new passkey for the authenticated user.
+ * Orchestrates: options → browser API → verify (3-step flow)
+ *
+ * @param name - Friendly name for the passkey (e.g., "My iPhone")
+ */
+export async function registerPasskey(name: string): Promise<{ success: boolean; message?: string; error?: string }> {
+  try {
+    // Step 1: Get registration options from auth-bff
+    const optionsRes = await fetch('/auth/passkeys/registration/options', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!optionsRes.ok) {
+      const data = await optionsRes.json();
+      return { success: false, error: data.error, message: data.message || 'Failed to get registration options.' };
+    }
+
+    const { options, challengeId } = await optionsRes.json();
+
+    // Step 2: Create credential via browser WebAuthn API (biometric prompt)
+    const credential = await startRegistration(options);
+
+    // Step 3: Send credential to auth-bff for verification + storage
+    const verifyRes = await fetch('/auth/passkeys/registration/verify', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ challengeId, credential, name }),
+    });
+
+    const verifyData = await verifyRes.json();
+
+    if (!verifyRes.ok || !verifyData.success) {
+      return { success: false, error: verifyData.error, message: verifyData.message || 'Failed to verify passkey.' };
+    }
+
+    return { success: true, message: 'Passkey registered successfully.' };
+  } catch (error: unknown) {
+    // User cancelled the operation
+    if (error instanceof Error && error.name === 'NotAllowedError') {
+      return { success: false, error: 'CANCELLED', message: 'Passkey registration was cancelled.' };
+    }
+    console.error('Register passkey error:', error);
+    return { success: false, error: 'REGISTRATION_ERROR', message: 'Failed to register passkey.' };
+  }
+}
+
+/**
+ * Authenticate with a passkey (passwordless login).
+ * Orchestrates: options → browser API → verify (3-step flow)
+ *
+ * Returns a DirectAuthResponse on success (same shape as password login).
+ */
+export async function authenticateWithPasskey(): Promise<DirectAuthResponse> {
+  try {
+    // Step 1: Get authentication options from auth-bff
+    const optionsRes = await fetch('/auth/passkeys/authentication/options', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!optionsRes.ok) {
+      const data = await optionsRes.json();
+      return { success: false, error: data.error, message: data.message || 'Failed to get authentication options.' };
+    }
+
+    const { options, challengeId } = await optionsRes.json();
+
+    // Step 2: Get assertion via browser WebAuthn API (biometric prompt)
+    const credential = await startAuthentication(options);
+
+    // Step 3: Send assertion to auth-bff for verification + session creation
+    const verifyRes = await fetch('/auth/passkeys/authentication/verify', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ challengeId, credential }),
+    });
+
+    const verifyData = await verifyRes.json();
+
+    if (!verifyRes.ok || !verifyData.success) {
+      return { success: false, error: verifyData.error, message: verifyData.message || 'Passkey authentication failed.' };
+    }
+
+    return verifyData;
+  } catch (error: unknown) {
+    // User cancelled the operation
+    if (error instanceof Error && error.name === 'NotAllowedError') {
+      return { success: false, error: 'CANCELLED', message: 'Passkey authentication was cancelled.' };
+    }
+    console.error('Authenticate with passkey error:', error);
+    return { success: false, error: 'AUTHENTICATION_ERROR', message: 'Passkey authentication failed.' };
+  }
+}
+
+/**
+ * Get the list of registered passkeys for the authenticated user
+ */
+export async function getPasskeys(): Promise<{ success: boolean; passkeys: PasskeyInfo[]; message?: string }> {
+  try {
+    const response = await fetch('/auth/passkeys/list', {
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return { success: false, passkeys: [], message: 'Failed to load passkeys.' };
+    }
+
+    return response.json();
+  } catch {
+    return { success: false, passkeys: [], message: 'Failed to load passkeys.' };
+  }
+}
+
+/**
+ * Rename a passkey
+ */
+export async function renamePasskey(
+  credentialId: string,
+  name: string
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await fetch('/auth/passkeys/rename', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential_id: credentialId, name }),
+    });
+
+    return response.json();
+  } catch {
+    return { success: false, message: 'Failed to rename passkey.' };
+  }
+}
+
+/**
+ * Delete a passkey
+ */
+export async function deletePasskey(
+  credentialId: string
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await fetch('/auth/passkeys/delete', {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential_id: credentialId }),
+    });
+
+    return response.json();
+  } catch {
+    return { success: false, message: 'Failed to delete passkey.' };
+  }
+}
+
+// ============================================================================
 // DEPRECATED: The following functions are kept for backwards compatibility
 // but will not work as the underlying endpoints have been removed.
 // Use the OIDC-based functions above instead.

@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, Mail, Lock, Loader2, Sparkles, Smartphone, Shield, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Loader2, Sparkles, Smartphone, Shield, ArrowLeft, Fingerprint } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { useTenant, useNavPath } from '@/context/TenantContext';
 import { useAuthStore } from '@/store/auth';
 import { useCartStore } from '@/store/cart';
-import { initiateLogin, getSession, directLogin, verifyMfa, DirectAuthResponse, checkDeactivatedAccount, reactivateAccount } from '@/lib/api/auth';
+import { initiateLogin, getSession, directLogin, verifyMfa, DirectAuthResponse, checkDeactivatedAccount, reactivateAccount, authenticateWithPasskey, isPasskeySupported } from '@/lib/api/auth';
 import {
   Dialog,
   DialogContent,
@@ -76,6 +76,10 @@ export default function LoginPage() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
 
+  // Passkey state
+  const [isPasskeyAvailable, setIsPasskeyAvailable] = useState(false);
+  const [isPasskeyLoading, setIsPasskeyLoading] = useState(false);
+
   // MFA state
   const [mfaStep, setMfaStep] = useState(false);
   const [mfaSession, setMfaSession] = useState('');
@@ -98,6 +102,11 @@ export default function LoginPage() {
   // Wait for Zustand store to hydrate from localStorage
   useEffect(() => {
     setIsHydrated(true);
+  }, []);
+
+  // Check if passkeys are supported on mount
+  useEffect(() => {
+    setIsPasskeyAvailable(isPasskeySupported());
   }, []);
 
   // Redirect to account if already authenticated (after hydration)
@@ -132,6 +141,37 @@ export default function LoginPage() {
       tenantId: tenant?.id,
       tenantSlug: tenant?.slug,
     });
+  };
+
+  const handlePasskeyLogin = async () => {
+    setError('');
+    setIsPasskeyLoading(true);
+
+    try {
+      const result = await authenticateWithPasskey();
+
+      if (result.success && result.authenticated && result.user) {
+        login({
+          id: result.user.id,
+          email: result.user.email,
+          firstName: result.user.first_name || '',
+          lastName: result.user.last_name || '',
+          phone: '',
+          createdAt: new Date().toISOString(),
+          tenantId: result.user.tenant_id,
+        });
+
+        router.push(getNavPath('/account'));
+      } else if (result.error === 'CANCELLED') {
+        // User cancelled — do nothing
+      } else {
+        setError(result.message || 'Passkey authentication failed.');
+      }
+    } catch {
+      setError('Passkey authentication failed. Please try again.');
+    } finally {
+      setIsPasskeyLoading(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -621,6 +661,33 @@ export default function LoginPage() {
               </Button>
             </motion.div>
           </form>
+
+          {isPasskeyAvailable && (
+            <motion.div variants={itemVariants} className="mt-5">
+              <div className="relative flex items-center gap-4 my-1">
+                <Separator className="flex-1" />
+                <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                  <TranslatedUIText text="or" />
+                </span>
+                <Separator className="flex-1" />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                className="w-full mt-3"
+                onClick={handlePasskeyLogin}
+                disabled={isPasskeyLoading || isLoading}
+              >
+                {isPasskeyLoading ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Fingerprint className="h-4 w-4 mr-2" />
+                )}
+                <TranslatedUIText text="Sign in with passkey" />
+              </Button>
+            </motion.div>
+          )}
 
           <motion.div variants={itemVariants} className="mt-6">
             <SocialLogin onLogin={handleSocialLogin} isLoading={isLoading} mode="login" />

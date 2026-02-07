@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, Lock, Shield, Eye, EyeOff, Loader2, CheckCircle, Globe, Languages, AlertTriangle, Smartphone, KeyRound, X, Check, Copy } from 'lucide-react';
+import { Bell, Lock, Shield, Eye, EyeOff, Loader2, CheckCircle, Globe, Languages, AlertTriangle, Smartphone, KeyRound, X, Check, Copy, Fingerprint, Pencil, Trash2, Plus, CloudOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,7 +21,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useTenant } from '@/context/TenantContext';
 import { useAuthStore } from '@/store/auth';
 import { getPreferences, updatePreferences, NotificationPreferences } from '@/lib/api/notifications';
-import { deactivateAccount, getTotpStatus, initiateTotpSetup, confirmTotpSetup, disableTotp, regenerateBackupCodes } from '@/lib/api/auth';
+import { deactivateAccount, getTotpStatus, initiateTotpSetup, confirmTotpSetup, disableTotp, regenerateBackupCodes, isPasskeySupported, getPasskeys, registerPasskey, renamePasskey, deletePasskey, PasskeyInfo } from '@/lib/api/auth';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   getLanguages,
@@ -90,6 +90,96 @@ export default function SettingsPage() {
   const [copiedCodes, setCopiedCodes] = useState(false);
   const [totpCode, setTotpCode] = useState(['', '', '', '', '', '']);
   const totpCodeRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Passkey state
+  const [passkeys, setPasskeys] = useState<PasskeyInfo[]>([]);
+  const [isLoadingPasskeys, setIsLoadingPasskeys] = useState(true);
+  const [isPasskeySupported_, setIsPasskeySupported_] = useState(false);
+  const [isRegisteringPasskey, setIsRegisteringPasskey] = useState(false);
+  const [passkeyError, setPasskeyError] = useState('');
+  const [passkeySuccess, setPasskeySuccess] = useState('');
+  const [showPasskeyNameDialog, setShowPasskeyNameDialog] = useState(false);
+  const [passkeyName, setPasskeyName] = useState('');
+  const [editingPasskey, setEditingPasskey] = useState<string | null>(null);
+  const [editingPasskeyName, setEditingPasskeyName] = useState('');
+  const [deletingPasskeyId, setDeletingPasskeyId] = useState<string | null>(null);
+
+  // Check passkey support + load passkeys
+  useEffect(() => {
+    setIsPasskeySupported_(isPasskeySupported());
+  }, []);
+
+  useEffect(() => {
+    async function loadPasskeys() {
+      if (!isAuthenticated) {
+        setIsLoadingPasskeys(false);
+        return;
+      }
+      try {
+        const result = await getPasskeys();
+        if (result.success) {
+          setPasskeys(result.passkeys);
+        }
+      } catch {
+        // Silently handle
+      }
+      setIsLoadingPasskeys(false);
+    }
+    loadPasskeys();
+  }, [isAuthenticated]);
+
+  const handleAddPasskey = async () => {
+    if (!passkeyName.trim()) return;
+    setShowPasskeyNameDialog(false);
+    setPasskeyError('');
+    setPasskeySuccess('');
+    setIsRegisteringPasskey(true);
+
+    const result = await registerPasskey(passkeyName.trim());
+
+    if (result.success) {
+      setPasskeySuccess('Passkey registered successfully.');
+      setTimeout(() => setPasskeySuccess(''), 3000);
+      setPasskeyName('');
+      // Refresh list
+      const listResult = await getPasskeys();
+      if (listResult.success) setPasskeys(listResult.passkeys);
+    } else if (result.error !== 'CANCELLED') {
+      setPasskeyError(result.message || 'Failed to register passkey.');
+    }
+    setIsRegisteringPasskey(false);
+  };
+
+  const handleRenamePasskey = async (credentialId: string) => {
+    if (!editingPasskeyName.trim()) return;
+    setPasskeyError('');
+
+    const result = await renamePasskey(credentialId, editingPasskeyName.trim());
+    if (result.success) {
+      setPasskeys((prev) =>
+        prev.map((p) =>
+          p.credential_id === credentialId ? { ...p, name: editingPasskeyName.trim() } : p
+        )
+      );
+      setEditingPasskey(null);
+      setEditingPasskeyName('');
+    } else {
+      setPasskeyError(result.message || 'Failed to rename passkey.');
+    }
+  };
+
+  const handleDeletePasskey = async (credentialId: string) => {
+    setPasskeyError('');
+    setDeletingPasskeyId(credentialId);
+
+    const result = await deletePasskey(credentialId);
+    if (result.success) {
+      setPasskeys((prev) => prev.filter((p) => p.credential_id !== credentialId));
+    } else {
+      setPasskeyError(result.message || 'Failed to delete passkey.');
+    }
+    setDeletingPasskeyId(null);
+  };
 
   // Load TOTP status
   useEffect(() => {
@@ -956,6 +1046,202 @@ export default function SettingsPage() {
           </>
         )}
       </div>
+
+      {/* Passkeys */}
+      <div className="bg-card rounded-xl border p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center"
+            style={{ background: `${settings.primaryColor}15` }}
+          >
+            <Fingerprint className="h-5 w-5 text-tenant-primary" />
+          </div>
+          <div className="flex-1">
+            <h2 className="text-lg font-semibold"><TranslatedUIText text="Passkeys" /></h2>
+            <p className="text-sm text-muted-foreground"><TranslatedUIText text="Sign in with fingerprint, face, or security key" /></p>
+          </div>
+        </div>
+
+        {passkeyError && (
+          <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2 mb-4">
+            <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+            <span>{passkeyError}</span>
+          </div>
+        )}
+
+        {passkeySuccess && (
+          <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2 mb-4">
+            <CheckCircle className="h-4 w-4 flex-shrink-0" />
+            <span>{passkeySuccess}</span>
+          </div>
+        )}
+
+        {!isPasskeySupported_ ? (
+          <div className="flex items-center gap-3 p-4 bg-muted rounded-lg">
+            <CloudOff className="h-5 w-5 text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">
+              <TranslatedUIText text="Your browser does not support passkeys. Try using a modern browser like Chrome, Safari, or Edge." />
+            </p>
+          </div>
+        ) : isLoadingPasskeys ? (
+          <div className="flex items-center gap-3">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            <span className="text-sm text-muted-foreground"><TranslatedUIText text="Loading passkeys..." /></span>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {/* List of registered passkeys */}
+            {passkeys.length > 0 && (
+              <div className="space-y-2">
+                {passkeys.map((pk) => (
+                  <div
+                    key={pk.credential_id}
+                    className="flex items-center justify-between p-3 bg-muted rounded-lg"
+                  >
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <Fingerprint className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                      <div className="min-w-0">
+                        {editingPasskey === pk.credential_id ? (
+                          <div className="flex items-center gap-2">
+                            <Input
+                              value={editingPasskeyName}
+                              onChange={(e) => setEditingPasskeyName(e.target.value)}
+                              className="h-7 text-sm w-40"
+                              autoFocus
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') handleRenamePasskey(pk.credential_id);
+                                if (e.key === 'Escape') { setEditingPasskey(null); setEditingPasskeyName(''); }
+                              }}
+                            />
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => handleRenamePasskey(pk.credential_id)}
+                            >
+                              <Check className="h-3.5 w-3.5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7"
+                              onClick={() => { setEditingPasskey(null); setEditingPasskeyName(''); }}
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="text-sm font-medium truncate">{pk.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              <TranslatedUIText text="Added" />{' '}
+                              {new Date(pk.created_at).toLocaleDateString()}
+                              {pk.last_used_at && (
+                                <>
+                                  {' '}&middot;{' '}
+                                  <TranslatedUIText text="Last used" />{' '}
+                                  {new Date(pk.last_used_at).toLocaleDateString()}
+                                </>
+                              )}
+                              {pk.backed_up && (
+                                <>
+                                  {' '}&middot;{' '}
+                                  <span className="text-green-600"><TranslatedUIText text="Synced" /></span>
+                                </>
+                              )}
+                            </p>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    {editingPasskey !== pk.credential_id && (
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={() => {
+                            setEditingPasskey(pk.credential_id);
+                            setEditingPasskeyName(pk.name);
+                          }}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                          onClick={() => handleDeletePasskey(pk.credential_id)}
+                          disabled={deletingPasskeyId === pk.credential_id}
+                        >
+                          {deletingPasskeyId === pk.credential_id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-3.5 w-3.5" />
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add passkey button */}
+            <Button
+              onClick={() => {
+                setPasskeyName('');
+                setPasskeyError('');
+                setShowPasskeyNameDialog(true);
+              }}
+              disabled={isRegisteringPasskey || !isAuthenticated}
+              className="w-full btn-tenant-primary"
+            >
+              {isRegisteringPasskey ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <Plus className="h-4 w-4 mr-2" />
+              )}
+              <TranslatedUIText text="Add a passkey" />
+            </Button>
+          </div>
+        )}
+      </div>
+
+      {/* Passkey Name Dialog */}
+      <Dialog open={showPasskeyNameDialog} onOpenChange={setShowPasskeyNameDialog}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle><TranslatedUIText text="Name your passkey" /></DialogTitle>
+            <DialogDescription>
+              <TranslatedUIText text="Give this passkey a name so you can identify it later." />
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              value={passkeyName}
+              onChange={(e) => setPasskeyName(e.target.value)}
+              placeholder="e.g., My iPhone, Work Laptop"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && passkeyName.trim()) handleAddPasskey();
+              }}
+            />
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowPasskeyNameDialog(false)}>
+              <TranslatedUIText text="Cancel" />
+            </Button>
+            <Button
+              className="btn-tenant-primary"
+              onClick={handleAddPasskey}
+              disabled={!passkeyName.trim()}
+            >
+              <TranslatedUIText text="Continue" />
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Danger Zone */}
       <div className="bg-card rounded-xl border border-red-200 p-6">
