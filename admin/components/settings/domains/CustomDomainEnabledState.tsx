@@ -27,6 +27,7 @@ import { MaskedValue } from './MaskedValue';
 import {
   customDomainService,
   type CustomDomain,
+  type DNSRecord,
 } from '@/lib/services/customDomainService';
 
 interface CustomDomainEnabledStateProps {
@@ -53,6 +54,7 @@ export function CustomDomainEnabledState({
   const [loadingDetails, setLoadingDetails] = useState(true);
   const [showDnsConfig, setShowDnsConfig] = useState(false);
   const [copiedUrl, setCopiedUrl] = useState<string | null>(null);
+  const [routingRecords, setRoutingRecords] = useState<DNSRecord[]>([]);
 
   useEffect(() => {
     const fetchDomainDetails = async () => {
@@ -80,6 +82,21 @@ export function CustomDomainEnabledState({
   const apiUrl = `https://api.${customDomain}`;
 
   const primaryDomain = domainDetails.find(d => d.targetType === 'storefront' || d.domain === customDomain);
+
+  // Fetch DNS records (including routing A records) when DNS config section is expanded
+  useEffect(() => {
+    if (!showDnsConfig || !primaryDomain?.id || routingRecords.length > 0) return;
+    customDomainService.getDNSStatus(primaryDomain.id).then((res) => {
+      if (res.data?.records) {
+        const routing = res.data.records.filter(
+          (r) => r.purpose.startsWith('routing')
+        );
+        setRoutingRecords(routing);
+      }
+    }).catch(() => {
+      // Silently fail — routing section just won't show
+    });
+  }, [showDnsConfig, primaryDomain?.id]);
 
   const urls: URLItem[] = [
     { id: 'storefront', label: 'Storefront', url: derivedStorefrontUrl, icon: Globe, external: true },
@@ -283,6 +300,41 @@ export function CustomDomainEnabledState({
                       Enables automatic SSL certificate issuance and renewal.
                     </p>
                   </div>
+
+                  {/* Routing A Records */}
+                  {routingRecords.length > 0 && (
+                    <div className="bg-muted/30 rounded-lg p-4 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <Server className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium text-foreground">Routing Records</span>
+                      </div>
+                      <div className="space-y-2">
+                        {routingRecords.map((record, idx) => (
+                          <div key={idx} className="grid sm:grid-cols-3 gap-3 items-center">
+                            <div className="space-y-1">
+                              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Type</label>
+                              <Badge variant="secondary" className="text-xs">{record.recordType}</Badge>
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Host</label>
+                              <code className="block bg-background rounded border border-border px-3 py-2 text-xs font-mono break-all">
+                                {record.host}
+                              </code>
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Value</label>
+                              <code className="block bg-background rounded border border-border px-3 py-2 text-xs font-mono break-all">
+                                {record.value}
+                              </code>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        A records pointing to the platform load balancer for traffic routing.
+                      </p>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground text-center py-4">

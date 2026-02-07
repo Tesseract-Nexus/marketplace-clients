@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Globe,
   RefreshCw,
@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/collapsible';
 import { DomainStatusBadge } from './DomainStatusBadge';
 import { DNSRecordRow } from './DNSRecordRow';
-import type { CustomDomain, DNSRecord } from '@/lib/services/customDomainService';
+import { customDomainService, type CustomDomain, type DNSRecord } from '@/lib/services/customDomainService';
 
 interface DomainCardProps {
   domain: CustomDomain;
@@ -54,6 +54,37 @@ export function DomainCard({
 }: DomainCardProps) {
   const [showDNS, setShowDNS] = useState(domain.status === 'pending' || domain.status === 'verifying');
   const [copied, setCopied] = useState(false);
+  const [dnsRecords, setDnsRecords] = useState<DNSRecord[]>([]);
+  const [loadingDns, setLoadingDns] = useState(false);
+
+  // Fetch DNS records from backend when DNS section is shown
+  useEffect(() => {
+    if (!showDNS || dnsRecords.length > 0) return;
+    let cancelled = false;
+    setLoadingDns(true);
+    customDomainService.getDNSStatus(domain.id).then((res) => {
+      if (!cancelled && res.data?.records) {
+        setDnsRecords(res.data.records);
+      }
+    }).catch(() => {
+      // Fallback: show verification record only
+      if (!cancelled) {
+        setDnsRecords([{
+          recordType: domain.verificationMethod === 'cname' ? 'CNAME' : 'TXT',
+          host: domain.verificationMethod === 'cname'
+            ? `_verify.${domain.domain}`
+            : `_tesserix-verify.${domain.domain}`,
+          value: domain.verificationRecord || domain.verificationToken,
+          ttl: 3600,
+          purpose: 'domain_verification',
+          isVerified: domain.dnsVerified,
+        }]);
+      }
+    }).finally(() => {
+      if (!cancelled) setLoadingDns(false);
+    });
+    return () => { cancelled = true; };
+  }, [showDNS, domain.id]);
 
   // Calculate setup progress
   const setupSteps: SetupStep[] = [
@@ -82,27 +113,6 @@ export function DomainCard({
 
   const completedSteps = setupSteps.filter(s => s.completed).length;
   const progressPercent = (completedSteps / setupSteps.length) * 100;
-
-  const dnsRecords: DNSRecord[] = [
-    {
-      recordType: domain.verificationMethod === 'cname' ? 'CNAME' : 'TXT',
-      host: domain.verificationMethod === 'cname'
-        ? `_verify.${domain.domain}`
-        : `_tesserix-verify.${domain.domain}`,
-      value: domain.verificationRecord || domain.verificationToken,
-      ttl: 3600,
-      purpose: 'domain_verification',
-      isVerified: domain.dnsVerified,
-    },
-    {
-      recordType: 'CNAME',
-      host: domain.domain,
-      value: 'proxy.tesserix.app',
-      ttl: 3600,
-      purpose: 'domain_routing',
-      isVerified: domain.routingStatus === 'active',
-    },
-  ];
 
   const handleCopyDomain = () => {
     navigator.clipboard.writeText(domain.domain);
@@ -252,9 +262,16 @@ export function DomainCard({
 
                 {/* DNS Records */}
                 <div className="grid gap-3">
-                  {dnsRecords.map((record, idx) => (
-                    <DNSRecordRow key={idx} record={record} onCopy={onCopy} />
-                  ))}
+                  {loadingDns ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                      <span className="ml-2 text-sm text-muted-foreground">Loading DNS records...</span>
+                    </div>
+                  ) : (
+                    dnsRecords.map((record, idx) => (
+                      <DNSRecordRow key={idx} record={record} onCopy={onCopy} />
+                    ))
+                  )}
                 </div>
               </div>
             </CollapsibleContent>
