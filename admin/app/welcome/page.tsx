@@ -153,8 +153,8 @@ function WelcomeContent() {
       return;
     }
 
-    if (password.length < 8) {
-      toast.error('Weak Password', 'Password must be at least 8 characters long');
+    if (password.length < 10) {
+      toast.error('Weak Password', 'Password must be at least 10 characters long');
       return;
     }
 
@@ -457,8 +457,8 @@ function WelcomeContent() {
               <p className="text-xs font-medium text-foreground mb-1.5">Requirements:</p>
               <ul className="text-[10px] text-muted-foreground space-y-0.5">
                 <li className="flex items-center gap-1.5">
-                  <div className={`w-1 h-1 rounded-full ${password.length >= 8 ? 'bg-success' : 'bg-border'}`} />
-                  8+ characters
+                  <div className={`w-1 h-1 rounded-full ${password.length >= 10 ? 'bg-success' : 'bg-border'}`} />
+                  10+ characters
                 </li>
                 <li className="flex items-center gap-1.5">
                   <div className={`w-1 h-1 rounded-full ${/[A-Z]/.test(password) ? 'bg-success' : 'bg-border'}`} />

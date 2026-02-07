@@ -19,7 +19,7 @@ import { getBrowserGeolocation, reverseGeocode, checkGeolocationPermission } fro
 import { useAutoSave, useBrowserClose, useDraftRecovery, type DraftFormData } from '../../lib/hooks';
 import { config } from '../../lib/config/app';
 import { normalizeDomain, validateDomain, generateUrls, validateStorefrontSubdomain, DEFAULT_STOREFRONT_SUBDOMAIN, type DomainValidationResult } from '../../lib/utils/domain';
-import { buildSmartAdminUrl, registerValidatedCustomDomain } from '../../lib/utils/safe-redirect';
+import { buildSmartAdminUrl } from '../../lib/utils/safe-redirect';
 
 // Development-only logging utility
 const isDev = process.env.NODE_ENV === 'development';
@@ -1550,15 +1550,10 @@ export default function OnboardingPage() {
         // Continue anyway — store setup was saved successfully
       }
 
-      // Build admin welcome URL directly from form data (skip email verification)
-      const usingCustom = data.useCustomDomain && data.customDomain;
-      if (usingCustom && data.customDomain) {
-        registerValidatedCustomDomain(data.customDomain);
-      }
-
+      // Always use subdomain-based admin URL for the welcome redirect.
+      // Custom domain routing/SSL won't exist until tenant provisioning completes,
+      // so we must use the default subdomain which works via wildcard routing.
       const welcomeUrl = buildSmartAdminUrl({
-        customDomain: usingCustom ? data.customDomain : undefined,
-        customAdminSubdomain: usingCustom ? (data.customAdminSubdomain || 'admin') : undefined,
         tenantSlug: data.subdomain,
         path: `/welcome?sessionId=${sessionId}`,
       });
