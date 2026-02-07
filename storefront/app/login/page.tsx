@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, Mail, Lock, Loader2, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, Loader2, Sparkles, Smartphone, Shield, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { useTenant, useNavPath } from '@/context/TenantContext';
 import { useAuthStore } from '@/store/auth';
 import { useCartStore } from '@/store/cart';
-import { initiateLogin, getSession, directLogin, DirectAuthResponse, checkDeactivatedAccount, reactivateAccount } from '@/lib/api/auth';
+import { initiateLogin, getSession, directLogin, verifyMfa, DirectAuthResponse, checkDeactivatedAccount, reactivateAccount } from '@/lib/api/auth';
 import {
   Dialog,
   DialogContent,
@@ -75,6 +75,16 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isHydrated, setIsHydrated] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+
+  // MFA state
+  const [mfaStep, setMfaStep] = useState(false);
+  const [mfaSession, setMfaSession] = useState('');
+  const [mfaMethods, setMfaMethods] = useState<string[]>([]);
+  const [activeMfaMethod, setActiveMfaMethod] = useState<'totp' | 'email'>('email');
+  const [mfaCode, setMfaCode] = useState(['', '', '', '', '', '']);
+  const [mfaError, setMfaError] = useState('');
+  const [isMfaVerifying, setIsMfaVerifying] = useState(false);
+  const mfaCodeRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Reactivation state
   const [showReactivateDialog, setShowReactivateDialog] = useState(false);
@@ -162,10 +172,18 @@ export default function LoginPage() {
         // Redirect to account page
         router.push(getNavPath('/account'));
       } else if (result.mfa_required) {
-        // MFA required - redirect to MFA verification page
-        // TODO: Implement MFA verification UI
-        setError('Multi-factor authentication is required. Please contact support.');
+        // MFA required - show MFA verification UI
+        setMfaSession(result.mfa_session || '');
+        setMfaMethods(result.mfa_methods || ['email']);
+        // Default to TOTP if available, otherwise email
+        const defaultMethod = result.mfa_methods?.includes('totp') ? 'totp' : 'email';
+        setActiveMfaMethod(defaultMethod as 'totp' | 'email');
+        setMfaStep(true);
+        setMfaCode(['', '', '', '', '', '']);
+        setMfaError('');
         setLoading(false);
+        // Auto-focus first code input after render
+        setTimeout(() => mfaCodeRefs.current[0]?.focus(), 100);
       } else {
         // Login failed - check if account is deactivated
         if (result.error === 'INVALID_CREDENTIALS' || result.error === 'ACCOUNT_DEACTIVATED') {
@@ -236,6 +254,209 @@ export default function LoginPage() {
       setIsReactivating(false);
     }
   };
+
+  const handleMfaCodeChange = (index: number, value: string) => {
+    if (value.length > 1) return;
+    const newCode = [...mfaCode];
+    newCode[index] = value;
+    setMfaCode(newCode);
+    if (value && index < 5) {
+      mfaCodeRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleMfaCodeKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !mfaCode[index] && index > 0) {
+      mfaCodeRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleMfaVerify = async () => {
+    const codeStr = mfaCode.join('');
+    if (codeStr.length !== 6) return;
+
+    setMfaError('');
+    setIsMfaVerifying(true);
+
+    try {
+      const result = await verifyMfa(mfaSession, codeStr, activeMfaMethod);
+
+      if (result.success && result.authenticated) {
+        if (result.user) {
+          login({
+            id: result.user.id,
+            email: result.user.email,
+            firstName: result.user.first_name || '',
+            lastName: result.user.last_name || '',
+            phone: '',
+            createdAt: new Date().toISOString(),
+            tenantId: result.user.tenant_id,
+          });
+        }
+        router.push(getNavPath('/account'));
+      } else {
+        setMfaError(result.message || 'Invalid code. Please try again.');
+        setMfaCode(['', '', '', '', '', '']);
+        setTimeout(() => mfaCodeRefs.current[0]?.focus(), 50);
+      }
+    } catch {
+      setMfaError('Verification failed. Please try again.');
+      setMfaCode(['', '', '', '', '', '']);
+      setTimeout(() => mfaCodeRefs.current[0]?.focus(), 50);
+    }
+    setIsMfaVerifying(false);
+  };
+
+  const handleMfaBack = () => {
+    setMfaStep(false);
+    setMfaSession('');
+    setMfaMethods([]);
+    setActiveMfaMethod('email');
+    setMfaCode(['', '', '', '', '', '']);
+    setMfaError('');
+    setLoading(false);
+  };
+
+  const switchMfaMethod = (method: 'totp' | 'email') => {
+    setActiveMfaMethod(method);
+    setMfaCode(['', '', '', '', '', '']);
+    setMfaError('');
+    setTimeout(() => mfaCodeRefs.current[0]?.focus(), 50);
+  };
+
+  // MFA Step UI
+  if (mfaStep) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--tenant-primary)]/5 via-background to-[var(--tenant-secondary)]/5" />
+
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+          className="w-full max-w-md relative z-10"
+        >
+          <motion.div
+            variants={itemVariants}
+            className="bg-card/80 backdrop-blur-sm rounded-2xl border shadow-xl p-8"
+          >
+            <motion.div variants={itemVariants} className="text-center mb-8">
+              <motion.div
+                className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--tenant-primary)]/10 flex items-center justify-center"
+                whileHover={{ scale: 1.1 }}
+                transition={{ type: 'spring', stiffness: 300 }}
+              >
+                {activeMfaMethod === 'totp' ? (
+                  <Smartphone className="h-8 w-8 text-tenant-primary" />
+                ) : (
+                  <Shield className="h-8 w-8 text-tenant-primary" />
+                )}
+              </motion.div>
+              <h1 className="text-2xl font-bold">
+                <TranslatedUIText text="Verify Your Identity" />
+              </h1>
+              <p className="text-muted-foreground mt-2">
+                {activeMfaMethod === 'totp' ? (
+                  <TranslatedUIText text="Enter the 6-digit code from your authenticator app" />
+                ) : (
+                  <TranslatedUIText text="Enter the verification code sent to your email" />
+                )}
+              </p>
+            </motion.div>
+
+            <AnimatePresence mode="wait">
+              {mfaError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, height: 0 }}
+                  animate={{ opacity: 1, y: 0, height: 'auto' }}
+                  exit={{ opacity: 0, y: -10, height: 0 }}
+                  className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm flex items-center gap-2 mb-4"
+                >
+                  <span className="flex-shrink-0 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  {mfaError}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <motion.div variants={itemVariants} className="space-y-6">
+              {/* 6-digit code input */}
+              <div className="flex justify-center gap-2">
+                {mfaCode.map((digit, index) => (
+                  <input
+                    key={index}
+                    ref={el => { mfaCodeRefs.current[index] = el; }}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={digit}
+                    onChange={e => handleMfaCodeChange(index, e.target.value)}
+                    onKeyDown={e => handleMfaCodeKeyDown(index, e)}
+                    className="w-11 h-12 text-center text-lg font-bold rounded-lg border border-border bg-background text-foreground focus:border-[var(--tenant-primary)] focus:ring-2 focus:ring-[var(--tenant-primary)]/20 transition-all"
+                    disabled={isMfaVerifying}
+                  />
+                ))}
+              </div>
+
+              {/* Verify button */}
+              <Button
+                onClick={handleMfaVerify}
+                variant="tenant-gradient"
+                size="lg"
+                className="w-full"
+                disabled={isMfaVerifying || mfaCode.join('').length !== 6}
+              >
+                {isMfaVerifying ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <TranslatedUIText text="Verifying..." />
+                  </>
+                ) : (
+                  <TranslatedUIText text="Verify Code" />
+                )}
+              </Button>
+
+              {/* Method switcher */}
+              {mfaMethods.length > 1 && (
+                <div className="text-center">
+                  {activeMfaMethod === 'totp' ? (
+                    <button
+                      onClick={() => switchMfaMethod('email')}
+                      className="text-sm text-tenant-primary hover:underline"
+                    >
+                      <TranslatedUIText text="Use email verification instead" />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => switchMfaMethod('totp')}
+                      className="text-sm text-tenant-primary hover:underline"
+                    >
+                      <TranslatedUIText text="Use authenticator app instead" />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Backup code hint for TOTP */}
+              {activeMfaMethod === 'totp' && (
+                <p className="text-xs text-center text-muted-foreground">
+                  <TranslatedUIText text="You can also use a backup code in place of the authenticator code" />
+                </p>
+              )}
+
+              {/* Back button */}
+              <button
+                onClick={handleMfaBack}
+                className="w-full flex items-center justify-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                <TranslatedUIText text="Back to login" />
+              </button>
+            </motion.div>
+          </motion.div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center py-12 px-4 relative overflow-hidden">

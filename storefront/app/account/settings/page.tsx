@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { Bell, Lock, Shield, Eye, EyeOff, Loader2, CheckCircle, Globe, Languages, AlertTriangle } from 'lucide-react';
+import { Bell, Lock, Shield, Eye, EyeOff, Loader2, CheckCircle, Globe, Languages, AlertTriangle, Smartphone, KeyRound, X, Check, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,7 +21,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useTenant } from '@/context/TenantContext';
 import { useAuthStore } from '@/store/auth';
 import { getPreferences, updatePreferences, NotificationPreferences } from '@/lib/api/notifications';
-import { deactivateAccount } from '@/lib/api/auth';
+import { deactivateAccount, getTotpStatus, initiateTotpSetup, confirmTotpSetup, disableTotp, regenerateBackupCodes } from '@/lib/api/auth';
+import { QRCodeSVG } from 'qrcode.react';
 import {
   getLanguages,
   getUserLanguagePreference,
@@ -72,6 +73,200 @@ export default function SettingsPage() {
   const [deactivateReason, setDeactivateReason] = useState('not_using');
   const [isDeactivating, setIsDeactivating] = useState(false);
   const [deactivateError, setDeactivateError] = useState<string | null>(null);
+
+  // TOTP MFA state
+  type MFAFlow = 'idle' | 'enable-scan' | 'enable-verify' | 'enable-backup' | 'disable' | 'regenerate';
+  const [totpEnabled, setTotpEnabled] = useState(false);
+  const [backupCodesRemaining, setBackupCodesRemaining] = useState(0);
+  const [isLoadingTotp, setIsLoadingTotp] = useState(true);
+  const [mfaFlow, setMfaFlow] = useState<MFAFlow>('idle');
+  const [mfaError, setMfaError] = useState('');
+  const [isMfaProcessing, setIsMfaProcessing] = useState(false);
+  const [setupSession, setSetupSession] = useState('');
+  const [totpUri, setTotpUri] = useState('');
+  const [manualKey, setManualKey] = useState('');
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
+  const [showManualKey, setShowManualKey] = useState(false);
+  const [copiedCodes, setCopiedCodes] = useState(false);
+  const [totpCode, setTotpCode] = useState(['', '', '', '', '', '']);
+  const totpCodeRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Load TOTP status
+  useEffect(() => {
+    async function loadTotpStatus() {
+      if (!isAuthenticated) {
+        setIsLoadingTotp(false);
+        return;
+      }
+      try {
+        const result = await getTotpStatus();
+        if (result.success) {
+          setTotpEnabled(result.totp_enabled);
+          setBackupCodesRemaining(result.backup_codes_remaining);
+        }
+      } catch {
+        // Silently handle
+      }
+      setIsLoadingTotp(false);
+    }
+    loadTotpStatus();
+  }, [isAuthenticated]);
+
+  const resetTotpCode = () => {
+    setTotpCode(['', '', '', '', '', '']);
+    setTimeout(() => totpCodeRefs.current[0]?.focus(), 50);
+  };
+
+  const handleTotpCodeChange = (index: number, value: string) => {
+    if (value.length > 1) return;
+    const newCode = [...totpCode];
+    newCode[index] = value;
+    setTotpCode(newCode);
+    if (value && index < 5) {
+      totpCodeRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleTotpCodeKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !totpCode[index] && index > 0) {
+      totpCodeRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const getTotpCodeString = () => totpCode.join('');
+
+  const handleStartTotpEnable = async () => {
+    setMfaError('');
+    setIsMfaProcessing(true);
+    try {
+      const result = await initiateTotpSetup();
+      if (result.success && result.setup_session) {
+        setSetupSession(result.setup_session);
+        setTotpUri(result.totp_uri || '');
+        setManualKey(result.manual_entry_key || '');
+        setBackupCodes(result.backup_codes || []);
+        setMfaFlow('enable-scan');
+      } else {
+        setMfaError(result.message || 'Failed to start TOTP setup.');
+      }
+    } catch {
+      setMfaError('Failed to start TOTP setup.');
+    }
+    setIsMfaProcessing(false);
+  };
+
+  const handleVerifyTotpSetup = async () => {
+    const codeStr = getTotpCodeString();
+    if (codeStr.length !== 6) return;
+    setMfaError('');
+    setIsMfaProcessing(true);
+    try {
+      const result = await confirmTotpSetup(setupSession, codeStr);
+      if (result.success) {
+        setMfaFlow('enable-backup');
+      } else {
+        setMfaError(result.message || 'Invalid code.');
+        resetTotpCode();
+      }
+    } catch {
+      setMfaError('Verification failed.');
+      resetTotpCode();
+    }
+    setIsMfaProcessing(false);
+  };
+
+  const handleBackupCodesAcknowledged = () => {
+    setTotpEnabled(true);
+    setBackupCodesRemaining(backupCodes.length);
+    setMfaFlow('idle');
+    setSetupSession('');
+    setTotpUri('');
+    setManualKey('');
+    setBackupCodes([]);
+    resetTotpCode();
+  };
+
+  const handleDisableTotp = async () => {
+    const codeStr = getTotpCodeString();
+    if (codeStr.length !== 6) return;
+    setMfaError('');
+    setIsMfaProcessing(true);
+    try {
+      const result = await disableTotp(codeStr);
+      if (result.success) {
+        setTotpEnabled(false);
+        setBackupCodesRemaining(0);
+        setMfaFlow('idle');
+        resetTotpCode();
+      } else {
+        setMfaError(result.message || 'Invalid code.');
+        resetTotpCode();
+      }
+    } catch {
+      setMfaError('Failed to disable TOTP.');
+      resetTotpCode();
+    }
+    setIsMfaProcessing(false);
+  };
+
+  const handleRegenerateBackupCodes = async () => {
+    const codeStr = getTotpCodeString();
+    if (codeStr.length !== 6) return;
+    setMfaError('');
+    setIsMfaProcessing(true);
+    try {
+      const result = await regenerateBackupCodes(codeStr);
+      if (result.success && result.backup_codes) {
+        setBackupCodes(result.backup_codes);
+        setBackupCodesRemaining(result.backup_codes.length);
+        setMfaFlow('enable-backup');
+      } else {
+        setMfaError(result.message || 'Invalid code.');
+        resetTotpCode();
+      }
+    } catch {
+      setMfaError('Failed to regenerate backup codes.');
+      resetTotpCode();
+    }
+    setIsMfaProcessing(false);
+  };
+
+  const handleCopyBackupCodes = () => {
+    navigator.clipboard.writeText(backupCodes.join('\n')).then(() => {
+      setCopiedCodes(true);
+      setTimeout(() => setCopiedCodes(false), 2000);
+    });
+  };
+
+  const handleCancelMfa = () => {
+    setMfaFlow('idle');
+    setMfaError('');
+    resetTotpCode();
+    setSetupSession('');
+    setTotpUri('');
+    setManualKey('');
+    setBackupCodes([]);
+    setShowManualKey(false);
+  };
+
+  const renderTotpCodeInput = () => (
+    <div className="flex justify-center gap-2">
+      {totpCode.map((digit, index) => (
+        <input
+          key={index}
+          ref={el => { totpCodeRefs.current[index] = el; }}
+          type="text"
+          inputMode="numeric"
+          maxLength={1}
+          value={digit}
+          onChange={e => handleTotpCodeChange(index, e.target.value)}
+          onKeyDown={e => handleTotpCodeKeyDown(index, e)}
+          className="w-11 h-11 text-center text-lg font-bold rounded-lg border border-border bg-background text-foreground focus:border-[var(--tenant-primary)] focus:ring-2 focus:ring-[var(--tenant-primary)]/20 transition-all"
+          disabled={isMfaProcessing}
+        />
+      ))}
+    </div>
+  );
 
   // Sync local state with TranslationContext (source of truth)
   useEffect(() => {
@@ -518,19 +713,248 @@ export default function SettingsPage() {
 
           <Button className="btn-tenant-primary"><TranslatedUIText text="Update Password" /></Button>
         </div>
+      </div>
 
-        <Separator className="my-6" />
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Shield className="h-5 w-5 text-muted-foreground" />
-            <div>
-              <p className="font-medium"><TranslatedUIText text="Two-Factor Authentication" /></p>
-              <p className="text-sm text-muted-foreground"><TranslatedUIText text="Add an extra layer of security" /></p>
-            </div>
+      {/* Two-Factor Authentication */}
+      <div className="bg-card rounded-xl border p-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div
+            className="w-10 h-10 rounded-lg flex items-center justify-center"
+            style={{ background: `${settings.primaryColor}15` }}
+          >
+            <Smartphone className="h-5 w-5 text-tenant-primary" />
           </div>
-          <Button variant="outline"><TranslatedUIText text="Enable 2FA" /></Button>
+          <div>
+            <h2 className="text-lg font-semibold"><TranslatedUIText text="Two-Factor Authentication" /></h2>
+            <p className="text-sm text-muted-foreground"><TranslatedUIText text="Secure your account with an authenticator app" /></p>
+          </div>
         </div>
+
+        {mfaError && (
+          <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2 mb-4">
+            <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+            <span>{mfaError}</span>
+          </div>
+        )}
+
+        {isLoadingTotp ? (
+          <div className="flex items-center gap-3">
+            <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+            <span className="text-sm text-muted-foreground"><TranslatedUIText text="Loading security settings..." /></span>
+          </div>
+        ) : (
+          <>
+            {/* Idle State */}
+            {mfaFlow === 'idle' && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <Shield className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm font-medium">
+                        <TranslatedUIText text="Authenticator App" />
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {totpEnabled
+                          ? <TranslatedUIText text={`Enabled - ${backupCodesRemaining} backup code${backupCodesRemaining !== 1 ? 's' : ''} remaining`} />
+                          : <TranslatedUIText text="Not configured" />}
+                      </p>
+                    </div>
+                  </div>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    totpEnabled
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                      : 'bg-muted-foreground/10 text-muted-foreground'
+                  }`}>
+                    {totpEnabled ? <TranslatedUIText text="Active" /> : <TranslatedUIText text="Inactive" />}
+                  </span>
+                </div>
+
+                {!totpEnabled ? (
+                  <Button
+                    onClick={handleStartTotpEnable}
+                    disabled={isMfaProcessing || !isAuthenticated}
+                    className="w-full btn-tenant-primary"
+                  >
+                    {isMfaProcessing ? (
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    ) : (
+                      <Smartphone className="h-4 w-4 mr-2" />
+                    )}
+                    <TranslatedUIText text="Enable Authenticator App" />
+                  </Button>
+                ) : (
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      onClick={() => { setMfaFlow('regenerate'); resetTotpCode(); }}
+                      className="flex-1"
+                    >
+                      <KeyRound className="h-4 w-4 mr-2" />
+                      <TranslatedUIText text="Regenerate Backup Codes" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => { setMfaFlow('disable'); resetTotpCode(); }}
+                      className="flex-1 text-red-600 hover:text-red-700 border-red-200 hover:bg-red-50"
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      <TranslatedUIText text="Disable" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Enable Flow: Step 1 — Scan QR */}
+            {mfaFlow === 'enable-scan' && (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    <TranslatedUIText text="Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)" />
+                  </p>
+                  {totpUri && (
+                    <div className="bg-white rounded-xl p-4 inline-block border mb-4">
+                      <QRCodeSVG value={totpUri} size={180} level="M" />
+                    </div>
+                  )}
+                  <div>
+                    <button
+                      onClick={() => setShowManualKey(!showManualKey)}
+                      className="text-xs text-tenant-primary hover:underline"
+                    >
+                      {showManualKey ? <TranslatedUIText text="Hide manual key" /> : <TranslatedUIText text="Can't scan? Enter key manually" />}
+                    </button>
+                    {showManualKey && manualKey && (
+                      <div className="mt-2 bg-muted rounded-lg p-3">
+                        <code className="text-xs font-mono font-semibold break-all">
+                          {manualKey}
+                        </code>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={handleCancelMfa} className="flex-1">
+                    <TranslatedUIText text="Cancel" />
+                  </Button>
+                  <Button
+                    onClick={() => { setMfaFlow('enable-verify'); resetTotpCode(); }}
+                    className="flex-1 btn-tenant-primary"
+                  >
+                    <TranslatedUIText text="Next: Verify Code" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Enable Flow: Step 2 — Verify Code */}
+            {mfaFlow === 'enable-verify' && (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground text-center">
+                  <TranslatedUIText text="Enter the 6-digit code from your authenticator app to confirm setup." />
+                </p>
+                {renderTotpCodeInput()}
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => setMfaFlow('enable-scan')} className="flex-1">
+                    <TranslatedUIText text="Back" />
+                  </Button>
+                  <Button
+                    onClick={handleVerifyTotpSetup}
+                    disabled={isMfaProcessing || getTotpCodeString().length !== 6}
+                    className="flex-1 btn-tenant-primary"
+                  >
+                    {isMfaProcessing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    <TranslatedUIText text="Verify & Enable" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Enable Flow: Step 3 — Backup Codes */}
+            {mfaFlow === 'enable-backup' && (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground text-center">
+                  <TranslatedUIText text="Save these backup codes in a safe place. Each code can only be used once." />
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  {backupCodes.map((bcode, i) => (
+                    <div
+                      key={i}
+                      className="font-mono text-sm font-semibold bg-muted rounded-lg py-2 px-3 text-center"
+                    >
+                      {bcode}
+                    </div>
+                  ))}
+                </div>
+                <Button variant="outline" onClick={handleCopyBackupCodes} className="w-full">
+                  {copiedCodes ? (
+                    <><Check className="h-4 w-4 mr-2" /> <TranslatedUIText text="Copied!" /></>
+                  ) : (
+                    <><Copy className="h-4 w-4 mr-2" /> <TranslatedUIText text="Copy All Codes" /></>
+                  )}
+                </Button>
+                <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                  <p className="text-xs text-yellow-800 dark:text-yellow-200 font-medium">
+                    <TranslatedUIText text="You won't be able to see these codes again after closing this dialog." />
+                  </p>
+                </div>
+                <Button onClick={handleBackupCodesAcknowledged} className="w-full btn-tenant-primary">
+                  <TranslatedUIText text="I've Saved These Codes — Done" />
+                </Button>
+              </div>
+            )}
+
+            {/* Disable Flow */}
+            {mfaFlow === 'disable' && (
+              <div className="space-y-4">
+                <div className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg">
+                  <p className="text-sm text-red-600 dark:text-red-400 font-medium">
+                    <TranslatedUIText text="Enter your current authenticator code to disable two-factor authentication." />
+                  </p>
+                </div>
+                {renderTotpCodeInput()}
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={handleCancelMfa} className="flex-1">
+                    <TranslatedUIText text="Cancel" />
+                  </Button>
+                  <Button
+                    onClick={handleDisableTotp}
+                    disabled={isMfaProcessing || getTotpCodeString().length !== 6}
+                    variant="destructive"
+                    className="flex-1"
+                  >
+                    {isMfaProcessing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    <TranslatedUIText text="Disable" />
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Regenerate Flow */}
+            {mfaFlow === 'regenerate' && (
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground text-center">
+                  <TranslatedUIText text="Enter your current authenticator code to generate new backup codes. This will invalidate all previous backup codes." />
+                </p>
+                {renderTotpCodeInput()}
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={handleCancelMfa} className="flex-1">
+                    <TranslatedUIText text="Cancel" />
+                  </Button>
+                  <Button
+                    onClick={handleRegenerateBackupCodes}
+                    disabled={isMfaProcessing || getTotpCodeString().length !== 6}
+                    className="flex-1 btn-tenant-primary"
+                  >
+                    {isMfaProcessing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                    <TranslatedUIText text="Regenerate" />
+                  </Button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       {/* Danger Zone */}

@@ -915,6 +915,103 @@ export async function directResetPassword(
 }
 
 // ============================================================================
+// TOTP Authenticator App Functions
+// ============================================================================
+
+export async function getTotpStatus(): Promise<{
+  success: boolean;
+  totp_enabled: boolean;
+  backup_codes_remaining: number;
+  message?: string;
+}> {
+  try {
+    const response = await fetch('/auth/totp/status', {
+      credentials: 'include',
+    });
+    return await response.json();
+  } catch {
+    return { success: false, totp_enabled: false, backup_codes_remaining: 0, message: 'Failed to check TOTP status' };
+  }
+}
+
+export async function initiateTotpSetup(): Promise<{
+  success: boolean;
+  setup_session?: string;
+  totp_uri?: string;
+  manual_entry_key?: string;
+  backup_codes?: string[];
+  message?: string;
+}> {
+  try {
+    const response = await fetch('/auth/totp/setup/initiate', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    return await response.json();
+  } catch {
+    return { success: false, message: 'Failed to start TOTP setup' };
+  }
+}
+
+export async function confirmTotpSetup(
+  setupSession: string,
+  code: string
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await fetch('/auth/totp/setup/confirm', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ setup_session: setupSession, code }),
+    });
+    return await response.json();
+  } catch {
+    return { success: false, message: 'Failed to confirm TOTP setup' };
+  }
+}
+
+export async function disableTotp(code: string): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await fetch('/auth/totp/disable', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code }),
+    });
+    return await response.json();
+  } catch {
+    return { success: false, message: 'Failed to disable TOTP' };
+  }
+}
+
+export async function regenerateBackupCodes(code: string): Promise<{
+  success: boolean;
+  backup_codes?: string[];
+  message?: string;
+}> {
+  try {
+    const response = await fetch('/auth/totp/backup-codes/regenerate', {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ code }),
+    });
+    return await response.json();
+  } catch {
+    return { success: false, message: 'Failed to regenerate backup codes' };
+  }
+}
+
+// ============================================================================
 // DEPRECATED: The following functions are kept for backwards compatibility
 // but will not work as the underlying endpoints have been removed.
 // Use the OIDC-based functions above instead.
