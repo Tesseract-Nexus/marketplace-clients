@@ -133,8 +133,9 @@ export default function OnboardingPage() {
       // Navigate to the new store's subdomain
       const hostname = window.location.hostname;
       const protocol = window.location.protocol;
-      if (hostname.endsWith('tesserix.app')) {
-        window.location.href = `${protocol}//${data.tenant.slug}-admin.tesserix.app/`;
+      const onboardingBaseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+      if (hostname.endsWith(`.${onboardingBaseDomain}`) || hostname === onboardingBaseDomain) {
+        window.location.href = `${protocol}//${data.tenant.slug}-admin.${onboardingBaseDomain}/`;
       } else {
         // Local development
         const port = window.location.port;

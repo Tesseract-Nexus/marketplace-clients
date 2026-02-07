@@ -967,9 +967,10 @@ function TenantLayoutInner({
 
       // Detect custom domain from hostname as fallback
       const hostname = window.location.hostname;
+      const layoutBaseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
       const isCustomDomainHost =
-        !hostname.endsWith('.tesserix.app') &&
-        hostname !== 'tesserix.app' &&
+        !hostname.endsWith(`.${layoutBaseDomain}`) &&
+        hostname !== layoutBaseDomain &&
         !hostname.endsWith('.localhost') &&
         hostname !== 'localhost';
 
@@ -992,8 +993,8 @@ function TenantLayoutInner({
           const protocol = window.location.protocol;
 
           let targetUrl = '';
-          if (hostname.endsWith('tesserix.app')) {
-            targetUrl = `${protocol}//${userTenantSlug}-admin.tesserix.app${window.location.pathname}`;
+          if (hostname.endsWith(`.${layoutBaseDomain}`) || hostname === layoutBaseDomain) {
+            targetUrl = `${protocol}//${userTenantSlug}-admin.${layoutBaseDomain}${window.location.pathname}`;
           } else {
             const portPart = port ? `:${port}` : '';
             targetUrl = `${protocol}//${userTenantSlug}.localhost${portPart}${window.location.pathname}`;

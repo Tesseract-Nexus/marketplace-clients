@@ -7,6 +7,9 @@
 // Root domain prefixes (these are NOT tenants)
 const ROOT_PREFIXES = ['dev', 'staging', 'prod'];
 
+// Platform base domain - tesserix.app for staging, mark8ly.com for production
+const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+
 /**
  * Extract tenant slug from hostname
  *
@@ -24,10 +27,11 @@ export function extractTenantFromHost(host: string): string | null {
   // Remove port if present
   const hostname = host.split(':')[0];
 
-  // Pattern 1: {tenant}-admin.tesserix.app
-  // e.g., homechef-admin.tesserix.app -> homechef
-  // But dev-admin.tesserix.app -> null (root domain)
-  const cloudPattern = /^(.+)-admin\.tesserix\.app$/;
+  // Pattern 1: {tenant}-admin.{BASE_DOMAIN}
+  // e.g., homechef-admin.mark8ly.com -> homechef
+  // But dev-admin.mark8ly.com -> null (root domain)
+  const escapedDomain = BASE_DOMAIN.replace(/\./g, '\\.');
+  const cloudPattern = new RegExp(`^(.+)-admin\\.${escapedDomain}$`);
   const cloudMatch = hostname.match(cloudPattern);
   if (cloudMatch) {
     const prefix = cloudMatch[1];
@@ -81,8 +85,8 @@ export function isCustomDomain(): boolean {
   if (typeof window === 'undefined') return false;
   const hostname = window.location.hostname;
   return (
-    !hostname.endsWith('.tesserix.app') &&
-    hostname !== 'tesserix.app' &&
+    !hostname.endsWith(`.${BASE_DOMAIN}`) &&
+    hostname !== BASE_DOMAIN &&
     !hostname.endsWith('.localhost') &&
     hostname !== 'localhost'
   );
@@ -134,16 +138,16 @@ export function getCurrentTenantSlug(): string | null {
 export function buildAdminUrl(tenantSlug: string, path: string = ''): string {
   if (typeof window === 'undefined') {
     // Server-side - default to cloud pattern
-    return `https://${tenantSlug}-admin.tesserix.app${path}`;
+    return `https://${tenantSlug}-admin.${BASE_DOMAIN}${path}`;
   }
 
   const hostname = window.location.hostname;
   const port = window.location.port;
   const protocol = window.location.protocol;
 
-  // Cloud: {tenant}-admin.tesserix.app
-  if (hostname.endsWith('tesserix.app')) {
-    return `${protocol}//${tenantSlug}-admin.tesserix.app${path}`;
+  // Cloud: {tenant}-admin.{BASE_DOMAIN}
+  if (hostname.endsWith(`.${BASE_DOMAIN}`) || hostname === BASE_DOMAIN) {
+    return `${protocol}//${tenantSlug}-admin.${BASE_DOMAIN}${path}`;
   }
 
   // Local development: {tenant}.localhost
@@ -152,10 +156,8 @@ export function buildAdminUrl(tenantSlug: string, path: string = ''): string {
     return `${protocol}//${tenantSlug}.localhost${portPart}${path}`;
   }
 
-  // Custom domain (e.g., admin.yahvismartfarm.com):
-  // When switching from a custom domain to a standard tenant,
-  // use the tesserix.app pattern since we can't infer the target's custom domain
-  return `https://${tenantSlug}-admin.tesserix.app${path}`;
+  // Custom domain: fall back to platform domain pattern
+  return `https://${tenantSlug}-admin.${BASE_DOMAIN}${path}`;
 }
 
 /**
@@ -170,9 +172,9 @@ export function getStorefrontDomain(): string {
   if (typeof window !== 'undefined') {
     const hostname = window.location.hostname;
 
-    // If we're on tesserix.app domain, use tesserix.app for storefronts
-    if (hostname.endsWith('.tesserix.app') || hostname === 'tesserix.app') {
-      return 'tesserix.app';
+    // If we're on the platform domain, use it for storefronts
+    if (hostname.endsWith(`.${BASE_DOMAIN}`) || hostname === BASE_DOMAIN) {
+      return BASE_DOMAIN;
     }
 
     // If we're on localhost, use localhost:3200 for storefronts
@@ -187,8 +189,8 @@ export function getStorefrontDomain(): string {
     return envDomain;
   }
 
-  // Default to production domain
-  return 'tesserix.app';
+  // Default to platform domain
+  return BASE_DOMAIN;
 }
 
 /**

@@ -59,14 +59,17 @@ const VALIDATION_TIMEOUT = 1500; // 1.5 seconds - fail fast for better UX
 const resolvedDomains = new Map<string, { tenantSlug: string; tenantId: string; timestamp: number }>();
 const DOMAIN_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
+// Platform base domain - tesserix.app for staging, mark8ly.com for production
+const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+
 /**
- * Check if a hostname is a custom domain (not tesserix.app or localhost)
+ * Check if a hostname is a custom domain (not platform domain or localhost)
  */
 function isCustomDomain(host: string): boolean {
   const hostname = host.split(':')[0].toLowerCase();
 
-  // Not custom if it's tesserix.app
-  if (hostname.endsWith('.tesserix.app')) {
+  // Not custom if it's the platform domain (tesserix.app or mark8ly.com)
+  if (hostname.endsWith(`.${BASE_DOMAIN}`) || hostname === BASE_DOMAIN) {
     return false;
   }
 
@@ -174,10 +177,11 @@ function extractTenantFromHost(host: string): string | null {
   // Remove port if present
   const hostname = host.split(':')[0];
 
-  // Pattern 1: {tenant}-admin.tesserix.app
-  // e.g., homechef-admin.tesserix.app -> homechef
-  // But dev-admin.tesserix.app -> null (root domain)
-  const cloudPattern = /^(.+)-admin\.tesserix\.app$/;
+  // Pattern 1: {tenant}-admin.{BASE_DOMAIN}
+  // e.g., homechef-admin.mark8ly.com -> homechef
+  // But dev-admin.mark8ly.com -> null (root domain)
+  const escapedDomain = BASE_DOMAIN.replace(/\./g, '\\.');
+  const cloudPattern = new RegExp(`^(.+)-admin\\.${escapedDomain}$`);
   const cloudMatch = hostname.match(cloudPattern);
   if (cloudMatch) {
     const prefix = cloudMatch[1];
