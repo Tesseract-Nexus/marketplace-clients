@@ -95,19 +95,18 @@ export const config = {
     enabled: true,
     maxScore: 100,
     weights: {
-      emailVerified: 25,        // Email verification
       phoneVerified: 15,        // Phone verification (optional)
-      businessInfoComplete: 15, // All business info filled
-      addressComplete: 15,      // Address information complete
-      addressProofUploaded: 10, // Address proof document
-      businessProofUploaded: 10,// Business proof document
+      businessInfoComplete: 20, // All business info filled
+      addressComplete: 20,      // Address information complete
+      addressProofUploaded: 15, // Address proof document
+      businessProofUploaded: 15,// Business proof document
       logoUploaded: 5,          // Company logo
-      storeConfigComplete: 5,   // Store setup complete
+      storeConfigComplete: 10,  // Store setup complete
     },
     thresholds: {
-      minimum: 40,   // Minimum to proceed (email + basic info)
-      recommended: 70, // Recommended level
-      verified: 90,  // Fully verified
+      minimum: 30,   // Minimum to proceed (basic info)
+      recommended: 60, // Recommended level
+      verified: 85,  // Fully verified
     },
   },
 

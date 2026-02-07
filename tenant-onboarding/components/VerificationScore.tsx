@@ -194,7 +194,6 @@ export function VerificationScore({
 
 // Helper hook to calculate verification items
 export function useVerificationScore(data: {
-  emailVerified: boolean;
   phoneVerified: boolean;
   businessInfoComplete: boolean;
   addressComplete: boolean;
@@ -205,13 +204,6 @@ export function useVerificationScore(data: {
 }): VerificationItem[] {
   const weights = config.verificationScore.weights;
   const items: VerificationItem[] = [];
-
-  items.push({
-    key: 'email',
-    label: 'Email Verified',
-    completed: data.emailVerified,
-    points: weights.emailVerified,
-  });
 
   // Only include phone verification if feature is enabled
   if (config.features.enablePhoneVerification) {

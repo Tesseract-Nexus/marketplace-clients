@@ -19,6 +19,7 @@ import { getBrowserGeolocation, reverseGeocode, checkGeolocationPermission } fro
 import { useAutoSave, useBrowserClose, useDraftRecovery, type DraftFormData } from '../../lib/hooks';
 import { config } from '../../lib/config/app';
 import { normalizeDomain, validateDomain, generateUrls, validateStorefrontSubdomain, DEFAULT_STOREFRONT_SUBDOMAIN, type DomainValidationResult } from '../../lib/utils/domain';
+import { buildSmartAdminUrl, registerValidatedCustomDomain } from '../../lib/utils/safe-redirect';
 
 // Development-only logging utility
 const isDev = process.env.NODE_ENV === 'development';
@@ -155,7 +156,7 @@ export default function OnboardingPage() {
 
   // Custom domain validation state
   const [showCustomDomainSection, setShowCustomDomainSection] = useState(false);
-  const [selectedVerificationMethod, setSelectedVerificationMethod] = useState<'CNAME' | 'TXT'>('CNAME');
+  // Only CNAME verification is supported
   const [customDomainValidation, setCustomDomainValidation] = useState<{
     isChecking: boolean;
     isValid: boolean | null;
@@ -1050,9 +1051,9 @@ export default function OnboardingPage() {
 
   // Verify domain DNS propagation
   const verifyDomainDNS = useCallback(async () => {
-    // Get the currently selected verification record based on user's method choice
+    // Get the CNAME verification record
     const selectedRecord = customDomainValidation.verificationRecords?.find(
-      r => r.type === selectedVerificationMethod
+      r => r.type === 'CNAME'
     ) || customDomainValidation.verificationRecord;
 
     if (!selectedRecord) {
@@ -1104,7 +1105,7 @@ export default function OnboardingPage() {
         lastChecked: new Date(),
       }));
     }
-  }, [customDomainValidation.verificationRecord, customDomainValidation.verificationRecords, selectedVerificationMethod, storeSetupForm]);
+  }, [customDomainValidation.verificationRecord, customDomainValidation.verificationRecords, storeSetupForm]);
 
   // Watch subdomain changes and validate, also sync storefrontSlug if not manually edited
   useEffect(() => {
@@ -1540,28 +1541,30 @@ export default function OnboardingPage() {
         secondary_color: data.secondaryColor,
       });
       nextStep();
-      // Pass session and email as URL params for the verify page
-      // This ensures the verify page works even before store rehydration completes
-      // Priority: store > form values > fetch from session API (most reliable fallback)
-      const verifyParams = new URLSearchParams();
-      if (sessionId) verifyParams.set('session', sessionId);
 
-      let emailForVerify = contactDetails.email || contactForm.getValues('email');
-
-      // If email is still not available, fetch from session API as final fallback
-      // This handles cases where store rehydration hasn't completed after page refresh
-      if (!emailForVerify && sessionId) {
-        try {
-          const session = await onboardingApi.getOnboardingSession(sessionId);
-          // Handle both legacy (contact_details/contact_info) and new (contact_information array) formats
-          emailForVerify = session.contact_details?.email || session.contact_info?.email || session.contact_information?.[0]?.email || '';
-        } catch (fetchError) {
-          console.error('Failed to fetch email from session:', fetchError);
-        }
+      // Complete the onboarding session
+      try {
+        await onboardingApi.completeOnboarding(sessionId);
+      } catch (completeError) {
+        devError('Failed to complete onboarding:', completeError);
+        // Continue anyway — store setup was saved successfully
       }
 
-      if (emailForVerify) verifyParams.set('email', emailForVerify as string);
-      router.push(`/onboarding/verify?${verifyParams.toString()}`);
+      // Build admin welcome URL directly from form data (skip email verification)
+      const usingCustom = data.useCustomDomain && data.customDomain;
+      if (usingCustom && data.customDomain) {
+        registerValidatedCustomDomain(data.customDomain);
+      }
+
+      const welcomeUrl = buildSmartAdminUrl({
+        customDomain: usingCustom ? data.customDomain : undefined,
+        customAdminSubdomain: usingCustom ? (data.customAdminSubdomain || 'admin') : undefined,
+        tenantSlug: data.subdomain,
+        path: `/welcome?sessionId=${sessionId}`,
+      });
+
+      console.log('[Onboarding] Redirecting to admin welcome:', welcomeUrl);
+      window.location.href = welcomeUrl;
     } catch (error) {
       // Use OnboardingAPIError for better error handling
       if (error instanceof OnboardingAPIError) {
@@ -2737,42 +2740,9 @@ export default function OnboardingPage() {
                                     </div>
                                   </div>
 
-                                  {/* Verification Method Selector */}
-                                  {customDomainValidation.verificationRecords && customDomainValidation.verificationRecords.length > 1 && (
-                                    <div className="mb-3">
-                                      <p className="text-xs font-medium text-muted-foreground mb-2">Choose verification method:</p>
-                                      <div className="flex gap-2">
-                                        <button
-                                          type="button"
-                                          onClick={() => setSelectedVerificationMethod('CNAME')}
-                                          className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                            selectedVerificationMethod === 'CNAME'
-                                              ? 'bg-primary text-white'
-                                              : 'bg-warm-100 text-foreground hover:bg-warm-200'
-                                          }`}
-                                        >
-                                          CNAME Record
-                                          <span className="block text-xs opacity-75 mt-0.5">Recommended</span>
-                                        </button>
-                                        <button
-                                          type="button"
-                                          onClick={() => setSelectedVerificationMethod('TXT')}
-                                          className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                                            selectedVerificationMethod === 'TXT'
-                                              ? 'bg-primary text-white'
-                                              : 'bg-warm-100 text-foreground hover:bg-warm-200'
-                                          }`}
-                                        >
-                                          TXT Record
-                                          <span className="block text-xs opacity-75 mt-0.5">Alternative</span>
-                                        </button>
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {/* Get the selected verification record */}
+                                  {/* Get the CNAME verification record */}
                                   {(() => {
-                                    const selectedRecord = customDomainValidation.verificationRecords?.find(r => r.type === selectedVerificationMethod) || customDomainValidation.verificationRecord;
+                                    const selectedRecord = customDomainValidation.verificationRecords?.find(r => r.type === 'CNAME') || customDomainValidation.verificationRecord;
                                     if (!selectedRecord) return null;
                                     return (
                                       <div className="bg-white rounded-lg overflow-hidden border border-primary/20">
@@ -3244,7 +3214,6 @@ export default function OnboardingPage() {
                             logoDocument={logoDocument}
                             onLogoDocumentChange={setLogoDocument}
                             verificationState={{
-                              emailVerified: false,
                               phoneVerified: false,
                               businessInfoComplete: !!(businessInfo as any)?.business_name && !!(businessInfo as any)?.business_type,
                               addressComplete: !!(businessAddress as any)?.street_address && !!(businessAddress as any)?.city,

@@ -31,7 +31,6 @@ interface DocumentsSectionProps {
   onLogoDocumentChange: (doc: UploadedDocument | null) => void;
   // Verification state for score
   verificationState: {
-    emailVerified: boolean;
     phoneVerified: boolean;
     businessInfoComplete: boolean;
     addressComplete: boolean;

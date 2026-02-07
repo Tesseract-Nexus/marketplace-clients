@@ -124,7 +124,6 @@ async function verifyDNSLocally(body: VerifyDomainRequest): Promise<Verification
   const dns = await import('dns');
   const { promisify } = await import('util');
   const resolveCname = promisify(dns.resolveCname);
-  const resolveTxt = promisify(dns.resolveTxt);
 
   const verificationHost = body.verification_host.toLowerCase().trim();
   const expectedValue = body.verification_value.toLowerCase().trim();
@@ -163,34 +162,10 @@ async function verifyDNSLocally(body: VerifyDomainRequest): Promise<Verification
     }
   } catch (cnameError: unknown) {
     const errCode = (cnameError as NodeJS.ErrnoException)?.code;
-    // CNAME lookup failed, try TXT lookup as fallback
-    try {
-      const txtRecords = await resolveTxt(verificationHost);
-
-      if (txtRecords && txtRecords.length > 0) {
-        status.dns_record_found = true;
-        // TXT records come as arrays of strings, join them
-        const txtValue = txtRecords.flat().join('').toLowerCase();
-        status.dns_record_value = txtValue;
-
-        if (txtValue.includes(expectedValue) || txtValue === expectedValue) {
-          status.dns_verified = true;
-          status.ssl_provisioning = true;
-          status.ssl_status = 'provisioning';
-          status.message = 'DNS verified! SSL certificate will be provisioned when onboarding completes.';
-          status.can_proceed = true;
-        } else {
-          status.message = `TXT record found but has incorrect value. Please verify your DNS configuration.`;
-        }
-      }
-    } catch (txtError: unknown) {
-      // Both lookups failed
-      const txtErrCode = (txtError as NodeJS.ErrnoException)?.code;
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[verify-domain] DNS lookup errors:', { cname: errCode, txt: txtErrCode });
-      }
-      status.message = 'DNS record not found yet. DNS changes can take up to 48 hours to propagate. Please try again later.';
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[verify-domain] CNAME lookup failed:', errCode);
     }
+    status.message = 'DNS record not found yet. DNS changes can take up to 48 hours to propagate. Please try again later.';
   }
 
   return status;

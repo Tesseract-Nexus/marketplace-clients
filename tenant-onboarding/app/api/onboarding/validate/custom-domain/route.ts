@@ -282,13 +282,6 @@ export async function POST(request: NextRequest) {
               ttl: 3600,
               purpose: 'verification',
             },
-            {
-              type: 'TXT',
-              host: `_tesserix.${cleanDomain}`,
-              value: `tesserix-verify=${verificationToken}`,
-              ttl: 3600,
-              purpose: 'verification',
-            },
           ];
         }
 
@@ -331,13 +324,6 @@ export async function POST(request: NextRequest) {
             type: 'CNAME',
             host: `_tesserix-${shortToken}.${cleanDomain}`,
             value: 'verify.tesserix.app',
-            ttl: 3600,
-            purpose: 'verification',
-          },
-          {
-            type: 'TXT',
-            host: `_tesserix.${cleanDomain}`,
-            value: `tesserix-verify=${verificationToken}`,
             ttl: 3600,
             purpose: 'verification',
           },
