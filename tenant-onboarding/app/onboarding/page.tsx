@@ -19,7 +19,6 @@ import { getBrowserGeolocation, reverseGeocode, checkGeolocationPermission } fro
 import { useAutoSave, useBrowserClose, useDraftRecovery, type DraftFormData } from '../../lib/hooks';
 import { config } from '../../lib/config/app';
 import { normalizeDomain, validateDomain, generateUrls, validateStorefrontSubdomain, DEFAULT_STOREFRONT_SUBDOMAIN, type DomainValidationResult } from '../../lib/utils/domain';
-import { buildSmartAdminUrl } from '../../lib/utils/safe-redirect';
 
 // Development-only logging utility
 const isDev = process.env.NODE_ENV === 'development';
@@ -1550,13 +1549,12 @@ export default function OnboardingPage() {
         // Continue anyway — store setup was saved successfully
       }
 
-      // Always use subdomain-based admin URL for the welcome redirect.
-      // Custom domain routing/SSL won't exist until tenant provisioning completes,
-      // so we must use the default subdomain which works via wildcard routing.
-      const welcomeUrl = buildSmartAdminUrl({
-        tenantSlug: data.subdomain,
-        path: `/welcome?sessionId=${sessionId}`,
-      });
+      // Use the dev admin URL for the welcome redirect.
+      // Tenant-specific routing (VirtualService, DNS, SSL) doesn't exist until
+      // CompleteAccountSetup runs on the welcome page, so we must use the
+      // dev-admin URL which always has working routing.
+      const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+      const welcomeUrl = `https://dev-admin.${baseDomain}/welcome?sessionId=${sessionId}`;
 
       console.log('[Onboarding] Redirecting to admin welcome:', welcomeUrl);
       window.location.href = welcomeUrl;
