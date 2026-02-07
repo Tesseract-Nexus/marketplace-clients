@@ -109,8 +109,8 @@ function AuthErrorContent() {
       <div className="text-center pt-4 border-t border-border">
         <p className="text-xs text-muted-foreground">
           If the problem persists, please contact{' '}
-          <a href="mailto:support@tesserix.app" className="text-primary hover:underline">
-            support@tesserix.app
+          <a href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@tesserix.app'}`} className="text-primary hover:underline">
+            {process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@tesserix.app'}
           </a>
         </p>
       </div>

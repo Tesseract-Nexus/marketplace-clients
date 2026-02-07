@@ -286,7 +286,7 @@ export default function SupportPage() {
               </div>
             </div>
             <Button
-              onClick={() => window.location.href = 'mailto:support@tesserix.app'}
+              onClick={() => window.location.href = `mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@tesserix.app'}`}
             >
               <Mail className="h-4 w-4 mr-2" />
               Email Support

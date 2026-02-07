@@ -25,8 +25,8 @@ const CSP_DIRECTIVES = {
   'font-src': ["'self'", 'data:'],
   'connect-src': [
     "'self'",
-    'https://*.tesserix.app',
-    'wss://*.tesserix.app',
+    `https://*.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`,
+    `wss://*.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`,
     process.env.NEXT_PUBLIC_API_URL || '',
     'https://api.posthog.com', // Analytics
     'https://www.google-analytics.com',

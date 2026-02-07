@@ -368,7 +368,7 @@ export default function SuccessPage() {
         {/* Footer Note */}
         <div className="text-center mt-12 text-sm text-foreground-tertiary">
           <p>
-            Questions? <a href="mailto:support@tesserix.app" className="text-foreground-secondary hover:underline">support@tesserix.app</a>
+            Questions? <a href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@tesserix.app'}`} className="text-foreground-secondary hover:underline">{process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@tesserix.app'}</a>
           </p>
         </div>
       </div>

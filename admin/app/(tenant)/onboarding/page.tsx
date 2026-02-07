@@ -248,7 +248,7 @@ export default function OnboardingPage() {
                       )}
                     />
                     <span className="px-3 h-10 flex items-center bg-muted border border-l-0 border-border rounded-r-md text-muted-foreground text-sm whitespace-nowrap">
-                      .tesserix.app
+                      .{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}
                     </span>
                   </div>
                   {checkingSlug && (
@@ -409,10 +409,10 @@ export default function OnboardingPage() {
                     <h3 className="text-xl font-bold text-foreground">{formData.businessName || 'Your Business'}</h3>
                     <div className="space-y-1 mt-1">
                       <p className="text-sm text-muted-foreground">
-                        <span className="text-muted-foreground">Storefront:</span> {formData.slug || 'your-slug'}.tesserix.app
+                        <span className="text-muted-foreground">Storefront:</span> {formData.slug || 'your-slug'}.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        <span className="text-muted-foreground">Admin:</span> {formData.slug || 'your-slug'}-admin.tesserix.app
+                        <span className="text-muted-foreground">Admin:</span> {formData.slug || 'your-slug'}-admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}
                       </p>
                     </div>
                     <p className="text-xs text-muted-foreground capitalize mt-1">

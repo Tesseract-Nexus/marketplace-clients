@@ -27,11 +27,11 @@ const nextConfig: NextConfig = {
       // Styles: Required for Tailwind and inline styles
       "style-src 'self' 'unsafe-inline'",
       // Images: Allow data URIs, blobs, and trusted CDNs
-      "img-src 'self' data: blob: https://storage.googleapis.com https://*.tesserix.app https://images.unsplash.com https://*.googleusercontent.com",
+      `img-src 'self' data: blob: https://storage.googleapis.com https://*.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'} https://images.unsplash.com https://*.googleusercontent.com`,
       // Fonts: Self and data URIs
       "font-src 'self' data:",
       // Connections: API endpoints, WebSockets, analytics, currency exchange
-      "connect-src 'self' https://*.tesserix.app wss://*.tesserix.app https://storage.googleapis.com https://api.posthog.com https://www.google-analytics.com https://api.frankfurter.app",
+      `connect-src 'self' https://*.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'} wss://*.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'} https://storage.googleapis.com https://api.posthog.com https://www.google-analytics.com https://api.frankfurter.app`,
       // Frame ancestors: Prevent clickjacking - DENY for admin
       "frame-ancestors 'none'",
       // Form actions: Only allow forms to submit to self
@@ -165,7 +165,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: '**.tesserix.app',
+        hostname: `**.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`,
       },
       {
         protocol: 'https',

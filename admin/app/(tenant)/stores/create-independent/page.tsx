@@ -131,8 +131,9 @@ export default function CreateIndependentStorePage() {
       // Navigate to the new store's subdomain
       const hostname = window.location.hostname;
       const protocol = window.location.protocol;
-      if (hostname.endsWith('tesserix.app')) {
-        window.location.href = `${protocol}//${data.tenant.slug}-admin.tesserix.app/`;
+      const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+      if (hostname.endsWith(baseDomain)) {
+        window.location.href = `${protocol}//${data.tenant.slug}-admin.${baseDomain}/`;
       } else {
         // Local development
         const port = window.location.port;
@@ -234,7 +235,7 @@ export default function CreateIndependentStorePage() {
                 <div className="relative">
                   <div className="flex items-center">
                     <span className="px-3 h-10 flex items-center bg-muted border border-r-0 border-border rounded-l-md text-muted-foreground text-sm">
-                      admin.tesserix.app/
+                      admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}/
                     </span>
                     <input
                       type="text"
@@ -411,7 +412,7 @@ export default function CreateIndependentStorePage() {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-foreground">{formData.businessName || 'Your Business'}</h3>
-                    <p className="text-sm text-muted-foreground">admin.tesserix.app/{formData.slug || 'your-slug'}</p>
+                    <p className="text-sm text-muted-foreground">admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}/{formData.slug || 'your-slug'}</p>
                     <p className="text-xs text-muted-foreground capitalize mt-1">
                       {industries.find(i => i.value === formData.industry)?.label || 'Industry'}
                     </p>

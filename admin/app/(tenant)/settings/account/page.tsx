@@ -31,7 +31,7 @@ export default function AccountSettingsPage() {
 
   const handleTenantDeleted = () => {
     // Clear tenant cookie and redirect to welcome page
-    document.cookie = 'tenant_slug=; path=/; max-age=0; domain=.tesserix.app';
+    document.cookie = `tenant_slug=; path=/; max-age=0; domain=.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`;
     document.cookie = 'tenant_slug=; path=/; max-age=0';
 
     // Redirect to root domain welcome page
@@ -93,7 +93,7 @@ export default function AccountSettingsPage() {
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Admin URL</label>
                 <p className="text-sm font-mono text-primary">
-                  https://{currentTenant.slug}-admin.tesserix.app
+                  https://{currentTenant.slug}-admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}
                 </p>
               </div>
             </div>

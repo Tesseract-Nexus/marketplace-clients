@@ -34,8 +34,8 @@ export async function GET() {
     // Fallback data
     const fallbackData = {
       contacts: [
-        { type: 'support', label: 'Email Support', email: 'support@tesserix.app' },
-        { type: 'sales', label: 'Sales', email: 'sales@tesserix.app' },
+        { type: 'support', label: 'Email Support', email: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@tesserix.app' },
+        { type: 'sales', label: 'Sales', email: process.env.NEXT_PUBLIC_SALES_EMAIL || 'sales@tesserix.app' },
       ],
       socialLinks: [
         { platform: 'twitter', url: 'https://twitter.com/tesserix' },

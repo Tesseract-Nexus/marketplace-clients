@@ -148,7 +148,7 @@ export default function MauticIntegrationPage() {
                 <RefreshCw className={cn("w-5 h-5 text-muted-foreground", (loading || syncing) && "animate-spin")} />
               </Button>
               <Button variant="gradient" asChild>
-                <a href="https://dev-mautic.tesserix.app" target="_blank" rel="noopener noreferrer">
+                <a href={process.env.NEXT_PUBLIC_MAUTIC_URL || 'https://dev-mautic.tesserix.app'} target="_blank" rel="noopener noreferrer">
                   <ExternalLink className="h-4 w-4 mr-2" />
                   Open Mautic Dashboard
                 </a>
@@ -358,7 +358,7 @@ export default function MauticIntegrationPage() {
               <div><span className="text-primary">MAUTIC_USERNAME</span>=admin</div>
               <div><span className="text-primary">MAUTIC_PASSWORD_SECRET_NAME</span>=mautic-api-password</div>
               <div><span className="text-primary">MAUTIC_ENABLED</span>=true</div>
-              <div><span className="text-primary">FROM_EMAIL</span>=noreply@mail.tesserix.app</div>
+              <div><span className="text-primary">FROM_EMAIL</span>=noreply@mail.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}</div>
               <div><span className="text-primary">FROM_NAME</span>=Tesseract Hub</div>
             </div>
           </div>
@@ -385,13 +385,13 @@ export default function MauticIntegrationPage() {
               </a>
             </Button>
             <Button variant="outline" className="h-auto py-4 flex flex-col gap-2" asChild>
-              <a href="https://dev-mautic.tesserix.app/s/contacts" target="_blank" rel="noopener noreferrer">
+              <a href={`${process.env.NEXT_PUBLIC_MAUTIC_URL || 'https://dev-mautic.tesserix.app'}/s/contacts`} target="_blank" rel="noopener noreferrer">
                 <Users className="h-5 w-5" />
                 <span>View Contacts</span>
               </a>
             </Button>
             <Button variant="outline" className="h-auto py-4 flex flex-col gap-2" asChild>
-              <a href="https://dev-mautic.tesserix.app/s/emails" target="_blank" rel="noopener noreferrer">
+              <a href={`${process.env.NEXT_PUBLIC_MAUTIC_URL || 'https://dev-mautic.tesserix.app'}/s/emails`} target="_blank" rel="noopener noreferrer">
                 <Zap className="h-5 w-5" />
                 <span>Email Templates</span>
               </a>

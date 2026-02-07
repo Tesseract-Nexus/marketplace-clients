@@ -31,7 +31,9 @@ function StoreNotFoundPage() {
   useEffect(() => {
     // Only access window on client side
     const hostname = window.location.hostname;
-    const slugMatch = hostname.match(/^(.+)-admin\.tesserix\.app$/);
+    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+    const escapedDomain = baseDomain.replace(/\./g, '\\.');
+    const slugMatch = hostname.match(new RegExp(`^(.+)-admin\\.${escapedDomain}$`));
     setRequestedSlug(slugMatch ? slugMatch[1] : null);
   }, []);
 
@@ -42,7 +44,8 @@ function StoreNotFoundPage() {
 
   const handleCreateStore = () => {
     // Redirect to onboarding
-    window.location.href = 'https://dev-onboarding.tesserix.app';
+    const onboardingUrl = process.env.NEXT_PUBLIC_ONBOARDING_URL || `https://dev-onboarding.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`;
+    window.location.href = onboardingUrl;
   };
 
   return (

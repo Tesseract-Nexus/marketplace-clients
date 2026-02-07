@@ -215,7 +215,7 @@ export default function GlobalError({ error, reset }: GlobalErrorProps) {
             }}>
               If this problem persists, please contact{' '}
               <a
-                href="mailto:support@tesserix.app"
+                href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@tesserix.app'}`}
                 style={{ color: '#6366f1', textDecoration: 'none' }}
                 onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'}
                 onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}

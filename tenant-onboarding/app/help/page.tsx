@@ -78,7 +78,7 @@ const contactOptions = [
     icon: Mail,
     title: 'Email',
     description: 'For detailed questions',
-    detail: 'support@tesserix.app',
+    detail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@tesserix.app',
     action: 'Send email',
     primary: false,
   },

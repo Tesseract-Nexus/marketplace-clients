@@ -501,7 +501,7 @@ export default function FeatureFlagsPage() {
                 Refresh
               </Button>
               <Button
-                onClick={() => window.open('https://dev-growthbook.tesserix.app', '_blank')}
+                onClick={() => window.open(process.env.NEXT_PUBLIC_GROWTHBOOK_URL || 'https://dev-growthbook.tesserix.app', '_blank')}
                 className="bg-primary text-white"
               >
                 <ExternalLink className="w-4 h-4 mr-2" />
