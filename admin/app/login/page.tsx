@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Sparkles, Shield, Loader2, Mail, Lock, ArrowLeft, Building2, AlertCircle, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
+import { Sparkles, Shield, Loader2, Mail, Lock, ArrowLeft, Building2, AlertCircle, Eye, EyeOff, CheckCircle2, Smartphone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -66,6 +66,8 @@ function LoginPageContent() {
   const [mfaCode, setMfaCode] = useState('');
   const [trustDevice, setTrustDevice] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
+  const [mfaMethods, setMfaMethods] = useState<string[]>(['email']);
+  const [activeMfaMethod, setActiveMfaMethod] = useState<'totp' | 'email'>('email');
 
   // UI state
   const [isLoading, setIsLoading] = useState(false);
@@ -240,6 +242,11 @@ function LoginPageContent() {
       // Check for MFA requirement
       if (result.mfa_required) {
         setMfaSession(result.mfa_session || null);
+        const methods = (result as unknown as { mfa_methods?: string[] }).mfa_methods || ['email'];
+        setMfaMethods(methods);
+        // Default to TOTP if available, otherwise email
+        const defaultMethod = methods.includes('totp') ? 'totp' : 'email';
+        setActiveMfaMethod(defaultMethod as 'totp' | 'email');
         setStep('mfa');
         setIsLoading(false);
         return;
@@ -283,6 +290,8 @@ function LoginPageContent() {
       setMfaCode('');
       setTrustDevice(false);
       setResendCooldown(0);
+      setActiveMfaMethod('email');
+      setMfaMethods(['email']);
     }
   };
 
@@ -293,16 +302,16 @@ function LoginPageContent() {
     return () => clearTimeout(timer);
   }, [resendCooldown]);
 
-  // Auto-send MFA code when entering MFA step
+  // Auto-send MFA code when entering MFA step (only for email method)
   useEffect(() => {
-    if (step === 'mfa' && mfaSession) {
+    if (step === 'mfa' && mfaSession && activeMfaMethod === 'email') {
       sendMfaCode(mfaSession, 'email').then(() => {
         setResendCooldown(60);
       }).catch(() => {
         // Silently handle - user can manually resend
       });
     }
-  }, [step, mfaSession]);
+  }, [step, mfaSession, activeMfaMethod]);
 
   // Handle MFA verification
   const handleMfaSubmit = async (code?: string) => {
@@ -314,7 +323,7 @@ function LoginPageContent() {
     setIsLoading(true);
 
     try {
-      const result = await verifyMfa(mfaSession, codeToVerify, 'email', trustDevice);
+      const result = await verifyMfa(mfaSession, codeToVerify, activeMfaMethod, trustDevice);
 
       if (!result.success) {
         setError(result.message || 'Invalid verification code.');
@@ -626,13 +635,21 @@ function LoginPageContent() {
                 <ArrowLeft className="h-5 w-5 text-muted-foreground" />
               </button>
               <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary shadow-lg shadow-primary/30 mb-3">
-                <Shield className="w-7 h-7 text-white" />
+                {activeMfaMethod === 'totp' ? (
+                  <Smartphone className="w-7 h-7 text-white" />
+                ) : (
+                  <Shield className="w-7 h-7 text-white" />
+                )}
               </div>
               <h2 className="text-xl font-semibold text-foreground mb-1">Verify Your Identity</h2>
               <p className="text-xs text-muted-foreground">
-                We sent a 6-digit code to
+                {activeMfaMethod === 'totp'
+                  ? 'Enter the 6-digit code from your authenticator app'
+                  : 'We sent a 6-digit code to'}
               </p>
-              <p className="text-xs text-primary font-medium mt-1">{email}</p>
+              {activeMfaMethod === 'email' && (
+                <p className="text-xs text-primary font-medium mt-1">{email}</p>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -680,22 +697,56 @@ function LoginPageContent() {
                 )}
               </Button>
 
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={handleResendMfa}
-                  disabled={resendCooldown > 0}
-                  className={cn(
-                    'text-xs transition-colors',
-                    resendCooldown > 0
-                      ? 'text-muted-foreground cursor-not-allowed'
-                      : 'text-primary hover:underline'
-                  )}
-                >
-                  {resendCooldown > 0
-                    ? `Resend code in ${resendCooldown}s`
-                    : 'Resend code'}
-                </button>
+              <div className="text-center space-y-2">
+                {/* Method switcher */}
+                {mfaMethods.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newMethod = activeMfaMethod === 'totp' ? 'email' : 'totp';
+                      setActiveMfaMethod(newMethod);
+                      setMfaCode('');
+                      setError(null);
+                      // Auto-send email code when switching to email
+                      if (newMethod === 'email' && mfaSession) {
+                        sendMfaCode(mfaSession, 'email').then(() => {
+                          setResendCooldown(60);
+                        }).catch(() => {});
+                      }
+                    }}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    {activeMfaMethod === 'totp'
+                      ? 'Use email verification instead'
+                      : 'Use authenticator app instead'}
+                  </button>
+                )}
+
+                {/* Resend button (only for email method) */}
+                {activeMfaMethod === 'email' && (
+                  <button
+                    type="button"
+                    onClick={handleResendMfa}
+                    disabled={resendCooldown > 0}
+                    className={cn(
+                      'text-xs transition-colors block mx-auto',
+                      resendCooldown > 0
+                        ? 'text-muted-foreground cursor-not-allowed'
+                        : 'text-primary hover:underline'
+                    )}
+                  >
+                    {resendCooldown > 0
+                      ? `Resend code in ${resendCooldown}s`
+                      : 'Resend code'}
+                  </button>
+                )}
+
+                {/* Backup code option (only for TOTP method) */}
+                {activeMfaMethod === 'totp' && (
+                  <p className="text-xs text-muted-foreground">
+                    Lost your device? Enter a backup code above.
+                  </p>
+                )}
               </div>
             </div>
           </>
