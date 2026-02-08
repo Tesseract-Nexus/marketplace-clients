@@ -115,6 +115,8 @@ export const securityHeaders: SecurityHeader[] = [
       'magnetometer=()',
       'microphone=()',
       'payment=(self)',
+      'publickey-credentials-create=(self)',
+      'publickey-credentials-get=(self)',
       'usb=()',
     ].join(', '),
   },
