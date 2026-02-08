@@ -96,18 +96,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const tenantId = auth.tenantId || request.headers.get('X-Tenant-ID') || '';
+    // Use tenant ID from storefront middleware (same pattern as profile/route.ts)
+    // Do NOT use auth-bff's tenant_id — it may differ from customers-service tenant_id.
+    // Let the customers-service middleware extract the correct tenant from the JWT.
+    const tenantId = request.headers.get('X-Tenant-ID') || '';
     const customerId = auth.customerId;
+
+    // For GCS storage path, use tenant from JWT (via auth-bff) as folder hint
+    // This is only for organizing files in GCS, not for DB lookups
+    const storageTenantId = auth.tenantId || tenantId || 'unknown';
 
     // Build storage path: marketplace/{tenantId}/customers/{customerId}/avatar/{timestamp}_{filename}
     const timestamp = Date.now();
     const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const uniqueFilename = `${timestamp}_${sanitizedFilename}`;
-    const storagePath = `marketplace/${tenantId}/customers/${customerId}/avatar/${uniqueFilename}`;
+    const storagePath = `marketplace/${storageTenantId}/customers/${customerId}/avatar/${uniqueFilename}`;
 
     // Build tags for metadata
     const tags = [
-      `tenantId:${tenantId}`,
+      `tenantId:${storageTenantId}`,
       `customerId:${customerId}`,
       `type:avatar`,
     ].join(',');
@@ -124,7 +131,7 @@ export async function POST(request: NextRequest) {
     const uploadResponse = await fetch(`${DOCUMENT_SERVICE_URL}/api/v1/documents/upload`, {
       method: 'POST',
       headers: {
-        'x-jwt-claim-tenant-id': tenantId,
+        'x-jwt-claim-tenant-id': storageTenantId,
       },
       body: uploadFormData,
     });
@@ -142,13 +149,17 @@ export async function POST(request: NextRequest) {
     // Format: https://storage.googleapis.com/{bucket}/{path}
     const avatarUrl = `${PUBLIC_BUCKET_URL}/${storagePath}`;
 
-    // Update customer record with new avatarUrl
+    // Update customer record with new avatarUrl (same header pattern as profile/route.ts)
     const patchHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
       'X-Internal-Service': 'storefront',
       'X-User-Id': customerId,
-      'X-Tenant-ID': tenantId,
     };
+    // Only send X-Tenant-ID if storefront middleware provided it (custom domain flow)
+    // For subdomain routing, let the customers-service extract tenant from the JWT
+    if (tenantId) {
+      patchHeaders['X-Tenant-ID'] = tenantId;
+    }
     if (auth.token) {
       patchHeaders['Authorization'] = auth.token;
     }
