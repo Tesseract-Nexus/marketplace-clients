@@ -2,17 +2,12 @@
 
 import { useState, useRef, useEffect, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui';
-import { Button } from '@/components/ui';
-import { Input } from '@/components/ui';
-import { Alert, AlertDescription } from '@/components/ui';
 import Header from '../../../components/Header';
 import { Loader2, Mail, RefreshCw, Shield, CheckCircle, ExternalLink, Gift, ArrowRight, Sparkles, Home, Store, Rocket, Clock, User, Smartphone, Copy, Check, KeyRound } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useOnboardingStore } from '../../../lib/store/onboarding-store';
 import { onboardingApi } from '../../../lib/api/onboarding';
 import { analytics } from '../../../lib/analytics/posthog';
-import { safeRedirect, buildSmartAdminUrl, registerValidatedCustomDomain } from '../../../lib/utils/safe-redirect';
 
 // Development-only logging utility
 const isDev = process.env.NODE_ENV === 'development';
@@ -349,7 +344,6 @@ function VerifyEmailContent() {
     sessionId: storeSessionId,
     contactDetails,
     setEmailVerified,
-    nextStep,
     _hasHydrated,
     rehydrateSensitiveData,
   } = useOnboardingStore();
@@ -595,16 +589,14 @@ function VerifyEmailContent() {
   }, [isRehydrating, email, sessionId, router, showWelcomePage]);
 
   const sendVerification = async (method: VerificationMethod) => {
-    // Use email from URL params or store
-    const verificationEmail = emailFromParams || contactDetails.email;
-    if (!verificationEmail || !sessionId) {
+    if (!email || !sessionId) {
       setError('Email not found. Please go back and complete the contact details step.');
       return;
     }
 
     setIsSendingInitial(true);
     try {
-      const result = await onboardingApi.sendEmailVerification(sessionId, verificationEmail);
+      const result = await onboardingApi.sendEmailVerification(sessionId, email);
 
       if (method === 'link') {
         setLinkSent(true);
@@ -620,7 +612,7 @@ function VerifyEmailContent() {
 
       // Track verification sent
       analytics.onboarding.verificationCodeSent({
-        email: contactDetails.email,
+        email: email,
         trigger: 'initial',
         method: method || 'otp',
       });
@@ -653,7 +645,7 @@ function VerifyEmailContent() {
 
             // Track code expiry
             analytics.onboarding.codeExpired({
-              email: contactDetails.email,
+              email: email,
             });
 
             return 0;
@@ -663,12 +655,12 @@ function VerifyEmailContent() {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [codeExpiry, contactDetails.email]);
+  }, [codeExpiry, email]);
 
   // Listen for real-time verification events via SSE (Server-Sent Events)
   // This replaces polling with instant push notifications via NATS
   useEffect(() => {
-    if (verificationMethod !== 'link' || !sessionId || !contactDetails.email || isVerified) {
+    if (verificationMethod !== 'link' || !sessionId || !email || isVerified) {
       return;
     }
 
@@ -700,7 +692,7 @@ function VerifyEmailContent() {
 
             // Track verification success
             analytics.onboarding.verificationSucceeded({
-              email: contactDetails.email,
+              email: email,
               method: 'link',
             });
 
@@ -723,7 +715,7 @@ function VerifyEmailContent() {
             setSuccess('Email verified successfully!');
 
             analytics.onboarding.verificationSucceeded({
-              email: contactDetails.email,
+              email: email,
               method: 'link',
             });
 
@@ -766,7 +758,7 @@ function VerifyEmailContent() {
     const startPollingFallback = () => {
       const pollInterval = setInterval(async () => {
         try {
-          const status = await onboardingApi.getVerificationStatus(sessionId, contactDetails.email || '');
+          const status = await onboardingApi.getVerificationStatus(sessionId, email);
           if (status.is_verified) {
             setIsVerified(true);
             setEmailVerified(true);
@@ -774,7 +766,7 @@ function VerifyEmailContent() {
             clearInterval(pollInterval);
 
             analytics.onboarding.verificationSucceeded({
-              email: contactDetails.email,
+              email: email,
               method: 'link',
             });
           }
@@ -795,7 +787,7 @@ function VerifyEmailContent() {
       devLog('[SSE] Cleaning up connection');
       eventSource?.close();
     };
-  }, [verificationMethod, sessionId, contactDetails.email, isVerified, setEmailVerified]);
+  }, [verificationMethod, sessionId, email, isVerified, setEmailVerified]);
 
   // Auto-redirect after verification success
   useEffect(() => {
@@ -806,7 +798,7 @@ function VerifyEmailContent() {
         if (prev <= 1) {
           // Redirect to password setup
           const params = new URLSearchParams({ session: sessionId || '' });
-          if (contactDetails.email) params.set('email', contactDetails.email);
+          if (email) params.set('email', email);
           router.push(`/onboarding/setup-password?${params.toString()}`);
           return 0;
         }
@@ -815,7 +807,7 @@ function VerifyEmailContent() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isVerified, sessionId, contactDetails.email, router]);
+  }, [isVerified, sessionId, email, router]);
 
   const handleInputChange = (index: number, value: string) => {
     if (value.length > 1) return;
@@ -845,7 +837,7 @@ function VerifyEmailContent() {
       return;
     }
 
-    if (!contactDetails.email) {
+    if (!email) {
       setError('Email not found. Please go back and complete the contact details step.');
       return;
     }
@@ -855,75 +847,25 @@ function VerifyEmailContent() {
     setSuccess('');
 
     try {
-      const result = await onboardingApi.verifyEmail(sessionId, contactDetails.email, code);
+      const result = await onboardingApi.verifyEmail(sessionId, email, code);
 
       if (result.verified) {
         setEmailVerified(true);
+        setIsVerified(true);
         setSuccess('Email verified successfully!');
-        nextStep();
 
         // Track verification success
         analytics.onboarding.verificationSucceeded({
-          email: contactDetails.email,
+          email: email,
+          method: verificationMethod || 'otp',
         });
-
-        // Complete the onboarding session
-        try {
-          await onboardingApi.completeOnboarding(sessionId);
-        } catch (error) {
-          devError('Failed to complete onboarding:', error);
-          // Continue anyway since verification was successful
-        }
-
-        // Fetch session to get store setup info (including custom domain)
-        let welcomeUrl: string;
-        try {
-          const session = await onboardingApi.getOnboardingSession(sessionId);
-          const storeSetup = session.store_setup;
-
-          devLog('[Verify] Session store_setup:', JSON.stringify(storeSetup, null, 2));
-
-          // Check if using custom domain
-          const useCustomDomain = storeSetup?.use_custom_domain === true;
-          const customDomain = storeSetup?.custom_domain;
-          const customAdminSubdomain = storeSetup?.custom_admin_subdomain || 'admin';
-          const tenantSubdomain = storeSetup?.subdomain;
-
-          devLog('[Verify] Custom domain config:', { useCustomDomain, customDomain, customAdminSubdomain, tenantSubdomain });
-
-          // Register custom domain as validated for safe redirect
-          if (useCustomDomain && customDomain) {
-            registerValidatedCustomDomain(customDomain);
-            devLog('[Verify] Registered custom domain:', customDomain);
-          }
-
-          // Build the appropriate admin URL based on session data
-          welcomeUrl = buildSmartAdminUrl({
-            customDomain: useCustomDomain ? customDomain : undefined,
-            customAdminSubdomain: customAdminSubdomain,
-            tenantSlug: tenantSubdomain,
-            path: `/welcome?sessionId=${sessionId}`,
-          });
-
-          console.log('[Verify] Built welcome URL:', welcomeUrl);
-        } catch (error) {
-          console.error('[Verify] Failed to fetch session for redirect URL:', error);
-          // Fallback to setup-password page within the onboarding app
-          welcomeUrl = `/onboarding/setup-password?session=${sessionId}`;
-        }
-
-        // Use direct window.location for custom domain redirects to ensure query params are preserved
-        setTimeout(() => {
-          console.log('[Verify] Executing redirect to:', welcomeUrl);
-          window.location.href = welcomeUrl;
-        }, 1500);
       } else {
         const errorMsg = result.message || 'Invalid verification code. Please try again.';
         setError(errorMsg);
 
         // Track verification failure
         analytics.onboarding.verificationFailed(errorMsg, {
-          email: contactDetails.email,
+          email: email,
         });
 
         setVerificationCode(['', '', '', '', '', '']);
@@ -935,7 +877,7 @@ function VerifyEmailContent() {
 
       // Track verification error
       analytics.onboarding.verificationFailed(errorMessage, {
-        email: contactDetails.email,
+        email: email,
       });
 
       setVerificationCode(['', '', '', '', '', '']);
@@ -951,7 +893,7 @@ function VerifyEmailContent() {
       return;
     }
 
-    if (!contactDetails.email) {
+    if (!email) {
       setError('Email not found. Please go back and complete the contact details step.');
       return;
     }
@@ -961,7 +903,7 @@ function VerifyEmailContent() {
     setSuccess('');
 
     try {
-      const result = await onboardingApi.resendVerificationCode(sessionId, contactDetails.email);
+      const result = await onboardingApi.resendVerificationCode(sessionId, email);
 
       if (verificationMethod === 'link') {
         setLinkSent(true);
@@ -977,7 +919,7 @@ function VerifyEmailContent() {
 
       // Track resend verification
       analytics.onboarding.verificationCodeSent({
-        email: contactDetails.email,
+        email: email,
         trigger: 'resend',
         method: verificationMethod || 'otp',
       });
@@ -988,7 +930,7 @@ function VerifyEmailContent() {
       // Track rate limit if detected
       if (errorMessage.toLowerCase().includes('rate limit') || errorMessage.toLowerCase().includes('too many')) {
         analytics.onboarding.rateLimitHit({
-          email: contactDetails.email,
+          email: email,
           action: 'resend_verification',
         });
       }
@@ -1081,48 +1023,11 @@ function VerifyEmailContent() {
     setIsTotpVerifying(false);
   };
 
-  const handleBackupCodesAcknowledged = async () => {
+  const handleBackupCodesAcknowledged = () => {
     setBackupCodesAcknowledged(true);
     setEmailVerified(true);
     setIsVerified(true);
     setSuccess('Authenticator app verified successfully!');
-    nextStep();
-
-    // Complete onboarding
-    try {
-      await onboardingApi.completeOnboarding(sessionId!);
-    } catch (error) {
-      devError('Failed to complete onboarding:', error);
-    }
-
-    // Redirect
-    try {
-      const session = await onboardingApi.getOnboardingSession(sessionId!);
-      const storeSetup = session.store_setup;
-      const useCustomDomain = storeSetup?.use_custom_domain === true;
-      const customDomain = storeSetup?.custom_domain;
-      const customAdminSubdomain = storeSetup?.custom_admin_subdomain || 'admin';
-      const tenantSubdomain = storeSetup?.subdomain;
-
-      if (useCustomDomain && customDomain) {
-        registerValidatedCustomDomain(customDomain);
-      }
-
-      const welcomeUrl = buildSmartAdminUrl({
-        customDomain: useCustomDomain ? customDomain : undefined,
-        customAdminSubdomain,
-        tenantSlug: tenantSubdomain,
-        path: `/welcome?sessionId=${sessionId}`,
-      });
-
-      setTimeout(() => {
-        window.location.href = welcomeUrl;
-      }, 1500);
-    } catch {
-      setTimeout(() => {
-        window.location.href = `/onboarding/setup-password?session=${sessionId}`;
-      }, 1500);
-    }
   };
 
   const handleCopyBackupCodes = () => {
@@ -1373,7 +1278,7 @@ function VerifyEmailContent() {
             <p className="body text-[var(--foreground-secondary)] mb-2">
               Your email has been successfully verified
             </p>
-            <p className="font-semibold text-[var(--primary)]">{contactDetails.email || emailFromParams}</p>
+            <p className="font-semibold text-[var(--primary)]">{email}</p>
           </div>
 
           {/* What's next section */}
@@ -1414,7 +1319,7 @@ function VerifyEmailContent() {
           <button
             onClick={() => {
               const params = new URLSearchParams({ session: sessionId || '' });
-              if (contactDetails.email) params.set('email', contactDetails.email);
+              if (email) params.set('email', email);
               router.push(`/onboarding/setup-password?${params.toString()}`);
             }}
             className="apple-button w-full py-4 text-lg font-medium transition-all duration-300  flex items-center justify-center "
@@ -1437,7 +1342,7 @@ function VerifyEmailContent() {
           <p className="body text-[var(--foreground-secondary)] leading-relaxed">
             We've sent a verification link to
           </p>
-          <p className="font-semibold text-[var(--primary)] mt-2">{contactDetails.email}</p>
+          <p className="font-semibold text-[var(--primary)] mt-2">{email}</p>
         </div>
 
         <div className="space-y-6">
@@ -1518,7 +1423,7 @@ function VerifyEmailContent() {
           <p className="body text-[var(--foreground-secondary)] leading-relaxed">
             We've sent a 6-digit verification code to
           </p>
-          <p className="font-semibold text-[var(--primary)] mt-2">{contactDetails.email}</p>
+          <p className="font-semibold text-[var(--primary)] mt-2">{email}</p>
         </div>
       </div>
 
