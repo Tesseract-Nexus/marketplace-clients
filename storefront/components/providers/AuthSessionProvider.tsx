@@ -18,6 +18,7 @@ async function fetchCustomerProfile(tenantId?: string): Promise<{
   phone?: string;
   firstName?: string;
   lastName?: string;
+  dateOfBirth?: string;
   country?: string;
   countryCode?: string;
   totalOrders?: number;
@@ -140,6 +141,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
             if (profile) {
               updateCustomer({
                 phone: profile.phone,
+                dateOfBirth: profile.dateOfBirth,
                 country: profile.country,
                 countryCode: profile.countryCode,
                 totalOrders: profile.totalOrders,
