@@ -556,8 +556,8 @@ export default function OnboardingPage() {
     cleanupInProgressRef.current = true;
 
     devWarn('[Onboarding] Session not found, clearing stale session data');
-    // Clear the stale session from localStorage
-    localStorage.removeItem('tenant-onboarding-store');
+    // Clear the stale session from sessionStorage (store uses sessionStorage, not localStorage)
+    sessionStorage.removeItem('tenant-onboarding-store');
     // Reset the Zustand store completely (clears in-memory state)
     resetOnboarding();
     // Reset UI state to start fresh
@@ -630,8 +630,8 @@ export default function OnboardingPage() {
       if (sessionId) {
         await deleteDraft();
       }
-      // Clear localStorage
-      localStorage.removeItem('tenant-onboarding-store');
+      // Clear sessionStorage (store uses sessionStorage, not localStorage)
+      sessionStorage.removeItem('tenant-onboarding-store');
       // Reset the Zustand store completely
       resetOnboarding();
       // Reset UI state
@@ -1567,8 +1567,20 @@ export default function OnboardingPage() {
       // MFA completed in step 4, now send to email verification (post-launch)
       const verifyParams = new URLSearchParams();
       if (sessionId) verifyParams.set('session', sessionId);
-      // Use resilient email: form → store → fetched from session API
-      const emailForVerify = contactForm.getValues('email') || contactDetails.email || fetchedEmail;
+      // Use resilient email: form → store → fetched from session API → session API direct
+      let emailForVerify = contactForm.getValues('email') || contactDetails.email || fetchedEmail;
+      // Safety: if email is still missing, try fetching directly from session API
+      if (!emailForVerify && sessionId) {
+        try {
+          const sessionData = await onboardingApi.getOnboardingSession(sessionId);
+          const sessionAny = sessionData as any;
+          emailForVerify = sessionData.contact_details?.email
+            || sessionData.contact_info?.email
+            || sessionData.contact_information?.[0]?.email
+            || sessionAny.contact_information?.[0]?.email
+            || sessionAny.draft_form_data?.contactDetails?.email;
+        } catch { /* ignore - verify page has its own fallback */ }
+      }
       if (emailForVerify) verifyParams.set('email', emailForVerify as string);
       router.push(`/onboarding/verify?${verifyParams.toString()}`);
     } catch (error) {

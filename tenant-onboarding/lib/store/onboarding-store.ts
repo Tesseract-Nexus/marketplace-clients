@@ -205,15 +205,28 @@ export const useOnboardingStore = create<OnboardingState>()(
           // Dynamic import to avoid circular dependencies
           const { onboardingApi } = await import('../api/onboarding');
           const session = await onboardingApi.getOnboardingSession(state.sessionId);
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const sessionAny = session as any;
 
           // Restore sensitive data from server
+          // Handle field name differences: API returns business_information,
+          // contact_information (array), business_addresses (array)
+          // while store uses business_info, contact_details, business_address
           set({
-            businessInfo: session.business_info || {},
-            contactDetails: session.contact_details || session.contact_info || {},
-            businessAddress: session.business_address || session.address || {},
-            storeSetup: session.store_setup as Partial<StoreSetupRequest> || {},
-            emailVerified: session.email_verified || false,
-            phoneVerified: session.phone_verified || false,
+            businessInfo: session.business_info
+              || sessionAny.business_information
+              || {},
+            contactDetails: session.contact_details
+              || session.contact_info
+              || session.contact_information?.[0]
+              || {},
+            businessAddress: session.business_address
+              || session.address
+              || sessionAny.business_addresses?.[0]
+              || {},
+            storeSetup: (session.store_setup || sessionAny.store_setup || {}) as Partial<StoreSetupRequest>,
+            emailVerified: session.email_verified || sessionAny.email_verified || false,
+            phoneVerified: session.phone_verified || sessionAny.phone_verified || false,
           });
         } catch (error) {
           console.error('Failed to rehydrate sensitive data from server:', error);
