@@ -696,6 +696,8 @@ export async function authenticateWithPasskey(): Promise<DirectLoginResponse> {
 
     const { options, challengeId } = await optionsRes.json();
 
+    console.log('[Passkey Auth] Options from BFF:', JSON.stringify({ rpId: options.rpId, allowCredentials: options.allowCredentials, userVerification: options.userVerification }));
+
     const credential = await startAuthentication({ optionsJSON: options });
 
     const verifyRes = await fetch(`${authConfig.bffBaseUrl}/auth/passkeys/authentication/verify`, {
@@ -713,18 +715,18 @@ export async function authenticateWithPasskey(): Promise<DirectLoginResponse> {
 
     return verifyData;
   } catch (error: unknown) {
+    const errName = error instanceof Error ? error.name : 'Unknown';
+    const errMsg = error instanceof Error ? error.message : String(error);
+    console.error(`[Passkey Auth] Error: name=${errName}, message=${errMsg}`);
     if (error instanceof Error && error.name === 'NotAllowedError') {
-      // NotAllowedError fires both when the user cancels AND when no discoverable
-      // credential exists for the rpId.  We cannot distinguish the two cases, so
-      // always surface a message so the user knows what happened.
       return {
         success: false,
         error: 'NO_PASSKEY',
-        message: 'No passkey found for this site, or the prompt was dismissed. Please register a passkey first from your profile.',
+        message: `No passkey found for this site, or the prompt was dismissed. (${errMsg})`,
       };
     }
     logger.error('[Auth] Authenticate with passkey error:', error);
-    return { success: false, error: 'AUTHENTICATION_ERROR', message: 'Passkey authentication failed.' };
+    return { success: false, error: 'AUTHENTICATION_ERROR', message: `Passkey authentication failed: ${errMsg}` };
   }
 }
 
