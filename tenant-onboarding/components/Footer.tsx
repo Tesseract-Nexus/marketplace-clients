@@ -16,10 +16,11 @@ export function Footer() {
           <div className="md:col-span-1">
             <Link href="/" className="flex items-center mb-4 hover:opacity-80 transition-opacity">
               <img
-                src="/logo.png"
-                alt="mark8ly"
-                className="h-12 w-auto brightness-0 invert"
+                src="/icon-192.png"
+                alt="mark8ly icon"
+                className="h-8 w-auto brightness-0 invert"
               />
+              <span className="ml-2 text-lg font-light tracking-tight text-warm-100">mark8ly</span>
             </Link>
             <p className="text-warm-400 text-sm leading-relaxed">
               The simplest way to launch and grow your online store. Built for creators, makers, and small businesses.

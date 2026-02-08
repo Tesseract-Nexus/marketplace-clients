@@ -1703,10 +1703,11 @@ export default function OnboardingPage() {
             className="flex items-center hover:opacity-80 transition-opacity"
           >
             <img
-              src="/logo.png"
-              alt="mark8ly"
-              className="h-14 w-auto object-contain"
+              src="/icon-192.png"
+              alt="mark8ly icon"
+              className="h-9 w-auto object-contain"
             />
+            <span className="ml-2 text-xl font-light tracking-tight text-[var(--foreground)]">mark8ly</span>
           </button>
 
           <div className="flex items-center gap-4">

@@ -19,10 +19,11 @@ export default function Header({ currentPage = 'other' }: HeaderProps) {
         <div className="flex justify-between items-center h-20">
           <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
             <img
-              src="/logo.png"
-              alt="mark8ly"
-              className="h-14 w-auto object-contain"
+              src="/icon-192.png"
+              alt="mark8ly icon"
+              className="h-9 w-auto object-contain"
             />
+            <span className="ml-2 text-xl font-light tracking-tight text-[var(--foreground)]">mark8ly</span>
           </Link>
           <div className="hidden md:flex items-center space-x-8">
             <a 

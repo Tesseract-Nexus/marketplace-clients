@@ -215,10 +215,11 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-6 h-20 flex items-center justify-between">
           <a href="/" className="flex items-center">
             <img
-              src="/logo.png"
-              alt="mark8ly"
-              className="h-14 w-auto object-contain"
+              src="/icon-192.png"
+              alt="mark8ly icon"
+              className="h-9 w-auto object-contain"
             />
+            <span className="ml-2 text-xl font-light tracking-tight text-foreground">mark8ly</span>
           </a>
 
           <nav className="hidden md:flex items-center gap-8">
