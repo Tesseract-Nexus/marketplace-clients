@@ -64,7 +64,7 @@ function LoginPageContent() {
   const [tenants, setTenants] = useState<TenantInfo[]>([]);
   const [mfaSession, setMfaSession] = useState<string | null>(null);
   const [mfaCode, setMfaCode] = useState('');
-  const [trustDevice, setTrustDevice] = useState(false);
+  const [trustDevice, setTrustDevice] = useState(true);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [mfaMethods, setMfaMethods] = useState<string[]>(['email']);
   const [activeMfaMethod, setActiveMfaMethod] = useState<'totp' | 'email'>('email');
@@ -288,10 +288,7 @@ function LoginPageContent() {
     } else if (step === 'mfa') {
       setStep('password');
       setMfaCode('');
-      setTrustDevice(false);
       setResendCooldown(0);
-      setActiveMfaMethod('email');
-      setMfaMethods(['email']);
     }
   };
 
@@ -652,6 +649,53 @@ function LoginPageContent() {
               )}
             </div>
 
+            {/* Method tabs */}
+            {mfaMethods.length > 1 && (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (activeMfaMethod === 'email') return;
+                    setActiveMfaMethod('email');
+                    setMfaCode('');
+                    setError(null);
+                    if (mfaSession) {
+                      sendMfaCode(mfaSession, 'email').then(() => {
+                        setResendCooldown(60);
+                      }).catch(() => {});
+                    }
+                  }}
+                  className={cn(
+                    'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 border',
+                    activeMfaMethod === 'email'
+                      ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
+                      : 'bg-transparent text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
+                  )}
+                >
+                  <Mail className="h-4 w-4" />
+                  Email OTP
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (activeMfaMethod === 'totp') return;
+                    setActiveMfaMethod('totp');
+                    setMfaCode('');
+                    setError(null);
+                  }}
+                  className={cn(
+                    'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 border',
+                    activeMfaMethod === 'totp'
+                      ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
+                      : 'bg-transparent text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
+                  )}
+                >
+                  <Smartphone className="h-4 w-4" />
+                  Authenticator
+                </button>
+              </div>
+            )}
+
             <div className="space-y-4">
               <OTPInput
                 value={mfaCode}
@@ -698,30 +742,6 @@ function LoginPageContent() {
               </Button>
 
               <div className="text-center space-y-2">
-                {/* Method switcher */}
-                {mfaMethods.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newMethod = activeMfaMethod === 'totp' ? 'email' : 'totp';
-                      setActiveMfaMethod(newMethod);
-                      setMfaCode('');
-                      setError(null);
-                      // Auto-send email code when switching to email
-                      if (newMethod === 'email' && mfaSession) {
-                        sendMfaCode(mfaSession, 'email').then(() => {
-                          setResendCooldown(60);
-                        }).catch(() => {});
-                      }
-                    }}
-                    className="text-xs text-primary hover:underline"
-                  >
-                    {activeMfaMethod === 'totp'
-                      ? 'Use email verification instead'
-                      : 'Use authenticator app instead'}
-                  </button>
-                )}
-
                 {/* Resend button (only for email method) */}
                 {activeMfaMethod === 'email' && (
                   <button
