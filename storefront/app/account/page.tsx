@@ -14,6 +14,7 @@ import {
   AddressType,
 } from '@/lib/api/customers';
 import { AddressAutocomplete, type ParsedAddressData } from '@/components/AddressAutocomplete';
+import { locationApi, type Country } from '@/lib/api/location';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 import { CustomerAvatar } from '@/components/CustomerAvatar';
 import { useLoyalty } from '@/hooks/useLoyalty';
@@ -42,6 +43,9 @@ export default function AccountPage() {
     phone: '',
     dateOfBirth: '',
   });
+
+  // Country list from location service
+  const [countryList, setCountryList] = useState<Country[]>([]);
 
   // Address state
   const [addresses, setAddresses] = useState<CustomerAddress[]>([]);
@@ -79,6 +83,11 @@ export default function AccountPage() {
       });
     }
   }, [customer]);
+
+  // Fetch countries from location service
+  useEffect(() => {
+    locationApi.getCountries().then(setCountryList).catch(() => {});
+  }, []);
 
   // Fetch addresses - supports both JWT and session-based (OAuth) auth
   useEffect(() => {
@@ -749,18 +758,20 @@ export default function AccountPage() {
                       id="addr-country"
                       className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       value={newAddress.countryCode}
-                      onChange={(e) => setNewAddress({ ...newAddress, country: e.target.value, countryCode: e.target.value })}
+                      onChange={(e) => {
+                        const selected = countryList.find(c => c.code === e.target.value);
+                        setNewAddress({
+                          ...newAddress,
+                          country: selected?.name || e.target.value,
+                          countryCode: e.target.value,
+                        });
+                      }}
                     >
-                      <option value="AU">Australia</option>
-                      <option value="US">United States</option>
-                      <option value="GB">United Kingdom</option>
-                      <option value="CA">Canada</option>
-                      <option value="NZ">New Zealand</option>
-                      <option value="IN">India</option>
-                      <option value="DE">Germany</option>
-                      <option value="FR">France</option>
-                      <option value="JP">Japan</option>
-                      <option value="SG">Singapore</option>
+                      {countryList.map((c) => (
+                        <option key={c.code} value={c.code}>
+                          {c.flagEmoji} {c.name}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div className="space-y-2">

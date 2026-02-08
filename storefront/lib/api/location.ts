@@ -206,34 +206,16 @@ class LocationAPI {
       });
 
       if (!response.ok) {
-        console.warn('Failed to fetch countries');
-        return this.getFallbackCountries();
+        console.error('Failed to fetch countries from location service');
+        return [];
       }
 
       const data = await response.json();
-      return data.countries || this.getFallbackCountries();
+      return data.countries || [];
     } catch (error) {
-      console.warn('Countries fetch error:', error);
-      return this.getFallbackCountries();
+      console.error('Countries fetch error:', error);
+      return [];
     }
-  }
-
-  /**
-   * Fallback countries list for when API is unavailable
-   */
-  private getFallbackCountries(): Country[] {
-    return [
-      { id: 'US', name: 'United States', nativeName: 'United States', code: 'US', callingCode: '+1', region: 'Americas', subregion: 'Northern America', capital: 'Washington D.C.', currency: 'USD', flagEmoji: '🇺🇸', latitude: 37.0902, longitude: -95.7129 },
-      { id: 'AU', name: 'Australia', nativeName: 'Australia', code: 'AU', callingCode: '+61', region: 'Oceania', subregion: 'Australia and New Zealand', capital: 'Canberra', currency: 'AUD', flagEmoji: '🇦🇺', latitude: -25.2744, longitude: 133.7751 },
-      { id: 'IN', name: 'India', nativeName: 'भारत', code: 'IN', callingCode: '+91', region: 'Asia', subregion: 'Southern Asia', capital: 'New Delhi', currency: 'INR', flagEmoji: '🇮🇳', latitude: 20.5937, longitude: 78.9629 },
-      { id: 'GB', name: 'United Kingdom', nativeName: 'United Kingdom', code: 'GB', callingCode: '+44', region: 'Europe', subregion: 'Northern Europe', capital: 'London', currency: 'GBP', flagEmoji: '🇬🇧', latitude: 55.3781, longitude: -3.436 },
-      { id: 'CA', name: 'Canada', nativeName: 'Canada', code: 'CA', callingCode: '+1', region: 'Americas', subregion: 'Northern America', capital: 'Ottawa', currency: 'CAD', flagEmoji: '🇨🇦', latitude: 56.1304, longitude: -106.3468 },
-      { id: 'NZ', name: 'New Zealand', nativeName: 'New Zealand', code: 'NZ', callingCode: '+64', region: 'Oceania', subregion: 'Australia and New Zealand', capital: 'Wellington', currency: 'NZD', flagEmoji: '🇳🇿', latitude: -40.9006, longitude: 174.886 },
-      { id: 'SG', name: 'Singapore', nativeName: 'Singapore', code: 'SG', callingCode: '+65', region: 'Asia', subregion: 'South-Eastern Asia', capital: 'Singapore', currency: 'SGD', flagEmoji: '🇸🇬', latitude: 1.3521, longitude: 103.8198 },
-      { id: 'DE', name: 'Germany', nativeName: 'Deutschland', code: 'DE', callingCode: '+49', region: 'Europe', subregion: 'Western Europe', capital: 'Berlin', currency: 'EUR', flagEmoji: '🇩🇪', latitude: 51.1657, longitude: 10.4515 },
-      { id: 'FR', name: 'France', nativeName: 'France', code: 'FR', callingCode: '+33', region: 'Europe', subregion: 'Western Europe', capital: 'Paris', currency: 'EUR', flagEmoji: '🇫🇷', latitude: 46.2276, longitude: 2.2137 },
-      { id: 'JP', name: 'Japan', nativeName: '日本', code: 'JP', callingCode: '+81', region: 'Asia', subregion: 'Eastern Asia', capital: 'Tokyo', currency: 'JPY', flagEmoji: '🇯🇵', latitude: 36.2048, longitude: 138.2529 },
-    ];
   }
 }
 
