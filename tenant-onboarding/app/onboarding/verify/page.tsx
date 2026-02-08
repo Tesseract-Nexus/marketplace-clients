@@ -14,7 +14,7 @@ const isDev = process.env.NODE_ENV === 'development';
 const devLog = (...args: unknown[]) => isDev && console.log(...args);
 const devError = (...args: unknown[]) => isDev && console.error(...args);
 
-type VerificationMethod = 'otp' | 'link' | 'totp' | null;
+type VerifyPhase = 'email_verification' | 'mfa_setup' | 'backup_codes' | 'complete';
 
 // Idle timeout in milliseconds (5 minutes)
 const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
@@ -355,13 +355,13 @@ function VerifyEmailContent() {
   // Track if we're waiting for rehydration
   const [isRehydrating, setIsRehydrating] = useState(!_hasHydrated);
 
-  const [verificationMethod, setVerificationMethod] = useState<VerificationMethod>(null);
-  const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
-  const [isLoading, setIsLoading] = useState(false);
+  // Phase state machine for multi-step verify page
+  const [phase, setPhase] = useState<VerifyPhase>('email_verification');
+
+  // Email verification state
   const [isResending, setIsResending] = useState(false);
   const [isSendingInitial, setIsSendingInitial] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [codeExpiry, setCodeExpiry] = useState(0);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [linkSent, setLinkSent] = useState(false);
@@ -372,23 +372,19 @@ function VerifyEmailContent() {
   const [completionData, setCompletionData] = useState<CompletionData | null>(null);
   const [idleCountdown, setIdleCountdown] = useState(IDLE_TIMEOUT_MS / 1000);
 
-  // TOTP Authenticator App state
-  const [showMethodSelector, setShowMethodSelector] = useState(false);
-  const [selectedMfaMethod, setSelectedMfaMethod] = useState<'email' | 'totp' | null>(null);
+  // TOTP / MFA state
   const [totpSetupSession, setTotpSetupSession] = useState('');
   const [totpUri, setTotpUri] = useState('');
   const [totpManualKey, setTotpManualKey] = useState('');
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [totpCode, setTotpCode] = useState(['', '', '', '', '', '']);
-  const [totpConfirmed, setTotpConfirmed] = useState(false);
-  const [backupCodesAcknowledged, setBackupCodesAcknowledged] = useState(false);
   const [showManualKey, setShowManualKey] = useState(false);
   const [copiedBackupCodes, setCopiedBackupCodes] = useState(false);
   const [isTotpVerifying, setIsTotpVerifying] = useState(false);
   const [totpError, setTotpError] = useState('');
+  const [backupCodesAcknowledged, setBackupCodesAcknowledged] = useState(false);
 
   const totpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const hasInitializedRef = useRef(false);
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
@@ -572,7 +568,7 @@ function VerifyEmailContent() {
     }
   }, [isRehydrating, emailFetchAttempted, sessionId, showWelcomePage]);
 
-  // Auto-send email OTP once session and email are available
+  // Auto-send verification link once session and email are available
   useEffect(() => {
     // Wait for rehydration to complete
     if (isRehydrating) return;
@@ -593,22 +589,15 @@ function VerifyEmailContent() {
     }
     hasInitializedRef.current = true;
 
-    // Directly send email OTP (no method selector)
+    // Always use link-based verification
     const initEmailVerification = async () => {
-      try {
-        const methodResponse = await onboardingApi.getVerificationMethod();
-        setVerificationMethod(methodResponse.method);
-        await sendVerification(methodResponse.method);
-      } catch {
-        setVerificationMethod('otp');
-        await sendVerification('otp');
-      }
+      await sendVerification();
     };
 
     initEmailVerification();
   }, [isRehydrating, sessionId, email, showWelcomePage]);
 
-  const sendVerification = async (method: VerificationMethod) => {
+  const sendVerification = async () => {
     if (!email || !sessionId) {
       setError('Email not found. Please go back and complete the contact details step.');
       return;
@@ -616,25 +605,16 @@ function VerifyEmailContent() {
 
     setIsSendingInitial(true);
     try {
-      const result = await onboardingApi.sendEmailVerification(sessionId, email);
+      await onboardingApi.sendEmailVerification(sessionId, email);
 
-      if (method === 'link') {
-        setLinkSent(true);
-        setSuccess('Verification link sent to your email');
-      } else {
-        setCodeExpiry(result.expires_in_seconds);
-        setSuccess('Verification code sent to your email');
-        // Focus first input for OTP
-        if (inputRefs.current[0]) {
-          inputRefs.current[0].focus();
-        }
-      }
+      setLinkSent(true);
+      setSuccess('Verification link sent to your email');
 
       // Track verification sent
       analytics.onboarding.verificationCodeSent({
         email: email,
         trigger: 'initial',
-        method: method || 'otp',
+        method: 'link',
       });
     } catch (error) {
       setError('Failed to send verification email. Please try resending.');
@@ -654,33 +634,10 @@ function VerifyEmailContent() {
     return () => clearInterval(interval);
   }, [resendCooldown]);
 
-  // Handle code expiry timer
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
-    if (codeExpiry > 0) {
-      interval = setInterval(() => {
-        setCodeExpiry(prev => {
-          if (prev <= 1) {
-            setError('Verification code has expired. Please request a new one.');
-
-            // Track code expiry
-            analytics.onboarding.codeExpired({
-              email: email,
-            });
-
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [codeExpiry, email]);
-
   // Listen for real-time verification events via SSE (Server-Sent Events)
   // This replaces polling with instant push notifications via NATS
   useEffect(() => {
-    if (verificationMethod !== 'link' || !sessionId || !email || isVerified) {
+    if (phase !== 'email_verification' || !sessionId || !email || isVerified || isSendingInitial) {
       return;
     }
 
@@ -807,16 +764,40 @@ function VerifyEmailContent() {
       devLog('[SSE] Cleaning up connection');
       eventSource?.close();
     };
-  }, [verificationMethod, sessionId, email, isVerified, setEmailVerified]);
+  }, [phase, sessionId, email, isVerified, isSendingInitial, setEmailVerified]);
 
-  // Auto-redirect after verification success
+  // Transition to MFA setup after email verified
   useEffect(() => {
     if (!isVerified) return;
+    if (phase !== 'email_verification') return;
+
+    // Email verified — transition to mandatory MFA setup
+    setPhase('mfa_setup');
+    setError('');
+    setSuccess('');
+
+    const initMfaSetup = async () => {
+      try {
+        const result = await onboardingApi.initiateTotpSetup(sessionId!, email);
+        setTotpSetupSession(result.setup_session);
+        setTotpUri(result.totp_uri);
+        setTotpManualKey(result.manual_entry_key);
+        setBackupCodes(result.backup_codes);
+      } catch (error) {
+        setError('Failed to set up authenticator. Please try again.');
+      }
+    };
+
+    initMfaSetup();
+  }, [isVerified, phase, sessionId, email]);
+
+  // Auto-redirect after MFA complete (phase === 'complete')
+  useEffect(() => {
+    if (phase !== 'complete') return;
 
     const timer = setInterval(() => {
       setRedirectCountdown((prev) => {
         if (prev <= 1) {
-          // Redirect to password setup
           const params = new URLSearchParams({ session: sessionId || '' });
           if (email) params.set('email', email);
           router.push(`/onboarding/setup-password?${params.toString()}`);
@@ -827,179 +808,13 @@ function VerifyEmailContent() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [isVerified, sessionId, email, router]);
+  }, [phase, sessionId, email, router]);
 
-  const handleInputChange = (index: number, value: string) => {
-    if (value.length > 1) return;
-    
-    const newCode = [...verificationCode];
-    newCode[index] = value;
-    setVerificationCode(newCode);
+  // --- TOTP Handler Functions ---
 
-    if (value && index < 5) {
-      inputRefs.current[index + 1]?.focus();
-    }
-
-    if (newCode.every(digit => digit !== '') && newCode.join('').length === 6) {
-      handleVerification(newCode.join(''));
-    }
-  };
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleVerification = async (code: string) => {
-    if (!sessionId) {
-      setError('No active session. Please restart the onboarding process.');
-      return;
-    }
-
-    if (!email) {
-      setError('Email not found. Please go back and complete the contact details step.');
-      return;
-    }
-
-    setIsLoading(true);
-    setError('');
-    setSuccess('');
-
-    try {
-      const result = await onboardingApi.verifyEmail(sessionId, email, code);
-
-      if (result.verified) {
-        setEmailVerified(true);
-        setIsVerified(true);
-        setSuccess('Email verified successfully!');
-
-        // Track verification success
-        analytics.onboarding.verificationSucceeded({
-          email: email,
-          method: verificationMethod || 'otp',
-        });
-      } else {
-        const errorMsg = result.message || 'Invalid verification code. Please try again.';
-        setError(errorMsg);
-
-        // Track verification failure
-        analytics.onboarding.verificationFailed(errorMsg, {
-          email: email,
-        });
-
-        setVerificationCode(['', '', '', '', '', '']);
-        inputRefs.current[0]?.focus();
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Verification failed. Please try again.';
-      setError(errorMessage);
-
-      // Track verification error
-      analytics.onboarding.verificationFailed(errorMessage, {
-        email: email,
-      });
-
-      setVerificationCode(['', '', '', '', '', '']);
-      inputRefs.current[0]?.focus();
-    }
-
-    setIsLoading(false);
-  };
-
-  const handleResendCode = async () => {
-    if (!sessionId) {
-      setError('No active session. Please restart the onboarding process.');
-      return;
-    }
-
-    if (!email) {
-      setError('Email not found. Please go back and complete the contact details step.');
-      return;
-    }
-
-    setIsResending(true);
-    setError('');
-    setSuccess('');
-
-    try {
-      const result = await onboardingApi.resendVerificationCode(sessionId, email);
-
-      if (verificationMethod === 'link') {
-        setLinkSent(true);
-        setSuccess('Verification link sent successfully!');
-      } else {
-        setCodeExpiry(result.expires_in_seconds);
-        setSuccess('Verification code sent successfully!');
-        setVerificationCode(['', '', '', '', '', '']);
-        inputRefs.current[0]?.focus();
-      }
-
-      setResendCooldown(60); // 1 minute cooldown
-
-      // Track resend verification
-      analytics.onboarding.verificationCodeSent({
-        email: email,
-        trigger: 'resend',
-        method: verificationMethod || 'otp',
-      });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to resend verification. Please try again.';
-      setError(errorMessage);
-
-      // Track rate limit if detected
-      if (errorMessage.toLowerCase().includes('rate limit') || errorMessage.toLowerCase().includes('too many')) {
-        analytics.onboarding.rateLimitHit({
-          email: email,
-          action: 'resend_verification',
-        });
-      }
-    }
-
-    setIsResending(false);
-  };
-
-  const handleManualVerify = () => {
-    const code = verificationCode.join('');
-    if (code.length === 6) {
-      handleVerification(code);
-    }
-  };
-
-  // Handle method selection
-  const handleSelectMethod = async (method: 'email' | 'totp') => {
-    setSelectedMfaMethod(method);
-    setShowMethodSelector(false);
-
-    if (method === 'email') {
-      // Send email OTP
-      try {
-        const methodResponse = await onboardingApi.getVerificationMethod();
-        setVerificationMethod(methodResponse.method);
-        await sendVerification(methodResponse.method);
-      } catch {
-        setVerificationMethod('otp');
-        await sendVerification('otp');
-      }
-    } else {
-      // Initiate TOTP setup
-      setVerificationMethod('totp');
-      try {
-        const result = await onboardingApi.initiateTotpSetup(sessionId!, email);
-        setTotpSetupSession(result.setup_session);
-        setTotpUri(result.totp_uri);
-        setTotpManualKey(result.manual_entry_key);
-        setBackupCodes(result.backup_codes);
-      } catch (error) {
-        setTotpError('Failed to set up authenticator. Please try again.');
-        devError('TOTP setup failed:', error);
-      }
-    }
-  };
-
-  // Handle TOTP code input
   const handleTotpInputChange = (index: number, value: string) => {
     if (value.length > 1) return;
+
     const newCode = [...totpCode];
     newCode[index] = value;
     setTotpCode(newCode);
@@ -1008,7 +823,8 @@ function VerifyEmailContent() {
       totpInputRefs.current[index + 1]?.focus();
     }
 
-    if (newCode.every(d => d !== '') && newCode.join('').length === 6) {
+    // Auto-submit when all 6 digits entered
+    if (newCode.every(digit => digit !== '') && newCode.join('').length === 6) {
       handleTotpVerification(newCode.join(''));
     }
   };
@@ -1027,331 +843,95 @@ function VerifyEmailContent() {
 
     try {
       const result = await onboardingApi.confirmTotpSetup(totpSetupSession, code, sessionId);
+
       if (result.success) {
-        setTotpConfirmed(true);
+        setPhase('backup_codes');
       } else {
         setTotpError(result.message || 'Invalid code. Please try again.');
         setTotpCode(['', '', '', '', '', '']);
         totpInputRefs.current[0]?.focus();
       }
     } catch (error) {
-      setTotpError('Verification failed. Please try again.');
+      setTotpError(error instanceof Error ? error.message : 'Verification failed. Please try again.');
       setTotpCode(['', '', '', '', '', '']);
       totpInputRefs.current[0]?.focus();
+    } finally {
+      setIsTotpVerifying(false);
     }
+  };
 
-    setIsTotpVerifying(false);
+  const handleCopyBackupCodes = async () => {
+    try {
+      await navigator.clipboard.writeText(backupCodes.join('\n'));
+      setCopiedBackupCodes(true);
+      setTimeout(() => setCopiedBackupCodes(false), 3000);
+    } catch {
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement('textarea');
+      textArea.value = backupCodes.join('\n');
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopiedBackupCodes(true);
+      setTimeout(() => setCopiedBackupCodes(false), 3000);
+    }
   };
 
   const handleBackupCodesAcknowledged = () => {
     setBackupCodesAcknowledged(true);
-    setEmailVerified(true);
-    setIsVerified(true);
-    setSuccess('Authenticator app verified successfully!');
+    setPhase('complete');
   };
 
-  const handleCopyBackupCodes = () => {
-    const text = backupCodes.join('\n');
-    navigator.clipboard.writeText(text).then(() => {
-      setCopiedBackupCodes(true);
-      setTimeout(() => setCopiedBackupCodes(false), 2000);
-    });
-  };
-
-  // Render method selector
-  const renderMethodSelector = () => (
-    <div className="text-center">
-      <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
-        <Shield className="w-10 h-10 text-foreground-secondary" />
-      </div>
-      <h2 className="display-medium text-[var(--foreground)] mb-4">Verify Your Identity</h2>
-      <p className="body text-[var(--foreground-secondary)] mb-8">
-        Choose how you'd like to verify your email address
-      </p>
-
-      <div className="space-y-4">
-        {/* Email OTP Option */}
-        <button
-          onClick={() => handleSelectMethod('email')}
-          className="w-full bg-card border-2 border-border hover:border-[var(--primary)]/50 rounded-2xl p-6 text-left transition-all duration-200 group"
-        >
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-warm-100 flex items-center justify-center flex-shrink-0 group-hover:bg-warm-200 transition-colors">
-              <Mail className="w-6 h-6 text-foreground-secondary" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-[var(--foreground)] mb-1">Email Verification Code</h3>
-              <p className="text-sm text-[var(--foreground-secondary)]">
-                We'll send a 6-digit code to <span className="font-medium">{email}</span>
-              </p>
-            </div>
-          </div>
-        </button>
-
-        {/* Authenticator App Option */}
-        <button
-          onClick={() => handleSelectMethod('totp')}
-          className="w-full bg-card border-2 border-border hover:border-[var(--primary)]/50 rounded-2xl p-6 text-left transition-all duration-200 group"
-        >
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 rounded-xl bg-warm-100 flex items-center justify-center flex-shrink-0 group-hover:bg-warm-200 transition-colors">
-              <Smartphone className="w-6 h-6 text-foreground-secondary" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-[var(--foreground)] mb-1">Authenticator App</h3>
-              <p className="text-sm text-[var(--foreground-secondary)]">
-                Use Google Authenticator, Authy, or any TOTP app for enhanced security
-              </p>
-            </div>
-          </div>
-        </button>
-      </div>
-    </div>
-  );
-
-  // Render TOTP setup (QR code + code input)
-  const renderTotpSetup = () => (
-    <div className="text-center">
-      <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
-        <Smartphone className="w-10 h-10 text-foreground-secondary" />
-      </div>
-      <h2 className="display-medium text-[var(--foreground)] mb-2">Set Up Authenticator</h2>
-      <p className="body text-[var(--foreground-secondary)] mb-6">
-        Scan this QR code with your authenticator app
-      </p>
-
-      {totpError && (
-        <div className="bg-card border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-6">
-          <div className="flex items-center gap-2 text-foreground-secondary">
-            <Shield className="w-4 h-4" />
-            <span className="text-sm font-medium">{totpError}</span>
-          </div>
-        </div>
-      )}
-
-      {/* QR Code */}
-      {totpUri && (
-        <div className="bg-white rounded-2xl p-6 inline-block mb-6 border border-border">
-          <QRCodeSVG value={totpUri} size={200} level="M" />
-        </div>
-      )}
-
-      {/* Manual Entry Toggle */}
-      <div className="mb-6">
-        <button
-          onClick={() => setShowManualKey(!showManualKey)}
-          className="text-sm text-[var(--primary)] hover:underline"
-        >
-          {showManualKey ? 'Hide manual entry key' : "Can't scan? Enter key manually"}
-        </button>
-        {showManualKey && totpManualKey && (
-          <div className="mt-3 bg-card border border-border rounded-xl p-4">
-            <p className="text-xs text-[var(--foreground-secondary)] mb-2">Manual entry key:</p>
-            <code className="text-sm font-mono font-semibold text-[var(--foreground)] break-all">
-              {totpManualKey}
-            </code>
-          </div>
-        )}
-      </div>
-
-      {/* TOTP Code Input */}
-      <div className="space-y-6">
-        <p className="text-sm text-[var(--foreground-secondary)]">
-          Enter the 6-digit code from your authenticator app
-        </p>
-        <div className="flex justify-center gap-3">
-          {totpCode.map((digit, index) => (
-            <input
-              key={index}
-              ref={el => { totpInputRefs.current[index] = el; }}
-              type="text"
-              inputMode="numeric"
-              maxLength={1}
-              value={digit}
-              onChange={e => handleTotpInputChange(index, e.target.value)}
-              onKeyDown={e => handleTotpKeyDown(index, e)}
-              className="w-14 h-14 text-center text-2xl font-bold rounded-2xl border-2 border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/20 transition-all duration-200"
-              disabled={isTotpVerifying}
-            />
-          ))}
-        </div>
-
-        <button
-          onClick={() => handleTotpVerification(totpCode.join(''))}
-          disabled={isTotpVerifying || totpCode.join('').length !== 6}
-          className={`apple-button w-full py-4 text-lg font-medium transition-all duration-300 flex items-center justify-center ${
-            (isTotpVerifying || totpCode.join('').length !== 6) ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
-        >
-          {isTotpVerifying ? (
-            <>
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              Verifying...
-            </>
-          ) : (
-            <>
-              <KeyRound className="w-5 h-5 mr-2" />
-              Verify Code
-            </>
-          )}
-        </button>
-
-        {/* Back to method selector */}
-        <button
-          onClick={() => {
-            setShowMethodSelector(true);
-            setVerificationMethod(null);
-            setTotpSetupSession('');
-            setTotpUri('');
-            setTotpManualKey('');
-            setTotpCode(['', '', '', '', '', '']);
-            setTotpError('');
-          }}
-          className="text-sm text-[var(--foreground-secondary)] hover:text-[var(--foreground)] transition-colors"
-        >
-          Use a different verification method
-        </button>
-      </div>
-    </div>
-  );
-
-  // Render backup codes display
-  const renderBackupCodes = () => (
-    <div className="text-center">
-      <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
-        <KeyRound className="w-10 h-10 text-foreground-secondary" />
-      </div>
-      <h2 className="display-medium text-[var(--foreground)] mb-2">Save Your Backup Codes</h2>
-      <p className="body text-[var(--foreground-secondary)] mb-6">
-        These codes can be used to access your account if you lose your authenticator device. Each code can only be used once.
-      </p>
-
-      {/* Backup Codes Grid */}
-      <div className="bg-card border border-border rounded-2xl p-6 mb-6">
-        <div className="grid grid-cols-2 gap-3">
-          {backupCodes.map((code, index) => (
-            <div
-              key={index}
-              className="font-mono text-sm font-semibold text-[var(--foreground)] bg-warm-50 rounded-xl py-2 px-3 text-center"
-            >
-              {code}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Copy Button */}
-      <button
-        onClick={handleCopyBackupCodes}
-        className="button-secondary w-full py-3 px-6 rounded-xl font-medium mb-6 flex items-center justify-center gap-2"
-      >
-        {copiedBackupCodes ? (
-          <>
-            <Check className="w-4 h-4" />
-            Copied!
-          </>
-        ) : (
-          <>
-            <Copy className="w-4 h-4" />
-            Copy All Codes
-          </>
-        )}
-      </button>
-
-      {/* Warning */}
-      <div className="bg-card border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-6">
-        <p className="text-sm text-foreground-secondary font-medium">
-          Store these codes in a safe place. You won't be able to see them again.
-        </p>
-      </div>
-
-      {/* Acknowledge & Continue */}
-      <button
-        onClick={handleBackupCodesAcknowledged}
-        className="apple-button w-full py-4 text-lg font-medium transition-all duration-300 flex items-center justify-center"
-      >
-        I've Saved These Codes — Continue
-        <ArrowRight className="w-5 h-5 ml-2" />
-      </button>
-    </div>
-  );
-
-  // Render link-based verification UI
-  const renderLinkVerification = () => {
-    // Show verified state with celebration
-    if (isVerified) {
-      return (
-        <div className="text-center relative">
-          <div className="w-24 h-24 mx-auto rounded-full bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
-            <CheckCircle className="w-12 h-12 text-foreground-secondary" />
-          </div>
-
-          <h2 className="text-3xl font-bold text-[var(--foreground)] mb-2 animate-fadeInUp">
-            Email Verified! 🎉
-          </h2>
-          <p className="text-lg text-[var(--foreground-secondary)] mb-6 animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
-            Welcome to mark8ly
-          </p>
-
-          {/* Email confirmation */}
-          <div className="bg-card border border-border shadow-sm rounded-2xl p-4 mb-6 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
-            <p className="body text-[var(--foreground-secondary)] mb-2">
-              Your email has been successfully verified
-            </p>
-            <p className="font-semibold text-[var(--primary)]">{email}</p>
-          </div>
-
-          {/* What's next section */}
-          <div className="bg-card border border-border shadow-sm rounded-2xl p-6 mb-6 animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
-            <h3 className="font-semibold text-[var(--foreground)] mb-4 flex items-center justify-center gap-2">
-              <Gift className="w-5 h-5 text-[var(--primary)]" />
-              What's Next?
-            </h3>
-            <div className="space-y-3 text-left">
-              <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
-                <div className="w-6 h-6 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-xs font-bold">1</div>
-                <span>Set up your secure password</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
-                <div className="w-6 h-6 rounded-full bg-[var(--primary)]/60 text-white flex items-center justify-center text-xs font-bold">2</div>
-                <span>Access your admin dashboard</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
-                <div className="w-6 h-6 rounded-full bg-[var(--primary)]/40 text-white flex items-center justify-center text-xs font-bold">3</div>
-                <span>Start building your store</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Redirect countdown */}
-          <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-6 animate-fadeInUp" style={{ animationDelay: '0.4s' }}>
-            <div className="flex items-center justify-center gap-2 text-foreground-secondary">
-              <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm font-medium">
-                {redirectCountdown > 0
-                  ? `Continuing to password setup in ${redirectCountdown}s...`
-                  : 'Redirecting...'}
-              </span>
-            </div>
-          </div>
-
-          {/* CTA Button */}
-          <button
-            onClick={() => {
-              const params = new URLSearchParams({ session: sessionId || '' });
-              if (email) params.set('email', email);
-              router.push(`/onboarding/setup-password?${params.toString()}`);
-            }}
-            className="apple-button w-full py-4 text-lg font-medium transition-all duration-300  flex items-center justify-center "
-          >
-            Continue to Set Password
-            <ArrowRight className="w-5 h-5 ml-2" />
-          </button>
-        </div>
-      );
+  const handleResendCode = async () => {
+    if (!sessionId) {
+      setError('No active session. Please restart the onboarding process.');
+      return;
     }
 
-    // Show waiting for verification state
+    if (!email) {
+      setError('Email not found. Please go back and complete the contact details step.');
+      return;
+    }
+
+    setIsResending(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      await onboardingApi.resendVerificationCode(sessionId, email);
+
+      setLinkSent(true);
+      setSuccess('Verification link sent successfully!');
+
+      setResendCooldown(60); // 1 minute cooldown
+
+      // Track resend verification
+      analytics.onboarding.verificationCodeSent({
+        email: email,
+        trigger: 'resend',
+        method: 'link',
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to resend verification. Please try again.';
+      setError(errorMessage);
+
+      // Track rate limit if detected
+      if (errorMessage.toLowerCase().includes('rate limit') || errorMessage.toLowerCase().includes('too many')) {
+        analytics.onboarding.rateLimitHit({
+          email: email,
+          action: 'resend_verification',
+        });
+      }
+    }
+
+    setIsResending(false);
+  };
+
+  // --- Render Functions ---
+
+  // Render link-based verification UI (waiting for link click only)
+  const renderLinkVerification = () => {
     return (
       <div className="text-center">
         <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
@@ -1431,25 +1011,65 @@ function VerifyEmailContent() {
     );
   };
 
-  // Render OTP-based verification UI
-  const renderOTPVerification = () => (
-    <>
-      <div className="text-center mb-10">
-        <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
-          <Mail className="w-10 h-10 text-foreground-secondary" />
+  // Render TOTP authenticator setup UI
+  const renderTotpSetup = () => {
+    // Show loading while TOTP setup data is being fetched
+    if (!totpUri) {
+      return (
+        <div className="text-center">
+          <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 animate-pulse shadow-sm">
+            <Loader2 className="w-10 h-10 text-foreground-secondary animate-spin" />
+          </div>
+          <h2 className="display-medium text-[var(--foreground)] mb-4">Setting Up Authenticator</h2>
+          <p className="body text-[var(--foreground-secondary)]">Please wait...</p>
         </div>
-        <h2 className="display-medium text-[var(--foreground)] mb-4">Verify Your Email</h2>
-        <div className="bg-card border border-border shadow-sm rounded-2xl p-4 mb-6">
-          <p className="body text-[var(--foreground-secondary)] leading-relaxed">
-            We've sent a 6-digit verification code to
-          </p>
-          <p className="font-semibold text-[var(--primary)] mt-2">{email}</p>
-        </div>
-      </div>
+      );
+    }
 
-      <div className="space-y-8">
+    return (
+      <div className="text-center">
+        <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
+          <Smartphone className="w-10 h-10 text-foreground-secondary" />
+        </div>
+        <h2 className="display-medium text-[var(--foreground)] mb-2">Set Up Authenticator</h2>
+        <p className="body text-[var(--foreground-secondary)] mb-6">
+          Scan the QR code below with your authenticator app (Google Authenticator, Authy, etc.)
+        </p>
+
+        {/* QR Code */}
+        <div className="bg-white rounded-2xl p-6 mb-6 inline-block shadow-sm border border-border">
+          <QRCodeSVG value={totpUri} size={200} level="M" />
+        </div>
+
+        {/* Manual key toggle */}
+        <div className="mb-6">
+          <button
+            onClick={() => setShowManualKey(!showManualKey)}
+            className="text-sm text-[var(--primary)] hover:underline flex items-center justify-center gap-1 mx-auto"
+          >
+            <KeyRound className="w-4 h-4" />
+            {showManualKey ? 'Hide manual entry key' : "Can't scan? Enter key manually"}
+          </button>
+          {showManualKey && (
+            <div className="mt-3 bg-card border border-border shadow-sm rounded-2xl p-4">
+              <p className="text-xs text-[var(--foreground-secondary)] mb-2">Manual entry key:</p>
+              <p className="font-mono text-sm text-[var(--foreground)] break-all select-all">{totpManualKey}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Error display */}
+        {totpError && (
+          <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-6">
+            <div className="flex items-center gap-2 text-foreground-secondary">
+              <Shield className="w-4 h-4" />
+              <span className="text-sm font-medium">{totpError}</span>
+            </div>
+          </div>
+        )}
+
         {error && (
-          <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 ">
+          <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-6">
             <div className="flex items-center gap-2 text-foreground-secondary">
               <Shield className="w-4 h-4" />
               <span className="text-sm font-medium">{error}</span>
@@ -1457,101 +1077,220 @@ function VerifyEmailContent() {
           </div>
         )}
 
-        {success && (
-          <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 ">
-            <div className="flex items-center gap-2 text-foreground-secondary">
-              <CheckCircle className="w-4 h-4" />
-              <span className="text-sm font-medium">{success}</span>
-            </div>
-          </div>
-        )}
-
-        <div className="space-y-8">
+        {/* 6-digit TOTP code input */}
+        <div className="space-y-6">
+          <p className="body text-[var(--foreground-secondary)]">Enter the 6-digit code from your authenticator app</p>
           <div className="flex justify-center gap-3">
-            {verificationCode.map((digit, index) => (
+            {totpCode.map((digit, index) => (
               <input
                 key={index}
-                ref={el => { inputRefs.current[index] = el; }}
+                ref={el => { totpInputRefs.current[index] = el; }}
                 type="text"
                 inputMode="numeric"
                 maxLength={1}
                 value={digit}
-                onChange={e => handleInputChange(index, e.target.value)}
-                onKeyDown={e => handleKeyDown(index, e)}
-                className="w-16 h-16 text-center text-2xl font-bold rounded-2xl border-2 border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/20 transition-all duration-200 hover:border-[var(--primary)]/50 "
-                style={{animationDelay: `${index * 0.1}s`}}
-                disabled={isLoading}
+                onChange={e => handleTotpInputChange(index, e.target.value)}
+                onKeyDown={e => handleTotpKeyDown(index, e)}
+                className="w-14 h-14 text-center text-2xl font-bold rounded-2xl border-2 border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/20 transition-all duration-200 hover:border-[var(--primary)]/50"
+                style={{ animationDelay: `${index * 0.1}s` }}
+                disabled={isTotpVerifying}
               />
             ))}
           </div>
 
           <button
-            onClick={handleManualVerify}
-            disabled={isLoading || verificationCode.join('').length !== 6}
-            className={`apple-button w-full py-4 text-lg font-medium transition-all duration-300  flex items-center justify-center ${
-              (isLoading || verificationCode.join('').length !== 6) ? 'opacity-50 cursor-not-allowed' : ''
+            onClick={() => {
+              const code = totpCode.join('');
+              if (code.length === 6) handleTotpVerification(code);
+            }}
+            disabled={isTotpVerifying || totpCode.join('').length !== 6}
+            className={`apple-button w-full py-4 text-lg font-medium transition-all duration-300 flex items-center justify-center ${
+              (isTotpVerifying || totpCode.join('').length !== 6) ? 'opacity-50 cursor-not-allowed' : ''
             }`}
           >
-            {isLoading ? (
+            {isTotpVerifying ? (
               <>
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                 Verifying...
               </>
             ) : (
               <>
-                <Mail className="w-5 h-5 mr-2" />
-                Verify Email
+                <Shield className="w-5 h-5 mr-2" />
+                Verify Authenticator
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  // Render backup codes UI
+  const renderBackupCodes = () => {
+    return (
+      <div className="text-center">
+        <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
+          <KeyRound className="w-10 h-10 text-foreground-secondary" />
+        </div>
+        <h2 className="display-medium text-[var(--foreground)] mb-2">Save Your Backup Codes</h2>
+        <p className="body text-[var(--foreground-secondary)] mb-6">
+          Store these codes in a safe place. You can use them to access your account if you lose your authenticator device.
+        </p>
+
+        {/* Backup codes grid */}
+        <div className="bg-card border border-border shadow-sm rounded-2xl p-6 mb-6">
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            {backupCodes.map((code, index) => (
+              <div
+                key={index}
+                className="font-mono text-sm bg-warm-50 rounded-xl p-3 text-[var(--foreground)] select-all"
+              >
+                {code}
+              </div>
+            ))}
+          </div>
+
+          {/* Copy button */}
+          <button
+            onClick={handleCopyBackupCodes}
+            className="button-secondary w-full py-3 px-6 rounded-xl font-medium transition-all duration-300 flex items-center justify-center"
+          >
+            {copiedBackupCodes ? (
+              <>
+                <Check className="mr-2 h-4 w-4" />
+                Copied!
+              </>
+            ) : (
+              <>
+                <Copy className="mr-2 h-4 w-4" />
+                Copy Backup Codes
               </>
             )}
           </button>
         </div>
 
-        <div className="text-center space-y-6">
-          <div className="bg-card border border-border shadow-sm rounded-2xl p-6">
-            <p className="text-sm text-[var(--foreground-secondary)] mb-4">
-              Didn't receive the code?
-            </p>
-
-            <button
-              onClick={handleResendCode}
-              disabled={isResending || resendCooldown > 0}
-              className={`button-secondary w-full py-3 px-6 rounded-xl font-medium transition-all duration-300  flex items-center justify-center ${
-                (isResending || resendCooldown > 0) ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-            >
-              {isResending ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  {resendCooldown > 0
-                    ? `Resend in ${resendCooldown}s`
-                    : 'Resend Code'
-                  }
-                </>
-              )}
-            </button>
+        {/* Warning */}
+        <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-6">
+          <div className="flex items-start gap-2 text-foreground-secondary text-left">
+            <Shield className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <span className="text-sm">
+              Each backup code can only be used once. If you lose both your authenticator and these codes, you'll need to contact support to regain access.
+            </span>
           </div>
+        </div>
 
-          <div className="bg-card border border-border shadow-sm rounded-2xl p-4">
-            <div className="flex items-center justify-center gap-2 text-[var(--foreground-tertiary)]">
-              <Shield className="w-4 h-4" />
-              {codeExpiry > 0 ? (
-                <span className="text-sm">
-                  Code expires in {Math.floor(codeExpiry / 60)}:{String(codeExpiry % 60).padStart(2, '0')}
-                </span>
-              ) : (
-                <span className="text-sm text-foreground-secondary">Code has expired</span>
-              )}
+        {/* Acknowledge and continue */}
+        <button
+          onClick={handleBackupCodesAcknowledged}
+          className="apple-button w-full py-4 text-lg font-medium transition-all duration-300 flex items-center justify-center"
+        >
+          I've Saved My Backup Codes
+          <ArrowRight className="w-5 h-5 ml-2" />
+        </button>
+      </div>
+    );
+  };
+
+  // Render completion state (all set, redirecting to password setup)
+  const renderComplete = () => {
+    return (
+      <div className="text-center">
+        <div className="w-24 h-24 mx-auto rounded-full bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
+          <CheckCircle className="w-12 h-12 text-foreground-secondary" />
+        </div>
+
+        <h2 className="text-3xl font-bold text-[var(--foreground)] mb-2 animate-fadeInUp">
+          All Set! 🎉
+        </h2>
+        <p className="text-lg text-[var(--foreground-secondary)] mb-6 animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
+          Your account is verified and secured
+        </p>
+
+        {/* Summary */}
+        <div className="bg-card border border-border shadow-sm rounded-2xl p-6 mb-6 animate-fadeInUp" style={{ animationDelay: '0.2s' }}>
+          <h3 className="font-semibold text-[var(--foreground)] mb-4 flex items-center justify-center gap-2">
+            <Gift className="w-5 h-5 text-[var(--primary)]" />
+            What's Next?
+          </h3>
+          <div className="space-y-3 text-left">
+            <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
+              <div className="w-6 h-6 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-xs font-bold">
+                <Check className="w-3.5 h-3.5" />
+              </div>
+              <span>Email verified</span>
+            </div>
+            <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
+              <div className="w-6 h-6 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-xs font-bold">
+                <Check className="w-3.5 h-3.5" />
+              </div>
+              <span>Authenticator configured</span>
+            </div>
+            <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
+              <div className="w-6 h-6 rounded-full bg-[var(--primary)]/60 text-white flex items-center justify-center text-xs font-bold">1</div>
+              <span>Set up your secure password</span>
+            </div>
+            <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
+              <div className="w-6 h-6 rounded-full bg-[var(--primary)]/40 text-white flex items-center justify-center text-xs font-bold">2</div>
+              <span>Access your admin dashboard</span>
             </div>
           </div>
         </div>
+
+        {/* Redirect countdown */}
+        <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-6 animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
+          <div className="flex items-center justify-center gap-2 text-foreground-secondary">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span className="text-sm font-medium">
+              {redirectCountdown > 0
+                ? `Continuing to password setup in ${redirectCountdown}s...`
+                : 'Redirecting...'}
+            </span>
+          </div>
+        </div>
+
+        {/* CTA Button */}
+        <button
+          onClick={() => {
+            const params = new URLSearchParams({ session: sessionId || '' });
+            if (email) params.set('email', email);
+            router.push(`/onboarding/setup-password?${params.toString()}`);
+          }}
+          className="apple-button w-full py-4 text-lg font-medium transition-all duration-300 flex items-center justify-center"
+        >
+          Continue to Set Password
+          <ArrowRight className="w-5 h-5 ml-2" />
+        </button>
       </div>
-    </>
-  );
+    );
+  };
+
+  // --- Page header helpers ---
+
+  const getPageTitle = () => {
+    switch (phase) {
+      case 'email_verification':
+        return 'Email Verification';
+      case 'mfa_setup':
+        return 'Authenticator Setup';
+      case 'backup_codes':
+        return 'Backup Codes';
+      case 'complete':
+        return 'Account Secured!';
+    }
+  };
+
+  const getPageSubtitle = () => {
+    switch (phase) {
+      case 'email_verification':
+        return 'Secure your account with email verification';
+      case 'mfa_setup':
+        return 'Add an extra layer of security with an authenticator app';
+      case 'backup_codes':
+        return 'Save your recovery codes for emergency access';
+      case 'complete':
+        return 'Your journey with mark8ly begins now';
+    }
+  };
 
   // Show loading state while rehydrating
   if (isRehydrating) {
@@ -1576,33 +1315,65 @@ function VerifyEmailContent() {
       <div className="pt-24 pb-8 px-6">
         <div className="max-w-2xl mx-auto text-center">
           <h1 className="display-medium text-[var(--foreground)] mb-4">
-            {isVerified ? 'Account Verified!' : 'Email Verification'}
+            {getPageTitle()}
           </h1>
           <p className="body-large text-[var(--foreground-secondary)]">
-            {isVerified ? 'Your journey with mark8ly begins now' : 'Secure your account with email verification'}
+            {getPageSubtitle()}
           </p>
+
+          {/* Progress indicator */}
+          <div className="flex items-center justify-center gap-2 mt-6">
+            {(['email_verification', 'mfa_setup', 'backup_codes', 'complete'] as VerifyPhase[]).map((step, index) => {
+              const stepIndex = ['email_verification', 'mfa_setup', 'backup_codes', 'complete'].indexOf(phase);
+              const isActive = step === phase;
+              const isCompleted = index < stepIndex;
+              return (
+                <div key={step} className="flex items-center gap-2">
+                  <div
+                    className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                      isActive
+                        ? 'bg-[var(--primary)] scale-125'
+                        : isCompleted
+                          ? 'bg-[var(--primary)]'
+                          : 'bg-[var(--border)]'
+                    }`}
+                  />
+                  {index < 3 && (
+                    <div
+                      className={`w-8 h-0.5 transition-all duration-300 ${
+                        isCompleted ? 'bg-[var(--primary)]' : 'bg-[var(--border)]'
+                      }`}
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
       <div className="max-w-2xl mx-auto px-6 pb-16">
         <div className={`bg-card border border-border shadow-sm rounded-3xl p-12 animate-fadeInUp max-w-lg mx-auto ${
-          isVerified ? 'border-warm-300' : 'border-border'
+          phase === 'complete' ? 'border-warm-300' : 'border-border'
         }`}>
-          {isSendingInitial || verificationMethod === null ? (
-            <div className="text-center">
-              <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 animate-pulse shadow-sm">
-                <Loader2 className="w-10 h-10 text-foreground-secondary animate-spin" />
+          {phase === 'email_verification' && (
+            isSendingInitial ? (
+              <div className="text-center">
+                <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 animate-pulse shadow-sm">
+                  <Loader2 className="w-10 h-10 text-foreground-secondary animate-spin" />
+                </div>
+                <h2 className="display-medium text-[var(--foreground)] mb-4">
+                  {!email ? 'Resolving your email...' : 'Sending Verification'}
+                </h2>
+                <p className="body text-[var(--foreground-secondary)]">Please wait...</p>
               </div>
-              <h2 className="display-medium text-[var(--foreground)] mb-4">
-                {!email ? 'Resolving your email...' : 'Sending Verification'}
-              </h2>
-              <p className="body text-[var(--foreground-secondary)]">Please wait...</p>
-            </div>
-          ) : verificationMethod === 'link' ? (
-            renderLinkVerification()
-          ) : (
-            renderOTPVerification()
+            ) : (
+              renderLinkVerification()
+            )
           )}
+          {phase === 'mfa_setup' && renderTotpSetup()}
+          {phase === 'backup_codes' && renderBackupCodes()}
+          {phase === 'complete' && renderComplete()}
         </div>
       </div>
     </div>
