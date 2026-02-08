@@ -47,7 +47,7 @@ function SetupPasswordContent() {
   const sessionIdParam = searchParams.get('session');
   const emailParam = searchParams.get('email');
 
-  const { setTenantResult, sessionId: storeSessionId, storeSetup, contactDetails, _hasHydrated } = useOnboardingStore();
+  const { setTenantResult, sessionId: storeSessionId, storeSetup, contactDetails, totpSecretEncrypted, backupCodeHashes, _hasHydrated } = useOnboardingStore();
 
   const [state, setState] = useState<SetupState>('input');
   const [password, setPassword] = useState('');
@@ -174,7 +174,7 @@ function SetupPasswordContent() {
       });
 
       // Call account-setup endpoint to create tenant and user
-      const accountSetupPayload = {
+      const accountSetupPayload: Record<string, unknown> = {
         password,
         auth_method: 'password',
         // Include store setup data for tenant configuration
@@ -182,6 +182,12 @@ function SetupPasswordContent() {
         currency: storeSetup?.currency || '',
         business_model: storeSetup?.business_model || 'ONLINE_STORE',
       };
+
+      // Include TOTP data if set up during onboarding (persisted to tenant credential)
+      if (totpSecretEncrypted && backupCodeHashes) {
+        accountSetupPayload.totp_secret_encrypted = totpSecretEncrypted;
+        accountSetupPayload.backup_code_hashes = backupCodeHashes;
+      }
       devLog('[SetupPassword] Sending account setup with:', {
         timezone: accountSetupPayload.timezone,
         currency: accountSetupPayload.currency,

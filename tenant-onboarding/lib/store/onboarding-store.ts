@@ -89,6 +89,10 @@ export interface OnboardingState {
   emailVerified: boolean;
   phoneVerified: boolean;
 
+  // TOTP setup data (captured during onboarding, persisted during account-setup)
+  totpSecretEncrypted: string | null;
+  backupCodeHashes: string[] | null;
+
   // Documents state (persisted)
   documents: DocumentsState;
 
@@ -118,6 +122,7 @@ export interface OnboardingState {
 
   setEmailVerified: (verified: boolean) => void;
   setPhoneVerified: (verified: boolean) => void;
+  setTotpData: (encrypted: string, hashes: string[]) => void;
 
   // Documents setters
   setDocuments: (documents: Partial<DocumentsState>) => void;
@@ -165,6 +170,8 @@ const initialState = {
 
   emailVerified: false,
   phoneVerified: false,
+  totpSecretEncrypted: null,
+  backupCodeHashes: null,
 
   documents: {
     addressProofType: '',
@@ -266,6 +273,7 @@ export const useOnboardingStore = create<OnboardingState>()(
       // Verification setters
       setEmailVerified: (emailVerified) => set({ emailVerified }),
       setPhoneVerified: (phoneVerified) => set({ phoneVerified }),
+      setTotpData: (totpSecretEncrypted, backupCodeHashes) => set({ totpSecretEncrypted, backupCodeHashes }),
 
       // Documents setters
       setDocuments: (documents) =>
@@ -354,6 +362,10 @@ export const useOnboardingStore = create<OnboardingState>()(
         // Verification status (boolean flags, not PII)
         emailVerified: state.emailVerified,
         phoneVerified: state.phoneVerified,
+        // TOTP data (already AES-256-GCM encrypted, safe for sessionStorage)
+        // Needed to survive page navigation between verify → setup-password
+        totpSecretEncrypted: state.totpSecretEncrypted,
+        backupCodeHashes: state.backupCodeHashes,
         // EXCLUDED: businessInfo, contactDetails, businessAddress, storeSetup
         // EXCLUDED: detectedLocation (contains IP address), documents, tenantResult
       }),

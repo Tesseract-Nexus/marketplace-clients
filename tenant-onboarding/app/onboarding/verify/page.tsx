@@ -344,6 +344,7 @@ function VerifyEmailContent() {
     sessionId: storeSessionId,
     contactDetails,
     setEmailVerified,
+    setTotpData,
     _hasHydrated,
     rehydrateSensitiveData,
   } = useOnboardingStore();
@@ -845,6 +846,10 @@ function VerifyEmailContent() {
       const result = await onboardingApi.confirmTotpSetup(totpSetupSession, code, sessionId);
 
       if (result.success) {
+        // Persist TOTP data in store so it's included during account-setup
+        if (result.totp_secret_encrypted && result.backup_code_hashes) {
+          setTotpData(result.totp_secret_encrypted, result.backup_code_hashes);
+        }
         setPhase('backup_codes');
       } else {
         setTotpError(result.message || 'Invalid code. Please try again.');

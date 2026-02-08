@@ -16,6 +16,8 @@ interface AccountSetupRequest {
   timezone?: string;
   currency?: string;
   business_model?: 'ONLINE_STORE' | 'MARKETPLACE';
+  totp_secret_encrypted?: string;
+  backup_code_hashes?: string[];
 }
 
 export async function POST(
@@ -49,18 +51,29 @@ export async function POST(
       }
     }
 
+    // Build payload for tenant-service
+    const payload: Record<string, unknown> = {
+      password: body.password,
+      auth_method: body.auth_method || 'password',
+      timezone: body.timezone || '',
+      currency: body.currency || '',
+      business_model: body.business_model || 'ONLINE_STORE',
+    };
+
+    // Forward TOTP data if provided (from onboarding MFA setup)
+    if (body.totp_secret_encrypted) {
+      payload.totp_secret_encrypted = body.totp_secret_encrypted;
+    }
+    if (body.backup_code_hashes && body.backup_code_hashes.length > 0) {
+      payload.backup_code_hashes = body.backup_code_hashes;
+    }
+
     // Proxy to tenant-service account-setup endpoint
     return proxyPost(
       SERVICES.TENANT,
       `/api/v1/onboarding/sessions/${sessionId}/account-setup`,
       request,
-      {
-        password: body.password,
-        auth_method: body.auth_method || 'password',
-        timezone: body.timezone || '',
-        currency: body.currency || '',
-        business_model: body.business_model || 'ONLINE_STORE',
-      }
+      payload
     );
   } catch (error) {
     console.error('[Account Setup] Error:', error);
