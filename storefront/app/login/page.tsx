@@ -65,7 +65,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { tenant } = useTenant();
   const getNavPath = useNavPath();
-  const { login, setLoading, isLoading, isAuthenticated } = useAuthStore();
+  const { login, updateCustomer, setLoading, isLoading, isAuthenticated } = useAuthStore();
   const { mergeGuestCart } = useCartStore();
 
   const [email, setEmail] = useState('');
@@ -98,6 +98,37 @@ export default function LoginPage() {
   } | null>(null);
   const [isReactivating, setIsReactivating] = useState(false);
   const [reactivateError, setReactivateError] = useState<string | null>(null);
+
+  // Fetch full customer profile (phone, dateOfBirth, etc.) from customers-service
+  // and merge into auth store. Called after successful login since AuthSessionProvider's
+  // fetchCustomerProfile won't re-run after client-side navigation (hasCheckedSession ref).
+  const fetchAndUpdateProfile = async (tenantId?: string) => {
+    try {
+      const headers: Record<string, string> = {};
+      if (tenantId) headers['X-Tenant-ID'] = tenantId;
+      const response = await fetch('/api/auth/profile', {
+        credentials: 'include',
+        headers,
+      });
+      if (!response.ok) return;
+      const result = await response.json();
+      if (result.success && result.data) {
+        updateCustomer({
+          phone: result.data.phone,
+          dateOfBirth: result.data.dateOfBirth,
+          country: result.data.country,
+          countryCode: result.data.countryCode,
+          totalOrders: result.data.totalOrders,
+          totalSpent: result.data.totalSpent,
+          ...(result.data.firstName && { firstName: result.data.firstName }),
+          ...(result.data.lastName && { lastName: result.data.lastName }),
+          ...(result.data.createdAt && { createdAt: result.data.createdAt }),
+        });
+      }
+    } catch (err) {
+      console.warn('[LoginPage] Failed to fetch customer profile:', err);
+    }
+  };
 
   // Wait for Zustand store to hydrate from localStorage
   useEffect(() => {
@@ -161,6 +192,7 @@ export default function LoginPage() {
           tenantId: result.user.tenant_id,
         });
 
+        await fetchAndUpdateProfile(result.user.tenant_id);
         router.push(getNavPath('/account'));
       } else if (result.error === 'CANCELLED') {
         // User cancelled — do nothing
@@ -202,6 +234,7 @@ export default function LoginPage() {
             createdAt: new Date().toISOString(),
             tenantId: result.user.tenant_id,
           });
+          await fetchAndUpdateProfile(result.user.tenant_id);
         }
 
         // Note: Cart merging happens server-side via session cookies
@@ -280,6 +313,7 @@ export default function LoginPage() {
             tenantId: loginResult.user.tenant_id,
           });
 
+          await fetchAndUpdateProfile(loginResult.user.tenant_id);
           // Cart merge handled by session cookies - see handleSubmit comment
           router.push(getNavPath('/account'));
         } else {
@@ -332,6 +366,7 @@ export default function LoginPage() {
             createdAt: new Date().toISOString(),
             tenantId: result.user.tenant_id,
           });
+          await fetchAndUpdateProfile(result.user.tenant_id);
         }
         router.push(getNavPath('/account'));
       } else {
