@@ -7,6 +7,7 @@ import React, {
   useCallback,
   useMemo,
   useEffect,
+  useRef,
   ReactNode,
 } from 'react';
 import { usePathname } from 'next/navigation';
@@ -23,6 +24,7 @@ import {
 } from './types';
 import { useTenant } from '@/contexts/TenantContext';
 import { useUser } from '@/contexts/UserContext';
+import { tourPreferencesService } from '@/lib/services/tourPreferencesService';
 
 // Routes where the wizard should NOT auto-open (edit pages, detail pages, etc.)
 const SUPPRESSED_ROUTES = [
@@ -66,6 +68,7 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
   const [state, setState] = useState<SetupWizardState>(INITIAL_STATE);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const dbLoadedRef = useRef(false);
 
   // Generate storage key based on tenant ID and user ID for per-user tracking
   const getStorageKey = useCallback(() => {
@@ -99,12 +102,14 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
     }
   }, [getSessionKey]);
 
-  // Load state from localStorage on mount
+  // Load state from localStorage on mount, then merge from DB
   useEffect(() => {
     // Wait for both tenant and user to be available
     if (!currentTenant?.id || !user?.id) return;
 
     const storageKey = getStorageKey();
+
+    // Step 1: Load from localStorage for instant rendering
     try {
       const savedState = localStorage.getItem(storageKey);
       if (savedState) {
@@ -127,6 +132,31 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
       console.error('Failed to load wizard state from localStorage:', error);
     }
     setHasInitialized(true);
+
+    // Step 2: Load from DB and merge (DB wins for persistence flags)
+    if (!dbLoadedRef.current) {
+      dbLoadedRef.current = true;
+      tourPreferencesService.load(currentTenant.id, user.id).then(dbPrefs => {
+        if (dbPrefs?.setupWizard) {
+          const sw = dbPrefs.setupWizard;
+          setState(prev => {
+            const merged = {
+              ...prev,
+              completedAt: sw.completedAt ?? prev.completedAt,
+              dismissedAt: sw.dismissedAt ?? prev.dismissedAt,
+              neverShowAgain: sw.neverShowAgain ?? prev.neverShowAgain,
+              completedSteps: (sw.completedSteps as WizardStepId[]) ?? prev.completedSteps,
+              skippedSteps: (sw.skippedSteps as WizardStepId[]) ?? prev.skippedSteps,
+            };
+            // If DB says completed/dismissed, ensure first-time user is false
+            if (merged.completedAt || merged.neverShowAgain || merged.dismissedAt) {
+              setIsFirstTimeUser(false);
+            }
+            return merged;
+          });
+        }
+      });
+    }
   }, [currentTenant?.id, user?.id, getStorageKey]);
 
   // Save state to localStorage when it changes
@@ -244,14 +274,22 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
   }, []);
 
   const dismissWizard = useCallback((neverShowAgain = false) => {
+    const dismissedAt = new Date().toISOString();
     setState((prev) => ({
       ...prev,
       isOpen: false,
       isMinimized: false,
-      dismissedAt: new Date().toISOString(),
+      dismissedAt,
       neverShowAgain,
     }));
-  }, []);
+
+    // Save to DB immediately for dismiss actions
+    if (currentTenant?.id && user?.id) {
+      tourPreferencesService.save(currentTenant.id, user.id, {
+        setupWizard: { dismissedAt, neverShowAgain },
+      });
+    }
+  }, [currentTenant?.id, user?.id]);
 
   // Navigation
   const nextStep = useCallback(() => {
@@ -308,13 +346,21 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
   }, []);
 
   const completeWizard = useCallback(() => {
+    const completedAt = new Date().toISOString();
     setState((prev) => ({
       ...prev,
       phase: 'completed',
-      completedAt: new Date().toISOString(),
+      completedAt,
       isOpen: false,
     }));
-  }, []);
+
+    // Save to DB immediately for complete actions
+    if (currentTenant?.id && user?.id) {
+      tourPreferencesService.save(currentTenant.id, user.id, {
+        setupWizard: { completedAt },
+      });
+    }
+  }, [currentTenant?.id, user?.id]);
 
   // Resource tracking
   const setCreatedCategory = useCallback((category: CreatedCategory | null) => {
@@ -331,24 +377,46 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
 
   // Step completion
   const markStepComplete = useCallback((stepId: WizardStepId) => {
-    setState((prev) => ({
-      ...prev,
-      completedSteps: prev.completedSteps.includes(stepId)
+    setState((prev) => {
+      const newCompleted = prev.completedSteps.includes(stepId)
         ? prev.completedSteps
-        : [...prev.completedSteps, stepId],
-      // Remove from skipped if it was marked as skipped before
-      skippedSteps: prev.skippedSteps.filter((id) => id !== stepId),
-    }));
-  }, []);
+        : [...prev.completedSteps, stepId];
+      const newSkipped = prev.skippedSteps.filter((id) => id !== stepId);
+
+      // Save to DB (debounced)
+      if (currentTenant?.id && user?.id) {
+        tourPreferencesService.saveDebounced(currentTenant.id, user.id, {
+          setupWizard: { completedSteps: newCompleted, skippedSteps: newSkipped },
+        });
+      }
+
+      return {
+        ...prev,
+        completedSteps: newCompleted,
+        skippedSteps: newSkipped,
+      };
+    });
+  }, [currentTenant?.id, user?.id]);
 
   const markStepSkipped = useCallback((stepId: WizardStepId) => {
-    setState((prev) => ({
-      ...prev,
-      skippedSteps: prev.skippedSteps.includes(stepId)
+    setState((prev) => {
+      const newSkipped = prev.skippedSteps.includes(stepId)
         ? prev.skippedSteps
-        : [...prev.skippedSteps, stepId],
-    }));
-  }, []);
+        : [...prev.skippedSteps, stepId];
+
+      // Save to DB (debounced)
+      if (currentTenant?.id && user?.id) {
+        tourPreferencesService.saveDebounced(currentTenant.id, user.id, {
+          setupWizard: { skippedSteps: newSkipped },
+        });
+      }
+
+      return {
+        ...prev,
+        skippedSteps: newSkipped,
+      };
+    });
+  }, [currentTenant?.id, user?.id]);
 
   // Reset
   const resetWizard = useCallback(() => {

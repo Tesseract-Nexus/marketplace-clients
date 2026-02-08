@@ -26,6 +26,7 @@ const PASSWORD_REQUIREMENTS = [
 ];
 
 type SetupState = 'input' | 'creating' | 'provisioning' | 'success' | 'error';
+type RedirectStatus = 'checking' | 'ready' | 'failed';
 type AuthMethod = 'password' | 'google';
 
 interface ProvisioningProgress {
@@ -58,6 +59,8 @@ function SetupPasswordContent() {
   const [tenantSlug, setTenantSlug] = useState('');
   const [provisioningProgress, setProvisioningProgress] = useState<ProvisioningProgress | null>(null);
   const [adminUrl, setAdminUrl] = useState('');
+  const [redirectStatus, setRedirectStatus] = useState<RedirectStatus>('checking');
+  const [redirectElapsed, setRedirectElapsed] = useState(0);
 
   // Use session from URL param or store
   const sessionId = sessionIdParam || storeSessionId;
@@ -90,6 +93,34 @@ function SetupPasswordContent() {
     }
   }, [_hasHydrated, sessionId, router]);
 
+  // Check if the admin URL is reachable before redirecting
+  const checkAdminHealth = async (url: string): Promise<boolean> => {
+    const maxRetries = 5;
+    const retryDelay = 3000;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        devLog(`[HealthCheck] Attempt ${attempt}/${maxRetries} - checking ${url}`);
+        const response = await fetch(url, {
+          method: 'HEAD',
+          mode: 'no-cors',
+          cache: 'no-store',
+        });
+        // no-cors mode returns opaque response (status 0), which means the server responded
+        devLog(`[HealthCheck] Admin URL is reachable (attempt ${attempt})`);
+        return true;
+      } catch (error) {
+        devWarn(`[HealthCheck] Attempt ${attempt} failed:`, error);
+        if (attempt < maxRetries) {
+          await new Promise(resolve => setTimeout(resolve, retryDelay));
+        }
+      }
+    }
+
+    devWarn('[HealthCheck] Admin URL not reachable after all retries');
+    return false;
+  };
+
   // Poll for provisioning status
   const pollProvisioningStatus = async (slug: string | undefined, adminLoginUrl: string) => {
     // If no slug provided, skip polling and go directly to success
@@ -97,9 +128,7 @@ function SetupPasswordContent() {
     if (!slug || slug === 'undefined') {
       devWarn('[Provisioning] No slug provided, skipping provisioning check');
       setState('success');
-      setTimeout(() => {
-        safeRedirect(adminLoginUrl, '/');
-      }, 2000);
+      setRedirectStatus('failed');
       return;
     }
 
@@ -142,18 +171,35 @@ function SetupPasswordContent() {
     const isReady = await poll();
     if (isReady) {
       setState('success');
+      setRedirectStatus('checking');
 
-      // Always redirect to login page instead of attempting auto-login
-      // This ensures user enters fresh credentials and avoids session conflicts
-      // when user already has an existing session from a different tenant/account
-      devLog('[SetupPassword] Provisioning complete, redirecting to login page');
+      devLog('[SetupPassword] Provisioning complete, checking admin health before redirect');
 
-      // Redirect to admin login after a short delay (with URL validation)
-      setTimeout(() => {
+      // Wait 3s for DNS/routing to propagate, then health check
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
+      const isHealthy = await checkAdminHealth(adminLoginUrl);
+      if (isHealthy) {
+        setRedirectStatus('ready');
         safeRedirect(adminLoginUrl, '/');
-      }, 2000);
+      } else {
+        // Health check failed - show manual button prominently, don't auto-redirect
+        setRedirectStatus('failed');
+        devWarn('[SetupPassword] Admin health check failed, showing manual redirect button');
+      }
     }
   };
+
+  // Track elapsed time on success page to show "not redirected" message
+  useEffect(() => {
+    if (state !== 'success') return;
+
+    const timer = setInterval(() => {
+      setRedirectElapsed(prev => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [state]);
 
   // Handle Google OAuth login
   // Redirects to auth-bff (mounted at /auth on this domain via Istio) with kc_idp_hint=google
@@ -425,17 +471,49 @@ function SetupPasswordContent() {
             <p className="text-foreground-tertiary mb-2">
               Your store dashboard is ready at:
             </p>
-            {tenantSlug && (
+            {adminUrl && (
               <p className="text-lg font-semibold text-terracotta-600 mb-6 break-all">
-                https://{tenantSlug}-admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}
+                {adminUrl.replace(/^https?:\/\//, '').replace(/\/login$/, '')}
               </p>
             )}
-            <div className="bg-warm-50 rounded-xl p-4 mb-6">
-              <p className="text-sm text-terracotta-600 flex items-center justify-center">
-                <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                Redirecting to login page...
+
+            {/* Redirect status indicator */}
+            {redirectStatus === 'checking' && (
+              <div className="bg-warm-50 rounded-xl p-4 mb-6">
+                <p className="text-sm text-terracotta-600 flex items-center justify-center">
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  {redirectElapsed < 10
+                    ? 'Redirecting to login page...'
+                    : 'Still checking if your admin page is ready...'}
+                </p>
+              </div>
+            )}
+
+            {redirectStatus === 'ready' && (
+              <div className="bg-warm-50 rounded-xl p-4 mb-6">
+                <p className="text-sm text-terracotta-600 flex items-center justify-center">
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Redirecting now...
+                </p>
+              </div>
+            )}
+
+            {redirectStatus === 'failed' && (
+              <div className="bg-warm-50 rounded-xl p-4 mb-6 border border-warm-200">
+                <p className="text-sm text-foreground-tertiary">
+                  Your admin page may take a moment to become available.
+                  Click the button below to go to your login page.
+                </p>
+              </div>
+            )}
+
+            {/* Show "not redirected" hint after 10 seconds */}
+            {redirectStatus === 'checking' && redirectElapsed >= 10 && (
+              <p className="text-xs text-foreground-tertiary mb-4">
+                Click the button below if you're not redirected automatically.
               </p>
-            </div>
+            )}
+
             <button
               onClick={handleContinueToAdmin}
               className="w-full py-4 px-6 bg-primary hover:bg-primary-hover text-primary-foreground font-semibold rounded-xl transition-colors flex items-center justify-center gap-2"

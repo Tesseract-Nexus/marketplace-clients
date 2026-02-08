@@ -62,7 +62,7 @@ function CongratulationsPage({ completionData, idleCountdown }: { completionData
     if (completionData.admin_url) {
       window.location.href = `${completionData.admin_url}/login`;
     } else if (completionData.tenant_slug) {
-      const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.app';
+      const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
       window.location.href = `https://${completionData.tenant_slug}-admin.${baseDomain}/login`;
     }
   };
@@ -109,7 +109,7 @@ function CongratulationsPage({ completionData, idleCountdown }: { completionData
             <p className="text-lg font-semibold text-primary mb-8 animate-fadeInUp" style={{ animationDelay: '0.3s' }}>
               {completionData.admin_url
                 ? completionData.admin_url.replace(/^https?:\/\//, '')
-                : `${completionData.tenant_slug}-admin.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.app'}`}
+                : `${completionData.tenant_slug}-admin.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`}
             </p>
           )}
         </div>

@@ -7,6 +7,7 @@ import React, {
   useCallback,
   useMemo,
   useEffect,
+  useRef,
   ReactNode,
 } from 'react';
 import { usePathname } from 'next/navigation';
@@ -20,6 +21,7 @@ import {
 import { getTourConfigById, getTourConfigByPath, ALL_PAGE_TOURS } from './tourConfigs';
 import { useTenant } from '@/contexts/TenantContext';
 import { useUser } from '@/contexts/UserContext';
+import { tourPreferencesService } from '@/lib/services/tourPreferencesService';
 
 const PageTourContext = createContext<PageTourContextValue | undefined>(undefined);
 
@@ -29,6 +31,7 @@ const INITIAL_STATE: PageTourState = {
   currentStepIndex: 0,
   completedTours: [],
   skippedTours: [],
+  allToursSkipped: false,
 };
 
 interface PageTourProviderProps {
@@ -41,6 +44,7 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
   const { user } = useUser();
   const [state, setState] = useState<PageTourState>(INITIAL_STATE);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const dbLoadedRef = useRef(false);
 
   // Generate storage key for persistence
   const getStorageKey = useCallback(() => {
@@ -49,11 +53,13 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
     return `${PAGE_TOUR_STORAGE_KEY}_${tenantPart}_${userPart}`;
   }, [currentTenant?.id, user?.id]);
 
-  // Load state from localStorage
+  // Load state from localStorage first (fast), then from DB (authoritative)
   useEffect(() => {
     if (!currentTenant?.id || !user?.id) return;
 
     const storageKey = getStorageKey();
+
+    // Step 1: Load from localStorage for instant rendering
     try {
       const savedState = localStorage.getItem(storageKey);
       if (savedState) {
@@ -62,6 +68,7 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
           ...prev,
           completedTours: parsed.completedTours || [],
           skippedTours: parsed.skippedTours || [],
+          allToursSkipped: parsed.allToursSkipped || false,
           // Don't restore active state - start fresh each session
           isActive: false,
           currentPageId: null,
@@ -72,23 +79,55 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
       console.error('Failed to load page tour state:', error);
     }
     setHasInitialized(true);
+
+    // Step 2: Load from DB and merge (DB wins if different)
+    if (!dbLoadedRef.current) {
+      dbLoadedRef.current = true;
+      tourPreferencesService.load(currentTenant.id, user.id).then(dbPrefs => {
+        if (dbPrefs) {
+          setState(prev => {
+            const merged = {
+              ...prev,
+              allToursSkipped: dbPrefs.allToursSkipped ?? prev.allToursSkipped,
+              completedTours: dbPrefs.completedTours ?? prev.completedTours,
+              skippedTours: dbPrefs.skippedTours ?? prev.skippedTours,
+            };
+            // Update localStorage with DB state
+            try {
+              localStorage.setItem(storageKey, JSON.stringify({
+                completedTours: merged.completedTours,
+                skippedTours: merged.skippedTours,
+                allToursSkipped: merged.allToursSkipped,
+              }));
+            } catch {}
+            return merged;
+          });
+        }
+      });
+    }
   }, [currentTenant?.id, user?.id, getStorageKey]);
 
-  // Save state to localStorage when completed/skipped tours change
+  // Save state to localStorage + DB when completed/skipped tours change
   useEffect(() => {
     if (!currentTenant?.id || !user?.id || !hasInitialized) return;
 
     const storageKey = getStorageKey();
+    const stateToSave = {
+      completedTours: state.completedTours,
+      skippedTours: state.skippedTours,
+      allToursSkipped: state.allToursSkipped,
+    };
+
+    // Save to localStorage (sync)
     try {
-      const stateToSave = {
-        completedTours: state.completedTours,
-        skippedTours: state.skippedTours,
-      };
       localStorage.setItem(storageKey, JSON.stringify(stateToSave));
     } catch (error) {
       console.error('Failed to save page tour state:', error);
     }
-  }, [state.completedTours, state.skippedTours, currentTenant?.id, user?.id, hasInitialized, getStorageKey]);
+
+    // Save to DB (async, debounced)
+    tourPreferencesService.saveDebounced(currentTenant.id, user.id, stateToSave);
+  }, [state.completedTours, state.skippedTours, state.allToursSkipped, currentTenant?.id, user?.id, hasInitialized, getStorageKey]);
 
   // Get current tour configuration
   const getCurrentTourConfig = useCallback((): PageTourConfig | null => {
@@ -103,10 +142,11 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
     return config.steps[state.currentStepIndex] || null;
   }, [getCurrentTourConfig, state.currentStepIndex]);
 
-  // Check if page tour is available (not completed or skipped)
+  // Check if page tour is available (not completed, skipped, or all tours skipped)
   const isPageTourAvailable = useCallback((pageId: string): boolean => {
+    if (state.allToursSkipped) return false;
     return !state.completedTours.includes(pageId) && !state.skippedTours.includes(pageId);
-  }, [state.completedTours, state.skippedTours]);
+  }, [state.completedTours, state.skippedTours, state.allToursSkipped]);
 
   // Start a tour for a specific page
   const startTour = useCallback((pageId: string) => {
@@ -156,7 +196,7 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
     }));
   }, []);
 
-  // Skip current tour
+  // Skip current tour (only this page's tour)
   const skipTour = useCallback(() => {
     setState(prev => {
       const pageId = prev.currentPageId;
@@ -169,6 +209,22 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
       };
     });
   }, []);
+
+  // Skip ALL tours globally - no auto-start on any page
+  const skipAllTours = useCallback(() => {
+    setState(prev => ({
+      ...prev,
+      isActive: false,
+      currentPageId: null,
+      currentStepIndex: 0,
+      allToursSkipped: true,
+    }));
+
+    // Flush the debounced save immediately for this important action
+    if (currentTenant?.id && user?.id) {
+      tourPreferencesService.flush();
+    }
+  }, [currentTenant?.id, user?.id]);
 
   // Complete current tour
   const completeTour = useCallback(() => {
@@ -194,12 +250,19 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
       } catch (error) {
         console.error('Failed to reset page tour state:', error);
       }
+      // Also reset in DB
+      tourPreferencesService.save(currentTenant.id, user.id, {
+        allToursSkipped: false,
+        completedTours: [],
+        skippedTours: [],
+      });
     }
+    dbLoadedRef.current = false;
   }, [currentTenant?.id, user?.id, getStorageKey]);
 
-  // Auto-start tour when navigating to a new page (if not completed)
+  // Auto-start tour when navigating to a new page (if not completed and all tours not skipped)
   useEffect(() => {
-    if (!hasInitialized || state.isActive) return;
+    if (!hasInitialized || state.isActive || state.allToursSkipped) return;
 
     const config = getTourConfigByPath(pathname);
     if (config && isPageTourAvailable(config.pageId)) {
@@ -209,7 +272,7 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
       }, 1500);
       return () => clearTimeout(timer);
     }
-  }, [pathname, hasInitialized, state.isActive, isPageTourAvailable, startTour]);
+  }, [pathname, hasInitialized, state.isActive, state.allToursSkipped, isPageTourAvailable, startTour]);
 
   const contextValue = useMemo<PageTourContextValue>(
     () => ({
@@ -218,6 +281,7 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
       nextStep,
       previousStep,
       skipTour,
+      skipAllTours,
       completeTour,
       resetTours,
       isPageTourAvailable,
@@ -230,6 +294,7 @@ export function PageTourProvider({ children }: PageTourProviderProps) {
       nextStep,
       previousStep,
       skipTour,
+      skipAllTours,
       completeTour,
       resetTours,
       isPageTourAvailable,

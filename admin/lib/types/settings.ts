@@ -114,11 +114,25 @@ export interface FeatureSettings {
   integrations: Record<string, any>;
 }
 
+export interface TourPreferences {
+  allToursSkipped?: boolean;
+  completedTours?: string[];
+  skippedTours?: string[];
+  setupWizard?: {
+    completedAt?: string | null;
+    dismissedAt?: string | null;
+    neverShowAgain?: boolean;
+    completedSteps?: string[];
+    skippedSteps?: string[];
+  };
+}
+
 export interface UserPreferences {
   dashboard: Record<string, any>;
   notifications: Record<string, any>;
   privacy: Record<string, any>;
   accessibility: Record<string, any>;
+  tours?: TourPreferences;
 }
 
 export interface ApplicationSettings {

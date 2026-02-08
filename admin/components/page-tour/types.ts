@@ -30,6 +30,7 @@ export interface PageTourState {
   currentStepIndex: number;
   completedTours: string[]; // List of completed tour page IDs
   skippedTours: string[];
+  allToursSkipped: boolean; // When true, no auto-start tours on any page
 }
 
 export interface PageTourContextValue extends PageTourState {
@@ -37,6 +38,7 @@ export interface PageTourContextValue extends PageTourState {
   nextStep: () => void;
   previousStep: () => void;
   skipTour: () => void;
+  skipAllTours: () => void;
   completeTour: () => void;
   resetTours: () => void;
   isPageTourAvailable: (pageId: string) => boolean;

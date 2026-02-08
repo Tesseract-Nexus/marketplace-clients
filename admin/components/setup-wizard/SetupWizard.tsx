@@ -52,7 +52,7 @@ export function SetupWizard() {
   }, [skipTour]);
 
   const handleDismiss = useCallback(() => {
-    dismissWizard(false);
+    dismissWizard(true);
   }, [dismissWizard]);
 
   // Tour handlers

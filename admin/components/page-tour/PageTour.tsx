@@ -18,7 +18,7 @@ export function PageTour() {
     currentStepIndex,
     nextStep,
     previousStep,
-    skipTour,
+    skipAllTours,
     completeTour,
     getCurrentTourConfig,
     getCurrentStep,
@@ -174,7 +174,7 @@ export function PageTour() {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        skipTour();
+        skipAllTours();
       } else if (e.key === 'ArrowRight' || e.key === 'Enter') {
         handleNext();
       } else if (e.key === 'ArrowLeft') {
@@ -184,7 +184,7 @@ export function PageTour() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isActive, skipTour, previousStep]);
+  }, [isActive, skipAllTours, previousStep]);
 
   const handleNext = () => {
     if (config && currentStepIndex >= config.steps.length - 1) {
@@ -217,7 +217,7 @@ export function PageTour() {
                 right: 0,
                 height: Math.max(0, targetRect.top - 8),
               }}
-              onClick={skipTour}
+              onClick={skipAllTours}
             />
             {/* Bottom rectangle */}
             <div
@@ -228,7 +228,7 @@ export function PageTour() {
                 right: 0,
                 bottom: 0,
               }}
-              onClick={skipTour}
+              onClick={skipAllTours}
             />
             {/* Left rectangle */}
             <div
@@ -239,7 +239,7 @@ export function PageTour() {
                 width: Math.max(0, targetRect.left - 8),
                 height: targetRect.height + 16,
               }}
-              onClick={skipTour}
+              onClick={skipAllTours}
             />
             {/* Right rectangle */}
             <div
@@ -250,14 +250,14 @@ export function PageTour() {
                 right: 0,
                 height: targetRect.height + 16,
               }}
-              onClick={skipTour}
+              onClick={skipAllTours}
             />
           </>
         ) : (
           /* Full overlay when no target */
           <div
             className="absolute inset-0 bg-black/70 pointer-events-auto cursor-pointer"
-            onClick={skipTour}
+            onClick={skipAllTours}
           />
         )}
 
@@ -316,7 +316,7 @@ export function PageTour() {
                 <h3 className="font-semibold text-foreground">{step.title}</h3>
               </div>
               <button
-                onClick={skipTour}
+                onClick={skipAllTours}
                 className="p-1 hover:bg-muted rounded-md transition-colors"
               >
                 <X className="w-4 h-4 text-muted-foreground" />
@@ -363,11 +363,11 @@ export function PageTour() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={skipTour}
+                onClick={skipAllTours}
                 className="text-muted-foreground"
               >
                 <SkipForward className="w-4 h-4 mr-1" />
-                Skip Tour
+                Skip All Tours
               </Button>
 
               <div className="flex items-center gap-2">
