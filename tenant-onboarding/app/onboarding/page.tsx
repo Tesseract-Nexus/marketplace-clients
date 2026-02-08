@@ -8,8 +8,7 @@ import { SearchableSelect, type SelectOption } from '../../components/Searchable
 import { DocumentsSection } from '../../components/DocumentsSection';
 import { VerificationScore, useVerificationScore } from '../../components/VerificationScore';
 import { type UploadedDocument } from '../../components/DocumentUpload';
-import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldCheck, ShieldAlert, Pencil, X, Eye, EyeOff, Shield, Rocket, SkipForward, Smartphone, KeyRound, CheckCircle, Scale } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldAlert, Pencil, X, Eye, EyeOff, Rocket, SkipForward, Scale } from 'lucide-react';
 import { useOnboardingStore, type DetectedLocation, type PersistedDocument } from '../../lib/store/onboarding-store';
 import { businessInfoSchema, contactDetailsSchema, businessAddressSchema, storeSetupSchema, MARKETPLACE_PLATFORMS, type BusinessInfoForm, type ContactDetailsForm, type BusinessAddressForm, type StoreSetupForm } from '../../lib/validations/onboarding';
 import { onboardingApi, OnboardingAPIError } from '../../lib/api/onboarding';
@@ -83,12 +82,9 @@ const steps = [
   { id: 1, label: 'Location', icon: MapPin },
   { id: 2, label: 'Store Setup', icon: Store },
   { id: 3, label: 'Documents', icon: FileText, optional: true },
-  { id: 4, label: 'Verify & Secure', icon: Shield },
-  { id: 5, label: 'Legal', icon: Scale },
-  { id: 6, label: 'Launch', icon: Rocket },
+  { id: 4, label: 'Legal', icon: Scale },
+  { id: 5, label: 'Launch', icon: Rocket },
 ];
-
-type MfaSetupPhase = 'initiating' | 'mfa_setup' | 'backup_codes' | 'done';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -117,7 +113,6 @@ export default function OnboardingPage() {
     setAddressProofDocument: setStoreAddressProofDocument,
     setBusinessProofDocument: setStoreBusinessProofDocument,
     setLogoDocument: setStoreLogoDocument,
-    setTotpData,
   } = useOnboardingStore();
 
   const [currentSection, setCurrentSection] = useState(0);
@@ -230,26 +225,10 @@ export default function OnboardingPage() {
     }, 2000);
   }, []);
 
-  // Secure step (step 4) — MFA only, email verification happens post-launch
-  const [mfaPhase, setMfaPhase] = useState<MfaSetupPhase>('initiating');
-  const [mfaError, setMfaError] = useState('');
-
-  // TOTP state
-  const [totpSetupSession, setTotpSetupSession] = useState('');
-  const [totpUri, setTotpUri] = useState('');
-  const [totpManualKey, setTotpManualKey] = useState('');
-  const [backupCodes, setBackupCodes] = useState<string[]>([]);
-  const [totpCode, setTotpCode] = useState(['', '', '', '', '', '']);
-  const [showManualKey, setShowManualKey] = useState(false);
-  const [copiedBackupCodes, setCopiedBackupCodes] = useState(false);
-  const [isTotpVerifying, setIsTotpVerifying] = useState(false);
-  const [totpError, setTotpError] = useState('');
-  const totpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
-
   // Start Over confirmation dialog
   const [showStartOverConfirm, setShowStartOverConfirm] = useState(false);
 
-  // Legal step (step 5) — scroll-to-enable agreement
+  // Legal step (step 4) — scroll-to-enable agreement
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const [legalAccepted, setLegalAccepted] = useState(false);
   const legalScrollRef = useRef<HTMLDivElement>(null);
@@ -1456,7 +1435,7 @@ export default function OnboardingPage() {
     }
   };
 
-  // Handler for Documents step - moves to Launch step
+  // Handler for Documents step - moves to Legal step
   const handleDocumentsContinue = () => {
     setCurrentSection(4);
   };
@@ -1638,7 +1617,7 @@ export default function OnboardingPage() {
         // Continue anyway — CompleteAccountSetup will catch it
       }
 
-      // MFA completed in step 4, now send to email verification (post-launch)
+      // Send to email verification after launch
       const verifyParams = new URLSearchParams();
       if (sessionId) verifyParams.set('session', sessionId);
       // Use resilient email: form → store → fetched from session API → session API direct
@@ -1700,103 +1679,6 @@ export default function OnboardingPage() {
 
     fetchEmailFromSession();
   }, [sessionId, contactDetails.email, fetchedEmail]);
-
-  // Auto-initiate TOTP setup when entering step 4 (MFA only — email verify is post-launch)
-  // Email sources are in deps so this re-fires once rehydrateSensitiveData() completes
-  useEffect(() => {
-    if (currentSection !== 4) return;
-    if (mfaPhase !== 'initiating') return;
-    if (!sessionId) return;
-
-    const email = contactForm.getValues('email') || contactDetails.email || fetchedEmail;
-
-    // Email not yet available — wait for rehydration or fetchEmailFromSession to populate it
-    if (!email) return;
-
-    const initMfaSetup = async () => {
-      try {
-        const result = await onboardingApi.initiateTotpSetup(sessionId, email);
-        setTotpSetupSession(result.setup_session);
-        setTotpUri(result.totp_uri);
-        setTotpManualKey(result.manual_entry_key);
-        setBackupCodes(result.backup_codes);
-        setMfaPhase('mfa_setup');
-      } catch {
-        setMfaError('Failed to set up authenticator. Please try again.');
-        setMfaPhase('mfa_setup');
-      }
-    };
-    initMfaSetup();
-  }, [currentSection, mfaPhase, sessionId, contactDetails.email, fetchedEmail]);
-
-  // TOTP input handlers
-  const handleTotpInputChange = (index: number, value: string) => {
-    if (value.length > 1) return;
-    const newCode = [...totpCode];
-    newCode[index] = value;
-    setTotpCode(newCode);
-    if (value && index < 5) {
-      totpInputRefs.current[index + 1]?.focus();
-    }
-    if (newCode.every(digit => digit !== '') && newCode.join('').length === 6) {
-      handleTotpVerification(newCode.join(''));
-    }
-  };
-
-  const handleTotpKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !totpCode[index] && index > 0) {
-      totpInputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleTotpVerification = async (code: string) => {
-    if (!totpSetupSession || !sessionId) return;
-    setIsTotpVerifying(true);
-    setTotpError('');
-    try {
-      const result = await onboardingApi.confirmTotpSetup(totpSetupSession, code, sessionId);
-      if (result.success) {
-        // Persist TOTP data in store so it's included during account-setup
-        if (result.totp_secret_encrypted && result.backup_code_hashes) {
-          setTotpData(result.totp_secret_encrypted, result.backup_code_hashes);
-        }
-        setMfaPhase('backup_codes');
-      } else {
-        setTotpError(result.message || 'Invalid code. Please try again.');
-        setTotpCode(['', '', '', '', '', '']);
-        totpInputRefs.current[0]?.focus();
-      }
-    } catch (error) {
-      setTotpError(error instanceof Error ? error.message : 'Verification failed. Please try again.');
-      setTotpCode(['', '', '', '', '', '']);
-      totpInputRefs.current[0]?.focus();
-    } finally {
-      setIsTotpVerifying(false);
-    }
-  };
-
-  const handleCopyBackupCodes = async () => {
-    try {
-      await navigator.clipboard.writeText(backupCodes.join('\n'));
-      setCopiedBackupCodes(true);
-      setTimeout(() => setCopiedBackupCodes(false), 3000);
-    } catch {
-      const textArea = document.createElement('textarea');
-      textArea.value = backupCodes.join('\n');
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      setCopiedBackupCodes(true);
-      setTimeout(() => setCopiedBackupCodes(false), 3000);
-    }
-  };
-
-  const handleBackupCodesAcknowledged = () => {
-    setMfaPhase('done');
-    // Auto-advance to Legal step after a brief moment
-    setTimeout(() => setCurrentSection(5), 800);
-  };
 
   const progress = ((currentSection + 1) / steps.length) * 100;
 
@@ -2463,8 +2345,8 @@ export default function OnboardingPage() {
                 </form>
               )}
 
-              {/* Steps 2-6: Store Setup, Documents, Verify, Legal, Launch */}
-              {(currentSection === 2 || currentSection === 3 || currentSection === 4 || currentSection === 5 || currentSection === 6) && (
+              {/* Steps 2-5: Store Setup, Documents, Legal, Launch */}
+              {(currentSection === 2 || currentSection === 3 || currentSection === 4 || currentSection === 5) && (
                 <form onSubmit={storeSetupForm.handleSubmit(handleStoreSetupSubmit, (errors) => devError('[StoreSetup] Validation errors:', errors))} className="space-y-6" noValidate>
                   {/* Section-specific headers */}
                   {currentSection === 2 && (
@@ -2499,20 +2381,6 @@ export default function OnboardingPage() {
                     <div className="mb-8">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
-                          <Shield className="w-6 h-6 text-warm-600" />
-                        </div>
-                        <div>
-                          <h1 className="text-2xl font-serif font-medium text-foreground">Secure Your Account</h1>
-                          <p className="text-muted-foreground">Set up two-factor authentication to protect your store</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {currentSection === 5 && (
-                    <div className="mb-8">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
                           <Scale className="w-6 h-6 text-warm-600" />
                         </div>
                         <div>
@@ -2523,7 +2391,7 @@ export default function OnboardingPage() {
                     </div>
                   )}
 
-                  {currentSection === 6 && (
+                  {currentSection === 5 && (
                     <div className="mb-8">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
@@ -3558,200 +3426,8 @@ export default function OnboardingPage() {
                       </>
                     )}
 
-                    {/* Section 4: Secure (MFA Setup) — email verification happens post-launch */}
+                    {/* Section 4: Legal & Compliance */}
                     {currentSection === 4 && (
-                      <>
-                        {mfaPhase === 'initiating' && (
-                          <div className="text-center py-12">
-                            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 animate-pulse shadow-sm">
-                              <Loader2 className="w-10 h-10 text-warm-600 animate-spin" />
-                            </div>
-                            <h2 className="text-xl font-serif font-medium text-foreground mb-2">Setting Up Authenticator</h2>
-                            <p className="text-muted-foreground">Please wait...</p>
-                          </div>
-                        )}
-
-                        {mfaPhase === 'mfa_setup' && (
-                          <div className="text-center">
-                            {!totpUri ? (
-                              <>
-                                <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
-                                  <AlertCircle className="w-10 h-10 text-warm-600" />
-                                </div>
-                                <h2 className="text-xl font-serif font-medium text-foreground mb-2">Setup Error</h2>
-                                <p className="text-muted-foreground mb-6">{mfaError || 'Failed to set up authenticator.'}</p>
-                                <button
-                                  type="button"
-                                  onClick={() => { setMfaError(''); setMfaPhase('initiating'); }}
-                                  className="px-6 py-3 rounded-lg font-medium border border-border hover:bg-secondary transition-colors flex items-center justify-center gap-2 mx-auto"
-                                >
-                                  <RefreshCw className="w-4 h-4" /> Try Again
-                                </button>
-                              </>
-                            ) : (
-                              <>
-                                <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
-                                  <Smartphone className="w-10 h-10 text-warm-600" />
-                                </div>
-                                <h2 className="text-xl font-serif font-medium text-foreground mb-2">Set Up Authenticator</h2>
-                                <p className="text-muted-foreground mb-6">
-                                  Scan the QR code below with your authenticator app (Google Authenticator, Authy, etc.)
-                                </p>
-
-                                <div className="bg-white rounded-2xl p-6 mb-6 inline-block shadow-sm border border-border">
-                                  <QRCodeSVG value={totpUri} size={200} level="M" />
-                                </div>
-
-                                <div className="mb-6">
-                                  <button
-                                    type="button"
-                                    onClick={() => setShowManualKey(!showManualKey)}
-                                    className="text-sm text-primary hover:underline flex items-center justify-center gap-1 mx-auto"
-                                  >
-                                    <KeyRound className="w-4 h-4" />
-                                    {showManualKey ? 'Hide manual entry key' : "Can't scan? Enter key manually"}
-                                  </button>
-                                  {showManualKey && (
-                                    <div className="mt-3 bg-warm-50 border border-warm-200 rounded-2xl p-4">
-                                      <p className="text-xs text-muted-foreground mb-2">Manual entry key:</p>
-                                      <p className="font-mono text-sm text-foreground break-all select-all">{totpManualKey}</p>
-                                    </div>
-                                  )}
-                                </div>
-
-                                {totpError && (
-                                  <div className="bg-warm-50 border border-warm-200 rounded-2xl p-4 mb-6">
-                                    <div className="flex items-center gap-2 text-warm-600">
-                                      <AlertCircle className="w-4 h-4" />
-                                      <span className="text-sm font-medium">{totpError}</span>
-                                    </div>
-                                  </div>
-                                )}
-
-                                <div className="space-y-6">
-                                  <p className="text-muted-foreground">Enter the 6-digit code from your authenticator app</p>
-                                  <div className="flex justify-center gap-3">
-                                    {totpCode.map((digit, index) => (
-                                      <input
-                                        key={index}
-                                        ref={el => { totpInputRefs.current[index] = el; }}
-                                        type="text"
-                                        inputMode="numeric"
-                                        maxLength={1}
-                                        value={digit}
-                                        onChange={e => handleTotpInputChange(index, e.target.value)}
-                                        onKeyDown={e => handleTotpKeyDown(index, e)}
-                                        className="w-14 h-14 text-center text-2xl font-bold rounded-2xl border-2 border-border bg-background text-foreground focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-200 hover:border-primary/50"
-                                        disabled={isTotpVerifying}
-                                      />
-                                    ))}
-                                  </div>
-
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      const code = totpCode.join('');
-                                      if (code.length === 6) handleTotpVerification(code);
-                                    }}
-                                    disabled={isTotpVerifying || totpCode.join('').length !== 6}
-                                    className={`w-full py-4 text-lg font-medium transition-all duration-300 flex items-center justify-center rounded-lg bg-primary hover:bg-primary/90 text-white ${
-                                      (isTotpVerifying || totpCode.join('').length !== 6) ? 'opacity-50 cursor-not-allowed' : ''
-                                    }`}
-                                  >
-                                    {isTotpVerifying ? (
-                                      <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Verifying...</>
-                                    ) : (
-                                      <><Shield className="w-5 h-5 mr-2" /> Verify Authenticator</>
-                                    )}
-                                  </button>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        )}
-
-                        {mfaPhase === 'backup_codes' && (
-                          <div className="text-center">
-                            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
-                              <KeyRound className="w-10 h-10 text-warm-600" />
-                            </div>
-                            <h2 className="text-xl font-serif font-medium text-foreground mb-2">Save Your Backup Codes</h2>
-                            <p className="text-muted-foreground mb-6">
-                              Store these codes in a safe place. You can use them to access your account if you lose your authenticator device.
-                            </p>
-
-                            <div className="bg-warm-50 border border-warm-200 rounded-2xl p-6 mb-6">
-                              <div className="grid grid-cols-2 gap-3 mb-4">
-                                {backupCodes.map((code, index) => (
-                                  <div
-                                    key={index}
-                                    className="font-mono text-sm bg-background rounded-xl p-3 text-foreground select-all border border-border"
-                                  >
-                                    {code}
-                                  </div>
-                                ))}
-                              </div>
-
-                              <button
-                                type="button"
-                                onClick={handleCopyBackupCodes}
-                                className="w-full py-3 px-6 rounded-xl font-medium transition-all duration-300 flex items-center justify-center border border-border hover:bg-secondary"
-                              >
-                                {copiedBackupCodes ? (
-                                  <><Check className="mr-2 h-4 w-4" /> Copied!</>
-                                ) : (
-                                  <><Copy className="mr-2 h-4 w-4" /> Copy Backup Codes</>
-                                )}
-                              </button>
-                            </div>
-
-                            <div className="bg-warm-50 border border-warm-200 rounded-2xl p-4 mb-6">
-                              <div className="flex items-start gap-2 text-warm-600 text-left">
-                                <Shield className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                                <span className="text-sm">
-                                  Each backup code can only be used once. If you lose both your authenticator and these codes, you'll need to contact support to regain access.
-                                </span>
-                              </div>
-                            </div>
-
-                            <button
-                              type="button"
-                              onClick={handleBackupCodesAcknowledged}
-                              className="w-full py-4 text-lg font-medium transition-all duration-300 flex items-center justify-center rounded-lg bg-primary hover:bg-primary/90 text-white"
-                            >
-                              I've Saved My Backup Codes
-                              <ArrowRight className="w-5 h-5 ml-2" />
-                            </button>
-                          </div>
-                        )}
-
-                        {mfaPhase === 'done' && (
-                          <div className="text-center py-12">
-                            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
-                              <CheckCircle className="w-10 h-10 text-warm-600" />
-                            </div>
-                            <h2 className="text-xl font-serif font-medium text-foreground mb-2">All Set!</h2>
-                            <p className="text-muted-foreground">Your account is secured. Continuing to legal review...</p>
-                          </div>
-                        )}
-
-                        {/* Section 4: Back button (only during initiating/mfa_setup) */}
-                        {(mfaPhase === 'initiating' || (mfaPhase === 'mfa_setup' && !totpUri)) && (
-                          <div className="pt-6">
-                            <button
-                              type="button"
-                              onClick={() => setCurrentSection(config.features.documents.enabled ? 3 : 2)}
-                              className="w-full h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
-                            >
-                              <ArrowLeft className="w-5 h-5" /> Back
-                            </button>
-                          </div>
-                        )}
-                      </>
-                    )}
-
-                    {/* Section 5: Legal & Compliance */}
-                    {currentSection === 5 && (
                       <>
                         <div className="space-y-5">
                           {/* Scrollable legal content */}
@@ -3895,11 +3571,11 @@ export default function OnboardingPage() {
                           </label>
                         </div>
 
-                        {/* Section 5: Navigation buttons */}
+                        {/* Section 4: Navigation buttons */}
                         <div className="pt-6 flex gap-4">
                           <button
                             type="button"
-                            onClick={() => setCurrentSection(4)}
+                            onClick={() => setCurrentSection(config.features.documents.enabled ? 3 : 2)}
                             className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                           >
                             <ArrowLeft className="w-5 h-5" /> Back
@@ -3907,7 +3583,7 @@ export default function OnboardingPage() {
                           <button
                             type="button"
                             disabled={!legalAccepted}
-                            onClick={() => setCurrentSection(6)}
+                            onClick={() => setCurrentSection(5)}
                             className="flex-1 h-14 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
                           >
                             Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
@@ -3916,8 +3592,8 @@ export default function OnboardingPage() {
                       </>
                     )}
 
-                    {/* Section 6: Review & Launch */}
-                    {currentSection === 6 && (
+                    {/* Section 5: Review & Launch */}
+                    {currentSection === 5 && (
                       <>
                         <div className="space-y-4">
                           <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
@@ -3957,34 +3633,16 @@ export default function OnboardingPage() {
                             </div>
                           </div>
 
-                          {/* Security checkmarks */}
-                          <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
-                            <div className="flex items-center gap-3 mb-3">
-                              <ShieldCheck className="w-5 h-5 text-sage-600" />
-                              <span className="font-medium text-foreground">Account Secured</span>
-                            </div>
-                            <div className="grid gap-2 text-sm">
-                              <div className="flex justify-between">
-                                <span className="text-muted-foreground">Authenticator Configured</span>
-                                <span className="text-sage-600 font-medium flex items-center gap-1"><Check className="w-4 h-4" /> Done</span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span className="text-muted-foreground">Email Verification</span>
-                                <span className="text-muted-foreground text-xs">After launch</span>
-                              </div>
-                            </div>
-                          </div>
-
                           <p className="text-sm text-muted-foreground text-center">
                             You can always change these settings later in your admin panel.
                           </p>
                         </div>
 
-                        {/* Section 6: Navigation buttons */}
+                        {/* Section 5: Navigation buttons */}
                         <div className="pt-6 flex gap-4">
                           <button
                             type="button"
-                            onClick={() => setCurrentSection(5)}
+                            onClick={() => setCurrentSection(4)}
                             className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                           >
                             <ArrowLeft className="w-5 h-5" /> Back

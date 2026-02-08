@@ -3,8 +3,7 @@
 import { useState, useRef, useEffect, Suspense, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Header from '../../../components/Header';
-import { Loader2, Mail, RefreshCw, Shield, CheckCircle, ExternalLink, Gift, ArrowRight, Sparkles, Home, Store, Rocket, Clock, User, Smartphone, Copy, Check, KeyRound } from 'lucide-react';
-import { QRCodeSVG } from 'qrcode.react';
+import { Loader2, Mail, RefreshCw, Shield, CheckCircle, ExternalLink, Gift, ArrowRight, Sparkles, Home, Store, Rocket, Clock, User, Check } from 'lucide-react';
 import { useOnboardingStore } from '../../../lib/store/onboarding-store';
 import { onboardingApi } from '../../../lib/api/onboarding';
 import { analytics } from '../../../lib/analytics/posthog';
@@ -14,7 +13,7 @@ const isDev = process.env.NODE_ENV === 'development';
 const devLog = (...args: unknown[]) => isDev && console.log(...args);
 const devError = (...args: unknown[]) => isDev && console.error(...args);
 
-type VerifyPhase = 'email_verification' | 'mfa_setup' | 'backup_codes' | 'complete';
+type VerifyPhase = 'email_verification' | 'complete';
 
 // Idle timeout in milliseconds (5 minutes)
 const IDLE_TIMEOUT_MS = 5 * 60 * 1000;
@@ -344,8 +343,6 @@ function VerifyEmailContent() {
     sessionId: storeSessionId,
     contactDetails,
     setEmailVerified,
-    setTotpData,
-    totpSecretEncrypted,
     _hasHydrated,
     rehydrateSensitiveData,
   } = useOnboardingStore();
@@ -374,19 +371,6 @@ function VerifyEmailContent() {
   const [completionData, setCompletionData] = useState<CompletionData | null>(null);
   const [idleCountdown, setIdleCountdown] = useState(IDLE_TIMEOUT_MS / 1000);
 
-  // TOTP / MFA state
-  const [totpSetupSession, setTotpSetupSession] = useState('');
-  const [totpUri, setTotpUri] = useState('');
-  const [totpManualKey, setTotpManualKey] = useState('');
-  const [backupCodes, setBackupCodes] = useState<string[]>([]);
-  const [totpCode, setTotpCode] = useState(['', '', '', '', '', '']);
-  const [showManualKey, setShowManualKey] = useState(false);
-  const [copiedBackupCodes, setCopiedBackupCodes] = useState(false);
-  const [isTotpVerifying, setIsTotpVerifying] = useState(false);
-  const [totpError, setTotpError] = useState('');
-  const [backupCodesAcknowledged, setBackupCodesAcknowledged] = useState(false);
-
-  const totpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const hasInitializedRef = useRef(false);
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastActivityRef = useRef<number>(Date.now());
@@ -591,24 +575,12 @@ function VerifyEmailContent() {
     }
     hasInitializedRef.current = true;
 
-    // Check if email is already verified (e.g. arriving from verify-email link in new tab)
-    const checkAndInit = async () => {
-      try {
-        const status = await onboardingApi.getVerificationStatus(sessionId, email);
-        if (status.is_verified) {
-          devLog('[Verify] Email already verified on page load');
-          setIsVerified(true);
-          setEmailVerified(true);
-          setSuccess('Email verified successfully!');
-          return; // Skip sending another verification email
-        }
-      } catch {
-        devLog('[Verify] Could not check verification status, proceeding with send');
-      }
+    // Always use link-based verification
+    const initEmailVerification = async () => {
       await sendVerification();
     };
 
-    checkAndInit();
+    initEmailVerification();
   }, [isRehydrating, sessionId, email, showWelcomePage]);
 
   const sendVerification = async () => {
@@ -780,39 +752,17 @@ function VerifyEmailContent() {
     };
   }, [phase, sessionId, email, isVerified, isSendingInitial, setEmailVerified]);
 
-  // Transition to MFA setup after email verified
+  // Transition to complete after email verified
   useEffect(() => {
     if (!isVerified) return;
     if (phase !== 'email_verification') return;
 
-    // If TOTP was already set up on the main onboarding page, skip MFA setup
-    if (totpSecretEncrypted) {
-      devLog('[Verify] TOTP already set up during onboarding, skipping MFA setup');
-      setPhase('complete');
-      return;
-    }
-
-    // Email verified — transition to mandatory MFA setup
-    setPhase('mfa_setup');
+    setPhase('complete');
     setError('');
     setSuccess('');
+  }, [isVerified, phase]);
 
-    const initMfaSetup = async () => {
-      try {
-        const result = await onboardingApi.initiateTotpSetup(sessionId!, email);
-        setTotpSetupSession(result.setup_session);
-        setTotpUri(result.totp_uri);
-        setTotpManualKey(result.manual_entry_key);
-        setBackupCodes(result.backup_codes);
-      } catch (error) {
-        setError('Failed to set up authenticator. Please try again.');
-      }
-    };
-
-    initMfaSetup();
-  }, [isVerified, phase, sessionId, email, totpSecretEncrypted]);
-
-  // Auto-redirect after MFA complete (phase === 'complete')
+  // Auto-redirect after verification complete (phase === 'complete')
   useEffect(() => {
     if (phase !== 'complete') return;
 
@@ -830,104 +780,6 @@ function VerifyEmailContent() {
 
     return () => clearInterval(timer);
   }, [phase, sessionId, email, router]);
-
-  // --- TOTP Handler Functions ---
-
-  const handleTotpInputChange = (index: number, value: string) => {
-    if (value.length > 1) return;
-
-    const newCode = [...totpCode];
-    newCode[index] = value;
-    setTotpCode(newCode);
-
-    if (value && index < 5) {
-      totpInputRefs.current[index + 1]?.focus();
-    }
-
-    // Auto-submit when all 6 digits entered
-    if (newCode.every(digit => digit !== '') && newCode.join('').length === 6) {
-      handleTotpVerification(newCode.join(''));
-    }
-  };
-
-  const handleTotpKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !totpCode[index] && index > 0) {
-      totpInputRefs.current[index - 1]?.focus();
-    }
-  };
-
-  const handleTotpVerification = async (code: string) => {
-    if (!totpSetupSession || !sessionId) return;
-
-    setIsTotpVerifying(true);
-    setTotpError('');
-
-    try {
-      const result = await onboardingApi.confirmTotpSetup(totpSetupSession, code, sessionId);
-
-      if (result.success) {
-        // Persist TOTP data in store so it's included during account-setup
-        if (result.totp_secret_encrypted && result.backup_code_hashes) {
-          setTotpData(result.totp_secret_encrypted, result.backup_code_hashes);
-        }
-        setPhase('backup_codes');
-      } else {
-        setTotpError(result.message || 'Invalid code. Please try again.');
-        setTotpCode(['', '', '', '', '', '']);
-        totpInputRefs.current[0]?.focus();
-      }
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : 'Verification failed. Please try again.';
-      const isSessionExpired = errorMsg.toLowerCase().includes('invalid_mfa_session')
-        || errorMsg.toLowerCase().includes('mfa session')
-        || errorMsg.toLowerCase().includes('session expired')
-        || errorMsg.toLowerCase().includes('session not found');
-
-      if (isSessionExpired && sessionId && email) {
-        // MFA session timed out (5 min TTL) — re-initiate TOTP setup with a new QR code
-        try {
-          const result = await onboardingApi.initiateTotpSetup(sessionId, email);
-          setTotpSetupSession(result.setup_session);
-          setTotpUri(result.totp_uri);
-          setTotpManualKey(result.manual_entry_key);
-          setBackupCodes(result.backup_codes);
-          setTotpError('Session timed out. A new QR code has been generated. Please scan it and try again.');
-        } catch {
-          setTotpError('Session timed out and failed to generate a new QR code. Please refresh the page.');
-        }
-      } else {
-        setTotpError(errorMsg);
-      }
-
-      setTotpCode(['', '', '', '', '', '']);
-      totpInputRefs.current[0]?.focus();
-    } finally {
-      setIsTotpVerifying(false);
-    }
-  };
-
-  const handleCopyBackupCodes = async () => {
-    try {
-      await navigator.clipboard.writeText(backupCodes.join('\n'));
-      setCopiedBackupCodes(true);
-      setTimeout(() => setCopiedBackupCodes(false), 3000);
-    } catch {
-      // Fallback for browsers that don't support clipboard API
-      const textArea = document.createElement('textarea');
-      textArea.value = backupCodes.join('\n');
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      setCopiedBackupCodes(true);
-      setTimeout(() => setCopiedBackupCodes(false), 3000);
-    }
-  };
-
-  const handleBackupCodesAcknowledged = () => {
-    setBackupCodesAcknowledged(true);
-    setPhase('complete');
-  };
 
   const handleResendCode = async () => {
     if (!sessionId) {
@@ -972,20 +824,6 @@ function VerifyEmailContent() {
     }
 
     setIsResending(false);
-  };
-
-  // Retry TOTP setup after initiation failure
-  const retryTotpSetup = async () => {
-    setError('');
-    try {
-      const result = await onboardingApi.initiateTotpSetup(sessionId!, email);
-      setTotpSetupSession(result.setup_session);
-      setTotpUri(result.totp_uri);
-      setTotpManualKey(result.manual_entry_key);
-      setBackupCodes(result.backup_codes);
-    } catch {
-      setError('Failed to set up authenticator. Please try again.');
-    }
   };
 
   // --- Render Functions ---
@@ -1071,206 +909,7 @@ function VerifyEmailContent() {
     );
   };
 
-  // Render TOTP authenticator setup UI
-  const renderTotpSetup = () => {
-    // Show loading while TOTP setup data is being fetched
-    if (!totpUri) {
-      // Show error + retry if TOTP initiation failed (instead of infinite spinner)
-      if (error) {
-        return (
-          <div className="text-center">
-            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
-              <Shield className="w-10 h-10 text-foreground-secondary" />
-            </div>
-            <h2 className="display-medium text-[var(--foreground)] mb-4">Setup Error</h2>
-            <p className="body text-[var(--foreground-secondary)] mb-6">{error}</p>
-            <button
-              onClick={retryTotpSetup}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-xl hover:opacity-90 transition-opacity"
-            >
-              <RefreshCw className="w-4 h-4" />
-              Try Again
-            </button>
-          </div>
-        );
-      }
-      return (
-        <div className="text-center">
-          <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 animate-pulse shadow-sm">
-            <Loader2 className="w-10 h-10 text-foreground-secondary animate-spin" />
-          </div>
-          <h2 className="display-medium text-[var(--foreground)] mb-4">Setting Up Authenticator</h2>
-          <p className="body text-[var(--foreground-secondary)]">Please wait...</p>
-        </div>
-      );
-    }
-
-    return (
-      <div className="text-center">
-        <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
-          <Smartphone className="w-10 h-10 text-foreground-secondary" />
-        </div>
-        <h2 className="display-medium text-[var(--foreground)] mb-2">Set Up Authenticator</h2>
-        <p className="body text-[var(--foreground-secondary)] mb-6">
-          Scan the QR code below with your authenticator app (Google Authenticator, Authy, etc.)
-        </p>
-
-        {/* QR Code */}
-        <div className="bg-white rounded-2xl p-6 mb-6 inline-block shadow-sm border border-border">
-          <QRCodeSVG value={totpUri} size={200} level="M" />
-        </div>
-
-        {/* Manual key toggle */}
-        <div className="mb-6">
-          <button
-            onClick={() => setShowManualKey(!showManualKey)}
-            className="text-sm text-[var(--primary)] hover:underline flex items-center justify-center gap-1 mx-auto"
-          >
-            <KeyRound className="w-4 h-4" />
-            {showManualKey ? 'Hide manual entry key' : "Can't scan? Enter key manually"}
-          </button>
-          {showManualKey && (
-            <div className="mt-3 bg-card border border-border shadow-sm rounded-2xl p-4">
-              <p className="text-xs text-[var(--foreground-secondary)] mb-2">Manual entry key:</p>
-              <p className="font-mono text-sm text-[var(--foreground)] break-all select-all">{totpManualKey}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Error display */}
-        {totpError && (
-          <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-6">
-            <div className="flex items-center gap-2 text-foreground-secondary">
-              <Shield className="w-4 h-4" />
-              <span className="text-sm font-medium">{totpError}</span>
-            </div>
-          </div>
-        )}
-
-        {error && (
-          <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-6">
-            <div className="flex items-center gap-2 text-foreground-secondary">
-              <Shield className="w-4 h-4" />
-              <span className="text-sm font-medium">{error}</span>
-            </div>
-          </div>
-        )}
-
-        {/* 6-digit TOTP code input */}
-        <div className="space-y-6">
-          <p className="body text-[var(--foreground-secondary)]">Enter the 6-digit code from your authenticator app</p>
-          <div className="flex justify-center gap-3">
-            {totpCode.map((digit, index) => (
-              <input
-                key={index}
-                ref={el => { totpInputRefs.current[index] = el; }}
-                type="text"
-                inputMode="numeric"
-                maxLength={1}
-                value={digit}
-                onChange={e => handleTotpInputChange(index, e.target.value)}
-                onKeyDown={e => handleTotpKeyDown(index, e)}
-                className="w-14 h-14 text-center text-2xl font-bold rounded-2xl border-2 border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] focus:border-[var(--primary)] focus:ring-4 focus:ring-[var(--primary)]/20 transition-all duration-200 hover:border-[var(--primary)]/50"
-                style={{ animationDelay: `${index * 0.1}s` }}
-                disabled={isTotpVerifying}
-              />
-            ))}
-          </div>
-
-          <button
-            onClick={() => {
-              const code = totpCode.join('');
-              if (code.length === 6) handleTotpVerification(code);
-            }}
-            disabled={isTotpVerifying || totpCode.join('').length !== 6}
-            className={`apple-button w-full py-4 text-lg font-medium transition-all duration-300 flex items-center justify-center ${
-              (isTotpVerifying || totpCode.join('').length !== 6) ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
-          >
-            {isTotpVerifying ? (
-              <>
-                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                Verifying...
-              </>
-            ) : (
-              <>
-                <Shield className="w-5 h-5 mr-2" />
-                Verify Authenticator
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  // Render backup codes UI
-  const renderBackupCodes = () => {
-    return (
-      <div className="text-center">
-        <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
-          <KeyRound className="w-10 h-10 text-foreground-secondary" />
-        </div>
-        <h2 className="display-medium text-[var(--foreground)] mb-2">Save Your Backup Codes</h2>
-        <p className="body text-[var(--foreground-secondary)] mb-6">
-          Store these codes in a safe place. You can use them to access your account if you lose your authenticator device.
-        </p>
-
-        {/* Backup codes grid */}
-        <div className="bg-card border border-border shadow-sm rounded-2xl p-6 mb-6">
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            {backupCodes.map((code, index) => (
-              <div
-                key={index}
-                className="font-mono text-sm bg-warm-50 rounded-xl p-3 text-[var(--foreground)] select-all"
-              >
-                {code}
-              </div>
-            ))}
-          </div>
-
-          {/* Copy button */}
-          <button
-            onClick={handleCopyBackupCodes}
-            className="button-secondary w-full py-3 px-6 rounded-xl font-medium transition-all duration-300 flex items-center justify-center"
-          >
-            {copiedBackupCodes ? (
-              <>
-                <Check className="mr-2 h-4 w-4" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <Copy className="mr-2 h-4 w-4" />
-                Copy Backup Codes
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Warning */}
-        <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-6">
-          <div className="flex items-start gap-2 text-foreground-secondary text-left">
-            <Shield className="w-4 h-4 mt-0.5 flex-shrink-0" />
-            <span className="text-sm">
-              Each backup code can only be used once. If you lose both your authenticator and these codes, you'll need to contact support to regain access.
-            </span>
-          </div>
-        </div>
-
-        {/* Acknowledge and continue */}
-        <button
-          onClick={handleBackupCodesAcknowledged}
-          className="apple-button w-full py-4 text-lg font-medium transition-all duration-300 flex items-center justify-center"
-        >
-          I've Saved My Backup Codes
-          <ArrowRight className="w-5 h-5 ml-2" />
-        </button>
-      </div>
-    );
-  };
-
-  // Render completion state (all set, redirecting to password setup)
+  // Render completion state (email verified, redirecting to password setup)
   const renderComplete = () => {
     return (
       <div className="text-center">
@@ -1279,10 +918,10 @@ function VerifyEmailContent() {
         </div>
 
         <h2 className="text-3xl font-bold text-[var(--foreground)] mb-2 animate-fadeInUp">
-          All Set! 🎉
+          Email Verified! 🎉
         </h2>
         <p className="text-lg text-[var(--foreground-secondary)] mb-6 animate-fadeInUp" style={{ animationDelay: '0.1s' }}>
-          Your account is verified and secured
+          Your email has been verified
         </p>
 
         {/* Summary */}
@@ -1297,12 +936,6 @@ function VerifyEmailContent() {
                 <Check className="w-3.5 h-3.5" />
               </div>
               <span>Email verified</span>
-            </div>
-            <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
-              <div className="w-6 h-6 rounded-full bg-[var(--primary)] text-white flex items-center justify-center text-xs font-bold">
-                <Check className="w-3.5 h-3.5" />
-              </div>
-              <span>Authenticator configured</span>
             </div>
             <div className="flex items-center gap-3 text-sm text-[var(--foreground-secondary)]">
               <div className="w-6 h-6 rounded-full bg-[var(--primary)]/60 text-white flex items-center justify-center text-xs font-bold">1</div>
@@ -1349,23 +982,15 @@ function VerifyEmailContent() {
     switch (phase) {
       case 'email_verification':
         return 'Email Verification';
-      case 'mfa_setup':
-        return 'Authenticator Setup';
-      case 'backup_codes':
-        return 'Backup Codes';
       case 'complete':
-        return 'Account Secured!';
+        return 'Email Verified!';
     }
   };
 
   const getPageSubtitle = () => {
     switch (phase) {
       case 'email_verification':
-        return 'Secure your account with email verification';
-      case 'mfa_setup':
-        return 'Add an extra layer of security with an authenticator app';
-      case 'backup_codes':
-        return 'Save your recovery codes for emergency access';
+        return 'Verify your email address to continue';
       case 'complete':
         return 'Your journey with mark8ly begins now';
     }
@@ -1402,8 +1027,8 @@ function VerifyEmailContent() {
 
           {/* Progress indicator */}
           <div className="flex items-center justify-center gap-2 mt-6">
-            {(['email_verification', 'mfa_setup', 'backup_codes', 'complete'] as VerifyPhase[]).map((step, index) => {
-              const stepIndex = ['email_verification', 'mfa_setup', 'backup_codes', 'complete'].indexOf(phase);
+            {(['email_verification', 'complete'] as VerifyPhase[]).map((step, index) => {
+              const stepIndex = ['email_verification', 'complete'].indexOf(phase);
               const isActive = step === phase;
               const isCompleted = index < stepIndex;
               return (
@@ -1417,7 +1042,7 @@ function VerifyEmailContent() {
                           : 'bg-[var(--border)]'
                     }`}
                   />
-                  {index < 3 && (
+                  {index < 1 && (
                     <div
                       className={`w-8 h-0.5 transition-all duration-300 ${
                         isCompleted ? 'bg-[var(--primary)]' : 'bg-[var(--border)]'
@@ -1450,8 +1075,6 @@ function VerifyEmailContent() {
               renderLinkVerification()
             )
           )}
-          {phase === 'mfa_setup' && renderTotpSetup()}
-          {phase === 'backup_codes' && renderBackupCodes()}
           {phase === 'complete' && renderComplete()}
         </div>
       </div>
