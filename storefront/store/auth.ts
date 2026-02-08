@@ -10,6 +10,7 @@ export interface Customer {
   dateOfBirth?: string; // ISO date string e.g. "1990-05-15"
   country?: string; // Full country name (e.g., "Australia")
   countryCode?: string; // ISO 2-letter code (e.g., "AU") - used for payment method filtering
+  avatarUrl?: string; // Profile picture URL (GCS or social provider)
   tenantId?: string; // Tenant the customer belongs to
   status?: 'ACTIVE' | 'INACTIVE' | 'BLOCKED';
   customerType?: 'RETAIL' | 'WHOLESALE' | 'VIP';

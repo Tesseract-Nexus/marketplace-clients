@@ -21,6 +21,7 @@ async function fetchCustomerProfile(tenantId?: string): Promise<{
   dateOfBirth?: string;
   country?: string;
   countryCode?: string;
+  avatarUrl?: string;
   totalOrders?: number;
   totalSpent?: number;
   createdAt?: string;
@@ -136,6 +137,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
                   firstName: sessionUser.firstName || sessionUser.name?.split(' ')[0] || '',
                   lastName: sessionUser.lastName || sessionUser.name?.split(' ').slice(1).join(' ') || '',
                   phone: sessionUser.phone,
+                  avatarUrl: sessionUser.picture,
                   status: 'ACTIVE',
                   customerType: 'RETAIL',
                   totalOrders: 0,
@@ -160,6 +162,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
                 firstName: sessionUser.firstName || sessionUser.name?.split(' ')[0] || '',
                 lastName: sessionUser.lastName || sessionUser.name?.split(' ').slice(1).join(' ') || '',
                 phone: sessionUser.phone,
+                avatarUrl: sessionUser.picture,
                 status: 'ACTIVE',
                 customerType: 'RETAIL',
                 totalOrders: 0,
@@ -186,6 +189,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
                 ...(profile.firstName && { firstName: profile.firstName }),
                 ...(profile.lastName && { lastName: profile.lastName }),
                 ...(profile.createdAt && { createdAt: profile.createdAt }),
+                ...(profile.avatarUrl && { avatarUrl: profile.avatarUrl }),
               });
             }
           }).catch((err) => {

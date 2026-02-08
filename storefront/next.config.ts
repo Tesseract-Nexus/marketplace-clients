@@ -55,6 +55,15 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "*.googleusercontent.com",
       },
+      // Facebook profile pictures (social login)
+      {
+        protocol: "https",
+        hostname: "platform-lookaside.fbsbx.com",
+      },
+      {
+        protocol: "https",
+        hostname: "*.fbcdn.net",
+      },
     ],
     // Allow local API routes serving images
     localPatterns: [
@@ -87,7 +96,7 @@ const nextConfig: NextConfig = {
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://*.razorpay.com",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "img-src 'self' data: blob: https://storage.googleapis.com https://storage.cloud.google.com https://*.storage.googleapis.com https://*.googleusercontent.com https://*.mark8ly.app https://images.unsplash.com https://picsum.photos https://*.blob.core.windows.net",
+      "img-src 'self' data: blob: https://storage.googleapis.com https://storage.cloud.google.com https://*.storage.googleapis.com https://*.googleusercontent.com https://platform-lookaside.fbsbx.com https://*.fbcdn.net https://*.mark8ly.app https://images.unsplash.com https://picsum.photos https://*.blob.core.windows.net",
       "font-src 'self' data: https://fonts.gstatic.com",
       `connect-src 'self' https://*.mark8ly.app https://storage.googleapis.com https://api.stripe.com https://*.razorpay.com https://api.frankfurter.app wss://*.mark8ly.app${devConnectSrc}`,
       "frame-src 'self' https://js.stripe.com https://*.razorpay.com",

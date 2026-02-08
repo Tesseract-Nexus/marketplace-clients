@@ -89,6 +89,10 @@ spec:
         - name: CUSTOMERS_SERVICE_URL
           value: "http://customers-service.default.svc.cluster.local:8080"
 
+        # Document Service (for avatar uploads)
+        - name: DOCUMENT_SERVICE_URL
+          value: "http://document-service.default.svc.cluster.local:8082"
+
         # Reviews Service
         - name: REVIEWS_SERVICE_URL
           value: "http://reviews-service.default.svc.cluster.local:8080"

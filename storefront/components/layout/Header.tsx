@@ -26,6 +26,7 @@ import { useAuthStore } from '@/store/auth';
 import { logout as logoutApi } from '@/lib/api/auth';
 import { useLoyalty } from '@/hooks/useLoyalty';
 import { cn } from '@/lib/utils';
+import { CustomerAvatar } from '@/components/CustomerAvatar';
 import { CurrencySelector } from '@/components/currency/CurrencySelector';
 import { LanguageSelector } from '@/components/language/LanguageSelector';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
@@ -308,9 +309,7 @@ export function Header() {
                 ) : isAuthenticated ? (
                   <div className="p-4 bg-muted/50 border-b">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-full flex items-center justify-center text-sm font-medium text-on-tenant-primary bg-tenant-primary">
-                        {customer?.firstName?.[0]?.toUpperCase() || 'U'}
-                      </div>
+                      <CustomerAvatar className="h-10 w-10" />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">{customer?.firstName} {customer?.lastName}</p>
                         <p className="text-xs text-muted-foreground truncate">{customer?.email}</p>
@@ -709,9 +708,7 @@ export function Header() {
                       {isAuthLoading ? (
                         <div className="h-7 w-7 rounded-full bg-muted animate-pulse" />
                       ) : isAuthenticated ? (
-                        <div className="h-7 w-7 rounded-full flex items-center justify-center text-xs font-medium text-on-tenant-primary bg-tenant-primary">
-                          {customer?.firstName?.[0]?.toUpperCase() || 'U'}
-                        </div>
+                        <CustomerAvatar className="h-7 w-7 text-xs" />
                       ) : (
                         <User className="h-5 w-5" />
                       )}

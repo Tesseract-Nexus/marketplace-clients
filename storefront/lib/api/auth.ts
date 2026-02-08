@@ -64,6 +64,7 @@ export interface SessionResponse {
     tenantId?: string;
     tenantSlug?: string;
     roles?: string[];
+    picture?: string; // Social login profile picture URL from Keycloak
   };
   expiresAt?: number;
   csrfToken?: string;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Camera, Mail, Phone, Edit2, Check, X, Loader2, MapPin, Plus, Trash2, Home, Building, Tag, Pencil, Calendar, Copy, Share2, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,7 @@ import {
 } from '@/lib/api/customers';
 import { AddressAutocomplete, type ParsedAddressData } from '@/components/AddressAutocomplete';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
+import { CustomerAvatar } from '@/components/CustomerAvatar';
 import { useLoyalty } from '@/hooks/useLoyalty';
 
 export default function AccountPage() {
@@ -29,6 +30,8 @@ export default function AccountPage() {
   const formatPrice = useFormatPrice();
   const { customerLoyalty, program } = useLoyalty();
   const wishlistItems = useWishlistStore((state) => state.items);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [copiedReferral, setCopiedReferral] = useState(false);
@@ -328,6 +331,53 @@ export default function AccountPage() {
     ? `${customer.firstName?.[0] || ''}${customer.lastName?.[0] || ''}`.toUpperCase()
     : '?';
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      toast.error('Invalid file type. Only JPEG, PNG, and WebP are allowed.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File too large. Maximum size is 5MB.');
+      return;
+    }
+
+    setIsUploadingAvatar(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/auth/avatar', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+        headers: {
+          'X-Tenant-ID': tenantId,
+        },
+      });
+
+      const result = await response.json();
+      if (result.success && result.data?.avatarUrl) {
+        updateCustomer({ avatarUrl: result.data.avatarUrl });
+        toast.success('Profile picture updated');
+      } else {
+        toast.error(result.error || 'Failed to upload profile picture');
+      }
+    } catch (error) {
+      console.error('Avatar upload error:', error);
+      toast.error('Failed to upload profile picture');
+    } finally {
+      setIsUploadingAvatar(false);
+      // Reset input so re-selecting the same file triggers onChange
+      if (avatarInputRef.current) {
+        avatarInputRef.current.value = '';
+      }
+    }
+  };
+
   const handleSave = async () => {
     // Check for customer instead of accessToken (OAuth uses session cookies)
     if (!customer?.id || !tenantId) return;
@@ -375,18 +425,31 @@ export default function AccountPage() {
       <div className="bg-card rounded-xl border p-6">
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="relative">
-            <div
-              className="w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold"
-              style={{ background: settings.primaryColor }}
-            >
-              {initials}
-            </div>
+            <CustomerAvatar
+              className="w-24 h-24 text-3xl"
+              fallbackStyle={{ background: settings.primaryColor }}
+              fallbackBgClass=""
+              fallbackTextColorClass="text-white"
+            />
+            <input
+              ref={avatarInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={handleAvatarUpload}
+            />
             <Button
               size="icon"
               variant="secondary"
               className="absolute bottom-0 right-0 h-8 w-8 rounded-full shadow-lg"
+              onClick={() => avatarInputRef.current?.click()}
+              disabled={isUploadingAvatar}
             >
-              <Camera className="h-4 w-4" />
+              {isUploadingAvatar ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Camera className="h-4 w-4" />
+              )}
             </Button>
           </div>
 

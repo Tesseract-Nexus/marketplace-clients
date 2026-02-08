@@ -10,6 +10,7 @@ import { useTenant, useNavPath } from '@/context/TenantContext';
 import { useAuthStore } from '@/store/auth';
 import { logout as logoutApi } from '@/lib/api/auth';
 import { cn } from '@/lib/utils';
+import { CustomerAvatar } from '@/components/CustomerAvatar';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 
 const accountNavItems = [
@@ -78,11 +79,7 @@ export function AccountLayoutClient({ children }: { children: React.ReactNode })
           <div className="lg:col-span-1">
             <div className="bg-card rounded-xl border p-4 sticky top-24">
               <div className="flex items-center gap-3 p-3 mb-4">
-                <div
-                  className="w-12 h-12 rounded-full flex items-center justify-center text-on-tenant-primary font-bold bg-tenant-primary"
-                >
-                  {initials}
-                </div>
+                <CustomerAvatar className="w-12 h-12" />
                 <div className="min-w-0">
                   <p className="font-semibold truncate">
                     {customer?.firstName} {customer?.lastName}
