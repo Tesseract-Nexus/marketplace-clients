@@ -33,6 +33,7 @@ export interface StaffFormData {
   longitude?: number;
   formattedAddress: string;
   placeId: string;
+  profilePhotoUrl: string;
 }
 
 export const initialFormData: StaffFormData = {
@@ -68,6 +69,7 @@ export const initialFormData: StaffFormData = {
   longitude: undefined,
   formattedAddress: '',
   placeId: '',
+  profilePhotoUrl: '',
 };
 
 export interface StaffFormStepProps {

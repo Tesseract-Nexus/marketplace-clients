@@ -1,8 +1,10 @@
 'use client';
 
 import React from 'react';
+import { X } from 'lucide-react';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { AddressAutocomplete, ParsedAddressData } from '@/components/AddressAutocomplete';
+import MediaUploader, { MediaItem } from '@/components/MediaUploader';
 import { StaffFormStepProps } from './types';
 
 export function StaffFormStep1({ formData, setFormData }: StaffFormStepProps) {
@@ -30,6 +32,46 @@ export function StaffFormStep1({ formData, setFormData }: StaffFormStepProps) {
       <h2 className="text-2xl font-bold flex items-center gap-2 text-primary">
         Personal Information
       </h2>
+
+      {/* Profile Photo */}
+      <div>
+        <label className="block text-sm font-medium text-foreground mb-2">
+          Profile Photo
+        </label>
+        {formData.profilePhotoUrl ? (
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <img
+                src={formData.profilePhotoUrl}
+                alt="Profile"
+                className="w-20 h-20 rounded-full object-cover border-2 border-primary shadow-md"
+              />
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, profilePhotoUrl: '' })}
+                className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full p-0.5 hover:bg-destructive/90 transition-colors"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <p className="text-sm text-muted-foreground">Click the X to remove and upload a new photo.</p>
+          </div>
+        ) : (
+          <MediaUploader
+            type="image"
+            entityType="staff"
+            entityId="temp"
+            value={[]}
+            maxItems={1}
+            maxSizeBytes={2 * 1024 * 1024}
+            onChange={(items: MediaItem[]) => {
+              if (items.length > 0) {
+                setFormData({ ...formData, profilePhotoUrl: items[0].url });
+              }
+            }}
+          />
+        )}
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>

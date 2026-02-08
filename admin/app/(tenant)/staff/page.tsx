@@ -405,6 +405,7 @@ export default function StaffPage() {
       longitude: staffMember.longitude,
       formattedAddress: staffMember.formattedAddress || '',
       placeId: staffMember.placeId || '',
+      profilePhotoUrl: staffMember.profilePhotoUrl || '',
     });
     setCurrentStep(1);
     setViewMode('edit');

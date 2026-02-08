@@ -941,7 +941,18 @@ export default function ProductsPage() {
           ...formData,
           vendorId: currentTenant?.id || '',
         } as CreateProductRequest;
-        await productService.createProduct(createData);
+        const response = await productService.createProduct(createData);
+        if (response.data) {
+          const createdProduct = response.data;
+          setSelectedProduct(createdProduct);
+          setViewMode('edit');
+          setCurrentStep(4); // Jump to Media & Tags step
+          navigateToProduct(createdProduct.id, 'edit');
+          toast.success('Product Created', `${formData.name} has been created. You can now upload images.`);
+          await loadProducts();
+          setErrors({});
+          return; // Stay on form — don't navigate to list
+        }
         toast.success('Product Created', `${formData.name} has been created successfully`);
       } else if (viewMode === 'edit' && selectedProduct) {
         await productService.updateProduct(
@@ -2511,16 +2522,21 @@ export default function ProductsPage() {
 
                       {/* Upload Area */}
                       {!selectedProduct ? (
-                        // Create mode - show message to save first
-                        <div className="border-2 border-dashed border-warning/50 rounded-xl p-8 text-center bg-warning-muted">
-                          <AlertTriangle className="h-12 w-12 text-warning mx-auto mb-4" />
-                          <p className="text-lg text-warning-muted-foreground font-bold mb-2">Save Product First</p>
-                          <p className="text-sm text-warning-muted-foreground mb-4">
-                            Please complete the product details and save the product before uploading images.
+                        // Create mode - prompt to save product first
+                        <div className="border-2 border-dashed border-primary/50 rounded-xl p-8 text-center bg-primary/5">
+                          <ImageIcon className="h-12 w-12 text-primary mx-auto mb-4" />
+                          <p className="text-lg text-foreground font-bold mb-2">Ready to Add Images</p>
+                          <p className="text-sm text-muted-foreground mb-4">
+                            Save your product first, then you&apos;ll be able to upload images.
                           </p>
-                          <p className="text-xs text-warning-muted-foreground">
-                            This ensures images are properly organized with your product.
-                          </p>
+                          <button
+                            type="button"
+                            onClick={handleSaveProduct}
+                            disabled={!formData.name || !formData.sku}
+                            className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Save Product & Add Images
+                          </button>
                         </div>
                       ) : (
                         // Edit mode - allow uploads with drag and drop

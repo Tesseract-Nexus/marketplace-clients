@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { MediaLimits, DefaultMediaURLs } from '@/lib/api/types';
 
 export type MediaType = 'image' | 'video' | 'logo' | 'banner' | 'icon' | 'gallery';
-export type EntityType = 'product' | 'category' | 'warehouse';
+export type EntityType = 'product' | 'category' | 'warehouse' | 'staff';
 
 export interface MediaItem {
   id: string;

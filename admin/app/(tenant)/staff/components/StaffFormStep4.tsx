@@ -27,6 +27,12 @@ export function StaffFormStep4({ formData }: StaffFormStepProps) {
       <div className="bg-muted p-8 rounded-2xl border-2 border-primary/30">
         <h3 className="text-lg font-semibold mb-6 text-foreground">Staff Member Summary</h3>
 
+        {formData.profilePhotoUrl && (
+          <div className="flex justify-center mb-6">
+            <img src={formData.profilePhotoUrl} alt="Profile" className="w-20 h-20 rounded-full object-cover border-2 border-primary shadow-md" />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Personal Info */}
           <div className="space-y-4">

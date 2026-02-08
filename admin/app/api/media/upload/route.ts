@@ -108,9 +108,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<MediaUplo
       );
     }
 
-    if (!entityType || !['product', 'category', 'warehouse'].includes(entityType)) {
+    if (!entityType || !['product', 'category', 'warehouse', 'staff'].includes(entityType)) {
       return NextResponse.json(
-        { success: false, message: 'Invalid entity type. Must be: product, category, or warehouse' },
+        { success: false, message: 'Invalid entity type. Must be: product, category, warehouse, or staff' },
         { status: 400 }
       );
     }

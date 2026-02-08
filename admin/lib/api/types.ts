@@ -593,6 +593,7 @@ export interface UpdateStaffRequest {
   jobTitle?: string;
   salary?: number;
   isActive?: boolean;
+  profilePhotoUrl?: string;
   // Address fields
   streetAddress?: string;
   streetAddress2?: string;
