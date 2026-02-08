@@ -1702,18 +1702,11 @@ export default function OnboardingPage() {
             onClick={() => router.push('/')}
             className="flex items-center hover:opacity-80 transition-opacity"
           >
-            <div className="relative">
-              {/* Dark gradient behind logo for white text readability */}
-              <div
-                className="absolute bottom-0 left-0 right-0 h-[45%] rounded-b-lg z-0"
-                style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.4) 60%, transparent 100%)' }}
-              />
-              <img
-                src="/logo.png"
-                alt="mark8ly"
-                className="h-16 w-auto object-contain relative z-10"
-              />
-            </div>
+            <img
+              src="/logo.png"
+              alt="mark8ly"
+              className="h-14 w-auto object-contain"
+            />
           </button>
 
           <div className="flex items-center gap-4">
