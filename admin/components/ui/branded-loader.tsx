@@ -17,10 +17,10 @@ interface BrandedLoaderProps {
 }
 
 const sizeConfig = {
-  sm: { icon: 40, logo: 80, border: 56, borderWidth: 2, text: 'text-xs' },
-  md: { icon: 56, logo: 112, border: 72, borderWidth: 3, text: 'text-sm' },
-  lg: { icon: 72, logo: 144, border: 96, borderWidth: 3, text: 'text-base' },
-  xl: { icon: 96, logo: 192, border: 120, borderWidth: 4, text: 'text-lg' },
+  sm: { icon: 40, logo: 48, border: 56, borderWidth: 2, text: 'text-xs' },
+  md: { icon: 56, logo: 64, border: 72, borderWidth: 3, text: 'text-sm' },
+  lg: { icon: 72, logo: 80, border: 96, borderWidth: 3, text: 'text-base' },
+  xl: { icon: 96, logo: 104, border: 120, borderWidth: 4, text: 'text-lg' },
 };
 
 /**
@@ -90,15 +90,8 @@ function FullLogoLoader({ size = 96, borderSize = 120, borderWidth = 4 }: { size
           }}
         />
 
-        {/* Logo image - centered */}
-        <img
-          src="/logo.png"
-          alt=""
-          width={size}
-          height={size}
-          className="object-contain relative z-10"
-          aria-hidden="true"
-        />
+        {/* Icon - centered */}
+        <Mark8lyIcon size={size} className="relative z-10" />
       </div>
     </div>
   );
