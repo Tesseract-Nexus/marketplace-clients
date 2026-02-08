@@ -53,7 +53,7 @@ export default function SecurityCompliancePage() {
                 Strong passwords are your first line of defense. All passwords on mark8ly must meet the following requirements:
               </p>
               <ul className="list-disc pl-6 space-y-2 mt-4">
-                <li>Minimum 12 characters in length</li>
+                <li>Minimum 10 characters in length</li>
                 <li>Must include a mix of uppercase and lowercase letters, numbers, and symbols</li>
                 <li>No common dictionary words or predictable patterns (e.g., "password123")</li>
                 <li>Cannot reuse any of your last 5 passwords</li>
@@ -119,7 +119,6 @@ export default function SecurityCompliancePage() {
               </p>
               <ul className="list-disc pl-6 space-y-2 mt-4">
                 <li><strong>GDPR Compliance:</strong> We follow GDPR principles for data processing, storage, and deletion</li>
-                <li><strong>Data Export:</strong> You can export all your data at any time from the admin panel</li>
                 <li><strong>Account Closure:</strong> Upon account closure, all data is permanently deleted within 90 days</li>
                 <li><strong>Data Minimization:</strong> We only collect and store data necessary to provide our service</li>
                 <li><strong>No Selling Data:</strong> We never sell your data or your customers' data to third parties</li>

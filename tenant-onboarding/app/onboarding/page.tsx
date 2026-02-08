@@ -3735,7 +3735,7 @@ export default function OnboardingPage() {
                             <div>
                               <h3 className="font-serif text-lg font-medium text-foreground mb-2">2. Password Policy</h3>
                               <ul className="list-disc pl-5 space-y-1">
-                                <li>Minimum 12 characters</li>
+                                <li>Minimum 10 characters</li>
                                 <li>Mix of uppercase, lowercase, numbers, and symbols</li>
                                 <li>No common dictionary words or predictable patterns</li>
                                 <li>Cannot reuse your last 5 passwords</li>
@@ -3779,7 +3779,6 @@ export default function OnboardingPage() {
                               <h3 className="font-serif text-lg font-medium text-foreground mb-2">6. Data Protection</h3>
                               <ul className="list-disc pl-5 space-y-1">
                                 <li><strong>GDPR Compliance:</strong> We follow GDPR principles</li>
-                                <li><strong>Data Export:</strong> Export your data at any time</li>
                                 <li><strong>Account Closure:</strong> Data deleted within 90 days of closure</li>
                                 <li><strong>No Selling Data:</strong> We never sell your data to third parties</li>
                               </ul>

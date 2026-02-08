@@ -80,7 +80,7 @@ export function LegalPageClient() {
               Strong passwords are your first line of defense:
             </p>
             <ul className="text-stone-600 dark:text-stone-400 space-y-2 list-disc pl-5">
-              <li>Minimum 12 characters in length</li>
+              <li>Minimum 10 characters in length</li>
               <li>Mix of uppercase, lowercase, numbers, and symbols</li>
               <li>No common dictionary words or predictable patterns</li>
               <li>Cannot reuse any of your last 5 passwords</li>
@@ -152,7 +152,6 @@ export function LegalPageClient() {
             </div>
             <ul className="text-stone-600 dark:text-stone-400 space-y-2 list-disc pl-5">
               <li><strong className="text-[var(--text-primary)]">GDPR Compliance:</strong> We follow GDPR principles for data processing, storage, and deletion</li>
-              <li><strong className="text-[var(--text-primary)]">Data Export:</strong> Export all your data at any time</li>
               <li><strong className="text-[var(--text-primary)]">Account Closure:</strong> All data permanently deleted within 90 days of closure</li>
               <li><strong className="text-[var(--text-primary)]">Data Minimization:</strong> We only collect data necessary to provide our service</li>
               <li><strong className="text-[var(--text-primary)]">No Selling Data:</strong> We never sell data to third parties</li>
