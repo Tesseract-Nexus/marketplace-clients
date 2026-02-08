@@ -107,6 +107,8 @@ export default function OnboardingPage() {
     nextStep,
     setDetectedLocation,
     resetOnboarding,
+    sessionExpired,
+    setSessionExpired,
     // Document state from store
     documents,
     setAddressProofType: setStoreAddressProofType,
@@ -1799,8 +1801,26 @@ export default function OnboardingPage() {
         </div>
       )}
 
+      {/* Session Expired Banner */}
+      {sessionExpired && (
+        <div className="fixed top-16 left-0 right-0 z-40 bg-warm-100 border-b border-warm-200 py-4 px-6">
+          <div className="max-w-5xl mx-auto flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-warm-600" />
+              <p className="text-sm text-foreground">Your previous session has expired. Please start a new application.</p>
+            </div>
+            <button
+              onClick={() => setSessionExpired(false)}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
-      <main className={`pt-32 pb-20 px-6 ${draftRecoveryState.hasDraft ? 'pt-44' : ''}`}>
+      <main className={`pt-32 pb-20 px-6 ${draftRecoveryState.hasDraft || sessionExpired ? 'pt-44' : ''}`}>
         <div className="max-w-3xl mx-auto">
           {/* Progress Steps */}
           <div className="mb-12">

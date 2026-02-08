@@ -103,6 +103,9 @@ export interface OnboardingState {
   // Tenant creation result (populated after successful account setup)
   tenantResult: AccountSetupResponse | null;
 
+  // Session expiry flag (set when rehydration fails with 404)
+  sessionExpired: boolean;
+
   // Actions
   setSessionId: (sessionId: string) => void;
   setCurrentStep: (step: number) => void;
@@ -134,6 +137,9 @@ export interface OnboardingState {
 
   // Tenant result setter
   setTenantResult: (result: AccountSetupResponse) => void;
+
+  // Session expiry
+  setSessionExpired: (expired: boolean) => void;
 
   markStepCompleted: (step: number) => void;
   nextStep: () => void;
@@ -185,6 +191,7 @@ const initialState = {
   totalSteps: 4, // Business Info, Contact Details, Address, Store Setup (Verification removed from steps)
 
   tenantResult: null, // Populated after successful account setup
+  sessionExpired: false,
 };
 
 export const useOnboardingStore = create<OnboardingState>()(
@@ -212,6 +219,7 @@ export const useOnboardingStore = create<OnboardingState>()(
           // Handle field name differences: API returns business_information,
           // contact_information (array), business_addresses (array)
           // while store uses business_info, contact_details, business_address
+          const serverStoreSetup = session.store_setup || sessionAny.store_setup;
           set({
             businessInfo: session.business_info
               || sessionAny.business_information
@@ -224,15 +232,21 @@ export const useOnboardingStore = create<OnboardingState>()(
               || session.address
               || sessionAny.business_addresses?.[0]
               || {},
-            storeSetup: (session.store_setup || sessionAny.store_setup || {}) as Partial<StoreSetupRequest>,
+            // Only overwrite storeSetup from server if it has data.
+            // storeSetup is persisted to sessionStorage and should not be wiped
+            // if the server returns empty (e.g., timing between save and refresh).
+            storeSetup: (serverStoreSetup && Object.keys(serverStoreSetup).length > 0
+              ? serverStoreSetup
+              : state.storeSetup) as Partial<StoreSetupRequest>,
             emailVerified: session.email_verified || sessionAny.email_verified || false,
             phoneVerified: session.phone_verified || sessionAny.phone_verified || false,
           });
         } catch (error) {
           console.error('Failed to rehydrate sensitive data from server:', error);
-          // If session is invalid, reset the store
+          // If session is invalid/expired, reset the store and set expiry flag
+          // Keep _hasHydrated: true to prevent components from getting stuck in loading state
           if ((error as Error).message?.includes('404') || (error as Error).message?.includes('not found')) {
-            set(initialState);
+            set({ ...initialState, _hasHydrated: true, sessionExpired: true });
           }
         }
       },
@@ -317,6 +331,9 @@ export const useOnboardingStore = create<OnboardingState>()(
       // Tenant result setter
       setTenantResult: (tenantResult) => set({ tenantResult }),
 
+      // Session expiry
+      setSessionExpired: (sessionExpired) => set({ sessionExpired }),
+
       // Step management
       markStepCompleted: (step) =>
         set((state) => ({
@@ -379,7 +396,10 @@ export const useOnboardingStore = create<OnboardingState>()(
         // Needed to survive page navigation between verify → setup-password
         totpSecretEncrypted: state.totpSecretEncrypted,
         backupCodeHashes: state.backupCodeHashes,
-        // EXCLUDED: businessInfo, contactDetails, businessAddress, storeSetup
+        // Store setup config (timezone, currency, business_model, subdomain, etc.)
+        // Not PII — configuration data that must survive navigation to setup-password
+        storeSetup: state.storeSetup,
+        // EXCLUDED: businessInfo, contactDetails, businessAddress (PII)
         // EXCLUDED: detectedLocation (contains IP address), documents, tenantResult
       }),
       // Called when hydration is complete - sets _hasHydrated and re-fetches PII

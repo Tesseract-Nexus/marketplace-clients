@@ -47,7 +47,7 @@ function SetupPasswordContent() {
   const sessionIdParam = searchParams.get('session');
   const emailParam = searchParams.get('email');
 
-  const { setTenantResult, sessionId: storeSessionId, storeSetup, contactDetails, totpSecretEncrypted, backupCodeHashes, _hasHydrated } = useOnboardingStore();
+  const { setTenantResult, sessionId: storeSessionId, storeSetup, contactDetails, totpSecretEncrypted, backupCodeHashes, _hasHydrated, rehydrateSensitiveData } = useOnboardingStore();
 
   const [state, setState] = useState<SetupState>('input');
   const [password, setPassword] = useState('');
@@ -61,7 +61,7 @@ function SetupPasswordContent() {
 
   // Use session from URL param or store
   const sessionId = sessionIdParam || storeSessionId;
-  const email = emailParam || '';
+  const email = emailParam || contactDetails.email || '';
 
   // Check password requirements
   const passwordChecks = PASSWORD_REQUIREMENTS.map(req => ({
@@ -72,6 +72,15 @@ function SetupPasswordContent() {
   const passwordsMatch = password === confirmPassword && confirmPassword.length > 0;
   // Only allow submit after store has hydrated (so storeSetup values are available)
   const canSubmit = allRequirementsMet && passwordsMatch && _hasHydrated;
+
+  // Explicitly trigger rehydration if email is missing from URL params
+  // This ensures contactDetails.email is populated from the server
+  useEffect(() => {
+    if (_hasHydrated && sessionId && !emailParam && !contactDetails.email) {
+      devLog('[SetupPassword] Email not in URL params, triggering rehydration for contactDetails');
+      rehydrateSensitiveData();
+    }
+  }, [_hasHydrated, sessionId, emailParam, contactDetails.email, rehydrateSensitiveData]);
 
   // Only redirect if no session after hydration is complete
   useEffect(() => {

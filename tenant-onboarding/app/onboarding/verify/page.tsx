@@ -857,7 +857,28 @@ function VerifyEmailContent() {
         totpInputRefs.current[0]?.focus();
       }
     } catch (error) {
-      setTotpError(error instanceof Error ? error.message : 'Verification failed. Please try again.');
+      const errorMsg = error instanceof Error ? error.message : 'Verification failed. Please try again.';
+      const isSessionExpired = errorMsg.toLowerCase().includes('invalid_mfa_session')
+        || errorMsg.toLowerCase().includes('mfa session')
+        || errorMsg.toLowerCase().includes('session expired')
+        || errorMsg.toLowerCase().includes('session not found');
+
+      if (isSessionExpired && sessionId && email) {
+        // MFA session timed out (5 min TTL) — re-initiate TOTP setup with a new QR code
+        try {
+          const result = await onboardingApi.initiateTotpSetup(sessionId, email);
+          setTotpSetupSession(result.setup_session);
+          setTotpUri(result.totp_uri);
+          setTotpManualKey(result.manual_entry_key);
+          setBackupCodes(result.backup_codes);
+          setTotpError('Session timed out. A new QR code has been generated. Please scan it and try again.');
+        } catch {
+          setTotpError('Session timed out and failed to generate a new QR code. Please refresh the page.');
+        }
+      } else {
+        setTotpError(errorMsg);
+      }
+
       setTotpCode(['', '', '', '', '', '']);
       totpInputRefs.current[0]?.focus();
     } finally {
