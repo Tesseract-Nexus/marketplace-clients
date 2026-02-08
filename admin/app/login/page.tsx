@@ -242,11 +242,11 @@ function LoginPageContent() {
       // Check for MFA requirement
       if (result.mfa_required) {
         setMfaSession(result.mfa_session || null);
-        const methods = (result as unknown as { mfa_methods?: string[] }).mfa_methods || ['email'];
+        // Always offer both TOTP and email methods — TOTP as default to reduce email costs
+        const serverMethods = (result as unknown as { mfa_methods?: string[] }).mfa_methods || [];
+        const methods = Array.from(new Set(['totp', 'email', ...serverMethods]));
         setMfaMethods(methods);
-        // Default to TOTP if available, otherwise email
-        const defaultMethod = methods.includes('totp') ? 'totp' : 'email';
-        setActiveMfaMethod(defaultMethod as 'totp' | 'email');
+        setActiveMfaMethod('totp');
         setStep('mfa');
         setIsLoading(false);
         return;
@@ -649,52 +649,50 @@ function LoginPageContent() {
               )}
             </div>
 
-            {/* Method tabs */}
-            {mfaMethods.length > 1 && (
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (activeMfaMethod === 'email') return;
-                    setActiveMfaMethod('email');
-                    setMfaCode('');
-                    setError(null);
-                    if (mfaSession) {
-                      sendMfaCode(mfaSession, 'email').then(() => {
-                        setResendCooldown(60);
-                      }).catch(() => {});
-                    }
-                  }}
-                  className={cn(
-                    'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 border',
-                    activeMfaMethod === 'email'
-                      ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
-                      : 'bg-transparent text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
-                  )}
-                >
-                  <Mail className="h-4 w-4" />
-                  Email OTP
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (activeMfaMethod === 'totp') return;
-                    setActiveMfaMethod('totp');
-                    setMfaCode('');
-                    setError(null);
-                  }}
-                  className={cn(
-                    'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 border',
-                    activeMfaMethod === 'totp'
-                      ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
-                      : 'bg-transparent text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
-                  )}
-                >
-                  <Smartphone className="h-4 w-4" />
-                  Authenticator
-                </button>
-              </div>
-            )}
+            {/* Method tabs — always show both options */}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  if (activeMfaMethod === 'email') return;
+                  setActiveMfaMethod('email');
+                  setMfaCode('');
+                  setError(null);
+                  if (mfaSession) {
+                    sendMfaCode(mfaSession, 'email').then(() => {
+                      setResendCooldown(60);
+                    }).catch(() => {});
+                  }
+                }}
+                className={cn(
+                  'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 border',
+                  activeMfaMethod === 'email'
+                    ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
+                    : 'bg-transparent text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
+                )}
+              >
+                <Mail className="h-4 w-4" />
+                Email OTP
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  if (activeMfaMethod === 'totp') return;
+                  setActiveMfaMethod('totp');
+                  setMfaCode('');
+                  setError(null);
+                }}
+                className={cn(
+                  'flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-xs font-semibold transition-all duration-200 border',
+                  activeMfaMethod === 'totp'
+                    ? 'bg-primary text-white border-primary shadow-md shadow-primary/20'
+                    : 'bg-transparent text-muted-foreground border-border hover:border-primary/40 hover:text-foreground'
+                )}
+              >
+                <Smartphone className="h-4 w-4" />
+                Authenticator
+              </button>
+            </div>
 
             <div className="space-y-4">
               <OTPInput
