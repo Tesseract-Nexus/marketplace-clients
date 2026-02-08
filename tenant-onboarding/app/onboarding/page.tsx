@@ -117,6 +117,7 @@ export default function OnboardingPage() {
     setAddressProofDocument: setStoreAddressProofDocument,
     setBusinessProofDocument: setStoreBusinessProofDocument,
     setLogoDocument: setStoreLogoDocument,
+    setTotpData,
   } = useOnboardingStore();
 
   const [currentSection, setCurrentSection] = useState(0);
@@ -1639,36 +1640,19 @@ export default function OnboardingPage() {
   }, [sessionId, contactDetails.email, fetchedEmail]);
 
   // Auto-initiate TOTP setup when entering step 4 (MFA only — email verify is post-launch)
+  // Email sources are in deps so this re-fires once rehydrateSensitiveData() completes
   useEffect(() => {
     if (currentSection !== 4) return;
     if (mfaPhase !== 'initiating') return;
     if (!sessionId) return;
 
+    const email = contactForm.getValues('email') || contactDetails.email || fetchedEmail;
+
+    // Email not yet available — wait for rehydration or fetchEmailFromSession to populate it
+    if (!email) return;
+
     const initMfaSetup = async () => {
       try {
-        // Resolve email inline — wizardEmail may be empty due to rehydration race
-        let email = contactForm.getValues('email') || contactDetails.email || fetchedEmail;
-
-        if (!email) {
-          try {
-            const session = await onboardingApi.getOnboardingSession(sessionId);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const sessionAny = session as any;
-            email = session.contact_details?.email
-              || session.contact_info?.email
-              || session.contact_information?.[0]?.email
-              || sessionAny.contact_information?.[0]?.email
-              || sessionAny.draft_form_data?.contactDetails?.email;
-            if (email) setFetchedEmail(email);
-          } catch { /* session fetch failed */ }
-        }
-
-        if (!email) {
-          setMfaError('Unable to resolve your email. Please go back and verify your contact details are saved.');
-          setMfaPhase('mfa_setup');
-          return;
-        }
-
         const result = await onboardingApi.initiateTotpSetup(sessionId, email);
         setTotpSetupSession(result.setup_session);
         setTotpUri(result.totp_uri);
@@ -1681,7 +1665,7 @@ export default function OnboardingPage() {
       }
     };
     initMfaSetup();
-  }, [currentSection, mfaPhase, sessionId]);
+  }, [currentSection, mfaPhase, sessionId, contactDetails.email, fetchedEmail]);
 
   // TOTP input handlers
   const handleTotpInputChange = (index: number, value: string) => {
@@ -1710,6 +1694,10 @@ export default function OnboardingPage() {
     try {
       const result = await onboardingApi.confirmTotpSetup(totpSetupSession, code, sessionId);
       if (result.success) {
+        // Persist TOTP data in store so it's included during account-setup
+        if (result.totp_secret_encrypted && result.backup_code_hashes) {
+          setTotpData(result.totp_secret_encrypted, result.backup_code_hashes);
+        }
         setMfaPhase('backup_codes');
       } else {
         setTotpError(result.message || 'Invalid code. Please try again.');
