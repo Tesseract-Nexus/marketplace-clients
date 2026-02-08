@@ -46,7 +46,6 @@ async function proxyToAuthBff(
   try {
     // Forward headers (especially cookies for session management)
     const headers = new Headers();
-    headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
 
     // Forward cookies from the incoming request
@@ -85,10 +84,13 @@ async function proxyToAuthBff(
     };
 
     // Add body for POST/PUT/PATCH requests
+    // Only set Content-Type: application/json when there's actually a body,
+    // otherwise Fastify rejects with FST_ERR_CTP_EMPTY_JSON_BODY
     if (['POST', 'PUT', 'PATCH'].includes(method)) {
       try {
         const body = await request.text();
         if (body) {
+          headers.set('Content-Type', request.headers.get('content-type') || 'application/json');
           fetchOptions.body = body;
         }
       } catch {
