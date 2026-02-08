@@ -8,7 +8,7 @@ import { SearchableSelect, type SelectOption } from '../../components/Searchable
 import { DocumentsSection } from '../../components/DocumentsSection';
 import { VerificationScore, useVerificationScore } from '../../components/VerificationScore';
 import { type UploadedDocument } from '../../components/DocumentUpload';
-import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldCheck, ShieldAlert, Pencil, X, Eye, EyeOff, Shield, Rocket, SkipForward, Mail, Smartphone, KeyRound, CheckCircle } from 'lucide-react';
+import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldCheck, ShieldAlert, Pencil, X, Eye, EyeOff, Shield, Rocket, SkipForward, Smartphone, KeyRound, CheckCircle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useOnboardingStore, type DetectedLocation, type PersistedDocument } from '../../lib/store/onboarding-store';
 import { businessInfoSchema, contactDetailsSchema, businessAddressSchema, storeSetupSchema, MARKETPLACE_PLATFORMS, type BusinessInfoForm, type ContactDetailsForm, type BusinessAddressForm, type StoreSetupForm } from '../../lib/validations/onboarding';
@@ -87,7 +87,7 @@ const steps = [
   { id: 5, label: 'Launch', icon: Rocket },
 ];
 
-type VerifySecurePhase = 'sending' | 'waiting_email' | 'mfa_setup' | 'backup_codes' | 'done';
+type MfaSetupPhase = 'initiating' | 'mfa_setup' | 'backup_codes' | 'done';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -107,7 +107,6 @@ export default function OnboardingPage() {
     nextStep,
     setDetectedLocation,
     resetOnboarding,
-    setEmailVerified,
     // Document state from store
     documents,
     setAddressProofType: setStoreAddressProofType,
@@ -227,14 +226,9 @@ export default function OnboardingPage() {
     }, 2000);
   }, []);
 
-  // Verify & Secure (step 4) state
-  const [verifySecurePhase, setVerifySecurePhase] = useState<VerifySecurePhase>('sending');
-  const [isVerified, setIsVerified] = useState(false);
-  const [linkSent, setLinkSent] = useState(false);
-  const [verifyError, setVerifyError] = useState('');
-  const [verifySuccess, setVerifySuccess] = useState('');
-  const [resendCooldown, setResendCooldown] = useState(0);
-  const [isResending, setIsResending] = useState(false);
+  // Secure step (step 4) — MFA only, email verification happens post-launch
+  const [mfaPhase, setMfaPhase] = useState<MfaSetupPhase>('initiating');
+  const [mfaError, setMfaError] = useState('');
 
   // TOTP state
   const [totpSetupSession, setTotpSetupSession] = useState('');
@@ -247,6 +241,9 @@ export default function OnboardingPage() {
   const [isTotpVerifying, setIsTotpVerifying] = useState(false);
   const [totpError, setTotpError] = useState('');
   const totpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Resilient email: fallback to session API when store/form data goes stale
+  const [fetchedEmail, setFetchedEmail] = useState('');
 
   // Base domain for subdomain-based store URL display (fetched from runtime config)
   // URL format: {subdomain}-admin.{baseDomain}
@@ -1567,13 +1564,13 @@ export default function OnboardingPage() {
       });
       nextStep();
 
-      // Email verification + MFA already completed in step 4 (Verify & Secure)
-      // Navigate directly to password setup
-      const params = new URLSearchParams();
-      if (sessionId) params.set('session', sessionId);
-      const emailForSetup = contactDetails.email || contactForm.getValues('email');
-      if (emailForSetup) params.set('email', emailForSetup as string);
-      router.push(`/onboarding/setup-password?${params.toString()}`);
+      // MFA completed in step 4, now send to email verification (post-launch)
+      const verifyParams = new URLSearchParams();
+      if (sessionId) verifyParams.set('session', sessionId);
+      // Use resilient email: form → store → fetched from session API
+      const emailForVerify = contactForm.getValues('email') || contactDetails.email || fetchedEmail;
+      if (emailForVerify) verifyParams.set('email', emailForVerify as string);
+      router.push(`/onboarding/verify?${verifyParams.toString()}`);
     } catch (error) {
       // Use OnboardingAPIError for better error handling
       if (error instanceof OnboardingAPIError) {
@@ -1588,128 +1585,57 @@ export default function OnboardingPage() {
     } finally { setIsLoading(false); }
   };
 
-  // Derive email for verify step (always available in wizard since user filled it in step 0b)
-  const wizardEmail = contactDetails.email || contactForm.getValues('email');
+  // Derive email — resilient: form → store → session API fallback
+  const wizardEmail = contactForm.getValues('email') || contactDetails.email || fetchedEmail;
 
-  // Auto-send email verification when entering step 4
+  // Fetch email from session API when store/form data is stale (e.g. page idle for minutes)
   useEffect(() => {
-    if (currentSection !== 4) return;
-    if (verifySecurePhase !== 'sending') return;
-    if (!sessionId || !wizardEmail) return;
+    // Only fetch if we don't already have email from form or store
+    if (contactForm.getValues('email') || contactDetails.email || fetchedEmail) return;
+    if (!sessionId) return;
 
-    const sendLink = async () => {
+    const fetchEmailFromSession = async () => {
       try {
-        await onboardingApi.sendEmailVerification(sessionId, wizardEmail);
-        setLinkSent(true);
-        setVerifySuccess('Verification link sent to your email');
-        setVerifySecurePhase('waiting_email');
-      } catch {
-        setVerifyError('Failed to send verification email. Please try resending.');
-        setVerifySecurePhase('waiting_email');
+        const session = await onboardingApi.getOnboardingSession(sessionId);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sessionAny = session as any;
+        const sessionEmail = session.contact_details?.email
+          || session.contact_info?.email
+          || session.contact_information?.[0]?.email
+          || sessionAny.draft_form_data?.contactDetails?.email;
+        if (sessionEmail) {
+          devLog('[Onboarding] Email recovered from session API:', sessionEmail);
+          setFetchedEmail(sessionEmail);
+        }
+      } catch (error) {
+        devError('[Onboarding] Failed to fetch email from session API:', error);
       }
     };
-    sendLink();
-  }, [currentSection, verifySecurePhase, sessionId, wizardEmail]);
 
-  // SSE listener for email verification
+    fetchEmailFromSession();
+  }, [sessionId, contactDetails.email, fetchedEmail]);
+
+  // Auto-initiate TOTP setup when entering step 4 (MFA only — email verify is post-launch)
   useEffect(() => {
     if (currentSection !== 4) return;
-    if (verifySecurePhase !== 'waiting_email') return;
-    if (!sessionId || !wizardEmail || isVerified) return;
-
-    let eventSource: EventSource | null = null;
-    let reconnectAttempts = 0;
-    const maxReconnectAttempts = 5;
-
-    const connectSSE = () => {
-      const sseUrl = `/api/onboarding/${sessionId}/events`;
-      devLog('[SSE] Connecting to', sseUrl);
-      eventSource = new EventSource(sseUrl);
-
-      eventSource.onopen = () => {
-        devLog('[SSE] Connected to session events');
-        reconnectAttempts = 0;
-      };
-
-      const handleVerified = (event: MessageEvent) => {
-        devLog('[SSE] Received verification event:', event.data);
-        try {
-          const data = JSON.parse(event.data);
-          if (data.verified || data.session_id === sessionId) {
-            setIsVerified(true);
-            setEmailVerified(true);
-            setVerifySuccess('Email verified successfully!');
-            eventSource?.close();
-          }
-        } catch (error) {
-          devError('[SSE] Failed to parse event data:', error);
-        }
-      };
-
-      eventSource.addEventListener('session.completed', handleVerified);
-      eventSource.addEventListener('session.verified', handleVerified);
-      eventSource.addEventListener('connected', (event) => devLog('[SSE] Connection confirmed:', event.data));
-      eventSource.addEventListener('ping', () => devLog('[SSE] Ping received'));
-
-      eventSource.onerror = () => {
-        eventSource?.close();
-        if (reconnectAttempts < maxReconnectAttempts && !isVerified) {
-          reconnectAttempts++;
-          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
-          setTimeout(connectSSE, delay);
-        } else {
-          // Fallback to polling
-          const pollInterval = setInterval(async () => {
-            try {
-              const status = await onboardingApi.getVerificationStatus(sessionId, wizardEmail);
-              if (status.is_verified) {
-                setIsVerified(true);
-                setEmailVerified(true);
-                setVerifySuccess('Email verified successfully!');
-                clearInterval(pollInterval);
-              }
-            } catch {
-              devLog('[Polling] Checking verification status...');
-            }
-          }, 3000);
-        }
-      };
-    };
-
-    connectSSE();
-    return () => { eventSource?.close(); };
-  }, [currentSection, verifySecurePhase, sessionId, wizardEmail, isVerified, setEmailVerified]);
-
-  // Transition to MFA setup after email verified
-  useEffect(() => {
-    if (!isVerified || verifySecurePhase !== 'waiting_email') return;
-
-    setVerifySecurePhase('mfa_setup');
-    setVerifyError('');
-    setVerifySuccess('');
+    if (mfaPhase !== 'initiating') return;
+    if (!sessionId || !wizardEmail) return;
 
     const initMfaSetup = async () => {
       try {
-        const result = await onboardingApi.initiateTotpSetup(sessionId!, wizardEmail);
+        const result = await onboardingApi.initiateTotpSetup(sessionId, wizardEmail);
         setTotpSetupSession(result.setup_session);
         setTotpUri(result.totp_uri);
         setTotpManualKey(result.manual_entry_key);
         setBackupCodes(result.backup_codes);
+        setMfaPhase('mfa_setup');
       } catch {
-        setVerifyError('Failed to set up authenticator. Please try again.');
+        setMfaError('Failed to set up authenticator. Please try again.');
+        setMfaPhase('mfa_setup'); // show error state in mfa_setup phase
       }
     };
     initMfaSetup();
-  }, [isVerified, verifySecurePhase, sessionId, wizardEmail]);
-
-  // Resend cooldown timer
-  useEffect(() => {
-    if (resendCooldown <= 0) return;
-    const interval = setInterval(() => {
-      setResendCooldown(prev => prev - 1);
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [resendCooldown]);
+  }, [currentSection, mfaPhase, sessionId, wizardEmail]);
 
   // TOTP input handlers
   const handleTotpInputChange = (index: number, value: string) => {
@@ -1738,7 +1664,7 @@ export default function OnboardingPage() {
     try {
       const result = await onboardingApi.confirmTotpSetup(totpSetupSession, code, sessionId);
       if (result.success) {
-        setVerifySecurePhase('backup_codes');
+        setMfaPhase('backup_codes');
       } else {
         setTotpError(result.message || 'Invalid code. Please try again.');
         setTotpCode(['', '', '', '', '', '']);
@@ -1771,25 +1697,9 @@ export default function OnboardingPage() {
   };
 
   const handleBackupCodesAcknowledged = () => {
-    setVerifySecurePhase('done');
+    setMfaPhase('done');
     // Auto-advance to Launch step after a brief moment
     setTimeout(() => setCurrentSection(5), 800);
-  };
-
-  const handleResendVerification = async () => {
-    if (!sessionId || !wizardEmail) return;
-    setIsResending(true);
-    setVerifyError('');
-    setVerifySuccess('');
-    try {
-      await onboardingApi.resendVerificationCode(sessionId, wizardEmail);
-      setLinkSent(true);
-      setVerifySuccess('Verification link sent successfully!');
-      setResendCooldown(60);
-    } catch (error) {
-      setVerifyError(error instanceof Error ? error.message : 'Failed to resend verification. Please try again.');
-    }
-    setIsResending(false);
   };
 
   const progress = ((currentSection + 1) / steps.length) * 100;
@@ -2434,8 +2344,8 @@ export default function OnboardingPage() {
                           <Shield className="w-6 h-6 text-warm-600" />
                         </div>
                         <div>
-                          <h1 className="text-2xl font-serif font-medium text-foreground">Verify & Secure</h1>
-                          <p className="text-muted-foreground">Verify your email and set up two-factor authentication</p>
+                          <h1 className="text-2xl font-serif font-medium text-foreground">Secure Your Account</h1>
+                          <p className="text-muted-foreground">Set up two-factor authentication to protect your store</p>
                         </div>
                       </div>
                     </div>
@@ -3476,97 +3386,35 @@ export default function OnboardingPage() {
                       </>
                     )}
 
-                    {/* Section 4: Verify & Secure */}
+                    {/* Section 4: Secure (MFA Setup) — email verification happens post-launch */}
                     {currentSection === 4 && (
                       <>
-                        {verifySecurePhase === 'sending' && (
+                        {mfaPhase === 'initiating' && (
                           <div className="text-center py-12">
                             <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 animate-pulse shadow-sm">
                               <Loader2 className="w-10 h-10 text-warm-600 animate-spin" />
                             </div>
-                            <h2 className="text-xl font-serif font-medium text-foreground mb-2">Sending verification link...</h2>
-                            <p className="text-muted-foreground">Please wait while we send a verification email</p>
+                            <h2 className="text-xl font-serif font-medium text-foreground mb-2">Setting Up Authenticator</h2>
+                            <p className="text-muted-foreground">Please wait...</p>
                           </div>
                         )}
 
-                        {verifySecurePhase === 'waiting_email' && (
-                          <div className="text-center">
-                            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
-                              <Mail className="w-10 h-10 text-warm-600" />
-                            </div>
-                            <h2 className="text-xl font-serif font-medium text-foreground mb-4">Check Your Email</h2>
-                            <div className="bg-warm-50 border border-warm-200 rounded-2xl p-4 mb-6">
-                              <p className="text-muted-foreground">
-                                We've sent a verification link to
-                              </p>
-                              <p className="font-semibold text-primary mt-2">{wizardEmail}</p>
-                            </div>
-
-                            <div className="space-y-4">
-                              {verifyError && (
-                                <div className="bg-warm-50 border border-warm-200 rounded-2xl p-4">
-                                  <div className="flex items-center gap-2 text-warm-600">
-                                    <AlertCircle className="w-4 h-4" />
-                                    <span className="text-sm font-medium">{verifyError}</span>
-                                  </div>
-                                </div>
-                              )}
-
-                              {verifySuccess && (
-                                <div className="bg-warm-50 border border-warm-200 rounded-2xl p-4">
-                                  <div className="flex items-center gap-2 text-warm-600">
-                                    <CheckCircle className="w-4 h-4" />
-                                    <span className="text-sm font-medium">{verifySuccess}</span>
-                                  </div>
-                                </div>
-                              )}
-
-                              <div className="bg-warm-50 border border-warm-200 rounded-2xl p-6">
-                                <div className="flex items-center justify-center gap-3 mb-4">
-                                  <ExternalLink className="w-5 h-5 text-primary" />
-                                  <span className="font-medium text-foreground">Click the link in your email</span>
-                                </div>
-                                <p className="text-sm text-muted-foreground">
-                                  Open your email inbox and click on the verification link we sent you. The link will expire in 24 hours.
-                                </p>
-                              </div>
-
-                              <div className="bg-warm-50 border border-warm-200 rounded-2xl p-6">
-                                <p className="text-sm text-muted-foreground mb-4">
-                                  Didn't receive the email?
-                                </p>
-                                <button
-                                  type="button"
-                                  onClick={handleResendVerification}
-                                  disabled={isResending || resendCooldown > 0}
-                                  className={`w-full py-3 px-6 rounded-xl font-medium transition-all duration-300 flex items-center justify-center border border-border hover:bg-secondary ${
-                                    (isResending || resendCooldown > 0) ? 'opacity-50 cursor-not-allowed' : ''
-                                  }`}
-                                >
-                                  {isResending ? (
-                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending...</>
-                                  ) : (
-                                    <><RefreshCw className="mr-2 h-4 w-4" /> {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend Verification Link'}</>
-                                  )}
-                                </button>
-                              </div>
-
-                              <p className="text-sm text-muted-foreground">
-                                Make sure to check your spam folder if you don't see the email.
-                              </p>
-                            </div>
-                          </div>
-                        )}
-
-                        {verifySecurePhase === 'mfa_setup' && (
+                        {mfaPhase === 'mfa_setup' && (
                           <div className="text-center">
                             {!totpUri ? (
                               <>
-                                <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 animate-pulse shadow-sm">
-                                  <Loader2 className="w-10 h-10 text-warm-600 animate-spin" />
+                                <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
+                                  <AlertCircle className="w-10 h-10 text-warm-600" />
                                 </div>
-                                <h2 className="text-xl font-serif font-medium text-foreground mb-2">Setting Up Authenticator</h2>
-                                <p className="text-muted-foreground">Please wait...</p>
+                                <h2 className="text-xl font-serif font-medium text-foreground mb-2">Setup Error</h2>
+                                <p className="text-muted-foreground mb-6">{mfaError || 'Failed to set up authenticator.'}</p>
+                                <button
+                                  type="button"
+                                  onClick={() => { setMfaError(''); setMfaPhase('initiating'); }}
+                                  className="px-6 py-3 rounded-lg font-medium border border-border hover:bg-secondary transition-colors flex items-center justify-center gap-2 mx-auto"
+                                >
+                                  <RefreshCw className="w-4 h-4" /> Try Again
+                                </button>
                               </>
                             ) : (
                               <>
@@ -3604,15 +3452,6 @@ export default function OnboardingPage() {
                                     <div className="flex items-center gap-2 text-warm-600">
                                       <AlertCircle className="w-4 h-4" />
                                       <span className="text-sm font-medium">{totpError}</span>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {verifyError && (
-                                  <div className="bg-warm-50 border border-warm-200 rounded-2xl p-4 mb-6">
-                                    <div className="flex items-center gap-2 text-warm-600">
-                                      <AlertCircle className="w-4 h-4" />
-                                      <span className="text-sm font-medium">{verifyError}</span>
                                     </div>
                                   </div>
                                 )}
@@ -3659,7 +3498,7 @@ export default function OnboardingPage() {
                           </div>
                         )}
 
-                        {verifySecurePhase === 'backup_codes' && (
+                        {mfaPhase === 'backup_codes' && (
                           <div className="text-center">
                             <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
                               <KeyRound className="w-10 h-10 text-warm-600" />
@@ -3714,18 +3553,18 @@ export default function OnboardingPage() {
                           </div>
                         )}
 
-                        {verifySecurePhase === 'done' && (
+                        {mfaPhase === 'done' && (
                           <div className="text-center py-12">
                             <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
                               <CheckCircle className="w-10 h-10 text-warm-600" />
                             </div>
                             <h2 className="text-xl font-serif font-medium text-foreground mb-2">All Set!</h2>
-                            <p className="text-muted-foreground">Your account is verified and secured. Moving to launch...</p>
+                            <p className="text-muted-foreground">Your account is secured. Moving to launch...</p>
                           </div>
                         )}
 
-                        {/* Section 4: Back button (only show during waiting/sending phases) */}
-                        {(verifySecurePhase === 'sending' || verifySecurePhase === 'waiting_email') && (
+                        {/* Section 4: Back button (only during initiating/mfa_setup) */}
+                        {(mfaPhase === 'initiating' || (mfaPhase === 'mfa_setup' && !totpUri)) && (
                           <div className="pt-6">
                             <button
                               type="button"
@@ -3780,20 +3619,20 @@ export default function OnboardingPage() {
                             </div>
                           </div>
 
-                          {/* Verification checkmarks */}
+                          {/* Security checkmarks */}
                           <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
                             <div className="flex items-center gap-3 mb-3">
                               <ShieldCheck className="w-5 h-5 text-sage-600" />
-                              <span className="font-medium text-foreground">Security Verified</span>
+                              <span className="font-medium text-foreground">Account Secured</span>
                             </div>
                             <div className="grid gap-2 text-sm">
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Email Verified</span>
+                                <span className="text-muted-foreground">Authenticator Configured</span>
                                 <span className="text-sage-600 font-medium flex items-center gap-1"><Check className="w-4 h-4" /> Done</span>
                               </div>
                               <div className="flex justify-between">
-                                <span className="text-muted-foreground">Authenticator Configured</span>
-                                <span className="text-sage-600 font-medium flex items-center gap-1"><Check className="w-4 h-4" /> Done</span>
+                                <span className="text-muted-foreground">Email Verification</span>
+                                <span className="text-muted-foreground text-xs">After launch</span>
                               </div>
                             </div>
                           </div>
