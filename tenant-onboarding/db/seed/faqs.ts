@@ -17,7 +17,7 @@ const faqsData = [
   },
   {
     question: 'What happens after the 12 months free?',
-    answer: "After your free year, it's just ₹299/month. That's it—no hidden fees, no transaction costs from us, no surprises. And you can cancel anytime.",
+    answer: "After your free year, it's just ₹499/month. That's it—no hidden fees, no transaction costs from us, no surprises. And you can cancel anytime.",
     categorySlug: 'pricing',
     pageContext: 'home',
     sortOrder: 1,

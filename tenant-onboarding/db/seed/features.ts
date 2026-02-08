@@ -45,7 +45,7 @@ const featuresData = [
   },
   {
     title: 'Free for 12 Months',
-    description: 'Start selling today, completely free. Then just ₹299/month.',
+    description: 'Start selling today, completely free. Then just ₹499/month.',
     iconName: 'Gift',
     category: 'value',
     pageContext: 'about',

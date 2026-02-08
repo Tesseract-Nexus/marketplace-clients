@@ -48,7 +48,7 @@ export default function PricingPage() {
   // Extract pricing info from payment plans
   const freePlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'free-trial');
   const proPlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'pro');
-  const monthlyPrice = proPlan?.price ? `₹${Math.round(parseFloat(proPlan.price))}` : '₹299';
+  const monthlyPrice = proPlan?.price ? `₹${Math.round(parseFloat(proPlan.price))}` : '₹499';
   const trialMonths = freePlan?.trialDays ? Math.round(freePlan.trialDays / 30) : 12;
   const pricingFeatures = freePlan?.features?.length
     ? freePlan.features.map((f) => f.feature)

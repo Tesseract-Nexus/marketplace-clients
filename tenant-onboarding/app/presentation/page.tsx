@@ -125,8 +125,8 @@ interface PresentationContentResponse {
 // ===========================================
 
 // Fallback pricing (matching home page style)
-const fallbackPricingTagline = '12 months free, then ₹299/mo';
-const fallbackMonthlyPrice = '₹299';
+const fallbackPricingTagline = '12 months free, then ₹499/mo';
+const fallbackMonthlyPrice = '₹499';
 const fallbackPricingFeatures = [
   'Unlimited products with photos',
   'Your own custom domain',

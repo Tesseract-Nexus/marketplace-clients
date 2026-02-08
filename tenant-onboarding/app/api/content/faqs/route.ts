@@ -32,7 +32,7 @@ export async function GET(request: Request) {
       },
       {
         question: 'What happens after the 12 months free?',
-        answer: "After your free year, it's just ₹299/month. That's it—no hidden fees.",
+        answer: "After your free year, it's just ₹499/month. That's it—no hidden fees.",
       },
     ];
 

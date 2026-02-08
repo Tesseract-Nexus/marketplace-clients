@@ -90,7 +90,7 @@ const fallbackFaqs = [
   },
   {
     question: 'What happens after the 12 months free?',
-    answer: 'After your free year, it\'s just ₹299/month. That\'s it—no hidden fees, no transaction costs from us, no surprises. And you can cancel anytime.',
+    answer: 'After your free year, it\'s just ₹499/month. That\'s it—no hidden fees, no transaction costs from us, no surprises. And you can cancel anytime.',
   },
   {
     question: 'Are there transaction fees or payment processing fees?',
@@ -188,8 +188,8 @@ export default function Home() {
   // Extract pricing info from payment plans
   const freePlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'free-trial');
   const proPlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'pro');
-  const pricingTagline = freePlan?.tagline || '12 months free, then ₹299/mo';
-  const monthlyPrice = proPlan?.price ? `₹${Math.round(parseFloat(proPlan.price))}` : '₹299';
+  const pricingTagline = freePlan?.tagline || '12 months free, then ₹499/mo';
+  const monthlyPrice = proPlan?.price ? `₹${Math.round(parseFloat(proPlan.price))}` : '₹499';
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);

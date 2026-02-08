@@ -10,7 +10,7 @@ const plans = [
     billingCycle: 'monthly',
     trialDays: 365,
     description: 'Everything you need to start selling online',
-    tagline: '12 months free, then ₹299/mo',
+    tagline: '12 months free, then ₹499/mo',
     featured: true,
     sortOrder: 0,
     features: [

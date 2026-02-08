@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     default: 'mark8ly - Launch Your Online Store in Minutes',
     template: '%s | mark8ly',
   },
-  description: 'The simplest way to create and launch your online store. Start free for 12 months, then just ₹299/mo. No coding required. Built for creators, makers, and small businesses.',
+  description: 'The simplest way to create and launch your online store. Start free for 12 months, then just ₹499/mo. No coding required. Built for creators, makers, and small businesses.',
   keywords: [
     'ecommerce platform',
     'online store builder',
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
     url: siteUrl,
     siteName: 'mark8ly',
     title: 'mark8ly - Launch Your Online Store in Minutes',
-    description: 'The simplest way to create and launch your online store. Start free for 12 months, then ₹299/mo. No coding required. Built for creators and small businesses.',
+    description: 'The simplest way to create and launch your online store. Start free for 12 months, then ₹499/mo. No coding required. Built for creators and small businesses.',
     images: [
       {
         url: `${siteUrl}/og-image.png`,
@@ -90,7 +90,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'mark8ly - Launch Your Online Store in Minutes',
-    description: 'The simplest way to create and launch your online store. Start free for 12 months, then ₹299/mo. No coding required.',
+    description: 'The simplest way to create and launch your online store. Start free for 12 months, then ₹499/mo. No coding required.',
     images: [`${siteUrl}/og-image.png`],
     creator: '@mark8ly',
   },
@@ -176,7 +176,7 @@ const jsonLd = {
         '@type': 'Offer',
         price: '0',
         priceCurrency: 'INR',
-        description: 'Free for 12 months, then ₹299/month',
+        description: 'Free for 12 months, then ₹499/month',
         priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
       },
       aggregateRating: {
@@ -215,7 +215,7 @@ const jsonLd = {
           name: 'What happens after the 12 months free?',
           acceptedAnswer: {
             '@type': 'Answer',
-            text: "After your free year, it's just ₹299/month. That's it—no hidden fees, no transaction costs from us, no surprises. And you can cancel anytime.",
+            text: "After your free year, it's just ₹499/month. That's it—no hidden fees, no transaction costs from us, no surprises. And you can cancel anytime.",
           },
         },
         {
