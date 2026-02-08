@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, Mail, Lock, User, Phone, Loader2, Check, Sparkles, Shield, Globe, MapPin, ChevronDown } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, User, Phone, Loader2, Check, Sparkles, Shield, Globe, MapPin, ChevronDown, Smartphone, Copy, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,11 +12,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { useTenant, useNavPath } from '@/context/TenantContext';
 import { useAuthStore } from '@/store/auth';
-import { initiateLogin, directRegister, DirectAuthResponse } from '@/lib/api/auth';
+import { initiateLogin, directRegister, DirectAuthResponse, initiateTotpSetup, confirmTotpSetup } from '@/lib/api/auth';
 import { locationApi, Country, LocationDetection } from '@/lib/api/location';
 import { SocialLogin } from '@/components/auth/SocialLogin';
 import { cn } from '@/lib/utils';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
+
+// Dynamically import QRCodeSVG (client-only)
+import dynamic from 'next/dynamic';
+const QRCodeSVG = dynamic(() => import('qrcode.react').then(mod => ({ default: mod.QRCodeSVG })), { ssr: false });
 
 // Animation variants
 const containerVariants = {
@@ -87,6 +91,21 @@ export default function RegisterPage() {
   const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState('');
+
+  // MFA setup state (shown after successful registration)
+  type MfaStep = 'none' | 'offer' | 'scan' | 'verify' | 'backup' | 'done';
+  const [mfaStep, setMfaStep] = useState<MfaStep>('none');
+  const [mfaSetupSession, setMfaSetupSession] = useState('');
+  const [mfaTotpUri, setMfaTotpUri] = useState('');
+  const [mfaManualKey, setMfaManualKey] = useState('');
+  const [mfaBackupCodes, setMfaBackupCodes] = useState<string[]>([]);
+  const [mfaCode, setMfaCode] = useState(['', '', '', '', '', '']);
+  const [mfaError, setMfaError] = useState('');
+  const [mfaProcessing, setMfaProcessing] = useState(false);
+  const [showMfaManualKey, setShowMfaManualKey] = useState(false);
+  const [copiedBackupCodes, setCopiedBackupCodes] = useState(false);
+  const mfaCodeRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [registeredEmail, setRegisteredEmail] = useState('');
 
   // Country selection state
   const [countries, setCountries] = useState<Country[]>([]);
@@ -255,9 +274,10 @@ export default function RegisterPage() {
           });
         }
 
-        // Redirect to email verification page
-        const verifyUrl = getNavPath('/verify-email') + '?email=' + encodeURIComponent(formData.email);
-        router.push(verifyUrl);
+        // Show MFA setup offer instead of redirecting immediately
+        setRegisteredEmail(formData.email);
+        setMfaStep('offer');
+        setLoading(false);
       } else {
         // Registration failed - show error message
         setError(result.message || 'Registration failed. Please try again.');
@@ -268,6 +288,313 @@ export default function RegisterPage() {
       setLoading(false);
     }
   };
+
+  // MFA helper functions
+  const handleSkipMfa = () => {
+    const verifyUrl = getNavPath('/verify-email') + '?email=' + encodeURIComponent(registeredEmail);
+    router.push(verifyUrl);
+  };
+
+  const handleStartMfaSetup = async () => {
+    setMfaProcessing(true);
+    setMfaError('');
+    try {
+      const result = await initiateTotpSetup();
+      if (result.success && result.setup_session && result.totp_uri) {
+        setMfaSetupSession(result.setup_session);
+        setMfaTotpUri(result.totp_uri);
+        setMfaManualKey(result.manual_entry_key || '');
+        setMfaBackupCodes(result.backup_codes || []);
+        setMfaStep('scan');
+      } else {
+        setMfaError(result.message || 'Failed to start MFA setup. You can set it up later in Settings.');
+      }
+    } catch {
+      setMfaError('Failed to start MFA setup. You can set it up later in Settings.');
+    }
+    setMfaProcessing(false);
+  };
+
+  const handleMfaCodeChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const newCode = [...mfaCode];
+    newCode[index] = value.slice(-1);
+    setMfaCode(newCode);
+    if (value && index < 5) {
+      mfaCodeRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleMfaCodeKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !mfaCode[index] && index > 0) {
+      mfaCodeRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleVerifyMfaCode = async () => {
+    const code = mfaCode.join('');
+    if (code.length !== 6) return;
+
+    setMfaProcessing(true);
+    setMfaError('');
+    try {
+      const result = await confirmTotpSetup(mfaSetupSession, code);
+      if (result.success) {
+        setMfaStep('backup');
+      } else {
+        setMfaError(result.message || 'Invalid code. Please try again.');
+        setMfaCode(['', '', '', '', '', '']);
+        mfaCodeRefs.current[0]?.focus();
+      }
+    } catch {
+      setMfaError('Verification failed. Please try again.');
+    }
+    setMfaProcessing(false);
+  };
+
+  const handleCopyBackupCodes = () => {
+    navigator.clipboard.writeText(mfaBackupCodes.join('\n'));
+    setCopiedBackupCodes(true);
+    setTimeout(() => setCopiedBackupCodes(false), 2000);
+  };
+
+  // If in MFA setup flow, show MFA UI
+  if (mfaStep !== 'none') {
+    return (
+      <div className="min-h-screen flex items-center justify-center py-12 px-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--tenant-primary)]/5 via-background to-[var(--tenant-secondary)]/5" />
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-lg relative z-10"
+        >
+          <div className="bg-card/80 backdrop-blur-sm rounded-2xl border shadow-xl p-8">
+            <AnimatePresence mode="wait">
+              {/* Step: Offer MFA */}
+              {mfaStep === 'offer' && (
+                <motion.div
+                  key="offer"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="text-center space-y-6"
+                >
+                  <div className="w-16 h-16 mx-auto rounded-full bg-[var(--tenant-primary)]/10 flex items-center justify-center">
+                    <Shield className="h-8 w-8 text-tenant-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold"><TranslatedUIText text="Account Created!" /></h2>
+                    <p className="text-muted-foreground mt-2">
+                      <TranslatedUIText text="Secure your account with two-factor authentication using an authenticator app." />
+                    </p>
+                  </div>
+
+                  {mfaError && (
+                    <div className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
+                      {mfaError}
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
+                    <Button
+                      variant="tenant-gradient"
+                      size="lg"
+                      className="w-full"
+                      onClick={handleStartMfaSetup}
+                      disabled={mfaProcessing}
+                    >
+                      {mfaProcessing ? (
+                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" /><TranslatedUIText text="Setting up..." /></>
+                      ) : (
+                        <><Smartphone className="h-4 w-4 mr-2" /><TranslatedUIText text="Set Up Authenticator App" /></>
+                      )}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="lg"
+                      className="w-full text-muted-foreground"
+                      onClick={handleSkipMfa}
+                    >
+                      <TranslatedUIText text="Skip for now" />
+                      <ArrowRight className="h-4 w-4 ml-2" />
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Step: Scan QR Code */}
+              {mfaStep === 'scan' && (
+                <motion.div
+                  key="scan"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="space-y-6"
+                >
+                  <div className="text-center">
+                    <h2 className="text-xl font-bold"><TranslatedUIText text="Scan QR Code" /></h2>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      <TranslatedUIText text="Open your authenticator app and scan this QR code" />
+                    </p>
+                  </div>
+
+                  <div className="flex justify-center">
+                    <div className="p-4 bg-white rounded-xl">
+                      {mfaTotpUri && <QRCodeSVG value={mfaTotpUri} size={200} />}
+                    </div>
+                  </div>
+
+                  {!showMfaManualKey ? (
+                    <button
+                      type="button"
+                      onClick={() => setShowMfaManualKey(true)}
+                      className="text-sm text-tenant-primary hover:underline w-full text-center"
+                    >
+                      <TranslatedUIText text="Can't scan? Enter key manually" />
+                    </button>
+                  ) : (
+                    <div className="p-3 bg-muted rounded-lg">
+                      <p className="text-xs text-muted-foreground mb-1"><TranslatedUIText text="Manual entry key:" /></p>
+                      <p className="font-mono text-sm break-all select-all">{mfaManualKey}</p>
+                    </div>
+                  )}
+
+                  <Button
+                    variant="tenant-gradient"
+                    className="w-full"
+                    onClick={() => {
+                      setMfaStep('verify');
+                      setTimeout(() => mfaCodeRefs.current[0]?.focus(), 100);
+                    }}
+                  >
+                    <TranslatedUIText text="I've scanned the code" />
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* Step: Verify Code */}
+              {mfaStep === 'verify' && (
+                <motion.div
+                  key="verify"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="space-y-6"
+                >
+                  <div className="text-center">
+                    <h2 className="text-xl font-bold"><TranslatedUIText text="Enter Verification Code" /></h2>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      <TranslatedUIText text="Enter the 6-digit code from your authenticator app" />
+                    </p>
+                  </div>
+
+                  {mfaError && (
+                    <div className="p-3 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
+                      {mfaError}
+                    </div>
+                  )}
+
+                  <div className="flex justify-center gap-2">
+                    {mfaCode.map((digit, i) => (
+                      <Input
+                        key={i}
+                        ref={el => { mfaCodeRefs.current[i] = el; }}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        value={digit}
+                        onChange={e => handleMfaCodeChange(i, e.target.value)}
+                        onKeyDown={e => handleMfaCodeKeyDown(i, e)}
+                        className="w-12 h-14 text-center text-xl font-mono"
+                      />
+                    ))}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <Button
+                      variant="outline"
+                      className="flex-1"
+                      onClick={() => {
+                        setMfaStep('scan');
+                        setMfaCode(['', '', '', '', '', '']);
+                        setMfaError('');
+                      }}
+                    >
+                      <TranslatedUIText text="Back" />
+                    </Button>
+                    <Button
+                      variant="tenant-gradient"
+                      className="flex-1"
+                      onClick={handleVerifyMfaCode}
+                      disabled={mfaProcessing || mfaCode.join('').length !== 6}
+                    >
+                      {mfaProcessing ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <TranslatedUIText text="Verify" />
+                      )}
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Step: Backup Codes */}
+              {mfaStep === 'backup' && (
+                <motion.div
+                  key="backup"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="space-y-6"
+                >
+                  <div className="text-center">
+                    <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                      <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
+                    </div>
+                    <h2 className="text-xl font-bold"><TranslatedUIText text="MFA Enabled!" /></h2>
+                    <p className="text-muted-foreground mt-1 text-sm">
+                      <TranslatedUIText text="Save these backup codes in a safe place. You can use them if you lose access to your authenticator app." />
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 p-4 bg-muted rounded-lg">
+                    {mfaBackupCodes.map((code, i) => (
+                      <div key={i} className="font-mono text-sm text-center py-1">
+                        {code}
+                      </div>
+                    ))}
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleCopyBackupCodes}
+                  >
+                    {copiedBackupCodes ? (
+                      <><Check className="h-4 w-4 mr-2" /><TranslatedUIText text="Copied!" /></>
+                    ) : (
+                      <><Copy className="h-4 w-4 mr-2" /><TranslatedUIText text="Copy Backup Codes" /></>
+                    )}
+                  </Button>
+
+                  <Button
+                    variant="tenant-gradient"
+                    size="lg"
+                    className="w-full"
+                    onClick={handleSkipMfa}
+                  >
+                    <TranslatedUIText text="Continue to Email Verification" />
+                    <ArrowRight className="h-4 w-4 ml-2" />
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center py-12 px-4 relative overflow-hidden">

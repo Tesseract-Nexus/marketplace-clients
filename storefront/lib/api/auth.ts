@@ -949,6 +949,7 @@ export async function initiateTotpSetup(): Promise<{
       headers: {
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({}),
     });
     return await response.json();
   } catch {
