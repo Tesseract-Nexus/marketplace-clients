@@ -66,8 +66,8 @@ function LoginPageContent() {
   const [mfaCode, setMfaCode] = useState('');
   const [trustDevice, setTrustDevice] = useState(true);
   const [resendCooldown, setResendCooldown] = useState(0);
-  const [mfaMethods, setMfaMethods] = useState<string[]>(['email']);
-  const [activeMfaMethod, setActiveMfaMethod] = useState<'totp' | 'email'>('email');
+  const [mfaMethods, setMfaMethods] = useState<string[]>(['totp', 'email']);
+  const [activeMfaMethod, setActiveMfaMethod] = useState<'totp' | 'email'>('totp');
 
   // UI state
   const [isLoading, setIsLoading] = useState(false);
