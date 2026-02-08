@@ -457,9 +457,11 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Security Settings - Full Width */}
-        <MFASettings />
-        <PasskeySettings />
+        {/* Security Settings */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <MFASettings />
+          <PasskeySettings />
+        </div>
       </div>
     </div>
     </PermissionGate>

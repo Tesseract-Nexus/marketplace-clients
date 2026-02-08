@@ -1102,6 +1102,7 @@ export async function authenticateWithPasskey(): Promise<DirectAuthResponse> {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
     });
 
     if (!optionsRes.ok) {

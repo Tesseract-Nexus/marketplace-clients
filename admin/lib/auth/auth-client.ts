@@ -548,6 +548,7 @@ export async function initiateTotpSetup(): Promise<{
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
+      body: JSON.stringify({}),
     });
     return await response.json();
   } catch (error) {
@@ -654,7 +655,7 @@ export async function registerPasskey(name: string): Promise<{ success: boolean;
 
     const { options, challengeId } = await optionsRes.json();
 
-    const credential = await startRegistration(options);
+    const credential = await startRegistration({ optionsJSON: options });
 
     const verifyRes = await fetch(`${authConfig.bffBaseUrl}/auth/passkeys/registration/verify`, {
       method: 'POST',
@@ -685,6 +686,7 @@ export async function authenticateWithPasskey(): Promise<DirectLoginResponse> {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
     });
 
     if (!optionsRes.ok) {
@@ -694,7 +696,7 @@ export async function authenticateWithPasskey(): Promise<DirectLoginResponse> {
 
     const { options, challengeId } = await optionsRes.json();
 
-    const credential = await startAuthentication(options);
+    const credential = await startAuthentication({ optionsJSON: options });
 
     const verifyRes = await fetch(`${authConfig.bffBaseUrl}/auth/passkeys/authentication/verify`, {
       method: 'POST',
