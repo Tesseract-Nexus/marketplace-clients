@@ -11,6 +11,7 @@
 
 import { authConfig } from './config';
 import { logger } from '../logger';
+import { browserSupportsWebAuthn, startRegistration, startAuthentication } from '@simplewebauthn/browser';
 
 /**
  * Session user information returned by BFF
@@ -616,6 +617,159 @@ export async function regenerateBackupCodes(code: string): Promise<{
   }
 }
 
+// ============================================================================
+// Passkey (WebAuthn) Functions
+// ============================================================================
+
+export interface PasskeyInfo {
+  credential_id: string;
+  name: string;
+  created_at: string;
+  last_used_at?: string;
+  device_type: string;
+  backed_up: boolean;
+}
+
+export function isPasskeySupported(): boolean {
+  try {
+    return browserSupportsWebAuthn();
+  } catch {
+    return false;
+  }
+}
+
+export async function registerPasskey(name: string): Promise<{ success: boolean; message?: string; error?: string }> {
+  try {
+    const optionsRes = await fetch(`${authConfig.bffBaseUrl}/auth/passkeys/registration/options`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+
+    if (!optionsRes.ok) {
+      const data = await optionsRes.json();
+      return { success: false, error: data.error, message: data.message || 'Failed to get registration options.' };
+    }
+
+    const { options, challengeId } = await optionsRes.json();
+
+    const credential = await startRegistration(options);
+
+    const verifyRes = await fetch(`${authConfig.bffBaseUrl}/auth/passkeys/registration/verify`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ challengeId, credential, name }),
+    });
+
+    const verifyData = await verifyRes.json();
+
+    if (!verifyRes.ok || !verifyData.success) {
+      return { success: false, error: verifyData.error, message: verifyData.message || 'Failed to verify passkey.' };
+    }
+
+    return { success: true, message: 'Passkey registered successfully.' };
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === 'NotAllowedError') {
+      return { success: false, error: 'CANCELLED', message: 'Passkey registration was cancelled.' };
+    }
+    logger.error('[Auth] Register passkey error:', error);
+    return { success: false, error: 'REGISTRATION_ERROR', message: 'Failed to register passkey.' };
+  }
+}
+
+export async function authenticateWithPasskey(): Promise<DirectLoginResponse> {
+  try {
+    const optionsRes = await fetch(`${authConfig.bffBaseUrl}/auth/passkeys/authentication/options`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+    });
+
+    if (!optionsRes.ok) {
+      const data = await optionsRes.json();
+      return { success: false, error: data.error, message: data.message || 'Failed to get authentication options.' };
+    }
+
+    const { options, challengeId } = await optionsRes.json();
+
+    const credential = await startAuthentication(options);
+
+    const verifyRes = await fetch(`${authConfig.bffBaseUrl}/auth/passkeys/authentication/verify`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ challengeId, credential }),
+    });
+
+    const verifyData = await verifyRes.json();
+
+    if (!verifyRes.ok || !verifyData.success) {
+      return { success: false, error: verifyData.error, message: verifyData.message || 'Passkey authentication failed.' };
+    }
+
+    return verifyData;
+  } catch (error: unknown) {
+    if (error instanceof Error && error.name === 'NotAllowedError') {
+      return { success: false, error: 'CANCELLED', message: 'Passkey authentication was cancelled.' };
+    }
+    logger.error('[Auth] Authenticate with passkey error:', error);
+    return { success: false, error: 'AUTHENTICATION_ERROR', message: 'Passkey authentication failed.' };
+  }
+}
+
+export async function getPasskeys(): Promise<{ success: boolean; passkeys: PasskeyInfo[]; message?: string }> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/passkeys/list`, {
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      return { success: false, passkeys: [], message: 'Failed to load passkeys.' };
+    }
+
+    return response.json();
+  } catch {
+    return { success: false, passkeys: [], message: 'Failed to load passkeys.' };
+  }
+}
+
+export async function renamePasskey(
+  credentialId: string,
+  name: string
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/passkeys/rename`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential_id: credentialId, name }),
+    });
+
+    return response.json();
+  } catch {
+    return { success: false, message: 'Failed to rename passkey.' };
+  }
+}
+
+export async function deletePasskey(
+  credentialId: string
+): Promise<{ success: boolean; message?: string }> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/passkeys/delete`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential_id: credentialId }),
+    });
+
+    return response.json();
+  } catch {
+    return { success: false, message: 'Failed to delete passkey.' };
+  }
+}
+
 export default {
   // Session management
   getSession,
@@ -638,4 +792,11 @@ export default {
   confirmTotpSetup,
   disableTotp,
   regenerateBackupCodes,
+  // Passkeys
+  isPasskeySupported,
+  registerPasskey,
+  authenticateWithPasskey,
+  getPasskeys,
+  renamePasskey,
+  deletePasskey,
 };

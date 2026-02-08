@@ -25,6 +25,8 @@ import { Input } from '@/components/ui/input';
 import { PageHeader } from '@/components/PageHeader';
 import { useToast } from '@/contexts/ToastContext';
 import { useUser } from '@/contexts/UserContext';
+import { MFASettings } from '@/components/settings/MFASettings';
+import { PasskeySettings } from '@/components/settings/PasskeySettings';
 
 interface UserProfile {
   id: string;
@@ -454,6 +456,10 @@ export default function ProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* Security Settings - Full Width */}
+        <MFASettings />
+        <PasskeySettings />
       </div>
     </div>
     </PermissionGate>

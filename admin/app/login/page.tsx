@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Sparkles, Shield, Loader2, Mail, Lock, ArrowLeft, Building2, AlertCircle, Eye, EyeOff, CheckCircle2, Smartphone } from 'lucide-react';
+import { Sparkles, Shield, Loader2, Mail, Lock, ArrowLeft, Building2, AlertCircle, Eye, EyeOff, CheckCircle2, Smartphone, Fingerprint } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +14,8 @@ import {
   directLogin,
   verifyMfa,
   sendMfaCode,
+  authenticateWithPasskey,
+  isPasskeySupported,
   type TenantInfo,
   type DirectLoginResponse,
 } from '@/lib/auth/auth-client';
@@ -75,6 +77,12 @@ function LoginPageContent() {
   const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
   const [lockedUntil, setLockedUntil] = useState<string | null>(null);
   const [handledUrlError, setHandledUrlError] = useState(false);
+  const [isPasskeyAvailable, setIsPasskeyAvailable] = useState(false);
+
+  // Check for passkey support on mount
+  useEffect(() => {
+    setIsPasskeyAvailable(isPasskeySupported());
+  }, []);
 
   // Check for persisted error from sessionStorage (survives logout redirect)
   useEffect(() => {
@@ -383,6 +391,30 @@ function LoginPageContent() {
     }
   };
 
+  // Handle passkey login
+  const handlePasskeyLogin = async () => {
+    setError(null);
+    setIsLoading(true);
+    try {
+      const result = await authenticateWithPasskey();
+      if (result.success) {
+        setStep('success');
+        setTimeout(() => {
+          const returnTo = getCurrentTenantSlug() ? '/' : '/welcome';
+          window.location.href = returnTo;
+        }, 1000);
+      } else {
+        if (result.error !== 'CANCELLED') {
+          setError(result.message || 'Passkey authentication failed.');
+        }
+      }
+    } catch {
+      setError('Passkey authentication failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Handle OIDC flow (legacy/SSO)
   const handleOidcLogin = () => {
     const returnTo = getCurrentTenantSlug() ? '/' : '/welcome';
@@ -500,6 +532,29 @@ function LoginPageContent() {
             </div>
 
             <SocialLogin onLogin={handleSocialLogin} isLoading={isLoading} />
+
+            {isPasskeyAvailable && (
+              <>
+                <div className="relative py-2">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-border"></div>
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="px-3 text-xs bg-white/80 text-muted-foreground">or</span>
+                  </div>
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={handlePasskeyLogin}
+                  disabled={isLoading}
+                  className="w-full h-12"
+                >
+                  <Fingerprint className="h-4 w-4 mr-2" />
+                  Sign in with passkey
+                </Button>
+              </>
+            )}
           </>
         );
 
