@@ -403,10 +403,10 @@ function LoginPageContent() {
           const returnTo = getCurrentTenantSlug() ? '/' : '/welcome';
           window.location.href = returnTo;
         }, 1000);
+      } else if (result.error === 'CANCELLED') {
+        // User explicitly cancelled — no error needed
       } else {
-        if (result.error !== 'CANCELLED') {
-          setError(result.message || 'Passkey authentication failed.');
-        }
+        setError(result.message || 'Passkey authentication failed. Make sure you have a passkey registered.');
       }
     } catch {
       setError('Passkey authentication failed. Please try again.');
