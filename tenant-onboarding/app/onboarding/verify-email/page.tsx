@@ -58,11 +58,15 @@ function VerifyEmailContent() {
   }, [state, sessionId, hasRedirected]);
 
   // Handle the actual redirect in a separate effect to avoid issues
+  // Redirect to verify page (not setup-password) so MFA setup can run if needed.
+  // Email verification links open in a new tab which has no sessionStorage,
+  // so TOTP data from the main onboarding tab would be lost. The verify page
+  // handles MFA setup for new-tab scenarios and skips it if already done.
   useEffect(() => {
     if (hasRedirected && sessionId) {
       const params = new URLSearchParams({ session: sessionId });
       if (email) params.set('email', email);
-      router.push(`/onboarding/setup-password?${params.toString()}`);
+      router.push(`/onboarding/verify?${params.toString()}`);
     }
   }, [hasRedirected, sessionId, email, router]);
 
@@ -129,10 +133,10 @@ function VerifyEmailContent() {
 
   const handleContinue = () => {
     if (sessionId) {
-      // Redirect to password setup page with session info
+      // Redirect to verify page (handles MFA setup for new-tab scenarios)
       const params = new URLSearchParams({ session: sessionId });
       if (email) params.set('email', email);
-      router.push(`/onboarding/setup-password?${params.toString()}`);
+      router.push(`/onboarding/verify?${params.toString()}`);
     } else {
       router.push('/onboarding');
     }
@@ -180,7 +184,7 @@ function VerifyEmailContent() {
                 <CheckCircle className="w-4 h-4" />
                 <span className="text-sm font-medium">
                   {redirectCountdown > 0
-                    ? `Redirecting to password setup in ${redirectCountdown}s...`
+                    ? `Continuing in ${redirectCountdown}s...`
                     : 'Redirecting...'}
                 </span>
               </div>
@@ -189,7 +193,7 @@ function VerifyEmailContent() {
               onClick={handleContinue}
               className="apple-button w-full py-4 text-lg font-medium transition-all duration-300  flex items-center justify-center "
             >
-              Set Up Your Password
+              Continue
               <ArrowRight className="w-5 h-5 ml-2" />
             </button>
           </div>

@@ -345,6 +345,7 @@ function VerifyEmailContent() {
     contactDetails,
     setEmailVerified,
     setTotpData,
+    totpSecretEncrypted,
     _hasHydrated,
     rehydrateSensitiveData,
   } = useOnboardingStore();
@@ -590,12 +591,24 @@ function VerifyEmailContent() {
     }
     hasInitializedRef.current = true;
 
-    // Always use link-based verification
-    const initEmailVerification = async () => {
+    // Check if email is already verified (e.g. arriving from verify-email link in new tab)
+    const checkAndInit = async () => {
+      try {
+        const status = await onboardingApi.getVerificationStatus(sessionId, email);
+        if (status.is_verified) {
+          devLog('[Verify] Email already verified on page load');
+          setIsVerified(true);
+          setEmailVerified(true);
+          setSuccess('Email verified successfully!');
+          return; // Skip sending another verification email
+        }
+      } catch {
+        devLog('[Verify] Could not check verification status, proceeding with send');
+      }
       await sendVerification();
     };
 
-    initEmailVerification();
+    checkAndInit();
   }, [isRehydrating, sessionId, email, showWelcomePage]);
 
   const sendVerification = async () => {
@@ -772,6 +785,13 @@ function VerifyEmailContent() {
     if (!isVerified) return;
     if (phase !== 'email_verification') return;
 
+    // If TOTP was already set up on the main onboarding page, skip MFA setup
+    if (totpSecretEncrypted) {
+      devLog('[Verify] TOTP already set up during onboarding, skipping MFA setup');
+      setPhase('complete');
+      return;
+    }
+
     // Email verified — transition to mandatory MFA setup
     setPhase('mfa_setup');
     setError('');
@@ -790,7 +810,7 @@ function VerifyEmailContent() {
     };
 
     initMfaSetup();
-  }, [isVerified, phase, sessionId, email]);
+  }, [isVerified, phase, sessionId, email, totpSecretEncrypted]);
 
   // Auto-redirect after MFA complete (phase === 'complete')
   useEffect(() => {
