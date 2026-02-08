@@ -61,6 +61,11 @@ async function proxyToAuthBff(
     }
     headers.set('X-Forwarded-Proto', 'https');
 
+    // Tell auth-bff this is a customer/storefront context — NOT admin/staff.
+    // This helps auth-bff scope session lookups to the customer realm and
+    // prevents admin sessions from being returned for storefront requests.
+    headers.set('X-Auth-Context', 'customer');
+
     // Forward tenant context headers
     const tenantId = request.headers.get('X-Tenant-ID');
     const tenantSlug = request.headers.get('x-tenant-slug');

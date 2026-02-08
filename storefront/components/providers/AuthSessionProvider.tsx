@@ -46,6 +46,23 @@ async function fetchCustomerProfile(tenantId?: string): Promise<{
 }
 
 /**
+ * Roles that identify admin/staff users from the internal Keycloak realm.
+ * Sessions with these roles must NOT be treated as customer sessions on the
+ * storefront — the admin panel and storefront use different Keycloak realms
+ * (tesserix-internal vs mark8ly-customer) and their sessions must be isolated.
+ */
+const ADMIN_STAFF_ROLES = ['owner', 'admin', 'staff', 'manager', 'super_admin'];
+
+/**
+ * Check whether a session belongs to an admin/staff user rather than a customer.
+ * Returns true if ANY admin/staff role is present.
+ */
+function isAdminSession(roles?: string[]): boolean {
+  if (!roles || roles.length === 0) return false;
+  return roles.some(role => ADMIN_STAFF_ROLES.includes(role));
+}
+
+/**
  * AuthSessionProvider - Validates authentication state against auth-bff session
  *
  * This provider runs on mount to:
@@ -54,6 +71,7 @@ async function fetchCustomerProfile(tenantId?: string): Promise<{
  * 3. Populate auth store from valid server-side session (survives page refresh)
  * 4. Clear stale auth data if the session is no longer valid
  * 5. Fetch full customer profile (phone, country, etc.) from customers-service
+ * 6. **Reject admin/staff sessions** — the storefront only accepts customer sessions
  *
  * The Zustand auth store intentionally does NOT persist to localStorage.
  * Auth state is managed server-side via auth-bff HttpOnly cookies.
@@ -87,6 +105,25 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
 
         if (session.authenticated && session.user) {
           const sessionUser = session.user;
+
+          // CRITICAL: Reject admin/staff sessions on the storefront.
+          // The admin portal (tesserix-internal realm) and storefront (mark8ly-customer realm)
+          // share the .tesserix.app cookie domain, so the browser sends admin session cookies
+          // to the storefront. We must detect and ignore these — admin users are NOT customers.
+          if (isAdminSession(sessionUser.roles)) {
+            console.log(
+              '[AuthSessionProvider] Rejected admin/staff session on storefront (roles:',
+              sessionUser.roles,
+              '). Storefront only accepts customer sessions.'
+            );
+            // Treat as unauthenticated — don't log them in, don't log them out
+            // (logging out would destroy their valid admin session)
+            if (isAuthenticated) {
+              logout();
+            }
+            setLoading(false);
+            return;
+          }
 
           if (isAuthenticated && customer) {
             // Already authenticated in store — verify user matches
