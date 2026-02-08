@@ -8,7 +8,8 @@ import { SearchableSelect, type SelectOption } from '../../components/Searchable
 import { DocumentsSection } from '../../components/DocumentsSection';
 import { VerificationScore, useVerificationScore } from '../../components/VerificationScore';
 import { type UploadedDocument } from '../../components/DocumentUpload';
-import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldCheck, ShieldAlert, Pencil, X, Eye, EyeOff, Shield, Rocket, SkipForward } from 'lucide-react';
+import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldCheck, ShieldAlert, Pencil, X, Eye, EyeOff, Shield, Rocket, SkipForward, Mail, Smartphone, KeyRound, CheckCircle } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useOnboardingStore, type DetectedLocation, type PersistedDocument } from '../../lib/store/onboarding-store';
 import { businessInfoSchema, contactDetailsSchema, businessAddressSchema, storeSetupSchema, MARKETPLACE_PLATFORMS, type BusinessInfoForm, type ContactDetailsForm, type BusinessAddressForm, type StoreSetupForm } from '../../lib/validations/onboarding';
 import { onboardingApi, OnboardingAPIError } from '../../lib/api/onboarding';
@@ -82,8 +83,11 @@ const steps = [
   { id: 1, label: 'Location', icon: MapPin },
   { id: 2, label: 'Store Setup', icon: Store },
   { id: 3, label: 'Documents', icon: FileText, optional: true },
-  { id: 4, label: 'Launch', icon: Rocket },
+  { id: 4, label: 'Verify & Secure', icon: Shield },
+  { id: 5, label: 'Launch', icon: Rocket },
 ];
+
+type VerifySecurePhase = 'sending' | 'waiting_email' | 'mfa_setup' | 'backup_codes' | 'done';
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -103,6 +107,7 @@ export default function OnboardingPage() {
     nextStep,
     setDetectedLocation,
     resetOnboarding,
+    setEmailVerified,
     // Document state from store
     documents,
     setAddressProofType: setStoreAddressProofType,
@@ -221,6 +226,27 @@ export default function OnboardingPage() {
       setCopiedItem(null);
     }, 2000);
   }, []);
+
+  // Verify & Secure (step 4) state
+  const [verifySecurePhase, setVerifySecurePhase] = useState<VerifySecurePhase>('sending');
+  const [isVerified, setIsVerified] = useState(false);
+  const [linkSent, setLinkSent] = useState(false);
+  const [verifyError, setVerifyError] = useState('');
+  const [verifySuccess, setVerifySuccess] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [isResending, setIsResending] = useState(false);
+
+  // TOTP state
+  const [totpSetupSession, setTotpSetupSession] = useState('');
+  const [totpUri, setTotpUri] = useState('');
+  const [totpManualKey, setTotpManualKey] = useState('');
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
+  const [totpCode, setTotpCode] = useState(['', '', '', '', '', '']);
+  const [showManualKey, setShowManualKey] = useState(false);
+  const [copiedBackupCodes, setCopiedBackupCodes] = useState(false);
+  const [isTotpVerifying, setIsTotpVerifying] = useState(false);
+  const [totpError, setTotpError] = useState('');
+  const totpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Base domain for subdomain-based store URL display (fetched from runtime config)
   // URL format: {subdomain}-admin.{baseDomain}
@@ -1541,30 +1567,13 @@ export default function OnboardingPage() {
       });
       nextStep();
 
-      // Pass session and email as URL params for the verify page
-      // This ensures the verify page works even before store rehydration completes
-      // Priority: store > form values > fetch from session API (most reliable fallback)
-      const verifyParams = new URLSearchParams();
-      if (sessionId) verifyParams.set('session', sessionId);
-
-      let emailForVerify = contactDetails.email || contactForm.getValues('email');
-
-      // If email is still not available, fetch from session API as final fallback
-      // This handles cases where store rehydration hasn't completed after page refresh
-      if (!emailForVerify && sessionId) {
-        try {
-          const session = await onboardingApi.getOnboardingSession(sessionId);
-          // Handle all locations: top-level contact fields + draft_form_data fallback
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const sessionAny = session as any;
-          emailForVerify = session.contact_details?.email || session.contact_info?.email || session.contact_information?.[0]?.email || sessionAny.draft_form_data?.contactDetails?.email || '';
-        } catch (fetchError) {
-          console.error('Failed to fetch email from session:', fetchError);
-        }
-      }
-
-      if (emailForVerify) verifyParams.set('email', emailForVerify as string);
-      router.push(`/onboarding/verify?${verifyParams.toString()}`);
+      // Email verification + MFA already completed in step 4 (Verify & Secure)
+      // Navigate directly to password setup
+      const params = new URLSearchParams();
+      if (sessionId) params.set('session', sessionId);
+      const emailForSetup = contactDetails.email || contactForm.getValues('email');
+      if (emailForSetup) params.set('email', emailForSetup as string);
+      router.push(`/onboarding/setup-password?${params.toString()}`);
     } catch (error) {
       // Use OnboardingAPIError for better error handling
       if (error instanceof OnboardingAPIError) {
@@ -1577,6 +1586,210 @@ export default function OnboardingPage() {
         setValidationErrors({ storeSetup: error instanceof Error ? error.message : 'Unable to save store setup. Please check your connection and try again.' });
       }
     } finally { setIsLoading(false); }
+  };
+
+  // Derive email for verify step (always available in wizard since user filled it in step 0b)
+  const wizardEmail = contactDetails.email || contactForm.getValues('email');
+
+  // Auto-send email verification when entering step 4
+  useEffect(() => {
+    if (currentSection !== 4) return;
+    if (verifySecurePhase !== 'sending') return;
+    if (!sessionId || !wizardEmail) return;
+
+    const sendLink = async () => {
+      try {
+        await onboardingApi.sendEmailVerification(sessionId, wizardEmail);
+        setLinkSent(true);
+        setVerifySuccess('Verification link sent to your email');
+        setVerifySecurePhase('waiting_email');
+      } catch {
+        setVerifyError('Failed to send verification email. Please try resending.');
+        setVerifySecurePhase('waiting_email');
+      }
+    };
+    sendLink();
+  }, [currentSection, verifySecurePhase, sessionId, wizardEmail]);
+
+  // SSE listener for email verification
+  useEffect(() => {
+    if (currentSection !== 4) return;
+    if (verifySecurePhase !== 'waiting_email') return;
+    if (!sessionId || !wizardEmail || isVerified) return;
+
+    let eventSource: EventSource | null = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+
+    const connectSSE = () => {
+      const sseUrl = `/api/onboarding/${sessionId}/events`;
+      devLog('[SSE] Connecting to', sseUrl);
+      eventSource = new EventSource(sseUrl);
+
+      eventSource.onopen = () => {
+        devLog('[SSE] Connected to session events');
+        reconnectAttempts = 0;
+      };
+
+      const handleVerified = (event: MessageEvent) => {
+        devLog('[SSE] Received verification event:', event.data);
+        try {
+          const data = JSON.parse(event.data);
+          if (data.verified || data.session_id === sessionId) {
+            setIsVerified(true);
+            setEmailVerified(true);
+            setVerifySuccess('Email verified successfully!');
+            eventSource?.close();
+          }
+        } catch (error) {
+          devError('[SSE] Failed to parse event data:', error);
+        }
+      };
+
+      eventSource.addEventListener('session.completed', handleVerified);
+      eventSource.addEventListener('session.verified', handleVerified);
+      eventSource.addEventListener('connected', (event) => devLog('[SSE] Connection confirmed:', event.data));
+      eventSource.addEventListener('ping', () => devLog('[SSE] Ping received'));
+
+      eventSource.onerror = () => {
+        eventSource?.close();
+        if (reconnectAttempts < maxReconnectAttempts && !isVerified) {
+          reconnectAttempts++;
+          const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000);
+          setTimeout(connectSSE, delay);
+        } else {
+          // Fallback to polling
+          const pollInterval = setInterval(async () => {
+            try {
+              const status = await onboardingApi.getVerificationStatus(sessionId, wizardEmail);
+              if (status.is_verified) {
+                setIsVerified(true);
+                setEmailVerified(true);
+                setVerifySuccess('Email verified successfully!');
+                clearInterval(pollInterval);
+              }
+            } catch {
+              devLog('[Polling] Checking verification status...');
+            }
+          }, 3000);
+        }
+      };
+    };
+
+    connectSSE();
+    return () => { eventSource?.close(); };
+  }, [currentSection, verifySecurePhase, sessionId, wizardEmail, isVerified, setEmailVerified]);
+
+  // Transition to MFA setup after email verified
+  useEffect(() => {
+    if (!isVerified || verifySecurePhase !== 'waiting_email') return;
+
+    setVerifySecurePhase('mfa_setup');
+    setVerifyError('');
+    setVerifySuccess('');
+
+    const initMfaSetup = async () => {
+      try {
+        const result = await onboardingApi.initiateTotpSetup(sessionId!, wizardEmail);
+        setTotpSetupSession(result.setup_session);
+        setTotpUri(result.totp_uri);
+        setTotpManualKey(result.manual_entry_key);
+        setBackupCodes(result.backup_codes);
+      } catch {
+        setVerifyError('Failed to set up authenticator. Please try again.');
+      }
+    };
+    initMfaSetup();
+  }, [isVerified, verifySecurePhase, sessionId, wizardEmail]);
+
+  // Resend cooldown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const interval = setInterval(() => {
+      setResendCooldown(prev => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [resendCooldown]);
+
+  // TOTP input handlers
+  const handleTotpInputChange = (index: number, value: string) => {
+    if (value.length > 1) return;
+    const newCode = [...totpCode];
+    newCode[index] = value;
+    setTotpCode(newCode);
+    if (value && index < 5) {
+      totpInputRefs.current[index + 1]?.focus();
+    }
+    if (newCode.every(digit => digit !== '') && newCode.join('').length === 6) {
+      handleTotpVerification(newCode.join(''));
+    }
+  };
+
+  const handleTotpKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === 'Backspace' && !totpCode[index] && index > 0) {
+      totpInputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleTotpVerification = async (code: string) => {
+    if (!totpSetupSession || !sessionId) return;
+    setIsTotpVerifying(true);
+    setTotpError('');
+    try {
+      const result = await onboardingApi.confirmTotpSetup(totpSetupSession, code, sessionId);
+      if (result.success) {
+        setVerifySecurePhase('backup_codes');
+      } else {
+        setTotpError(result.message || 'Invalid code. Please try again.');
+        setTotpCode(['', '', '', '', '', '']);
+        totpInputRefs.current[0]?.focus();
+      }
+    } catch (error) {
+      setTotpError(error instanceof Error ? error.message : 'Verification failed. Please try again.');
+      setTotpCode(['', '', '', '', '', '']);
+      totpInputRefs.current[0]?.focus();
+    } finally {
+      setIsTotpVerifying(false);
+    }
+  };
+
+  const handleCopyBackupCodes = async () => {
+    try {
+      await navigator.clipboard.writeText(backupCodes.join('\n'));
+      setCopiedBackupCodes(true);
+      setTimeout(() => setCopiedBackupCodes(false), 3000);
+    } catch {
+      const textArea = document.createElement('textarea');
+      textArea.value = backupCodes.join('\n');
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopiedBackupCodes(true);
+      setTimeout(() => setCopiedBackupCodes(false), 3000);
+    }
+  };
+
+  const handleBackupCodesAcknowledged = () => {
+    setVerifySecurePhase('done');
+    // Auto-advance to Launch step after a brief moment
+    setTimeout(() => setCurrentSection(5), 800);
+  };
+
+  const handleResendVerification = async () => {
+    if (!sessionId || !wizardEmail) return;
+    setIsResending(true);
+    setVerifyError('');
+    setVerifySuccess('');
+    try {
+      await onboardingApi.resendVerificationCode(sessionId, wizardEmail);
+      setLinkSent(true);
+      setVerifySuccess('Verification link sent successfully!');
+      setResendCooldown(60);
+    } catch (error) {
+      setVerifyError(error instanceof Error ? error.message : 'Failed to resend verification. Please try again.');
+    }
+    setIsResending(false);
   };
 
   const progress = ((currentSection + 1) / steps.length) * 100;
@@ -2183,7 +2396,7 @@ export default function OnboardingPage() {
               )}
 
               {/* Steps 2-4: Store Setup (with Custom Domain), Documents, Launch */}
-              {(currentSection === 2 || currentSection === 3 || currentSection === 4) && (
+              {(currentSection === 2 || currentSection === 3 || currentSection === 4 || currentSection === 5) && (
                 <form onSubmit={storeSetupForm.handleSubmit(handleStoreSetupSubmit, (errors) => devError('[StoreSetup] Validation errors:', errors))} className="space-y-6" noValidate>
                   {/* Section-specific headers */}
                   {currentSection === 2 && (
@@ -2215,6 +2428,20 @@ export default function OnboardingPage() {
                   )}
 
                   {currentSection === 4 && (
+                    <div className="mb-8">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
+                          <Shield className="w-6 h-6 text-warm-600" />
+                        </div>
+                        <div>
+                          <h1 className="text-2xl font-serif font-medium text-foreground">Verify & Secure</h1>
+                          <p className="text-muted-foreground">Verify your email and set up two-factor authentication</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentSection === 5 && (
                     <div className="mb-8">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
@@ -3249,8 +3476,271 @@ export default function OnboardingPage() {
                       </>
                     )}
 
-                    {/* Section 4: Review & Launch */}
+                    {/* Section 4: Verify & Secure */}
                     {currentSection === 4 && (
+                      <>
+                        {verifySecurePhase === 'sending' && (
+                          <div className="text-center py-12">
+                            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 animate-pulse shadow-sm">
+                              <Loader2 className="w-10 h-10 text-warm-600 animate-spin" />
+                            </div>
+                            <h2 className="text-xl font-serif font-medium text-foreground mb-2">Sending verification link...</h2>
+                            <p className="text-muted-foreground">Please wait while we send a verification email</p>
+                          </div>
+                        )}
+
+                        {verifySecurePhase === 'waiting_email' && (
+                          <div className="text-center">
+                            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
+                              <Mail className="w-10 h-10 text-warm-600" />
+                            </div>
+                            <h2 className="text-xl font-serif font-medium text-foreground mb-4">Check Your Email</h2>
+                            <div className="bg-warm-50 border border-warm-200 rounded-2xl p-4 mb-6">
+                              <p className="text-muted-foreground">
+                                We've sent a verification link to
+                              </p>
+                              <p className="font-semibold text-primary mt-2">{wizardEmail}</p>
+                            </div>
+
+                            <div className="space-y-4">
+                              {verifyError && (
+                                <div className="bg-warm-50 border border-warm-200 rounded-2xl p-4">
+                                  <div className="flex items-center gap-2 text-warm-600">
+                                    <AlertCircle className="w-4 h-4" />
+                                    <span className="text-sm font-medium">{verifyError}</span>
+                                  </div>
+                                </div>
+                              )}
+
+                              {verifySuccess && (
+                                <div className="bg-warm-50 border border-warm-200 rounded-2xl p-4">
+                                  <div className="flex items-center gap-2 text-warm-600">
+                                    <CheckCircle className="w-4 h-4" />
+                                    <span className="text-sm font-medium">{verifySuccess}</span>
+                                  </div>
+                                </div>
+                              )}
+
+                              <div className="bg-warm-50 border border-warm-200 rounded-2xl p-6">
+                                <div className="flex items-center justify-center gap-3 mb-4">
+                                  <ExternalLink className="w-5 h-5 text-primary" />
+                                  <span className="font-medium text-foreground">Click the link in your email</span>
+                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                  Open your email inbox and click on the verification link we sent you. The link will expire in 24 hours.
+                                </p>
+                              </div>
+
+                              <div className="bg-warm-50 border border-warm-200 rounded-2xl p-6">
+                                <p className="text-sm text-muted-foreground mb-4">
+                                  Didn't receive the email?
+                                </p>
+                                <button
+                                  type="button"
+                                  onClick={handleResendVerification}
+                                  disabled={isResending || resendCooldown > 0}
+                                  className={`w-full py-3 px-6 rounded-xl font-medium transition-all duration-300 flex items-center justify-center border border-border hover:bg-secondary ${
+                                    (isResending || resendCooldown > 0) ? 'opacity-50 cursor-not-allowed' : ''
+                                  }`}
+                                >
+                                  {isResending ? (
+                                    <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Sending...</>
+                                  ) : (
+                                    <><RefreshCw className="mr-2 h-4 w-4" /> {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend Verification Link'}</>
+                                  )}
+                                </button>
+                              </div>
+
+                              <p className="text-sm text-muted-foreground">
+                                Make sure to check your spam folder if you don't see the email.
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {verifySecurePhase === 'mfa_setup' && (
+                          <div className="text-center">
+                            {!totpUri ? (
+                              <>
+                                <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 animate-pulse shadow-sm">
+                                  <Loader2 className="w-10 h-10 text-warm-600 animate-spin" />
+                                </div>
+                                <h2 className="text-xl font-serif font-medium text-foreground mb-2">Setting Up Authenticator</h2>
+                                <p className="text-muted-foreground">Please wait...</p>
+                              </>
+                            ) : (
+                              <>
+                                <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
+                                  <Smartphone className="w-10 h-10 text-warm-600" />
+                                </div>
+                                <h2 className="text-xl font-serif font-medium text-foreground mb-2">Set Up Authenticator</h2>
+                                <p className="text-muted-foreground mb-6">
+                                  Scan the QR code below with your authenticator app (Google Authenticator, Authy, etc.)
+                                </p>
+
+                                <div className="bg-white rounded-2xl p-6 mb-6 inline-block shadow-sm border border-border">
+                                  <QRCodeSVG value={totpUri} size={200} level="M" />
+                                </div>
+
+                                <div className="mb-6">
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowManualKey(!showManualKey)}
+                                    className="text-sm text-primary hover:underline flex items-center justify-center gap-1 mx-auto"
+                                  >
+                                    <KeyRound className="w-4 h-4" />
+                                    {showManualKey ? 'Hide manual entry key' : "Can't scan? Enter key manually"}
+                                  </button>
+                                  {showManualKey && (
+                                    <div className="mt-3 bg-warm-50 border border-warm-200 rounded-2xl p-4">
+                                      <p className="text-xs text-muted-foreground mb-2">Manual entry key:</p>
+                                      <p className="font-mono text-sm text-foreground break-all select-all">{totpManualKey}</p>
+                                    </div>
+                                  )}
+                                </div>
+
+                                {totpError && (
+                                  <div className="bg-warm-50 border border-warm-200 rounded-2xl p-4 mb-6">
+                                    <div className="flex items-center gap-2 text-warm-600">
+                                      <AlertCircle className="w-4 h-4" />
+                                      <span className="text-sm font-medium">{totpError}</span>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {verifyError && (
+                                  <div className="bg-warm-50 border border-warm-200 rounded-2xl p-4 mb-6">
+                                    <div className="flex items-center gap-2 text-warm-600">
+                                      <AlertCircle className="w-4 h-4" />
+                                      <span className="text-sm font-medium">{verifyError}</span>
+                                    </div>
+                                  </div>
+                                )}
+
+                                <div className="space-y-6">
+                                  <p className="text-muted-foreground">Enter the 6-digit code from your authenticator app</p>
+                                  <div className="flex justify-center gap-3">
+                                    {totpCode.map((digit, index) => (
+                                      <input
+                                        key={index}
+                                        ref={el => { totpInputRefs.current[index] = el; }}
+                                        type="text"
+                                        inputMode="numeric"
+                                        maxLength={1}
+                                        value={digit}
+                                        onChange={e => handleTotpInputChange(index, e.target.value)}
+                                        onKeyDown={e => handleTotpKeyDown(index, e)}
+                                        className="w-14 h-14 text-center text-2xl font-bold rounded-2xl border-2 border-border bg-background text-foreground focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all duration-200 hover:border-primary/50"
+                                        disabled={isTotpVerifying}
+                                      />
+                                    ))}
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const code = totpCode.join('');
+                                      if (code.length === 6) handleTotpVerification(code);
+                                    }}
+                                    disabled={isTotpVerifying || totpCode.join('').length !== 6}
+                                    className={`w-full py-4 text-lg font-medium transition-all duration-300 flex items-center justify-center rounded-lg bg-primary hover:bg-primary/90 text-white ${
+                                      (isTotpVerifying || totpCode.join('').length !== 6) ? 'opacity-50 cursor-not-allowed' : ''
+                                    }`}
+                                  >
+                                    {isTotpVerifying ? (
+                                      <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Verifying...</>
+                                    ) : (
+                                      <><Shield className="w-5 h-5 mr-2" /> Verify Authenticator</>
+                                    )}
+                                  </button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        )}
+
+                        {verifySecurePhase === 'backup_codes' && (
+                          <div className="text-center">
+                            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
+                              <KeyRound className="w-10 h-10 text-warm-600" />
+                            </div>
+                            <h2 className="text-xl font-serif font-medium text-foreground mb-2">Save Your Backup Codes</h2>
+                            <p className="text-muted-foreground mb-6">
+                              Store these codes in a safe place. You can use them to access your account if you lose your authenticator device.
+                            </p>
+
+                            <div className="bg-warm-50 border border-warm-200 rounded-2xl p-6 mb-6">
+                              <div className="grid grid-cols-2 gap-3 mb-4">
+                                {backupCodes.map((code, index) => (
+                                  <div
+                                    key={index}
+                                    className="font-mono text-sm bg-background rounded-xl p-3 text-foreground select-all border border-border"
+                                  >
+                                    {code}
+                                  </div>
+                                ))}
+                              </div>
+
+                              <button
+                                type="button"
+                                onClick={handleCopyBackupCodes}
+                                className="w-full py-3 px-6 rounded-xl font-medium transition-all duration-300 flex items-center justify-center border border-border hover:bg-secondary"
+                              >
+                                {copiedBackupCodes ? (
+                                  <><Check className="mr-2 h-4 w-4" /> Copied!</>
+                                ) : (
+                                  <><Copy className="mr-2 h-4 w-4" /> Copy Backup Codes</>
+                                )}
+                              </button>
+                            </div>
+
+                            <div className="bg-warm-50 border border-warm-200 rounded-2xl p-4 mb-6">
+                              <div className="flex items-start gap-2 text-warm-600 text-left">
+                                <Shield className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                                <span className="text-sm">
+                                  Each backup code can only be used once. If you lose both your authenticator and these codes, you'll need to contact support to regain access.
+                                </span>
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={handleBackupCodesAcknowledged}
+                              className="w-full py-4 text-lg font-medium transition-all duration-300 flex items-center justify-center rounded-lg bg-primary hover:bg-primary/90 text-white"
+                            >
+                              I've Saved My Backup Codes
+                              <ArrowRight className="w-5 h-5 ml-2" />
+                            </button>
+                          </div>
+                        )}
+
+                        {verifySecurePhase === 'done' && (
+                          <div className="text-center py-12">
+                            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
+                              <CheckCircle className="w-10 h-10 text-warm-600" />
+                            </div>
+                            <h2 className="text-xl font-serif font-medium text-foreground mb-2">All Set!</h2>
+                            <p className="text-muted-foreground">Your account is verified and secured. Moving to launch...</p>
+                          </div>
+                        )}
+
+                        {/* Section 4: Back button (only show during waiting/sending phases) */}
+                        {(verifySecurePhase === 'sending' || verifySecurePhase === 'waiting_email') && (
+                          <div className="pt-6">
+                            <button
+                              type="button"
+                              onClick={() => setCurrentSection(config.features.documents.enabled ? 3 : 2)}
+                              className="w-full h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
+                            >
+                              <ArrowLeft className="w-5 h-5" /> Back
+                            </button>
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {/* Section 5: Review & Launch */}
+                    {currentSection === 5 && (
                       <>
                         <div className="space-y-4">
                           <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
@@ -3290,16 +3780,34 @@ export default function OnboardingPage() {
                             </div>
                           </div>
 
+                          {/* Verification checkmarks */}
+                          <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
+                            <div className="flex items-center gap-3 mb-3">
+                              <ShieldCheck className="w-5 h-5 text-sage-600" />
+                              <span className="font-medium text-foreground">Security Verified</span>
+                            </div>
+                            <div className="grid gap-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Email Verified</span>
+                                <span className="text-sage-600 font-medium flex items-center gap-1"><Check className="w-4 h-4" /> Done</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Authenticator Configured</span>
+                                <span className="text-sage-600 font-medium flex items-center gap-1"><Check className="w-4 h-4" /> Done</span>
+                              </div>
+                            </div>
+                          </div>
+
                           <p className="text-sm text-muted-foreground text-center">
                             You can always change these settings later in your admin panel.
                           </p>
                         </div>
 
-                        {/* Section 4: Navigation buttons */}
+                        {/* Section 5: Navigation buttons */}
                         <div className="pt-6 flex gap-4">
                           <button
                             type="button"
-                            onClick={() => setCurrentSection(config.features.documents.enabled ? 3 : 2)}
+                            onClick={() => setCurrentSection(4)}
                             className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                           >
                             <ArrowLeft className="w-5 h-5" /> Back
