@@ -1554,8 +1554,10 @@ export default function OnboardingPage() {
       if (!emailForVerify && sessionId) {
         try {
           const session = await onboardingApi.getOnboardingSession(sessionId);
-          // Handle both legacy (contact_details/contact_info) and new (contact_information array) formats
-          emailForVerify = session.contact_details?.email || session.contact_info?.email || session.contact_information?.[0]?.email || '';
+          // Handle all locations: top-level contact fields + draft_form_data fallback
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const sessionAny = session as any;
+          emailForVerify = session.contact_details?.email || session.contact_info?.email || session.contact_information?.[0]?.email || sessionAny.draft_form_data?.contactDetails?.email || '';
         } catch (fetchError) {
           console.error('Failed to fetch email from session:', fetchError);
         }

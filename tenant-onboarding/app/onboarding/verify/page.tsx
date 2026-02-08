@@ -503,10 +503,15 @@ function VerifyEmailContent() {
     const fetchEmailFromSession = async () => {
       try {
         const session = await onboardingApi.getOnboardingSession(sessionId);
-        // Handle both legacy (contact_details/contact_info) and new (contact_information array) formats
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const sessionAny = session as any;
+        // Handle all possible locations where email might be stored:
+        // 1. Top-level contact fields (legacy and new formats)
+        // 2. draft_form_data.contactDetails.email (autosaved draft data from the form)
         const sessionEmail = session.contact_details?.email
           || session.contact_info?.email
-          || session.contact_information?.[0]?.email;
+          || session.contact_information?.[0]?.email
+          || sessionAny.draft_form_data?.contactDetails?.email;
         if (sessionEmail) {
           devLog('[Verify] Email fetched from session API:', sessionEmail);
           setFetchedEmail(sessionEmail);
@@ -555,18 +560,17 @@ function VerifyEmailContent() {
       devError('[Verify] Failed to check completion data:', e);
     }
 
-    // Check for valid session: need sessionId AND email from any source
-    // Include fetchedEmail which may be populated from direct session API call
-    const hasValidSession = sessionId && (emailFromParams || contactDetails.email || fetchedEmail);
-    if (!hasValidSession) {
-      devLog('[Verify] No valid session, showing welcome page');
+    // Check for valid session: sessionId is sufficient to show the verification UI.
+    // Email is resolved separately and guarded in the action handlers.
+    if (!sessionId) {
+      devLog('[Verify] No session ID, showing welcome page');
       setShowWelcomePage(true);
     } else if (showWelcomePage) {
-      // If we now have a valid session (e.g., email was fetched), hide welcome page
+      // If we now have a valid session, hide welcome page
       devLog('[Verify] Valid session found, hiding welcome page');
       setShowWelcomePage(false);
     }
-  }, [isRehydrating, emailFetchAttempted, sessionId, emailFromParams, contactDetails.email, fetchedEmail, showWelcomePage]);
+  }, [isRehydrating, emailFetchAttempted, sessionId, showWelcomePage]);
 
   // Check verification method on mount — show method selector
   useEffect(() => {
@@ -574,7 +578,7 @@ function VerifyEmailContent() {
     if (isRehydrating) return;
 
     // Handle case when page is visited directly without session
-    if (!email || !sessionId || showWelcomePage) {
+    if (!sessionId || showWelcomePage) {
       return; // Will show welcome page via the effect above
     }
 
@@ -586,7 +590,7 @@ function VerifyEmailContent() {
 
     // Show method selector so user can choose email OTP or authenticator app
     setShowMethodSelector(true);
-  }, [isRehydrating, email, sessionId, router, showWelcomePage]);
+  }, [isRehydrating, sessionId, showWelcomePage]);
 
   const sendVerification = async (method: VerificationMethod) => {
     if (!email || !sessionId) {
