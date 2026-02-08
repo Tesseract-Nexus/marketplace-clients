@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  User,
   Mail,
   Building2,
-  MapPin,
   Calendar,
   Phone,
   Shield,
@@ -13,11 +11,11 @@ import {
   Globe,
   Copy,
   Check,
-  Camera,
   Key,
   Bell,
   Save,
   Loader2,
+  Info,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
@@ -46,6 +44,14 @@ interface UserProfile {
   lastSignIn: string;
   photo?: string;
 }
+
+const LANGUAGES = [
+  { code: 'en-US', label: 'English (US)' },
+  { code: 'en-GB', label: 'English (UK)' },
+  { code: 'es', label: 'Spanish' },
+  { code: 'fr', label: 'French' },
+  { code: 'de', label: 'German' },
+];
 
 export default function ProfilePage() {
   const toast = useToast();
@@ -104,9 +110,10 @@ export default function ProfilePage() {
     try {
       await navigator.clipboard.writeText(text);
       setCopiedField(field);
+      toast.success('Copied', 'Copied to clipboard');
       setTimeout(() => setCopiedField(null), 2000);
-    } catch (error) {
-      console.error('Failed to copy:', error);
+    } catch {
+      toast.error('Failed', 'Could not copy to clipboard');
     }
   };
 
@@ -117,16 +124,19 @@ export default function ProfilePage() {
       updateUser({
         firstName: editedProfile.firstName,
         lastName: editedProfile.lastName,
-        displayName: editedProfile.displayName,
+        displayName: `${editedProfile.firstName} ${editedProfile.lastName}`.trim() || editedProfile.displayName,
         phone: editedProfile.businessPhone,
         jobTitle: editedProfile.jobTitle,
         department: editedProfile.department,
       });
 
-      setProfile(editedProfile);
+      setProfile({
+        ...editedProfile,
+        displayName: `${editedProfile.firstName} ${editedProfile.lastName}`.trim() || editedProfile.displayName,
+      });
       setIsEditing(false);
       toast.success('Success', 'Profile updated successfully!');
-    } catch (error) {
+    } catch {
       toast.error('Error', 'Failed to update profile');
     } finally {
       setIsSaving(false);
@@ -160,14 +170,55 @@ export default function ProfilePage() {
     return colors[charCode % colors.length];
   };
 
+  const getLanguageLabel = (code: string) => {
+    return LANGUAGES.find((l) => l.code === code)?.label || code;
+  };
+
   const userInitial = profile.displayName.charAt(0).toUpperCase();
+  const editPreviewName = `${editedProfile.firstName} ${editedProfile.lastName}`.trim();
 
   if (isUserLoading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="h-8 w-8 text-primary animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading profile...</p>
+      <div className="min-h-screen bg-background">
+        <div className="space-y-6 animate-pulse">
+          {/* Skeleton header */}
+          <div className="mb-6 md:mb-8">
+            <div className="h-4 w-48 bg-muted rounded mb-4" />
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="h-9 w-40 bg-muted rounded mb-2" />
+                <div className="h-5 w-72 bg-muted rounded" />
+              </div>
+              <div className="h-10 w-28 bg-muted rounded" />
+            </div>
+          </div>
+          {/* Skeleton profile card */}
+          <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
+            <div className="flex items-start gap-6">
+              <div className="h-24 w-24 bg-muted rounded-full" />
+              <div className="flex-1 space-y-3">
+                <div className="h-7 w-48 bg-muted rounded" />
+                <div className="h-4 w-56 bg-muted rounded" />
+                <div className="flex gap-2">
+                  <div className="h-6 w-20 bg-muted rounded-full" />
+                  <div className="h-6 w-16 bg-muted rounded-full" />
+                  <div className="h-6 w-14 bg-muted rounded-full" />
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Skeleton grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="h-52 bg-card rounded-xl border border-border" />
+            <div className="space-y-6">
+              <div className="h-48 bg-card rounded-xl border border-border" />
+              <div className="h-40 bg-card rounded-xl border border-border" />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="h-48 bg-card rounded-xl border border-border" />
+            <div className="h-48 bg-card rounded-xl border border-border" />
+          </div>
         </div>
       </div>
     );
@@ -219,249 +270,290 @@ export default function ProfilePage() {
         />
 
         {/* Profile Header */}
-        <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-          <div className="flex items-start gap-6">
-            <div className="relative group">
-              {profile.photo ? (
-                <img
-                  src={profile.photo}
-                  alt={profile.displayName}
-                  className="h-24 w-24 rounded-full object-cover shadow-lg border-4 border-primary/20"
-                />
-              ) : (
-                <div className={`h-24 w-24 rounded-full ${getInitialsBgColor(profile.displayName)} flex items-center justify-center shadow-lg border-4 border-primary/20`}>
-                  <span className="text-white font-bold text-2xl">{userInitial}</span>
-                </div>
-              )}
-              <div className="absolute -bottom-1 -right-1 h-7 w-7 bg-success rounded-full border-4 border-white flex items-center justify-center">
-                <div className="h-2 w-2 bg-card rounded-full" />
-              </div>
-              {isEditing && (
-                <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                  <Camera className="h-6 w-6 text-white" />
-                </div>
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              {isEditing ? (
-                <div className="flex gap-3 mb-3">
-                  <Input
-                    value={editedProfile.firstName}
-                    onChange={(e) => setEditedProfile({ ...editedProfile, firstName: e.target.value })}
-                    placeholder="First Name"
-                    className="max-w-[150px]"
+        <section aria-label="Profile information">
+          <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
+            <div className="flex items-start gap-6">
+              <div className="relative">
+                {profile.photo ? (
+                  <img
+                    src={profile.photo}
+                    alt={profile.displayName}
+                    className="h-24 w-24 rounded-full object-cover shadow-lg border-4 border-primary/20"
                   />
-                  <Input
-                    value={editedProfile.lastName}
-                    onChange={(e) => setEditedProfile({ ...editedProfile, lastName: e.target.value })}
-                    placeholder="Last Name"
-                    className="max-w-[150px]"
-                  />
-                </div>
-              ) : (
-                <h2 className="text-2xl font-bold text-foreground mb-2">{profile.displayName}</h2>
-              )}
-              <div className="flex items-center gap-3 mb-3">
-                <div className="flex items-center gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">{profile.email}</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={() => copyToClipboard(profile.email, 'email')}
-                  >
-                    {copiedField === 'email' ? (
-                      <Check className="h-3 w-3 text-success" />
-                    ) : (
-                      <Copy className="h-3 w-3" />
-                    )}
-                  </Button>
-                </div>
-              </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <Briefcase className="h-4 w-4 text-muted-foreground" />
-                  {isEditing ? (
-                    <Input
-                      value={editedProfile.jobTitle}
-                      onChange={(e) => setEditedProfile({ ...editedProfile, jobTitle: e.target.value })}
-                      placeholder="Job Title"
-                      className="max-w-[180px] h-7 text-sm"
-                    />
-                  ) : (
-                    <span className="text-sm text-muted-foreground">{profile.jobTitle || 'Not set'}</span>
-                  )}
-                </div>
-                {isEditing ? (
-                  <Input
-                    value={editedProfile.department}
-                    onChange={(e) => setEditedProfile({ ...editedProfile, department: e.target.value })}
-                    placeholder="Department"
-                    className="max-w-[150px] h-7 text-sm"
-                  />
-                ) : profile.department && (
-                  <span className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs font-semibold">
-                    {profile.department}
-                  </span>
+                ) : (
+                  <div className={`h-24 w-24 rounded-full ${getInitialsBgColor(profile.displayName)} flex items-center justify-center shadow-lg border-4 border-primary/20`}>
+                    <span className="text-white font-bold text-2xl">{userInitial}</span>
+                  </div>
                 )}
-                <span className="px-2 py-1 bg-success-muted text-success-foreground rounded-full text-xs font-semibold">
-                  {profile.accountEnabled ? 'Active' : 'Disabled'}
-                </span>
-                <span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold">
-                  {profile.role}
-                </span>
+                <div
+                  className="absolute -bottom-1 -right-1 h-7 w-7 bg-success rounded-full border-4 border-white flex items-center justify-center"
+                  title={profile.accountEnabled ? 'Active' : 'Inactive'}
+                >
+                  <div className="h-2 w-2 bg-card rounded-full" />
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Contact Information */}
-          <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
-                <Phone className="h-6 w-6 text-success" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-foreground">Contact Information</h3>
-                <p className="text-sm text-muted-foreground">Your contact details</p>
-              </div>
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                <div className="flex items-center gap-3 flex-1">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-foreground">Phone</p>
+              <div className="flex-1 min-w-0">
+                {isEditing ? (
+                  <div className="mb-3 space-y-2">
+                    <div className="flex gap-3">
+                      <div className="flex-1 max-w-[180px]">
+                        <label className="text-xs text-muted-foreground block mb-1">First Name</label>
+                        <Input
+                          value={editedProfile.firstName}
+                          onChange={(e) => setEditedProfile({ ...editedProfile, firstName: e.target.value })}
+                          placeholder="First Name"
+                        />
+                      </div>
+                      <div className="flex-1 max-w-[180px]">
+                        <label className="text-xs text-muted-foreground block mb-1">Last Name</label>
+                        <Input
+                          value={editedProfile.lastName}
+                          onChange={(e) => setEditedProfile({ ...editedProfile, lastName: e.target.value })}
+                          placeholder="Last Name"
+                        />
+                      </div>
+                    </div>
+                    {editPreviewName && (
+                      <p className="text-sm text-muted-foreground">
+                        Display name: <span className="font-semibold text-foreground">{editPreviewName}</span>
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <h2 className="text-2xl font-bold text-foreground mb-2">{profile.displayName}</h2>
+                )}
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">{profile.email}</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={() => copyToClipboard(profile.email, 'email')}
+                      aria-label="Copy email address"
+                    >
+                      {copiedField === 'email' ? (
+                        <Check className="h-3 w-3 text-success" />
+                      ) : (
+                        <Copy className="h-3 w-3" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <Briefcase className="h-4 w-4 text-muted-foreground" />
                     {isEditing ? (
                       <Input
-                        value={editedProfile.businessPhone}
-                        onChange={(e) => setEditedProfile({ ...editedProfile, businessPhone: e.target.value })}
-                        className="mt-1"
-                        placeholder="+1-555-0123"
+                        value={editedProfile.jobTitle}
+                        onChange={(e) => setEditedProfile({ ...editedProfile, jobTitle: e.target.value })}
+                        placeholder="Job Title"
+                        className="max-w-[180px] h-7 text-sm"
                       />
                     ) : (
-                      <p className="text-sm text-muted-foreground">{profile.businessPhone || 'Not set'}</p>
+                      <span className="text-sm text-muted-foreground">
+                        {profile.jobTitle || (
+                          <span className="italic text-muted-foreground/60">Add your job title</span>
+                        )}
+                      </span>
                     )}
                   </div>
-                </div>
-                {!isEditing && profile.businessPhone && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 w-8 p-0"
-                    onClick={() => copyToClipboard(profile.businessPhone, 'businessPhone')}
-                  >
-                    {copiedField === 'businessPhone' ? (
-                      <Check className="h-4 w-4 text-success" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                  </Button>
-                )}
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                <Globe className="h-4 w-4 text-muted-foreground" />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-foreground">Preferred Language</p>
                   {isEditing ? (
-                    <select
-                      value={editedProfile.preferredLanguage}
-                      onChange={(e) => setEditedProfile({ ...editedProfile, preferredLanguage: e.target.value })}
-                      className="mt-1 w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
-                    >
-                      <option value="en-US">English (US)</option>
-                      <option value="en-GB">English (UK)</option>
-                      <option value="es">Spanish</option>
-                      <option value="fr">French</option>
-                      <option value="de">German</option>
-                    </select>
+                    <Input
+                      value={editedProfile.department}
+                      onChange={(e) => setEditedProfile({ ...editedProfile, department: e.target.value })}
+                      placeholder="Department"
+                      className="max-w-[150px] h-7 text-sm"
+                    />
+                  ) : profile.department ? (
+                    <span className="px-2 py-1 bg-primary/20 text-primary rounded-full text-xs font-semibold">
+                      {profile.department}
+                    </span>
                   ) : (
-                    <p className="text-sm text-muted-foreground">{profile.preferredLanguage}</p>
+                    !isEditing && (
+                      <span className="text-xs italic text-muted-foreground/60">No department</span>
+                    )
                   )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Organization & Security */}
-          <div className="space-y-6">
-            {/* Organization */}
-            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <Building2 className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-foreground">Organization</h3>
-                  <p className="text-sm text-muted-foreground">Role and account info</p>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Shield className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Role</p>
-                      <p className="text-sm text-muted-foreground">{profile.role}</p>
-                    </div>
-                  </div>
+                  <span className="px-2 py-1 bg-success-muted text-success-foreground rounded-full text-xs font-semibold">
+                    {profile.accountEnabled ? 'Active' : 'Disabled'}
+                  </span>
                   <span className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold">
                     {profile.role}
                   </span>
                 </div>
-                <div className="p-3 bg-muted rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Account Created</p>
-                      <p className="text-sm text-muted-foreground">{formatDate(profile.createdAt)}</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-3 bg-muted rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Last Sign In</p>
-                      <p className="text-sm text-muted-foreground">{formatDate(profile.lastSignIn)}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Security */}
-            <div className="bg-card rounded-lg border border-border p-6 shadow-sm">
-              <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
-                  <Key className="h-6 w-6 text-warning" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-foreground">Security</h3>
-                  <p className="text-sm text-muted-foreground">Password and preferences</p>
-                </div>
-              </div>
-              <div className="space-y-3">
-                <Button variant="outline" className="w-full justify-start">
-                  <Key className="h-4 w-4 mr-2" />
-                  Change Password
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Bell className="h-4 w-4 mr-2" />
-                  Notification Preferences
-                </Button>
               </div>
             </div>
           </div>
-        </div>
+        </section>
+
+        <section aria-label="Contact and organization details">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Contact Information */}
+            <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center">
+                  <Phone className="h-6 w-6 text-success" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-foreground">Contact Information</h3>
+                  <p className="text-sm text-muted-foreground">Your contact details</p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div className="flex items-center gap-3 flex-1">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">Phone</p>
+                      {isEditing ? (
+                        <Input
+                          value={editedProfile.businessPhone}
+                          onChange={(e) => setEditedProfile({ ...editedProfile, businessPhone: e.target.value })}
+                          className="mt-1"
+                          placeholder="+1-555-0123"
+                        />
+                      ) : profile.businessPhone ? (
+                        <p className="text-sm text-muted-foreground">{profile.businessPhone}</p>
+                      ) : (
+                        <p className="text-sm text-muted-foreground/60 italic">
+                          Add a phone number so colleagues can reach you
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  {!isEditing && profile.businessPhone && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0"
+                      onClick={() => copyToClipboard(profile.businessPhone, 'businessPhone')}
+                      aria-label="Copy phone number"
+                    >
+                      {copiedField === 'businessPhone' ? (
+                        <Check className="h-4 w-4 text-success" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                  <Globe className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-foreground">Preferred Language</p>
+                    {isEditing ? (
+                      <select
+                        value={editedProfile.preferredLanguage}
+                        onChange={(e) => setEditedProfile({ ...editedProfile, preferredLanguage: e.target.value })}
+                        className="mt-1 w-full h-10 px-3 border border-border rounded-md bg-background text-sm focus:outline-none focus:border-primary"
+                        aria-label="Preferred Language"
+                      >
+                        {LANGUAGES.map((lang) => (
+                          <option key={lang.code} value={lang.code}>
+                            {lang.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">{getLanguageLabel(profile.preferredLanguage)}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Organization & Security */}
+            <div className="space-y-6">
+              {/* Organization */}
+              <div className="bg-card rounded-xl border border-border p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                    <Building2 className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground">Organization</h3>
+                    <p className="text-sm text-muted-foreground">Role and account info</p>
+                  </div>
+                </div>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Shield className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Role</p>
+                        <p className="text-sm text-muted-foreground">{profile.role}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-muted rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Account Created</p>
+                        <p className="text-sm text-muted-foreground">{formatDate(profile.createdAt)}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-3 bg-muted rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Last Sign In</p>
+                        <p className="text-sm text-muted-foreground">{formatDate(profile.lastSignIn)}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Security */}
+              <div className="bg-card rounded-xl border border-border border-l-4 border-l-warning p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center">
+                    <Key className="h-6 w-6 text-warning" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground">Security</h3>
+                    <p className="text-sm text-muted-foreground">Password and preferences</p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-muted-foreground cursor-not-allowed"
+                    disabled
+                  >
+                    <Key className="h-4 w-4 mr-2" />
+                    Change Password
+                    <span className="ml-auto text-xs bg-muted px-2 py-0.5 rounded-full">Coming Soon</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-muted-foreground cursor-not-allowed"
+                    disabled
+                  >
+                    <Bell className="h-4 w-4 mr-2" />
+                    Notification Preferences
+                    <span className="ml-auto text-xs bg-muted px-2 py-0.5 rounded-full">Coming Soon</span>
+                  </Button>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1.5 pt-1">
+                    <Info className="h-3 w-3" />
+                    Use the sections below to manage MFA and passkeys
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Security Settings */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-          <MFASettings />
-          <PasskeySettings />
-        </div>
+        <section aria-label="Security settings">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+            <MFASettings />
+            <PasskeySettings />
+          </div>
+        </section>
       </div>
     </div>
     </PermissionGate>

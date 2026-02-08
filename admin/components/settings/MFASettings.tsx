@@ -38,6 +38,7 @@ export function MFASettings() {
   const [backupCodes, setBackupCodes] = useState<string[]>([]);
   const [showManualKey, setShowManualKey] = useState(false);
   const [copiedCodes, setCopiedCodes] = useState(false);
+  const [acknowledgedBackupWarning, setAcknowledgedBackupWarning] = useState(false);
 
   // Code input
   const [code, setCode] = useState(['', '', '', '', '', '']);
@@ -83,6 +84,16 @@ export function MFASettings() {
     }
   };
 
+  const handleCodePaste = (e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text').replace(/\D/g, '');
+    if (pastedData.length >= 6) {
+      const digits = pastedData.slice(0, 6).split('');
+      setCode(digits);
+      codeRefs.current[5]?.focus();
+    }
+  };
+
   const getCodeString = () => code.join('');
 
   // Enable TOTP: Step 1 - Initiate
@@ -116,6 +127,7 @@ export function MFASettings() {
     try {
       const result = await confirmTotpSetup(setupSession, codeStr);
       if (result.success) {
+        setAcknowledgedBackupWarning(false);
         setFlow('enable-backup');
       } else {
         setError(result.message || 'Invalid code.');
@@ -137,6 +149,7 @@ export function MFASettings() {
     setTotpUri('');
     setManualKey('');
     setBackupCodes([]);
+    setAcknowledgedBackupWarning(false);
     resetCode();
   };
 
@@ -177,6 +190,7 @@ export function MFASettings() {
       if (result.success && result.backup_codes) {
         setBackupCodes(result.backup_codes);
         setBackupCodesRemaining(result.backup_codes.length);
+        setAcknowledgedBackupWarning(false);
         setFlow('enable-backup'); // Reuse backup codes display
       } else {
         setError(result.message || 'Invalid code.');
@@ -205,11 +219,12 @@ export function MFASettings() {
     setManualKey('');
     setBackupCodes([]);
     setShowManualKey(false);
+    setAcknowledgedBackupWarning(false);
   };
 
   // Code input component (reused across flows)
   const renderCodeInput = () => (
-    <div className="flex justify-center gap-2">
+    <div className="flex justify-center gap-2" role="group" aria-label="6-digit authentication code">
       {code.map((digit, index) => (
         <input
           key={index}
@@ -220,6 +235,8 @@ export function MFASettings() {
           value={digit}
           onChange={e => handleCodeChange(index, e.target.value)}
           onKeyDown={e => handleCodeKeyDown(index, e)}
+          onPaste={index === 0 ? handleCodePaste : undefined}
+          aria-label={`Digit ${index + 1}`}
           className="w-11 h-11 text-center text-lg font-bold rounded-lg border border-border bg-background text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
           disabled={isProcessing}
         />
@@ -411,13 +428,31 @@ export function MFASettings() {
               <><Copy className="h-4 w-4 mr-2" /> Copy All Codes</>
             )}
           </Button>
-          <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-            <p className="text-xs text-yellow-800 dark:text-yellow-200 font-medium">
-              You won't be able to see these codes again after closing this dialog.
-            </p>
+          <div className="p-4 bg-error/10 border border-error/30 rounded-lg space-y-3">
+            <div className="flex items-start gap-2">
+              <AlertTriangle className="h-5 w-5 text-error flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-error font-medium">
+                You won&apos;t see these codes again. Save them now or you may lose account access.
+              </p>
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={acknowledgedBackupWarning}
+                onChange={(e) => setAcknowledgedBackupWarning(e.target.checked)}
+                className="rounded border-error/50 text-error focus:ring-error h-4 w-4"
+              />
+              <span className="text-sm text-foreground">
+                I have saved these backup codes in a secure location
+              </span>
+            </label>
           </div>
-          <Button onClick={handleBackupCodesAcknowledged} className="w-full">
-            I've Saved These Codes — Done
+          <Button
+            onClick={handleBackupCodesAcknowledged}
+            className="w-full"
+            disabled={!acknowledgedBackupWarning}
+          >
+            Done
           </Button>
         </div>
       )}
@@ -426,8 +461,12 @@ export function MFASettings() {
       {flow === 'disable' && (
         <div className="space-y-4">
           <div className="p-3 bg-error-muted border border-error/30 rounded-lg">
-            <p className="text-sm text-error font-medium">
-              Enter your current authenticator code to disable two-factor authentication.
+            <div className="flex items-center gap-2 mb-1">
+              <AlertTriangle className="h-4 w-4 text-error" />
+              <p className="text-sm text-error font-semibold">Disable Two-Factor Authentication?</p>
+            </div>
+            <p className="text-xs text-error/80">
+              Your account will be less secure. Enter your current authenticator code to confirm.
             </p>
           </div>
           {renderCodeInput()}

@@ -166,10 +166,23 @@ export function PasskeySettings() {
       {/* Passkey list */}
       <div className="space-y-3 mb-4">
         {passkeys.length === 0 ? (
-          <div className="text-center py-6 text-muted-foreground">
-            <Fingerprint className="h-10 w-10 mx-auto mb-2 opacity-30" />
-            <p className="text-sm">No passkeys registered yet.</p>
-            <p className="text-xs mt-1">Add a passkey to enable passwordless sign-in.</p>
+          <div className="text-center py-8 px-4">
+            <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-3">
+              <Fingerprint className="h-8 w-8 text-primary" />
+            </div>
+            <h4 className="font-semibold text-foreground mb-1">No passkeys yet</h4>
+            <p className="text-sm text-muted-foreground mb-4">
+              Sign in faster and more securely with biometrics or security keys
+            </p>
+            {isSupported && !showNameInput && (
+              <Button
+                onClick={() => setShowNameInput(true)}
+                size="sm"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Your First Passkey
+              </Button>
+            )}
           </div>
         ) : (
           passkeys.map((passkey) => (
@@ -225,14 +238,20 @@ export function PasskeySettings() {
                     }}
                     className="p-1.5 rounded-md hover:bg-background text-muted-foreground hover:text-foreground transition-colors"
                     title="Rename"
+                    aria-label={`Rename passkey ${passkey.name}`}
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                   <button
-                    onClick={() => handleDelete(passkey.credential_id)}
+                    onClick={() => {
+                      if (window.confirm(`Delete passkey "${passkey.name}"?\n\nYou won't be able to use this passkey to sign in anymore.`)) {
+                        handleDelete(passkey.credential_id);
+                      }
+                    }}
                     disabled={deletingId === passkey.credential_id}
                     className="p-1.5 rounded-md hover:bg-error-muted text-muted-foreground hover:text-error transition-colors disabled:opacity-50"
                     title="Delete"
+                    aria-label={`Delete passkey ${passkey.name}`}
                   >
                     {deletingId === passkey.credential_id ? (
                       <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -248,7 +267,7 @@ export function PasskeySettings() {
       </div>
 
       {/* Add passkey */}
-      {isSupported && (
+      {isSupported && (passkeys.length > 0 || showNameInput) && (
         <>
           {showNameInput ? (
             <div className="flex gap-2">
