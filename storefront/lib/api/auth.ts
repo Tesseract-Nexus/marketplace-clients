@@ -1051,6 +1051,7 @@ export async function registerPasskey(name: string): Promise<{ success: boolean;
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
     });
 
     if (!optionsRes.ok) {
