@@ -597,6 +597,8 @@ export default function OnboardingPage() {
     resetOnboarding();
     // Reset UI state to start fresh
     setCurrentSection(0);
+    setBusinessContactSubStep('business');
+    setIsStoreHydrated(false);
     // Reset all forms to empty values
     businessForm.reset({
       businessName: '',
@@ -671,6 +673,8 @@ export default function OnboardingPage() {
       resetOnboarding();
       // Reset UI state
       setCurrentSection(0);
+      setBusinessContactSubStep('business');
+      setIsStoreHydrated(false);
       // Reset all forms
       businessForm.reset({
         businessName: '',

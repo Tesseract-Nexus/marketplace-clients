@@ -99,9 +99,12 @@ export function useDraftRecovery(
           }
           console.log('[DraftRecovery] Found draft data:', response);
         } else {
-          // Session not found - clear stale session data
-          console.warn('[DraftRecovery] Session not found, clearing stale session');
-          onSessionNotFoundRef.current?.();
+          // No draft saved yet — this is normal for new sessions.
+          // Only clear stale session if the server explicitly says session is gone
+          // (handled by getDraft returning 404 which sets found:false).
+          // Don't call onSessionNotFound here — a valid session with no draft
+          // should not trigger a full wizard reset.
+          console.log('[DraftRecovery] No draft found for session (may be new)');
           setState({
             isLoading: false,
             hasDraft: false,
