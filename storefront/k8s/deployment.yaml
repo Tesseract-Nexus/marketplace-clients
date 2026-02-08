@@ -93,6 +93,12 @@ spec:
         - name: DOCUMENT_SERVICE_URL
           value: "http://document-service.default.svc.cluster.local:8082"
 
+        # Storage - Public Bucket (same as admin, for avatar uploads)
+        - name: STORAGE_PUBLIC_BUCKET
+          value: "marketplace-devtest-public-au"
+        - name: STORAGE_PUBLIC_BUCKET_URL
+          value: "https://storage.googleapis.com/marketplace-devtest-public-au"
+
         # Reviews Service
         - name: REVIEWS_SERVICE_URL
           value: "http://reviews-service.default.svc.cluster.local:8080"
