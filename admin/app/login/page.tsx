@@ -300,11 +300,24 @@ function LoginPageContent() {
     return () => clearTimeout(timer);
   }, [resendCooldown]);
 
+  // Helper: handle expired MFA session by going back to password step
+  const handleMfaSessionExpired = () => {
+    setStep('password');
+    setMfaCode('');
+    setMfaSession(null);
+    setResendCooldown(0);
+    setError('Your verification session has expired. Please enter your password again.');
+  };
+
   // Auto-send MFA code when entering MFA step (only for email method)
   useEffect(() => {
     if (step === 'mfa' && mfaSession && activeMfaMethod === 'email') {
-      sendMfaCode(mfaSession, 'email').then(() => {
-        setResendCooldown(60);
+      sendMfaCode(mfaSession, 'email').then((result) => {
+        if (result.success) {
+          setResendCooldown(60);
+        } else if ((result as { error?: string }).error === 'INVALID_MFA_SESSION') {
+          handleMfaSessionExpired();
+        }
       }).catch(() => {
         // Silently handle - user can manually resend
       });
@@ -324,6 +337,12 @@ function LoginPageContent() {
       const result = await verifyMfa(mfaSession, codeToVerify, activeMfaMethod, trustDevice);
 
       if (!result.success) {
+        // Check for expired MFA session
+        if ((result as { error?: string }).error === 'INVALID_MFA_SESSION') {
+          handleMfaSessionExpired();
+          setIsLoading(false);
+          return;
+        }
         setError(result.message || 'Invalid verification code.');
         if (result.remaining_attempts !== undefined) {
           setRemainingAttempts(result.remaining_attempts);
@@ -350,9 +369,15 @@ function LoginPageContent() {
     if (!mfaSession || resendCooldown > 0) return;
 
     try {
-      await sendMfaCode(mfaSession, 'email');
-      setResendCooldown(60);
-      setError(null);
+      const result = await sendMfaCode(mfaSession, 'email');
+      if (result.success) {
+        setResendCooldown(60);
+        setError(null);
+      } else if ((result as { error?: string }).error === 'INVALID_MFA_SESSION') {
+        handleMfaSessionExpired();
+      } else {
+        setError(result.message || 'Failed to resend code. Please try again.');
+      }
     } catch {
       setError('Failed to resend code. Please try again.');
     }
@@ -661,8 +686,12 @@ function LoginPageContent() {
                     setMfaCode('');
                     setError(null);
                     if (mfaSession) {
-                      sendMfaCode(mfaSession, 'email').then(() => {
-                        setResendCooldown(60);
+                      sendMfaCode(mfaSession, 'email').then((result) => {
+                        if (result.success) {
+                          setResendCooldown(60);
+                        } else if ((result as { error?: string }).error === 'INVALID_MFA_SESSION') {
+                          handleMfaSessionExpired();
+                        }
                       }).catch(() => {});
                     }
                   }}
