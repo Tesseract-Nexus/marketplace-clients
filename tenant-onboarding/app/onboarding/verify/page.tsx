@@ -572,14 +572,19 @@ function VerifyEmailContent() {
     }
   }, [isRehydrating, emailFetchAttempted, sessionId, showWelcomePage]);
 
-  // Check verification method on mount — show method selector
+  // Auto-send email OTP once session and email are available
   useEffect(() => {
     // Wait for rehydration to complete
     if (isRehydrating) return;
 
     // Handle case when page is visited directly without session
     if (!sessionId || showWelcomePage) {
-      return; // Will show welcome page via the effect above
+      return;
+    }
+
+    // Wait until email is resolved (may come from async session API fetch)
+    if (!email) {
+      return;
     }
 
     // Prevent duplicate init in React Strict Mode
@@ -588,9 +593,20 @@ function VerifyEmailContent() {
     }
     hasInitializedRef.current = true;
 
-    // Show method selector so user can choose email OTP or authenticator app
-    setShowMethodSelector(true);
-  }, [isRehydrating, sessionId, showWelcomePage]);
+    // Directly send email OTP (no method selector)
+    const initEmailVerification = async () => {
+      try {
+        const methodResponse = await onboardingApi.getVerificationMethod();
+        setVerificationMethod(methodResponse.method);
+        await sendVerification(methodResponse.method);
+      } catch {
+        setVerificationMethod('otp');
+        await sendVerification('otp');
+      }
+    };
+
+    initEmailVerification();
+  }, [isRehydrating, sessionId, email, showWelcomePage]);
 
   const sendVerification = async (method: VerificationMethod) => {
     if (!email || !sessionId) {
@@ -1572,18 +1588,14 @@ function VerifyEmailContent() {
         <div className={`bg-card border border-border shadow-sm rounded-3xl p-12 animate-fadeInUp max-w-lg mx-auto ${
           isVerified ? 'border-warm-300' : 'border-border'
         }`}>
-          {showMethodSelector ? (
-            renderMethodSelector()
-          ) : verificationMethod === 'totp' && !totpConfirmed ? (
-            renderTotpSetup()
-          ) : verificationMethod === 'totp' && totpConfirmed && !backupCodesAcknowledged ? (
-            renderBackupCodes()
-          ) : isSendingInitial || verificationMethod === null ? (
+          {isSendingInitial || verificationMethod === null ? (
             <div className="text-center">
               <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 animate-pulse shadow-sm">
                 <Loader2 className="w-10 h-10 text-foreground-secondary animate-spin" />
               </div>
-              <h2 className="display-medium text-[var(--foreground)] mb-4">Sending Verification</h2>
+              <h2 className="display-medium text-[var(--foreground)] mb-4">
+                {!email ? 'Resolving your email...' : 'Sending Verification'}
+              </h2>
               <p className="body text-[var(--foreground-secondary)]">Please wait...</p>
             </div>
           ) : verificationMethod === 'link' ? (
