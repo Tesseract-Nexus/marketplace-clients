@@ -74,7 +74,7 @@ export const config = {
   // Asset URLs
   assets: {
     placeholder: '/placeholder.svg',
-    logo: '/logo.svg',
+    logo: '/logo.png',
   },
 
   // Environment info

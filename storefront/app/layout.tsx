@@ -115,7 +115,7 @@ export default async function RootLayout({
           {settings.faviconUrl ? (
             <link rel="icon" href={settings.faviconUrl} />
           ) : (
-            <link rel="icon" href="/logo-icon.svg" />
+            <link rel="icon" href="/favicon.ico" />
           )}
         </head>
         <body className={`${inter.variable} font-sans antialiased`}>
@@ -173,8 +173,8 @@ export default async function RootLayout({
           </>
         ) : (
           <>
-            <link rel="icon" href="/logo-icon.png" />
-            <link rel="shortcut icon" href="/logo-icon.png" />
+            <link rel="icon" href="/favicon.ico" />
+            <link rel="shortcut icon" href="/favicon.ico" />
             <link rel="apple-touch-icon" href="/logo-icon.png" />
           </>
         )}
