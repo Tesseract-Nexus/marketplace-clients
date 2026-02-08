@@ -1633,11 +1633,34 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (currentSection !== 4) return;
     if (mfaPhase !== 'initiating') return;
-    if (!sessionId || !wizardEmail) return;
+    if (!sessionId) return;
 
     const initMfaSetup = async () => {
       try {
-        const result = await onboardingApi.initiateTotpSetup(sessionId, wizardEmail);
+        // Resolve email inline — wizardEmail may be empty due to rehydration race
+        let email = contactForm.getValues('email') || contactDetails.email || fetchedEmail;
+
+        if (!email) {
+          try {
+            const session = await onboardingApi.getOnboardingSession(sessionId);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const sessionAny = session as any;
+            email = session.contact_details?.email
+              || session.contact_info?.email
+              || session.contact_information?.[0]?.email
+              || sessionAny.contact_information?.[0]?.email
+              || sessionAny.draft_form_data?.contactDetails?.email;
+            if (email) setFetchedEmail(email);
+          } catch { /* session fetch failed */ }
+        }
+
+        if (!email) {
+          setMfaError('Unable to resolve your email. Please go back and verify your contact details are saved.');
+          setMfaPhase('mfa_setup');
+          return;
+        }
+
+        const result = await onboardingApi.initiateTotpSetup(sessionId, email);
         setTotpSetupSession(result.setup_session);
         setTotpUri(result.totp_uri);
         setTotpManualKey(result.manual_entry_key);
@@ -1645,11 +1668,11 @@ export default function OnboardingPage() {
         setMfaPhase('mfa_setup');
       } catch {
         setMfaError('Failed to set up authenticator. Please try again.');
-        setMfaPhase('mfa_setup'); // show error state in mfa_setup phase
+        setMfaPhase('mfa_setup');
       }
     };
     initMfaSetup();
-  }, [currentSection, mfaPhase, sessionId, wizardEmail]);
+  }, [currentSection, mfaPhase, sessionId]);
 
   // TOTP input handlers
   const handleTotpInputChange = (index: number, value: string) => {

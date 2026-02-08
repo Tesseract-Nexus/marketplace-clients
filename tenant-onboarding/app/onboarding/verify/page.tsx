@@ -954,6 +954,20 @@ function VerifyEmailContent() {
     setIsResending(false);
   };
 
+  // Retry TOTP setup after initiation failure
+  const retryTotpSetup = async () => {
+    setError('');
+    try {
+      const result = await onboardingApi.initiateTotpSetup(sessionId!, email);
+      setTotpSetupSession(result.setup_session);
+      setTotpUri(result.totp_uri);
+      setTotpManualKey(result.manual_entry_key);
+      setBackupCodes(result.backup_codes);
+    } catch {
+      setError('Failed to set up authenticator. Please try again.');
+    }
+  };
+
   // --- Render Functions ---
 
   // Render link-based verification UI (waiting for link click only)
@@ -1041,6 +1055,25 @@ function VerifyEmailContent() {
   const renderTotpSetup = () => {
     // Show loading while TOTP setup data is being fetched
     if (!totpUri) {
+      // Show error + retry if TOTP initiation failed (instead of infinite spinner)
+      if (error) {
+        return (
+          <div className="text-center">
+            <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 shadow-sm">
+              <Shield className="w-10 h-10 text-foreground-secondary" />
+            </div>
+            <h2 className="display-medium text-[var(--foreground)] mb-4">Setup Error</h2>
+            <p className="body text-[var(--foreground-secondary)] mb-6">{error}</p>
+            <button
+              onClick={retryTotpSetup}
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--primary)] text-white rounded-xl hover:opacity-90 transition-opacity"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Try Again
+            </button>
+          </div>
+        );
+      }
       return (
         <div className="text-center">
           <div className="w-20 h-20 mx-auto rounded-3xl bg-warm-100 flex items-center justify-center mb-6 animate-pulse shadow-sm">
