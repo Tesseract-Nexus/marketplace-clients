@@ -410,108 +410,131 @@ export default function OnboardingPage() {
   // Track if storefrontSlug was manually edited
   const [storefrontSlugManuallyEdited, setStorefrontSlugManuallyEdited] = useState(false);
 
-  // Store hydration
+  // Effect A — Populate forms reactively whenever PII data changes (handles async rehydration)
   useEffect(() => {
-    if (sessionId && !isStoreHydrated) {
-      setIsStoreHydrated(true);
-      if (businessInfo && Object.keys(businessInfo).length > 0) {
-        const formData: Partial<BusinessInfoForm> = {
-          businessName: (businessInfo as any).business_name || '',
-          businessType: (businessInfo as any).business_type || '',
-          industryCategory: (businessInfo as any).industry || '',
-          businessDescription: (businessInfo as any).business_description || '',
-          companyWebsite: (businessInfo as any).website || '',
-          businessRegistrationNumber: (businessInfo as any).registration_number || '',
-        };
-        Object.entries(formData).forEach(([key, value]) => {
-          if (value) businessForm.setValue(key as keyof BusinessInfoForm, value as any);
-        });
-      }
-      if (contactDetails && Object.keys(contactDetails).length > 0) {
-        const formData: Partial<ContactDetailsForm> = {
-          firstName: (contactDetails as any).first_name || '',
-          lastName: (contactDetails as any).last_name || '',
-          email: (contactDetails as any).email || '',
-          phoneCountryCode: (contactDetails as any).phone_country_code || 'US',
-          phoneNumber: (contactDetails as any).phone_number || '',
-          jobTitle: (contactDetails as any).job_title || '',
-        };
-        Object.entries(formData).forEach(([key, value]) => {
-          if (value) contactForm.setValue(key as keyof ContactDetailsForm, value as any);
-        });
-      }
-      if (businessAddress && Object.keys(businessAddress).length > 0) {
-        const formData: Partial<BusinessAddressForm> = {
-          streetAddress: (businessAddress as any).street_address || '',
-          city: (businessAddress as any).city || '',
-          state: (businessAddress as any).state || '',
-          postalCode: (businessAddress as any).postal_code || '',
-          country: (businessAddress as any).country || '',
-          addressConfirmed: (businessAddress as any).address_confirmed || false,
-        };
-        Object.entries(formData).forEach(([key, value]) => {
-          if (value !== undefined && value !== '') addressForm.setValue(key as keyof BusinessAddressForm, value as any);
-        });
-      }
-      if (storeSetup && Object.keys(storeSetup).length > 0) {
-        Object.entries(storeSetup).forEach(([key, value]) => {
-          if (value) storeSetupForm.setValue(key as keyof StoreSetupForm, value as any);
-        });
-      }
-      // Restore document state from store
-      if (documents) {
-        // Restore documents as UploadedDocument
-        // Create a placeholder File object since we can't restore the actual file from localStorage
-        // The file was already uploaded to GCS, so we just need the metadata for display
-        if (documents.addressProofDocument && documents.addressProofDocument.status === 'success') {
-          const persistedDoc = documents.addressProofDocument;
-          // Create a placeholder Blob/File for type compatibility
-          const placeholderFile = new File([], persistedDoc.fileName, { type: persistedDoc.fileType });
-          setAddressProofDocumentLocal({
-            id: persistedDoc.id,
-            file: placeholderFile,
-            remotePath: persistedDoc.remotePath,
-            remoteUrl: persistedDoc.remoteUrl,
-            status: persistedDoc.status,
-            progress: 100,
-          });
-          setShowDocumentsSection(true);
-        }
-        if (documents.businessProofDocument && documents.businessProofDocument.status === 'success') {
-          const persistedDoc = documents.businessProofDocument;
-          const placeholderFile = new File([], persistedDoc.fileName, { type: persistedDoc.fileType });
-          setBusinessProofDocumentLocal({
-            id: persistedDoc.id,
-            file: placeholderFile,
-            remotePath: persistedDoc.remotePath,
-            remoteUrl: persistedDoc.remoteUrl,
-            status: persistedDoc.status,
-            progress: 100,
-          });
-          setShowDocumentsSection(true);
-        }
-        if (documents.logoDocument && documents.logoDocument.status === 'success') {
-          const persistedDoc = documents.logoDocument;
-          const placeholderFile = new File([], persistedDoc.fileName, { type: persistedDoc.fileType });
-          setLogoDocumentLocal({
-            id: persistedDoc.id,
-            file: placeholderFile,
-            remotePath: persistedDoc.remotePath,
-            remoteUrl: persistedDoc.remoteUrl,
-            status: persistedDoc.status,
-            progress: 100,
-          });
-          setShowDocumentsSection(true);
-        }
-      }
-      const storedCurrentStep = useOnboardingStore.getState().currentStep;
-      if (storedCurrentStep > 0) setCurrentSection(storedCurrentStep);
+    if (!sessionId) return;
+
+    if (businessInfo && Object.keys(businessInfo).length > 0) {
+      const formData: Partial<BusinessInfoForm> = {
+        businessName: (businessInfo as any).business_name || '',
+        businessType: (businessInfo as any).business_type || '',
+        industryCategory: (businessInfo as any).industry || '',
+        businessDescription: (businessInfo as any).business_description || '',
+        companyWebsite: (businessInfo as any).website || '',
+        businessRegistrationNumber: (businessInfo as any).registration_number || '',
+      };
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value) businessForm.setValue(key as keyof BusinessInfoForm, value as any);
+      });
     }
-  }, [sessionId, businessInfo, contactDetails, businessAddress, storeSetup, documents, isStoreHydrated, businessForm, contactForm, addressForm, storeSetupForm]);
+    if (contactDetails && Object.keys(contactDetails).length > 0) {
+      const formData: Partial<ContactDetailsForm> = {
+        firstName: (contactDetails as any).first_name || '',
+        lastName: (contactDetails as any).last_name || '',
+        email: (contactDetails as any).email || '',
+        phoneCountryCode: (contactDetails as any).phone_country_code || 'US',
+        phoneNumber: (contactDetails as any).phone_number || '',
+        jobTitle: (contactDetails as any).job_title || '',
+      };
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value) contactForm.setValue(key as keyof ContactDetailsForm, value as any);
+      });
+    }
+    if (businessAddress && Object.keys(businessAddress).length > 0) {
+      const formData: Partial<BusinessAddressForm> = {
+        streetAddress: (businessAddress as any).street_address || '',
+        city: (businessAddress as any).city || '',
+        state: (businessAddress as any).state || '',
+        postalCode: (businessAddress as any).postal_code || '',
+        country: (businessAddress as any).country || '',
+        addressConfirmed: (businessAddress as any).address_confirmed || false,
+      };
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value !== undefined && value !== '') addressForm.setValue(key as keyof BusinessAddressForm, value as any);
+      });
+    }
+    if (storeSetup && Object.keys(storeSetup).length > 0) {
+      Object.entries(storeSetup).forEach(([key, value]) => {
+        if (value) storeSetupForm.setValue(key as keyof StoreSetupForm, value as any);
+      });
+    }
+    // Restore document state from store
+    if (documents) {
+      if (documents.addressProofDocument && documents.addressProofDocument.status === 'success') {
+        const persistedDoc = documents.addressProofDocument;
+        const placeholderFile = new File([], persistedDoc.fileName, { type: persistedDoc.fileType });
+        setAddressProofDocumentLocal({
+          id: persistedDoc.id,
+          file: placeholderFile,
+          remotePath: persistedDoc.remotePath,
+          remoteUrl: persistedDoc.remoteUrl,
+          status: persistedDoc.status,
+          progress: 100,
+        });
+        setShowDocumentsSection(true);
+      }
+      if (documents.businessProofDocument && documents.businessProofDocument.status === 'success') {
+        const persistedDoc = documents.businessProofDocument;
+        const placeholderFile = new File([], persistedDoc.fileName, { type: persistedDoc.fileType });
+        setBusinessProofDocumentLocal({
+          id: persistedDoc.id,
+          file: placeholderFile,
+          remotePath: persistedDoc.remotePath,
+          remoteUrl: persistedDoc.remoteUrl,
+          status: persistedDoc.status,
+          progress: 100,
+        });
+        setShowDocumentsSection(true);
+      }
+      if (documents.logoDocument && documents.logoDocument.status === 'success') {
+        const persistedDoc = documents.logoDocument;
+        const placeholderFile = new File([], persistedDoc.fileName, { type: persistedDoc.fileType });
+        setLogoDocumentLocal({
+          id: persistedDoc.id,
+          file: placeholderFile,
+          remotePath: persistedDoc.remotePath,
+          remoteUrl: persistedDoc.remoteUrl,
+          status: persistedDoc.status,
+          progress: 100,
+        });
+        setShowDocumentsSection(true);
+      }
+    }
+  }, [sessionId, businessInfo, contactDetails, businessAddress, storeSetup, documents, businessForm, contactForm, addressForm, storeSetupForm]);
+
+  // Effect B — Restore wizard step position ONLY after PII has loaded from server
+  useEffect(() => {
+    if (!sessionId || isStoreHydrated) return;
+
+    // Wait until at least one PII field has loaded from server
+    const hasPII = (businessInfo && Object.keys(businessInfo).length > 0) ||
+                   (contactDetails && Object.keys(contactDetails).length > 0) ||
+                   (businessAddress && Object.keys(businessAddress).length > 0);
+    if (!hasPII) return; // PII not loaded yet — don't jump
+
+    setIsStoreHydrated(true);
+    const storedCurrentStep = useOnboardingStore.getState().currentStep;
+    if (storedCurrentStep > 0) {
+      setCurrentSection(storedCurrentStep);
+    }
+    // Restore contact sub-step if contact details exist (means sub-step was completed)
+    if (contactDetails && Object.keys(contactDetails).length > 0) {
+      setBusinessContactSubStep('contact');
+    }
+  }, [sessionId, isStoreHydrated, businessInfo, contactDetails, businessAddress]);
 
   useEffect(() => {
     if (isStoreHydrated && currentSection !== currentStep) setCurrentStep(currentSection);
   }, [currentSection, currentStep, isStoreHydrated, setCurrentStep]);
+
+  // Reset local wizard state when session expires
+  useEffect(() => {
+    if (sessionExpired) {
+      setCurrentSection(0);
+      setBusinessContactSubStep('business');
+      setIsStoreHydrated(false);
+    }
+  }, [sessionExpired]);
 
   // Fetch base domain from runtime config for subdomain-based URLs
   useEffect(() => {
@@ -1575,6 +1598,41 @@ export default function OnboardingPage() {
         secondary_color: data.secondaryColor,
       });
       nextStep();
+
+      // Pre-flight: verify contact info exists in backend before navigating to verify
+      try {
+        const session = await onboardingApi.getOnboardingSession(sessionId);
+        const sessionAny = session as any;
+        const hasContact = (Array.isArray(sessionAny.contact_information) && sessionAny.contact_information.length > 0)
+          || (session.contact_details && Object.keys(session.contact_details).length > 0);
+
+        if (!hasContact) {
+          // Try backfill from form data
+          const contactData = contactForm.getValues();
+          if (contactData.email && contactData.firstName) {
+            const selectedCountry = countries.find(c => c.id === contactData.phoneCountryCode);
+            const callingCode = selectedCountry?.calling_code || contactData.phoneCountryCode;
+            await onboardingApi.updateContactDetails(sessionId, {
+              first_name: contactData.firstName,
+              last_name: contactData.lastName,
+              email: contactData.email,
+              phone: contactData.phoneNumber,
+              phone_country_code: callingCode,
+              job_title: contactData.jobTitle || undefined,
+            });
+            devLog('[Onboarding] Pre-flight: backfilled missing contact info from form data');
+          } else {
+            // No data to backfill — send user back to contact step
+            setCurrentSection(0);
+            setBusinessContactSubStep('contact');
+            setValidationErrors({ storeSetup: 'Please complete your contact details before proceeding.' });
+            return; // Don't navigate to verify
+          }
+        }
+      } catch (err) {
+        devWarn('[Onboarding] Pre-flight contact check failed:', err);
+        // Continue anyway — CompleteAccountSetup will catch it
+      }
 
       // MFA completed in step 4, now send to email verification (post-launch)
       const verifyParams = new URLSearchParams();
