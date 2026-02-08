@@ -67,7 +67,7 @@ export function Footer() {
             &copy; {currentYear} mark8ly. Made with care for people who make things.
           </p>
           <div className="flex items-center gap-4">
-            <a href="mailto:hello@mark8ly.app" className="text-warm-500 hover:text-warm-300 transition-colors">
+            <a href="mailto:hello@mark8ly.com" className="text-warm-500 hover:text-warm-300 transition-colors">
               <Mail className="w-5 h-5" />
             </a>
             <a href="#" className="text-warm-500 hover:text-warm-300 transition-colors">
