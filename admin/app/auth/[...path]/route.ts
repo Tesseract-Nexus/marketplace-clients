@@ -32,7 +32,6 @@ async function proxyToAuthBff(
   try {
     // Forward headers (especially cookies for session management)
     const headers = new Headers();
-    headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
 
     // Forward cookies from the incoming request
@@ -48,6 +47,17 @@ async function proxyToAuthBff(
     }
     headers.set('X-Forwarded-Proto', 'https');
 
+    // Tell auth-bff this is an admin/staff context — NOT customer/storefront.
+    // This ensures auth-bff scopes session lookups to the tesserix-internal
+    // realm and prevents customer sessions from being returned for admin requests.
+    headers.set('X-Auth-Context', 'admin');
+
+    // Forward tenant context headers (set by middleware from subdomain/Istio)
+    const tenantId = request.headers.get('X-Tenant-ID');
+    const tenantSlug = request.headers.get('x-tenant-slug');
+    if (tenantId) headers.set('X-Tenant-ID', tenantId);
+    if (tenantSlug) headers.set('X-Tenant-Slug', tenantSlug);
+
     // Forward CSRF token if present
     const csrfToken = request.headers.get('X-CSRF-Token');
     if (csrfToken) {
@@ -62,10 +72,13 @@ async function proxyToAuthBff(
     };
 
     // Add body for POST/PUT/PATCH requests
+    // Only set Content-Type: application/json when there's actually a body,
+    // otherwise Fastify rejects with FST_ERR_CTP_EMPTY_JSON_BODY
     if (['POST', 'PUT', 'PATCH'].includes(method)) {
       try {
         const body = await request.text();
         if (body) {
+          headers.set('Content-Type', request.headers.get('content-type') || 'application/json');
           fetchOptions.body = body;
         }
       } catch {

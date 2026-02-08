@@ -284,6 +284,9 @@ async function getSessionFromAuthBff(): Promise<AuthBffSession | null> {
         'Cookie': `bff_storefront_session=${bffSession}`,
         'X-Forwarded-Host': host,
         'Accept': 'application/json',
+        // Scope to customer realm — prevents admin sessions from leaking
+        // into server-side storefront session lookups
+        'X-Auth-Context': 'customer',
       },
       cache: 'no-store',
     });
