@@ -714,7 +714,14 @@ export async function authenticateWithPasskey(): Promise<DirectLoginResponse> {
     return verifyData;
   } catch (error: unknown) {
     if (error instanceof Error && error.name === 'NotAllowedError') {
-      return { success: false, error: 'CANCELLED', message: 'Passkey authentication was cancelled.' };
+      // NotAllowedError fires both when the user cancels AND when no discoverable
+      // credential exists for the rpId.  We cannot distinguish the two cases, so
+      // always surface a message so the user knows what happened.
+      return {
+        success: false,
+        error: 'NO_PASSKEY',
+        message: 'No passkey found for this site, or the prompt was dismissed. Please register a passkey first from your profile.',
+      };
     }
     logger.error('[Auth] Authenticate with passkey error:', error);
     return { success: false, error: 'AUTHENTICATION_ERROR', message: 'Passkey authentication failed.' };
