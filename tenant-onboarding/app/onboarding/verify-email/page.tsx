@@ -1,25 +1,21 @@
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import Header from '../../../components/Header';
-import { Loader2, Mail, CheckCircle, XCircle, AlertTriangle, ArrowRight } from 'lucide-react';
+import { Loader2, Mail, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 import { onboardingApi } from '../../../lib/api/onboarding';
 import { analytics } from '../../../lib/analytics/posthog';
 
 type VerificationState = 'loading' | 'verifying' | 'success' | 'error' | 'expired';
 
 function VerifyEmailContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
   const [state, setState] = useState<VerificationState>('loading');
   const [email, setEmail] = useState<string>('');
-  const [sessionId, setSessionId] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
-  const [redirectCountdown, setRedirectCountdown] = useState(3);
-  const [hasRedirected, setHasRedirected] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -39,37 +35,6 @@ function VerifyEmailContent() {
     verifyToken();
   }, [token]);
 
-  // Auto-redirect to password setup after successful verification
-  useEffect(() => {
-    if (state !== 'success' || !sessionId || hasRedirected) return;
-
-    const timer = setInterval(() => {
-      setRedirectCountdown((prev) => {
-        if (prev <= 1) {
-          // Prevent multiple redirects
-          setHasRedirected(true);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [state, sessionId, hasRedirected]);
-
-  // Handle the actual redirect in a separate effect to avoid issues
-  // Redirect to verify page (not setup-password) so MFA setup can run if needed.
-  // Email verification links open in a new tab which has no sessionStorage,
-  // so TOTP data from the main onboarding tab would be lost. The verify page
-  // handles MFA setup for new-tab scenarios and skips it if already done.
-  useEffect(() => {
-    if (hasRedirected && sessionId) {
-      const params = new URLSearchParams({ session: sessionId });
-      if (email) params.set('email', email);
-      router.push(`/onboarding/verify?${params.toString()}`);
-    }
-  }, [hasRedirected, sessionId, email, router]);
-
   const verifyToken = async () => {
     if (!token) return;
 
@@ -86,7 +51,6 @@ function VerifyEmailContent() {
       }
 
       setEmail(tokenInfo.email);
-      setSessionId(tokenInfo.session_id);
 
       // Now verify the token
       setState('verifying');
@@ -95,7 +59,6 @@ function VerifyEmailContent() {
       if (result.verified) {
         setState('success');
         setEmail(result.email);
-        setSessionId(result.session_id);
 
         // Track verification success
         analytics.onboarding.verificationSucceeded({
@@ -110,11 +73,6 @@ function VerifyEmailContent() {
           console.error('Failed to complete onboarding:', completeError);
           // Continue anyway since verification was successful
         }
-
-        // NOTE: Don't clear localStorage here - the session data is needed for:
-        // 1. Password setup page to know the session context
-        // 2. Success page to show tenant details
-        // localStorage will be cleared when user starts a new onboarding flow
       } else {
         setState('error');
         setErrorMessage(result.message || 'Verification failed');
@@ -129,21 +87,6 @@ function VerifyEmailContent() {
       setState('error');
       setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred');
     }
-  };
-
-  const handleContinue = () => {
-    if (sessionId) {
-      // Redirect to verify page (handles MFA setup for new-tab scenarios)
-      const params = new URLSearchParams({ session: sessionId });
-      if (email) params.set('email', email);
-      router.push(`/onboarding/verify?${params.toString()}`);
-    } else {
-      router.push('/onboarding');
-    }
-  };
-
-  const handleReturnToOnboarding = () => {
-    router.push('/onboarding');
   };
 
   const renderContent = () => {
@@ -179,23 +122,11 @@ function VerifyEmailContent() {
                 <p className="font-semibold text-[var(--primary)]">{email}</p>
               )}
             </div>
-            <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-8">
-              <div className="flex items-center justify-center gap-2 text-foreground-secondary">
-                <CheckCircle className="w-4 h-4" />
-                <span className="text-sm font-medium">
-                  {redirectCountdown > 0
-                    ? `Continuing in ${redirectCountdown}s...`
-                    : 'Redirecting...'}
-                </span>
-              </div>
+            <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50">
+              <p className="text-sm font-medium text-foreground-secondary">
+                You can close this tab and return to your onboarding tab to continue.
+              </p>
             </div>
-            <button
-              onClick={handleContinue}
-              className="apple-button w-full py-4 text-lg font-medium transition-all duration-300  flex items-center justify-center "
-            >
-              Continue
-              <ArrowRight className="w-5 h-5 ml-2" />
-            </button>
           </div>
         );
 
@@ -211,18 +142,11 @@ function VerifyEmailContent() {
                 This verification link has expired or has already been used.
               </p>
             </div>
-            <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-8">
+            <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50">
               <p className="text-sm text-[var(--foreground-secondary)]">
-                Please return to the onboarding flow to request a new verification email.
+                Please return to your onboarding tab to request a new verification email.
               </p>
             </div>
-            <button
-              onClick={handleReturnToOnboarding}
-              className="apple-button w-full py-4 text-lg font-medium transition-all duration-300  flex items-center justify-center"
-            >
-              <Mail className="w-5 h-5 mr-2" />
-              Return to Onboarding
-            </button>
           </div>
         );
 
@@ -235,7 +159,7 @@ function VerifyEmailContent() {
             <h2 className="display-medium text-[var(--foreground)] mb-4">Verification Failed</h2>
             <div className="bg-card border border-border shadow-sm rounded-2xl p-4 mb-6">
               <p className="body text-[var(--foreground-secondary)]">
-                We couldn't verify your email address.
+                We couldn&apos;t verify your email address.
               </p>
             </div>
             <div className="bg-card border border-border shadow-sm border border-warm-200 rounded-2xl p-4 bg-warm-50 mb-8">
@@ -243,21 +167,12 @@ function VerifyEmailContent() {
                 {errorMessage || 'An unexpected error occurred'}
               </p>
             </div>
-            <div className="space-y-4">
-              <button
-                onClick={verifyToken}
-                className="button-secondary w-full py-3 px-6 rounded-xl font-medium transition-all duration-300  flex items-center justify-center"
-              >
-                Try Again
-              </button>
-              <button
-                onClick={handleReturnToOnboarding}
-                className="apple-button w-full py-4 text-lg font-medium transition-all duration-300  flex items-center justify-center"
-              >
-                <Mail className="w-5 h-5 mr-2" />
-                Return to Onboarding
-              </button>
-            </div>
+            <button
+              onClick={verifyToken}
+              className="button-secondary w-full py-3 px-6 rounded-xl font-medium transition-all duration-300  flex items-center justify-center"
+            >
+              Try Again
+            </button>
           </div>
         );
     }
