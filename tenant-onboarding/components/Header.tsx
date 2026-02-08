@@ -4,7 +4,7 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui';
-import { Sparkles, User } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 interface HeaderProps {
   currentPage?: 'home' | 'pricing' | 'onboarding' | 'other';
@@ -53,11 +53,6 @@ export default function Header({ currentPage = 'other' }: HeaderProps) {
             </a>
             <Button size="sm" onClick={() => router.push('/onboarding')}>
               Get Started
-            </Button>
-            <div className="h-6 w-px bg-[var(--border)]" />
-            <Button variant="ghost" size="sm" className="flex items-center gap-2 whitespace-nowrap">
-              <User className="w-4 h-4" />
-              Sign In
             </Button>
           </div>
         </div>

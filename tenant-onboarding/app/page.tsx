@@ -20,7 +20,7 @@ import {
   Headphones,
   LucideIcon,
 } from 'lucide-react';
-import { AuthModal } from '../components/auth';
+
 import { Footer } from '../components/Footer';
 import { useAuthStore } from '../lib/store/auth-store';
 
@@ -165,7 +165,7 @@ export default function Home() {
   const router = useRouter();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [scrolled, setScrolled] = useState(false);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const { isAuthenticated, user } = useAuthStore();
@@ -205,13 +205,6 @@ export default function Home() {
     }
   }, [isAuthenticated, user, router]);
 
-  const handleAuthSuccess = () => {
-    setIsAuthModalOpen(false);
-  };
-
-  const openSignIn = () => {
-    setIsAuthModalOpen(true);
-  };
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
@@ -243,12 +236,6 @@ export default function Home() {
 
           <div className="flex items-center gap-4">
             <button
-              onClick={openSignIn}
-              className="hidden sm:block text-sm text-foreground-secondary hover:text-foreground transition-colors"
-            >
-              Sign In
-            </button>
-            <button
               onClick={() => router.push('/onboarding')}
               className="hidden sm:block bg-primary text-primary-foreground px-5 py-2 rounded-lg text-sm font-medium hover:bg-primary-hover transition-colors"
             >
@@ -273,12 +260,6 @@ export default function Home() {
               <a href="#testimonial" onClick={() => setMobileMenuOpen(false)} className="block text-foreground-secondary hover:text-foreground transition-colors">Stories</a>
               <a href="/presentation" onClick={() => setMobileMenuOpen(false)} className="block text-foreground-secondary hover:text-foreground transition-colors">Demo</a>
               <div className="pt-4 border-t border-border space-y-3">
-                <button
-                  onClick={() => { openSignIn(); setMobileMenuOpen(false); }}
-                  className="block w-full text-left text-foreground-secondary hover:text-foreground transition-colors"
-                >
-                  Sign In
-                </button>
                 <button
                   onClick={() => { router.push('/onboarding'); setMobileMenuOpen(false); }}
                   className="w-full bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-primary-hover transition-colors"
@@ -659,13 +640,6 @@ export default function Home() {
 
       <Footer />
 
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onSuccess={handleAuthSuccess}
-        mode="signin"
-      />
     </div>
   );
 }
