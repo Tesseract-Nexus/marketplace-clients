@@ -273,6 +273,7 @@ const navigation: NavItem[] = [
       { name: "Payments", href: "/settings/payments" },
       { name: "Audit Logs", href: "/settings/audit-logs" },
       { name: "QR Codes", href: "/settings/qr-codes" },
+      { name: "Legal & Compliance", href: "/settings/legal" },
     ],
   },
   {

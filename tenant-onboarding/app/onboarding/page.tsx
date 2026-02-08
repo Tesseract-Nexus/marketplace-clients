@@ -8,7 +8,7 @@ import { SearchableSelect, type SelectOption } from '../../components/Searchable
 import { DocumentsSection } from '../../components/DocumentsSection';
 import { VerificationScore, useVerificationScore } from '../../components/VerificationScore';
 import { type UploadedDocument } from '../../components/DocumentUpload';
-import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldCheck, ShieldAlert, Pencil, X, Eye, EyeOff, Shield, Rocket, SkipForward, Smartphone, KeyRound, CheckCircle } from 'lucide-react';
+import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldCheck, ShieldAlert, Pencil, X, Eye, EyeOff, Shield, Rocket, SkipForward, Smartphone, KeyRound, CheckCircle, Scale } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useOnboardingStore, type DetectedLocation, type PersistedDocument } from '../../lib/store/onboarding-store';
 import { businessInfoSchema, contactDetailsSchema, businessAddressSchema, storeSetupSchema, MARKETPLACE_PLATFORMS, type BusinessInfoForm, type ContactDetailsForm, type BusinessAddressForm, type StoreSetupForm } from '../../lib/validations/onboarding';
@@ -84,7 +84,8 @@ const steps = [
   { id: 2, label: 'Store Setup', icon: Store },
   { id: 3, label: 'Documents', icon: FileText, optional: true },
   { id: 4, label: 'Verify & Secure', icon: Shield },
-  { id: 5, label: 'Launch', icon: Rocket },
+  { id: 5, label: 'Legal', icon: Scale },
+  { id: 6, label: 'Launch', icon: Rocket },
 ];
 
 type MfaSetupPhase = 'initiating' | 'mfa_setup' | 'backup_codes' | 'done';
@@ -243,6 +244,11 @@ export default function OnboardingPage() {
   const [isTotpVerifying, setIsTotpVerifying] = useState(false);
   const [totpError, setTotpError] = useState('');
   const totpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+
+  // Legal step (step 5) — scroll-to-enable agreement
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const [legalAccepted, setLegalAccepted] = useState(false);
+  const legalScrollRef = useRef<HTMLDivElement>(null);
 
   // Resilient email: fallback to session API when store/form data goes stale
   const [fetchedEmail, setFetchedEmail] = useState('');
@@ -1735,7 +1741,7 @@ export default function OnboardingPage() {
 
   const handleBackupCodesAcknowledged = () => {
     setMfaPhase('done');
-    // Auto-advance to Launch step after a brief moment
+    // Auto-advance to Legal step after a brief moment
     setTimeout(() => setCurrentSection(5), 800);
   };
 
@@ -2360,8 +2366,8 @@ export default function OnboardingPage() {
                 </form>
               )}
 
-              {/* Steps 2-4: Store Setup (with Custom Domain), Documents, Launch */}
-              {(currentSection === 2 || currentSection === 3 || currentSection === 4 || currentSection === 5) && (
+              {/* Steps 2-6: Store Setup, Documents, Verify, Legal, Launch */}
+              {(currentSection === 2 || currentSection === 3 || currentSection === 4 || currentSection === 5 || currentSection === 6) && (
                 <form onSubmit={storeSetupForm.handleSubmit(handleStoreSetupSubmit, (errors) => devError('[StoreSetup] Validation errors:', errors))} className="space-y-6" noValidate>
                   {/* Section-specific headers */}
                   {currentSection === 2 && (
@@ -2407,6 +2413,20 @@ export default function OnboardingPage() {
                   )}
 
                   {currentSection === 5 && (
+                    <div className="mb-8">
+                      <div className="flex items-center gap-4 mb-4">
+                        <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
+                          <Scale className="w-6 h-6 text-warm-600" />
+                        </div>
+                        <div>
+                          <h1 className="text-2xl font-serif font-medium text-foreground">Legal & Compliance</h1>
+                          <p className="text-muted-foreground">Review and accept our security policy before launching</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {currentSection === 6 && (
                     <div className="mb-8">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
@@ -3614,7 +3634,7 @@ export default function OnboardingPage() {
                               <CheckCircle className="w-10 h-10 text-warm-600" />
                             </div>
                             <h2 className="text-xl font-serif font-medium text-foreground mb-2">All Set!</h2>
-                            <p className="text-muted-foreground">Your account is secured. Moving to launch...</p>
+                            <p className="text-muted-foreground">Your account is secured. Continuing to legal review...</p>
                           </div>
                         )}
 
@@ -3633,8 +3653,175 @@ export default function OnboardingPage() {
                       </>
                     )}
 
-                    {/* Section 5: Review & Launch */}
+                    {/* Section 5: Legal & Compliance */}
                     {currentSection === 5 && (
+                      <>
+                        <div className="space-y-5">
+                          {/* Scrollable legal content */}
+                          <div
+                            ref={legalScrollRef}
+                            onScroll={(e) => {
+                              const target = e.target as HTMLDivElement;
+                              if (target.scrollTop + target.clientHeight >= target.scrollHeight - 20) {
+                                setHasScrolledToBottom(true);
+                              }
+                            }}
+                            className="max-h-[500px] overflow-y-auto border border-border rounded-xl p-6 bg-background text-sm leading-relaxed text-foreground-secondary space-y-6"
+                          >
+                            <div className="p-4 bg-warm-50 rounded-lg border border-warm-200">
+                              <p className="text-foreground m-0 text-sm">
+                                At mark8ly, we take security seriously. This policy explains how we protect your account, your data, and your business — and what we expect from you in return.
+                              </p>
+                            </div>
+
+                            <div>
+                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">1. Account Security</h3>
+                              <p>Every merchant account on mark8ly is protected by multi-factor authentication (MFA). This is not optional.</p>
+                              <ul className="list-disc pl-5 space-y-1 mt-2">
+                                <li><strong>MFA Required:</strong> All merchant accounts must have MFA enabled.</li>
+                                <li><strong>Passkey Support:</strong> We support passkeys (FIDO2/WebAuthn) for passwordless login.</li>
+                                <li><strong>TOTP Authenticator:</strong> Use any authenticator app to generate time-based one-time passwords.</li>
+                                <li><strong>Backup Codes:</strong> Store your backup codes securely — they're your recovery lifeline.</li>
+                              </ul>
+                            </div>
+
+                            <div>
+                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">2. Password Policy</h3>
+                              <ul className="list-disc pl-5 space-y-1">
+                                <li>Minimum 12 characters</li>
+                                <li>Mix of uppercase, lowercase, numbers, and symbols</li>
+                                <li>No common dictionary words or predictable patterns</li>
+                                <li>Cannot reuse your last 5 passwords</li>
+                                <li>All passwords are hashed using bcrypt</li>
+                              </ul>
+                            </div>
+
+                            <div>
+                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">3. No Credential Sharing</h3>
+                              <p>Your account is personal. Never share your password, MFA codes, or backup codes.</p>
+                              <ul className="list-disc pl-5 space-y-1 mt-2">
+                                <li>Use Staff Management to grant team members their own access</li>
+                                <li>Each staff member needs their own account with MFA</li>
+                                <li>Shared accounts may result in suspension</li>
+                              </ul>
+                            </div>
+
+                            <div>
+                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">4. Digital Theft Protection</h3>
+                              <ul className="list-disc pl-5 space-y-1">
+                                <li><strong>TLS 1.3:</strong> All data in transit is encrypted</li>
+                                <li><strong>PCI DSS:</strong> Payment processing meets Level 1 standards</li>
+                                <li><strong>Rate Limiting:</strong> API and login endpoints are rate-limited</li>
+                                <li><strong>Brute-Force Lockout:</strong> Accounts locked after repeated failed attempts</li>
+                                <li><strong>Session Security:</strong> Sessions expire after inactivity</li>
+                                <li><strong>Suspicious Login Monitoring:</strong> Unusual logins are flagged</li>
+                              </ul>
+                            </div>
+
+                            <div>
+                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">5. Business Safeguards</h3>
+                              <ul className="list-disc pl-5 space-y-1">
+                                <li><strong>Data Backups:</strong> Automated daily backups with point-in-time recovery</li>
+                                <li><strong>Tenant Isolation:</strong> Your data is logically isolated from other merchants</li>
+                                <li><strong>Penetration Testing:</strong> Regular security assessments</li>
+                                <li><strong>Uptime SLA:</strong> 99.9% uptime target</li>
+                              </ul>
+                            </div>
+
+                            <div>
+                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">6. Data Protection</h3>
+                              <ul className="list-disc pl-5 space-y-1">
+                                <li><strong>GDPR Compliance:</strong> We follow GDPR principles</li>
+                                <li><strong>Data Export:</strong> Export your data at any time</li>
+                                <li><strong>Account Closure:</strong> Data deleted within 90 days of closure</li>
+                                <li><strong>No Selling Data:</strong> We never sell your data to third parties</li>
+                              </ul>
+                            </div>
+
+                            <div>
+                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">7. Your Responsibilities</h3>
+                              <ul className="list-disc pl-5 space-y-1">
+                                <li>Keep your devices secure with up-to-date software</li>
+                                <li>Use a unique, strong password</li>
+                                <li>Keep MFA enabled at all times</li>
+                                <li>Review staff permissions regularly</li>
+                                <li>Monitor for unauthorized changes</li>
+                                <li>Report suspicious activity immediately</li>
+                              </ul>
+                            </div>
+
+                            <div>
+                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">8. Incident Response</h3>
+                              <p>If your account is compromised:</p>
+                              <ol className="list-decimal pl-5 space-y-1 mt-2">
+                                <li>Change your password immediately</li>
+                                <li>Revoke all active sessions</li>
+                                <li>Review your audit log</li>
+                                <li>Contact security@mark8ly.app</li>
+                              </ol>
+                              <p className="mt-2"><strong>Breach Notification:</strong> We will notify affected users within 72 hours of a confirmed breach.</p>
+                            </div>
+
+                            <div>
+                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">9. Liability</h3>
+                              <p>You are responsible for all activity under your account. mark8ly is not liable for unauthorized access resulting from weak passwords, shared credentials, disabled MFA, or failure to secure your devices.</p>
+                            </div>
+
+                            <div>
+                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">10. Contact</h3>
+                              <p><strong>Security Team:</strong> security@mark8ly.app</p>
+                              <p><strong>General Support:</strong> support@mark8ly.app</p>
+                            </div>
+                          </div>
+
+                          {/* Scroll hint */}
+                          {!hasScrolledToBottom && (
+                            <p className="text-xs text-muted-foreground text-center animate-pulse">
+                              Scroll to the bottom to enable the agreement checkbox
+                            </p>
+                          )}
+
+                          {/* Agreement checkbox */}
+                          <label className={`flex items-start gap-3 p-4 rounded-xl border ${legalAccepted ? 'border-sage-300 bg-sage-50' : 'border-border'} transition-colors ${!hasScrolledToBottom ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
+                            <input
+                              type="checkbox"
+                              checked={legalAccepted}
+                              onChange={(e) => setLegalAccepted(e.target.checked)}
+                              disabled={!hasScrolledToBottom}
+                              className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary disabled:opacity-50"
+                            />
+                            <span className="text-sm text-foreground leading-relaxed">
+                              I have read and agree to the{' '}
+                              <a href="/legal" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Security & Compliance Policy</a>,{' '}
+                              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Terms of Service</a>, and{' '}
+                              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Privacy Policy</a>.
+                            </span>
+                          </label>
+                        </div>
+
+                        {/* Section 5: Navigation buttons */}
+                        <div className="pt-6 flex gap-4">
+                          <button
+                            type="button"
+                            onClick={() => setCurrentSection(4)}
+                            className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
+                          >
+                            <ArrowLeft className="w-5 h-5" /> Back
+                          </button>
+                          <button
+                            type="button"
+                            disabled={!legalAccepted}
+                            onClick={() => setCurrentSection(6)}
+                            className="flex-1 h-14 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
+                          >
+                            Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+                          </button>
+                        </div>
+                      </>
+                    )}
+
+                    {/* Section 6: Review & Launch */}
+                    {currentSection === 6 && (
                       <>
                         <div className="space-y-4">
                           <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
@@ -3697,11 +3884,11 @@ export default function OnboardingPage() {
                           </p>
                         </div>
 
-                        {/* Section 5: Navigation buttons */}
+                        {/* Section 6: Navigation buttons */}
                         <div className="pt-6 flex gap-4">
                           <button
                             type="button"
-                            onClick={() => setCurrentSection(4)}
+                            onClick={() => setCurrentSection(5)}
                             className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                           >
                             <ArrowLeft className="w-5 h-5" /> Back

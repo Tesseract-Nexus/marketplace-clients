@@ -214,6 +214,7 @@ export function Footer() {
         position: idx * 10
       })),
       { id: 'cancellation-policy', label: 'Cancellation Policy', href: '/cancellation-policy', isExternal: false, position: (policyPages.length) * 10 },
+      { id: 'security-compliance', label: 'Security & Compliance', href: '/legal', isExternal: false, position: (policyPages.length + 1) * 10 },
     ];
 
     // Company / about pages
