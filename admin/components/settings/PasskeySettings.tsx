@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { ConfirmModal } from '@/components/ConfirmModal';
 import {
   isPasskeySupported,
   registerPasskey,
@@ -39,6 +40,7 @@ export function PasskeySettings() {
 
   // Delete state
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [confirmDeletePasskey, setConfirmDeletePasskey] = useState<PasskeyInfo | null>(null);
 
   useEffect(() => {
     setIsSupported(isPasskeySupported());
@@ -243,11 +245,7 @@ export function PasskeySettings() {
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
                   <button
-                    onClick={() => {
-                      if (window.confirm(`Delete passkey "${passkey.name}"?\n\nYou won't be able to use this passkey to sign in anymore.`)) {
-                        handleDelete(passkey.credential_id);
-                      }
-                    }}
+                    onClick={() => setConfirmDeletePasskey(passkey)}
                     disabled={deletingId === passkey.credential_id}
                     className="p-1.5 rounded-md hover:bg-error-muted text-muted-foreground hover:text-error transition-colors disabled:opacity-50"
                     title="Delete"
@@ -310,6 +308,21 @@ export function PasskeySettings() {
           )}
         </>
       )}
+
+      <ConfirmModal
+        isOpen={!!confirmDeletePasskey}
+        onClose={() => setConfirmDeletePasskey(null)}
+        onConfirm={async () => {
+          if (confirmDeletePasskey) {
+            await handleDelete(confirmDeletePasskey.credential_id);
+          }
+        }}
+        title="Delete Passkey"
+        message={`Are you sure you want to delete "${confirmDeletePasskey?.name}"? You won't be able to use this passkey to sign in anymore.`}
+        confirmText="Delete Passkey"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }
