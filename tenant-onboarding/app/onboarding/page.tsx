@@ -245,6 +245,9 @@ export default function OnboardingPage() {
   const [totpError, setTotpError] = useState('');
   const totpInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
+  // Start Over confirmation dialog
+  const [showStartOverConfirm, setShowStartOverConfirm] = useState(false);
+
   // Legal step (step 5) — scroll-to-enable agreement
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
   const [legalAccepted, setLegalAccepted] = useState(false);
@@ -1791,6 +1794,15 @@ export default function OnboardingPage() {
                 )}
               </div>
             )}
+            {(sessionId || currentSection > 0) && (
+              <button
+                onClick={() => setShowStartOverConfirm(true)}
+                className="text-sm text-destructive/70 hover:text-destructive transition-colors flex items-center gap-1.5"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Start Over</span>
+              </button>
+            )}
             <a
               href="mailto:support@tesseract.com"
               className="text-sm text-foreground-secondary hover:text-foreground transition-colors"
@@ -1806,6 +1818,41 @@ export default function OnboardingPage() {
           </div>
         </div>
       </header>
+
+      {/* Start Over Confirmation Dialog */}
+      {showStartOverConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-background rounded-2xl border border-border shadow-xl max-w-md mx-4 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
+                <AlertCircle className="w-5 h-5 text-destructive" />
+              </div>
+              <h3 className="text-lg font-serif font-medium text-foreground">Start Over?</h3>
+            </div>
+            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+              This will permanently delete all your saved progress, including business details, store setup, and uploaded documents. You'll need to start the onboarding process from the beginning.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowStartOverConfirm(false)}
+                className="flex-1 h-11 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  setShowStartOverConfirm(false);
+                  await handleStartFresh();
+                }}
+                className="flex-1 h-11 bg-destructive text-destructive-foreground rounded-lg font-medium hover:bg-destructive/90 transition-colors text-sm flex items-center justify-center gap-2"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Start Over
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Draft Recovery Banner */}
       {draftRecoveryState.hasDraft && (
