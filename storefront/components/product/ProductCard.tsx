@@ -88,7 +88,7 @@ export function ProductCard({
   const getNavPath = useNavPath();
   const addToCart = useCartStore((state) => state.addItem);
   const { lists, fetchLists, addToList, addToDefaultList, removeFromList, createList, isInAnyList, getListsContainingProduct } = useListsStore();
-  const { customer, accessToken } = useAuthStore();
+  const { customer, accessToken, isAuthenticated } = useAuthStore();
   const [isHovered, setIsHovered] = useState(false);
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
@@ -109,7 +109,6 @@ export function ProductCard({
     setIsTouchDevice(window.matchMedia('(pointer: coarse)').matches);
   }, []);
 
-  const isAuthenticated = !!(customer && accessToken);
   const isOutOfStock = product.inventoryStatus === 'OUT_OF_STOCK';
 
   // 3D tilt effect - disabled on touch devices
@@ -219,8 +218,8 @@ export function ProductCard({
 
   // Fetch lists when authenticated
   useEffect(() => {
-    if (isAuthenticated && tenant && lists.length === 0) {
-      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken);
+    if (isAuthenticated && tenant && customer && lists.length === 0) {
+      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken || '');
     }
   }, [isAuthenticated, tenant, lists.length, customer?.id, accessToken, fetchLists]);
 
@@ -296,7 +295,7 @@ export function ProductCard({
     e?.preventDefault();
     e?.stopPropagation();
 
-    if (!isAuthenticated || !tenant || !customer || !accessToken) {
+    if (!isAuthenticated || !tenant || !customer) {
       // Redirect to login
       window.location.href = getNavPath('/auth/login');
       return;
@@ -306,7 +305,7 @@ export function ProductCard({
     setIsHeartAnimating(true);
 
     try {
-      await addToList(tenant.id, tenant.storefrontId, customer.id, accessToken, list.id, {
+      await addToList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', list.id, {
         id: product.id,
         name: product.name,
         image: imageUrl,
@@ -325,14 +324,14 @@ export function ProductCard({
     e?.preventDefault();
     e?.stopPropagation();
 
-    if (!isAuthenticated || !tenant || !customer || !accessToken) return;
+    if (!isAuthenticated || !tenant || !customer) return;
 
     const item = list.items?.find((i) => i.productId === product.id);
     if (!item) return;
 
     setIsAddingToList(list.id);
     try {
-      await removeFromList(tenant.id, tenant.storefrontId, customer.id, accessToken, list.id, item.id);
+      await removeFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', list.id, item.id);
     } catch (error) {
       console.error('Failed to remove from list:', error);
     } finally {
@@ -345,7 +344,7 @@ export function ProductCard({
     e.preventDefault();
     e.stopPropagation();
 
-    if (!isAuthenticated || !tenant || !customer || !accessToken) {
+    if (!isAuthenticated || !tenant || !customer) {
       window.location.href = getNavPath('/auth/login');
       return;
     }
@@ -361,7 +360,7 @@ export function ProductCard({
         await handleRemoveFromList(defaultList, e);
       } else {
         setIsAddingToList('default');
-        await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, accessToken, {
+        await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', {
           id: product.id,
           name: product.name,
           image: imageUrl,
@@ -378,7 +377,7 @@ export function ProductCard({
   };
 
   const handleCreateList = async () => {
-    if (!newListName.trim() || !tenant || !customer || !accessToken) return;
+    if (!newListName.trim() || !tenant || !customer) return;
 
     setIsCreatingList(true);
     try {
@@ -386,11 +385,11 @@ export function ProductCard({
         tenant.id,
         tenant.storefrontId,
         customer.id,
-        accessToken,
+        accessToken || '',
         newListName.trim()
       );
       // Add product to the new list
-      await addToList(tenant.id, tenant.storefrontId, customer.id, accessToken, newList.id, {
+      await addToList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', newList.id, {
         id: product.id,
         name: product.name,
         image: imageUrl,
@@ -775,43 +774,17 @@ export function ProductCard({
                 )}
               </Button>
 
-              {/* Desktop only: Wishlist and Quick View buttons */}
-              {!isTouchDevice && (
-                <>
-                  {productConfig.showWishlist && (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className={cn(
-                        "shrink-0 h-9 px-3 gap-1.5",
-                        isInList
-                          ? "bg-[var(--color-error-light)] text-[var(--wishlist-active)] border-[var(--wishlist-active)]/20 hover:bg-[var(--color-error-light)]"
-                          : "bg-background hover:bg-muted"
-                      )}
-                      title={isInList ? "Saved to wishlist" : "Save to wishlist"}
-                    >
-                      <Heart className={cn(
-                        "h-4 w-4",
-                        isInList && "fill-current",
-                        isHeartAnimating && "animate-heart-pop"
-                      )} />
-                      <span className="text-sm">{isInList ? 'Saved' : 'Save'}</span>
-                    </Button>
-                  )}
-
-                  {/* Quick View */}
-                  {productConfig.showQuickView && (
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="shrink-0 bg-background hover:bg-muted h-9 w-9 p-0"
-                      onClick={openQuickView}
-                      title="Quick view"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  )}
-                </>
+              {/* Desktop only: Quick View button */}
+              {!isTouchDevice && productConfig.showQuickView && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="shrink-0 bg-background hover:bg-muted h-9 w-9 p-0"
+                  onClick={openQuickView}
+                  title="Quick view"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
               )}
             </div>
           </motion.div>

@@ -7,80 +7,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getAuthContext } from '@/lib/api/server-auth';
 
 const CUSTOMERS_SERVICE_URL = process.env.CUSTOMERS_SERVICE_URL || 'http://localhost:8089/api/v1';
 const CUSTOMERS_BASE_URL = CUSTOMERS_SERVICE_URL.replace(/\/api\/v1\/?$/, '');
-const AUTH_BFF_URL = process.env.AUTH_BFF_INTERNAL_URL || process.env.AUTH_BFF_URL || 'http://localhost:8080';
-
-// Helper to decode JWT payload (base64url decode)
-function decodeJwtPayload(token: string): { sub?: string; customer_id?: string; email?: string } | null {
-  try {
-    const parts = token.replace('Bearer ', '').split('.');
-    if (parts.length !== 3) return null;
-    const payload = parts[1];
-    if (!payload) return null;
-    const decoded = Buffer.from(payload, 'base64url').toString('utf-8');
-    return JSON.parse(decoded);
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Get auth context from either JWT or session cookie.
- * Supports OAuth/session-based auth where accessToken is not available client-side.
- */
-async function getAuthContext(request: NextRequest): Promise<{ customerId?: string; token?: string } | null> {
-  const authHeader = request.headers.get('Authorization');
-
-  // Check if we have a valid JWT token
-  if (authHeader && authHeader !== 'Bearer ' && authHeader !== 'Bearer') {
-    const tokenPayload = decodeJwtPayload(authHeader);
-    if (tokenPayload?.sub) {
-      return { customerId: tokenPayload.sub, token: authHeader };
-    }
-  }
-
-  // Fall back to session-based auth (OAuth flow)
-  // Use /internal/get-token which returns access_token for BFF-to-service calls
-  try {
-    const cookie = request.headers.get('cookie');
-    if (!cookie) {
-      console.log('[Profile API] No cookie header present');
-      return null;
-    }
-
-    // Forward host so auth-bff reads the correct session cookie (bff_storefront_session)
-    const forwardedHost = request.headers.get('x-forwarded-host') || request.headers.get('host') || '';
-
-    const response = await fetch(`${AUTH_BFF_URL}/internal/get-token`, {
-      headers: {
-        'Cookie': cookie,
-        'X-Forwarded-Host': forwardedHost,
-        'Accept': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[Profile API] get-token error:', response.status, errorText);
-      return null;
-    }
-
-    const tokenData = await response.json();
-    // /internal/get-token returns { access_token, user_id, tenant_id, tenant_slug, expires_at }
-    if (tokenData.user_id) {
-      return {
-        customerId: tokenData.user_id,
-        token: tokenData.access_token ? `Bearer ${tokenData.access_token}` : undefined,
-      };
-    }
-  } catch (error) {
-    console.error('[Profile API] Failed to get session:', error);
-  }
-
-  return null;
-}
 
 // GET /api/auth/profile - Get current user profile
 export async function GET(request: NextRequest) {

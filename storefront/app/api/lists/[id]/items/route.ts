@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { config } from '@/lib/config';
+import { getAuthContext } from '@/lib/api/server-auth';
 
 // POST /api/lists/[id]/items - Add item to list
 export async function POST(
@@ -9,25 +10,31 @@ export async function POST(
   try {
     const { id: listId } = await params;
     const tenantId = request.headers.get('x-tenant-id');
-    const customerId = request.nextUrl.searchParams.get('customerId');
-    const authHeader = request.headers.get('authorization');
     const body = await request.json();
 
-    if (!tenantId || !customerId) {
+    if (!tenantId) {
       return NextResponse.json(
-        { error: 'Missing required parameters' },
+        { error: 'Tenant ID required' },
         { status: 400 }
       );
     }
 
+    const auth = await getAuthContext(request);
+    if (!auth?.customerId) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const response = await fetch(
-      `${config.api.customersService}/storefront/customers/${customerId}/lists/${listId}/items`,
+      `${config.api.customersService}/storefront/customers/${auth.customerId}/lists/${listId}/items`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-Tenant-ID': tenantId,
-          ...(authHeader && { Authorization: authHeader }),
+          ...(auth.token && { Authorization: auth.token }),
         },
         body: JSON.stringify(body),
       }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { config } from '@/lib/config';
+import { getAuthContext } from '@/lib/api/server-auth';
 
 // GET /api/lists/check/[productId] - Check if product is in any list
 export async function GET(
@@ -9,22 +10,28 @@ export async function GET(
   try {
     const { productId } = await params;
     const tenantId = request.headers.get('x-tenant-id');
-    const customerId = request.nextUrl.searchParams.get('customerId');
-    const authHeader = request.headers.get('authorization');
 
-    if (!tenantId || !customerId) {
+    if (!tenantId) {
       return NextResponse.json(
-        { error: 'Missing required parameters' },
+        { error: 'Tenant ID required' },
         { status: 400 }
       );
     }
 
+    const auth = await getAuthContext(request);
+    if (!auth?.customerId) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+
     const response = await fetch(
-      `${config.api.customersService}/storefront/customers/${customerId}/lists/check/${productId}`,
+      `${config.api.customersService}/storefront/customers/${auth.customerId}/lists/check/${productId}`,
       {
         headers: {
           'X-Tenant-ID': tenantId,
-          ...(authHeader && { Authorization: authHeader }),
+          ...(auth.token && { Authorization: auth.token }),
         },
       }
     );

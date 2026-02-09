@@ -33,7 +33,7 @@ import { PriceDisplay } from '@/components/currency/PriceDisplay';
 export default function WishlistPage() {
   const getNavPath = useNavPath();
   const { tenant } = useTenant();
-  const { customer, accessToken } = useAuthStore();
+  const { customer, accessToken, isAuthenticated } = useAuthStore();
   const {
     lists,
     isLoading,
@@ -52,12 +52,10 @@ export default function WishlistPage() {
   const [isAddingToCart, setIsAddingToCart] = useState<string | null>(null);
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
 
-  const isAuthenticated = !!(customer && accessToken);
-
   // Fetch lists when authenticated
   useEffect(() => {
-    if (isAuthenticated && tenant) {
-      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken);
+    if (isAuthenticated && tenant && customer) {
+      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken || '');
     }
   }, [isAuthenticated, tenant, customer?.id, accessToken, fetchLists]);
 
@@ -106,11 +104,11 @@ export default function WishlistPage() {
   };
 
   const handleRemoveItem = async (itemId: string) => {
-    if (!tenant || !customer || !accessToken || !selectedList) return;
+    if (!tenant || !customer || !selectedList) return;
 
     setIsRemoving(itemId);
     try {
-      await removeFromList(tenant.id, tenant.storefrontId, customer.id, accessToken, selectedList.id, itemId);
+      await removeFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', selectedList.id, itemId);
     } catch (error) {
       console.error('Failed to remove item:', error);
     } finally {
@@ -119,7 +117,7 @@ export default function WishlistPage() {
   };
 
   const handleCreateList = async () => {
-    if (!newListName.trim() || !tenant || !customer || !accessToken) return;
+    if (!newListName.trim() || !tenant || !customer) return;
 
     setIsCreating(true);
     try {
@@ -127,7 +125,7 @@ export default function WishlistPage() {
         tenant.id,
         tenant.storefrontId,
         customer.id,
-        accessToken,
+        accessToken || '',
         newListName.trim(),
         newListDescription.trim() || undefined
       );
