@@ -364,7 +364,7 @@ function ProductRow({ product }: { product: ProductSEOScore }) {
       </td>
       <td className="py-3 px-4 text-right">
         <Link
-          href={`/products/${product.id}/edit?step=6`}
+          href={`/products?id=${product.id}&mode=edit`}
           prefetch={false}
           className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium transition-colors"
         >
