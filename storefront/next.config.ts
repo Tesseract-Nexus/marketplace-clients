@@ -86,26 +86,8 @@ const nextConfig: NextConfig = {
   },
 
   // Security headers for all routes
+  // NOTE: CSP is set dynamically in middleware.ts with per-request nonces
   async headers() {
-    // Allow localhost connections in development
-    const isDev = process.env.NODE_ENV === 'development';
-    const devConnectSrc = isDev ? ' http://localhost:* ws://localhost:*' : '';
-
-    // Content Security Policy - storefront needs external image sources and fonts
-    const cspHeader = [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://*.razorpay.com",
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-      "img-src 'self' data: blob: https://storage.googleapis.com https://storage.cloud.google.com https://*.storage.googleapis.com https://*.googleusercontent.com https://platform-lookaside.fbsbx.com https://*.fbcdn.net https://*.mark8ly.app https://images.unsplash.com https://picsum.photos https://*.blob.core.windows.net",
-      "font-src 'self' data: https://fonts.gstatic.com",
-      `connect-src 'self' https://*.mark8ly.app https://storage.googleapis.com https://api.stripe.com https://*.razorpay.com https://api.frankfurter.app wss://*.mark8ly.app${devConnectSrc}`,
-      "frame-src 'self' https://js.stripe.com https://*.razorpay.com",
-      "frame-ancestors 'self' https://*.mark8ly.app",
-      "form-action 'self'",
-      "base-uri 'self'",
-      "object-src 'none'",
-    ].join('; ');
-
     return [
       // Cache static assets (JS, CSS, fonts) for 1 year with immutable
       {
@@ -135,7 +117,7 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400" },
         ],
       },
-      // Default headers for all routes
+      // Default security headers for all routes
       {
         source: "/:path*",
         headers: [
@@ -146,7 +128,6 @@ const nextConfig: NextConfig = {
           { key: "X-XSS-Protection", value: "1; mode=block" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(self)" },
-          { key: "Content-Security-Policy", value: cspHeader },
         ],
       },
     ];

@@ -230,11 +230,35 @@ export async function middleware(request: NextRequest) {
   }
   requestHeaders.set('x-is-custom-domain', isCustomDomainRequest ? 'true' : 'false');
 
-  return NextResponse.next({
+  // Generate nonce for Content Security Policy
+  const nonce = Buffer.from(crypto.randomUUID()).toString('base64');
+  requestHeaders.set('x-nonce', nonce);
+
+  // Build CSP with nonce (replaces unsafe-inline and unsafe-eval for scripts)
+  const cspDevConnectSrc = isDev ? ' http://localhost:* ws://localhost:*' : '';
+  const cspHeader = [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com https://*.razorpay.com`,
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "img-src 'self' data: blob: https://storage.googleapis.com https://storage.cloud.google.com https://*.storage.googleapis.com https://*.googleusercontent.com https://platform-lookaside.fbsbx.com https://*.fbcdn.net https://*.mark8ly.app https://images.unsplash.com https://picsum.photos https://*.blob.core.windows.net",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    `connect-src 'self' https://*.mark8ly.app https://storage.googleapis.com https://api.stripe.com https://*.razorpay.com https://api.frankfurter.app wss://*.mark8ly.app${cspDevConnectSrc}`,
+    "frame-src 'self' https://js.stripe.com https://*.razorpay.com",
+    "frame-ancestors 'self' https://*.mark8ly.app",
+    "form-action 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+  ].join('; ');
+
+  const response = NextResponse.next({
     request: {
       headers: requestHeaders,
     },
   });
+
+  response.headers.set('Content-Security-Policy', cspHeader);
+
+  return response;
 }
 
 export const config = {

@@ -34,6 +34,7 @@ export default async function RootLayout({
   const headerTenantId = headersList.get('x-tenant-id');
   const isPreviewMode = headersList.get('x-preview-mode') === 'true';
   const isCustomDomain = headersList.get('x-is-custom-domain') === 'true';
+  const nonce = headersList.get('x-nonce') || '';
 
   // If no tenant slug, show landing page
   if (!slug) {
@@ -155,7 +156,7 @@ export default async function RootLayout({
         {/* Inject CSS variables */}
         <style dangerouslySetInnerHTML={{ __html: `:root { ${cssString} }` }} />
         {/* Blocking script to mark theme as loaded */}
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: themeScript }} />
         {/* Preload Google Fonts */}
         {googleFontsUrl && (
           <>
