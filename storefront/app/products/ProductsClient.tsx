@@ -15,6 +15,7 @@ import {
   Sparkles,
   Bookmark,
   Check,
+  Ban,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -451,6 +452,7 @@ function ProductCard({
   const comparePrice = product.comparePrice ? parseFloat(product.comparePrice) : null;
   const hasDiscount = comparePrice && comparePrice > price;
   const discountPercent = hasDiscount ? Math.round(((comparePrice - price) / comparePrice) * 100) : 0;
+  const isOutOfStock = product.inventoryStatus === 'OUT_OF_STOCK';
   // Get images, prioritizing primary images first
   const images = useMemo(() => {
     const imgs = product.images || [];
@@ -546,7 +548,7 @@ function ProductCard({
         href={getNavPath(`/products/${product.id}`)}
         className={cn(viewMode === 'list' ? 'w-48 shrink-0' : '')}
       >
-        <div className="relative aspect-square bg-muted overflow-hidden">
+        <div className={cn("relative aspect-square bg-muted overflow-hidden", isOutOfStock && "opacity-75")}>
           <Image
             src={images[0] || '/placeholder.svg'}
             alt={product.name}
@@ -569,7 +571,21 @@ function ProductCard({
                 <TranslatedUIText text="Low Stock" />
               </Badge>
             )}
+            {isOutOfStock && (
+              <Badge className="bg-muted-foreground text-background border-0 shadow-lg">
+                <TranslatedUIText text="Sold Out" />
+              </Badge>
+            )}
           </div>
+
+          {/* Out of Stock Overlay */}
+          {isOutOfStock && (
+            <div className="absolute inset-0 bg-black/30 flex items-center justify-center z-10">
+              <div className="bg-black/70 text-white px-4 py-2 rounded-full text-sm font-medium">
+                <TranslatedUIText text="Out of Stock" />
+              </div>
+            </div>
+          )}
 
           {/* Mobile: simple heart toggle (always visible) */}
           {isTouchDevice && (
@@ -651,7 +667,7 @@ function ProductCard({
           )}
 
           {/* Quick Add Button - Only show in grid view (list view has its own button) */}
-          {viewMode === 'grid' && (
+          {viewMode === 'grid' && !isOutOfStock && (
             <motion.div
               initial={false}
               className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -745,23 +761,35 @@ function ProductCard({
 
         {/* Add to Cart (list view) - compact button, not full width */}
         {viewMode === 'list' && (
-          <Button
-            size="sm"
-            className="mt-4 w-fit btn-tenant-primary"
-            onClick={() =>
-              addToCart({
-                productId: product.id,
-                name: product.name,
-                price,
-                quantity: 1,
-                image: images[0],
-                ...getProductShippingData(product),
-              })
-            }
-          >
-            <ShoppingCart className="h-4 w-4 mr-2" />
-            <TranslatedUIText text="Add to Cart" />
-          </Button>
+          isOutOfStock ? (
+            <Button
+              size="sm"
+              variant="secondary"
+              className="mt-4 w-fit cursor-not-allowed opacity-80"
+              disabled
+            >
+              <Ban className="h-4 w-4 mr-2" />
+              <TranslatedUIText text="Out of Stock" />
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              className="mt-4 w-fit btn-tenant-primary"
+              onClick={() =>
+                addToCart({
+                  productId: product.id,
+                  name: product.name,
+                  price,
+                  quantity: 1,
+                  image: images[0],
+                  ...getProductShippingData(product),
+                })
+              }
+            >
+              <ShoppingCart className="h-4 w-4 mr-2" />
+              <TranslatedUIText text="Add to Cart" />
+            </Button>
+          )
         )}
       </div>
     </motion.div>
