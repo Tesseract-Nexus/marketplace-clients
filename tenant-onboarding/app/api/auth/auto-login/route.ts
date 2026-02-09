@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 // BFF URL configuration
 const AUTH_BFF_URL = process.env.AUTH_BFF_URL || 'http://localhost:8080';
+const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY || '';
 
 interface AutoLoginRequest {
   access_token: string;
@@ -52,6 +53,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<AutoLogin
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(INTERNAL_SERVICE_KEY ? { 'X-Internal-Service-Key': INTERNAL_SERVICE_KEY } : {}),
       },
       body: JSON.stringify({
         access_token: body.access_token,

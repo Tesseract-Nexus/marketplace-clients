@@ -12,6 +12,7 @@
 import { NextRequest } from 'next/server';
 
 const AUTH_BFF_URL = process.env.AUTH_BFF_INTERNAL_URL || process.env.AUTH_BFF_URL || 'http://localhost:8080';
+const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY || '';
 
 /** Decode JWT payload without verification (base64url decode). */
 export function decodeJwtPayload(token: string): { sub?: string; customer_id?: string; email?: string } | null {
@@ -66,6 +67,7 @@ export async function getAuthContext(request: NextRequest): Promise<AuthContext 
         'Cookie': cookie,
         'X-Forwarded-Host': forwardedHost,
         'Accept': 'application/json',
+        ...(INTERNAL_SERVICE_KEY ? { 'X-Internal-Service-Key': INTERNAL_SERVICE_KEY } : {}),
       },
     });
 

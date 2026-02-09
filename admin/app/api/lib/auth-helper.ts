@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 
 // Auth BFF URL for session validation
 const AUTH_BFF_URL = process.env.AUTH_BFF_INTERNAL_URL || 'http://auth-bff.marketplace.svc.cluster.local:8080';
+const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY || '';
 
 /**
  * Response from the internal get-token endpoint
@@ -41,6 +42,7 @@ export async function getAccessTokenFromBFF(): Promise<InternalTokenResponse | n
       headers: {
         'Cookie': `bff_session=${sessionCookie.value}`,
         'Accept': 'application/json',
+        ...(INTERNAL_SERVICE_KEY ? { 'X-Internal-Service-Key': INTERNAL_SERVICE_KEY } : {}),
       },
     });
 
@@ -192,6 +194,7 @@ export async function getAccessTokenFromBFFSession(): Promise<string | null> {
       headers: {
         'Cookie': `bff_session=${sessionCookie.value}`,
         'Accept': 'application/json',
+        ...(INTERNAL_SERVICE_KEY ? { 'X-Internal-Service-Key': INTERNAL_SERVICE_KEY } : {}),
       },
     });
 

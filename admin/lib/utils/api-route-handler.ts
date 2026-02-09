@@ -17,6 +17,7 @@ import { logAuditEvent } from './audit-logger';
 
 const AUTH_BFF_INTERNAL_URL =
   process.env.AUTH_BFF_INTERNAL_URL || 'http://auth-bff.marketplace.svc.cluster.local:8080';
+const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY || '';
 
 interface BffTokenResponse {
   access_token: string;
@@ -174,6 +175,7 @@ async function getBffAccessToken(incomingRequest?: Request): Promise<BffTokenRes
       headers: {
         'Cookie': cookieHeader,
         'Accept': 'application/json',
+        ...(INTERNAL_SERVICE_KEY ? { 'X-Internal-Service-Key': INTERNAL_SERVICE_KEY } : {}),
       },
     });
 
