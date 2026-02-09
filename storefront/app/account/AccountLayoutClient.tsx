@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { User, Package, Heart, Settings, LogOut, CreditCard, Loader2, MessageSquare, Star, Gift } from 'lucide-react';
+import { User, Package, Heart, Settings, LogOut, Loader2, MessageSquare, Star, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useTenant, useNavPath } from '@/context/TenantContext';
@@ -19,7 +19,6 @@ const accountNavItems = [
   { id: 'loyalty', label: 'Loyalty Points', icon: Star, href: '/account/loyalty' },
   { id: 'tickets', label: 'Support Tickets', icon: MessageSquare, href: '/account/tickets' },
   { id: 'lists', label: 'My Lists', icon: Heart, href: '/account/wishlist' },
-  { id: 'payment', label: 'Payment Methods', icon: CreditCard, href: '/account/payment' },
   { id: 'settings', label: 'Settings', icon: Settings, href: '/account/settings' },
 ];
 
