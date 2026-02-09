@@ -258,8 +258,27 @@ export const useListsStore = create<ListsState>()(
 
         const item = await response.json();
 
-        // Refresh lists to get updated state (await to prevent stale reads)
-        await get().fetchLists(tenantId, storefrontId, customerId, accessToken);
+        // Optimistic local update (like addToList) instead of fetchLists which loses items
+        set((state) => {
+          const defaultList = state.lists.find((l) => l.isDefault);
+          if (!defaultList) {
+            // No default list in state yet — fall back to refetch
+            get().fetchLists(tenantId, storefrontId, customerId, accessToken);
+            return state;
+          }
+          return {
+            lists: state.lists.map((l) => {
+              if (l.id === defaultList.id) {
+                return {
+                  ...l,
+                  itemCount: l.itemCount + 1,
+                  items: l.items ? [...l.items, item] : [item],
+                };
+              }
+              return l;
+            }),
+          };
+        });
 
         return item;
       },
