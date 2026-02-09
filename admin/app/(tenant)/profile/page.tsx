@@ -17,6 +17,11 @@ import {
   Pencil,
   X,
   Building2,
+  Lock,
+  Eye,
+  EyeOff,
+  CheckCircle,
+  AlertTriangle,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -27,6 +32,7 @@ import { useToast } from '@/contexts/ToastContext';
 import { useUser } from '@/contexts/UserContext';
 import { MFASettings } from '@/components/settings/MFASettings';
 import { PasskeySettings } from '@/components/settings/PasskeySettings';
+import { directChangePassword } from '@/lib/auth/auth-client';
 
 interface UserProfile {
   id: string;
@@ -54,6 +60,167 @@ const LANGUAGES = [
   { code: 'fr', label: 'French' },
   { code: 'de', label: 'German' },
 ];
+
+function ChangePasswordForm() {
+  const toast = useToast();
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    if (!currentPassword) {
+      setError('Current password is required');
+      return;
+    }
+
+    if (newPassword.length < 10) {
+      setError('New password must be at least 10 characters long');
+      return;
+    }
+
+    const hasUpperCase = /[A-Z]/.test(newPassword);
+    const hasLowerCase = /[a-z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+      setError('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const result = await directChangePassword(currentPassword, newPassword);
+
+      if (result.success) {
+        toast.success('Success', result.message || 'Your password has been changed successfully.');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        setError(result.message || 'Failed to change password.');
+      }
+    } catch {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="bg-card rounded-xl border border-border shadow-sm">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+        <div className="flex items-center gap-2.5">
+          <Lock className="h-4 w-4 text-muted-foreground" />
+          <h3 className="text-base font-semibold text-foreground">Change Password</h3>
+        </div>
+      </div>
+      <form onSubmit={handleSubmit} className="p-5">
+        <div className="max-w-md space-y-4">
+          {error && (
+            <div className="flex items-center gap-2 text-sm text-error bg-error-muted border border-error/30 rounded-lg px-3 py-2">
+              <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <div>
+            <label className="text-sm font-medium text-foreground block mb-1.5">Current Password</label>
+            <div className="relative">
+              <Input
+                type={showCurrentPassword ? 'text' : 'password'}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Enter current password"
+                autoComplete="current-password"
+                disabled={isSubmitting}
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-foreground block mb-1.5">New Password</label>
+            <div className="relative">
+              <Input
+                type={showNewPassword ? 'text' : 'password'}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Enter new password"
+                autoComplete="new-password"
+                disabled={isSubmitting}
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Must be at least 10 characters with uppercase, lowercase, and number
+            </p>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-foreground block mb-1.5">Confirm New Password</label>
+            <div className="relative">
+              <Input
+                type={showConfirmPassword ? 'text' : 'password'}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Confirm new password"
+                autoComplete="new-password"
+                disabled={isSubmitting}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+              >
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+
+          <Button type="submit" disabled={isSubmitting} size="sm">
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                Updating...
+              </>
+            ) : (
+              <>
+                <Key className="h-4 w-4 mr-1.5" />
+                Update Password
+              </>
+            )}
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
 
 export default function ProfilePage() {
   const toast = useToast();
@@ -500,7 +667,8 @@ export default function ProfilePage() {
 
         {/* Security Settings */}
         <section aria-label="Security settings">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <ChangePasswordForm />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start mt-6">
             <MFASettings />
             <PasskeySettings />
           </div>

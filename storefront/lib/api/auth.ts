@@ -1202,228 +1202,75 @@ export async function deletePasskey(
 }
 
 // ============================================================================
-// DEPRECATED: The following functions are kept for backwards compatibility
-// but will not work as the underlying endpoints have been removed.
-// Use the OIDC-based functions above instead.
+// CHANGE PASSWORD (Direct auth flow - session-protected)
 // ============================================================================
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || '';
-
 /**
- * @deprecated Use initiateRegistration() instead.
- * This endpoint has been removed (returns 410 Gone).
+ * Response from change password
  */
-export async function register(
-  tenantId: string,
-  storefrontId: string,
-  data: RegisterRequest
-): Promise<AuthResponse> {
-  console.warn(
-    'register() is deprecated. The local auth endpoint has been removed.',
-    'Use initiateRegistration() for OIDC-based registration via Keycloak.'
-  );
-
-  const response = await fetch(`${API_BASE}/api/auth/register`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Tenant-ID': tenantId,
-      'X-Storefront-ID': storefrontId,
-    },
-    body: JSON.stringify(data),
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || error.message || 'Registration failed. Please use the login page to register.');
-  }
-
-  return response.json();
+export interface ChangePasswordResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
 }
 
 /**
- * @deprecated Use initiateLogin() instead.
- * This endpoint has been removed (returns 410 Gone).
+ * Change password for the currently authenticated user
+ * Requires a valid session (session cookie)
+ *
+ * @param currentPassword - Current password for verification
+ * @param newPassword - New password to set
  */
-export async function login(
-  tenantId: string,
-  storefrontId: string,
-  data: LoginRequest
-): Promise<AuthResponse> {
-  console.warn(
-    'login() is deprecated. The local auth endpoint has been removed.',
-    'Use initiateLogin() for OIDC-based login via Keycloak.'
-  );
-
-  const response = await fetch(`${API_BASE}/api/auth/login`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Tenant-ID': tenantId,
-      'X-Storefront-ID': storefrontId,
-    },
-    body: JSON.stringify(data),
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || error.message || 'Login failed. Please use the Keycloak login page.');
-  }
-
-  return response.json();
-}
-
-/**
- * @deprecated Profile access should use getSession() and customers-service API.
- */
-export async function getProfile(
-  tenantId: string,
-  storefrontId: string,
-  accessToken: string
-): Promise<Customer | null> {
-  console.warn(
-    'getProfile() is deprecated. Use getSession() for authentication status.',
-    'For full customer profile, call customers-service API directly.'
-  );
-
-  try {
-    const response = await fetch(`${API_BASE}/api/auth/profile`, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId,
-      },
-      credentials: 'include',
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = await response.json();
-    return data.data;
-  } catch {
-    return null;
-  }
-}
-
-/**
- * @deprecated Profile updates should go directly to customers-service API.
- */
-export async function updateProfile(
-  tenantId: string,
-  storefrontId: string,
-  accessToken: string,
-  updates: Partial<Customer>
-): Promise<Customer> {
-  console.warn(
-    'updateProfile() is deprecated.',
-    'Use customers-service API directly for profile updates.'
-  );
-
-  const response = await fetch(`${API_BASE}/api/auth/profile`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken}`,
-      'X-Tenant-ID': tenantId,
-      'X-Storefront-ID': storefrontId,
-    },
-    body: JSON.stringify(updates),
-    credentials: 'include',
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to update profile');
-  }
-
-  const data = await response.json();
-  return data.data;
-}
-
-/**
- * @deprecated Password changes should go through Keycloak.
- */
-export async function changePassword(
-  accessToken: string,
+export async function directChangePassword(
   currentPassword: string,
   newPassword: string
-): Promise<void> {
-  console.warn(
-    'changePassword() is deprecated.',
-    'Password changes should be done through Keycloak account management.'
-  );
+): Promise<ChangePasswordResponse> {
+  try {
+    const response = await fetch('/auth/direct/change-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+      }),
+    });
 
-  const response = await fetch(`${API_BASE}/api/auth/change-password`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify({ currentPassword, newPassword }),
-    credentials: 'include',
-  });
+    const data = await response.json();
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to change password');
-  }
-}
+    if (response.status === 401) {
+      return {
+        success: false,
+        error: data.error || 'INVALID_PASSWORD',
+        message: data.message || 'Current password is incorrect.',
+      };
+    }
 
-/**
- * @deprecated Password reset should go through Keycloak.
- */
-export async function requestPasswordReset(
-  tenantId: string,
-  storefrontId: string,
-  email: string
-): Promise<void> {
-  console.warn(
-    'requestPasswordReset() is deprecated.',
-    'Password reset should be done through Keycloak forgot password flow.'
-  );
+    if (response.status === 429) {
+      return {
+        success: false,
+        error: 'RATE_LIMITED',
+        message: data.message || 'Too many attempts. Please try again later.',
+      };
+    }
 
-  const response = await fetch(`${API_BASE}/api/auth/forgot-password`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Tenant-ID': tenantId,
-      'X-Storefront-ID': storefrontId,
-    },
-    body: JSON.stringify({ email }),
-  });
+    if (!response.ok) {
+      return {
+        success: false,
+        error: data.error || 'CHANGE_PASSWORD_FAILED',
+        message: data.message || 'Failed to change password.',
+      };
+    }
 
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to send reset email');
-  }
-}
-
-/**
- * @deprecated Password reset should go through Keycloak.
- */
-export async function resetPassword(
-  token: string,
-  newPassword: string
-): Promise<void> {
-  console.warn(
-    'resetPassword() is deprecated.',
-    'Password reset should be done through Keycloak.'
-  );
-
-  const response = await fetch(`${API_BASE}/api/auth/reset-password`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ token, newPassword }),
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    throw new Error(error.error || 'Failed to reset password');
+    return data;
+  } catch (error) {
+    console.error('Change password error:', error);
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to change password. Please try again.',
+    };
   }
 }

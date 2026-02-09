@@ -660,7 +660,7 @@ function LoginPageContent() {
                 <button
                   type="button"
                   className="text-xs text-primary hover:underline"
-                  onClick={() => router.push('/auth/login?prompt=login')}
+                  onClick={() => router.push('/forgot-password')}
                 >
                   Forgot password?
                 </button>

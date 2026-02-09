@@ -21,7 +21,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useTenant } from '@/context/TenantContext';
 import { useAuthStore } from '@/store/auth';
 import { getPreferences, updatePreferences, NotificationPreferences } from '@/lib/api/notifications';
-import { deactivateAccount, getTotpStatus, initiateTotpSetup, confirmTotpSetup, disableTotp, regenerateBackupCodes, isPasskeySupported, getPasskeys, registerPasskey, renamePasskey, deletePasskey, PasskeyInfo } from '@/lib/api/auth';
+import { deactivateAccount, getTotpStatus, initiateTotpSetup, confirmTotpSetup, disableTotp, regenerateBackupCodes, isPasskeySupported, getPasskeys, registerPasskey, renamePasskey, deletePasskey, directChangePassword, PasskeyInfo } from '@/lib/api/auth';
 import { QRCodeSVG } from 'qrcode.react';
 import {
   getLanguages,
@@ -46,6 +46,13 @@ export default function SettingsPage() {
   } = useTranslation();
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isLoadingPrefs, setIsLoadingPrefs] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -337,6 +344,55 @@ export default function SettingsPage() {
     setManualKey('');
     setBackupCodes([]);
     setShowManualKey(false);
+  };
+
+  const handleChangePassword = async () => {
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (!currentPassword) {
+      setPasswordError('Current password is required');
+      return;
+    }
+
+    if (newPassword.length < 10) {
+      setPasswordError('New password must be at least 10 characters long');
+      return;
+    }
+
+    const hasUpperCase = /[A-Z]/.test(newPassword);
+    const hasLowerCase = /[a-z]/.test(newPassword);
+    const hasNumber = /[0-9]/.test(newPassword);
+
+    if (!hasUpperCase || !hasLowerCase || !hasNumber) {
+      setPasswordError('Password must contain at least one uppercase letter, one lowercase letter, and one number');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Passwords do not match');
+      return;
+    }
+
+    setIsChangingPassword(true);
+
+    try {
+      const result = await directChangePassword(currentPassword, newPassword);
+
+      if (result.success) {
+        setPasswordSuccess(result.message || 'Your password has been changed successfully.');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setTimeout(() => setPasswordSuccess(''), 5000);
+      } else {
+        setPasswordError(result.message || 'Failed to change password.');
+      }
+    } catch {
+      setPasswordError('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   const renderTotpCodeInput = () => (
@@ -752,6 +808,20 @@ export default function SettingsPage() {
         </div>
 
         <div className="space-y-4 max-w-md">
+          {passwordError && (
+            <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg px-3 py-2">
+              <AlertTriangle className="h-4 w-4 flex-shrink-0" />
+              <span>{passwordError}</span>
+            </div>
+          )}
+
+          {passwordSuccess && (
+            <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2">
+              <CheckCircle className="h-4 w-4 flex-shrink-0" />
+              <span>{passwordSuccess}</span>
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="currentPassword"><TranslatedUIText text="Current Password" /></Label>
             <div className="relative">
@@ -759,6 +829,9 @@ export default function SettingsPage() {
                 id="currentPassword"
                 type={showCurrentPassword ? 'text' : 'password'}
                 placeholder="Enter current password"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                disabled={isChangingPassword}
               />
               <Button
                 type="button"
@@ -779,6 +852,9 @@ export default function SettingsPage() {
                 id="newPassword"
                 type={showNewPassword ? 'text' : 'password'}
                 placeholder="Enter new password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                disabled={isChangingPassword}
               />
               <Button
                 type="button"
@@ -790,14 +866,48 @@ export default function SettingsPage() {
                 {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </Button>
             </div>
+            <p className="text-xs text-muted-foreground">
+              <TranslatedUIText text="Must be at least 10 characters with uppercase, lowercase, and number" />
+            </p>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="confirmPassword"><TranslatedUIText text="Confirm New Password" /></Label>
-            <Input id="confirmPassword" type="password" placeholder="Confirm new password" />
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="Confirm new password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                disabled={isChangingPassword}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </Button>
+            </div>
           </div>
 
-          <Button className="btn-tenant-primary"><TranslatedUIText text="Update Password" /></Button>
+          <Button
+            className="btn-tenant-primary"
+            onClick={handleChangePassword}
+            disabled={isChangingPassword || !isAuthenticated}
+          >
+            {isChangingPassword ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                <TranslatedUIText text="Updating..." />
+              </>
+            ) : (
+              <TranslatedUIText text="Update Password" />
+            )}
+          </Button>
         </div>
       </div>
 

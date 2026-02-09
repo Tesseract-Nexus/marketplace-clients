@@ -511,6 +511,166 @@ export async function sendMfaCode(
 }
 
 // ============================================================================
+// Password Reset & Change Functions
+// ============================================================================
+
+/**
+ * Request a password reset email
+ * Always returns success to not reveal if email exists
+ */
+export async function directRequestPasswordReset(
+  email: string,
+  tenantSlug: string
+): Promise<{ success: boolean; message?: string; error?: string }> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/direct/request-password-reset`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, tenant_slug: tenantSlug }),
+    });
+
+    return response.json();
+  } catch (error) {
+    logger.error('[Auth] Password reset request failed:', error);
+    return {
+      success: true,
+      message: 'If an account exists with this email, you will receive a password reset link shortly.',
+    };
+  }
+}
+
+/**
+ * Validate a password reset token
+ */
+export async function directValidateResetToken(
+  token: string
+): Promise<{ success: boolean; valid: boolean; email?: string; expires_at?: string; message?: string; error?: string }> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/direct/validate-reset-token`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token }),
+    });
+
+    return response.json();
+  } catch (error) {
+    logger.error('[Auth] Reset token validation failed:', error);
+    return {
+      success: false,
+      valid: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to validate reset link. Please try again.',
+    };
+  }
+}
+
+/**
+ * Reset password using a valid token
+ */
+export async function directResetPassword(
+  token: string,
+  newPassword: string
+): Promise<{ success: boolean; message?: string; error?: string }> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/direct/reset-password`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ token, new_password: newPassword }),
+    });
+
+    const data = await response.json();
+
+    if (response.status === 400) {
+      return {
+        success: false,
+        error: 'INVALID_TOKEN',
+        message: data.message || 'Invalid or expired reset link. Please request a new one.',
+      };
+    }
+
+    return data;
+  } catch (error) {
+    logger.error('[Auth] Password reset failed:', error);
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to reset password. Please try again.',
+    };
+  }
+}
+
+/**
+ * Change password for the currently authenticated user
+ * Requires a valid session
+ */
+export async function directChangePassword(
+  currentPassword: string,
+  newPassword: string
+): Promise<{ success: boolean; message?: string; error?: string }> {
+  try {
+    const response = await fetch(`${authConfig.bffBaseUrl}/auth/direct/change-password`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        current_password: currentPassword,
+        new_password: newPassword,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.status === 401) {
+      return {
+        success: false,
+        error: data.error || 'INVALID_PASSWORD',
+        message: data.message || 'Current password is incorrect.',
+      };
+    }
+
+    if (response.status === 429) {
+      return {
+        success: false,
+        error: 'RATE_LIMITED',
+        message: data.message || 'Too many attempts. Please try again later.',
+      };
+    }
+
+    if (!response.ok) {
+      return {
+        success: false,
+        error: data.error || 'CHANGE_PASSWORD_FAILED',
+        message: data.message || 'Failed to change password.',
+      };
+    }
+
+    return data;
+  } catch (error) {
+    logger.error('[Auth] Change password failed:', error);
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: 'Unable to change password. Please try again.',
+    };
+  }
+}
+
+// ============================================================================
 // TOTP Authenticator App Functions
 // ============================================================================
 
@@ -792,6 +952,11 @@ export default {
   checkAccountStatus,
   verifyMfa,
   sendMfaCode,
+  // Password reset & change
+  directRequestPasswordReset,
+  directValidateResetToken,
+  directResetPassword,
+  directChangePassword,
   // TOTP
   getTotpStatus,
   initiateTotpSetup,
