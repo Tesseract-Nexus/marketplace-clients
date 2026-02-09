@@ -76,8 +76,7 @@ function CheckoutSuccessContent() {
   const sessionId = searchParams.get('session_id');
   const { tenant, getNavPath } = useTenant();
   const { clearCart } = useCartStore();
-  const { customer, accessToken } = useAuthStore();
-  const isAuthenticated = !!(customer && accessToken);
+  const { customer, isAuthenticated } = useAuthStore();
 
   const [sessionDetails, setSessionDetails] = useState<SessionDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);

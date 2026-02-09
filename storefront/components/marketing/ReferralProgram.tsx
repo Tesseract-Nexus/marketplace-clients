@@ -47,7 +47,7 @@ interface ReferralProgramProps {
 export function ReferralProgram({ variant = 'full', className }: ReferralProgramProps) {
   const { tenant } = useTenant();
   const marketingConfig = useMarketingConfig();
-  const { isAuthenticated, accessToken, customer } = useAuthStore();
+  const { isAuthenticated, customer } = useAuthStore();
   const { customerLoyalty, program, fetchCustomerLoyalty, isLoadingCustomer, hasFetchedCustomer } = useLoyaltyStore();
 
   // Don't render if referral program is disabled
@@ -70,7 +70,7 @@ export function ReferralProgram({ variant = 'full', className }: ReferralProgram
   // Fetch referral stats
   useEffect(() => {
     const fetchStats = async () => {
-      if (!tenant || !isAuthenticated || !accessToken) return;
+      if (!tenant || !isAuthenticated) return;
 
       setIsLoadingStats(true);
       try {
@@ -78,8 +78,8 @@ export function ReferralProgram({ variant = 'full', className }: ReferralProgram
           headers: {
             'X-Tenant-ID': tenant.id,
             'X-Storefront-ID': tenant.storefrontId,
-            'Authorization': `Bearer ${accessToken}`,
           },
+          credentials: 'include',
         });
 
         if (response.ok) {
@@ -94,7 +94,7 @@ export function ReferralProgram({ variant = 'full', className }: ReferralProgram
     };
 
     fetchStats();
-  }, [tenant, isAuthenticated, accessToken]);
+  }, [tenant, isAuthenticated]);
 
   const referralCode = customerLoyalty?.referralCode || '';
   const referralBonus = program?.referralBonus || 500;

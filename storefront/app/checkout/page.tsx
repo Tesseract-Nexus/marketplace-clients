@@ -98,7 +98,7 @@ function CheckoutContent() {
   const selectedItemsRaw = getSelectedItems();
   const selectedItems = useMemo(() => selectedItemsRaw, [JSON.stringify(selectedItemsRaw)]);
 
-  const { customer, accessToken, isAuthenticated } = useAuthStore();
+  const { customer, isAuthenticated } = useAuthStore();
 
   // Checkout context
   const {
@@ -601,12 +601,12 @@ function CheckoutContent() {
         clearGiftCards();
 
         // Record customer order (don't wait for it)
-        if (isAuthenticated && customer?.id && accessToken) {
+        if (isAuthenticated && customer?.id) {
           recordCustomerOrder(tenant.id, tenant.storefrontId, customer.id, {
             orderId: order.id,
             orderNumber: order.orderNumber,
             totalAmount: total,
-          }, accessToken).catch(console.warn);
+          }).catch(console.warn);
         }
 
         // Redeem loyalty points after successful payment

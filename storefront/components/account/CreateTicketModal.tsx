@@ -41,7 +41,7 @@ const priorityOptions: { value: TicketPriority; label: string; color: string }[]
 
 export function CreateTicketModal({ isOpen, onClose, onSuccess }: CreateTicketModalProps) {
   const { tenant } = useTenant();
-  const { accessToken, customer } = useAuthStore();
+  const { isAuthenticated, customer } = useAuthStore();
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -53,7 +53,7 @@ export function CreateTicketModal({ isOpen, onClose, onSuccess }: CreateTicketMo
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!tenant || !accessToken) {
+    if (!tenant || !isAuthenticated) {
       setError('Please sign in to submit a support request');
       return;
     }
@@ -76,7 +76,7 @@ export function CreateTicketModal({ isOpen, onClose, onSuccess }: CreateTicketMo
         ? `${customer.firstName} ${customer.lastName}`.trim()
         : undefined;
 
-      await createTicket(tenant.id, tenant.storefrontId, accessToken, {
+      await createTicket(tenant.id, tenant.storefrontId, {
         title: title.trim(),
         description: description.trim(),
         type,

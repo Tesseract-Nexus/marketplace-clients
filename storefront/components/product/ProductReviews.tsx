@@ -31,7 +31,7 @@ interface ProductReviewsProps {
 
 export function ProductReviews({ productId, productName }: ProductReviewsProps) {
   const { tenant } = useTenant();
-  const { isAuthenticated, accessToken, customer } = useAuthStore();
+  const { isAuthenticated, customer } = useAuthStore();
 
   const tenantId = tenant?.id || 'demo';
   const storefrontId = tenant?.storefrontId || 'demo';
@@ -136,7 +136,6 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
       const review = await createReview(
         tenantId,
         storefrontId,
-        accessToken || null,
         {
           targetId: productId,
           targetType: 'PRODUCT',
@@ -165,7 +164,6 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
             await uploadReviewMedia(
               tenantId,
               storefrontId,
-              accessToken,
               review.id,
               image.file
             );
@@ -207,8 +205,8 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
 
   const handleReaction = async (reviewId: string, reactionType: 'HELPFUL' | 'NOT_HELPFUL') => {
     // Check if user is authenticated
-    if (!isAuthenticated || !accessToken || !customer?.id) {
-      console.log('[ProductReviews] User not authenticated for reaction', { isAuthenticated, hasAccessToken: !!accessToken, customerId: customer?.id });
+    if (!isAuthenticated || !customer?.id) {
+      console.log('[ProductReviews] User not authenticated for reaction', { isAuthenticated, customerId: customer?.id });
       setReactionError('Please log in to react to reviews');
       setTimeout(() => setReactionError(null), 3000);
       return;
@@ -220,7 +218,6 @@ export function ProductReviews({ productId, productName }: ProductReviewsProps) 
       const response = await addReviewReaction(
         tenantId,
         storefrontId,
-        accessToken,
         customer.id,
         reviewId,
         reactionType

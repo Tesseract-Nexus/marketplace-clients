@@ -37,7 +37,7 @@ import { clearTranslationCache } from '@/hooks/useTranslatedText';
 export default function SettingsPage() {
   const router = useRouter();
   const { tenant, settings } = useTenant();
-  const { accessToken, isAuthenticated, logout: clearAuth } = useAuthStore();
+  const { isAuthenticated, logout: clearAuth } = useAuthStore();
   const {
     preferredLanguage: contextPreferredLanguage,
     autoDetectSource: contextAutoDetect,
@@ -370,7 +370,7 @@ export default function SettingsPage() {
   // Load preferences from backend on mount
   useEffect(() => {
     async function loadPreferences() {
-      if (!isAuthenticated || !accessToken || !tenant?.id) {
+      if (!isAuthenticated || !tenant?.id) {
         setIsLoadingPrefs(false);
         return;
       }
@@ -378,8 +378,7 @@ export default function SettingsPage() {
       try {
         const prefs = await getPreferences(
           tenant.id,
-          tenant.storefrontId || tenant.id,
-          accessToken
+          tenant.storefrontId || tenant.id
         );
         setNotifications({
           email: prefs.emailEnabled,
@@ -395,7 +394,7 @@ export default function SettingsPage() {
     }
 
     loadPreferences();
-  }, [isAuthenticated, accessToken, tenant?.id, tenant?.storefrontId]);
+  }, [isAuthenticated, tenant?.id, tenant?.storefrontId]);
 
   // Load language preferences from backend on mount
   useEffect(() => {
@@ -414,11 +413,10 @@ export default function SettingsPage() {
         setLanguages(availableLanguages);
 
         // Load user preference if authenticated
-        if (isAuthenticated && accessToken) {
+        if (isAuthenticated) {
           const userPref = await getUserLanguagePreference(
             tenant.id,
-            tenant.storefrontId || tenant.id,
-            accessToken
+            tenant.storefrontId || tenant.id
           );
           setLanguagePreference(userPref);
         }
@@ -430,12 +428,12 @@ export default function SettingsPage() {
     }
 
     loadLanguagePreferences();
-  }, [isAuthenticated, accessToken, tenant?.id, tenant?.storefrontId]);
+  }, [isAuthenticated, tenant?.id, tenant?.storefrontId]);
 
   // Save language preference to backend
   const saveLanguagePreference = useCallback(
     async (newPreference: Partial<UserLanguagePreference>) => {
-      if (!isAuthenticated || !accessToken || !tenant?.id) return;
+      if (!isAuthenticated || !tenant?.id) return;
 
       setIsSavingLanguage(true);
       setLanguageSaveSuccess(false);
@@ -444,7 +442,6 @@ export default function SettingsPage() {
         const updatedPref = await updateUserLanguagePreference(
           tenant.id,
           tenant.storefrontId || tenant.id,
-          accessToken,
           newPreference
         );
         setLanguagePreference(updatedPref);
@@ -456,7 +453,7 @@ export default function SettingsPage() {
         setIsSavingLanguage(false);
       }
     },
-    [isAuthenticated, accessToken, tenant?.id, tenant?.storefrontId]
+    [isAuthenticated, tenant?.id, tenant?.storefrontId]
   );
 
   // Handler for language preference changes
@@ -487,7 +484,7 @@ export default function SettingsPage() {
 
   // Save notification preferences to backend
   const savePreferences = useCallback(async (newNotifications: typeof notifications) => {
-    if (!isAuthenticated || !accessToken || !tenant?.id) return;
+    if (!isAuthenticated || !tenant?.id) return;
 
     setIsSaving(true);
     setSaveSuccess(false);
@@ -502,7 +499,6 @@ export default function SettingsPage() {
       await updatePreferences(
         tenant.id,
         tenant.storefrontId || tenant.id,
-        accessToken,
         prefs
       );
       setSaveSuccess(true);
@@ -513,7 +509,7 @@ export default function SettingsPage() {
     } finally {
       setIsSaving(false);
     }
-  }, [isAuthenticated, accessToken, tenant?.id, tenant?.storefrontId]);
+  }, [isAuthenticated, tenant?.id, tenant?.storefrontId]);
 
   // Handler for toggle changes
   const handleNotificationChange = (key: keyof typeof notifications, value: boolean) => {

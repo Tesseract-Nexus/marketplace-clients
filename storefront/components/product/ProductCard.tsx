@@ -79,7 +79,7 @@ export function ProductCard({
   const getNavPath = useNavPath();
   const addToCart = useCartStore((state) => state.addItem);
   const { lists, fetchLists, addToList, addToDefaultList, removeFromList, isInAnyList } = useListsStore();
-  const { customer, accessToken, isAuthenticated } = useAuthStore();
+  const { customer, isAuthenticated } = useAuthStore();
   const [isHovered, setIsHovered] = useState(false);
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
@@ -206,9 +206,9 @@ export function ProductCard({
   // Fetch lists when authenticated
   useEffect(() => {
     if (isAuthenticated && tenant && customer && lists.length === 0) {
-      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken || '');
+      fetchLists(tenant.id, tenant.storefrontId, customer.id);
     }
-  }, [isAuthenticated, tenant, lists.length, customer?.id, accessToken, fetchLists]);
+  }, [isAuthenticated, tenant, lists.length, customer?.id, fetchLists]);
 
   const aspectRatioClass = {
     square: 'aspect-square',
@@ -291,7 +291,7 @@ export function ProductCard({
     setIsHeartAnimating(true);
 
     try {
-      await addToList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', list.id, {
+      await addToList(tenant.id, tenant.storefrontId, customer.id, list.id, {
         id: product.id,
         name: product.name,
         image: imageUrl,
@@ -317,7 +317,7 @@ export function ProductCard({
 
     setIsAddingToList(list.id);
     try {
-      await removeFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', list.id, item.id);
+      await removeFromList(tenant.id, tenant.storefrontId, customer.id, list.id, item.id);
       toast.success(`Removed from ${list.name}`);
     } catch {
       toast.error(`Failed to remove from ${list.name}`);
@@ -346,7 +346,7 @@ export function ProductCard({
         await handleRemoveFromList(defaultList, e);
       } else {
         setIsAddingToList('default');
-        await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', {
+        await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, {
           id: product.id,
           name: product.name,
           image: imageUrl,

@@ -35,7 +35,7 @@ export function AddressSelector({
   addressType = 'SHIPPING',
 }: AddressSelectorProps) {
   const { tenant } = useTenant();
-  const { customer, accessToken } = useAuthStore();
+  const { customer } = useAuthStore();
   const [addresses, setAddresses] = useState<CustomerAddress[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -48,7 +48,7 @@ export function AddressSelector({
     } else {
       setIsLoading(false);
     }
-  }, [customer?.id, accessToken]);
+  }, [customer?.id]);
 
   const loadAddresses = async () => {
     if (!customer?.id || !tenant) return;
@@ -58,8 +58,7 @@ export function AddressSelector({
       const data = await getCustomerAddresses(
         tenant.id,
         tenant.storefrontId,
-        customer.id,
-        accessToken
+        customer.id
       );
       // Filter by address type
       // Include addresses with matching type, 'BOTH' type, or no type set (legacy/generic addresses)
@@ -91,8 +90,7 @@ export function AddressSelector({
         tenant.id,
         tenant.storefrontId,
         customer.id,
-        addressId,
-        accessToken
+        addressId
       );
       setAddresses((prev) => prev.filter((a) => a.id !== addressId));
       if (selectedAddressId === addressId) {
@@ -117,8 +115,7 @@ export function AddressSelector({
         tenant.id,
         tenant.storefrontId,
         customer.id,
-        addressId,
-        accessToken
+        addressId
       );
       setAddresses((prev) =>
         prev.map((a) => ({

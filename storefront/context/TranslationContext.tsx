@@ -98,7 +98,7 @@ function setStoredLanguage(lang: string): void {
 
 export function TranslationProvider({ children }: TranslationProviderProps) {
   const { tenant } = useTenant();
-  const { accessToken, isAuthenticated } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
 
   // Use useSyncExternalStore to properly sync with localStorage
   // This handles hydration correctly and prevents mismatch
@@ -149,13 +149,12 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
         // Load user preference from backend only if:
         // 1. User is authenticated
         // 2. This is the initial load (to avoid race conditions when user changes language)
-        if (isAuthenticated && accessToken && !hasLoadedPreferencesRef.current) {
+        if (isAuthenticated && !hasLoadedPreferencesRef.current) {
           hasLoadedPreferencesRef.current = true;
           try {
             const userPref = await getUserLanguagePreference(
               tenant.id,
-              tenant.storefrontId || tenant.id,
-              accessToken
+              tenant.storefrontId || tenant.id
             );
             // Only update from backend if user has a saved preference there
             // The backend preference takes precedence on initial load for cross-device sync
@@ -177,7 +176,7 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
     }
 
     loadTranslationData();
-  }, [tenant?.id, tenant?.storefrontId, isAuthenticated, accessToken]);
+  }, [tenant?.id, tenant?.storefrontId, isAuthenticated]);
 
   // Set preferred language
   const setPreferredLanguage = useCallback(
@@ -189,12 +188,11 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
       setStoredLanguage(lang);
 
       // Save to backend if authenticated
-      if (isAuthenticated && accessToken && tenant?.id) {
+      if (isAuthenticated && tenant?.id) {
         try {
           await updateUserLanguagePreference(
             tenant.id,
             tenant.storefrontId || tenant.id,
-            accessToken,
             { preferredLanguage: lang }
           );
         } catch (error) {
@@ -202,7 +200,7 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
         }
       }
     },
-    [isAuthenticated, accessToken, tenant?.id, tenant?.storefrontId]
+    [isAuthenticated, tenant?.id, tenant?.storefrontId]
   );
 
   // Set auto-detect source
@@ -211,12 +209,11 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
       setPreference((prev) => ({ ...prev, autoDetectSource: enabled }));
 
       // Save to backend if authenticated
-      if (isAuthenticated && accessToken && tenant?.id) {
+      if (isAuthenticated && tenant?.id) {
         try {
           await updateUserLanguagePreference(
             tenant.id,
             tenant.storefrontId || tenant.id,
-            accessToken,
             { autoDetectSource: enabled }
           );
         } catch (error) {
@@ -224,7 +221,7 @@ export function TranslationProvider({ children }: TranslationProviderProps) {
         }
       }
     },
-    [isAuthenticated, accessToken, tenant?.id, tenant?.storefrontId]
+    [isAuthenticated, tenant?.id, tenant?.storefrontId]
   );
 
   // Translate single text

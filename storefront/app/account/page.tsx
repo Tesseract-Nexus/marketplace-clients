@@ -23,7 +23,7 @@ export default function AccountPage() {
   const { settings, tenant } = useTenant();
   const tenantId = tenant?.id || '';
   const storefrontId = tenant?.storefrontId || '';
-  const { customer, accessToken, updateCustomer } = useAuthStore();
+  const { customer, updateCustomer } = useAuthStore();
 
   // Get store localization settings (country configured by admin)
   const localization = useLocalization();
@@ -89,26 +89,21 @@ export default function AccountPage() {
     locationApi.getCountries().then(setCountryList).catch(() => {});
   }, []);
 
-  // Fetch addresses - supports both JWT and session-based (OAuth) auth
+  // Fetch addresses
   useEffect(() => {
     async function fetchAddresses() {
       if (!customer?.id || !tenantId) return;
 
       setIsLoadingAddresses(true);
       try {
-        const headers: Record<string, string> = {
-          'X-Tenant-ID': tenantId,
-          'X-Storefront-ID': storefrontId || '',
-        };
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
-
         const response = await fetch(
           `/api/customers/${customer.id}/addresses`,
           {
-            headers,
-            credentials: 'include', // Important: send session cookies for OAuth
+            headers: {
+              'X-Tenant-ID': tenantId,
+              'X-Storefront-ID': storefrontId || '',
+            },
+            credentials: 'include',
           }
         );
 
@@ -124,11 +119,9 @@ export default function AccountPage() {
     }
 
     fetchAddresses();
-  }, [customer?.id, accessToken, tenantId, storefrontId]);
+  }, [customer?.id, tenantId, storefrontId]);
 
   const handleAddAddress = async () => {
-    // Support both JWT and session-based (OAuth) auth
-    // OAuth users may not have accessToken but can still save addresses via session cookies
     if (!customer?.id || !tenantId) {
       console.error('Missing auth context for address save:', {
         hasCustomerId: !!customer?.id,
@@ -141,15 +134,11 @@ export default function AccountPage() {
 
     setIsAddingAddress(true);
     try {
-      // Build common headers and options for both JWT and session auth
       const headers: Record<string, string> = {
         'Content-Type': 'application/json',
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId || '',
       };
-      if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-      }
 
       if (editingAddress) {
         // Update existing address
@@ -247,20 +236,15 @@ export default function AccountPage() {
     if (!customer?.id || !tenantId) return;
 
     try {
-      const headers: Record<string, string> = {
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId || '',
-      };
-      if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-      }
-
       const response = await fetch(
         `/api/customers/${customer.id}/addresses/${addressId}`,
         {
           method: 'DELETE',
-          headers,
-          credentials: 'include', // Important: send session cookies for OAuth
+          headers: {
+            'X-Tenant-ID': tenantId,
+            'X-Storefront-ID': storefrontId || '',
+          },
+          credentials: 'include',
         }
       );
 
@@ -281,21 +265,16 @@ export default function AccountPage() {
     if (!customer?.id || !tenantId) return;
 
     try {
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId || '',
-      };
-      if (accessToken) {
-        headers['Authorization'] = `Bearer ${accessToken}`;
-      }
-
       const response = await fetch(
         `/api/customers/${customer.id}/addresses/${addressId}`,
         {
           method: 'PATCH',
-          headers,
-          credentials: 'include', // Important: send session cookies for OAuth
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Tenant-ID': tenantId,
+            'X-Storefront-ID': storefrontId || '',
+          },
+          credentials: 'include',
         }
       );
 
@@ -388,7 +367,6 @@ export default function AccountPage() {
   };
 
   const handleSave = async () => {
-    // Check for customer instead of accessToken (OAuth uses session cookies)
     if (!customer?.id || !tenantId) return;
 
     setIsSaving(true);
@@ -399,8 +377,6 @@ export default function AccountPage() {
           'Content-Type': 'application/json',
           'X-Tenant-ID': tenantId,
           'X-Storefront-ID': storefrontId || '',
-          // Include Authorization if available (legacy auth), otherwise session cookies will be used
-          ...(accessToken && { 'Authorization': `Bearer ${accessToken}` }),
         },
         credentials: 'include', // Important: send session cookies
         body: JSON.stringify({

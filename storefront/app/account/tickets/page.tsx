@@ -30,7 +30,7 @@ import { cn } from '@/lib/utils';
 export default function TicketsPage() {
   const { tenant } = useTenant();
   const getNavPath = useNavPath();
-  const { accessToken, customer } = useAuthStore();
+  const { customer } = useAuthStore();
 
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -40,7 +40,6 @@ export default function TicketsPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   const fetchTickets = useCallback(async () => {
-    // With OAuth/session-based auth, accessToken may be empty but user is still authenticated
     if (!tenant || !customer?.id) return;
 
     setIsLoading(true);
@@ -50,7 +49,6 @@ export default function TicketsPage() {
       const response = await listTickets(
         tenant.id,
         tenant.storefrontId,
-        accessToken || '', // Pass empty string if no token (session auth will be used)
         { page, limit: 10 },
         customer.id
       );
@@ -62,10 +60,9 @@ export default function TicketsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [tenant, accessToken, page, customer?.id]);
+  }, [tenant, page, customer?.id]);
 
   useEffect(() => {
-    // Check for customer presence (session-based auth) instead of accessToken
     if (tenant && customer?.id) {
       fetchTickets();
     }

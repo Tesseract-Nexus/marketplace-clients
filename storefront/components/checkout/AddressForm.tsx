@@ -50,7 +50,7 @@ export function AddressForm({
   onCancel,
 }: AddressFormProps) {
   const { tenant } = useTenant();
-  const { customer, accessToken } = useAuthStore();
+  const { customer } = useAuthStore();
 
   const [formData, setFormData] = useState({
     firstName: address?.firstName || '',
@@ -194,16 +194,14 @@ export function AddressForm({
           tenant.storefrontId,
           customer.id,
           address.id,
-          requestData,
-          accessToken
+          requestData
         );
       } else {
         result = await addCustomerAddress(
           tenant.id,
           tenant.storefrontId,
           customer.id,
-          requestData,
-          accessToken
+          requestData
         );
       }
 

@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   }
 
   try {
-    const url = `${config.api.productsService}/products/${id}`;
+    const url = `${config.api.productsService}/storefront/products/${id}`;
     const response = await fetch(url, {
       method: 'GET',
       headers: {

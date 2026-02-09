@@ -440,7 +440,7 @@ function ProductCard({
 }: ProductCardProps) {
   const { tenant } = useTenant();
   const { lists, fetchLists, addToList, addToDefaultList, removeProductFromList, isInAnyList } = useListsStore();
-  const { customer, accessToken, isAuthenticated } = useAuthStore();
+  const { customer, isAuthenticated } = useAuthStore();
 
   // Detect touch device for consistent mobile behavior
   const [isTouchDevice, setIsTouchDevice] = useState(false);
@@ -471,9 +471,9 @@ function ProductCard({
   // Fetch lists when authenticated
   useEffect(() => {
     if (isAuthenticated && tenant && customer && lists.length === 0) {
-      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken || '');
+      fetchLists(tenant.id, tenant.storefrontId, customer.id);
     }
-  }, [isAuthenticated, tenant, lists.length, customer?.id, accessToken, fetchLists]);
+  }, [isAuthenticated, tenant, lists.length, customer?.id, fetchLists]);
 
   const handleQuickToggleDefault = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -489,10 +489,10 @@ function ProductCard({
 
     try {
       if (isInDefaultList && defaultList) {
-        await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', defaultList.id, product.id);
+        await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, defaultList.id, product.id);
         toast.success(`Removed from ${defaultList.name}`);
       } else {
-        await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', {
+        await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, {
           id: product.id,
           name: product.name,
           image: images[0],
@@ -510,7 +510,7 @@ function ProductCard({
     e.stopPropagation();
     if (!isAuthenticated || !customer || !tenant) return;
     try {
-      await addToList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', listId, {
+      await addToList(tenant.id, tenant.storefrontId, customer.id, listId, {
         id: product.id,
         name: product.name,
         image: images[0],
@@ -527,7 +527,7 @@ function ProductCard({
     e.stopPropagation();
     if (!isAuthenticated || !customer || !tenant) return;
     try {
-      await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', listId, product.id);
+      await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, listId, product.id);
       toast.success(`Removed from ${listName}`);
     } catch {
       toast.error(`Failed to remove from ${listName}`);

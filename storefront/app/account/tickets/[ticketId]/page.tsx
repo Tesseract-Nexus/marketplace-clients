@@ -38,14 +38,14 @@ export default function TicketDetailPage({ params }: TicketDetailPageProps) {
   const router = useRouter();
   const { tenant } = useTenant();
   const getNavPath = useNavPath();
-  const { accessToken, customer } = useAuthStore();
+  const { customer } = useAuthStore();
 
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchTicket = useCallback(async () => {
-    if (!tenant || !accessToken || !ticketId) return;
+    if (!tenant || !ticketId) return;
 
     setIsLoading(true);
     setError(null);
@@ -54,7 +54,6 @@ export default function TicketDetailPage({ params }: TicketDetailPageProps) {
       const data = await getTicket(
         tenant.id,
         tenant.storefrontId,
-        accessToken,
         ticketId,
         customer?.id
       );
@@ -64,7 +63,7 @@ export default function TicketDetailPage({ params }: TicketDetailPageProps) {
     } finally {
       setIsLoading(false);
     }
-  }, [tenant, accessToken, ticketId, customer?.id]);
+  }, [tenant, ticketId, customer?.id]);
 
   useEffect(() => {
     fetchTicket();

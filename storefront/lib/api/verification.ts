@@ -29,8 +29,7 @@ export interface VerifyEmailResponse {
 export async function sendVerificationEmail(
   tenantId: string,
   storefrontId: string,
-  customerId: string,
-  accessToken: string
+  customerId: string
 ): Promise<SendVerificationResponse> {
   const response = await fetch(
     `${CUSTOMERS_SERVICE_URL}/api/v1/customers/${customerId}/send-verification`,
@@ -40,8 +39,8 @@ export async function sendVerificationEmail(
         'Content-Type': 'application/json',
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
-        'Authorization': `Bearer ${accessToken}`,
       },
+      credentials: 'include',
     }
   );
 

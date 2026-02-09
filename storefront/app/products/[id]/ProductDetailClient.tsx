@@ -67,7 +67,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const { formatDisplayPrice } = usePriceFormatting();
   const addToCart = useCartStore((state) => state.addItem);
   const { lists, fetchLists, addToList, addToDefaultList, removeFromList, removeProductFromList, isInAnyList, getListsContainingProduct } = useListsStore();
-  const { customer, accessToken, isAuthenticated } = useAuthStore();
+  const { customer, isAuthenticated } = useAuthStore();
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -109,9 +109,9 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   // Fetch lists when authenticated
   useEffect(() => {
     if (isAuthenticated && tenant && customer && lists.length === 0) {
-      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken || '');
+      fetchLists(tenant.id, tenant.storefrontId, customer.id);
     }
-  }, [isAuthenticated, tenant, lists.length, customer?.id, accessToken, fetchLists]);
+  }, [isAuthenticated, tenant, lists.length, customer?.id, fetchLists]);
 
   // Get images, prioritizing primary images first
   const images = useMemo(() => {
@@ -180,10 +180,10 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
 
     try {
       if (isInDefaultList && defaultList) {
-        await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', defaultList.id, product.id);
+        await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, defaultList.id, product.id);
         toast.success(`Removed from ${defaultList.name}`);
       } else {
-        await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', {
+        await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, {
           id: product.id,
           name: product.name,
           image: images[0],
@@ -200,7 +200,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const handleAddToList = async (listId: string, listName: string) => {
     if (!isAuthenticated || !customer || !tenant) return;
     try {
-      await addToList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', listId, {
+      await addToList(tenant.id, tenant.storefrontId, customer.id, listId, {
         id: product.id,
         name: product.name,
         image: images[0],
@@ -216,7 +216,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const handleRemoveFromList = async (listId: string, listName: string) => {
     if (!isAuthenticated || !customer || !tenant) return;
     try {
-      await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', listId, product.id);
+      await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, listId, product.id);
       toast.success(`Removed from ${listName}`);
     } catch {
       toast.error(`Failed to remove from ${listName}`);

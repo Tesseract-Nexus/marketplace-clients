@@ -225,8 +225,7 @@ export async function recordCustomerOrder(
   tenantId: string,
   storefrontId: string,
   customerId: string,
-  orderData: RecordOrderRequest,
-  accessToken: string
+  orderData: RecordOrderRequest
 ): Promise<void> {
   const response = await fetch(
     `/api/customers/${customerId}/record-order`,
@@ -236,8 +235,8 @@ export async function recordCustomerOrder(
         'Content-Type': 'application/json',
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
-        'Authorization': `Bearer ${accessToken}`,
       },
+      credentials: 'include',
       body: JSON.stringify(orderData),
     }
   );

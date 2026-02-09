@@ -46,7 +46,7 @@ export function ReportIssueDialog({
   onOpenChange,
 }: ReportIssueDialogProps) {
   const { tenant } = useTenant();
-  const { accessToken, customer } = useAuthStore();
+  const { isAuthenticated, customer } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +59,7 @@ export function ReportIssueDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!tenant || !accessToken) return;
+    if (!tenant || !isAuthenticated) return;
 
     setLoading(true);
     setError(null);
@@ -72,7 +72,6 @@ export function ReportIssueDialog({
       await createTicket(
         tenant.id,
         tenant.storefrontId,
-        accessToken,
         {
           title: formData.title,
           description: formData.description,

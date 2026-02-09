@@ -18,14 +18,14 @@ export function EmailVerificationBanner({
   variant = 'banner',
 }: EmailVerificationBannerProps) {
   const { tenant } = useTenant();
-  const { customer, accessToken } = useAuthStore();
+  const { customer, isAuthenticated } = useAuthStore();
   const [isLoading, setIsLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDismissed, setIsDismissed] = useState(false);
 
   // Don't show if email is already verified or user is not logged in
-  if (!customer || !accessToken || customer.emailVerified || isDismissed) {
+  if (!customer || !isAuthenticated || customer.emailVerified || isDismissed) {
     return null;
   }
 
@@ -39,8 +39,7 @@ export function EmailVerificationBanner({
       await sendVerificationEmail(
         tenant.id,
         tenant.storefrontId,
-        customer.id,
-        accessToken
+        customer.id
       );
       setIsSent(true);
       setTimeout(() => setIsSent(false), 5000); // Reset after 5 seconds

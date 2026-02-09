@@ -32,21 +32,20 @@ export interface CartValidationResult {
 }
 
 // Get cart from backend via API route
-// Note: customerId is extracted from accessToken on the server (IDOR protection)
+// Note: customerId is extracted from session on the server (IDOR protection)
 export async function getCart(
   tenantId: string,
   storefrontId: string,
-  _customerId: string, // Kept for API compatibility, but server extracts from token
-  accessToken: string
+  _customerId: string // Kept for API compatibility, but server extracts from session
 ): Promise<CartResponse> {
   const response = await fetch(
     `/api/cart`,
     {
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
       },
+      credentials: 'include',
     }
   );
 
@@ -58,12 +57,11 @@ export async function getCart(
 }
 
 // Sync entire cart to backend via API route
-// Note: customerId is extracted from accessToken on the server (IDOR protection)
+// Note: customerId is extracted from session on the server (IDOR protection)
 export async function syncCart(
   tenantId: string,
   storefrontId: string,
-  _customerId: string, // Kept for API compatibility, but server extracts from token
-  accessToken: string,
+  _customerId: string, // Kept for API compatibility, but server extracts from session
   items: CartItem[]
 ): Promise<CartResponse> {
   const response = await fetch(
@@ -72,10 +70,10 @@ export async function syncCart(
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
       },
+      credentials: 'include',
       body: JSON.stringify({ items }),
     }
   );
@@ -88,12 +86,11 @@ export async function syncCart(
 }
 
 // Merge guest cart with customer cart on login via API route
-// Note: customerId is extracted from accessToken on the server (IDOR protection)
+// Note: customerId is extracted from session on the server (IDOR protection)
 export async function mergeCart(
   tenantId: string,
   storefrontId: string,
-  _customerId: string, // Kept for API compatibility, but server extracts from token
-  accessToken: string,
+  _customerId: string, // Kept for API compatibility, but server extracts from session
   guestItems: CartItem[]
 ): Promise<CartResponse> {
   const response = await fetch(
@@ -102,10 +99,10 @@ export async function mergeCart(
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
       },
+      credentials: 'include',
       body: JSON.stringify({ guestItems }),
     }
   );
@@ -118,22 +115,21 @@ export async function mergeCart(
 }
 
 // Clear cart via API route
-// Note: customerId is extracted from accessToken on the server (IDOR protection)
+// Note: customerId is extracted from session on the server (IDOR protection)
 export async function clearCart(
   tenantId: string,
   storefrontId: string,
-  _customerId: string, // Kept for API compatibility, but server extracts from token
-  accessToken: string
+  _customerId: string // Kept for API compatibility, but server extracts from session
 ): Promise<void> {
   const response = await fetch(
     `/api/cart`,
     {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
       },
+      credentials: 'include',
     }
   );
 
@@ -143,22 +139,21 @@ export async function clearCart(
 }
 
 // Validate cart items against current product data
-// Note: customerId is extracted from accessToken on the server (IDOR protection)
+// Note: customerId is extracted from session on the server (IDOR protection)
 export async function validateCart(
   tenantId: string,
   storefrontId: string,
-  _customerId: string, // Kept for API compatibility, but server extracts from token
-  accessToken: string
+  _customerId: string // Kept for API compatibility, but server extracts from session
 ): Promise<CartValidationResult> {
   const response = await fetch(
     `/api/cart/validate`,
     {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
       },
+      credentials: 'include',
     }
   );
 
@@ -170,21 +165,20 @@ export async function validateCart(
 }
 
 // Get cart with validation (combines get + validate)
-// Note: customerId is extracted from accessToken on the server (IDOR protection)
+// Note: customerId is extracted from session on the server (IDOR protection)
 export async function getValidatedCart(
   tenantId: string,
   storefrontId: string,
-  _customerId: string, // Kept for API compatibility, but server extracts from token
-  accessToken: string
+  _customerId: string // Kept for API compatibility, but server extracts from session
 ): Promise<CartResponse> {
   const response = await fetch(
     `/api/cart?validate=true`,
     {
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
       },
+      credentials: 'include',
     }
   );
 
@@ -196,22 +190,21 @@ export async function getValidatedCart(
 }
 
 // Remove all unavailable items from cart
-// Note: customerId is extracted from accessToken on the server (IDOR protection)
+// Note: customerId is extracted from session on the server (IDOR protection)
 export async function removeUnavailableItems(
   tenantId: string,
   storefrontId: string,
-  _customerId: string, // Kept for API compatibility, but server extracts from token
-  accessToken: string
+  _customerId: string // Kept for API compatibility, but server extracts from session
 ): Promise<CartResponse> {
   const response = await fetch(
     `/api/cart/unavailable`,
     {
       method: 'DELETE',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
       },
+      credentials: 'include',
     }
   );
 
@@ -223,22 +216,21 @@ export async function removeUnavailableItems(
 }
 
 // Accept all price changes in cart
-// Note: customerId is extracted from accessToken on the server (IDOR protection)
+// Note: customerId is extracted from session on the server (IDOR protection)
 export async function acceptPriceChanges(
   tenantId: string,
   storefrontId: string,
-  _customerId: string, // Kept for API compatibility, but server extracts from token
-  accessToken: string
+  _customerId: string // Kept for API compatibility, but server extracts from session
 ): Promise<CartResponse> {
   const response = await fetch(
     `/api/cart/accept-prices`,
     {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
       },
+      credentials: 'include',
     }
   );
 

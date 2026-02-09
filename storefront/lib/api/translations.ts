@@ -86,15 +86,14 @@ export async function getLanguages(
  */
 export async function getUserLanguagePreference(
   tenantId: string,
-  storefrontId: string,
-  accessToken: string
+  storefrontId: string
 ): Promise<UserLanguagePreference> {
   const response = await fetch(`${API_BASE}/api/translations/user-preference`, {
     headers: {
       'X-Tenant-ID': tenantId,
       'X-Storefront-ID': storefrontId,
-      Authorization: `Bearer ${accessToken}`,
     },
+    credentials: 'include',
   });
 
   if (!response.ok) {
@@ -123,7 +122,6 @@ export async function getUserLanguagePreference(
 export async function updateUserLanguagePreference(
   tenantId: string,
   storefrontId: string,
-  accessToken: string,
   preference: Partial<UserLanguagePreference>
 ): Promise<UserLanguagePreference> {
   const response = await fetch(`${API_BASE}/api/translations/user-preference`, {
@@ -131,9 +129,9 @@ export async function updateUserLanguagePreference(
     headers: {
       'X-Tenant-ID': tenantId,
       'X-Storefront-ID': storefrontId,
-      Authorization: `Bearer ${accessToken}`,
       'Content-Type': 'application/json',
     },
+    credentials: 'include',
     body: JSON.stringify({
       preferred_language: preference.preferredLanguage,
       source_language: preference.sourceLanguage,
@@ -161,16 +159,15 @@ export async function updateUserLanguagePreference(
  */
 export async function resetUserLanguagePreference(
   tenantId: string,
-  storefrontId: string,
-  accessToken: string
+  storefrontId: string
 ): Promise<void> {
   const response = await fetch(`${API_BASE}/api/translations/user-preference`, {
     method: 'DELETE',
     headers: {
       'X-Tenant-ID': tenantId,
       'X-Storefront-ID': storefrontId,
-      Authorization: `Bearer ${accessToken}`,
     },
+    credentials: 'include',
   });
 
   if (!response.ok) {

@@ -37,18 +37,18 @@ interface ListsState {
   error: string | null;
   lastFetchedAt: string | null;
 
-  // Actions
-  fetchLists: (tenantId: string, storefrontId: string, customerId: string, accessToken: string) => Promise<void>;
-  getList: (tenantId: string, storefrontId: string, customerId: string, accessToken: string, listIdOrSlug: string) => Promise<List | null>;
-  createList: (tenantId: string, storefrontId: string, customerId: string, accessToken: string, name: string, description?: string) => Promise<List>;
-  updateList: (tenantId: string, storefrontId: string, customerId: string, accessToken: string, listId: string, name: string, description?: string) => Promise<List>;
-  deleteList: (tenantId: string, storefrontId: string, customerId: string, accessToken: string, listId: string) => Promise<void>;
-  addToList: (tenantId: string, storefrontId: string, customerId: string, accessToken: string, listId: string, product: Product) => Promise<ListItem>;
-  addToDefaultList: (tenantId: string, storefrontId: string, customerId: string, accessToken: string, product: Product) => Promise<ListItem>;
-  removeFromList: (tenantId: string, storefrontId: string, customerId: string, accessToken: string, listId: string, itemId: string) => Promise<void>;
-  removeProductFromList: (tenantId: string, storefrontId: string, customerId: string, accessToken: string, listId: string, productId: string) => Promise<void>;
-  moveItem: (tenantId: string, storefrontId: string, customerId: string, accessToken: string, listId: string, itemId: string, toListId: string) => Promise<void>;
-  checkProduct: (tenantId: string, storefrontId: string, customerId: string, accessToken: string, productId: string) => Promise<{ inAnyList: boolean; lists: List[] }>;
+  // Actions — auth is handled by session cookies, no accessToken needed
+  fetchLists: (tenantId: string, storefrontId: string, customerId: string) => Promise<void>;
+  getList: (tenantId: string, storefrontId: string, customerId: string, listIdOrSlug: string) => Promise<List | null>;
+  createList: (tenantId: string, storefrontId: string, customerId: string, name: string, description?: string) => Promise<List>;
+  updateList: (tenantId: string, storefrontId: string, customerId: string, listId: string, name: string, description?: string) => Promise<List>;
+  deleteList: (tenantId: string, storefrontId: string, customerId: string, listId: string) => Promise<void>;
+  addToList: (tenantId: string, storefrontId: string, customerId: string, listId: string, product: Product) => Promise<ListItem>;
+  addToDefaultList: (tenantId: string, storefrontId: string, customerId: string, product: Product) => Promise<ListItem>;
+  removeFromList: (tenantId: string, storefrontId: string, customerId: string, listId: string, itemId: string) => Promise<void>;
+  removeProductFromList: (tenantId: string, storefrontId: string, customerId: string, listId: string, productId: string) => Promise<void>;
+  moveItem: (tenantId: string, storefrontId: string, customerId: string, listId: string, itemId: string, toListId: string) => Promise<void>;
+  checkProduct: (tenantId: string, storefrontId: string, customerId: string, productId: string) => Promise<{ inAnyList: boolean; lists: List[] }>;
   isInAnyList: (productId: string) => boolean;
   getListsContainingProduct: (productId: string) => List[];
   clearLists: () => void;
@@ -64,17 +64,14 @@ export const useListsStore = create<ListsState>()(
       error: null,
       lastFetchedAt: null,
 
-      fetchLists: async (tenantId, storefrontId, customerId, accessToken) => {
+      fetchLists: async (tenantId, storefrontId, customerId) => {
         set({ isLoading: true, error: null });
         try {
           const headers: Record<string, string> = {
             'X-Tenant-ID': tenantId,
             'X-Storefront-ID': storefrontId,
           };
-          if (accessToken) {
-            headers['Authorization'] = `Bearer ${accessToken}`;
-          }
-          const response = await fetch(API_BASE, { headers });
+          const response = await fetch(API_BASE, { headers, credentials: 'include' });
 
           if (!response.ok) {
             throw new Error('Failed to fetch lists');
@@ -87,7 +84,7 @@ export const useListsStore = create<ListsState>()(
           const enriched = await Promise.all(
             summaries.map(async (list) => {
               try {
-                const detailRes = await fetch(`${API_BASE}/${list.id}`, { headers });
+                const detailRes = await fetch(`${API_BASE}/${list.id}`, { headers, credentials: 'include' });
                 if (detailRes.ok) {
                   const fullList = await detailRes.json();
                   return { ...list, items: fullList.items || [] } as List;
@@ -111,16 +108,13 @@ export const useListsStore = create<ListsState>()(
         }
       },
 
-      getList: async (tenantId, storefrontId, customerId, accessToken, listIdOrSlug) => {
+      getList: async (tenantId, storefrontId, customerId, listIdOrSlug) => {
         try {
           const headers: Record<string, string> = {
             'X-Tenant-ID': tenantId,
             'X-Storefront-ID': storefrontId,
           };
-          if (accessToken) {
-            headers['Authorization'] = `Bearer ${accessToken}`;
-          }
-          const response = await fetch(`${API_BASE}/${listIdOrSlug}`, { headers });
+          const response = await fetch(`${API_BASE}/${listIdOrSlug}`, { headers, credentials: 'include' });
 
           if (!response.ok) {
             throw new Error('Failed to fetch list');
@@ -133,18 +127,16 @@ export const useListsStore = create<ListsState>()(
         }
       },
 
-      createList: async (tenantId, storefrontId, customerId, accessToken, name, description) => {
+      createList: async (tenantId, storefrontId, customerId, name, description) => {
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
           'X-Tenant-ID': tenantId,
           'X-Storefront-ID': storefrontId,
         };
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
         const response = await fetch(API_BASE, {
           method: 'POST',
           headers,
+          credentials: 'include',
           body: JSON.stringify({ name, description }),
         });
 
@@ -159,18 +151,16 @@ export const useListsStore = create<ListsState>()(
         return list;
       },
 
-      updateList: async (tenantId, storefrontId, customerId, accessToken, listId, name, description) => {
+      updateList: async (tenantId, storefrontId, customerId, listId, name, description) => {
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
           'X-Tenant-ID': tenantId,
           'X-Storefront-ID': storefrontId,
         };
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
         const response = await fetch(`${API_BASE}/${listId}`, {
           method: 'PUT',
           headers,
+          credentials: 'include',
           body: JSON.stringify({ name, description }),
         });
 
@@ -185,17 +175,15 @@ export const useListsStore = create<ListsState>()(
         return updatedList;
       },
 
-      deleteList: async (tenantId, storefrontId, customerId, accessToken, listId) => {
+      deleteList: async (tenantId, storefrontId, customerId, listId) => {
         const headers: Record<string, string> = {
           'X-Tenant-ID': tenantId,
           'X-Storefront-ID': storefrontId,
         };
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
         const response = await fetch(`${API_BASE}/${listId}`, {
           method: 'DELETE',
           headers,
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -207,18 +195,16 @@ export const useListsStore = create<ListsState>()(
         }));
       },
 
-      addToList: async (tenantId, storefrontId, customerId, accessToken, listId, product) => {
+      addToList: async (tenantId, storefrontId, customerId, listId, product) => {
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
           'X-Tenant-ID': tenantId,
           'X-Storefront-ID': storefrontId,
         };
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
         const response = await fetch(`${API_BASE}/${listId}/items`, {
           method: 'POST',
           headers,
+          credentials: 'include',
           body: JSON.stringify({
             productId: product.id,
             productName: product.name,
@@ -250,18 +236,16 @@ export const useListsStore = create<ListsState>()(
         return item;
       },
 
-      addToDefaultList: async (tenantId, storefrontId, customerId, accessToken, product) => {
+      addToDefaultList: async (tenantId, storefrontId, customerId, product) => {
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
           'X-Tenant-ID': tenantId,
           'X-Storefront-ID': storefrontId,
         };
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
         const response = await fetch(`${API_BASE}/default/items`, {
           method: 'POST',
           headers,
+          credentials: 'include',
           body: JSON.stringify({
             productId: product.id,
             productName: product.name,
@@ -281,7 +265,7 @@ export const useListsStore = create<ListsState>()(
           const defaultList = state.lists.find((l) => l.isDefault);
           if (!defaultList) {
             // No default list in state yet — fall back to refetch
-            get().fetchLists(tenantId, storefrontId, customerId, accessToken);
+            get().fetchLists(tenantId, storefrontId, customerId);
             return state;
           }
           return {
@@ -301,17 +285,15 @@ export const useListsStore = create<ListsState>()(
         return item;
       },
 
-      removeFromList: async (tenantId, storefrontId, customerId, accessToken, listId, itemId) => {
+      removeFromList: async (tenantId, storefrontId, customerId, listId, itemId) => {
         const headers: Record<string, string> = {
           'X-Tenant-ID': tenantId,
           'X-Storefront-ID': storefrontId,
         };
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
         const response = await fetch(`${API_BASE}/${listId}/items/${itemId}`, {
           method: 'DELETE',
           headers,
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -333,17 +315,15 @@ export const useListsStore = create<ListsState>()(
         }));
       },
 
-      removeProductFromList: async (tenantId, storefrontId, customerId, accessToken, listId, productId) => {
+      removeProductFromList: async (tenantId, storefrontId, customerId, listId, productId) => {
         const headers: Record<string, string> = {
           'X-Tenant-ID': tenantId,
           'X-Storefront-ID': storefrontId,
         };
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
         const response = await fetch(`${API_BASE}/${listId}/products/${productId}`, {
           method: 'DELETE',
           headers,
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -365,18 +345,16 @@ export const useListsStore = create<ListsState>()(
         }));
       },
 
-      moveItem: async (tenantId, storefrontId, customerId, accessToken, listId, itemId, toListId) => {
+      moveItem: async (tenantId, storefrontId, customerId, listId, itemId, toListId) => {
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
           'X-Tenant-ID': tenantId,
           'X-Storefront-ID': storefrontId,
         };
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
         const response = await fetch(`${API_BASE}/${listId}/items/${itemId}/move`, {
           method: 'POST',
           headers,
+          credentials: 'include',
           body: JSON.stringify({ toListId }),
         });
 
@@ -385,18 +363,15 @@ export const useListsStore = create<ListsState>()(
         }
 
         // Refresh lists to get updated state (await to prevent stale reads)
-        await get().fetchLists(tenantId, storefrontId, customerId, accessToken);
+        await get().fetchLists(tenantId, storefrontId, customerId);
       },
 
-      checkProduct: async (tenantId, storefrontId, customerId, accessToken, productId) => {
+      checkProduct: async (tenantId, storefrontId, customerId, productId) => {
         const headers: Record<string, string> = {
           'X-Tenant-ID': tenantId,
           'X-Storefront-ID': storefrontId,
         };
-        if (accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
-        const response = await fetch(`${API_BASE}/check/${productId}`, { headers });
+        const response = await fetch(`${API_BASE}/check/${productId}`, { headers, credentials: 'include' });
 
         if (!response.ok) {
           throw new Error('Failed to check product');

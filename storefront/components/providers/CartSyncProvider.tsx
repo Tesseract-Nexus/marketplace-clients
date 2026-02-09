@@ -25,7 +25,7 @@ interface CartSyncProviderProps {
 
 export function CartSyncProvider({ children }: CartSyncProviderProps) {
   const { tenant } = useTenant();
-  const { customer, accessToken, isAuthenticated } = useAuthStore();
+  const { customer, isAuthenticated } = useAuthStore();
   const { items, mergeGuestCart, syncToBackend, loadFromBackend } = useCartStore();
 
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -67,7 +67,7 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
   // Handle session data migration when user becomes authenticated
   useEffect(() => {
     if (hasHandledSessionMigrationRef.current) return;
-    if (!isAuthenticated || !customer?.id || !accessToken || !tenant?.id || !tenant?.storefrontId) return;
+    if (!isAuthenticated || !customer?.id || !tenant?.id || !tenant?.storefrontId) return;
 
     const migrateSessionData = async () => {
       console.log('[CartSyncProvider] Checking for anonymous session data to migrate...');
@@ -81,7 +81,7 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
           // Merge cart data with backend
           if (items.length > 0) {
             console.log(`[CartSyncProvider] Merging ${items.length} cart items...`);
-            await mergeGuestCart(tenant.id, tenant.storefrontId, customer.id, accessToken);
+            await mergeGuestCart(tenant.id, tenant.storefrontId, customer.id);
             // Clear session data after successful merge
             clearAnonymousSessionData(CART_STORE_NAME);
             console.log('[CartSyncProvider] Cart data migrated successfully');
@@ -94,7 +94,7 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
         // No anonymous session data, load from backend instead
         console.log('[CartSyncProvider] No anonymous session data, loading from backend...');
         try {
-          await loadFromBackend(tenant.id, tenant.storefrontId, customer.id, accessToken);
+          await loadFromBackend(tenant.id, tenant.storefrontId, customer.id);
         } catch (error) {
           console.error('[CartSyncProvider] Failed to load data from backend:', error);
         }
@@ -107,7 +107,6 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
   }, [
     isAuthenticated,
     customer?.id,
-    accessToken,
     tenant?.id,
     tenant?.storefrontId,
     items,
@@ -117,7 +116,7 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
 
   // Debounced sync on cart changes
   const syncCart = useCallback(async () => {
-    if (!isAuthenticated || !customer?.id || !accessToken || !tenant?.id || !tenant?.storefrontId) {
+    if (!isAuthenticated || !customer?.id || !tenant?.id || !tenant?.storefrontId) {
       return;
     }
 
@@ -129,13 +128,13 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
     }
 
     try {
-      await syncToBackend(tenant.id, tenant.storefrontId, customer.id, accessToken);
+      await syncToBackend(tenant.id, tenant.storefrontId, customer.id);
       lastSyncedItemsRef.current = itemsJson;
       console.log('[CartSyncProvider] Cart synced to backend');
     } catch (error) {
       console.error('[CartSyncProvider] Failed to sync cart:', error);
     }
-  }, [isAuthenticated, customer?.id, accessToken, tenant?.id, tenant?.storefrontId, items, syncToBackend]);
+  }, [isAuthenticated, customer?.id, tenant?.id, tenant?.storefrontId, items, syncToBackend]);
 
   // Watch for cart changes and sync with debounce
   useEffect(() => {
@@ -163,7 +162,7 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
   // Sync on page unload (best effort)
   useEffect(() => {
     const handleBeforeUnload = () => {
-      if (isAuthenticated && customer?.id && accessToken && tenant?.id && tenant?.storefrontId) {
+      if (isAuthenticated && customer?.id && tenant?.id && tenant?.storefrontId) {
         // Use sendBeacon for reliable sync on page unload
         const itemsJson = JSON.stringify(items);
         if (itemsJson !== lastSyncedItemsRef.current) {
@@ -182,7 +181,7 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [isAuthenticated, customer?.id, accessToken, tenant?.id, tenant?.storefrontId, items]);
+  }, [isAuthenticated, customer?.id, tenant?.id, tenant?.storefrontId, items]);
 
   return <>{children}</>;
 }

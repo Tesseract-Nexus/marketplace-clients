@@ -62,17 +62,17 @@ interface CartState {
   deselectAllItems: () => void;
   removeSelectedItems: () => void;
 
-  // Sync actions
-  loadFromBackend: (tenantId: string, storefrontId: string, customerId: string, accessToken: string) => Promise<void>;
-  syncToBackend: (tenantId: string, storefrontId: string, customerId: string, accessToken: string) => Promise<void>;
-  mergeGuestCart: (tenantId: string, storefrontId: string, customerId: string, accessToken: string) => Promise<void>;
-  clearBackendCart: (tenantId: string, storefrontId: string, customerId: string, accessToken: string) => Promise<void>;
+  // Sync actions — auth is handled by session cookies, no accessToken needed
+  loadFromBackend: (tenantId: string, storefrontId: string, customerId: string) => Promise<void>;
+  syncToBackend: (tenantId: string, storefrontId: string, customerId: string) => Promise<void>;
+  mergeGuestCart: (tenantId: string, storefrontId: string, customerId: string) => Promise<void>;
+  clearBackendCart: (tenantId: string, storefrontId: string, customerId: string) => Promise<void>;
 
   // Validation actions
-  validateCart: (tenantId: string, storefrontId: string, customerId: string, accessToken: string) => Promise<void>;
-  loadValidatedCart: (tenantId: string, storefrontId: string, customerId: string, accessToken: string) => Promise<void>;
-  removeUnavailableItems: (tenantId: string, storefrontId: string, customerId: string, accessToken: string) => Promise<void>;
-  acceptPriceChanges: (tenantId: string, storefrontId: string, customerId: string, accessToken: string) => Promise<void>;
+  validateCart: (tenantId: string, storefrontId: string, customerId: string) => Promise<void>;
+  loadValidatedCart: (tenantId: string, storefrontId: string, customerId: string) => Promise<void>;
+  removeUnavailableItems: (tenantId: string, storefrontId: string, customerId: string) => Promise<void>;
+  acceptPriceChanges: (tenantId: string, storefrontId: string, customerId: string) => Promise<void>;
 
   // Computed
   getItemCount: () => number;
@@ -304,10 +304,10 @@ export const useCartStore = create<CartState>()(
       },
 
       // Load cart from backend (on login or page load when authenticated)
-      loadFromBackend: async (tenantId, storefrontId, customerId, accessToken) => {
+      loadFromBackend: async (tenantId, storefrontId, customerId) => {
         set({ isSyncing: true });
         try {
-          const data = await getCart(tenantId, storefrontId, customerId, accessToken);
+          const data = await getCart(tenantId, storefrontId, customerId);
           set({
             items: data.items || [],
             lastSyncedAt: new Date().toISOString(),
@@ -320,13 +320,13 @@ export const useCartStore = create<CartState>()(
       },
 
       // Sync local cart to backend
-      syncToBackend: async (tenantId, storefrontId, customerId, accessToken) => {
+      syncToBackend: async (tenantId, storefrontId, customerId) => {
         const { items, isSyncing } = get();
         if (isSyncing) return;
 
         set({ isSyncing: true });
         try {
-          await syncCart(tenantId, storefrontId, customerId, accessToken, items);
+          await syncCart(tenantId, storefrontId, customerId, items);
           set({ lastSyncedAt: new Date().toISOString() });
         } catch (error) {
           console.error('Failed to sync cart to backend:', error);
@@ -336,17 +336,17 @@ export const useCartStore = create<CartState>()(
       },
 
       // Merge guest cart with backend cart on login
-      mergeGuestCart: async (tenantId, storefrontId, customerId, accessToken) => {
+      mergeGuestCart: async (tenantId, storefrontId, customerId) => {
         const { items, isSyncing } = get();
         if (isSyncing || items.length === 0) {
           // No guest items to merge, just load from backend
-          await get().loadFromBackend(tenantId, storefrontId, customerId, accessToken);
+          await get().loadFromBackend(tenantId, storefrontId, customerId);
           return;
         }
 
         set({ isSyncing: true });
         try {
-          const data = await mergeCart(tenantId, storefrontId, customerId, accessToken, items);
+          const data = await mergeCart(tenantId, storefrontId, customerId, items);
           set({
             items: data.items || [],
             lastSyncedAt: new Date().toISOString(),
@@ -355,7 +355,7 @@ export const useCartStore = create<CartState>()(
           console.error('Failed to merge cart:', error);
           // Fallback: try to load from backend
           try {
-            await get().loadFromBackend(tenantId, storefrontId, customerId, accessToken);
+            await get().loadFromBackend(tenantId, storefrontId, customerId);
           } catch {
             // Keep local cart if everything fails
           }
@@ -365,10 +365,10 @@ export const useCartStore = create<CartState>()(
       },
 
       // Clear cart on backend
-      clearBackendCart: async (tenantId, storefrontId, customerId, accessToken) => {
+      clearBackendCart: async (tenantId, storefrontId, customerId) => {
         set({ isSyncing: true });
         try {
-          await clearCartApi(tenantId, storefrontId, customerId, accessToken);
+          await clearCartApi(tenantId, storefrontId, customerId);
           set({ items: [], lastSyncedAt: new Date().toISOString() });
         } catch (error) {
           console.error('Failed to clear backend cart:', error);
@@ -414,13 +414,13 @@ export const useCartStore = create<CartState>()(
       },
 
       // Validation actions
-      validateCart: async (tenantId, storefrontId, customerId, accessToken) => {
+      validateCart: async (tenantId, storefrontId, customerId) => {
         const { isValidating } = get();
         if (isValidating) return;
 
         set({ isValidating: true });
         try {
-          const result = await validateCartApi(tenantId, storefrontId, customerId, accessToken);
+          const result = await validateCartApi(tenantId, storefrontId, customerId);
           set({
             items: result.items || [],
             hasUnavailableItems: result.hasUnavailableItems,
@@ -439,10 +439,10 @@ export const useCartStore = create<CartState>()(
         }
       },
 
-      loadValidatedCart: async (tenantId, storefrontId, customerId, accessToken) => {
+      loadValidatedCart: async (tenantId, storefrontId, customerId) => {
         set({ isSyncing: true });
         try {
-          const data = await getValidatedCart(tenantId, storefrontId, customerId, accessToken);
+          const data = await getValidatedCart(tenantId, storefrontId, customerId);
           set({
             items: data.items || [],
             hasUnavailableItems: data.hasUnavailableItems || false,
@@ -458,16 +458,16 @@ export const useCartStore = create<CartState>()(
         } catch (error) {
           console.error('Failed to load validated cart:', error);
           // Fallback to regular load
-          await get().loadFromBackend(tenantId, storefrontId, customerId, accessToken);
+          await get().loadFromBackend(tenantId, storefrontId, customerId);
         } finally {
           set({ isSyncing: false });
         }
       },
 
-      removeUnavailableItems: async (tenantId, storefrontId, customerId, accessToken) => {
+      removeUnavailableItems: async (tenantId, storefrontId, customerId) => {
         set({ isSyncing: true });
         try {
-          const data = await removeUnavailableItemsApi(tenantId, storefrontId, customerId, accessToken);
+          const data = await removeUnavailableItemsApi(tenantId, storefrontId, customerId);
           set({
             items: data.items || [],
             hasUnavailableItems: false,
@@ -482,10 +482,10 @@ export const useCartStore = create<CartState>()(
         }
       },
 
-      acceptPriceChanges: async (tenantId, storefrontId, customerId, accessToken) => {
+      acceptPriceChanges: async (tenantId, storefrontId, customerId) => {
         set({ isSyncing: true });
         try {
-          const data = await acceptPriceChangesApi(tenantId, storefrontId, customerId, accessToken);
+          const data = await acceptPriceChangesApi(tenantId, storefrontId, customerId);
           set({
             items: data.items || [],
             hasPriceChanges: false,

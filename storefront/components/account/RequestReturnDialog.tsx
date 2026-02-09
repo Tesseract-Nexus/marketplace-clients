@@ -75,7 +75,7 @@ export function RequestReturnDialog({
   onSuccess,
 }: RequestReturnDialogProps) {
   const { tenant } = useTenant();
-  const { accessToken } = useAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -111,7 +111,7 @@ export function RequestReturnDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!tenant || !accessToken) return;
+    if (!tenant || !isAuthenticated) return;
 
     if (selectedItems.size === 0) {
       setError('Please select at least one item to return');
@@ -133,10 +133,10 @@ export function RequestReturnDialog({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`,
           'X-Tenant-ID': tenant.id,
           'X-Storefront-ID': tenant.storefrontId,
         },
+        credentials: 'include',
         body: JSON.stringify({
           orderId,
           reason,

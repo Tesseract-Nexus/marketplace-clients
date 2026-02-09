@@ -25,15 +25,13 @@ export interface AuthState {
   customer: Customer | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  accessToken: string | null;
   expiresAt: number | null; // Session expiry timestamp (ms) — used for auto-refresh scheduling
 
   // Actions
   setCustomer: (customer: Customer | null) => void;
-  setAccessToken: (token: string | null) => void;
   setExpiresAt: (expiresAt: number | null) => void;
   setLoading: (loading: boolean) => void;
-  login: (customer: Customer, token?: string) => void;
+  login: (customer: Customer) => void;
   logout: () => void;
   updateCustomer: (updates: Partial<Customer>) => void;
 }
@@ -44,7 +42,6 @@ export const useAuthStore = create<AuthState>()(
       customer: null,
       isAuthenticated: false,
       isLoading: true, // Start as loading until AuthSessionProvider validates session
-      accessToken: null,
       expiresAt: null,
 
       setCustomer: (customer) =>
@@ -53,19 +50,15 @@ export const useAuthStore = create<AuthState>()(
           isAuthenticated: !!customer,
         }),
 
-      setAccessToken: (token) =>
-        set({ accessToken: token }),
-
       setExpiresAt: (expiresAt) =>
         set({ expiresAt }),
 
       setLoading: (loading) =>
         set({ isLoading: loading }),
 
-      login: (customer, token) =>
+      login: (customer) =>
         set({
           customer,
-          accessToken: token || null,
           isAuthenticated: true,
           isLoading: false,
         }),
@@ -73,7 +66,6 @@ export const useAuthStore = create<AuthState>()(
       logout: () =>
         set({
           customer: null,
-          accessToken: null,
           isAuthenticated: false,
           isLoading: false,
           expiresAt: null,
@@ -90,18 +82,10 @@ export const useAuthStore = create<AuthState>()(
       name: 'auth-storage',
       // STOREFRONT DESIGN: Anonymous by default
       // We intentionally do NOT persist any auth state to localStorage.
-      // This ensures:
-      // 1. Storefronts always start anonymous on page load
-      // 2. Users must explicitly log in to be authenticated
-      // 3. Staff sessions from admin don't leak to storefront
-      // 4. Browser refresh = anonymous (until user logs in via auth-bff)
-      //
-      // SECURITY: Access tokens are managed by auth-bff via HttpOnly cookies.
-      // Customer sessions are validated server-side, not via localStorage.
-      partialize: () => ({
-        // Return empty object - don't persist any auth state
-        // Customer login state is managed by auth-bff session cookies
-      }),
+      // Auth is managed server-side by auth-bff via HttpOnly session cookies.
+      // On every page load, AuthSessionProvider calls /auth/session to
+      // rehydrate the client-side store from the server-side session.
+      partialize: () => ({}),
     }
   )
 );

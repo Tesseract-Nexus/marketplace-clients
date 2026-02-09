@@ -17,14 +17,14 @@ interface TicketReplyFormProps {
 
 export function TicketReplyForm({ ticketId, onCommentAdded, disabled = false }: TicketReplyFormProps) {
   const { tenant } = useTenant();
-  const { accessToken, customer } = useAuthStore();
+  const { isAuthenticated, customer } = useAuthStore();
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim() || !tenant || !accessToken || disabled) return;
+    if (!content.trim() || !tenant || !isAuthenticated || disabled) return;
 
     setIsSubmitting(true);
     setError(null);
@@ -37,7 +37,6 @@ export function TicketReplyForm({ ticketId, onCommentAdded, disabled = false }: 
       await addTicketComment(
         tenant.id,
         tenant.storefrontId,
-        accessToken,
         ticketId,
         content.trim(),
         customer?.id,

@@ -67,7 +67,6 @@ const TICKETS_API_URL = '/api/tickets';
 export async function createTicket(
   tenantId: string,
   storefrontId: string,
-  accessToken: string,
   data: CreateTicketRequest,
   userId?: string,
   userName?: string,
@@ -78,11 +77,6 @@ export async function createTicket(
     'X-Tenant-ID': tenantId,
     'X-Storefront-ID': storefrontId,
   };
-
-  // Include Authorization if available (legacy auth)
-  if (accessToken) {
-    headers['Authorization'] = `Bearer ${accessToken}`;
-  }
 
   if (userId) {
     headers['X-User-Id'] = userId;
@@ -115,7 +109,6 @@ export async function createTicket(
 export async function listTickets(
   tenantId: string,
   storefrontId: string,
-  accessToken: string,
   options?: { page?: number; limit?: number; status?: TicketStatus },
   userId?: string
 ): Promise<TicketsResponse> {
@@ -132,11 +125,6 @@ export async function listTickets(
     'X-Tenant-ID': tenantId,
     'X-Storefront-ID': storefrontId,
   };
-
-  // Include Authorization if available (legacy auth)
-  if (accessToken) {
-    headers['Authorization'] = `Bearer ${accessToken}`;
-  }
 
   if (userId) {
     headers['X-User-Id'] = userId;
@@ -167,7 +155,6 @@ export async function listTickets(
 export async function getTicket(
   tenantId: string,
   storefrontId: string,
-  accessToken: string,
   ticketId: string,
   userId?: string
 ): Promise<Ticket> {
@@ -175,11 +162,6 @@ export async function getTicket(
     'X-Tenant-ID': tenantId,
     'X-Storefront-ID': storefrontId,
   };
-
-  // Include Authorization if available (legacy auth)
-  if (accessToken) {
-    headers['Authorization'] = `Bearer ${accessToken}`;
-  }
 
   if (userId) {
     headers['X-User-Id'] = userId;
@@ -202,7 +184,6 @@ export async function getTicket(
 export async function addTicketComment(
   tenantId: string,
   storefrontId: string,
-  accessToken: string,
   ticketId: string,
   content: string,
   userId?: string,
@@ -213,11 +194,6 @@ export async function addTicketComment(
     'X-Tenant-ID': tenantId,
     'X-Storefront-ID': storefrontId,
   };
-
-  // Include Authorization if available (legacy auth)
-  if (accessToken) {
-    headers['Authorization'] = `Bearer ${accessToken}`;
-  }
 
   if (userId) {
     headers['X-User-Id'] = userId;

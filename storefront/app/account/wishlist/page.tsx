@@ -33,7 +33,7 @@ import { PriceDisplay } from '@/components/currency/PriceDisplay';
 export default function WishlistPage() {
   const getNavPath = useNavPath();
   const { tenant } = useTenant();
-  const { customer, accessToken, isAuthenticated } = useAuthStore();
+  const { customer, isAuthenticated } = useAuthStore();
   const {
     lists,
     isLoading,
@@ -102,9 +102,9 @@ export default function WishlistPage() {
   // Fetch lists when authenticated
   useEffect(() => {
     if (isAuthenticated && tenant && customer) {
-      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken || '');
+      fetchLists(tenant.id, tenant.storefrontId, customer.id);
     }
-  }, [isAuthenticated, tenant, customer?.id, accessToken, fetchLists]);
+  }, [isAuthenticated, tenant, customer?.id, fetchLists]);
 
   // Set selected list to default list when lists load
   useEffect(() => {
@@ -117,7 +117,7 @@ export default function WishlistPage() {
   // Fetch full list details (including items) when selected list changes
   useEffect(() => {
     if (selectedList?.id && isAuthenticated && tenant && customer) {
-      getList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', selectedList.id)
+      getList(tenant.id, tenant.storefrontId, customer.id, selectedList.id)
         .then(fullList => {
           if (fullList) setSelectedList(fullList);
         });
@@ -200,7 +200,7 @@ export default function WishlistPage() {
 
     setIsRemoving(itemId);
     try {
-      await removeFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', selectedList.id, itemId);
+      await removeFromList(tenant.id, tenant.storefrontId, customer.id, selectedList.id, itemId);
       // Immediately update local selectedList to reflect removal
       setSelectedList(prev => {
         if (!prev) return prev;
@@ -219,9 +219,9 @@ export default function WishlistPage() {
 
     setIsMoving(itemId);
     try {
-      await moveItem(tenant.id, tenant.storefrontId, customer.id, accessToken || '', selectedList.id, itemId, toListId);
+      await moveItem(tenant.id, tenant.storefrontId, customer.id, selectedList.id, itemId, toListId);
       // Re-fetch the current list to refresh items
-      const refreshed = await getList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', selectedList.id);
+      const refreshed = await getList(tenant.id, tenant.storefrontId, customer.id, selectedList.id);
       if (refreshed) setSelectedList(refreshed);
     } catch (error) {
       console.error('Failed to move item:', error);
@@ -239,7 +239,6 @@ export default function WishlistPage() {
         tenant.id,
         tenant.storefrontId,
         customer.id,
-        accessToken || '',
         newListName.trim(),
         newListDescription.trim() || undefined
       );

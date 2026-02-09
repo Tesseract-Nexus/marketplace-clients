@@ -146,7 +146,6 @@ export async function getProductReviews(
 export async function createReview(
   tenantId: string,
   storefrontId: string,
-  accessToken: string | null,
   review: CreateReviewRequest,
   userId?: string,
   userName?: string
@@ -156,7 +155,6 @@ export async function createReview(
     'X-Tenant-ID': tenantId,
     'X-Storefront-ID': storefrontId,
   };
-  if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
   if (userId) headers['X-User-Id'] = userId;
   if (userName) headers['X-User-Name'] = userName;
 
@@ -165,6 +163,7 @@ export async function createReview(
     {
       method: 'POST',
       headers,
+      credentials: 'include',
       body: JSON.stringify(review),
     }
   );
@@ -181,12 +180,11 @@ export async function createReview(
 export async function addReviewReaction(
   tenantId: string,
   storefrontId: string,
-  accessToken: string | null,
   userId: string | null,
   reviewId: string,
   reactionType: 'HELPFUL' | 'NOT_HELPFUL'
 ): Promise<ReactionResponse> {
-  if (!accessToken || !userId) {
+  if (!userId) {
     throw new Error('You must be logged in to react to reviews');
   }
 
@@ -194,7 +192,6 @@ export async function addReviewReaction(
     'Content-Type': 'application/json',
     'X-Tenant-ID': tenantId,
     'X-Storefront-ID': storefrontId,
-    'Authorization': `Bearer ${accessToken}`,
     'X-User-Id': userId,
   };
 
@@ -205,6 +202,7 @@ export async function addReviewReaction(
     {
       method: 'POST',
       headers,
+      credentials: 'include',
       body: JSON.stringify({ type: reactionType }),
     }
   );
@@ -251,7 +249,6 @@ export interface UploadMediaResponse {
 export async function uploadReviewMedia(
   tenantId: string,
   storefrontId: string,
-  accessToken: string | null,
   reviewId: string,
   file: File,
   caption?: string
@@ -269,13 +266,13 @@ export async function uploadReviewMedia(
     'X-Tenant-ID': tenantId,
     'X-Storefront-ID': storefrontId,
   };
-  if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
 
   const response = await fetch(
     `/api/reviews/media/upload`,
     {
       method: 'POST',
       headers,
+      credentials: 'include',
       body: formData,
     }
   );

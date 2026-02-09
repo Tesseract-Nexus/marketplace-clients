@@ -22,7 +22,7 @@ import { useAuthStore } from '@/store/auth';
 export default function ListsPage() {
   const getNavPath = useNavPath();
   const { tenant } = useTenant();
-  const { customer, accessToken, isAuthenticated } = useAuthStore();
+  const { customer, isAuthenticated } = useAuthStore();
   const { lists, isLoading, fetchLists, createList, deleteList } = useListsStore();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -34,12 +34,12 @@ export default function ListsPage() {
 
   useEffect(() => {
     if (isAuthenticated && tenant && customer) {
-      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken || '');
+      fetchLists(tenant.id, tenant.storefrontId, customer.id);
     }
-  }, [isAuthenticated, tenant, customer?.id, accessToken, fetchLists]);
+  }, [isAuthenticated, tenant, customer?.id, fetchLists]);
 
   const handleCreateList = async () => {
-    if (!newListName.trim() || !tenant || !customer || !accessToken) return;
+    if (!newListName.trim() || !tenant || !customer) return;
 
     setIsCreating(true);
     try {
@@ -47,7 +47,6 @@ export default function ListsPage() {
         tenant.id,
         tenant.storefrontId,
         customer.id,
-        accessToken,
         newListName.trim(),
         newListDescription.trim() || undefined
       );
@@ -62,11 +61,11 @@ export default function ListsPage() {
   };
 
   const handleDeleteList = async (listId: string) => {
-    if (!tenant || !customer || !accessToken) return;
+    if (!tenant || !customer) return;
 
     setIsDeleting(true);
     try {
-      await deleteList(tenant.id, tenant.storefrontId, customer.id, accessToken, listId);
+      await deleteList(tenant.id, tenant.storefrontId, customer.id, listId);
       setDeleteConfirmId(null);
     } catch (error) {
       console.error('Failed to delete list:', error);

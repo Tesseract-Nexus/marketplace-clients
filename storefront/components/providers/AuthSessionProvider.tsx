@@ -215,8 +215,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
             // Already authenticated in store — verify user matches
             if (customer.id !== sessionUser.id) {
               console.log('[AuthSessionProvider] Session user mismatch, re-syncing auth state');
-              login(
-                {
+              login({
                   id: sessionUser.id,
                   email: sessionUser.email,
                   firstName: sessionUser.firstName || sessionUser.name?.split(' ')[0] || '',
@@ -230,9 +229,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
                   marketingOptIn: false,
                   emailVerified: true,
                   createdAt: new Date().toISOString(),
-                },
-                '' // Token is managed by auth-bff via HttpOnly cookies
-              );
+                });
             } else {
               console.log('[AuthSessionProvider] Session validated, keeping auth state');
             }
@@ -240,8 +237,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
             // Not authenticated in store but server has valid session
             // This happens after page refresh (store resets, cookie persists)
             console.log('[AuthSessionProvider] Restoring auth state from server session');
-            login(
-              {
+            login({
                 id: sessionUser.id,
                 email: sessionUser.email,
                 firstName: sessionUser.firstName || sessionUser.name?.split(' ')[0] || '',
@@ -255,9 +251,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
                 marketingOptIn: false,
                 emailVerified: true,
                 createdAt: new Date().toISOString(),
-              },
-              '' // Token is managed by auth-bff via HttpOnly cookies
-            );
+              });
           }
 
           // Schedule auto-refresh if session has an expiry

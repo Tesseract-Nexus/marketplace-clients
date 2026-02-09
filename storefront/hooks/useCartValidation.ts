@@ -46,7 +46,7 @@ export function useCartValidation(options: UseCartValidationOptions = {}): CartV
     validateOnFocus = true,
   } = options;
 
-  const { customer, accessToken } = useAuthStore();
+  const { customer, isAuthenticated } = useAuthStore();
   const { tenant } = useTenant();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastValidationRef = useRef<number>(0);
@@ -75,7 +75,7 @@ export function useCartValidation(options: UseCartValidationOptions = {}): CartV
 
   // Validate cart
   const validate = useCallback(async () => {
-    if (!customer?.id || !accessToken || !tenant?.id || !tenant?.storefrontId) {
+    if (!customer?.id || !isAuthenticated || !tenant?.id || !tenant?.storefrontId) {
       return;
     }
 
@@ -86,30 +86,30 @@ export function useCartValidation(options: UseCartValidationOptions = {}): CartV
     }
     lastValidationRef.current = now;
 
-    await validateCart(tenant.id, tenant.storefrontId, customer.id, accessToken);
-  }, [customer?.id, accessToken, tenant?.id, tenant?.storefrontId, validateCart]);
+    await validateCart(tenant.id, tenant.storefrontId, customer.id);
+  }, [customer?.id, isAuthenticated, tenant?.id, tenant?.storefrontId, validateCart]);
 
   // Remove unavailable items
   const removeUnavailable = useCallback(async () => {
-    if (!customer?.id || !accessToken || !tenant?.id || !tenant?.storefrontId) {
+    if (!customer?.id || !isAuthenticated || !tenant?.id || !tenant?.storefrontId) {
       return;
     }
 
-    await removeUnavailableItems(tenant.id, tenant.storefrontId, customer.id, accessToken);
-  }, [customer?.id, accessToken, tenant?.id, tenant?.storefrontId, removeUnavailableItems]);
+    await removeUnavailableItems(tenant.id, tenant.storefrontId, customer.id);
+  }, [customer?.id, isAuthenticated, tenant?.id, tenant?.storefrontId, removeUnavailableItems]);
 
   // Accept price changes
   const acceptPriceChanges = useCallback(async () => {
-    if (!customer?.id || !accessToken || !tenant?.id || !tenant?.storefrontId) {
+    if (!customer?.id || !isAuthenticated || !tenant?.id || !tenant?.storefrontId) {
       return;
     }
 
-    await acceptPriceChangesAction(tenant.id, tenant.storefrontId, customer.id, accessToken);
-  }, [customer?.id, accessToken, tenant?.id, tenant?.storefrontId, acceptPriceChangesAction]);
+    await acceptPriceChangesAction(tenant.id, tenant.storefrontId, customer.id);
+  }, [customer?.id, isAuthenticated, tenant?.id, tenant?.storefrontId, acceptPriceChangesAction]);
 
   // Auto-validate on mount and periodically
   useEffect(() => {
-    if (!autoValidate || !customer?.id || !accessToken || items.length === 0) {
+    if (!autoValidate || !customer?.id || !isAuthenticated || items.length === 0) {
       return;
     }
 
@@ -131,11 +131,11 @@ export function useCartValidation(options: UseCartValidationOptions = {}): CartV
         clearInterval(intervalRef.current);
       }
     };
-  }, [autoValidate, customer?.id, accessToken, items.length, lastValidatedAt, validateInterval, validate]);
+  }, [autoValidate, customer?.id, isAuthenticated, items.length, lastValidatedAt, validateInterval, validate]);
 
   // Re-validate on window focus
   useEffect(() => {
-    if (!validateOnFocus || !customer?.id || !accessToken) {
+    if (!validateOnFocus || !customer?.id || !isAuthenticated) {
       return;
     }
 
@@ -151,7 +151,7 @@ export function useCartValidation(options: UseCartValidationOptions = {}): CartV
     return () => {
       window.removeEventListener('focus', handleFocus);
     };
-  }, [validateOnFocus, customer?.id, accessToken, validate]);
+  }, [validateOnFocus, customer?.id, isAuthenticated, validate]);
 
   return {
     isValidating,

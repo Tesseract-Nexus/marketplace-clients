@@ -46,7 +46,7 @@ export default function ListDetailPage({
   const { slug } = use(params);
   const getNavPath = useNavPath();
   const { tenant } = useTenant();
-  const { customer, accessToken, isAuthenticated } = useAuthStore();
+  const { customer, isAuthenticated } = useAuthStore();
   const { getList, updateList, removeFromList, lists, fetchLists } = useListsStore();
   const { addItem } = useCartStore();
 
@@ -70,7 +70,6 @@ export default function ListDetailPage({
           tenant.id,
           tenant.storefrontId,
           customer.id,
-          accessToken || '',
           slug
         );
         setList(fetchedList);
@@ -86,10 +85,10 @@ export default function ListDetailPage({
     };
 
     loadList();
-  }, [isAuthenticated, tenant, customer?.id, accessToken, slug, getList]);
+  }, [isAuthenticated, tenant, customer?.id, slug, getList]);
 
   const handleUpdateList = async () => {
-    if (!editName.trim() || !tenant || !customer || !accessToken || !list) return;
+    if (!editName.trim() || !tenant || !customer || !list) return;
 
     setIsUpdating(true);
     try {
@@ -97,7 +96,6 @@ export default function ListDetailPage({
         tenant.id,
         tenant.storefrontId,
         customer.id,
-        accessToken,
         list.id,
         editName.trim(),
         editDescription.trim() || undefined
@@ -112,7 +110,7 @@ export default function ListDetailPage({
   };
 
   const handleRemoveItem = async (item: ListItem) => {
-    if (!tenant || !customer || !accessToken || !list) return;
+    if (!tenant || !customer || !list) return;
 
     setIsRemoving(true);
     try {
@@ -120,7 +118,6 @@ export default function ListDetailPage({
         tenant.id,
         tenant.storefrontId,
         customer.id,
-        accessToken,
         list.id,
         item.id
       );

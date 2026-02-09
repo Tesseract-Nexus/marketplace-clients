@@ -95,17 +95,16 @@ export async function unregisterDevice(
  */
 export async function getPreferences(
   tenantId: string,
-  storefrontId: string,
-  accessToken: string
+  storefrontId: string
 ): Promise<NotificationPreferences> {
   const response = await fetch(
     `${NOTIFICATION_SERVICE_URL}/api/v1/preferences`,
     {
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
       },
+      credentials: 'include',
     }
   );
 
@@ -134,7 +133,6 @@ export async function getPreferences(
 export async function updatePreferences(
   tenantId: string,
   storefrontId: string,
-  accessToken: string,
   preferences: Partial<NotificationPreferences>
 ): Promise<NotificationPreferences> {
   const response = await fetch(
@@ -143,10 +141,10 @@ export async function updatePreferences(
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
       },
+      credentials: 'include',
       body: JSON.stringify(preferences),
     }
   );

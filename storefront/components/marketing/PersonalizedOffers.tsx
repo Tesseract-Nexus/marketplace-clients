@@ -46,7 +46,7 @@ export function PersonalizedOffers({
 }: PersonalizedOffersProps) {
   const { tenant } = useTenant();
   const marketingConfig = useMarketingConfig();
-  const { customer, accessToken, isAuthenticated } = useAuthStore();
+  const { customer, isAuthenticated } = useAuthStore();
   const [offers, setOffers] = useState<PersonalizedOffer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -67,13 +67,10 @@ export function PersonalizedOffers({
           'X-Storefront-ID': tenant.storefrontId,
         };
 
-        if (isAuthenticated && accessToken) {
-          headers['Authorization'] = `Bearer ${accessToken}`;
-        }
-
         const response = await fetch(`/api/offers?limit=${limit}`, {
           method: 'GET',
           headers,
+          credentials: 'include',
         });
 
         if (!response.ok) {
@@ -93,7 +90,7 @@ export function PersonalizedOffers({
     };
 
     fetchOffers();
-  }, [tenant, isAuthenticated, accessToken, limit]);
+  }, [tenant, isAuthenticated, limit]);
 
   if (offers.length === 0 && !isLoading) {
     return null;
