@@ -615,7 +615,8 @@ function CheckoutContent() {
           const isScriptLoaded = await loadStripeScript();
           if (!isScriptLoaded) throw new Error('Failed to load Stripe SDK');
 
-          const publishableKey = paymentIntent.stripePublicKey || process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder';
+          const publishableKey = paymentIntent.stripePublicKey || process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+          if (!publishableKey) throw new Error('Stripe publishable key not configured');
           await initiateStripePayment(publishableKey, paymentIntent.stripeSessionId);
           return;
         }
@@ -670,6 +671,7 @@ function CheckoutContent() {
         if (!isScriptLoaded) throw new Error('Failed to load Razorpay SDK');
 
         const keyId = (paymentIntent.options?.key as string) || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '';
+        if (!keyId) throw new Error('Razorpay key not configured');
         const paymentResponse = await initiateRazorpayPayment({
           key: keyId,
           amount: Math.round(pendingOrder.total * 100),
@@ -721,7 +723,8 @@ function CheckoutContent() {
         if (paymentIntent.stripeSessionId) {
           const isScriptLoaded = await loadStripeScript();
           if (!isScriptLoaded) throw new Error('Failed to load Stripe SDK');
-          const publishableKey = paymentIntent.stripePublicKey || process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder';
+          const publishableKey = paymentIntent.stripePublicKey || process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY;
+          if (!publishableKey) throw new Error('Stripe publishable key not configured');
           await initiateStripePayment(publishableKey, paymentIntent.stripeSessionId);
           return;
         }
