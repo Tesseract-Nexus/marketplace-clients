@@ -20,6 +20,7 @@ import { useCartStore } from '@/store/cart';
 import { useListsStore, List } from '@/store/lists';
 import { useAuthStore } from '@/store/auth';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 import { getProductShippingData } from '@/lib/utils/product-shipping';
 import { TranslatedProductName, TranslatedText } from '@/components/translation';
 import { PriceDisplay, PriceWithDiscount } from '@/components/currency/PriceDisplay';
@@ -282,8 +283,7 @@ export function ProductCard({
     e?.stopPropagation();
 
     if (!isAuthenticated || !tenant || !customer) {
-      // Redirect to login
-      window.location.href = getNavPath('/auth/login');
+      window.location.href = getNavPath(`/auth/login?returnTo=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
 
@@ -297,8 +297,9 @@ export function ProductCard({
         image: imageUrl,
         price,
       });
-    } catch (error) {
-      console.error('Failed to add to list:', error);
+      toast.success(`Added to ${list.name}`);
+    } catch {
+      toast.error(`Failed to add to ${list.name}`);
     } finally {
       setIsAddingToList(null);
       setTimeout(() => setIsHeartAnimating(false), 300);
@@ -317,8 +318,9 @@ export function ProductCard({
     setIsAddingToList(list.id);
     try {
       await removeFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', list.id, item.id);
-    } catch (error) {
-      console.error('Failed to remove from list:', error);
+      toast.success(`Removed from ${list.name}`);
+    } catch {
+      toast.error(`Failed to remove from ${list.name}`);
     } finally {
       setIsAddingToList(null);
     }
@@ -329,7 +331,7 @@ export function ProductCard({
     e.stopPropagation();
 
     if (!isAuthenticated || !tenant || !customer) {
-      window.location.href = getNavPath('/auth/login');
+      window.location.href = getNavPath(`/auth/login?returnTo=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
 
@@ -350,10 +352,11 @@ export function ProductCard({
           image: imageUrl,
           price,
         });
+        toast.success(`Added to ${defaultList?.name || 'Wishlist'}`);
         setIsAddingToList(null);
       }
-    } catch (error) {
-      console.error('Failed to toggle default list:', error);
+    } catch {
+      toast.error('Failed to update wishlist');
       setIsAddingToList(null);
     } finally {
       setTimeout(() => setIsHeartAnimating(false), 300);

@@ -22,6 +22,7 @@ import {
   MessageCircle,
   Link2,
   CheckCircle2,
+  Bookmark,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -39,6 +40,7 @@ import { useCartStore } from '@/store/cart';
 import { useListsStore } from '@/store/lists';
 import { useAuthStore } from '@/store/auth';
 import { Product } from '@/types/storefront';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { getProductShippingData } from '@/lib/utils/product-shipping';
 import { ProductReviews } from '@/components/product/ProductReviews';
@@ -64,7 +66,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const getNavPath = useNavPath();
   const { formatDisplayPrice } = usePriceFormatting();
   const addToCart = useCartStore((state) => state.addItem);
-  const { lists, fetchLists, addToDefaultList, removeProductFromList, isInAnyList, getListsContainingProduct } = useListsStore();
+  const { lists, fetchLists, addToList, addToDefaultList, removeFromList, removeProductFromList, isInAnyList, getListsContainingProduct } = useListsStore();
   const { customer, accessToken, isAuthenticated } = useAuthStore();
 
   const [selectedImage, setSelectedImage] = useState(0);
@@ -165,25 +167,58 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
+  // Quick toggle: add/remove from default list only (used for single-list / mobile)
   const handleToggleWishlist = async () => {
     if (!isAuthenticated || !customer || !tenant) {
-      window.location.href = getNavPath('/auth/login');
+      window.location.href = getNavPath(`/auth/login?returnTo=${encodeURIComponent(window.location.pathname)}`);
       return;
     }
 
-    if (isInAnyList(product.id)) {
-      // Remove from whichever list(s) contain it
-      const containingLists = getListsContainingProduct(product.id);
-      for (const list of containingLists) {
-        await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', list.id, product.id);
+    const defaultList = lists.find((l) => l.isDefault);
+    const isInDefaultList = defaultList?.items?.some((i) => i.productId === product.id);
+
+    try {
+      if (isInDefaultList && defaultList) {
+        await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', defaultList.id, product.id);
+        toast.success(`Removed from ${defaultList.name}`);
+      } else {
+        await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', {
+          id: product.id,
+          name: product.name,
+          image: images[0],
+          price,
+        });
+        toast.success(`Added to ${defaultList?.name || 'Wishlist'}`);
       }
-    } else {
-      await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', {
+    } catch {
+      toast.error('Failed to update wishlist');
+    }
+  };
+
+  // Add to a specific list (used by dropdown)
+  const handleAddToList = async (listId: string, listName: string) => {
+    if (!isAuthenticated || !customer || !tenant) return;
+    try {
+      await addToList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', listId, {
         id: product.id,
         name: product.name,
         image: images[0],
         price,
       });
+      toast.success(`Added to ${listName}`);
+    } catch {
+      toast.error(`Failed to add to ${listName}`);
+    }
+  };
+
+  // Remove from a specific list (used by dropdown)
+  const handleRemoveFromList = async (listId: string, listName: string) => {
+    if (!isAuthenticated || !customer || !tenant) return;
+    try {
+      await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', listId, product.id);
+      toast.success(`Removed from ${listName}`);
+    } catch {
+      toast.error(`Failed to remove from ${listName}`);
     }
   };
 
@@ -568,17 +603,59 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                   )}
                 </Button>
 
-                <Button
-                  variant="tenant-outline"
-                  size="xl"
-                  className={cn(
-                    isTouchDevice && "h-12 w-12",
-                    isWishlisted && 'text-[var(--wishlist-active)] border-[var(--wishlist-active)]'
-                  )}
-                  onClick={handleToggleWishlist}
-                >
-                  <Heart className={cn('h-5 w-5', isWishlisted && 'fill-current')} />
-                </Button>
+                {/* List picker dropdown for 2+ lists on desktop, simple toggle otherwise */}
+                {lists.length > 1 && !isTouchDevice ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="tenant-outline"
+                        size="xl"
+                        className={cn(
+                          isWishlisted && 'text-[var(--wishlist-active)] border-[var(--wishlist-active)]'
+                        )}
+                      >
+                        <Heart className={cn('h-5 w-5', isWishlisted && 'fill-current')} />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                      {lists.map((list) => {
+                        const isProductInThisList = list.items?.some((i) => i.productId === product.id);
+                        return (
+                          <DropdownMenuItem
+                            key={list.id}
+                            className="cursor-pointer flex items-center gap-2"
+                            onClick={() => {
+                              if (isProductInThisList) {
+                                handleRemoveFromList(list.id, list.name);
+                              } else {
+                                handleAddToList(list.id, list.name);
+                              }
+                            }}
+                          >
+                            {isProductInThisList ? (
+                              <Check className="h-4 w-4 text-[var(--wishlist-active)]" />
+                            ) : (
+                              <Bookmark className="h-4 w-4 text-muted-foreground" />
+                            )}
+                            <span className={cn(isProductInThisList && 'font-medium')}>{list.name}</span>
+                          </DropdownMenuItem>
+                        );
+                      })}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Button
+                    variant="tenant-outline"
+                    size="xl"
+                    className={cn(
+                      isTouchDevice && "h-12 w-12",
+                      isWishlisted && 'text-[var(--wishlist-active)] border-[var(--wishlist-active)]'
+                    )}
+                    onClick={handleToggleWishlist}
+                  >
+                    <Heart className={cn('h-5 w-5', isWishlisted && 'fill-current')} />
+                  </Button>
+                )}
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

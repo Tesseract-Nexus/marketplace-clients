@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -12,7 +12,9 @@ import {
   ShoppingCart,
   Package,
   X,
-  Sparkles
+  Sparkles,
+  Bookmark,
+  Check,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -34,11 +36,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { useTenant, useProductConfig, useNavPath } from '@/context/TenantContext';
 import { useCartStore } from '@/store/cart';
 import { useListsStore } from '@/store/lists';
 import { useAuthStore } from '@/store/auth';
 import { usePriceFormatting } from '@/context/CurrencyContext';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { getProductShippingData } from '@/lib/utils/product-shipping';
 import { Product, Category } from '@/types/storefront';
@@ -57,52 +66,10 @@ interface ProductsClientProps {
 }
 
 export function ProductsClient({ initialProducts, categories, totalProducts }: ProductsClientProps) {
-  const { tenant } = useTenant();
   const productConfig = useProductConfig();
   const getNavPath = useNavPath();
   const { formatDisplayPrice } = usePriceFormatting();
   const addToCart = useCartStore((state) => state.addItem);
-  const { lists, fetchLists, addToDefaultList, removeProductFromList, isInAnyList, getListsContainingProduct } = useListsStore();
-  const { customer, accessToken, isAuthenticated } = useAuthStore();
-
-  // Fetch lists when authenticated
-  useEffect(() => {
-    if (isAuthenticated && tenant && customer && lists.length === 0) {
-      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken || '');
-    }
-  }, [isAuthenticated, tenant, lists.length, customer?.id, accessToken, fetchLists]);
-
-  const handleToggleWishlist = useCallback(async (product: Product) => {
-    if (!isAuthenticated || !customer || !tenant) {
-      window.location.href = getNavPath('/auth/login');
-      return;
-    }
-
-    if (isInAnyList(product.id)) {
-      const containingLists = getListsContainingProduct(product.id);
-      for (const list of containingLists) {
-        await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', list.id, product.id);
-      }
-    } else {
-      const price = parseFloat(product.price);
-      const images = product.images || [];
-      const sorted = [...images].sort((a, b) => {
-        const aIsPrimary = typeof a !== 'string' && a?.isPrimary ? 1 : 0;
-        const bIsPrimary = typeof b !== 'string' && b?.isPrimary ? 1 : 0;
-        if (bIsPrimary !== aIsPrimary) return bIsPrimary - aIsPrimary;
-        const aPos = typeof a !== 'string' ? (a?.position ?? 999) : 999;
-        const bPos = typeof b !== 'string' ? (b?.position ?? 999) : 999;
-        return aPos - bPos;
-      });
-      const imageUrl = sorted.map((img) => typeof img === 'string' ? img : img.url)[0];
-      await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', {
-        id: product.id,
-        name: product.name,
-        image: imageUrl,
-        price,
-      });
-    }
-  }, [isAuthenticated, customer, tenant, accessToken, getNavPath, isInAnyList, getListsContainingProduct, removeProductFromList, addToDefaultList]);
 
   // Calculate dynamic price range from products
   const maxProductPrice = useMemo(() => {
@@ -418,8 +385,6 @@ export function ProductsClient({ initialProducts, categories, totalProducts }: P
                         productConfig={productConfig}
                         getNavPath={getNavPath}
                         addToCart={addToCart}
-                        isInWishlist={isInAnyList}
-                        toggleWishlist={handleToggleWishlist}
                         formatDisplayPrice={formatDisplayPrice}
                       />
                     ))}
@@ -460,8 +425,6 @@ interface ProductCardProps {
   productConfig: ReturnType<typeof useProductConfig>;
   getNavPath: (path: string) => string;
   addToCart: (item: { productId: string; name: string; price: number; quantity: number; image?: string }) => void;
-  isInWishlist: (id: string) => boolean;
-  toggleWishlist: (product: Product) => void;
   formatDisplayPrice: (amount: number) => string;
 }
 
@@ -472,10 +435,12 @@ function ProductCard({
   productConfig,
   getNavPath,
   addToCart,
-  isInWishlist,
-  toggleWishlist,
   formatDisplayPrice
 }: ProductCardProps) {
+  const { tenant } = useTenant();
+  const { lists, fetchLists, addToList, addToDefaultList, removeProductFromList, isInAnyList } = useListsStore();
+  const { customer, accessToken, isAuthenticated } = useAuthStore();
+
   const price = parseFloat(product.price);
   const comparePrice = product.comparePrice ? parseFloat(product.comparePrice) : null;
   const hasDiscount = comparePrice && comparePrice > price;
@@ -493,7 +458,73 @@ function ProductCard({
     });
     return sorted.map((img) => typeof img === 'string' ? img : img.url);
   }, [product.images]);
-  const wishlisted = isInWishlist(product.id);
+  const wishlisted = isInAnyList(product.id);
+
+  // Fetch lists when authenticated
+  useEffect(() => {
+    if (isAuthenticated && tenant && customer && lists.length === 0) {
+      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken || '');
+    }
+  }, [isAuthenticated, tenant, lists.length, customer?.id, accessToken, fetchLists]);
+
+  const handleQuickToggleDefault = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!isAuthenticated || !customer || !tenant) {
+      window.location.href = getNavPath(`/auth/login?returnTo=${encodeURIComponent(window.location.pathname)}`);
+      return;
+    }
+
+    const defaultList = lists.find((l) => l.isDefault);
+    const isInDefaultList = defaultList?.items?.some((i) => i.productId === product.id);
+
+    try {
+      if (isInDefaultList && defaultList) {
+        await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', defaultList.id, product.id);
+        toast.success(`Removed from ${defaultList.name}`);
+      } else {
+        await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', {
+          id: product.id,
+          name: product.name,
+          image: images[0],
+          price,
+        });
+        toast.success(`Added to ${defaultList?.name || 'Wishlist'}`);
+      }
+    } catch {
+      toast.error('Failed to update wishlist');
+    }
+  };
+
+  const handleAddToList = async (listId: string, listName: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthenticated || !customer || !tenant) return;
+    try {
+      await addToList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', listId, {
+        id: product.id,
+        name: product.name,
+        image: images[0],
+        price,
+      });
+      toast.success(`Added to ${listName}`);
+    } catch {
+      toast.error(`Failed to add to ${listName}`);
+    }
+  };
+
+  const handleRemoveFromList = async (listId: string, listName: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isAuthenticated || !customer || !tenant) return;
+    try {
+      await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', listId, product.id);
+      toast.success(`Removed from ${listName}`);
+    } catch {
+      toast.error(`Failed to remove from ${listName}`);
+    }
+  };
 
   return (
     <motion.div
@@ -534,21 +565,61 @@ function ProductCard({
             )}
           </div>
 
-          {/* Wishlist Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              'absolute top-2 right-2 h-9 w-9 rounded-full glass hover:bg-white/30 transition-all duration-300',
-              wishlisted ? 'opacity-100 text-red-500 bg-white/90' : 'opacity-0 group-hover:opacity-100 text-gray-700'
-            )}
-            onClick={(e) => {
-              e.preventDefault();
-              toggleWishlist(product);
-            }}
-          >
-            <Heart className={cn('h-4 w-4 transition-transform', wishlisted && 'fill-current scale-110')} />
-          </Button>
+          {/* Wishlist: dropdown for 2+ lists, simple toggle otherwise */}
+          {lists.length > 1 ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn(
+                    'absolute top-2 right-2 h-9 w-9 rounded-full glass hover:bg-white/30 transition-all duration-300',
+                    wishlisted ? 'opacity-100 text-red-500 bg-white/90' : 'opacity-0 group-hover:opacity-100 text-gray-700'
+                  )}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                >
+                  <Heart className={cn('h-4 w-4 transition-transform', wishlisted && 'fill-current scale-110')} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                {lists.map((list) => {
+                  const isProductInThisList = list.items?.some((i) => i.productId === product.id);
+                  return (
+                    <DropdownMenuItem
+                      key={list.id}
+                      className="cursor-pointer flex items-center gap-2"
+                      onClick={(e) => {
+                        if (isProductInThisList) {
+                          handleRemoveFromList(list.id, list.name, e);
+                        } else {
+                          handleAddToList(list.id, list.name, e);
+                        }
+                      }}
+                    >
+                      {isProductInThisList ? (
+                        <Check className="h-4 w-4 text-[var(--wishlist-active)]" />
+                      ) : (
+                        <Bookmark className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className={cn(isProductInThisList && 'font-medium')}>{list.name}</span>
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              className={cn(
+                'absolute top-2 right-2 h-9 w-9 rounded-full glass hover:bg-white/30 transition-all duration-300',
+                wishlisted ? 'opacity-100 text-red-500 bg-white/90' : 'opacity-0 group-hover:opacity-100 text-gray-700'
+              )}
+              onClick={handleQuickToggleDefault}
+            >
+              <Heart className={cn('h-4 w-4 transition-transform', wishlisted && 'fill-current scale-110')} />
+            </Button>
+          )}
 
           {/* Quick Add Button - Only show in grid view (list view has its own button) */}
           {viewMode === 'grid' && (
