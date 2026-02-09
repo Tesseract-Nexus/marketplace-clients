@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import { extractCustomerId } from '@/lib/server/auth';
 import { logger } from '@/lib/logger';
+import { config } from '@/lib/config';
 
 // Remove /api/v1 suffix if present (env var may include it)
 const ORDERS_SERVICE_URL = (process.env.ORDERS_SERVICE_URL || 'http://localhost:3108').replace(/\/api\/v1\/?$/, '');
@@ -59,6 +60,9 @@ interface StorefrontOrderRequest {
   // Loyalty points redemption
   loyaltyPointsRedeemed?: number;
   loyaltyDiscount?: number;
+  // Coupon discount (validated server-side before forwarding)
+  couponCode?: string;
+  couponDiscountAmount?: number;
   notes?: string;
   status?: string;
 }
@@ -114,6 +118,43 @@ interface OrdersServiceRequest {
     description?: string;
   }>;
   notes?: string;
+}
+
+// SECURITY: Validate coupon server-side to prevent client-side discount manipulation
+async function validateCouponServerSide(
+  couponCode: string,
+  orderValue: number,
+  tenantId: string,
+  storefrontId: string
+): Promise<{ valid: boolean; discountAmount: number; couponId?: string; discountType?: string }> {
+  try {
+    const couponsServiceUrl = config.api.couponsService;
+    const response = await fetch(`${couponsServiceUrl}/coupons/validate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Tenant-ID': tenantId,
+        'X-Storefront-ID': storefrontId,
+      },
+      body: JSON.stringify({ code: couponCode, orderValue }),
+    });
+
+    if (!response.ok) {
+      logger.warn('[BFF Orders] Coupon validation failed:', couponCode);
+      return { valid: false, discountAmount: 0 };
+    }
+
+    const data = await response.json();
+    return {
+      valid: data.valid === true,
+      discountAmount: data.discountAmount || 0,
+      couponId: data.coupon?.id,
+      discountType: data.coupon?.discountType,
+    };
+  } catch (err) {
+    logger.error('[BFF Orders] Coupon service error:', err);
+    return { valid: false, discountAmount: 0 };
+  }
 }
 
 // Transform storefront request to orders-service format
@@ -228,6 +269,33 @@ export async function POST(request: NextRequest) {
     logger.debug('[BFF Orders] Transformed request for orders-service');
     logger.debug('[BFF Orders] Customer:', transformedBody.customer.email);
     logger.debug('[BFF Orders] Items:', transformedBody.items.length);
+
+    // SECURITY: Validate coupon server-side if a coupon code was provided
+    // The discount amount from the client is NOT trusted — we re-validate against coupons-service
+    if (body.couponCode) {
+      const subtotal = body.items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const couponResult = await validateCouponServerSide(
+        body.couponCode,
+        subtotal,
+        tenantId,
+        storefrontId || ''
+      );
+
+      if (couponResult.valid && couponResult.discountAmount > 0) {
+        logger.info('[BFF Orders] Coupon validated server-side:', body.couponCode, 'discount:', couponResult.discountAmount);
+        transformedBody.discounts = [
+          ...(transformedBody.discounts || []),
+          {
+            couponCode: body.couponCode,
+            discountType: couponResult.discountType || 'fixed',
+            amount: couponResult.discountAmount,
+            description: `Coupon: ${body.couponCode}`,
+          },
+        ];
+      } else {
+        logger.warn('[BFF Orders] Coupon invalid or expired, ignoring:', body.couponCode);
+      }
+    }
 
     // Build headers - include Authorization if present for authenticated checkout
     const headers: Record<string, string> = {

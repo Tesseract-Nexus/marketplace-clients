@@ -3,6 +3,7 @@ import { logger } from '@/lib/logger';
 
 // Remove /api/v1 suffix if present (env var may include it)
 const PAYMENT_SERVICE_URL = (process.env.PAYMENT_SERVICE_URL || 'http://localhost:3107').replace(/\/api\/v1\/?$/, '');
+const ORDERS_SERVICE_URL = (process.env.ORDERS_SERVICE_URL || 'http://localhost:3108').replace(/\/api\/v1\/?$/, '');
 
 // POST /api/payments/create-intent - Create payment intent
 export async function POST(request: NextRequest) {
@@ -28,6 +29,38 @@ export async function POST(request: NextRequest) {
     logger.debug('[BFF] Payment gateway:', gatewayType);
     logger.debug('[BFF] Order ID:', body.orderId);
 
+    // SECURITY: Fetch the order from orders-service to get the server-calculated total.
+    // The client-provided amount is intentionally ignored to prevent price manipulation.
+    if (!body.orderId) {
+      return NextResponse.json({ error: 'Order ID is required' }, { status: 400 });
+    }
+
+    let serverAmount: number;
+    try {
+      const orderResponse = await fetch(`${ORDERS_SERVICE_URL}/api/v1/orders/${body.orderId}`, {
+        headers: {
+          'X-Tenant-ID': tenantId,
+          ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
+        },
+      });
+
+      if (!orderResponse.ok) {
+        logger.error('[BFF] Failed to fetch order for payment amount verification:', orderResponse.status);
+        return NextResponse.json({ error: 'Failed to verify order total' }, { status: 400 });
+      }
+
+      const orderData = await orderResponse.json();
+      serverAmount = orderData.total;
+      logger.info('[BFF] Using server-calculated order total:', serverAmount);
+
+      if (body.amount && Math.abs(body.amount - serverAmount) > 0.01) {
+        logger.warn('[BFF] Client amount mismatch — client:', body.amount, 'server:', serverAmount);
+      }
+    } catch (fetchErr) {
+      logger.error('[BFF] Failed to fetch order:', fetchErr);
+      return NextResponse.json({ error: 'Failed to verify order total' }, { status: 500 });
+    }
+
     const response = await fetch(`${PAYMENT_SERVICE_URL}/api/v1/payments/create-intent`, {
       method: 'POST',
       headers: {
@@ -37,6 +70,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         ...body,
+        amount: serverAmount,
         gatewayType,
       }),
     });

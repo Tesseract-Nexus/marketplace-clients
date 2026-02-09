@@ -525,18 +525,19 @@ function CheckoutContent() {
         companyName: contactInfo.company || undefined,
         loyaltyPointsRedeemed: loyaltyPointsApplied > 0 ? loyaltyPointsApplied : undefined,
         loyaltyDiscount: loyaltyDiscount > 0 ? loyaltyDiscount : undefined,
+        couponCode: appliedCoupon?.coupon.code,
+        couponDiscountAmount: appliedCoupon ? appliedCoupon.discountAmount : undefined,
       };
 
       const order = await createOrder(tenant.id, tenant.storefrontId, createOrderData, idempotencyKeyRef.current || undefined);
       setPendingOrder({ id: order.id, orderNumber: order.orderNumber, total });
 
-      // Create payment intent
+      // Create payment intent — amount is fetched server-side from the order
       const currency = localization.currency;
       const paymentIntent = await createPaymentIntent(
         tenant.id,
         tenant.storefrontId,
         order.id,
-        total,
         currency,
         gatewayType,
         {
@@ -553,9 +554,10 @@ function CheckoutContent() {
         const keyId = (paymentIntent.options?.key as string) || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '';
         if (!keyId) throw new Error('Razorpay key not configured');
 
+        // Use server-authoritative amount from payment intent (set by BFF from order total)
         const paymentResponse = await initiateRazorpayPayment({
           key: keyId,
-          amount: Math.round(total * 100),
+          amount: Math.round(paymentIntent.amount * 100),
           currency: 'INR',
           name: tenant.name || 'Store',
           description: `Order #${order.orderNumber}`,
@@ -673,7 +675,6 @@ function CheckoutContent() {
         tenant.id,
         tenant.storefrontId,
         pendingOrder.id,
-        pendingOrder.total,
         currency,
         gatewayType,
         {
@@ -689,9 +690,10 @@ function CheckoutContent() {
 
         const keyId = (paymentIntent.options?.key as string) || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '';
         if (!keyId) throw new Error('Razorpay key not configured');
+        // Use server-authoritative amount from payment intent
         const paymentResponse = await initiateRazorpayPayment({
           key: keyId,
-          amount: Math.round(pendingOrder.total * 100),
+          amount: Math.round(paymentIntent.amount * 100),
           currency: 'INR',
           name: tenant.name || 'Store',
           description: `Order #${pendingOrder.orderNumber}`,

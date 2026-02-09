@@ -53,6 +53,9 @@ export interface CreateOrderRequest {
   // Loyalty points redemption
   loyaltyPointsRedeemed?: number;
   loyaltyDiscount?: number;
+  // Coupon discount
+  couponCode?: string;
+  couponDiscountAmount?: number;
 }
 
 export interface Order {
@@ -147,6 +150,8 @@ export async function createOrder(
       companyName: orderData.companyName,
       loyaltyPointsRedeemed: orderData.loyaltyPointsRedeemed,
       loyaltyDiscount: orderData.loyaltyDiscount,
+      couponCode: orderData.couponCode,
+      couponDiscountAmount: orderData.couponDiscountAmount,
       status: 'pending',
     }),
   });
@@ -164,7 +169,6 @@ export async function createPaymentIntent(
   tenantId: string,
   storefrontId: string,
   orderId: string,
-  amount: number,
   currency: string,
   gatewayType: 'razorpay' | 'stripe',
   customerDetails: {
@@ -177,6 +181,9 @@ export async function createPaymentIntent(
   // Get the current storefront URL for Stripe redirects
   const storefrontUrl = typeof window !== 'undefined' ? window.location.origin : '';
 
+  // NOTE: amount is intentionally NOT sent from the client.
+  // The BFF fetches the order's server-calculated total from orders-service
+  // to prevent client-side price manipulation.
   const response = await fetch('/api/payments/create-intent', {
     method: 'POST',
     headers: {
@@ -187,7 +194,6 @@ export async function createPaymentIntent(
     body: JSON.stringify({
       tenantId,
       orderId,
-      amount, // Amount in base currency units (dollars, rupees) - payment service converts to cents/paise
       currency,
       gatewayType,
       customerId: customerDetails.customerId,
