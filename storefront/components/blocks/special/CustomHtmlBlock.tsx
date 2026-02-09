@@ -81,7 +81,7 @@ export function CustomHtmlBlock({ config }: BlockComponentProps<CustomHtmlBlockC
 
   // Build sandbox permissions
   const sandboxPermissions = config.allowScripts
-    ? 'allow-scripts allow-same-origin'
+    ? 'allow-scripts'
     : '';
 
   if (config.sandboxed) {
