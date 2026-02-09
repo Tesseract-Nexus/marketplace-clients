@@ -530,7 +530,7 @@ export async function directRequestPasswordReset(
         'Accept': 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ email, tenant_slug: tenantSlug }),
+      body: JSON.stringify({ email, tenant_slug: tenantSlug, context: 'admin' }),
     });
 
     return response.json();

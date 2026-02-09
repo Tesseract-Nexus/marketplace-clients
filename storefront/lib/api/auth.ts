@@ -826,6 +826,7 @@ export async function directRequestPasswordReset(
       body: JSON.stringify({
         email,
         tenant_slug: tenantSlug,
+        context: 'storefront',
       }),
     });
 
