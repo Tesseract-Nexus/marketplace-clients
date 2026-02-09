@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, ShoppingCart, Share2, Plus, Folder, ChevronDown, Loader2, ListPlus, FolderHeart, AlertTriangle, TrendingUp, TrendingDown, Ban, ArrowRightLeft } from 'lucide-react';
+import { Heart, ShoppingCart, Plus, Folder, ChevronDown, Loader2, ListPlus, FolderHeart, AlertTriangle, TrendingUp, TrendingDown, Ban, Check, Bookmark } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -423,6 +423,62 @@ export default function WishlistPage() {
                           <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                         </div>
                       )}
+
+                      {/* Heart button - top right, dropdown for 2+ lists, instant remove for 1 list */}
+                      {lists.length > 1 ? (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className="absolute top-2.5 right-2.5 h-8 w-8 rounded-full bg-[var(--wishlist-active)] text-white flex items-center justify-center z-20 transition-all duration-200 hover:opacity-90"
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                              disabled={isRemoving === item.id || isMoving === item.id}
+                            >
+                              {(isRemoving === item.id || isMoving === item.id) ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Heart className="h-4 w-4 fill-current" />
+                              )}
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                            {/* Current list - click to remove */}
+                            <DropdownMenuItem
+                              className="cursor-pointer flex items-center gap-2"
+                              onClick={() => handleRemoveItem(item.id)}
+                            >
+                              <Check className="h-4 w-4 text-[var(--wishlist-active)]" />
+                              <span className="font-medium">{selectedList?.name}</span>
+                            </DropdownMenuItem>
+                            {/* Other lists - click to move */}
+                            {lists
+                              .filter((l) => l.id !== selectedList?.id)
+                              .map((list) => (
+                                <DropdownMenuItem
+                                  key={list.id}
+                                  className="cursor-pointer flex items-center gap-2"
+                                  onClick={() => handleMoveItem(item.id, list.id, list.name)}
+                                >
+                                  <Bookmark className="h-4 w-4 text-muted-foreground" />
+                                  <span className="truncate">{list.name}</span>
+                                </DropdownMenuItem>
+                              ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      ) : (
+                        <button
+                          type="button"
+                          className="absolute top-2.5 right-2.5 h-8 w-8 rounded-full bg-[var(--wishlist-active)] text-white flex items-center justify-center z-20 transition-all duration-200 hover:opacity-90"
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRemoveItem(item.id); }}
+                          disabled={isRemoving === item.id}
+                        >
+                          {isRemoving === item.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Heart className="h-4 w-4 fill-current" />
+                          )}
+                        </button>
+                      )}
                     </div>
                   </Link>
 
@@ -468,63 +524,6 @@ export default function WishlistPage() {
                             <TranslatedUIText text="Add to Cart" />
                           </>
                         )}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        className="shrink-0 text-[var(--wishlist-active)] border-[var(--wishlist-active)]/30 hover:bg-red-50"
-                        onClick={() => handleRemoveItem(item.id)}
-                        disabled={isRemoving === item.id}
-                        title="Remove from list"
-                      >
-                        {isRemoving === item.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Heart className="h-4 w-4 fill-current" />
-                        )}
-                      </Button>
-                      {/* Move to list dropdown - only show when 2+ lists */}
-                      {lists.length > 1 && (
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              className="shrink-0 hover:text-tenant-primary hover:border-[var(--tenant-primary)]/30 hover:bg-[var(--tenant-primary)]/5"
-                              disabled={isMoving === item.id}
-                            >
-                              {isMoving === item.id ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <ArrowRightLeft className="h-4 w-4" />
-                              )}
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-48">
-                            <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
-                              <TranslatedUIText text="Move to..." />
-                            </div>
-                            {lists
-                              .filter((l) => l.id !== selectedList?.id)
-                              .map((list) => (
-                                <DropdownMenuItem
-                                  key={list.id}
-                                  className="cursor-pointer flex items-center gap-2"
-                                  onClick={() => handleMoveItem(item.id, list.id, list.name)}
-                                >
-                                  {list.isDefault ? (
-                                    <Heart className="h-4 w-4 text-red-500" />
-                                  ) : (
-                                    <Folder className="h-4 w-4 text-tenant-primary" />
-                                  )}
-                                  <span className="truncate">{list.name}</span>
-                                </DropdownMenuItem>
-                              ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      )}
-                      <Button variant="outline" size="icon" className="shrink-0 hover:text-tenant-primary hover:border-[var(--tenant-primary)]/30 hover:bg-[var(--tenant-primary)]/5">
-                        <Share2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
