@@ -22,7 +22,7 @@ import { useAuthStore } from '@/store/auth';
 export default function ListsPage() {
   const getNavPath = useNavPath();
   const { tenant } = useTenant();
-  const { customer, accessToken } = useAuthStore();
+  const { customer, accessToken, isAuthenticated } = useAuthStore();
   const { lists, isLoading, fetchLists, createList, deleteList } = useListsStore();
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -32,11 +32,9 @@ export default function ListsPage() {
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const isAuthenticated = !!(customer && accessToken);
-
   useEffect(() => {
-    if (isAuthenticated && tenant) {
-      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken);
+    if (isAuthenticated && tenant && customer) {
+      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken || '');
     }
   }, [isAuthenticated, tenant, customer?.id, accessToken, fetchLists]);
 

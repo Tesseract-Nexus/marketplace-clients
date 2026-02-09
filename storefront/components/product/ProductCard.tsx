@@ -96,7 +96,7 @@ export function ProductCard({
     setIsTouchDevice(window.matchMedia('(pointer: coarse)').matches);
   }, []);
 
-  const isOutOfStock = product.inventoryStatus === 'OUT_OF_STOCK';
+  const isOutOfStock = product.inventoryStatus === 'OUT_OF_STOCK' || (product.quantity !== undefined && product.quantity <= 0);
 
   // 3D tilt effect - disabled on touch devices
   const { rotateX, rotateY, shouldAnimate, handlers: tiltHandlers } = useTiltValues({

@@ -145,6 +145,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     ? Math.round(((comparePrice - price) / comparePrice) * 100)
     : 0;
 
+  const isOutOfStock = product.inventoryStatus === 'OUT_OF_STOCK' || (product.quantity !== undefined && product.quantity <= 0);
   const isWishlisted = isInAnyList(product.id);
 
   const handleAddToCart = async () => {
@@ -583,7 +584,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                   size="xl"
                   className={cn("flex-1", addedToCart && "bg-[var(--color-success)] hover:opacity-90 text-[var(--color-success-foreground)]")}
                   onClick={handleAddToCart}
-                  disabled={isAddingToCart || product.inventoryStatus === 'OUT_OF_STOCK'}
+                  disabled={isAddingToCart || isOutOfStock}
                 >
                   {isAddingToCart ? (
                     <div className="flex items-center gap-2">
@@ -869,7 +870,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
                       addedToCart && "bg-[var(--color-success)] hover:opacity-90 text-[var(--color-success-foreground)]"
                     )}
                     onClick={handleAddToCart}
-                    disabled={isAddingToCart || product.inventoryStatus === 'OUT_OF_STOCK'}
+                    disabled={isAddingToCart || isOutOfStock}
                   >
                     {isAddingToCart ? (
                       <div className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
