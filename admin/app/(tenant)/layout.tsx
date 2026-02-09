@@ -152,6 +152,7 @@ const navigation: NavItem[] = [
       { name: "Products", href: "/products" },
       { name: "Categories", href: "/categories" },
       { name: "Inventory", href: "/inventory" },
+      { name: "SEO Analyzer", href: "/seo" },
     ],
   }, // All roles (read-only for viewer)
   {
