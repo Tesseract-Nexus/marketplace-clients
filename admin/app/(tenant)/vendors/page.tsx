@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useTenant } from '@/contexts/TenantContext';
 import { useToast } from '@/contexts/ToastContext';
 import {
@@ -67,6 +67,7 @@ export default function VendorsPage() {
   const tenantSlug = params?.slug as string;
   const { currentTenant, isLoading: tenantLoading } = useTenant();
   const toast = useToast();
+  const searchParams = useSearchParams();
 
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -177,6 +178,19 @@ export default function VendorsPage() {
       setLoading(false);
     }
   };
+
+  // Sync URL ?id= param with detail view (for notification deep-links)
+  useEffect(() => {
+    if (loading || !vendors.length) return;
+    const vendorId = searchParams.get('id');
+    if (vendorId && viewMode === 'list') {
+      const vendor = vendors.find(v => v.id === vendorId);
+      if (vendor) {
+        setSelectedVendor(vendor);
+        setViewMode('detail');
+      }
+    }
+  }, [searchParams, vendors, loading]);
 
   const filteredVendors = vendors.filter(vendor => {
     const matchesSearch = vendor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

@@ -173,6 +173,19 @@ export default function StaffPage() {
     }
   };
 
+  // Sync URL ?id= param with detail view (for notification deep-links)
+  useEffect(() => {
+    if (loading || !staff.length) return;
+    const staffId = searchParams.get('id');
+    if (staffId && viewMode === 'list') {
+      const member = staff.find(s => s.id === staffId);
+      if (member) {
+        setSelectedStaff(member);
+        setViewMode('detail');
+      }
+    }
+  }, [searchParams, staff, loading]);
+
   const filteredStaff = staff.filter(s => {
     const matchesSearch = s.firstName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.lastName.toLowerCase().includes(searchQuery.toLowerCase()) ||
