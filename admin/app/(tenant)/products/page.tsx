@@ -27,7 +27,7 @@ import {
 import {
   Loader2, AlertCircle, X, Upload, Eye, Edit, Trash2, RefreshCw,
   FileText, Package, Image as ImageIcon, CheckCircle,
-  Tag, Search, Scale, Lightbulb, AlertTriangle, Hash, Globe, Layers,
+  Tag, Search, Scale, Lightbulb, AlertTriangle, Hash, Globe, Layers, Sparkles,
   Smartphone, Monitor, Headphones, Tv, Gamepad2, Mouse, Plus, Folder,
   Building2, CircleOff,
   Ruler, Clock, CheckCircle2, FileEdit, XCircle, Archive, RotateCcw,
@@ -115,7 +115,12 @@ export default function ProductsPage() {
 
   // Form state - vendorId is automatically set from tenant context via API headers
   const [formData, setFormData] = useState<
-    Partial<CreateProductRequest | UpdateProductRequest>
+    Partial<CreateProductRequest | UpdateProductRequest> & {
+      seoTitle?: string;
+      seoDescription?: string;
+      seoKeywords?: string[];
+      ogImage?: string;
+    }
   >({
     name: '',
     slug: '',
@@ -146,10 +151,17 @@ export default function ProductsPage() {
     },
     attributes: [],
     images: [],
+    seoTitle: '',
+    seoDescription: '',
+    seoKeywords: [],
+    ogImage: '',
   });
 
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 5;
+  const totalSteps = 6;
+
+  // SEO keyword input state (separate from formData.seoKeywords for better UX)
+  const [seoKeywordInput, setSeoKeywordInput] = useState('');
 
   // Tag input state (separate from formData.tags for better UX)
   const [tagInput, setTagInput] = useState('');
@@ -208,7 +220,8 @@ export default function ProductsPage() {
     { number: 2, title: 'Pricing', icon: <span className="w-5 h-5 flex items-center justify-center font-bold text-lg">{getCurrencySymbol(storeCurrency)}</span>, description: 'Set prices' },
     { number: 3, title: 'Inventory', icon: <Package className="w-5 h-5" />, description: 'Stock & shipping' },
     { number: 4, title: 'Media', icon: <ImageIcon className="w-5 h-5" />, description: 'Images & tags' },
-    { number: 5, title: 'Review', icon: <CheckCircle className="w-5 h-5" />, description: 'Final review' },
+    { number: 5, title: 'SEO', icon: <Globe className="w-5 h-5" />, description: 'Search optimization' },
+    { number: 6, title: 'Review', icon: <CheckCircle className="w-5 h-5" />, description: 'Final review' },
   ];
 
   // Validation functions
@@ -860,6 +873,10 @@ export default function ProductsPage() {
       },
       attributes: [],
       images: [],
+      seoTitle: '',
+      seoDescription: '',
+      seoKeywords: [],
+      ogImage: '',
     });
     setSelectedProduct(null);
     setCurrentStep(1);
@@ -868,6 +885,7 @@ export default function ProductsPage() {
     // Reset image upload state
     setUploadedImages([]);
     setTagInput('');
+    setSeoKeywordInput('');
   };
 
   const handleEdit = (product: Product) => {
@@ -899,6 +917,10 @@ export default function ProductsPage() {
       },
       attributes: product.attributes ? Object.values(product.attributes) : [],
       images: product.images || [],
+      seoTitle: product.seoTitle || '',
+      seoDescription: product.seoDescription || '',
+      seoKeywords: product.seoKeywords || [],
+      ogImage: product.ogImage || '',
     });
     setSelectedProduct(product);
     setCurrentStep(1);
@@ -2690,8 +2712,228 @@ export default function ProductsPage() {
                   </div>
                 )}
 
-                {/* Step 5: Review */}
+                {/* Step 5: SEO */}
                 {currentStep === 5 && (
+                  <div className="space-y-6">
+                    <div className="mb-6">
+                      <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
+                        <Globe className="w-8 h-8" aria-hidden="true" />
+                        SEO Optimization
+                      </h2>
+                      <p className="text-muted-foreground mt-1">Optimize how your product appears in search engines</p>
+                    </div>
+
+                    {/* Google SERP Preview */}
+                    <div>
+                      <label className="block text-sm font-bold text-foreground mb-3">Google Search Preview</label>
+                      <div className="bg-white border border-border rounded-xl p-6 shadow-sm">
+                        <div className="max-w-xl">
+                          <p className="text-lg text-[#1a0dab] font-medium leading-tight truncate cursor-pointer hover:underline">
+                            {formData.seoTitle || formData.name || 'Product Title'}
+                          </p>
+                          <p className="text-sm text-[#006621] mt-1 truncate">
+                            yourstore.com/products/{formData.slug || formData.name?.toLowerCase().replace(/\s+/g, '-') || 'product-slug'}
+                          </p>
+                          <p className="text-sm text-[#545454] mt-1 line-clamp-2">
+                            {formData.seoDescription || formData.description?.slice(0, 160) || 'Add a meta description to control how your product appears in search results.'}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Auto-generate SEO fields */}
+                    <div className="flex items-center gap-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          const updates: Record<string, unknown> = {};
+                          if (!formData.seoTitle && formData.name) {
+                            const title = formData.name.length > 60 ? formData.name.slice(0, 57) + '...' : formData.name;
+                            updates.seoTitle = title;
+                          }
+                          if (!formData.seoDescription && formData.description) {
+                            const desc = formData.description.length > 160 ? formData.description.slice(0, 157) + '...' : formData.description;
+                            updates.seoDescription = desc;
+                          }
+                          if (!(formData.seoKeywords || []).length && Array.isArray(formData.tags) && formData.tags.length > 0) {
+                            updates.seoKeywords = [...formData.tags];
+                          }
+                          if (Object.keys(updates).length > 0) {
+                            setFormData(prev => ({ ...prev, ...updates }));
+                          }
+                        }}
+                        className="flex items-center gap-2 text-sm"
+                        disabled={!!(formData.seoTitle && formData.seoDescription && (formData.seoKeywords || []).length > 0)}
+                      >
+                        <Sparkles className="w-4 h-4" aria-hidden="true" />
+                        Auto-generate from product info
+                      </Button>
+                      <span className="text-xs text-muted-foreground">
+                        Fills empty SEO fields using product name, description, and tags
+                      </span>
+                    </div>
+
+                    {/* SEO Score Indicator */}
+                    {(() => {
+                      const hasTitle = !!(formData.seoTitle || (formData.name && formData.name.length > 10));
+                      const hasDescription = !!(formData.seoDescription || (formData.description && formData.description.length > 50));
+                      const hasImage = !!((uploadedImages.length > 0 && uploadedImages.some(img => img.url)) || formData.ogImage);
+                      const score = [hasTitle, hasDescription, hasImage].filter(Boolean).length;
+                      const badgeClass = score === 3
+                        ? 'bg-success/10 text-success'
+                        : score >= 1
+                          ? 'bg-warning/10 text-warning'
+                          : 'bg-destructive/10 text-destructive';
+                      const label = score === 3 ? 'Good' : score >= 1 ? 'Needs Work' : 'Missing';
+
+                      return (
+                        <div className="flex items-center gap-3">
+                          <span className="text-sm font-bold text-muted-foreground">SEO Score:</span>
+                          <span className={`px-3 py-1 rounded-full text-sm font-semibold ${badgeClass}`}>
+                            {label} ({score}/3)
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {!hasTitle && 'Missing title. '}
+                            {!hasDescription && 'Missing description. '}
+                            {!hasImage && 'Missing image. '}
+                          </span>
+                        </div>
+                      );
+                    })()}
+
+                    {/* SEO Title */}
+                    <div>
+                      <label className="block text-sm font-bold text-foreground mb-2">SEO Title</label>
+                      <Input
+                        value={formData.seoTitle || ''}
+                        onChange={(e) => handleFieldChange('seoTitle', e.target.value)}
+                        placeholder={formData.name ? `${formData.name} | Your Store` : 'Enter SEO title...'}
+                        maxLength={70}
+                      />
+                      <div className="flex justify-between mt-1">
+                        <p className="text-xs text-muted-foreground">Recommended: 50-60 characters</p>
+                        <p className={`text-xs font-medium ${(formData.seoTitle?.length || 0) > 60 ? 'text-warning' : 'text-muted-foreground'}`}>
+                          {formData.seoTitle?.length || 0}/70
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* SEO Description */}
+                    <div>
+                      <label className="block text-sm font-bold text-foreground mb-2">SEO Description</label>
+                      <Textarea
+                        value={formData.seoDescription || ''}
+                        onChange={(e) => handleFieldChange('seoDescription', e.target.value)}
+                        placeholder={formData.description ? formData.description.slice(0, 160) : 'Enter meta description...'}
+                        maxLength={170}
+                        rows={3}
+                      />
+                      <div className="flex justify-between mt-1">
+                        <p className="text-xs text-muted-foreground">Recommended: 150-160 characters</p>
+                        <p className={`text-xs font-medium ${(formData.seoDescription?.length || 0) > 160 ? 'text-warning' : 'text-muted-foreground'}`}>
+                          {formData.seoDescription?.length || 0}/170
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* SEO Keywords */}
+                    <div>
+                      <label className="block text-sm font-bold text-foreground mb-2">SEO Keywords</label>
+                      <div className="relative">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" aria-hidden="true" />
+                        <input
+                          type="text"
+                          value={seoKeywordInput}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            if (value.includes(',')) {
+                              const parts = value.split(',');
+                              const newKeyword = parts[0].trim();
+                              if (newKeyword && !(formData.seoKeywords || []).includes(newKeyword)) {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  seoKeywords: [...(prev.seoKeywords || []), newKeyword],
+                                }));
+                              }
+                              setSeoKeywordInput(parts.slice(1).join(',').trim());
+                            } else {
+                              setSeoKeywordInput(value);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              const newKeyword = seoKeywordInput.trim();
+                              if (newKeyword && !(formData.seoKeywords || []).includes(newKeyword)) {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  seoKeywords: [...(prev.seoKeywords || []), newKeyword],
+                                }));
+                              }
+                              setSeoKeywordInput('');
+                            }
+                            if (e.key === 'Backspace' && !seoKeywordInput && (formData.seoKeywords || []).length > 0) {
+                              setFormData(prev => ({
+                                ...prev,
+                                seoKeywords: (prev.seoKeywords || []).slice(0, -1),
+                              }));
+                            }
+                          }}
+                          className="w-full pl-10 pr-4 h-10 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background hover:border-border font-medium"
+                          placeholder="Type a keyword and press Enter or comma to add"
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">Keywords help search engines understand your product. Press Enter or comma to add.</p>
+
+                      {(formData.seoKeywords || []).length > 0 && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {(formData.seoKeywords || []).map((keyword, index) => (
+                            <span key={index} className="px-3 py-1.5 bg-primary/10 text-primary rounded-full text-sm font-semibold flex items-center gap-2 border border-primary/30">
+                              <Search className="w-3 h-3" aria-hidden="true" /> {keyword}
+                              <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({
+                                  ...prev,
+                                  seoKeywords: (prev.seoKeywords || []).filter((_, i) => i !== index),
+                                }))}
+                                className="hover:text-error font-bold text-lg transition-colors ml-1"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* OG Image */}
+                    <div>
+                      <label className="block text-sm font-bold text-foreground mb-2">Open Graph Image</label>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        This image appears when your product is shared on social media. Leave empty to use the primary product image.
+                      </p>
+                      <Input
+                        value={formData.ogImage || ''}
+                        onChange={(e) => handleFieldChange('ogImage', e.target.value)}
+                        placeholder="https://example.com/og-image.jpg"
+                      />
+                      {formData.ogImage && (
+                        <div className="mt-3 relative w-48 aspect-video rounded-lg overflow-hidden border border-border">
+                          <img
+                            src={formData.ogImage}
+                            alt="OG Image preview"
+                            className="w-full h-full object-cover"
+                            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 6: Review */}
+                {currentStep === 6 && (
                   <div className="space-y-6">
                     <div className="mb-6">
                       <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
@@ -2770,6 +3012,39 @@ export default function ProductsPage() {
                                   {tag}
                                 </span>
                               ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* SEO Summary */}
+                        {(formData.seoTitle || formData.seoDescription || (formData.seoKeywords || []).length > 0) && (
+                          <div className="md:col-span-2 border-t border-border pt-4 mt-2">
+                            <p className="text-sm font-bold text-muted-foreground mb-3 flex items-center gap-2">
+                              <Globe className="w-4 h-4" aria-hidden="true" /> SEO
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {formData.seoTitle && (
+                                <div>
+                                  <p className="text-xs font-bold text-muted-foreground mb-1">SEO Title</p>
+                                  <p className="text-sm text-foreground">{formData.seoTitle}</p>
+                                </div>
+                              )}
+                              {formData.seoDescription && (
+                                <div>
+                                  <p className="text-xs font-bold text-muted-foreground mb-1">SEO Description</p>
+                                  <p className="text-sm text-foreground line-clamp-2">{formData.seoDescription}</p>
+                                </div>
+                              )}
+                              {(formData.seoKeywords || []).length > 0 && (
+                                <div className="md:col-span-2">
+                                  <p className="text-xs font-bold text-muted-foreground mb-1">Keywords</p>
+                                  <div className="flex flex-wrap gap-1">
+                                    {(formData.seoKeywords || []).map((kw, i) => (
+                                      <span key={i} className="px-2 py-0.5 bg-muted text-muted-foreground rounded text-xs">{kw}</span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}

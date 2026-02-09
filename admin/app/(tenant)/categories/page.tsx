@@ -40,6 +40,7 @@ import {
   FileUp,
   Image as ImageIcon,
   ClipboardList,
+  Globe,
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
@@ -157,6 +158,9 @@ export default function CategoriesPage() {
     isActive: boolean;
     imageUrl: string;
     bannerUrl: string;
+    seoTitle: string;
+    seoDescription: string;
+    seoKeywords: string[];
   }>({
     name: '',
     slug: '',
@@ -166,7 +170,13 @@ export default function CategoriesPage() {
     isActive: true,
     imageUrl: '',
     bannerUrl: '',
+    seoTitle: '',
+    seoDescription: '',
+    seoKeywords: [],
   });
+
+  // SEO keyword input state
+  const [categorySeoKeywordInput, setCategorySeoKeywordInput] = useState('');
 
   // Form validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -246,6 +256,9 @@ export default function CategoriesPage() {
             isActive: category.isActive,
             imageUrl: category.imageUrl || '',
             bannerUrl: category.bannerUrl || '',
+            seoTitle: category.seoTitle || '',
+            seoDescription: category.seoDescription || '',
+            seoKeywords: Array.isArray(category.seoKeywords) ? category.seoKeywords as unknown as string[] : [],
           });
         } else {
           setViewMode('detail');
@@ -369,7 +382,11 @@ export default function CategoriesPage() {
       isActive: true,
       imageUrl: '',
       bannerUrl: '',
+      seoTitle: '',
+      seoDescription: '',
+      seoKeywords: [],
     });
+    setCategorySeoKeywordInput('');
     setViewMode('create');
     navigateToCreate();
   };
@@ -385,7 +402,11 @@ export default function CategoriesPage() {
       isActive: category.isActive,
       imageUrl: category.imageUrl || '',
       bannerUrl: category.bannerUrl || '',
+      seoTitle: category.seoTitle || '',
+      seoDescription: category.seoDescription || '',
+      seoKeywords: Array.isArray(category.seoKeywords) ? category.seoKeywords as unknown as string[] : [],
     });
+    setCategorySeoKeywordInput('');
     setViewMode('edit');
     navigateToCategory(category.id, 'edit');
   };
@@ -1469,6 +1490,114 @@ export default function CategoriesPage() {
                           </p>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* SEO Section */}
+                <div className="border-t border-border pt-4">
+                  <h3 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
+                    <Globe className="w-4 h-4" aria-hidden="true" /> SEO Settings
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-xs font-semibold text-foreground mb-1">SEO Title</label>
+                      <input
+                        type="text"
+                        value={formData.seoTitle}
+                        onChange={(e) => setFormData(prev => ({ ...prev, seoTitle: e.target.value }))}
+                        placeholder={formData.name ? `${formData.name} | Your Store` : 'Enter SEO title...'}
+                        maxLength={70}
+                        className="w-full h-9 px-3 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background text-sm"
+                      />
+                      <div className="flex justify-between mt-0.5">
+                        <p className="text-xs text-muted-foreground">Recommended: 50-60 characters</p>
+                        <p className={`text-xs ${(formData.seoTitle?.length || 0) > 60 ? 'text-warning' : 'text-muted-foreground'}`}>
+                          {formData.seoTitle?.length || 0}/70
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-foreground mb-1">SEO Description</label>
+                      <textarea
+                        value={formData.seoDescription}
+                        onChange={(e) => setFormData(prev => ({ ...prev, seoDescription: e.target.value }))}
+                        placeholder="Enter meta description..."
+                        maxLength={170}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background text-sm min-h-[60px]"
+                      />
+                      <div className="flex justify-between mt-0.5">
+                        <p className="text-xs text-muted-foreground">Recommended: 150-160 characters</p>
+                        <p className={`text-xs ${(formData.seoDescription?.length || 0) > 160 ? 'text-warning' : 'text-muted-foreground'}`}>
+                          {formData.seoDescription?.length || 0}/170
+                        </p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-foreground mb-1">SEO Keywords</label>
+                      <input
+                        type="text"
+                        value={categorySeoKeywordInput}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value.includes(',')) {
+                            const parts = value.split(',');
+                            const newKeyword = parts[0].trim();
+                            if (newKeyword && !formData.seoKeywords.includes(newKeyword)) {
+                              setFormData(prev => ({
+                                ...prev,
+                                seoKeywords: [...prev.seoKeywords, newKeyword],
+                              }));
+                            }
+                            setCategorySeoKeywordInput(parts.slice(1).join(',').trim());
+                          } else {
+                            setCategorySeoKeywordInput(value);
+                          }
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            const newKeyword = categorySeoKeywordInput.trim();
+                            if (newKeyword && !formData.seoKeywords.includes(newKeyword)) {
+                              setFormData(prev => ({
+                                ...prev,
+                                seoKeywords: [...prev.seoKeywords, newKeyword],
+                              }));
+                            }
+                            setCategorySeoKeywordInput('');
+                          }
+                          if (e.key === 'Backspace' && !categorySeoKeywordInput && formData.seoKeywords.length > 0) {
+                            setFormData(prev => ({
+                              ...prev,
+                              seoKeywords: prev.seoKeywords.slice(0, -1),
+                            }));
+                          }
+                        }}
+                        className="w-full h-9 px-3 border border-border rounded-md focus:outline-none focus:border-primary transition-all bg-background text-sm"
+                        placeholder="Type keyword, press Enter or comma"
+                      />
+                      {formData.seoKeywords.length > 0 && (
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          {formData.seoKeywords.map((keyword, index) => (
+                            <span key={index} className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold flex items-center gap-1 border border-primary/30">
+                              {keyword}
+                              <button
+                                type="button"
+                                onClick={() => setFormData(prev => ({
+                                  ...prev,
+                                  seoKeywords: prev.seoKeywords.filter((_, i) => i !== index),
+                                }))}
+                                className="hover:text-error transition-colors ml-0.5"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

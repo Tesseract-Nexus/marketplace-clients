@@ -65,29 +65,38 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   }
 
   const storeName = resolution?.name || 'Store';
-  const description = product.description?.slice(0, 160) || `Shop ${product.name} at ${storeName}`;
   const images = getProductImageUrls(product.images);
   const productUrl = `${baseUrl}/products/${product.slug || id}`;
 
+  // Prefer dedicated SEO fields, fallback to auto-generated
+  const title = product.seoTitle || `${product.name} | ${storeName}`;
+  const description = product.seoDescription
+    || product.description?.slice(0, 160)
+    || `Shop ${product.name} at ${storeName}`;
+  const ogImageUrl = product.ogImage || images[0];
+
   return {
-    title: `${product.name} | ${storeName}`,
+    title,
     description,
     openGraph: {
-      title: product.name,
+      title: product.seoTitle || product.name,
       description,
       type: 'website',
-      images: images.map(url => ({ url })),
+      images: ogImageUrl ? [{ url: ogImageUrl }] : images.map(url => ({ url })),
       url: productUrl,
     },
     twitter: {
       card: 'summary_large_image',
-      title: product.name,
+      title: product.seoTitle || product.name,
       description,
-      images: images.slice(0, 1),
+      images: ogImageUrl ? [ogImageUrl] : images.slice(0, 1),
     },
     alternates: {
       canonical: productUrl,
     },
+    ...(product.seoKeywords && product.seoKeywords.length > 0 && {
+      keywords: product.seoKeywords,
+    }),
   };
 }
 

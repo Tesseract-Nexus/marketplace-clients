@@ -86,6 +86,11 @@ export interface Product {
   dimensions?: ProductDimensions;
   categories?: string[];
   tags?: string[];
+  // SEO metadata
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  ogImage?: string;
   createdAt: string;
   updatedAt: string;
 }
