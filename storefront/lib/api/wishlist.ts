@@ -1,4 +1,11 @@
-import { config } from '@/lib/config';
+/**
+ * Wishlist API Client
+ *
+ * Calls Next.js API routes (which handle auth via session cookies).
+ * No customerId or accessToken in URLs — server extracts from session.
+ */
+
+const API_BASE = '/api/wishlist';
 
 export interface WishlistItem {
   id?: string;
@@ -14,6 +21,17 @@ interface WishlistResponse {
   count: number;
 }
 
+function buildHeaders(tenantId: string, storefrontId: string, accessToken?: string): Record<string, string> {
+  const headers: Record<string, string> = {
+    'X-Tenant-ID': tenantId,
+    'X-Storefront-ID': storefrontId,
+  };
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
+  return headers;
+}
+
 // Get wishlist from backend
 export async function getWishlist(
   tenantId: string,
@@ -21,16 +39,9 @@ export async function getWishlist(
   customerId: string,
   accessToken: string
 ): Promise<WishlistResponse> {
-  const response = await fetch(
-    `${config.api.customersService}/api/v1/customers/${customerId}/wishlist`,
-    {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId,
-      },
-    }
-  );
+  const response = await fetch(API_BASE, {
+    headers: buildHeaders(tenantId, storefrontId, accessToken),
+  });
 
   if (!response.ok) {
     throw new Error('Failed to fetch wishlist');
@@ -47,19 +58,14 @@ export async function addToWishlist(
   accessToken: string,
   item: Omit<WishlistItem, 'id' | 'addedAt'>
 ): Promise<WishlistItem> {
-  const response = await fetch(
-    `${config.api.customersService}/api/v1/customers/${customerId}/wishlist`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId,
-      },
-      body: JSON.stringify(item),
-    }
-  );
+  const response = await fetch(API_BASE, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...buildHeaders(tenantId, storefrontId, accessToken),
+    },
+    body: JSON.stringify(item),
+  });
 
   if (!response.ok) {
     throw new Error('Failed to add to wishlist');
@@ -77,17 +83,10 @@ export async function removeFromWishlist(
   accessToken: string,
   productId: string
 ): Promise<void> {
-  const response = await fetch(
-    `${config.api.customersService}/api/v1/customers/${customerId}/wishlist/${productId}`,
-    {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId,
-      },
-    }
-  );
+  const response = await fetch(`${API_BASE}/${productId}`, {
+    method: 'DELETE',
+    headers: buildHeaders(tenantId, storefrontId, accessToken),
+  });
 
   if (!response.ok) {
     throw new Error('Failed to remove from wishlist');
@@ -102,19 +101,14 @@ export async function syncWishlist(
   accessToken: string,
   items: Omit<WishlistItem, 'id' | 'addedAt'>[]
 ): Promise<WishlistResponse> {
-  const response = await fetch(
-    `${config.api.customersService}/api/v1/customers/${customerId}/wishlist`,
-    {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId,
-      },
-      body: JSON.stringify({ items }),
-    }
-  );
+  const response = await fetch(API_BASE, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      ...buildHeaders(tenantId, storefrontId, accessToken),
+    },
+    body: JSON.stringify({ items }),
+  });
 
   if (!response.ok) {
     throw new Error('Failed to sync wishlist');
@@ -130,17 +124,10 @@ export async function clearWishlist(
   customerId: string,
   accessToken: string
 ): Promise<void> {
-  const response = await fetch(
-    `${config.api.customersService}/api/v1/customers/${customerId}/wishlist`,
-    {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'X-Tenant-ID': tenantId,
-        'X-Storefront-ID': storefrontId,
-      },
-    }
-  );
+  const response = await fetch(API_BASE, {
+    method: 'DELETE',
+    headers: buildHeaders(tenantId, storefrontId, accessToken),
+  });
 
   if (!response.ok) {
     throw new Error('Failed to clear wishlist');

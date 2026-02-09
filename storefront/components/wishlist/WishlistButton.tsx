@@ -62,12 +62,12 @@ export function WishlistButton({
       image: productImage,
     };
 
-    if (isAuthenticated && customer && accessToken && tenant) {
-      // Sync with backend
+    if (isAuthenticated && customer && tenant) {
+      // Sync with backend (session cookie handles auth server-side)
       if (isWishlisted) {
-        await removeAndSync(tenant.id, tenant.storefrontId, customer.id, accessToken, productId);
+        await removeAndSync(tenant.id, tenant.storefrontId, customer.id, accessToken || '', productId);
       } else {
-        await addAndSync(tenant.id, tenant.storefrontId, customer.id, accessToken, item);
+        await addAndSync(tenant.id, tenant.storefrontId, customer.id, accessToken || '', item);
       }
     } else {
       // Local only for guests
@@ -279,8 +279,8 @@ export function SaveForLaterButton({
       image: productImage,
     };
 
-    if (isAuthenticated && customer && accessToken && tenant) {
-      await addAndSync(tenant.id, tenant.storefrontId, customer.id, accessToken, item);
+    if (isAuthenticated && customer && tenant) {
+      await addAndSync(tenant.id, tenant.storefrontId, customer.id, accessToken || '', item);
     } else {
       addItem(item);
     }

@@ -258,8 +258,8 @@ export const useListsStore = create<ListsState>()(
 
         const item = await response.json();
 
-        // Refresh lists to get updated state
-        get().fetchLists(tenantId, storefrontId, customerId, accessToken);
+        // Refresh lists to get updated state (await to prevent stale reads)
+        await get().fetchLists(tenantId, storefrontId, customerId, accessToken);
 
         return item;
       },
@@ -347,8 +347,8 @@ export const useListsStore = create<ListsState>()(
           throw new Error('Failed to move item');
         }
 
-        // Refresh lists to get updated state
-        get().fetchLists(tenantId, storefrontId, customerId, accessToken);
+        // Refresh lists to get updated state (await to prevent stale reads)
+        await get().fetchLists(tenantId, storefrontId, customerId, accessToken);
       },
 
       checkProduct: async (tenantId, storefrontId, customerId, accessToken, productId) => {

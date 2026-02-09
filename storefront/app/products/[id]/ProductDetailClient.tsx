@@ -34,9 +34,10 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
-import { useProductConfig, useNavPath, useMobileConfig } from '@/context/TenantContext';
+import { useTenant, useProductConfig, useNavPath, useMobileConfig } from '@/context/TenantContext';
 import { useCartStore } from '@/store/cart';
 import { useWishlistStore } from '@/store/wishlist';
+import { useAuthStore } from '@/store/auth';
 import { Product } from '@/types/storefront';
 import { cn } from '@/lib/utils';
 import { getProductShippingData } from '@/lib/utils/product-shipping';
@@ -57,12 +58,14 @@ interface ProductDetailClientProps {
 }
 
 export function ProductDetailClient({ product }: ProductDetailClientProps) {
+  const { tenant } = useTenant();
   const productConfig = useProductConfig();
   const mobileConfig = useMobileConfig();
   const getNavPath = useNavPath();
   const { formatDisplayPrice } = usePriceFormatting();
   const addToCart = useCartStore((state) => state.addItem);
-  const { isInWishlist, toggleItem: toggleWishlist } = useWishlistStore();
+  const { isInWishlist, addAndSync, removeAndSync, addItem, removeItem } = useWishlistStore();
+  const { customer, accessToken, isAuthenticated } = useAuthStore();
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -155,13 +158,29 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
-  const handleToggleWishlist = () => {
-    toggleWishlist({
+  const handleToggleWishlist = async () => {
+    const item = {
       productId: product.id,
       name: product.name,
       price,
       image: images[0],
-    });
+    };
+
+    if (isAuthenticated && customer && tenant) {
+      // Sync with backend (session cookie handles auth server-side)
+      if (isInWishlist(product.id)) {
+        await removeAndSync(tenant.id, tenant.storefrontId, customer.id, accessToken || '', product.id);
+      } else {
+        await addAndSync(tenant.id, tenant.storefrontId, customer.id, accessToken || '', item);
+      }
+    } else {
+      // Local only for guests
+      if (isInWishlist(product.id)) {
+        removeItem(product.id);
+      } else {
+        addItem(item);
+      }
+    }
   };
 
   // Social sharing handlers
