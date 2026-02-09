@@ -117,6 +117,30 @@ export async function syncWishlist(
   return response.json();
 }
 
+// Merge guest wishlist with backend wishlist on login
+export async function mergeWishlist(
+  tenantId: string,
+  storefrontId: string,
+  customerId: string,
+  accessToken: string,
+  guestItems: Omit<WishlistItem, 'id' | 'addedAt'>[]
+): Promise<WishlistResponse> {
+  const response = await fetch(`${API_BASE}/merge`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...buildHeaders(tenantId, storefrontId, accessToken),
+    },
+    body: JSON.stringify({ guestItems }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to merge wishlist');
+  }
+
+  return response.json();
+}
+
 // Clear wishlist
 export async function clearWishlist(
   tenantId: string,

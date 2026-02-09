@@ -29,7 +29,7 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
   const { tenant } = useTenant();
   const { customer, accessToken, isAuthenticated } = useAuthStore();
   const { items, mergeGuestCart, syncToBackend, loadFromBackend } = useCartStore();
-  const { items: wishlistItems, syncToBackend: syncWishlistToBackend, loadFromBackend: loadWishlistFromBackend } = useWishlistStore();
+  const { items: wishlistItems, mergeGuestWishlist, loadFromBackend: loadWishlistFromBackend } = useWishlistStore();
 
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSyncedItemsRef = useRef<string>('');
@@ -97,13 +97,13 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
             console.log('[CartSyncProvider] Cart data migrated successfully');
           }
 
-          // Sync wishlist data to backend
+          // Merge wishlist data with backend (union, guest wins on conflict)
           if (hasWishlistData && wishlistItems.length > 0) {
-            console.log(`[CartSyncProvider] Syncing ${wishlistItems.length} wishlist items...`);
-            await syncWishlistToBackend(tenant.id, tenant.storefrontId, customer.id, accessToken);
-            // Clear session data after successful sync
+            console.log(`[CartSyncProvider] Merging ${wishlistItems.length} wishlist items...`);
+            await mergeGuestWishlist(tenant.id, tenant.storefrontId, customer.id, accessToken);
+            // Clear session data after successful merge
             clearAnonymousSessionData(WISHLIST_STORE_NAME);
-            console.log('[CartSyncProvider] Wishlist data migrated successfully');
+            console.log('[CartSyncProvider] Wishlist data merged successfully');
           }
         } catch (error) {
           console.error('[CartSyncProvider] Failed to migrate session data:', error);
@@ -133,7 +133,7 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
     items,
     wishlistItems,
     mergeGuestCart,
-    syncWishlistToBackend,
+    mergeGuestWishlist,
     loadFromBackend,
     loadWishlistFromBackend,
   ]);

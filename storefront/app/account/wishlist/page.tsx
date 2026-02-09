@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, ShoppingCart, Trash2, Share2, Plus, Folder, ChevronDown, Loader2, ListPlus, FolderHeart } from 'lucide-react';
+import { Heart, ShoppingCart, Trash2, Share2, Plus, Folder, ChevronDown, Loader2, ListPlus, FolderHeart, AlertTriangle, TrendingUp, TrendingDown, Ban } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -51,6 +51,51 @@ export default function WishlistPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState<string | null>(null);
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [freshProductData, setFreshProductData] = useState<
+    Record<string, { price: number; available: boolean; name: string; image: string; inStock: boolean } | null>
+  >({});
+
+  // Fetch fresh product data for items in the selected list
+  const refreshProductData = useCallback(async (items: NonNullable<List['items']>) => {
+    if (!tenant || items.length === 0) return;
+
+    setIsRefreshing(true);
+    try {
+      const results = await Promise.allSettled(
+        items.map(async (item) => {
+          const product = await getProduct(tenant.id, tenant.storefrontId, item.productId);
+          if (!product) {
+            return { productId: item.productId, data: null };
+          }
+          const firstImage = product.images?.[0];
+          const imageUrl = typeof firstImage === 'string' ? firstImage : firstImage?.url;
+          return {
+            productId: item.productId,
+            data: {
+              price: parseFloat(String(product.price)) || item.productPrice,
+              available: true,
+              name: product.name ?? item.productName,
+              image: imageUrl ?? item.productImage,
+              inStock: product.quantity === undefined || product.quantity > 0,
+            },
+          };
+        })
+      );
+
+      const freshData: typeof freshProductData = {};
+      for (const result of results) {
+        if (result.status === 'fulfilled') {
+          freshData[result.value.productId] = result.value.data;
+        }
+      }
+      setFreshProductData(freshData);
+    } catch (error) {
+      console.error('Failed to refresh product data:', error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [tenant]);
 
   // Fetch lists when authenticated
   useEffect(() => {
@@ -77,8 +122,35 @@ export default function WishlistPage() {
     }
   }, [lists, selectedList?.id]);
 
+  // Fetch fresh product data when selected list changes
+  useEffect(() => {
+    if (selectedList?.items && selectedList.items.length > 0) {
+      refreshProductData(selectedList.items);
+    } else {
+      setFreshProductData({});
+    }
+  }, [selectedList?.id, selectedList?.items?.length, refreshProductData]);
+
+  const getItemAvailability = (productId: string) => {
+    const fresh = freshProductData[productId];
+    if (fresh === null) return 'unavailable'; // Product deleted
+    if (fresh === undefined) return 'unknown'; // Not yet fetched
+    if (!fresh.inStock) return 'oos'; // Out of stock
+    return 'available';
+  };
+
+  const getItemPriceChange = (productId: string, cachedPrice: number) => {
+    const fresh = freshProductData[productId];
+    if (!fresh || fresh === null) return null;
+    if (Math.abs(fresh.price - cachedPrice) < 0.01) return null;
+    return { oldPrice: cachedPrice, newPrice: fresh.price };
+  };
+
   const handleAddToCart = async (item: NonNullable<List['items']>[0]) => {
     if (!tenant) return;
+
+    const availability = getItemAvailability(item.productId);
+    if (availability === 'unavailable' || availability === 'oos') return;
 
     setIsAddingToCart(item.id);
     try {
@@ -88,12 +160,13 @@ export default function WishlistPage() {
         shippingData = getProductShippingData(product);
       }
 
+      const fresh = freshProductData[item.productId];
       addToCart({
         productId: item.productId,
-        name: item.productName,
-        price: item.productPrice,
+        name: fresh?.name || item.productName,
+        price: fresh?.price || item.productPrice,
         quantity: 1,
-        image: item.productImage,
+        image: fresh?.image || item.productImage,
         ...shippingData,
       });
     } catch (error) {
@@ -144,6 +217,8 @@ export default function WishlistPage() {
     if (!selectedList?.items || !tenant) return;
 
     for (const item of selectedList.items) {
+      const availability = getItemAvailability(item.productId);
+      if (availability === 'unavailable' || availability === 'oos') continue;
       await handleAddToCart(item);
     }
   };
@@ -261,7 +336,15 @@ export default function WishlistPage() {
           /* Items Grid */
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <AnimatePresence>
-              {selectedList?.items?.map((item, index) => (
+              {selectedList?.items?.map((item, index) => {
+                const availability = getItemAvailability(item.productId);
+                const priceChange = getItemPriceChange(item.productId, item.productPrice);
+                const isUnavailable = availability === 'unavailable';
+                const isOOS = availability === 'oos';
+                const isDisabled = isUnavailable || isOOS;
+                const fresh = freshProductData[item.productId];
+
+                return (
                 <motion.div
                   key={item.id}
                   layout
@@ -269,18 +352,36 @@ export default function WishlistPage() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ delay: index * 0.05 }}
-                  className="group bg-card rounded-xl overflow-hidden border hover-lift"
+                  className={`group bg-card rounded-xl overflow-hidden border hover-lift ${isDisabled ? 'opacity-75' : ''}`}
                 >
                   <Link href={getNavPath(`/products/${item.productId}`)}>
                     <div className="relative aspect-square bg-muted overflow-hidden">
                       <Image
-                        src={item.productImage || '/placeholder.svg'}
-                        alt={item.productName}
+                        src={(fresh?.image || item.productImage) || '/placeholder.svg'}
+                        alt={fresh?.name || item.productName}
                         fill
-                        className="object-cover transition-transform duration-500 group-hover:scale-110"
+                        className={`object-cover transition-transform duration-500 group-hover:scale-110 ${isDisabled ? 'grayscale' : ''}`}
                       />
                       {/* Gradient overlay on hover */}
                       <div className="absolute inset-0 bg-gradient-to-t from-[var(--tenant-primary)]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      {/* Status badges */}
+                      {isUnavailable && (
+                        <div className="absolute top-2 left-2 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded-md flex items-center gap-1">
+                          <Ban className="h-3 w-3" />
+                          Unavailable
+                        </div>
+                      )}
+                      {isOOS && !isUnavailable && (
+                        <div className="absolute top-2 left-2 bg-orange-500 text-white text-xs font-semibold px-2 py-1 rounded-md flex items-center gap-1">
+                          <AlertTriangle className="h-3 w-3" />
+                          Out of Stock
+                        </div>
+                      )}
+                      {isRefreshing && availability === 'unknown' && (
+                        <div className="absolute top-2 right-2">
+                          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                        </div>
+                      )}
                     </div>
                   </Link>
 
@@ -289,10 +390,24 @@ export default function WishlistPage() {
                       href={getNavPath(`/products/${item.productId}`)}
                       className="font-semibold line-clamp-2 hover:text-tenant-primary transition-colors duration-300"
                     >
-                      {item.productName}
+                      {fresh?.name || item.productName}
                     </Link>
-                    <div className="mt-2">
-                      <PriceDisplay amount={item.productPrice} size="lg" />
+                    <div className="mt-2 flex items-center gap-2">
+                      {priceChange ? (
+                        <>
+                          <PriceDisplay amount={priceChange.newPrice} size="lg" />
+                          <span className="text-sm text-muted-foreground line-through">
+                            <PriceDisplay amount={priceChange.oldPrice} size="sm" />
+                          </span>
+                          {priceChange.newPrice > priceChange.oldPrice ? (
+                            <TrendingUp className="h-4 w-4 text-red-500" />
+                          ) : (
+                            <TrendingDown className="h-4 w-4 text-green-500" />
+                          )}
+                        </>
+                      ) : (
+                        <PriceDisplay amount={fresh?.price ?? item.productPrice} size="lg" />
+                      )}
                     </div>
 
                     <div className="flex gap-2 mt-4">
@@ -300,10 +415,12 @@ export default function WishlistPage() {
                         className="flex-1 btn-tenant-primary shadow-sm"
                         size="sm"
                         onClick={() => handleAddToCart(item)}
-                        disabled={isAddingToCart === item.id}
+                        disabled={isAddingToCart === item.id || isDisabled}
                       >
                         {isAddingToCart === item.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : isDisabled ? (
+                          <TranslatedUIText text={isUnavailable ? "Unavailable" : "Out of Stock"} />
                         ) : (
                           <>
                             <ShoppingCart className="h-4 w-4 mr-2" />
@@ -330,7 +447,8 @@ export default function WishlistPage() {
                     </div>
                   </div>
                 </motion.div>
-              ))}
+                );
+              })}
             </AnimatePresence>
           </div>
         )}

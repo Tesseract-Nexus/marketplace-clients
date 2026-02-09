@@ -1,3 +1,14 @@
+/**
+ * Wishlist Store
+ *
+ * KNOWN GAP: Variant support
+ * Currently, wishlist items are keyed by productId only. If a product has multiple
+ * variants (e.g., size, color), adding the same product in different variants will
+ * be treated as duplicates. To support variants, WishlistItem needs a variantId field,
+ * and deduplication logic (addItem, isInWishlist, mergeGuestWishlist) must key on
+ * (productId, variantId) pairs instead of productId alone. The backend wishlist
+ * endpoint also needs to support variantId. See GitHub issue #43.
+ */
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import {
@@ -5,6 +16,7 @@ import {
   addToWishlist as addToWishlistApi,
   removeFromWishlist as removeFromWishlistApi,
   syncWishlist,
+  mergeWishlist,
   clearWishlist as clearWishlistApi,
 } from '@/lib/api/wishlist';
 import { createSessionAwareStorage } from '@/lib/session-storage';
@@ -31,6 +43,7 @@ interface WishlistState {
   // Sync actions
   loadFromBackend: (tenantId: string, storefrontId: string, customerId: string, accessToken: string) => Promise<void>;
   syncToBackend: (tenantId: string, storefrontId: string, customerId: string, accessToken: string) => Promise<void>;
+  mergeGuestWishlist: (tenantId: string, storefrontId: string, customerId: string, accessToken: string) => Promise<void>;
   addAndSync: (tenantId: string, storefrontId: string, customerId: string, accessToken: string, item: Omit<WishlistItem, 'addedAt'>) => Promise<void>;
   removeAndSync: (tenantId: string, storefrontId: string, customerId: string, accessToken: string, productId: string) => Promise<void>;
 
@@ -119,6 +132,48 @@ export const useWishlistStore = create<WishlistState>()(
           set({ lastSyncedAt: new Date().toISOString() });
         } catch (error) {
           console.error('Failed to sync wishlist to backend:', error);
+        } finally {
+          set({ isSyncing: false });
+        }
+      },
+
+      // Merge guest wishlist with backend on login
+      mergeGuestWishlist: async (tenantId, storefrontId, customerId, accessToken) => {
+        const { items, isSyncing } = get();
+        if (isSyncing || items.length === 0) {
+          // No guest items to merge, just load from backend
+          await get().loadFromBackend(tenantId, storefrontId, customerId, accessToken);
+          return;
+        }
+
+        set({ isSyncing: true });
+        try {
+          const guestItems = items.map((item) => ({
+            productId: item.productId,
+            productName: item.name,
+            productPrice: item.price,
+            productImage: item.image,
+          }));
+          const data = await mergeWishlist(tenantId, storefrontId, customerId, accessToken, guestItems);
+          const mergedItems = (data.items || []).map((item) => ({
+            productId: item.productId,
+            name: item.productName,
+            price: item.productPrice,
+            image: item.productImage,
+            addedAt: item.addedAt || new Date().toISOString(),
+          }));
+          set({
+            items: mergedItems,
+            lastSyncedAt: new Date().toISOString(),
+          });
+        } catch (error) {
+          console.error('Failed to merge wishlist:', error);
+          // Fallback: try to load from backend
+          try {
+            await get().loadFromBackend(tenantId, storefrontId, customerId, accessToken);
+          } catch {
+            // Keep local wishlist if everything fails
+          }
         } finally {
           set({ isSyncing: false });
         }
