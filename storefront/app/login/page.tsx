@@ -13,7 +13,7 @@ import { Separator } from '@/components/ui/separator';
 import { useTenant, useNavPath } from '@/context/TenantContext';
 import { useAuthStore } from '@/store/auth';
 import { useCartStore } from '@/store/cart';
-import { initiateLogin, getSession, directLogin, verifyMfa, DirectAuthResponse, checkDeactivatedAccount, reactivateAccount, authenticateWithPasskey, isPasskeySupported } from '@/lib/api/auth';
+import { initiateLogin, getSession, directLogin, verifyMfa, sendMfaCode, DirectAuthResponse, checkDeactivatedAccount, reactivateAccount, authenticateWithPasskey, isPasskeySupported } from '@/lib/api/auth';
 import {
   Dialog,
   DialogContent,
@@ -88,6 +88,7 @@ export default function LoginPage() {
   const [mfaCode, setMfaCode] = useState(['', '', '', '', '', '']);
   const [mfaError, setMfaError] = useState('');
   const [isMfaVerifying, setIsMfaVerifying] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const mfaCodeRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Reactivation state
@@ -329,6 +330,49 @@ export default function LoginPage() {
     }
   };
 
+  // Auto-send MFA code when entering MFA step (only for email method)
+  useEffect(() => {
+    if (mfaStep && mfaSession && activeMfaMethod === 'email') {
+      sendMfaCode(mfaSession, 'email').then((result) => {
+        if (result.success) {
+          setResendCooldown(60);
+        } else if (result.error === 'INVALID_MFA_SESSION') {
+          setMfaError('Your verification session has expired. Please enter your password again.');
+          setMfaStep(false);
+          setMfaSession('');
+        }
+      }).catch(() => {
+        // Silently handle - user can manually resend
+      });
+    }
+  }, [mfaStep, mfaSession, activeMfaMethod]);
+
+  // Resend cooldown countdown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
+  const handleResendCode = async () => {
+    if (resendCooldown > 0 || !mfaSession) return;
+    try {
+      const result = await sendMfaCode(mfaSession, 'email');
+      if (result.success) {
+        setResendCooldown(60);
+        setMfaError('');
+      } else if (result.error === 'INVALID_MFA_SESSION') {
+        setMfaError('Your verification session has expired. Please enter your password again.');
+        setMfaStep(false);
+        setMfaSession('');
+      } else {
+        setMfaError(result.message || 'Failed to resend code. Please try again.');
+      }
+    } catch {
+      setMfaError('Failed to resend code. Please try again.');
+    }
+  };
+
   const handleMfaCodeChange = (index: number, value: string) => {
     if (value.length > 1) return;
     const newCode = [...mfaCode];
@@ -396,6 +440,14 @@ export default function LoginPage() {
     setActiveMfaMethod(method);
     setMfaCode(['', '', '', '', '', '']);
     setMfaError('');
+    // Send code when switching to email method
+    if (method === 'email' && mfaSession) {
+      sendMfaCode(mfaSession, 'email').then((result) => {
+        if (result.success) {
+          setResendCooldown(60);
+        }
+      }).catch(() => {});
+    }
     setTimeout(() => mfaCodeRefs.current[0]?.focus(), 50);
   };
 
@@ -489,6 +541,24 @@ export default function LoginPage() {
                   <TranslatedUIText text="Verify Code" />
                 )}
               </Button>
+
+              {/* Resend code (email method only) */}
+              {activeMfaMethod === 'email' && (
+                <div className="text-center">
+                  {resendCooldown > 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      <TranslatedUIText text="Resend code in" /> {resendCooldown}s
+                    </p>
+                  ) : (
+                    <button
+                      onClick={handleResendCode}
+                      className="text-sm text-tenant-primary hover:underline"
+                    >
+                      <TranslatedUIText text="Resend verification code" />
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* Method switcher */}
               {mfaMethods.length > 1 && (

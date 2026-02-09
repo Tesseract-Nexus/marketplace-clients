@@ -532,6 +532,40 @@ export async function directRegister(
 }
 
 /**
+ * Send MFA verification code via email or SMS
+ *
+ * @param mfaSession - MFA session ID from login response
+ * @param method - MFA method ('email' or 'sms')
+ */
+export async function sendMfaCode(
+  mfaSession: string,
+  method: 'email' | 'sms'
+): Promise<{ success: boolean; message?: string; error?: string }> {
+  try {
+    const response = await fetch('/auth/direct/mfa/send-code', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({
+        mfa_session: mfaSession,
+        method,
+      }),
+    });
+
+    return response.json();
+  } catch (error) {
+    console.error('MFA send code error:', error);
+    return {
+      success: false,
+      error: 'NETWORK_ERROR',
+      message: 'Failed to send verification code. Please try again.',
+    };
+  }
+}
+
+/**
  * Verify MFA code after direct login
  *
  * @param mfaSession - MFA session ID from login response
