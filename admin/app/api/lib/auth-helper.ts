@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 
 // Auth BFF URL for session validation
 const AUTH_BFF_URL = process.env.AUTH_BFF_INTERNAL_URL || 'http://auth-bff.marketplace.svc.cluster.local:8080';
@@ -29,6 +29,10 @@ export async function getAccessTokenFromBFF(): Promise<InternalTokenResponse | n
       return null;
     }
 
+    // Forward the original host so auth-bff can determine the correct session cookie name
+    const headerStore = await headers();
+    const host = headerStore.get('host') || headerStore.get('x-forwarded-host') || '';
+
     // Call the auth-bff internal endpoint to get the token
     const response = await fetch(`${AUTH_BFF_URL}/internal/get-token`, {
       method: 'GET',
@@ -36,6 +40,7 @@ export async function getAccessTokenFromBFF(): Promise<InternalTokenResponse | n
         'Cookie': `bff_session=${sessionCookie.value}`,
         'Accept': 'application/json',
         ...(INTERNAL_SERVICE_KEY ? { 'X-Internal-Service-Key': INTERNAL_SERVICE_KEY } : {}),
+        ...(host ? { 'X-Forwarded-Host': host } : {}),
       },
     });
 
@@ -173,12 +178,17 @@ export async function getAccessTokenFromBFFSession(): Promise<string | null> {
       return null;
     }
 
+    // Forward the original host so auth-bff can determine the correct session cookie name
+    const headerStore = await headers();
+    const host = headerStore.get('host') || headerStore.get('x-forwarded-host') || '';
+
     const response = await fetch(`${AUTH_BFF_URL}/internal/get-token`, {
       method: 'GET',
       headers: {
         'Cookie': `bff_session=${sessionCookie.value}`,
         'Accept': 'application/json',
         ...(INTERNAL_SERVICE_KEY ? { 'X-Internal-Service-Key': INTERNAL_SERVICE_KEY } : {}),
+        ...(host ? { 'X-Forwarded-Host': host } : {}),
       },
     });
 

@@ -170,12 +170,16 @@ async function getBffAccessToken(incomingRequest?: Request): Promise<BffTokenRes
   }
 
   try {
+    // Forward the original host so auth-bff can determine the correct session cookie name
+    const host = incomingRequest.headers.get('host') || incomingRequest.headers.get('x-forwarded-host') || '';
+
     const response = await fetch(`${AUTH_BFF_INTERNAL_URL}/internal/get-token`, {
       method: 'GET',
       headers: {
         'Cookie': cookieHeader,
         'Accept': 'application/json',
         ...(INTERNAL_SERVICE_KEY ? { 'X-Internal-Service-Key': INTERNAL_SERVICE_KEY } : {}),
+        ...(host ? { 'X-Forwarded-Host': host } : {}),
       },
     });
 
