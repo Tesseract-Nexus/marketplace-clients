@@ -20,6 +20,7 @@
   "dependencies": {
     "@azure/msal-browser": "^4.14.0",
     "@azure/msal-react": "^3.0.14",
+    "@google-cloud/secret-manager": "^6.1.1",
     "@headlessui/react": "^2.2.9",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",

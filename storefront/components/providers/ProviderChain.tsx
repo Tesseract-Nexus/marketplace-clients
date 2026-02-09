@@ -7,6 +7,7 @@ import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { AuthSessionProvider } from '@/components/providers/AuthSessionProvider';
 import { CartSyncProvider } from '@/components/providers/CartSyncProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
+import { CsrfTokenInitializer } from '@/hooks/useCsrfToken';
 import { TranslationProviderWrapper } from '@/components/providers/TranslationProviderWrapper';
 import { RoutePrefetcher } from '@/components/providers/RoutePrefetcher';
 import { NavigationLayout } from '@/components/layout/NavigationLayout';
@@ -51,6 +52,7 @@ export function ProviderChain({
       />
       <WebSiteJsonLd name={storeName} url={baseUrl} searchUrl={`${baseUrl}/search`} />
       <QueryProvider>
+        <CsrfTokenInitializer>
         <TenantProvider tenant={tenant} settings={settings} localization={localization ?? undefined}>
           <CurrencyProvider>
             <ThemeProvider settings={settings}>
@@ -75,6 +77,7 @@ export function ProviderChain({
             </ThemeProvider>
           </CurrencyProvider>
         </TenantProvider>
+        </CsrfTokenInitializer>
       </QueryProvider>
     </>
   );

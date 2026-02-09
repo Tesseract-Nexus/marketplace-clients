@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { secureCompare, validateCsrfToken } from '@/lib/security/csrf';
 
 // Simple debug logger for middleware (Edge runtime compatible)
 const isDev = process.env.NODE_ENV !== 'production';
@@ -18,16 +19,37 @@ const RESOLUTION_TIMEOUT = 1500; // 1.5 seconds
 const resolvedDomains = new Map<string, { tenantSlug: string; tenantId: string; timestamp: number }>();
 const DOMAIN_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-// Static paths that should not be processed
+// Static paths that should not be processed (tenant resolution skipped)
+// Note: /api and /auth are NOT here — they go through CSRF validation below
 const STATIC_PATHS = [
   '/_next',
-  '/api',
   '/favicon.ico',
   '/robots.txt',
   '/sitemap.xml',
   '/manifest.json',
   '/images',
   '/assets',
+];
+
+// Paths excluded from CSRF validation (pre-auth, webhooks, health checks)
+const CSRF_EXCLUDED_PATHS = [
+  '/api/csrf',           // Token generation endpoint
+  '/api/webhooks/',      // External callers (Stripe/Razorpay signature verification)
+  '/api/health',         // Health check
+  '/api/auth/login',     // Pre-authentication
+  '/api/auth/register',  // Pre-authentication
+  '/api/auth/register-from-guest', // Pre-authentication
+  '/api/auth/oauth/',    // OAuth flow
+  '/auth/direct/login',  // BFF pre-authentication
+  '/auth/direct/register', // BFF pre-authentication
+  '/auth/direct/mfa/',   // Mid-login flow
+  '/auth/direct/check-deactivated', // Pre-auth check
+  '/auth/direct/request-password-reset', // Unauthenticated
+  '/auth/direct/validate-reset-token',   // Unauthenticated
+  '/auth/direct/reset-password',         // Unauthenticated
+  '/auth/direct/reactivate-account',     // Unauthenticated
+  '/auth/otp/',          // OTP login flow (pre-auth)
+  '/auth/passkeys/authentication/', // Passkey login flow (pre-auth)
 ];
 
 /**
@@ -175,6 +197,36 @@ export async function middleware(request: NextRequest) {
 
   // Skip static paths
   if (STATIC_PATHS.some((path) => pathname.startsWith(path))) {
+    return NextResponse.next();
+  }
+
+  // --- CSRF validation for API and auth routes ---
+  const isApiOrAuth = pathname.startsWith('/api/') || pathname.startsWith('/auth/');
+  if (isApiOrAuth) {
+    const method = request.method.toUpperCase();
+    const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+
+    if (isMutation && !CSRF_EXCLUDED_PATHS.some(p => pathname.startsWith(p))) {
+      const cookieToken = request.cookies.get('sf-csrf-token')?.value;
+      const headerToken = request.headers.get('X-CSRF-Token');
+
+      if (!cookieToken || !headerToken || !secureCompare(cookieToken, headerToken)) {
+        return NextResponse.json(
+          { success: false, error: { code: 'CSRF_VALIDATION_FAILED', message: 'Missing or invalid CSRF token' } },
+          { status: 403 }
+        );
+      }
+
+      const isValid = await validateCsrfToken(headerToken);
+      if (!isValid) {
+        return NextResponse.json(
+          { success: false, error: { code: 'CSRF_VALIDATION_FAILED', message: 'Expired CSRF token' } },
+          { status: 403 }
+        );
+      }
+    }
+
+    // API/auth routes don't need tenant resolution — exit early
     return NextResponse.next();
   }
 
