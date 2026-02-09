@@ -166,6 +166,11 @@ export interface Product {
   logoUrl?: string;      // Product logo (512x512 max)
   bannerUrl?: string;    // Product banner (1920x480)
   videos?: ProductVideo[]; // Promotional videos (max 2)
+  // SEO metadata
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  ogImage?: string;
   variants?: ProductVariant[];
   createdAt: string;
   updatedAt: string;
@@ -273,6 +278,11 @@ export interface CreateProductRequest {
   logoUrl?: string;
   bannerUrl?: string;
   videos?: ProductVideo[];
+  // SEO metadata
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  ogImage?: string;
 }
 
 export interface UpdateProductRequest {
@@ -306,6 +316,11 @@ export interface UpdateProductRequest {
   logoUrl?: string;
   bannerUrl?: string;
   videos?: ProductVideo[];
+  // SEO metadata
+  seoTitle?: string;
+  seoDescription?: string;
+  seoKeywords?: string[];
+  ogImage?: string;
 }
 
 export interface ProductsAnalytics {

@@ -7,7 +7,7 @@ import { CategoryShowcase } from '@/components/storefront/CategoryShowcase';
 import { NewsletterSection } from '@/components/storefront/NewsletterSection';
 import { PersonalizedOffers } from '@/components/marketing/PersonalizedOffers';
 import { DynamicHomeSections } from '@/components/storefront/DynamicHomeSections';
-import { getFeaturedProducts, getCategories, enrichProductsWithReviews } from '@/lib/api/storefront';
+import { getFeaturedProducts, getCategories, enrichProductsWithReviews, resolveStorefront } from '@/lib/api/storefront';
 import { resolveTenantId } from '@/lib/tenant';
 import type { LayoutTemplate, PageLayout } from '@/types/blocks';
 
@@ -161,12 +161,16 @@ export async function generateMetadata() {
   const headersList = await headers();
   const slug = headersList.get('x-tenant-slug') || 'demo-store';
 
+  const resolution = await resolveStorefront(slug);
+  const storeName = resolution?.name || 'Store';
+  const storeDesc = `Discover amazing products at ${storeName}`;
+
   return {
-    title: 'Home | Your Store',
-    description: 'Discover amazing products at great prices.',
+    title: storeName,
+    description: storeDesc,
     openGraph: {
-      title: 'Home | Your Store',
-      description: 'Discover amazing products at great prices.',
+      title: storeName,
+      description: storeDesc,
       type: 'website',
     },
   };
