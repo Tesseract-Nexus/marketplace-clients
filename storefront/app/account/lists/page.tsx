@@ -224,7 +224,7 @@ export default function ListsPage() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-500 hover:bg-red-50"
+                          className="text-muted-foreground hover:text-red-500 hover:bg-red-50"
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
