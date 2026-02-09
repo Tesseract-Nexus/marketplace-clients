@@ -20,7 +20,8 @@ import {
 } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
-import { useNotifications, Notification } from '@/hooks/useNotifications';
+import { useNotifications, type Notification } from '@/hooks/useNotifications';
+import { useToast } from '@/contexts/ToastContext';
 import { useIsMobile } from '@/hooks/useMediaQuery';
 import { NotificationItem } from '@/components/notifications/NotificationItem';
 import { NotificationEmptyState } from '@/components/notifications/NotificationEmptyState';
@@ -67,6 +68,11 @@ export function NotificationBell() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
+  const { info } = useToast();
+
+  const handleNewNotification = useCallback((notification: Notification) => {
+    info(notification.title, notification.message || 'You have a new notification');
+  }, [info]);
 
   const {
     notifications,
@@ -78,7 +84,7 @@ export function NotificationBell() {
     deleteNotification,
     deleteAllNotifications,
     refresh,
-  } = useNotifications();
+  } = useNotifications({ onNewNotification: handleNewNotification });
 
   // Group notifications for cleaner display
   const groupedNotifications = useMemo(() => {

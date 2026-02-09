@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTenant } from '@/contexts/TenantContext';
 import { useUser } from '@/contexts/UserContext';
-import { WEBSOCKET_CONFIG, NOTIFICATION_CONFIG, IDLE_CONFIG } from '@/lib/polling/config';
+import { WEBSOCKET_CONFIG, NOTIFICATION_CONFIG, IDLE_CONFIG, SESSION_CONFIG } from '@/lib/polling/config';
 
 export interface Notification {
   id: string;
@@ -34,10 +34,11 @@ interface WebSocketMessage {
 interface UseNotificationsOptions {
   autoConnect?: boolean;
   enableSound?: boolean;
+  onNewNotification?: (notification: Notification) => void;
 }
 
 export function useNotifications(options: UseNotificationsOptions = {}) {
-  const { autoConnect = true, enableSound = true } = options;
+  const { autoConnect = true, enableSound = true, onNewNotification } = options;
   const { currentTenant } = useTenant();
   const { user } = useUser();
 
@@ -59,6 +60,8 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
   const isIdleRef = useRef(false);
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isOnlineRef = useRef(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const onNewNotificationRef = useRef(onNewNotification);
+  onNewNotificationRef.current = onNewNotification;
 
   // Play notification sound using Web Audio API (no MP3 needed)
   const playNotificationSound = useCallback(() => {
@@ -88,11 +91,11 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
   }, [enableSound]);
 
   // Fetch notifications from REST API
-  const fetchNotifications = useCallback(async () => {
+  const fetchNotifications = useCallback(async (options?: { silent?: boolean }) => {
     if (!currentTenant?.id || !user?.id) return;
 
     try {
-      setIsLoading(true);
+      if (!options?.silent) setIsLoading(true);
       const response = await fetch('/api/notifications?limit=20', {
         headers: {
           'x-jwt-claim-tenant-id': currentTenant.id,
@@ -108,7 +111,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     } catch (err) {
       console.error('Failed to fetch notifications:', err);
     } finally {
-      setIsLoading(false);
+      if (!options?.silent) setIsLoading(false);
     }
   }, [currentTenant?.id, user?.id]);
 
@@ -133,9 +136,15 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
     }
   }, [currentTenant?.id, user?.id]);
 
-  // Mark notification as read
+  // Mark notification as read (optimistic)
   const markAsRead = useCallback(async (notificationId: string) => {
     if (!currentTenant?.id || !user?.id) return;
+
+    // Optimistic update
+    setNotifications(prev =>
+      prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n)
+    );
+    setUnreadCount(prev => Math.max(0, prev - 1));
 
     try {
       const response = await fetch(`/api/notifications/${notificationId}/read`, {
@@ -146,12 +155,13 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
         },
       });
 
-      if (response.ok) {
+      if (!response.ok) {
+        // Revert on failure
         setNotifications(prev =>
-          prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n)
+          prev.map(n => n.id === notificationId ? { ...n, isRead: false } : n)
         );
-        setUnreadCount(prev => Math.max(0, prev - 1));
-
+        setUnreadCount(prev => prev + 1);
+      } else {
         // Also send via WebSocket if connected
         if (wsRef.current?.readyState === WebSocket.OPEN) {
           wsRef.current.send(JSON.stringify({
@@ -161,13 +171,26 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
         }
       }
     } catch (err) {
+      // Revert on error
+      setNotifications(prev =>
+        prev.map(n => n.id === notificationId ? { ...n, isRead: false } : n)
+      );
+      setUnreadCount(prev => prev + 1);
       console.error('Failed to mark as read:', err);
     }
   }, [currentTenant?.id, user?.id]);
 
-  // Mark all as read
+  // Mark all as read (optimistic)
   const markAllAsRead = useCallback(async () => {
     if (!currentTenant?.id || !user?.id) return;
+
+    // Save previous state for rollback
+    const prevNotifications = notifications;
+    const prevUnreadCount = unreadCount;
+
+    // Optimistic update
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    setUnreadCount(0);
 
     try {
       const response = await fetch('/api/notifications/mark-all-read', {
@@ -178,19 +201,21 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
         },
       });
 
-      if (response.ok) {
-        setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-        setUnreadCount(0);
-
-        // Also send via WebSocket if connected
+      if (!response.ok) {
+        // Revert
+        setNotifications(prevNotifications);
+        setUnreadCount(prevUnreadCount);
+      } else {
         if (wsRef.current?.readyState === WebSocket.OPEN) {
           wsRef.current.send(JSON.stringify({ type: 'mark_all_read' }));
         }
       }
     } catch (err) {
+      setNotifications(prevNotifications);
+      setUnreadCount(prevUnreadCount);
       console.error('Failed to mark all as read:', err);
     }
-  }, [currentTenant?.id, user?.id]);
+  }, [currentTenant?.id, user?.id, notifications, unreadCount]);
 
   // Delete notification
   const deleteNotification = useCallback(async (notificationId: string) => {
@@ -347,6 +372,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
                   // Trigger bell animation
                   setHasNewNotification(true);
                   setTimeout(() => setHasNewNotification(false), 3000); // Reset after 3s
+                  onNewNotificationRef.current?.(newNotification);
                 }
                 break;
 
@@ -479,7 +505,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
 
       // Poll immediately if online and not idle
       if (isOnlineRef.current && !isIdleRef.current) {
-        fetchUnreadCount();
+        fetchNotifications({ silent: true });
       }
 
       // Then poll at configured interval
@@ -493,7 +519,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
           console.log('[Notifications] Skipping poll - user idle');
           return;
         }
-        fetchUnreadCount();
+        fetchNotifications({ silent: true });
       }, NOTIFICATION_CONFIG.POLL_INTERVAL);
 
       return () => {
@@ -511,7 +537,7 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       pollingIntervalRef.current = null;
       setUsePollingFallback(false);
     }
-  }, [usePollingFallback, isConnected, currentTenant?.id, user?.id, fetchUnreadCount]);
+  }, [usePollingFallback, isConnected, currentTenant?.id, user?.id, fetchNotifications]);
 
   // ENTERPRISE: Idle and network detection
   useEffect(() => {
@@ -568,6 +594,28 @@ export function useNotifications(options: UseNotificationsOptions = {}) {
       }
     };
   }, [isConnected, currentTenant?.id, user?.id, connect]);
+
+  // Tab visibility: refresh when user returns to tab
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+
+    const lastFetchRef = { current: 0 };
+
+    const handleVisibilityChange = () => {
+      if (
+        document.visibilityState === 'visible' &&
+        currentTenant?.id &&
+        user?.id &&
+        Date.now() - lastFetchRef.current > SESSION_CONFIG.VISIBILITY_DEBOUNCE
+      ) {
+        lastFetchRef.current = Date.now();
+        fetchNotifications({ silent: true });
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [currentTenant?.id, user?.id, fetchNotifications]);
 
   // Refresh notifications
   const refresh = useCallback(() => {
