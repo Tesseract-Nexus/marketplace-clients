@@ -188,10 +188,12 @@ export function Header() {
     try {
       await logoutApi();
       logout();
+      useListsStore.getState().clearLists();
       router.push(getNavPath('/'));
     } catch (error) {
       console.error('Logout failed:', error);
       logout();
+      useListsStore.getState().clearLists();
     }
   };
 

@@ -112,12 +112,29 @@ export default function WishlistPage() {
     }
   }, [lists, selectedList]);
 
-  // Refresh selected list when lists update
+  // Fetch full list details (including items) when selected list changes
+  useEffect(() => {
+    if (selectedList?.id && isAuthenticated && tenant && customer) {
+      getList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', selectedList.id)
+        .then(fullList => {
+          if (fullList) setSelectedList(fullList);
+        });
+    }
+  }, [selectedList?.id, isAuthenticated, tenant?.id, customer?.id]);
+
+  // Refresh selected list when lists update (preserve items if store list lacks them)
   useEffect(() => {
     if (selectedList) {
       const updatedList = lists.find(l => l.id === selectedList.id);
       if (updatedList) {
-        setSelectedList(updatedList);
+        setSelectedList(prev => {
+          if (!prev) return updatedList;
+          // If store list has items (optimistic update), use them; otherwise keep existing
+          return {
+            ...updatedList,
+            items: updatedList.items ?? prev.items,
+          };
+        });
       }
     }
   }, [lists, selectedList?.id]);

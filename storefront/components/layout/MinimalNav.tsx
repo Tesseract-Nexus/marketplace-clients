@@ -46,11 +46,13 @@ export function MinimalNav() {
     try {
       await logoutApi();
       logout();
+      useListsStore.getState().clearLists();
       router.push(getNavPath('/'));
       setMenuOpen(false);
     } catch (error) {
       console.error('Logout failed:', error);
       logout();
+      useListsStore.getState().clearLists();
     }
   };
 

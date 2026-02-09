@@ -3,27 +3,11 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Heart, ShoppingCart, Eye, Star, Plus, Check, Loader2, Ban, ChevronLeft, ChevronRight, ListPlus, Bookmark, FolderHeart, User, Expand } from 'lucide-react';
+import { Heart, ShoppingCart, Eye, Star, Loader2, Ban, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { useTiltValues } from '@/hooks/useTilt';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Product } from '@/types/storefront';
 import { useTenant, useProductConfig, useNavPath, useMobileConfig } from '@/context/TenantContext';
 import { useCartStore } from '@/store/cart';
@@ -87,16 +71,12 @@ export function ProductCard({
   };
   const getNavPath = useNavPath();
   const addToCart = useCartStore((state) => state.addItem);
-  const { lists, fetchLists, addToList, addToDefaultList, removeFromList, createList, isInAnyList, getListsContainingProduct } = useListsStore();
+  const { lists, fetchLists, addToList, addToDefaultList, removeFromList, isInAnyList } = useListsStore();
   const { customer, accessToken, isAuthenticated } = useAuthStore();
   const [isHovered, setIsHovered] = useState(false);
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isAddingToList, setIsAddingToList] = useState<string | null>(null);
-  const [isCreateListOpen, setIsCreateListOpen] = useState(false);
-  const [newListName, setNewListName] = useState('');
-  const [isCreatingList, setIsCreatingList] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
@@ -214,7 +194,7 @@ export function ProductCard({
 
   // Check if product is in any list (for filled heart)
   const isInList = isInAnyList(product.id);
-  const listsWithProduct = getListsContainingProduct(product.id);
+
 
   // Fetch lists when authenticated
   useEffect(() => {
@@ -316,7 +296,6 @@ export function ProductCard({
     } finally {
       setIsAddingToList(null);
       setTimeout(() => setIsHeartAnimating(false), 300);
-      setIsDropdownOpen(false);
     }
   };
 
@@ -336,7 +315,6 @@ export function ProductCard({
       console.error('Failed to remove from list:', error);
     } finally {
       setIsAddingToList(null);
-      setIsDropdownOpen(false);
     }
   };
 
@@ -376,38 +354,6 @@ export function ProductCard({
     }
   };
 
-  const handleCreateList = async () => {
-    if (!newListName.trim() || !tenant || !customer) return;
-
-    setIsCreatingList(true);
-    try {
-      const newList = await createList(
-        tenant.id,
-        tenant.storefrontId,
-        customer.id,
-        accessToken || '',
-        newListName.trim()
-      );
-      // Add product to the new list
-      await addToList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', newList.id, {
-        id: product.id,
-        name: product.name,
-        image: imageUrl,
-        price,
-      });
-      setNewListName('');
-      setIsCreateListOpen(false);
-      setIsDropdownOpen(false);
-    } catch (error) {
-      console.error('Failed to create list:', error);
-    } finally {
-      setIsCreatingList(false);
-    }
-  };
-
-  const isProductInList = (list: List) => {
-    return list.items?.some((i) => i.productId === product.id) ?? false;
-  };
 
   return (
     <motion.div
@@ -631,106 +577,27 @@ export function ProductCard({
             </button>
           )}
 
-          {/* Desktop Lists Dropdown */}
+          {/* Desktop Wishlist Button - Same behavior as mobile: quick-add to default */}
           {productConfig.showWishlist && !isTouchDevice && (
-            <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
-              <DropdownMenuTrigger asChild>
-                <button
-                  type="button"
-                  className={cn(
-                    'absolute top-2.5 right-2.5 h-9 w-9 rounded-full transition-all duration-200 z-20',
-                    'flex items-center justify-center',
-                    'focus:outline-none focus:ring-2 focus:ring-offset-1',
-                    isInList
-                      ? 'bg-[var(--wishlist-active)] text-white hover:opacity-90 focus:ring-[var(--wishlist-active)]'
-                      : 'bg-background/90 backdrop-blur-sm text-muted-foreground hover:text-[var(--wishlist-active)] shadow-md border border-border/50 focus:ring-[var(--wishlist-active)]'
-                  )}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                  }}
-                  title={isInList ? 'Saved to wishlist' : 'Save to wishlist'}
-                >
-                  <Heart className={cn(
-                    'h-5 w-5 transition-all',
-                    isInList && 'fill-current',
-                    isHeartAnimating && 'animate-heart-pop'
-                  )} />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 p-2">
-                {/* Header */}
-                <div className="px-2 py-1.5 mb-1">
-                  <p className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
-                    <FolderHeart className="h-3.5 w-3.5" />
-                    Save to List
-                  </p>
-                </div>
-                {!isAuthenticated ? (
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.preventDefault();
-                      window.location.href = getNavPath('/auth/login');
-                    }}
-                    className="flex items-center gap-2 py-2.5 px-2 rounded-md"
-                  >
-                    <User className="h-4 w-4 text-muted-foreground" />
-                    <span>Sign in to save items</span>
-                  </DropdownMenuItem>
-                ) : (
-                  <>
-                    {lists.map((list) => {
-                      const inList = isProductInList(list);
-                      return (
-                        <DropdownMenuItem
-                          key={list.id}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            if (inList) {
-                              handleRemoveFromList(list, e);
-                            } else {
-                              handleAddToList(list, e);
-                            }
-                          }}
-                          disabled={isAddingToList === list.id}
-                          className={cn(
-                            "flex items-center gap-2 py-2.5 px-2 rounded-md cursor-pointer",
-                            inList && "bg-[var(--color-success-light)]"
-                          )}
-                        >
-                          {isAddingToList === list.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                          ) : inList ? (
-                            <Check className="h-4 w-4 text-[var(--color-success)]" />
-                          ) : (
-                            <Bookmark className="h-4 w-4 text-muted-foreground" />
-                          )}
-                          <span className="truncate flex-1">{list.name}</span>
-                          {list.isDefault && (
-                            <span className="text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary rounded">
-                              Default
-                            </span>
-                          )}
-                        </DropdownMenuItem>
-                      );
-                    })}
-                    <DropdownMenuSeparator className="my-2" />
-                    <DropdownMenuItem
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setIsCreateListOpen(true);
-                        setIsDropdownOpen(false);
-                      }}
-                      className="flex items-center gap-2 py-2.5 px-2 rounded-md bg-primary/5 hover:bg-primary/10 text-primary font-medium"
-                    >
-                      <ListPlus className="h-4 w-4" />
-                      <span>Create New List</span>
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <button
+              type="button"
+              className={cn(
+                'absolute top-2.5 right-2.5 h-9 w-9 rounded-full transition-all duration-200 z-20',
+                'flex items-center justify-center',
+                'focus:outline-none focus:ring-2 focus:ring-offset-1',
+                isInList
+                  ? 'bg-[var(--wishlist-active)] text-white hover:opacity-90 focus:ring-[var(--wishlist-active)]'
+                  : 'bg-background/90 backdrop-blur-sm text-muted-foreground hover:text-[var(--wishlist-active)] shadow-md border border-border/50 focus:ring-[var(--wishlist-active)]'
+              )}
+              onClick={handleQuickAddToDefault}
+              title={isInList ? 'Saved to wishlist' : 'Save to wishlist'}
+            >
+              <Heart className={cn(
+                'h-5 w-5 transition-all',
+                isInList && 'fill-current',
+                isHeartAnimating && 'animate-heart-pop'
+              )} />
+            </button>
           )}
 
           {/* Actions - Always visible on mobile, hover on desktop */}
@@ -853,69 +720,6 @@ export function ProductCard({
           </div>
         </div>
       </Link>
-
-      {/* Create List Dialog */}
-      <Dialog open={isCreateListOpen} onOpenChange={setIsCreateListOpen}>
-        <DialogContent onClick={(e) => e.stopPropagation()} className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <div className="p-2 bg-primary/10 rounded-lg">
-                <ListPlus className="h-5 w-5 text-primary" />
-              </div>
-              Create New List
-            </DialogTitle>
-            <DialogDescription>
-              Create a new list and add this product to it.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4">
-            <div className="space-y-3">
-              <label htmlFor="new-list-name" className="text-sm font-medium flex items-center gap-2">
-                <FolderHeart className="h-4 w-4 text-muted-foreground" />
-                List Name
-              </label>
-              <Input
-                id="new-list-name"
-                placeholder="e.g., Christmas Ideas, Birthday Gifts"
-                value={newListName}
-                onChange={(e) => setNewListName(e.target.value)}
-                maxLength={100}
-                className="h-11"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && newListName.trim()) {
-                    handleCreateList();
-                  }
-                }}
-              />
-              <p className="text-xs text-muted-foreground">
-                You can save items to this list and share it with friends.
-              </p>
-            </div>
-          </div>
-          <DialogFooter className="gap-2 sm:gap-0">
-            <Button variant="outline" onClick={() => setIsCreateListOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              className="btn-tenant-primary gap-2"
-              onClick={handleCreateList}
-              disabled={!newListName.trim() || isCreatingList}
-            >
-              {isCreatingList ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Creating...
-                </>
-              ) : (
-                <>
-                  <Plus className="h-4 w-4" />
-                  Create & Add
-                </>
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
 
       {/* Image Lightbox */}
       <ImageLightbox
