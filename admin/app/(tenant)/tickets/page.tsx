@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
-import { Plus, Eye, CheckCircle, Clock, XCircle, AlertTriangle, Ticket as TicketIcon, User, MessageSquare, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
+import { Plus, Eye, CheckCircle, Clock, XCircle, AlertTriangle, Ticket as TicketIcon, User, MessageSquare, AlertCircle, Loader2, RefreshCw, Pencil, Calendar, History, FileText, Download, ArrowRight } from 'lucide-react';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { PermissionGate, Permission } from '@/components/permission-gate';
@@ -17,7 +17,7 @@ import { Select } from '@/components/Select';
 import { PageHeader } from '@/components/PageHeader';
 import { Pagination } from '@/components/Pagination';
 import { ticketService } from '@/lib/services/ticketService';
-import type { Ticket, TicketStatus, TicketPriority, TicketType, CreateTicketRequest } from '@/lib/api/types';
+import type { Ticket, TicketStatus, TicketPriority, TicketType, CreateTicketRequest, UpdateTicketRequest } from '@/lib/api/types';
 import { useDialog } from '@/contexts/DialogContext';
 import { useToast } from '@/contexts/ToastContext';
 
@@ -75,6 +75,29 @@ const getAssignees = (assignees?: Record<string, any>): string[] => {
   return Object.values(assignees).filter((v) => typeof v === 'string');
 };
 
+// Helper to get history from JSONB
+const getHistory = (history?: Record<string, any>): any[] => {
+  if (!history) return [];
+  return Object.values(history).sort((a: any, b: any) => {
+    const dateA = new Date(a.createdAt || a.timestamp || 0).getTime();
+    const dateB = new Date(b.createdAt || b.timestamp || 0).getTime();
+    return dateB - dateA; // newest first
+  });
+};
+
+// Helper to get attachments from JSONB
+const getAttachments = (attachments?: Record<string, any>): any[] => {
+  if (!attachments) return [];
+  return Object.values(attachments);
+};
+
+// Check if a ticket is overdue
+const isOverdue = (ticket: Ticket): boolean => {
+  if (!ticket.dueDate) return false;
+  if (ticket.status === 'RESOLVED' || ticket.status === 'CLOSED' || ticket.status === 'CANCELLED') return false;
+  return new Date(ticket.dueDate) < new Date();
+};
+
 export default function TicketsPage() {
   const params = useParams();
   const searchParams = useSearchParams();
@@ -99,6 +122,10 @@ export default function TicketsPage() {
   });
   const [newComment, setNewComment] = useState('');
   const [addingComment, setAddingComment] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState<UpdateTicketRequest>({});
+  const [editErrors, setEditErrors] = useState<Record<string, string>>({});
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   // Form validation errors
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -314,6 +341,66 @@ export default function TicketsPage() {
       });
     } finally {
       setAddingComment(false);
+    }
+  };
+
+  const startEditing = () => {
+    if (!selectedTicket) return;
+    setEditData({
+      title: selectedTicket.title,
+      description: selectedTicket.description,
+      priority: selectedTicket.priority as TicketPriority,
+      tags: tagsToArray(selectedTicket.tags),
+      dueDate: selectedTicket.dueDate ? selectedTicket.dueDate.split('T')[0] : undefined,
+      estimatedTime: selectedTicket.estimatedTime,
+    });
+    setEditErrors({});
+    setIsEditing(true);
+  };
+
+  const handleEditFieldChange = (name: string, value: any) => {
+    setEditData(prev => ({ ...prev, [name]: value }));
+    const error = validateField(name, value);
+    setEditErrors(prev => ({ ...prev, [name]: error || '' }));
+  };
+
+  const handleSaveEdit = async () => {
+    if (!selectedTicket) return;
+
+    // Validate edit fields
+    const newEditErrors: Record<string, string> = {};
+    if (editData.title !== undefined) {
+      const err = validateField('title', editData.title);
+      if (err) newEditErrors.title = err;
+    }
+    if (editData.description !== undefined) {
+      const err = validateField('description', editData.description);
+      if (err) newEditErrors.description = err;
+    }
+    if (editData.estimatedTime !== undefined) {
+      const err = validateField('estimatedTime', editData.estimatedTime);
+      if (err) newEditErrors.estimatedTime = err;
+    }
+    setEditErrors(newEditErrors);
+    if (Object.keys(newEditErrors).length > 0) return;
+
+    setIsSavingEdit(true);
+    try {
+      const payload: UpdateTicketRequest = { ...editData };
+      if (payload.dueDate) {
+        payload.dueDate = new Date(payload.dueDate).toISOString();
+      }
+      const response = await ticketService.updateTicket(selectedTicket.id, payload);
+      toast.success('Ticket Updated', 'Ticket has been updated successfully');
+      setSelectedTicket(response.data);
+      setIsEditing(false);
+      loadTickets();
+    } catch (error) {
+      console.error('Error updating ticket:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update ticket.';
+      toast.error('Update Failed', errorMessage);
+    } finally {
+      setIsSavingEdit(false);
     }
   };
 
@@ -678,6 +765,15 @@ export default function TicketsPage() {
                         {ticket.estimatedTime && (
                           <p className="text-xs text-muted-foreground">Est: {ticket.estimatedTime}m</p>
                         )}
+                        {ticket.dueDate && (
+                          <p className={cn(
+                            "text-xs flex items-center gap-1 mt-0.5",
+                            isOverdue(ticket) ? "text-error font-semibold" : "text-muted-foreground"
+                          )}>
+                            {isOverdue(ticket) && <AlertCircle className="h-3 w-3" />}
+                            Due: {new Date(ticket.dueDate).toLocaleDateString()}
+                          </p>
+                        )}
                       </td>
                       <td className="px-4 py-4">
                         <div className="flex items-center justify-end gap-1">
@@ -839,23 +935,36 @@ export default function TicketsPage() {
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-semibold text-foreground mb-2">
-                    Estimated Time (minutes)
-                  </label>
-                  <Input
-                    type="number"
-                    value={newTicket.estimatedTime || ''}
-                    onChange={(e) => handleFieldChange('estimatedTime', e.target.value ? parseInt(e.target.value) : undefined)}
-                    placeholder="120"
-                    className={errors.estimatedTime ? 'border-error' : ''}
-                  />
-                  {errors.estimatedTime && (
-                    <div className="flex items-center gap-1 mt-1 text-error text-sm">
-                      <AlertCircle className="h-4 w-4" />
-                      <span>{errors.estimatedTime}</span>
-                    </div>
-                  )}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-foreground mb-2">
+                      Estimated Time (minutes)
+                    </label>
+                    <Input
+                      type="number"
+                      value={newTicket.estimatedTime || ''}
+                      onChange={(e) => handleFieldChange('estimatedTime', e.target.value ? parseInt(e.target.value) : undefined)}
+                      placeholder="120"
+                      className={errors.estimatedTime ? 'border-error' : ''}
+                    />
+                    {errors.estimatedTime && (
+                      <div className="flex items-center gap-1 mt-1 text-error text-sm">
+                        <AlertCircle className="h-4 w-4" />
+                        <span>{errors.estimatedTime}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-foreground mb-2">
+                      Due Date
+                    </label>
+                    <Input
+                      type="date"
+                      value={newTicket.dueDate || ''}
+                      onChange={(e) => setNewTicket({ ...newTicket, dueDate: e.target.value || undefined })}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -882,74 +991,170 @@ export default function TicketsPage() {
         {showDetailModal && selectedTicket && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-card rounded-lg border border-border w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-              <div className="border-b border-border px-6 py-4">
+              <div className="border-b border-border px-6 py-4 flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-primary">
-                  Ticket Details
+                  {isEditing ? 'Edit Ticket' : 'Ticket Details'}
                 </h2>
+                {!isEditing && (
+                  <Button variant="outline" size="sm" onClick={startEditing} className="gap-1.5">
+                    <Pencil className="h-4 w-4" />
+                    Edit
+                  </Button>
+                )}
               </div>
 
               <div className="p-6 space-y-4">
-                <div className="flex items-center gap-3 mb-4">
+                {/* Status / Priority / Type badges (always visible) */}
+                <div className="flex items-center gap-3 mb-4 flex-wrap">
                   <span className={cn(
                     'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border',
                     getStatusBadgeClass(selectedTicket.status)
                   )}>
                     {selectedTicket.status.replace(/_/g, ' ')}
                   </span>
-                  <span className={cn(
-                    'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border',
-                    getPriorityBadgeClass(selectedTicket.priority)
-                  )}>
-                    {selectedTicket.priority}
-                  </span>
+                  {isEditing ? (
+                    <Select
+                      value={editData.priority || selectedTicket.priority}
+                      onChange={(value) => handleEditFieldChange('priority', value)}
+                      options={priorityOptions.filter(o => o.value !== 'ALL')}
+                    />
+                  ) : (
+                    <span className={cn(
+                      'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border',
+                      getPriorityBadgeClass(selectedTicket.priority)
+                    )}>
+                      {selectedTicket.priority}
+                    </span>
+                  )}
                   <span className="text-xs px-3 py-1 rounded-full bg-muted text-foreground border border-border font-semibold">
                     {selectedTicket.type.replace(/_/g, ' ')}
                   </span>
                 </div>
 
-                <div>
-                  <h3 className="text-xl font-bold text-foreground mb-2">{selectedTicket.title}</h3>
-                  <p className="text-foreground">{selectedTicket.description}</p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 py-4 border-y border-border">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Created By</p>
-                    <p className="font-semibold text-foreground">{selectedTicket.createdByName || selectedTicket.createdBy}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Assigned To</p>
-                    <p className="font-semibold text-foreground">
-                      {getAssignees(selectedTicket.assignees).join(', ') || 'Unassigned'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Created</p>
-                    <p className="font-semibold text-foreground">
-                      {new Date(selectedTicket.createdAt).toLocaleString()}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Updated</p>
-                    <p className="font-semibold text-foreground">
-                      {new Date(selectedTicket.updatedAt).toLocaleString()}
-                    </p>
-                  </div>
-                  {selectedTicket.estimatedTime && (
+                {/* Title and Description — editable or read-only */}
+                {isEditing ? (
+                  <div className="space-y-4">
                     <div>
-                      <p className="text-sm text-muted-foreground">Estimated Time</p>
-                      <p className="font-semibold text-foreground">{selectedTicket.estimatedTime} minutes</p>
+                      <label className="block text-sm font-semibold text-foreground mb-2">Title</label>
+                      <Input
+                        value={editData.title || ''}
+                        onChange={(e) => handleEditFieldChange('title', e.target.value)}
+                        className={editErrors.title ? 'border-error' : ''}
+                      />
+                      {editErrors.title && (
+                        <p className="text-error text-sm mt-1">{editErrors.title}</p>
+                      )}
                     </div>
-                  )}
-                  {selectedTicket.actualTime && (
                     <div>
-                      <p className="text-sm text-muted-foreground">Actual Time</p>
-                      <p className="font-semibold text-foreground">{selectedTicket.actualTime} minutes</p>
+                      <label className="block text-sm font-semibold text-foreground mb-2">Description</label>
+                      <textarea
+                        value={editData.description || ''}
+                        onChange={(e) => handleEditFieldChange('description', e.target.value)}
+                        className={`w-full px-3 py-2 border rounded-md bg-background text-sm focus:outline-none focus:border-primary ${
+                          editErrors.description ? 'border-error' : 'border-border'
+                        }`}
+                        rows={4}
+                      />
+                      {editErrors.description && (
+                        <p className="text-error text-sm mt-1">{editErrors.description}</p>
+                      )}
                     </div>
-                  )}
-                </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-foreground mb-2">Tags (comma-separated)</label>
+                      <Input
+                        value={editData.tags?.join(', ') || ''}
+                        onChange={(e) => setEditData(prev => ({
+                          ...prev,
+                          tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean),
+                        }))}
+                        placeholder="bug, urgent, payment"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-foreground mb-2">Estimated Time (min)</label>
+                        <Input
+                          type="number"
+                          value={editData.estimatedTime || ''}
+                          onChange={(e) => handleEditFieldChange('estimatedTime', e.target.value ? parseInt(e.target.value) : undefined)}
+                          className={editErrors.estimatedTime ? 'border-error' : ''}
+                        />
+                        {editErrors.estimatedTime && (
+                          <p className="text-error text-sm mt-1">{editErrors.estimatedTime}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-foreground mb-2">Due Date</label>
+                        <Input
+                          type="date"
+                          value={editData.dueDate || ''}
+                          onChange={(e) => setEditData(prev => ({ ...prev, dueDate: e.target.value || undefined }))}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground mb-2">{selectedTicket.title}</h3>
+                    <p className="text-foreground whitespace-pre-wrap">{selectedTicket.description}</p>
+                  </div>
+                )}
 
-                {selectedTicket.tags && tagsToArray(selectedTicket.tags).length > 0 && (
+                {/* Info grid (read-only) */}
+                {!isEditing && (
+                  <div className="grid grid-cols-2 gap-4 py-4 border-y border-border">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Created By</p>
+                      <p className="font-semibold text-foreground">{selectedTicket.createdByName || selectedTicket.createdBy}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Assigned To</p>
+                      <p className="font-semibold text-foreground">
+                        {getAssignees(selectedTicket.assignees).join(', ') || 'Unassigned'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Created</p>
+                      <p className="font-semibold text-foreground">
+                        {new Date(selectedTicket.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Updated</p>
+                      <p className="font-semibold text-foreground">
+                        {new Date(selectedTicket.updatedAt).toLocaleString()}
+                      </p>
+                    </div>
+                    {selectedTicket.dueDate && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Due Date</p>
+                        <p className={cn(
+                          "font-semibold flex items-center gap-1",
+                          isOverdue(selectedTicket) ? "text-error" : "text-foreground"
+                        )}>
+                          {isOverdue(selectedTicket) && <AlertCircle className="h-4 w-4" />}
+                          {new Date(selectedTicket.dueDate).toLocaleDateString()}
+                          {isOverdue(selectedTicket) && <span className="text-xs">(Overdue)</span>}
+                        </p>
+                      </div>
+                    )}
+                    {selectedTicket.estimatedTime && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Estimated Time</p>
+                        <p className="font-semibold text-foreground">{selectedTicket.estimatedTime} minutes</p>
+                      </div>
+                    )}
+                    {selectedTicket.actualTime && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Actual Time</p>
+                        <p className="font-semibold text-foreground">{selectedTicket.actualTime} minutes</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Tags (read-only) */}
+                {!isEditing && selectedTicket.tags && tagsToArray(selectedTicket.tags).length > 0 && (
                   <div>
                     <p className="text-sm text-muted-foreground mb-2">Tags</p>
                     <div className="flex gap-2 flex-wrap">
@@ -965,7 +1170,48 @@ export default function TicketsPage() {
                   </div>
                 )}
 
+                {/* Attachments Section */}
+                {!isEditing && getAttachments(selectedTicket.attachments).length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Attachments ({getAttachments(selectedTicket.attachments).length})
+                    </p>
+                    <div className="space-y-2">
+                      {getAttachments(selectedTicket.attachments).map((attachment: any, index: number) => (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between p-3 rounded-lg border border-border bg-muted/50"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                            <span className="text-sm font-medium text-foreground truncate">
+                              {attachment.fileName || attachment.name || `Attachment ${index + 1}`}
+                            </span>
+                            {attachment.fileSize && (
+                              <span className="text-xs text-muted-foreground shrink-0">
+                                ({Math.round(attachment.fileSize / 1024)}KB)
+                              </span>
+                            )}
+                          </div>
+                          {attachment.url && (
+                            <a
+                              href={attachment.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:text-primary/80 shrink-0"
+                            >
+                              <Download className="h-4 w-4" />
+                            </a>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Comments Section */}
+                {!isEditing && (
                 <div>
                   <p className="text-sm font-semibold text-foreground mb-3">
                     Comments {getComments(selectedTicket.comments).length > 0 && `(${getComments(selectedTicket.comments).length})`}
@@ -1021,8 +1267,53 @@ export default function TicketsPage() {
                     <p className="text-sm text-muted-foreground italic">No comments yet</p>
                   )}
                 </div>
+                )}
 
-                {/* Status Update Actions */}
+                {/* Activity History */}
+                {!isEditing && getHistory(selectedTicket.history).length > 0 && (
+                  <div>
+                    <p className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                      <History className="h-4 w-4" />
+                      Activity History ({getHistory(selectedTicket.history).length})
+                    </p>
+                    <div className="relative pl-6">
+                      <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-border" />
+                      <div className="space-y-4">
+                        {getHistory(selectedTicket.history).map((entry: any, index: number) => (
+                          <div key={index} className="relative">
+                            <div className="absolute -left-4 top-1 w-3 h-3 rounded-full bg-primary border-2 border-card" />
+                            <div className="ml-2">
+                              <div className="flex items-center gap-2 text-sm">
+                                <span className="font-medium text-foreground">
+                                  {entry.action || entry.type || 'Update'}
+                                </span>
+                                {entry.fromStatus && entry.toStatus && (
+                                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                    {entry.fromStatus.replace(/_/g, ' ')}
+                                    <ArrowRight className="h-3 w-3" />
+                                    {entry.toStatus.replace(/_/g, ' ')}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                                {(entry.userName || entry.userId) && (
+                                  <span>by {entry.userName || entry.userId}</span>
+                                )}
+                                <span>{new Date(entry.createdAt || entry.timestamp).toLocaleString()}</span>
+                              </div>
+                              {entry.description && (
+                                <p className="text-sm text-muted-foreground mt-1">{entry.description}</p>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Status Update Actions (only in view mode) */}
+                {!isEditing && (
                 <div>
                   <p className="text-sm font-semibold text-foreground mb-3">Quick Actions</p>
                   <div className="flex gap-2 flex-wrap">
@@ -1069,18 +1360,48 @@ export default function TicketsPage() {
                     )}
                   </div>
                 </div>
+                )}
               </div>
 
               <div className="border-t border-border px-6 py-4 flex justify-end gap-3">
-                <Button
-                  onClick={() => {
-                    setShowDetailModal(false);
-                    setSelectedTicket(null);
-                  }}
-                  variant="outline"
-                >
-                  Close
-                </Button>
+                {isEditing ? (
+                  <>
+                    <Button
+                      onClick={() => {
+                        setIsEditing(false);
+                        setEditErrors({});
+                      }}
+                      variant="outline"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={handleSaveEdit}
+                      disabled={isSavingEdit}
+                      className="bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                    >
+                      {isSavingEdit ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        'Save Changes'
+                      )}
+                    </Button>
+                  </>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      setShowDetailModal(false);
+                      setSelectedTicket(null);
+                      setIsEditing(false);
+                    }}
+                    variant="outline"
+                  >
+                    Close
+                  </Button>
+                )}
               </div>
             </div>
           </div>
