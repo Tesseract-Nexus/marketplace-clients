@@ -36,6 +36,8 @@ import {
   Loader2,
   Box,
   FolderTree,
+  ChevronLeft,
+  ExternalLink,
 } from 'lucide-react';
 import {
   Dialog,
@@ -46,6 +48,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+
+type ViewMode = 'list' | 'detail';
 
 // Currency formatting helper
 const formatCurrency = (amount: number | null | undefined, currencyCode: string = 'INR'): string => {
@@ -146,13 +150,16 @@ export default function ApprovalsPage() {
   const [typeFilter, setTypeFilter] = useState<ApprovalType | 'all'>('all');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  // Dialog state
+  // View mode state
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [detailApproval, setDetailApproval] = useState<ApprovalRequest | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+
+  // Action dialog state
   const [actionDialogOpen, setActionDialogOpen] = useState(false);
   const [actionType, setActionType] = useState<'approve' | 'reject' | 'request_changes'>('approve');
   const [selectedApproval, setSelectedApproval] = useState<ApprovalRequest | null>(null);
   const [actionComment, setActionComment] = useState('');
-  const [viewDialogOpen, setViewDialogOpen] = useState(false);
-  const [viewApproval, setViewApproval] = useState<ApprovalRequest | null>(null);
 
   const loadApprovals = useCallback(async () => {
     try {
@@ -176,18 +183,37 @@ export default function ApprovalsPage() {
     loadApprovals();
   }, [loadApprovals]);
 
-  // Deep-link: auto-open detail when ?id= is present
+  // Deep-link: show detail view when ?id= is present
   useEffect(() => {
-    if (loading || !approvals.length) return;
     const approvalId = searchParams.get('id');
     if (approvalId) {
-      const approval = approvals.find(a => a.id === approvalId);
-      if (approval) {
-        setViewApproval(approval);
-        setViewDialogOpen(true);
-      }
+      setDetailLoading(true);
+      approvalService.getApproval(approvalId)
+        .then((response) => {
+          setDetailApproval(response.data);
+          setViewMode('detail');
+        })
+        .catch((err) => {
+          console.error('Error loading approval detail:', err);
+          toast.error('Not Found', 'Could not load the approval request');
+          setViewMode('list');
+          router.push('/approvals');
+        })
+        .finally(() => setDetailLoading(false));
+    } else {
+      setViewMode('list');
+      setDetailApproval(null);
     }
-  }, [searchParams, approvals, loading]);
+  }, [searchParams, router, toast]);
+
+  // Navigation helpers
+  const navigateToApproval = useCallback((id: string) => {
+    router.push(`/approvals?id=${id}`);
+  }, [router]);
+
+  const navigateToList = useCallback(() => {
+    router.push('/approvals');
+  }, [router]);
 
   // Quick approve without dialog
   const handleQuickApprove = async (approval: ApprovalRequest) => {
@@ -235,10 +261,21 @@ export default function ApprovalsPage() {
         toast.warning('Request Rejected', `${entityName} has been rejected`);
       }
 
+      const actionedId = selectedApproval.id;
       setActionDialogOpen(false);
       setSelectedApproval(null);
       setActionComment('');
       await loadApprovals();
+
+      // Refetch detail if we're on the detail view
+      if (viewMode === 'detail' && detailApproval?.id === actionedId) {
+        try {
+          const response = await approvalService.getApproval(actionedId);
+          setDetailApproval(response.data);
+        } catch {
+          // Detail refetch failed, not critical
+        }
+      }
     } catch (err) {
       const errorMsg = err instanceof Error ? err.message : `Failed to ${actionType === 'approve' ? 'approve' : 'reject'}`;
       toast.error('Action Failed', errorMsg);
@@ -266,11 +303,6 @@ export default function ApprovalsPage() {
     if (url) {
       router.push(url);
     }
-  };
-
-  const openViewDialog = (approval: ApprovalRequest) => {
-    setViewApproval(approval);
-    setViewDialogOpen(true);
   };
 
   const pendingCount = approvals.filter((a) => a.status === 'pending').length;
@@ -396,6 +428,283 @@ export default function ApprovalsPage() {
       loading={<PageLoading fullScreen />}
     >
       <div className="min-h-screen bg-background">
+        {/* Detail View */}
+        {viewMode === 'detail' && (detailApproval || detailLoading) && (
+          <div className="space-y-6 animate-in fade-in duration-500">
+            <PageHeader
+              title={detailApproval?.entityReference || 'Approval Details'}
+              description="Review the details of this approval request"
+              breadcrumbs={[
+                { label: 'Home', href: '/' },
+                { label: 'Team', href: '/staff' },
+                { label: 'Approvals', href: '/approvals' },
+                { label: detailApproval?.entityReference || 'Details' },
+              ]}
+              actions={
+                <Button
+                  variant="ghost"
+                  onClick={navigateToList}
+                  className="px-4 py-2 text-sm font-semibold text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-xl transition-all flex items-center gap-2"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  Back to Approvals
+                </Button>
+              }
+            />
+
+            {detailLoading && <PageLoading message="Loading approval details..." />}
+
+            {detailApproval && !detailLoading && (
+              <div className="max-w-4xl space-y-6">
+                {/* Status and Type Badges */}
+                <div className="flex flex-wrap items-center gap-3">
+                  {getTypeBadge(detailApproval.approvalType)}
+                  {getStatusBadge(detailApproval.status)}
+                  {detailApproval.amount && (
+                    <span className="text-lg font-bold">
+                      {formatCurrency(detailApproval.amount, detailApproval.currency)}
+                    </span>
+                  )}
+                </div>
+
+                {/* Entity Reference Card */}
+                <div className="bg-card rounded-lg border border-border p-6 space-y-4">
+                  <div>
+                    <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                      {detailApproval.entityType === 'product' ? 'Product' :
+                       detailApproval.entityType === 'category' ? 'Category' :
+                       detailApproval.entityType === 'order' ? 'Order' : 'Entity'}
+                    </label>
+                    <p className="font-semibold text-xl mt-1">{detailApproval.entityReference}</p>
+                  </div>
+
+                  {detailApproval.reason && (
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Reason
+                      </label>
+                      <p className="text-sm mt-1">{detailApproval.reason}</p>
+                    </div>
+                  )}
+
+                  {/* Metadata */}
+                  {detailApproval.metadata && Object.keys(detailApproval.metadata).length > 0 && (
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Details
+                      </label>
+                      <div className="mt-1 text-sm bg-muted rounded-lg p-3 overflow-auto max-h-48">
+                        <pre className="whitespace-pre-wrap text-xs">
+                          {JSON.stringify(detailApproval.metadata, null, 2)}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Requester and Dates */}
+                <div className="bg-card rounded-lg border border-border p-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Requested By
+                      </label>
+                      <p className="text-sm flex items-center gap-1.5 mt-1">
+                        <User className="w-3.5 h-3.5 text-muted-foreground" />
+                        {detailApproval.requestedByName || 'Unknown'}
+                      </p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                        Created At
+                      </label>
+                      <p className="text-sm flex items-center gap-1.5 mt-1">
+                        <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                        {formatDate(detailApproval.createdAt)}
+                      </p>
+                    </div>
+                    {detailApproval.expiresAt && (
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          Expires At
+                        </label>
+                        <p className={cn(
+                          "text-sm flex items-center gap-1.5 mt-1",
+                          detailApproval.status === 'pending' && new Date(detailApproval.expiresAt) < new Date() && "text-error"
+                        )}>
+                          <Clock className="w-3.5 h-3.5" />
+                          {formatDate(detailApproval.expiresAt)}
+                        </p>
+                      </div>
+                    )}
+                    {detailApproval.approvedByName && (
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          {detailApproval.status === 'approved' ? 'Approved By' : 'Actioned By'}
+                        </label>
+                        <p className="text-sm flex items-center gap-1.5 mt-1">
+                          <User className="w-3.5 h-3.5 text-muted-foreground" />
+                          {detailApproval.approvedByName}
+                        </p>
+                      </div>
+                    )}
+                    {detailApproval.approvedAt && (
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          {detailApproval.status === 'approved' ? 'Approved At' : 'Actioned At'}
+                        </label>
+                        <p className="text-sm flex items-center gap-1.5 mt-1">
+                          <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                          {formatDate(detailApproval.approvedAt)}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Rejection Reason */}
+                {detailApproval.rejectionReason && (
+                  <div className="bg-error-muted rounded-lg border border-error/20 p-6">
+                    <label className="text-xs font-medium text-error uppercase tracking-wide">
+                      Rejection Reason
+                    </label>
+                    <p className="text-sm mt-1">{detailApproval.rejectionReason}</p>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-3">
+                  {getEntityUrl(detailApproval) && (
+                    <Button
+                      variant="outline"
+                      onClick={() => navigateToEntity(detailApproval)}
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      View {detailApproval.entityType === 'product' ? 'Product' :
+                            detailApproval.entityType === 'category' ? 'Category' :
+                            detailApproval.entityType === 'order' ? 'Order' : 'Entity'}
+                    </Button>
+                  )}
+                  <PermissionGate permission={Permission.APPROVALS_APPROVE}>
+                    {detailApproval.status === 'pending' && (
+                      <>
+                        <Button
+                          className="bg-green-600 hover:bg-green-700 text-white"
+                          onClick={() => openActionDialog(detailApproval, 'approve')}
+                          disabled={actionLoading === detailApproval.id}
+                        >
+                          {actionLoading === detailApproval.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                          ) : (
+                            <ThumbsUp className="w-4 h-4 mr-2" />
+                          )}
+                          Approve
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => openActionDialog(detailApproval, 'request_changes')}
+                          disabled={actionLoading === detailApproval.id}
+                        >
+                          <Clock className="w-4 h-4 mr-2" />
+                          Request Changes
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          onClick={() => openActionDialog(detailApproval, 'reject')}
+                          disabled={actionLoading === detailApproval.id}
+                        >
+                          <ThumbsDown className="w-4 h-4 mr-2" />
+                          Reject
+                        </Button>
+                      </>
+                    )}
+                  </PermissionGate>
+                </div>
+              </div>
+            )}
+
+            {/* Action Dialog - also needed in detail view */}
+            <Dialog open={actionDialogOpen} onOpenChange={setActionDialogOpen}>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>
+                    {actionType === 'approve' && 'Approve Request'}
+                    {actionType === 'reject' && 'Reject Request'}
+                    {actionType === 'request_changes' && 'Request Changes'}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {actionType === 'approve' && 'Add an optional comment for your approval.'}
+                    {actionType === 'reject' && 'Please provide a reason for rejecting this request. This is required.'}
+                    {actionType === 'request_changes' && 'Provide feedback on what changes are needed before approval.'}
+                  </DialogDescription>
+                </DialogHeader>
+
+                {selectedApproval && (
+                  <div className="bg-muted rounded-lg p-4 space-y-2">
+                    <div className="flex items-center gap-2">
+                      {getTypeIcon(selectedApproval.approvalType)}
+                      {getTypeBadge(selectedApproval.approvalType)}
+                      {selectedApproval.amount && (
+                        <span className="font-semibold">
+                          {formatCurrency(selectedApproval.amount, selectedApproval.currency)}
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-sm font-medium">{selectedApproval.entityReference}</p>
+                    {selectedApproval.reason && (
+                      <p className="text-sm text-muted-foreground">{selectedApproval.reason}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Requested by {selectedApproval.requestedByName || 'Unknown'} on {formatDate(selectedApproval.createdAt)}
+                    </p>
+                  </div>
+                )}
+
+                <div className="py-2">
+                  <label className="text-sm font-medium mb-2 block">
+                    {actionType === 'approve' ? 'Comment (Optional)' : 'Comment (Required)'}
+                  </label>
+                  <Textarea
+                    placeholder={
+                      actionType === 'approve'
+                        ? 'Add an optional comment...'
+                        : actionType === 'request_changes'
+                        ? 'Describe what changes are needed...'
+                        : 'Enter rejection reason...'
+                    }
+                    value={actionComment}
+                    onChange={(e) => setActionComment(e.target.value)}
+                    rows={4}
+                  />
+                </div>
+                <DialogFooter className="gap-2">
+                  <Button variant="outline" onClick={() => setActionDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    variant={actionType === 'reject' ? 'destructive' : 'default'}
+                    className={actionType === 'approve' ? 'bg-green-600 hover:bg-green-700 text-white' : ''}
+                    onClick={handleActionSubmit}
+                    disabled={
+                      ((actionType === 'reject' || actionType === 'request_changes') && !actionComment.trim()) ||
+                      actionLoading !== null
+                    }
+                  >
+                    {actionLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                    ) : null}
+                    {actionType === 'approve' && 'Approve'}
+                    {actionType === 'reject' && 'Reject'}
+                    {actionType === 'request_changes' && 'Request Changes'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+        )}
+
+        {/* List View */}
+        {viewMode === 'list' && (
         <div className="space-y-6 animate-in fade-in duration-500">
           <PageHeader
             title="Approval Requests"
@@ -592,7 +901,7 @@ export default function ApprovalsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => openViewDialog(approval)}
+                            onClick={() => navigateToApproval(approval.id)}
                             className="h-8 w-8 p-0 rounded-lg hover:bg-primary/10"
                             title="View Details"
                           >
@@ -727,148 +1036,8 @@ export default function ApprovalsPage() {
             </DialogContent>
           </Dialog>
 
-          {/* View Dialog - Show request details */}
-          <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle className="flex items-center gap-2">
-                  {viewApproval && getTypeIcon(viewApproval.approvalType)}
-                  Approval Request Details
-                </DialogTitle>
-                <DialogDescription>
-                  Review the details of this approval request
-                </DialogDescription>
-              </DialogHeader>
-
-              {viewApproval && (
-                <div className="space-y-4">
-                  {/* Status and Type */}
-                  <div className="flex flex-wrap items-center gap-2">
-                    {getTypeBadge(viewApproval.approvalType)}
-                    {getStatusBadge(viewApproval.status)}
-                    {viewApproval.amount && (
-                      <span className="text-lg font-bold">
-                        {formatCurrency(viewApproval.amount, viewApproval.currency)}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Entity Reference */}
-                  <div className="bg-muted rounded-lg p-4 space-y-3">
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        {viewApproval.entityType === 'product' ? 'Product' :
-                         viewApproval.entityType === 'category' ? 'Category' :
-                         viewApproval.entityType === 'order' ? 'Order' : 'Entity'}
-                      </label>
-                      <p className="font-semibold text-lg">{viewApproval.entityReference}</p>
-                    </div>
-
-                    {viewApproval.reason && (
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          Reason
-                        </label>
-                        <p className="text-sm">{viewApproval.reason}</p>
-                      </div>
-                    )}
-
-                    {/* Request metadata if available */}
-                    {viewApproval.metadata && Object.keys(viewApproval.metadata).length > 0 && (
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          Details
-                        </label>
-                        <div className="mt-1 text-sm bg-background rounded p-2 overflow-auto max-h-40">
-                          <pre className="whitespace-pre-wrap text-xs">
-                            {JSON.stringify(viewApproval.metadata, null, 2)}
-                          </pre>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Requester and Dates */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Requested By
-                      </label>
-                      <p className="text-sm flex items-center gap-1">
-                        <User className="w-3 h-3" />
-                        {viewApproval.requestedByName || 'Unknown'}
-                      </p>
-                    </div>
-                    <div>
-                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                        Created At
-                      </label>
-                      <p className="text-sm flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {formatDate(viewApproval.createdAt)}
-                      </p>
-                    </div>
-                    {viewApproval.expiresAt && (
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          Expires At
-                        </label>
-                        <p className={cn(
-                          "text-sm flex items-center gap-1",
-                          viewApproval.status === 'pending' && new Date(viewApproval.expiresAt) < new Date() && "text-error"
-                        )}>
-                          <Clock className="w-3 h-3" />
-                          {formatDate(viewApproval.expiresAt)}
-                        </p>
-                      </div>
-                    )}
-                    {viewApproval.approvedByName && (
-                      <div>
-                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          {viewApproval.status === 'approved' ? 'Approved By' : 'Actioned By'}
-                        </label>
-                        <p className="text-sm flex items-center gap-1">
-                          <User className="w-3 h-3" />
-                          {viewApproval.approvedByName}
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Rejection reason */}
-                  {viewApproval.rejectionReason && (
-                    <div className="bg-error-muted rounded-lg p-4">
-                      <label className="text-xs font-medium text-error uppercase tracking-wide">
-                        Rejection Reason
-                      </label>
-                      <p className="text-sm mt-1">{viewApproval.rejectionReason}</p>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <DialogFooter className="gap-2 sm:gap-0">
-                {viewApproval && getEntityUrl(viewApproval) && (
-                  <Button
-                    variant="default"
-                    onClick={() => {
-                      navigateToEntity(viewApproval);
-                      setViewDialogOpen(false);
-                    }}
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    View {viewApproval.entityType === 'product' ? 'Product' :
-                          viewApproval.entityType === 'category' ? 'Category' :
-                          viewApproval.entityType === 'order' ? 'Order' : 'Entity'}
-                  </Button>
-                )}
-                <Button variant="outline" onClick={() => setViewDialogOpen(false)}>
-                  Close
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
         </div>
+        )}
       </div>
     </PermissionGate>
   );
