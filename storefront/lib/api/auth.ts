@@ -830,7 +830,18 @@ export async function directRequestPasswordReset(
       }),
     });
 
-    return response.json();
+    const data = await response.json();
+
+    // Surface rate limit errors to the UI
+    if (response.status === 429) {
+      return {
+        success: false,
+        error: data.error || 'RATE_LIMITED',
+        message: data.message || 'Too many password reset requests. Please try again later.',
+      };
+    }
+
+    return data;
   } catch (error) {
     console.error('Password reset request error:', error);
     // Return success to not reveal if email exists

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Mail, Sparkles, Loader2, CheckCircle, Building2 } from 'lucide-react';
+import { ArrowLeft, Mail, Sparkles, Loader2, CheckCircle, Building2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +12,7 @@ import {
   type TenantInfo,
 } from '@/lib/auth/auth-client';
 
-type Step = 'email' | 'tenant-select' | 'success';
+type Step = 'email' | 'tenant-select' | 'success' | 'rate-limited';
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -23,6 +23,7 @@ export default function ForgotPasswordPage() {
   const [selectedTenant, setSelectedTenant] = useState<TenantInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [rateLimitMessage, setRateLimitMessage] = useState('');
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,7 +66,12 @@ export default function ForgotPasswordPage() {
 
   const submitResetRequest = async (userEmail: string, tenantSlug: string) => {
     try {
-      await directRequestPasswordReset(userEmail, tenantSlug);
+      const result = await directRequestPasswordReset(userEmail, tenantSlug);
+      if (result.error === 'RATE_LIMITED') {
+        setRateLimitMessage(result.message || 'Too many password reset requests. Please wait 30 minutes or contact support.');
+        setStep('rate-limited');
+        return;
+      }
     } catch {
       // Always show success to not reveal email existence
     }
@@ -197,6 +203,44 @@ export default function ForgotPasswordPage() {
                     )}
                   </button>
                 ))}
+              </div>
+            </>
+          )}
+
+          {step === 'rate-limited' && (
+            <>
+              <div className="text-center">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-amber-100 mb-3">
+                  <AlertTriangle className="w-7 h-7 text-amber-600" />
+                </div>
+                <h2 className="text-xl font-semibold text-foreground mb-1">Too Many Requests</h2>
+                <p className="text-sm text-muted-foreground">
+                  {rateLimitMessage}
+                </p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  If you need immediate help, please contact your administrator or support team.
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Button
+                  onClick={() => {
+                    setStep('email');
+                    setEmail('');
+                    setRateLimitMessage('');
+                  }}
+                  className="w-full h-12 text-sm font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all duration-300"
+                >
+                  Try Again
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/login')}
+                  className="w-full h-12 text-sm"
+                >
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Back to Sign In
+                </Button>
               </div>
             </>
           )}

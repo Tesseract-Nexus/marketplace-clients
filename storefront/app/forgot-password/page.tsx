@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Mail, ArrowLeft, Loader2, CheckCircle } from 'lucide-react';
+import { Mail, ArrowLeft, Loader2, CheckCircle, AlertTriangle } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,8 @@ export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [rateLimited, setRateLimited] = useState(false);
+  const [rateLimitMessage, setRateLimitMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,6 +41,12 @@ export default function ForgotPasswordPage() {
     try {
       const result = await directRequestPasswordReset(email, tenant.slug);
 
+      if (result.error === 'RATE_LIMITED') {
+        setRateLimited(true);
+        setRateLimitMessage(result.message || 'Too many password reset requests. Please wait 30 minutes or contact support.');
+        return;
+      }
+
       // Always show success message (security: don't reveal if email exists)
       setSuccess(true);
     } catch (err) {
@@ -48,6 +56,56 @@ export default function ForgotPasswordPage() {
       setIsLoading(false);
     }
   };
+
+  if (rateLimited) {
+    return (
+      <div className="min-h-[80vh] flex items-center justify-center py-12 px-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-md"
+        >
+          <div className="bg-card rounded-2xl border shadow-lg p-8">
+            <div className="text-center">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center bg-amber-100 dark:bg-amber-950/30">
+                <AlertTriangle className="h-8 w-8 text-amber-500" />
+              </div>
+              <h1 className="text-2xl font-bold mb-2">
+                <TranslatedUIText text="Too Many Requests" />
+              </h1>
+              <p className="text-muted-foreground">
+                {rateLimitMessage}
+              </p>
+              <p className="text-muted-foreground text-sm mt-3">
+                <TranslatedUIText text="If you need immediate help, please contact our support team." />
+              </p>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              <Button
+                variant="tenant-gradient"
+                className="w-full"
+                onClick={() => {
+                  setRateLimited(false);
+                  setRateLimitMessage('');
+                  setEmail('');
+                }}
+              >
+                <TranslatedUIText text="Try Again" />
+              </Button>
+
+              <Link href={getNavPath('/login')} className="block">
+                <Button variant="outline" className="w-full">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  <TranslatedUIText text="Back to Sign In" />
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   if (success) {
     return (

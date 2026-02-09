@@ -533,7 +533,18 @@ export async function directRequestPasswordReset(
       body: JSON.stringify({ email, tenant_slug: tenantSlug, context: 'admin' }),
     });
 
-    return response.json();
+    const data = await response.json();
+
+    // Surface rate limit errors to the UI
+    if (response.status === 429) {
+      return {
+        success: false,
+        error: data.error || 'RATE_LIMITED',
+        message: data.message || 'Too many password reset requests. Please try again later.',
+      };
+    }
+
+    return data;
   } catch (error) {
     logger.error('[Auth] Password reset request failed:', error);
     return {
