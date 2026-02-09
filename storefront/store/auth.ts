@@ -26,10 +26,12 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   accessToken: string | null;
+  expiresAt: number | null; // Session expiry timestamp (ms) — used for auto-refresh scheduling
 
   // Actions
   setCustomer: (customer: Customer | null) => void;
   setAccessToken: (token: string | null) => void;
+  setExpiresAt: (expiresAt: number | null) => void;
   setLoading: (loading: boolean) => void;
   login: (customer: Customer, token?: string) => void;
   logout: () => void;
@@ -43,6 +45,7 @@ export const useAuthStore = create<AuthState>()(
       isAuthenticated: false,
       isLoading: true, // Start as loading until AuthSessionProvider validates session
       accessToken: null,
+      expiresAt: null,
 
       setCustomer: (customer) =>
         set({
@@ -52,6 +55,9 @@ export const useAuthStore = create<AuthState>()(
 
       setAccessToken: (token) =>
         set({ accessToken: token }),
+
+      setExpiresAt: (expiresAt) =>
+        set({ expiresAt }),
 
       setLoading: (loading) =>
         set({ isLoading: loading }),
@@ -70,6 +76,7 @@ export const useAuthStore = create<AuthState>()(
           accessToken: null,
           isAuthenticated: false,
           isLoading: false,
+          expiresAt: null,
         }),
 
       updateCustomer: (updates) =>

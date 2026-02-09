@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuthStore } from '@/store/auth';
-import { getSession } from '@/lib/api/auth';
+import { getSession, refreshToken } from '@/lib/api/auth';
+import { storefrontToast } from '@/components/ui/sonner';
 
 interface AuthSessionProviderProps {
   children: React.ReactNode;
@@ -63,6 +64,9 @@ function isAdminSession(roles?: string[]): boolean {
   return roles.some(role => ADMIN_STAFF_ROLES.includes(role));
 }
 
+/** Refresh tokens 5 minutes before session expiry */
+const REFRESH_BUFFER_MS = 5 * 60 * 1000;
+
 /**
  * AuthSessionProvider - Validates authentication state against auth-bff session
  *
@@ -87,8 +91,89 @@ function isAdminSession(roles?: string[]): boolean {
  */
 export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
   const pathname = usePathname();
-  const { logout, login, updateCustomer, setLoading, isAuthenticated, customer } = useAuthStore();
+  const { logout, login, updateCustomer, setLoading, setExpiresAt, isAuthenticated, customer } = useAuthStore();
   const hasCheckedSession = useRef(false);
+  const refreshTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isRefreshingRef = useRef(false);
+
+  const clearRefreshTimer = useCallback(() => {
+    if (refreshTimerRef.current) {
+      clearTimeout(refreshTimerRef.current);
+      refreshTimerRef.current = null;
+    }
+  }, []);
+
+  const doRefresh = useCallback(async () => {
+    if (isRefreshingRef.current) return;
+    isRefreshingRef.current = true;
+
+    try {
+      const success = await refreshToken();
+      if (success) {
+        // Fetch updated session to get new expiresAt
+        const session = await getSession();
+        if (session.authenticated && session.expiresAt) {
+          const expiresAtMs = session.expiresAt * 1000;
+          setExpiresAt(expiresAtMs);
+          scheduleRefresh(expiresAtMs);
+          console.log('[AuthSessionProvider] Token refreshed, next refresh at', new Date(expiresAtMs - REFRESH_BUFFER_MS).toISOString());
+        }
+      } else {
+        // Refresh failed — session is no longer valid
+        console.log('[AuthSessionProvider] Token refresh failed, logging out');
+        clearRefreshTimer();
+        storefrontToast.warning('Session expired', 'Your session has expired. Please log in again.');
+        logout();
+      }
+    } catch (error) {
+      console.error('[AuthSessionProvider] Token refresh error:', error);
+      clearRefreshTimer();
+      storefrontToast.warning('Session expired', 'Your session has expired. Please log in again.');
+      logout();
+    } finally {
+      isRefreshingRef.current = false;
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const scheduleRefresh = useCallback((expiresAtMs: number) => {
+    clearRefreshTimer();
+    const msUntilExpiry = expiresAtMs - Date.now();
+    const refreshIn = msUntilExpiry - REFRESH_BUFFER_MS;
+
+    if (refreshIn <= 0) {
+      // Already past the refresh window — refresh immediately
+      doRefresh();
+    } else {
+      refreshTimerRef.current = setTimeout(doRefresh, refreshIn);
+    }
+  }, [clearRefreshTimer, doRefresh]);
+
+  // Handle tab visibility — refresh if overdue when tab becomes visible
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') return;
+      const { isAuthenticated: authed, expiresAt: expiry } = useAuthStore.getState();
+      if (!authed || !expiry) return;
+
+      const msUntilExpiry = expiry - Date.now();
+      if (msUntilExpiry <= REFRESH_BUFFER_MS) {
+        // Within refresh window or past expiry — refresh now
+        doRefresh();
+      } else {
+        // Reschedule in case the timer drifted while tab was hidden
+        scheduleRefresh(expiry);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+  }, [doRefresh, scheduleRefresh]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => clearRefreshTimer();
+  }, [clearRefreshTimer]);
 
   useEffect(() => {
     // Only check once on mount
@@ -175,6 +260,14 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
             );
           }
 
+          // Schedule auto-refresh if session has an expiry
+          if (session.expiresAt) {
+            const expiresAtMs = session.expiresAt * 1000;
+            setExpiresAt(expiresAtMs);
+            scheduleRefresh(expiresAtMs);
+            console.log('[AuthSessionProvider] Auto-refresh scheduled, session expires at', new Date(expiresAtMs).toISOString());
+          }
+
           // Fetch full customer profile to get additional fields (phone, country, etc.)
           // This runs after login so the store is already populated with basic session data
           fetchCustomerProfile(sessionUser.tenantId).then((profile) => {
@@ -217,7 +310,7 @@ export function AuthSessionProvider({ children }: AuthSessionProviderProps) {
     };
 
     validateSession();
-  }, [logout, login, updateCustomer, setLoading, isAuthenticated, customer, pathname]);
+  }, [logout, login, updateCustomer, setLoading, setExpiresAt, isAuthenticated, customer, pathname, scheduleRefresh]);
 
   return <>{children}</>;
 }
