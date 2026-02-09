@@ -238,7 +238,7 @@ export async function middleware(request: NextRequest) {
   const cspDevConnectSrc = isDev ? ' http://localhost:* ws://localhost:*' : '';
   const cspHeader = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://*.razorpay.com https://*.tesserix.app`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com https://*.razorpay.com`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https://storage.googleapis.com https://storage.cloud.google.com https://*.storage.googleapis.com https://*.googleusercontent.com https://platform-lookaside.fbsbx.com https://*.fbcdn.net https://*.mark8ly.app https://images.unsplash.com https://picsum.photos https://*.blob.core.windows.net",
     "font-src 'self' data: https://fonts.gstatic.com",
