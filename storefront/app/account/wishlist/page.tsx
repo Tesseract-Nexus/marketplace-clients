@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, ShoppingCart, Trash2, Share2, Plus, Folder, ChevronDown, Loader2, ListPlus, FolderHeart, AlertTriangle, TrendingUp, TrendingDown, Ban } from 'lucide-react';
+import { Heart, ShoppingCart, Share2, Plus, Folder, ChevronDown, Loader2, ListPlus, FolderHeart, AlertTriangle, TrendingUp, TrendingDown, Ban, ArrowRightLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -40,6 +40,7 @@ export default function WishlistPage() {
     fetchLists,
     createList,
     removeFromList,
+    moveItem,
     getList
   } = useListsStore();
   const addToCart = useCartStore((state) => state.addItem);
@@ -51,6 +52,7 @@ export default function WishlistPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [isAddingToCart, setIsAddingToCart] = useState<string | null>(null);
   const [isRemoving, setIsRemoving] = useState<string | null>(null);
+  const [isMoving, setIsMoving] = useState<string | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [freshProductData, setFreshProductData] = useState<
     Record<string, { price: number; available: boolean; name: string; image: string; inStock: boolean } | null>
@@ -199,10 +201,32 @@ export default function WishlistPage() {
     setIsRemoving(itemId);
     try {
       await removeFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', selectedList.id, itemId);
+      // Immediately update local selectedList to reflect removal
+      setSelectedList(prev => {
+        if (!prev) return prev;
+        const updatedItems = prev.items?.filter(i => i.id !== itemId) || [];
+        return { ...prev, items: updatedItems, itemCount: updatedItems.length };
+      });
     } catch (error) {
       console.error('Failed to remove item:', error);
     } finally {
       setIsRemoving(null);
+    }
+  };
+
+  const handleMoveItem = async (itemId: string, toListId: string, toListName: string) => {
+    if (!tenant || !customer || !selectedList) return;
+
+    setIsMoving(itemId);
+    try {
+      await moveItem(tenant.id, tenant.storefrontId, customer.id, accessToken || '', selectedList.id, itemId, toListId);
+      // Re-fetch the current list to refresh items
+      const refreshed = await getList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', selectedList.id);
+      if (refreshed) setSelectedList(refreshed);
+    } catch (error) {
+      console.error('Failed to move item:', error);
+    } finally {
+      setIsMoving(null);
     }
   };
 
@@ -448,16 +472,57 @@ export default function WishlistPage() {
                       <Button
                         variant="outline"
                         size="icon"
-                        className="shrink-0 hover:text-red-500 hover:border-red-200 hover:bg-red-50"
+                        className="shrink-0 text-[var(--wishlist-active)] border-[var(--wishlist-active)]/30 hover:bg-red-50"
                         onClick={() => handleRemoveItem(item.id)}
                         disabled={isRemoving === item.id}
+                        title="Remove from list"
                       >
                         {isRemoving === item.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
-                          <Trash2 className="h-4 w-4" />
+                          <Heart className="h-4 w-4 fill-current" />
                         )}
                       </Button>
+                      {/* Move to list dropdown - only show when 2+ lists */}
+                      {lists.length > 1 && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="icon"
+                              className="shrink-0 hover:text-tenant-primary hover:border-[var(--tenant-primary)]/30 hover:bg-[var(--tenant-primary)]/5"
+                              disabled={isMoving === item.id}
+                            >
+                              {isMoving === item.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <ArrowRightLeft className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <div className="px-2 py-1.5 text-xs font-medium text-muted-foreground">
+                              <TranslatedUIText text="Move to..." />
+                            </div>
+                            {lists
+                              .filter((l) => l.id !== selectedList?.id)
+                              .map((list) => (
+                                <DropdownMenuItem
+                                  key={list.id}
+                                  className="cursor-pointer flex items-center gap-2"
+                                  onClick={() => handleMoveItem(item.id, list.id, list.name)}
+                                >
+                                  {list.isDefault ? (
+                                    <Heart className="h-4 w-4 text-red-500" />
+                                  ) : (
+                                    <Folder className="h-4 w-4 text-tenant-primary" />
+                                  )}
+                                  <span className="truncate">{list.name}</span>
+                                </DropdownMenuItem>
+                              ))}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                       <Button variant="outline" size="icon" className="shrink-0 hover:text-tenant-primary hover:border-[var(--tenant-primary)]/30 hover:bg-[var(--tenant-primary)]/5">
                         <Share2 className="h-4 w-4" />
                       </Button>

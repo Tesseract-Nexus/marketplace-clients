@@ -81,8 +81,26 @@ export const useListsStore = create<ListsState>()(
           }
 
           const data = await response.json();
+          const summaries: List[] = data.lists || [];
+
+          // Fetch full details (with items) for each list in parallel
+          const enriched = await Promise.all(
+            summaries.map(async (list) => {
+              try {
+                const detailRes = await fetch(`${API_BASE}/${list.id}`, { headers });
+                if (detailRes.ok) {
+                  const fullList = await detailRes.json();
+                  return { ...list, items: fullList.items || [] } as List;
+                }
+              } catch {
+                // Fall back to summary without items
+              }
+              return list;
+            })
+          );
+
           set({
-            lists: data.lists || [],
+            lists: enriched,
             lastFetchedAt: new Date().toISOString(),
           });
         } catch (error) {

@@ -441,6 +441,12 @@ function ProductCard({
   const { lists, fetchLists, addToList, addToDefaultList, removeProductFromList, isInAnyList } = useListsStore();
   const { customer, accessToken, isAuthenticated } = useAuthStore();
 
+  // Detect touch device for consistent mobile behavior
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+  useEffect(() => {
+    setIsTouchDevice(window.matchMedia('(pointer: coarse)').matches);
+  }, []);
+
   const price = parseFloat(product.price);
   const comparePrice = product.comparePrice ? parseFloat(product.comparePrice) : null;
   const hasDiscount = comparePrice && comparePrice > price;
@@ -565,60 +571,83 @@ function ProductCard({
             )}
           </div>
 
-          {/* Wishlist: dropdown for 2+ lists, simple toggle otherwise */}
-          {lists.length > 1 ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className={cn(
-                    'absolute top-2 right-2 h-9 w-9 rounded-full glass hover:bg-white/30 transition-all duration-300',
-                    wishlisted ? 'opacity-100 text-red-500 bg-white/90' : 'opacity-0 group-hover:opacity-100 text-gray-700'
-                  )}
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                >
-                  <Heart className={cn('h-4 w-4 transition-transform', wishlisted && 'fill-current scale-110')} />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                {lists.map((list) => {
-                  const isProductInThisList = list.items?.some((i) => i.productId === product.id);
-                  return (
-                    <DropdownMenuItem
-                      key={list.id}
-                      className="cursor-pointer flex items-center gap-2"
-                      onClick={(e) => {
-                        if (isProductInThisList) {
-                          handleRemoveFromList(list.id, list.name, e);
-                        } else {
-                          handleAddToList(list.id, list.name, e);
-                        }
-                      }}
-                    >
-                      {isProductInThisList ? (
-                        <Check className="h-4 w-4 text-[var(--wishlist-active)]" />
-                      ) : (
-                        <Bookmark className="h-4 w-4 text-muted-foreground" />
-                      )}
-                      <span className={cn(isProductInThisList && 'font-medium')}>{list.name}</span>
-                    </DropdownMenuItem>
-                  );
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
+          {/* Mobile: simple heart toggle (always visible) */}
+          {isTouchDevice && (
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                'absolute top-2 right-2 h-9 w-9 rounded-full glass hover:bg-white/30 transition-all duration-300',
-                wishlisted ? 'opacity-100 text-red-500 bg-white/90' : 'opacity-0 group-hover:opacity-100 text-gray-700'
+                'absolute top-2 right-2 h-8 w-8 rounded-full transition-all duration-200 z-20',
+                wishlisted
+                  ? 'bg-[var(--wishlist-active)] text-white'
+                  : 'bg-background/90 backdrop-blur-sm text-muted-foreground shadow-md border border-border/50'
               )}
               onClick={handleQuickToggleDefault}
             >
-              <Heart className={cn('h-4 w-4 transition-transform', wishlisted && 'fill-current scale-110')} />
+              <Heart className={cn('h-4 w-4', wishlisted && 'fill-current')} />
             </Button>
+          )}
+
+          {/* Desktop: dropdown for 2+ lists, simple toggle for 1 list */}
+          {!isTouchDevice && (
+            lists.length > 1 ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      'absolute top-2 right-2 h-9 w-9 rounded-full transition-all duration-200 z-20',
+                      wishlisted
+                        ? 'opacity-100 bg-[var(--wishlist-active)] text-white hover:opacity-90'
+                        : 'opacity-0 group-hover:opacity-100 bg-background/90 backdrop-blur-sm text-muted-foreground hover:text-[var(--wishlist-active)] shadow-md border border-border/50'
+                    )}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  >
+                    <Heart className={cn('h-4 w-4', wishlisted && 'fill-current')} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                  {lists.map((list) => {
+                    const isProductInThisList = list.items?.some((i) => i.productId === product.id);
+                    return (
+                      <DropdownMenuItem
+                        key={list.id}
+                        className="cursor-pointer flex items-center gap-2"
+                        onClick={(e) => {
+                          if (isProductInThisList) {
+                            handleRemoveFromList(list.id, list.name, e);
+                          } else {
+                            handleAddToList(list.id, list.name, e);
+                          }
+                        }}
+                      >
+                        {isProductInThisList ? (
+                          <Check className="h-4 w-4 text-[var(--wishlist-active)]" />
+                        ) : (
+                          <Bookmark className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        <span className={cn(isProductInThisList && 'font-medium')}>{list.name}</span>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  'absolute top-2 right-2 h-9 w-9 rounded-full transition-all duration-200 z-20',
+                  wishlisted
+                    ? 'opacity-100 bg-[var(--wishlist-active)] text-white hover:opacity-90'
+                    : 'opacity-0 group-hover:opacity-100 bg-background/90 backdrop-blur-sm text-muted-foreground hover:text-[var(--wishlist-active)] shadow-md border border-border/50'
+                )}
+                onClick={handleQuickToggleDefault}
+              >
+                <Heart className={cn('h-4 w-4', wishlisted && 'fill-current')} />
+              </Button>
+            )
           )}
 
           {/* Quick Add Button - Only show in grid view (list view has its own button) */}
