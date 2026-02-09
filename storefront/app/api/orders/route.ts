@@ -243,6 +243,11 @@ export async function POST(request: NextRequest) {
     if (host) {
       headers['X-Storefront-Host'] = host;
     }
+    // Forward idempotency key for duplicate order prevention
+    const idempotencyKey = request.headers.get('X-Idempotency-Key');
+    if (idempotencyKey) {
+      headers['X-Idempotency-Key'] = idempotencyKey;
+    }
     if (accessToken) {
       headers['Authorization'] = `Bearer ${accessToken}`;
     }

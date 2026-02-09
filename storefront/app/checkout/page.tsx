@@ -133,6 +133,11 @@ function CheckoutContent() {
   const [showCreateAccountModal, setShowCreateAccountModal] = useState(false);
   const [isNavigatingToSuccess, setIsNavigatingToSuccess] = useState(false);
 
+  // Synchronous guard against double-click (complements async isProcessing state)
+  const isSubmittingRef = useRef(false);
+  // Idempotency key for order creation — generated once per review step entry
+  const idempotencyKeyRef = useRef<string | null>(null);
+
   // Redirect to homepage if cart is empty after hydration
   useEffect(() => {
     // Wait for hydration to complete before checking
@@ -419,6 +424,13 @@ function CheckoutContent() {
     };
   }, [shippingAddress.city, shippingAddress.state, shippingAddress.stateCode, shippingAddress.countryCode, shippingAddress.zip, selectedItems, shipping, calculateTax, storeAddress]);
 
+  // Generate idempotency key when entering the review step
+  useEffect(() => {
+    if (currentStep === 'review' && !idempotencyKeyRef.current) {
+      idempotencyKeyRef.current = crypto.randomUUID();
+    }
+  }, [currentStep]);
+
   // Handle payment cancellation from Stripe redirect
   useEffect(() => {
     const cancelled = searchParams.get('cancelled');
@@ -439,6 +451,10 @@ function CheckoutContent() {
 
   // Place order handler
   const handlePlaceOrder = async () => {
+    // Synchronous guard: prevent concurrent submissions from double-click
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+
     setError(null);
     setIsProcessing(true);
 
@@ -511,7 +527,7 @@ function CheckoutContent() {
         loyaltyDiscount: loyaltyDiscount > 0 ? loyaltyDiscount : undefined,
       };
 
-      const order = await createOrder(tenant.id, tenant.storefrontId, createOrderData);
+      const order = await createOrder(tenant.id, tenant.storefrontId, createOrderData, idempotencyKeyRef.current || undefined);
       setPendingOrder({ id: order.id, orderNumber: order.orderNumber, total });
 
       // Create payment intent
@@ -640,6 +656,7 @@ function CheckoutContent() {
 
       setError(userMessage);
       setIsProcessing(false);
+      isSubmittingRef.current = false;
     }
   };
 

@@ -101,15 +101,21 @@ export interface ConfirmPaymentRequest {
 export async function createOrder(
   tenantId: string,
   storefrontId: string,
-  orderData: CreateOrderRequest
+  orderData: CreateOrderRequest,
+  idempotencyKey?: string
 ): Promise<Order> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Tenant-ID': tenantId,
+    'X-Storefront-ID': storefrontId,
+  };
+  if (idempotencyKey) {
+    headers['X-Idempotency-Key'] = idempotencyKey;
+  }
+
   const response = await fetch('/api/orders', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Tenant-ID': tenantId,
-      'X-Storefront-ID': storefrontId,
-    },
+    headers,
     body: JSON.stringify({
       tenantId,
       currency: orderData.currency,
