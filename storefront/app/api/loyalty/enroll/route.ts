@@ -95,8 +95,7 @@ export async function POST(request: NextRequest) {
     );
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('[Loyalty API] Failed to enroll:', error);
+      console.error('[Loyalty API] Failed to enroll: status', response.status);
       return NextResponse.json({ error: 'Failed to enroll in loyalty program' }, { status: response.status });
     }
 

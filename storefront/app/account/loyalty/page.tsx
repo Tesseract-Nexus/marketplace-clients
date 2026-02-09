@@ -33,11 +33,17 @@ export default function LoyaltyPage() {
     error,
     loadTransactions,
     enrollInProgram,
+    refreshProgram,
   } = useLoyalty();
 
   const [enrollError, setEnrollError] = useState<string | null>(null);
   const [referralCodeInput, setReferralCodeInput] = useState('');
   const [copiedCode, setCopiedCode] = useState(false);
+
+  // Force refresh program data on loyalty page mount
+  useEffect(() => {
+    refreshProgram();
+  }, [refreshProgram]);
 
   useEffect(() => {
     if (isEnrolled) {
@@ -92,18 +98,7 @@ export default function LoyaltyPage() {
   }
 
   if (!isProgramActive || !program) {
-    return (
-      <div className="bg-card rounded-xl border p-8 text-center">
-        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
-          <Star className="h-8 w-8 text-muted-foreground" />
-        </div>
-        <h2 className="text-xl font-bold mb-2">Loyalty Program Coming Soon</h2>
-        <p className="text-muted-foreground">
-          We're working on an exciting loyalty program for our valued customers.
-          Stay tuned for rewards and exclusive benefits!
-        </p>
-      </div>
-    );
+    return null;
   }
 
   if (!isEnrolled) {

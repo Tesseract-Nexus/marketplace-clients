@@ -31,8 +31,7 @@ export async function GET(request: NextRequest) {
       if (response.status === 404) {
         return NextResponse.json(null, { status: 404 });
       }
-      const error = await response.text();
-      console.error('[Loyalty API] Failed to get program:', error);
+      console.error('[Loyalty API] Failed to get program: status', response.status);
       return NextResponse.json({ error: 'Failed to get loyalty program' }, { status: response.status });
     }
 

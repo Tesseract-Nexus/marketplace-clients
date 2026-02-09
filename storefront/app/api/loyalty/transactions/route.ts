@@ -61,8 +61,7 @@ export async function GET(request: NextRequest) {
     );
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('[Loyalty API] Failed to get transactions:', error);
+      console.error('[Loyalty API] Failed to get transactions: status', response.status);
       return NextResponse.json({ error: 'Failed to get transactions' }, { status: response.status });
     }
 

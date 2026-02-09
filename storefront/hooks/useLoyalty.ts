@@ -24,6 +24,7 @@ export function useLoyalty() {
     fetchTransactions,
     enroll,
     redeemPoints,
+    refreshProgram: refreshProgramStore,
     reset,
   } = useLoyaltyStore();
 
@@ -61,6 +62,12 @@ export function useLoyalty() {
     // Auto-pass customer's dateOfBirth from profile if available
     await enroll(tenant.id, tenant.storefrontId, customer.id, referralCode, customer.dateOfBirth);
   }, [tenant, isAuthenticated, customer?.id, customer?.dateOfBirth, enroll]);
+
+  const refreshProgram = useCallback(() => {
+    if (tenant) {
+      refreshProgramStore(tenant.id, tenant.storefrontId);
+    }
+  }, [tenant, refreshProgramStore]);
 
   const redeem = useCallback(async (points: number, orderId: string) => {
     if (!tenant || !isAuthenticated || !customer?.id) {
@@ -114,6 +121,7 @@ export function useLoyalty() {
     loadTransactions,
     enrollInProgram,
     redeem,
+    refreshProgram,
     calculateEarnablePoints,
   };
 }

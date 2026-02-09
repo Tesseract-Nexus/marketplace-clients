@@ -48,7 +48,7 @@ export function ReferralProgram({ variant = 'full', className }: ReferralProgram
   const { tenant } = useTenant();
   const marketingConfig = useMarketingConfig();
   const { isAuthenticated, accessToken, customer } = useAuthStore();
-  const { customerLoyalty, program, fetchCustomerLoyalty, isLoadingCustomer } = useLoyaltyStore();
+  const { customerLoyalty, program, fetchCustomerLoyalty, isLoadingCustomer, hasFetchedCustomer } = useLoyaltyStore();
 
   // Don't render if referral program is disabled
   if (!marketingConfig.enableReferralProgram) {
@@ -62,10 +62,10 @@ export function ReferralProgram({ variant = 'full', className }: ReferralProgram
 
   // Fetch customer loyalty data if not available
   useEffect(() => {
-    if (tenant && isAuthenticated && customer?.id && !customerLoyalty) {
+    if (tenant && isAuthenticated && customer?.id && !hasFetchedCustomer && !isLoadingCustomer) {
       fetchCustomerLoyalty(tenant.id, tenant.storefrontId, customer.id);
     }
-  }, [tenant, isAuthenticated, customer?.id, customerLoyalty, fetchCustomerLoyalty]);
+  }, [tenant, isAuthenticated, customer?.id, hasFetchedCustomer, isLoadingCustomer, fetchCustomerLoyalty]);
 
   // Fetch referral stats
   useEffect(() => {

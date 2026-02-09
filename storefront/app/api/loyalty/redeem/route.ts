@@ -58,8 +58,7 @@ export async function POST(request: NextRequest) {
     );
 
     if (!response.ok) {
-      const error = await response.text();
-      console.error('[Loyalty API] Failed to redeem points:', error);
+      console.error('[Loyalty API] Failed to redeem points: status', response.status);
       return NextResponse.json({ error: 'Failed to redeem points' }, { status: response.status });
     }
 

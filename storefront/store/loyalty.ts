@@ -37,6 +37,7 @@ export interface LoyaltyState {
   fetchTransactions: (tenantId: string, storefrontId: string, customerId: string) => Promise<void>;
   enroll: (tenantId: string, storefrontId: string, customerId: string, referralCode?: string, dateOfBirth?: string) => Promise<void>;
   redeemPoints: (tenantId: string, storefrontId: string, points: number, orderId: string, customerId: string) => Promise<{ success: boolean; dollarValue: number }>;
+  refreshProgram: (tenantId: string, storefrontId: string) => Promise<void>;
   updateBalance: (newBalance: number) => void;
   reset: () => void;
 }
@@ -135,6 +136,13 @@ export const useLoyaltyStore = create<LoyaltyState>()(
           });
           throw error;
         }
+      },
+
+      refreshProgram: async (tenantId, storefrontId) => {
+        // Skip if already loading (prevents double-fetch on initial mount
+        // where the hook's auto-fetch effect also fires)
+        if (get().isLoadingProgram) return;
+        await get().fetchProgram(tenantId, storefrontId);
       },
 
       updateBalance: (newBalance) => {

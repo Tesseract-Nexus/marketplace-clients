@@ -405,6 +405,19 @@ export default function LoyaltyProgramPage() {
           </div>
         )}
 
+        {/* Unsaved Draft Banner */}
+        {!programExists && !error && (
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex items-center gap-3">
+            <AlertCircle className="h-5 w-5 text-primary flex-shrink-0" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">Program Not Yet Created</p>
+              <p className="text-sm text-muted-foreground">
+                Configure your loyalty program settings below, then click &quot;Save Program&quot; to make it live on your storefront.
+              </p>
+            </div>
+          </div>
+        )}
+
         <DataPageLayout sidebar={sidebarConfig} mobileStats={mobileStats}>
         {/* Tabs */}
         <div className="bg-card rounded-lg border border-border shadow-sm">
