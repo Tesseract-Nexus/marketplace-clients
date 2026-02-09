@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { Plus, Eye, CheckCircle, Clock, XCircle, AlertTriangle, Ticket as TicketIcon, User, MessageSquare, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
@@ -77,6 +77,7 @@ const getAssignees = (assignees?: Record<string, any>): string[] => {
 
 export default function TicketsPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const tenantSlug = params?.slug as string;
   const { currentTenant, isLoading: tenantLoading } = useTenant();
 
@@ -186,6 +187,19 @@ export default function TicketsPage() {
       setLoading(false);
     }
   };
+
+  // Deep-link: auto-open detail when ?id= is present
+  useEffect(() => {
+    if (loading || !tickets.length) return;
+    const ticketId = searchParams.get('id');
+    if (ticketId) {
+      const ticket = tickets.find(t => t.id === ticketId);
+      if (ticket) {
+        setSelectedTicket(ticket);
+        setShowDetailModal(true);
+      }
+    }
+  }, [searchParams, tickets, loading]);
 
   const filteredTickets = tickets.filter((ticket) => {
     const searchLower = searchQuery.toLowerCase();

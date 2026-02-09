@@ -143,9 +143,37 @@ function getNotificationUrl(notification: Notification): string | null {
     if (id) return `/coupons/${id}`;
     return '/coupons';
   }
-  if (type.startsWith('return.')) return '/returns';
-  if (type.startsWith('review.')) return '/reviews';
-  if (type.startsWith('ticket.')) return '/support';
+  if (type.startsWith('campaign.')) {
+    const id = (metadata?.campaignId as string) || entityId;
+    if (id) return `/campaigns/${id}`;
+    return '/campaigns';
+  }
+  if (type.startsWith('gift_card.')) {
+    const id = (metadata?.giftCardId as string) || entityId;
+    if (id) return `/gift-cards/${id}`;
+    return '/gift-cards';
+  }
+  if (type.startsWith('approval.')) {
+    const id = (metadata?.approvalId as string) || entityId;
+    if (id) return `/approvals/${id}`;
+    return '/approvals';
+  }
+  if (type.startsWith('ticket.')) {
+    const id = (metadata?.ticketId as string) || entityId;
+    if (id) return `/tickets/${id}`;
+    return '/tickets';
+  }
+  if (type.startsWith('return.')) {
+    const id = (metadata?.returnId as string) || entityId;
+    if (id) return `/returns/${id}`;
+    return '/returns';
+  }
+  if (type.startsWith('review.')) {
+    const id = (metadata?.reviewId as string) || entityId;
+    if (id) return `/reviews/${id}`;
+    return '/reviews';
+  }
+  if (type.startsWith('loyalty.')) return '/loyalty';
 
   // Generic fallback based on entityType
   if (entityType && entityId) {
@@ -159,6 +187,13 @@ function getNotificationUrl(notification: Notification): string | null {
       Payment: '/orders',
       Coupon: '/coupons',
       Inventory: '/products',
+      Campaign: '/campaigns',
+      GiftCard: '/gift-cards',
+      Approval: '/approvals',
+      Ticket: '/tickets',
+      Return: '/returns',
+      Review: '/reviews',
+      Loyalty: '/loyalty',
     };
     const basePath = routeMap[entityType];
     if (basePath) return `${basePath}/${entityId}`;

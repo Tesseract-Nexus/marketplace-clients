@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Search, Plus, Eye, CheckCircle, XCircle, Flag, Star, MessageSquare, Shield, AlertCircle, X, Loader2, Sparkles, ShieldCheck, Camera, ThumbsUp, Home, MessageCircle, Clock, TrendingUp, RefreshCw } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { Button } from '@/components/ui/button';
@@ -38,6 +39,7 @@ const typeOptions = [
 ];
 
 export default function ReviewsPage() {
+  const searchParams = useSearchParams();
   const toast = useToast();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,6 +69,19 @@ export default function ReviewsPage() {
   useEffect(() => {
     loadReviews();
   }, [statusFilter, typeFilter]);
+
+  // Deep-link: auto-open detail when ?id= is present
+  useEffect(() => {
+    if (loading || !reviews.length) return;
+    const reviewId = searchParams.get('id');
+    if (reviewId) {
+      const review = reviews.find(r => r.id === reviewId);
+      if (review) {
+        setSelectedReview(review);
+        setShowStatusModal(true);
+      }
+    }
+  }, [searchParams, reviews, loading]);
 
   const handleSubmitReply = async () => {
     if (!selectedReview || !replyContent.trim()) return;

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -135,6 +135,7 @@ const getTypeIcon = (type: ApprovalType) => {
 
 export default function ApprovalsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const toast = useToast();
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([]);
   const [loading, setLoading] = useState(true);
@@ -172,6 +173,19 @@ export default function ApprovalsPage() {
   useEffect(() => {
     loadApprovals();
   }, [loadApprovals]);
+
+  // Deep-link: auto-open detail when ?id= is present
+  useEffect(() => {
+    if (loading || !approvals.length) return;
+    const approvalId = searchParams.get('id');
+    if (approvalId) {
+      const approval = approvals.find(a => a.id === approvalId);
+      if (approval) {
+        setViewApproval(approval);
+        setViewDialogOpen(true);
+      }
+    }
+  }, [searchParams, approvals, loading]);
 
   // Quick approve without dialog
   const handleQuickApprove = async (approval: ApprovalRequest) => {

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { PackageX, Check, X, Eye, RefreshCw, Search, Clock, Truck, Package, CheckCircle, XCircle, RotateCcw, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { PermissionGate, Permission } from '@/components/permission-gate';
@@ -79,6 +80,7 @@ const reasonLabels: Record<string, string> = {
 };
 
 export default function ReturnsPage() {
+  const searchParams = useSearchParams();
   const { showAlert } = useDialog();
   const { currentTenant } = useTenant();
   const [returns, setReturns] = useState<Return[]>([]);
@@ -99,6 +101,20 @@ export default function ReturnsPage() {
       fetchReturns();
     }
   }, [statusFilter, searchQuery, currentTenant?.id]);
+
+  // Deep-link: auto-open detail when ?id= is present
+  useEffect(() => {
+    if (loading || !returns.length) return;
+    const returnId = searchParams.get('id');
+    if (returnId) {
+      const ret = returns.find(r => r.id === returnId);
+      if (ret) {
+        setSelectedReturn(ret);
+        setIsDetailsOpen(true);
+        loadReturnDetails(returnId);
+      }
+    }
+  }, [searchParams, returns, loading]);
 
   const fetchReturns = async () => {
     if (!currentTenant?.id) return;

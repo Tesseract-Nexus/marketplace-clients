@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Gift,
   Plus,
@@ -73,6 +73,7 @@ const DEFAULT_STATS: GiftCardStats = {
 
 export default function GiftCardsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { showAlert, showConfirm } = useDialog();
   const toast = useToast();
   const { currency } = useTenantCurrency();
@@ -159,6 +160,14 @@ export default function GiftCardsPage() {
     }, 300);
     return () => clearTimeout(debounce);
   }, [filterStatus, searchQuery, fetchGiftCards]);
+
+  // Deep-link: redirect to detail page when ?id= is present
+  useEffect(() => {
+    const giftCardId = searchParams.get('id');
+    if (giftCardId) {
+      router.replace(`/gift-cards/${giftCardId}`);
+    }
+  }, [searchParams, router]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {

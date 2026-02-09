@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Plus,
   Send,
@@ -124,6 +124,7 @@ const DEFAULT_STATS: CampaignStats = {
 
 export default function CampaignsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { showAlert, showConfirm } = useDialog();
   const toast = useToast();
 
@@ -261,6 +262,14 @@ export default function CampaignsPage() {
     }, 300);
     return () => clearTimeout(debounce);
   }, [filterType, filterChannel, filterStatus, searchQuery, fetchCampaigns]);
+
+  // Deep-link: redirect to detail page when ?id= is present
+  useEffect(() => {
+    const campaignId = searchParams.get('id');
+    if (campaignId) {
+      router.replace(`/campaigns/${campaignId}`);
+    }
+  }, [searchParams, router]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
