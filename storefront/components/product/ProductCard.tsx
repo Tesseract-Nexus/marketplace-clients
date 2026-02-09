@@ -3,11 +3,17 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Heart, ShoppingCart, Eye, Star, Loader2, Ban, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Heart, ShoppingCart, Eye, Star, Loader2, Ban, ChevronLeft, ChevronRight, Bookmark, Check } from 'lucide-react';
 import { motion, AnimatePresence, useMotionValue, useTransform, PanInfo } from 'framer-motion';
 import { useTiltValues } from '@/hooks/useTilt';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Product } from '@/types/storefront';
 import { useTenant, useProductConfig, useNavPath, useMobileConfig } from '@/context/TenantContext';
 import { useCartStore } from '@/store/cart';
@@ -577,27 +583,80 @@ export function ProductCard({
             </button>
           )}
 
-          {/* Desktop Wishlist Button - Same behavior as mobile: quick-add to default */}
+          {/* Desktop Wishlist Button - dropdown list picker when 2+ lists, otherwise quick-add */}
           {productConfig.showWishlist && !isTouchDevice && (
-            <button
-              type="button"
-              className={cn(
-                'absolute top-2.5 right-2.5 h-9 w-9 rounded-full transition-all duration-200 z-20',
-                'flex items-center justify-center',
-                'focus:outline-none focus:ring-2 focus:ring-offset-1',
-                isInList
-                  ? 'bg-[var(--wishlist-active)] text-white hover:opacity-90 focus:ring-[var(--wishlist-active)]'
-                  : 'bg-background/90 backdrop-blur-sm text-muted-foreground hover:text-[var(--wishlist-active)] shadow-md border border-border/50 focus:ring-[var(--wishlist-active)]'
-              )}
-              onClick={handleQuickAddToDefault}
-              title={isInList ? 'Saved to wishlist' : 'Save to wishlist'}
-            >
-              <Heart className={cn(
-                'h-5 w-5 transition-all',
-                isInList && 'fill-current',
-                isHeartAnimating && 'animate-heart-pop'
-              )} />
-            </button>
+            lists.length > 1 ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    type="button"
+                    className={cn(
+                      'absolute top-2.5 right-2.5 h-9 w-9 rounded-full transition-all duration-200 z-20',
+                      'flex items-center justify-center',
+                      'focus:outline-none focus:ring-2 focus:ring-offset-1',
+                      isInList
+                        ? 'bg-[var(--wishlist-active)] text-white hover:opacity-90 focus:ring-[var(--wishlist-active)]'
+                        : 'bg-background/90 backdrop-blur-sm text-muted-foreground hover:text-[var(--wishlist-active)] shadow-md border border-border/50 focus:ring-[var(--wishlist-active)]'
+                    )}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    title={isInList ? 'Saved to wishlist' : 'Save to wishlist'}
+                  >
+                    <Heart className={cn(
+                      'h-5 w-5 transition-all',
+                      isInList && 'fill-current',
+                      isHeartAnimating && 'animate-heart-pop'
+                    )} />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                  {lists.map((list) => {
+                    const isProductInThisList = list.items?.some((i) => i.productId === product.id);
+                    return (
+                      <DropdownMenuItem
+                        key={list.id}
+                        className="cursor-pointer flex items-center gap-2"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (isProductInThisList) {
+                            handleRemoveFromList(list, e);
+                          } else {
+                            handleAddToList(list, e);
+                          }
+                        }}
+                      >
+                        {isProductInThisList ? (
+                          <Check className="h-4 w-4 text-[var(--wishlist-active)]" />
+                        ) : (
+                          <Bookmark className="h-4 w-4 text-muted-foreground" />
+                        )}
+                        <span className={cn(isProductInThisList && 'font-medium')}>{list.name}</span>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <button
+                type="button"
+                className={cn(
+                  'absolute top-2.5 right-2.5 h-9 w-9 rounded-full transition-all duration-200 z-20',
+                  'flex items-center justify-center',
+                  'focus:outline-none focus:ring-2 focus:ring-offset-1',
+                  isInList
+                    ? 'bg-[var(--wishlist-active)] text-white hover:opacity-90 focus:ring-[var(--wishlist-active)]'
+                    : 'bg-background/90 backdrop-blur-sm text-muted-foreground hover:text-[var(--wishlist-active)] shadow-md border border-border/50 focus:ring-[var(--wishlist-active)]'
+                )}
+                onClick={handleQuickAddToDefault}
+                title={isInList ? 'Saved to wishlist' : 'Save to wishlist'}
+              >
+                <Heart className={cn(
+                  'h-5 w-5 transition-all',
+                  isInList && 'fill-current',
+                  isHeartAnimating && 'animate-heart-pop'
+                )} />
+              </button>
+            )
           )}
 
           {/* Actions - Always visible on mobile, hover on desktop */}

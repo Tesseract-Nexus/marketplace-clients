@@ -36,7 +36,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useTenant, useProductConfig, useNavPath, useMobileConfig } from '@/context/TenantContext';
 import { useCartStore } from '@/store/cart';
-import { useWishlistStore } from '@/store/wishlist';
+import { useListsStore } from '@/store/lists';
 import { useAuthStore } from '@/store/auth';
 import { Product } from '@/types/storefront';
 import { cn } from '@/lib/utils';
@@ -64,7 +64,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const getNavPath = useNavPath();
   const { formatDisplayPrice } = usePriceFormatting();
   const addToCart = useCartStore((state) => state.addItem);
-  const { isInWishlist, addAndSync, removeAndSync, addItem, removeItem } = useWishlistStore();
+  const { lists, fetchLists, addToDefaultList, removeProductFromList, isInAnyList, getListsContainingProduct } = useListsStore();
   const { customer, accessToken, isAuthenticated } = useAuthStore();
 
   const [selectedImage, setSelectedImage] = useState(0);
@@ -104,6 +104,13 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     return () => observer.disconnect();
   }, [isTouchDevice]);
 
+  // Fetch lists when authenticated
+  useEffect(() => {
+    if (isAuthenticated && tenant && customer && lists.length === 0) {
+      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken || '');
+    }
+  }, [isAuthenticated, tenant, lists.length, customer?.id, accessToken, fetchLists]);
+
   // Get images, prioritizing primary images first
   const images = useMemo(() => {
     const imgs = product.images || [];
@@ -136,7 +143,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     ? Math.round(((comparePrice - price) / comparePrice) * 100)
     : 0;
 
-  const isWishlisted = isInWishlist(product.id);
+  const isWishlisted = isInAnyList(product.id);
 
   const handleAddToCart = async () => {
     setIsAddingToCart(true);
@@ -159,27 +166,24 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   };
 
   const handleToggleWishlist = async () => {
-    const item = {
-      productId: product.id,
-      name: product.name,
-      price,
-      image: images[0],
-    };
+    if (!isAuthenticated || !customer || !tenant) {
+      window.location.href = getNavPath('/auth/login');
+      return;
+    }
 
-    if (isAuthenticated && customer && tenant) {
-      // Sync with backend (session cookie handles auth server-side)
-      if (isInWishlist(product.id)) {
-        await removeAndSync(tenant.id, tenant.storefrontId, customer.id, accessToken || '', product.id);
-      } else {
-        await addAndSync(tenant.id, tenant.storefrontId, customer.id, accessToken || '', item);
+    if (isInAnyList(product.id)) {
+      // Remove from whichever list(s) contain it
+      const containingLists = getListsContainingProduct(product.id);
+      for (const list of containingLists) {
+        await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', list.id, product.id);
       }
     } else {
-      // Local only for guests
-      if (isInWishlist(product.id)) {
-        removeItem(product.id);
-      } else {
-        addItem(item);
-      }
+      await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', {
+        id: product.id,
+        name: product.name,
+        image: images[0],
+        price,
+      });
     }
   };
 

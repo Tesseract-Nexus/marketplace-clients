@@ -124,9 +124,9 @@ Cart:
 - store/cart.ts (with backend sync)
 - lib/api/cart.ts
 
-Wishlist:
-- store/wishlist.ts (with backend sync)
-- lib/api/wishlist.ts
+Wishlist (unified into Lists):
+- store/lists.ts (multi-list with default list, backend sync)
+- /api/lists (REST routes for list CRUD + items)
 
 Reviews:
 - lib/api/reviews.ts

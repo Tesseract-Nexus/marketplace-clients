@@ -3,7 +3,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useAuthStore } from '@/store/auth';
 import { useCartStore } from '@/store/cart';
-import { useWishlistStore } from '@/store/wishlist';
 import { useTenant } from '@/context/TenantContext';
 import {
   hasAnonymousSessionData,
@@ -19,7 +18,6 @@ const SYNC_DEBOUNCE_MS = 5000;
 
 // Store names for session data
 const CART_STORE_NAME = 'storefront-cart';
-const WISHLIST_STORE_NAME = 'storefront-wishlist';
 
 interface CartSyncProviderProps {
   children: React.ReactNode;
@@ -29,7 +27,6 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
   const { tenant } = useTenant();
   const { customer, accessToken, isAuthenticated } = useAuthStore();
   const { items, mergeGuestCart, syncToBackend, loadFromBackend } = useCartStore();
-  const { items: wishlistItems, mergeGuestWishlist, loadFromBackend: loadWishlistFromBackend } = useWishlistStore();
 
   const syncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastSyncedItemsRef = useRef<string>('');
@@ -41,13 +38,9 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
 
     // Log remaining TTL for debugging
     const cartTTL = getRemainingTTL(CART_STORE_NAME);
-    const wishlistTTL = getRemainingTTL(WISHLIST_STORE_NAME);
 
     if (cartTTL > 0) {
       console.log(`[CartSyncProvider] Anonymous cart expires in ${Math.round(cartTTL / 60000)} minutes`);
-    }
-    if (wishlistTTL > 0) {
-      console.log(`[CartSyncProvider] Anonymous wishlist expires in ${Math.round(wishlistTTL / 60000)} minutes`);
     }
 
     // Start periodic cleanup for anonymous sessions
@@ -56,8 +49,6 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
         // On expiration, clear local store state
         if (storeName === CART_STORE_NAME) {
           console.log('[CartSyncProvider] Cart session expired, clearing local state');
-        } else if (storeName === WISHLIST_STORE_NAME) {
-          console.log('[CartSyncProvider] Wishlist session expired, clearing local state');
         }
       },
       (storeName, remainingMs) => {
@@ -82,28 +73,18 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
       console.log('[CartSyncProvider] Checking for anonymous session data to migrate...');
 
       const hasCartData = hasAnonymousSessionData(CART_STORE_NAME);
-      const hasWishlistData = hasAnonymousSessionData(WISHLIST_STORE_NAME);
 
-      if (hasCartData || hasWishlistData) {
+      if (hasCartData) {
         console.log('[CartSyncProvider] Found anonymous session data, migrating to authenticated storage...');
 
         try {
           // Merge cart data with backend
-          if (hasCartData && items.length > 0) {
+          if (items.length > 0) {
             console.log(`[CartSyncProvider] Merging ${items.length} cart items...`);
             await mergeGuestCart(tenant.id, tenant.storefrontId, customer.id, accessToken);
             // Clear session data after successful merge
             clearAnonymousSessionData(CART_STORE_NAME);
             console.log('[CartSyncProvider] Cart data migrated successfully');
-          }
-
-          // Merge wishlist data with backend (union, guest wins on conflict)
-          if (hasWishlistData && wishlistItems.length > 0) {
-            console.log(`[CartSyncProvider] Merging ${wishlistItems.length} wishlist items...`);
-            await mergeGuestWishlist(tenant.id, tenant.storefrontId, customer.id, accessToken);
-            // Clear session data after successful merge
-            clearAnonymousSessionData(WISHLIST_STORE_NAME);
-            console.log('[CartSyncProvider] Wishlist data merged successfully');
           }
         } catch (error) {
           console.error('[CartSyncProvider] Failed to migrate session data:', error);
@@ -114,7 +95,6 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
         console.log('[CartSyncProvider] No anonymous session data, loading from backend...');
         try {
           await loadFromBackend(tenant.id, tenant.storefrontId, customer.id, accessToken);
-          await loadWishlistFromBackend(tenant.id, tenant.storefrontId, customer.id, accessToken);
         } catch (error) {
           console.error('[CartSyncProvider] Failed to load data from backend:', error);
         }
@@ -131,11 +111,8 @@ export function CartSyncProvider({ children }: CartSyncProviderProps) {
     tenant?.id,
     tenant?.storefrontId,
     items,
-    wishlistItems,
     mergeGuestCart,
-    mergeGuestWishlist,
     loadFromBackend,
-    loadWishlistFromBackend,
   ]);
 
   // Debounced sync on cart changes

@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useTenant, useLocalization, useFormatPrice } from '@/context/TenantContext';
 import { useAuthStore } from '@/store/auth';
-import { useWishlistStore } from '@/store/wishlist';
+import { useListsStore } from '@/store/lists';
 import { toast } from 'sonner';
 import {
   CustomerAddress,
@@ -30,7 +30,7 @@ export default function AccountPage() {
   const storeCountryCode = localization.countryCode;
   const formatPrice = useFormatPrice();
   const { customerLoyalty, program } = useLoyalty();
-  const wishlistItems = useWishlistStore((state) => state.items);
+  const lists = useListsStore((state) => state.lists);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -975,7 +975,7 @@ export default function AccountPage() {
         </div>
         <div className="bg-card rounded-xl border p-6 text-center">
           <p className="text-3xl font-bold" style={{ color: settings.primaryColor }}>
-            {wishlistItems.length}
+            {lists.reduce((sum, l) => sum + l.itemCount, 0)}
           </p>
           <p className="text-sm text-muted-foreground mt-1"><TranslatedUIText text="Wishlist Items" /></p>
         </div>

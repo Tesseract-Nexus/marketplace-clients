@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -36,7 +36,8 @@ import {
 } from '@/components/ui/sheet';
 import { useTenant, useProductConfig, useNavPath } from '@/context/TenantContext';
 import { useCartStore } from '@/store/cart';
-import { useWishlistStore } from '@/store/wishlist';
+import { useListsStore } from '@/store/lists';
+import { useAuthStore } from '@/store/auth';
 import { usePriceFormatting } from '@/context/CurrencyContext';
 import { cn } from '@/lib/utils';
 import { getProductShippingData } from '@/lib/utils/product-shipping';
@@ -56,11 +57,52 @@ interface ProductsClientProps {
 }
 
 export function ProductsClient({ initialProducts, categories, totalProducts }: ProductsClientProps) {
+  const { tenant } = useTenant();
   const productConfig = useProductConfig();
   const getNavPath = useNavPath();
   const { formatDisplayPrice } = usePriceFormatting();
   const addToCart = useCartStore((state) => state.addItem);
-  const { isInWishlist, toggleItem: toggleWishlist } = useWishlistStore();
+  const { lists, fetchLists, addToDefaultList, removeProductFromList, isInAnyList, getListsContainingProduct } = useListsStore();
+  const { customer, accessToken, isAuthenticated } = useAuthStore();
+
+  // Fetch lists when authenticated
+  useEffect(() => {
+    if (isAuthenticated && tenant && customer && lists.length === 0) {
+      fetchLists(tenant.id, tenant.storefrontId, customer.id, accessToken || '');
+    }
+  }, [isAuthenticated, tenant, lists.length, customer?.id, accessToken, fetchLists]);
+
+  const handleToggleWishlist = useCallback(async (product: Product) => {
+    if (!isAuthenticated || !customer || !tenant) {
+      window.location.href = getNavPath('/auth/login');
+      return;
+    }
+
+    if (isInAnyList(product.id)) {
+      const containingLists = getListsContainingProduct(product.id);
+      for (const list of containingLists) {
+        await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', list.id, product.id);
+      }
+    } else {
+      const price = parseFloat(product.price);
+      const images = product.images || [];
+      const sorted = [...images].sort((a, b) => {
+        const aIsPrimary = typeof a !== 'string' && a?.isPrimary ? 1 : 0;
+        const bIsPrimary = typeof b !== 'string' && b?.isPrimary ? 1 : 0;
+        if (bIsPrimary !== aIsPrimary) return bIsPrimary - aIsPrimary;
+        const aPos = typeof a !== 'string' ? (a?.position ?? 999) : 999;
+        const bPos = typeof b !== 'string' ? (b?.position ?? 999) : 999;
+        return aPos - bPos;
+      });
+      const imageUrl = sorted.map((img) => typeof img === 'string' ? img : img.url)[0];
+      await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, accessToken || '', {
+        id: product.id,
+        name: product.name,
+        image: imageUrl,
+        price,
+      });
+    }
+  }, [isAuthenticated, customer, tenant, accessToken, getNavPath, isInAnyList, getListsContainingProduct, removeProductFromList, addToDefaultList]);
 
   // Calculate dynamic price range from products
   const maxProductPrice = useMemo(() => {
@@ -376,8 +418,8 @@ export function ProductsClient({ initialProducts, categories, totalProducts }: P
                         productConfig={productConfig}
                         getNavPath={getNavPath}
                         addToCart={addToCart}
-                        isInWishlist={isInWishlist}
-                        toggleWishlist={toggleWishlist}
+                        isInWishlist={isInAnyList}
+                        toggleWishlist={handleToggleWishlist}
                         formatDisplayPrice={formatDisplayPrice}
                       />
                     ))}
@@ -419,7 +461,7 @@ interface ProductCardProps {
   getNavPath: (path: string) => string;
   addToCart: (item: { productId: string; name: string; price: number; quantity: number; image?: string }) => void;
   isInWishlist: (id: string) => boolean;
-  toggleWishlist: (item: { productId: string; name: string; price: number; image?: string }) => void;
+  toggleWishlist: (product: Product) => void;
   formatDisplayPrice: (amount: number) => string;
 }
 
@@ -502,12 +544,7 @@ function ProductCard({
             )}
             onClick={(e) => {
               e.preventDefault();
-              toggleWishlist({
-                productId: product.id,
-                name: product.name,
-                price,
-                image: images[0],
-              });
+              toggleWishlist(product);
             }}
           >
             <Heart className={cn('h-4 w-4 transition-transform', wishlisted && 'fill-current scale-110')} />
