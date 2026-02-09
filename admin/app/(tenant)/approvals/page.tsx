@@ -140,7 +140,9 @@ export default function ApprovalsPage() {
   const [approvals, setApprovals] = useState<ApprovalRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<ApprovalStatus | 'all'>('pending');
+  const [statusFilter, setStatusFilter] = useState<ApprovalStatus | 'all'>(
+    searchParams.get('id') ? 'all' : 'pending'
+  );
   const [typeFilter, setTypeFilter] = useState<ApprovalType | 'all'>('all');
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
