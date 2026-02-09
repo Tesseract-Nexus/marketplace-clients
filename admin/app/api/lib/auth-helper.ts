@@ -25,16 +25,9 @@ export async function getAccessTokenFromBFF(): Promise<InternalTokenResponse | n
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('bff_session');
 
-    // Debug: Log all cookies to understand what's available
-    const allCookies = cookieStore.getAll();
-    console.log('[Auth Helper] Available cookies:', allCookies.map(c => c.name).join(', ') || 'none');
-
     if (!sessionCookie?.value) {
-      console.log('[Auth Helper] No bff_session cookie found');
       return null;
     }
-
-    console.log('[Auth Helper] Found bff_session, calling auth-bff at:', AUTH_BFF_URL);
 
     // Call the auth-bff internal endpoint to get the token
     const response = await fetch(`${AUTH_BFF_URL}/internal/get-token`, {
@@ -47,16 +40,11 @@ export async function getAccessTokenFromBFF(): Promise<InternalTokenResponse | n
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[Auth Helper] Failed to get token from BFF:', response.status, errorText);
       return null;
     }
 
-    const tokenData = await response.json();
-    console.log('[Auth Helper] Got token, tenant_id:', tokenData.tenant_id || 'not set');
-    return tokenData;
-  } catch (error) {
-    console.error('[Auth Helper] Error getting token from BFF:', error);
+    return await response.json();
+  } catch {
     return null;
   }
 }
@@ -98,8 +86,7 @@ export function extractUserIdFromJWT(token: string): string | null {
 
     // Try common JWT user ID fields
     return payload.sub || payload.user_id || payload.userId || null;
-  } catch (error) {
-    console.error('Error decoding JWT:', error);
+  } catch {
     return null;
   }
 }
@@ -127,7 +114,6 @@ export async function getUserIdFromBFFSession(): Promise<string | null> {
     });
 
     if (!response.ok) {
-      console.error('BFF session check failed:', response.status);
       return null;
     }
 
@@ -138,8 +124,7 @@ export async function getUserIdFromBFFSession(): Promise<string | null> {
     }
 
     return null;
-  } catch (error) {
-    console.error('Error getting user from BFF session:', error);
+  } catch {
     return null;
   }
 }
@@ -170,8 +155,7 @@ export async function getBFFSession(): Promise<BFFSessionResponse | null> {
     }
 
     return await response.json();
-  } catch (error) {
-    console.error('Error getting BFF session:', error);
+  } catch {
     return null;
   }
 }
@@ -208,8 +192,7 @@ export async function getAccessTokenFromBFFSession(): Promise<string | null> {
     }
 
     return `Bearer ${tokenData.access_token}`;
-  } catch (error) {
-    console.error('Error getting access token from BFF session:', error);
+  } catch {
     return null;
   }
 }
