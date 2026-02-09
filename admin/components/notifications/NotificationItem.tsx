@@ -118,6 +118,8 @@ function formatCurrency(amount: number, currency: string): string {
 }
 
 // Generate navigation URL based on notification type and entity
+// All entities use path-based routing: /entity/{id}
+// Entities without native [id] routes have redirect pages that handle the mapping
 function getNotificationUrl(notification: Notification): string | null {
   if (notification.actionUrl) return notification.actionUrl;
 
@@ -130,7 +132,6 @@ function getNotificationUrl(notification: Notification): string | null {
 
   const type = notification.type.toLowerCase();
 
-  // Path-based routes (these entities have dedicated [id]/page.tsx)
   if (type.startsWith('order.') || type.startsWith('payment.')) {
     const id = orderId || entityId;
     if (id) return `/orders/${id}`;
@@ -139,75 +140,55 @@ function getNotificationUrl(notification: Notification): string | null {
     const id = customerId || entityId;
     if (id) return `/customers/${id}`;
   }
+  if (type.startsWith('product.')) {
+    const id = productId || entityId;
+    if (id) return `/products/${id}`;
+    return '/products';
+  }
+  if (type.startsWith('inventory.')) {
+    const id = productId || entityId;
+    if (id) return `/products/${id}`;
+    return '/inventory';
+  }
+  if (type.startsWith('category.')) {
+    const id = entityId;
+    if (id) return `/categories/${id}`;
+    return '/categories';
+  }
+  if (type.startsWith('staff.')) {
+    const id = entityId;
+    if (id) return `/staff/${id}`;
+    return '/staff';
+  }
+  if (type.startsWith('vendor.')) {
+    const id = (metadata?.vendorId as string) || entityId;
+    if (id) return `/vendors/${id}`;
+    return '/vendors';
+  }
   if (type.startsWith('coupon.')) {
     const id = (metadata?.couponId as string) || entityId;
     if (id) return `/coupons/${id}`;
     return '/coupons';
   }
-
-  // Query-param routes (these entities use ?id= on their main page)
-  if (type.startsWith('product.')) {
-    const id = productId || entityId;
-    if (id) return `/products?id=${id}`;
-    return '/products';
-  }
-  if (type.startsWith('inventory.')) {
-    const id = productId || entityId;
-    if (id) return `/products?id=${id}`;
-    return '/inventory';
-  }
-  if (type.startsWith('category.')) {
-    const id = entityId;
-    if (id) return `/categories?id=${id}`;
-    return '/categories';
-  }
-  if (type.startsWith('staff.')) {
-    const id = entityId;
-    if (id) return `/staff?id=${id}`;
-    return '/staff';
-  }
-  if (type.startsWith('vendor.')) {
-    const id = (metadata?.vendorId as string) || entityId;
-    if (id) return `/vendors?id=${id}`;
-    return '/vendors';
-  }
-
-  // List-only routes (modal/inline views without URL deep-linking)
   if (type.startsWith('return.')) return '/returns';
   if (type.startsWith('review.')) return '/reviews';
   if (type.startsWith('ticket.')) return '/support';
 
   // Generic fallback based on entityType
   if (entityType && entityId) {
-    // Path-based entities (have [id]/page.tsx)
-    const pathRoutes: Record<string, string> = {
+    const routeMap: Record<string, string> = {
       Order: '/orders',
       Customer: '/customers',
-      Payment: '/orders',
-      Coupon: '/coupons',
-    };
-    const pathBase = pathRoutes[entityType];
-    if (pathBase) return `${pathBase}/${entityId}`;
-
-    // Query-param entities (use ?id= on main page)
-    const queryRoutes: Record<string, string> = {
       Product: '/products',
       Category: '/categories',
       Staff: '/staff',
       Vendor: '/vendors',
+      Payment: '/orders',
+      Coupon: '/coupons',
+      Inventory: '/products',
     };
-    const queryBase = queryRoutes[entityType];
-    if (queryBase) return `${queryBase}?id=${entityId}`;
-
-    // List-only entities
-    const listRoutes: Record<string, string> = {
-      Review: '/reviews',
-      Return: '/returns',
-      Inventory: '/inventory',
-      Ticket: '/support',
-    };
-    const listBase = listRoutes[entityType];
-    if (listBase) return listBase;
+    const basePath = routeMap[entityType];
+    if (basePath) return `${basePath}/${entityId}`;
   }
 
   return null;
