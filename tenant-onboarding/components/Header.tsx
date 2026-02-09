@@ -22,8 +22,9 @@ export default function Header({ currentPage = 'other' }: HeaderProps) {
               src="/icon-192.png"
               alt="mark8ly icon"
               className="h-9 w-auto object-contain"
+              style={{ marginRight: '0px' }}
             />
-            <span className="ml-2 text-xl font-light tracking-tight text-[var(--foreground)]">mark8ly</span>
+            <span className="text-[1.375rem] font-serif font-medium tracking-[-0.015em] text-foreground-secondary">mark8ly</span>
           </Link>
           <div className="hidden md:flex items-center space-x-8">
             <a 

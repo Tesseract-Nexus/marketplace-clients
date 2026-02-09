@@ -19,8 +19,9 @@ export function Footer() {
                 src="/icon-192.png"
                 alt="mark8ly icon"
                 className="h-8 w-auto brightness-0 invert"
+                style={{ marginRight: '0px' }}
               />
-              <span className="ml-2 text-lg font-light tracking-tight text-warm-100">mark8ly</span>
+              <span className="text-lg font-serif font-medium tracking-[-0.015em] text-warm-100">mark8ly</span>
             </Link>
             <p className="text-warm-400 text-sm leading-relaxed">
               The simplest way to launch and grow your online store. Built for creators, makers, and small businesses.
