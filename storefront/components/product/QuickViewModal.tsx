@@ -34,7 +34,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
 
-  const isOutOfStock = product.inventoryStatus === 'OUT_OF_STOCK';
+  const isOutOfStock = product.status === 'OUT_OF_STOCK' || product.inventoryStatus === 'OUT_OF_STOCK' || (product.quantity !== undefined && product.quantity <= 0);
 
   // Get all image URLs
   const allImages = useMemo(() => {

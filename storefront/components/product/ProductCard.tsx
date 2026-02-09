@@ -96,7 +96,7 @@ export function ProductCard({
     setIsTouchDevice(window.matchMedia('(pointer: coarse)').matches);
   }, []);
 
-  const isOutOfStock = product.inventoryStatus === 'OUT_OF_STOCK' || (product.quantity !== undefined && product.quantity <= 0);
+  const isOutOfStock = product.status === 'OUT_OF_STOCK' || product.inventoryStatus === 'OUT_OF_STOCK' || (product.quantity !== undefined && product.quantity <= 0);
 
   // 3D tilt effect - disabled on touch devices
   const { rotateX, rotateY, shouldAnimate, handlers: tiltHandlers } = useTiltValues({
@@ -557,7 +557,7 @@ export function ProductCard({
                 Low Stock
               </Badge>
             )}
-            {productConfig.showStockStatus && product.inventoryStatus === 'OUT_OF_STOCK' && (
+            {productConfig.showStockStatus && isOutOfStock && (
               <Badge className="bg-muted-foreground text-background text-xs font-semibold px-2 py-0.5 shadow-lg">
                 Sold Out
               </Badge>

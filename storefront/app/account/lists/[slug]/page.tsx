@@ -46,7 +46,7 @@ export default function ListDetailPage({
   const { slug } = use(params);
   const getNavPath = useNavPath();
   const { tenant } = useTenant();
-  const { customer, accessToken } = useAuthStore();
+  const { customer, accessToken, isAuthenticated } = useAuthStore();
   const { getList, updateList, removeFromList, lists, fetchLists } = useListsStore();
   const { addItem } = useCartStore();
 
@@ -60,11 +60,9 @@ export default function ListDetailPage({
   const [isRemoving, setIsRemoving] = useState(false);
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
 
-  const isAuthenticated = !!(customer && accessToken);
-
   useEffect(() => {
     const loadList = async () => {
-      if (!isAuthenticated || !tenant) return;
+      if (!isAuthenticated || !tenant || !customer) return;
 
       setIsLoading(true);
       try {
@@ -72,7 +70,7 @@ export default function ListDetailPage({
           tenant.id,
           tenant.storefrontId,
           customer.id,
-          accessToken,
+          accessToken || '',
           slug
         );
         setList(fetchedList);

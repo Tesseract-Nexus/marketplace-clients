@@ -145,7 +145,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     ? Math.round(((comparePrice - price) / comparePrice) * 100)
     : 0;
 
-  const isOutOfStock = product.inventoryStatus === 'OUT_OF_STOCK' || (product.quantity !== undefined && product.quantity <= 0);
+  const isOutOfStock = product.status === 'OUT_OF_STOCK' || product.inventoryStatus === 'OUT_OF_STOCK' || (product.quantity !== undefined && product.quantity <= 0);
   const isWishlisted = isInAnyList(product.id);
 
   const handleAddToCart = async () => {

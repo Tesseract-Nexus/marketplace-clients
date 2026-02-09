@@ -452,7 +452,7 @@ function ProductCard({
   const comparePrice = product.comparePrice ? parseFloat(product.comparePrice) : null;
   const hasDiscount = comparePrice && comparePrice > price;
   const discountPercent = hasDiscount ? Math.round(((comparePrice - price) / comparePrice) * 100) : 0;
-  const isOutOfStock = product.inventoryStatus === 'OUT_OF_STOCK' || (product.quantity !== undefined && product.quantity <= 0);
+  const isOutOfStock = product.status === 'OUT_OF_STOCK' || product.inventoryStatus === 'OUT_OF_STOCK' || (product.quantity !== undefined && product.quantity <= 0);
   // Get images, prioritizing primary images first
   const images = useMemo(() => {
     const imgs = product.images || [];
