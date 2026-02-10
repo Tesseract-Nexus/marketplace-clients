@@ -69,18 +69,47 @@ const fallbackTrustBadges = [
   { iconName: 'Clock', label: '24/7 Support' },
 ];
 
-const fallbackPricingFeatures = [
-  'Sell as many products as you want',
-  'Use your own domain name',
-  'Looks great on phones',
-  'Help customers find you on Google',
-  'Accept cards, UPI, and wallets',
-  'Track orders from one place',
-  'Let customers save their info',
-  'Automatic emails when orders ship',
-  'See what\'s selling (and what\'s not)',
-  'No developer needed—do it yourself',
-  'Real humans ready to help, 24/7',
+const fallbackPricingPlans: Array<{
+  name: string; slug: string; price: string; currency?: string; billingCycle?: string;
+  tagline?: string; trialDays?: number; featured?: boolean;
+  features: Array<{ feature: string }>;
+  regionalPricing?: Array<{ countryCode: string; price: string; currency: string }>;
+}> = [
+  {
+    name: 'Free Trial',
+    slug: 'free-trial',
+    price: '0',
+    currency: 'INR',
+    billingCycle: 'monthly',
+    trialDays: 365,
+    featured: false,
+    tagline: 'Get started risk-free',
+    features: [
+      { feature: 'Unlimited products' },
+      { feature: 'Mobile-responsive storefront' },
+      { feature: 'Payment processing' },
+      { feature: 'Order management' },
+      { feature: '24/7 human support' },
+    ],
+  },
+  {
+    name: 'Professional',
+    slug: 'professional',
+    price: '499',
+    currency: 'INR',
+    billingCycle: 'monthly',
+    featured: true,
+    tagline: 'Everything you need to grow',
+    features: [
+      { feature: 'Sell as many products as you want' },
+      { feature: 'Use your own domain name' },
+      { feature: 'Looks great on phones' },
+      { feature: 'Accept cards, UPI, and wallets' },
+      { feature: 'Analytics dashboard' },
+      { feature: 'No transaction fees from us' },
+      { feature: 'Real humans ready to help, 24/7' },
+    ],
+  },
 ];
 
 const fallbackFaqs = [
@@ -145,6 +174,17 @@ const fallbackTestimonials: Array<{ quote: string; name: string; role: string; c
 // SWR fetcher
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+// Currency symbol mapping
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  INR: '₹',
+  AUD: 'A$',
+  USD: '$',
+  GBP: '£',
+  EUR: '€',
+  SGD: 'S$',
+  NZD: 'NZ$',
+};
+
 // Types for API response
 interface HomeContentResponse {
   data: {
@@ -153,10 +193,15 @@ interface HomeContentResponse {
     testimonials: Array<{ quote: string; name: string; role: string; company?: string; initials: string }>;
     trustBadges: Array<{ label: string; iconName: string }>;
     paymentPlans: Array<{
+      name: string;
       slug: string;
       price: string;
+      currency?: string;
+      billingCycle?: string;
       tagline?: string;
+      description?: string;
       trialDays?: number;
+      featured?: boolean;
       features: Array<{ feature: string }>;
       regionalPricing?: Array<{ countryCode: string; price: string; currency: string }>;
     }>;
@@ -183,33 +228,40 @@ export default function Home() {
   const trustBadges = contentData?.data?.trustBadges?.length ? contentData.data.trustBadges : fallbackTrustBadges;
   const faqs = contentData?.data?.faqs?.length ? contentData.data.faqs : fallbackFaqs;
   const testimonials = contentData?.data?.testimonials?.length ? contentData.data.testimonials : fallbackTestimonials;
-  const pricingFeatures = contentData?.data?.paymentPlans?.[0]?.features?.length
-    ? contentData.data.paymentPlans[0].features.map((f) => f.feature)
-    : fallbackPricingFeatures;
-
-  // Extract pricing info from payment plans — find free and paid plans dynamically
+  // Extract pricing info from payment plans
   const allPlans = contentData?.data?.paymentPlans ?? [];
   const freePlan = allPlans.find(
     (p) => parseFloat(p.price) === 0 || p.slug === 'free-trial' || p.slug === 'free'
   );
-  const paidPlan = allPlans.find(
-    (p) => parseFloat(p.price) > 0
-  );
+  const paidPlans = allPlans.filter((p) => parseFloat(p.price) > 0);
+  const cheapestPaid = paidPlans.length > 0
+    ? paidPlans.reduce((a, b) => parseFloat(a.price) < parseFloat(b.price) ? a : b)
+    : null;
 
-  // Format price — prefer INR regional pricing, then base price
-  const formatPlanPrice = (plan: typeof allPlans[number] | undefined, fallback: string): string => {
+  // Format price with correct currency symbol
+  const formatPlanPrice = (plan: typeof allPlans[number] | undefined, fallback = 'Free'): string => {
     if (!plan || parseFloat(plan.price) <= 0) return fallback;
+    // Check for INR regional pricing first (preferred display for Indian users)
     const inrPricing = plan.regionalPricing?.find((r) => r.currency === 'INR');
     if (inrPricing) return `₹${Math.round(parseFloat(inrPricing.price)).toLocaleString('en-IN')}`;
+    // Use the plan's own currency
     const price = Math.round(parseFloat(plan.price));
-    // If base currency is already INR-like (no decimal after rounding)
-    if (plan.price && !plan.regionalPricing?.length) return `₹${price.toLocaleString('en-IN')}`;
-    return `A$${price}`;
+    const currency = plan.currency || 'INR';
+    const symbol = CURRENCY_SYMBOLS[currency] || currency + ' ';
+    const formatted = currency === 'INR' ? price.toLocaleString('en-IN') : price.toLocaleString();
+    return `${symbol}${formatted}`;
+  };
+
+  const getBillingLabel = (plan: typeof allPlans[number]): string => {
+    if (parseFloat(plan.price) <= 0) return '';
+    if (plan.billingCycle === 'yearly') return '/year';
+    if (plan.billingCycle === 'one_time') return ' one-time';
+    return '/month';
   };
 
   const trialMonths = freePlan?.trialDays ? Math.round(freePlan.trialDays / 30) : 12;
-  const monthlyPrice = formatPlanPrice(paidPlan, '₹499');
-  const pricingTagline = freePlan?.tagline || `${trialMonths} months free, then ${monthlyPrice}/mo`;
+  const cheapestPrice = cheapestPaid ? formatPlanPrice(cheapestPaid) : '₹499';
+  const pricingTagline = freePlan?.tagline || `${trialMonths} months free, then ${cheapestPrice}/mo`;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -452,54 +504,85 @@ export default function Home() {
               Simple, honest pricing
             </h2>
             <p className="text-lg text-foreground-secondary">
-              Start free. Stay free for a year. Then one flat price.
+              {freePlan
+                ? `Start free. Stay free for ${trialMonths} months. Then one flat price.`
+                : 'One flat price. No surprises.'}
             </p>
           </div>
 
-          {/* Pricing Card */}
-          <div className="rounded-2xl border border-warm-200 bg-white p-8 sm:p-12 shadow-sm">
-            <div className="flex flex-col lg:flex-row gap-10">
-              {/* Left - Price */}
-              <div className="lg:w-1/2">
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-5xl sm:text-6xl font-serif font-medium text-foreground">{formatPlanPrice(freePlan, '₹0')}</span>
-                    <span className="text-foreground-secondary">/month</span>
-                  </div>
-                  <p className="text-foreground-secondary">
-                    for your first <span className="font-semibold text-foreground">{trialMonths} months</span>
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-lg bg-warm-50 border border-warm-200 mb-8">
-                  <p className="text-sm text-foreground-secondary">
-                    Then just <span className="font-semibold text-foreground text-lg">{monthlyPrice}/month</span>
-                    <br />
-                    <span className="text-foreground-tertiary">No transaction fees. No hidden costs.</span>
-                  </p>
-                </div>
-
-                <button
-                  onClick={() => router.push('/onboarding')}
-                  className="w-full bg-primary text-primary-foreground py-4 rounded-lg text-lg font-medium hover:bg-primary-hover transition-colors"
+          {/* Plans Grid */}
+          <div className={`grid gap-6 ${
+            allPlans.length === 1 ? 'max-w-md mx-auto' :
+            allPlans.length === 2 ? 'sm:grid-cols-2 max-w-3xl mx-auto' :
+            allPlans.length === 3 ? 'sm:grid-cols-2 lg:grid-cols-3' :
+            'sm:grid-cols-2 lg:grid-cols-4'
+          }`}>
+            {(allPlans.length > 0 ? allPlans : fallbackPricingPlans).map((plan) => {
+              const isFree = parseFloat(plan.price) <= 0;
+              const isFeatured = plan.featured;
+              return (
+                <div
+                  key={plan.slug}
+                  className={`rounded-2xl border bg-white p-6 sm:p-8 shadow-sm flex flex-col ${
+                    isFeatured ? 'border-primary ring-2 ring-primary/20' : 'border-warm-200'
+                  }`}
                 >
-                  Start Your Free Year
-                </button>
-              </div>
+                  {isFeatured && (
+                    <div className="inline-flex self-start items-center px-3 py-1 rounded-full bg-sage-50 text-sage-700 text-xs font-medium border border-sage-200 mb-3">
+                      Most popular
+                    </div>
+                  )}
 
-              {/* Right - Features */}
-              <div className="lg:w-1/2 lg:border-l lg:border-warm-200 lg:pl-10">
-                <h3 className="font-medium text-foreground mb-6">Everything included:</h3>
-                <ul className="space-y-3">
-                  {pricingFeatures.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-3">
-                      <Check className="w-5 h-5 text-sage-500 flex-shrink-0" />
-                      <span className="text-foreground-secondary">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+                  <h3 className="font-serif text-lg font-medium text-foreground mb-1">{plan.name}</h3>
+                  {plan.tagline && (
+                    <p className="text-sm text-foreground-tertiary mb-3">{plan.tagline}</p>
+                  )}
+
+                  <div className="mb-4">
+                    <div className="flex items-baseline gap-1">
+                      <span className={`font-serif font-medium text-foreground ${isFeatured ? 'text-3xl' : 'text-2xl'}`}>
+                        {formatPlanPrice(plan)}
+                      </span>
+                      {!isFree && (
+                        <span className="text-foreground-secondary text-sm">{getBillingLabel(plan)}</span>
+                      )}
+                    </div>
+                    {isFree && plan.trialDays && plan.trialDays > 0 && (
+                      <p className="text-sm text-foreground-secondary mt-1">
+                        for <span className="font-semibold text-foreground">{Math.round(plan.trialDays / 30)} months</span>
+                      </p>
+                    )}
+                  </div>
+
+                  {plan.features?.length > 0 && (
+                    <ul className="space-y-2 mb-6 flex-1">
+                      {plan.features.slice(0, 6).map((f, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <Check className="w-4 h-4 text-sage-500 flex-shrink-0 mt-0.5" />
+                          <span className="text-sm text-foreground-secondary">{f.feature}</span>
+                        </li>
+                      ))}
+                      {plan.features.length > 6 && (
+                        <li className="text-sm text-foreground-tertiary pl-6">
+                          +{plan.features.length - 6} more
+                        </li>
+                      )}
+                    </ul>
+                  )}
+
+                  <button
+                    onClick={() => router.push('/onboarding')}
+                    className={`w-full py-3 rounded-lg text-base font-medium transition-colors ${
+                      isFeatured
+                        ? 'bg-primary text-primary-foreground hover:bg-primary-hover'
+                        : 'border border-warm-300 text-foreground hover:bg-warm-50'
+                    }`}
+                  >
+                    {isFree ? 'Start Free' : 'Get Started'}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>

@@ -9,12 +9,28 @@ import { Check, ArrowRight, HelpCircle, MessageCircle } from 'lucide-react';
 // SWR fetcher
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
+// Currency symbol mapping
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  INR: '₹',
+  AUD: 'A$',
+  USD: '$',
+  GBP: '£',
+  EUR: '€',
+  SGD: 'S$',
+  NZD: 'NZ$',
+};
+
 // Types for API response
 interface PaymentPlanData {
+  name: string;
   slug: string;
   price: string;
+  currency?: string;
+  billingCycle?: string;
   tagline?: string;
+  description?: string;
   trialDays?: number;
+  featured?: boolean;
   features: Array<{ feature: string }>;
   regionalPricing?: Array<{ countryCode: string; price: string; currency: string }>;
 }
@@ -25,19 +41,69 @@ interface PricingContentResponse {
   };
 }
 
-const fallbackPricingFeatures = [
-  'Unlimited products',
-  'Custom domain support',
-  'Mobile-responsive storefront',
-  'Built-in SEO tools',
-  'Payment processing (UPI, cards, wallets)',
-  'Order management',
-  'Customer accounts',
-  'Analytics dashboard',
-  'Inventory tracking',
-  '24/7 human support',
-  'No transaction fees from us',
+const fallbackPlans: PaymentPlanData[] = [
+  {
+    name: 'Free Trial',
+    slug: 'free-trial',
+    price: '0',
+    currency: 'INR',
+    billingCycle: 'monthly',
+    trialDays: 365,
+    featured: false,
+    tagline: 'Get started risk-free',
+    features: [
+      { feature: 'Unlimited products' },
+      { feature: 'Mobile-responsive storefront' },
+      { feature: 'Payment processing' },
+      { feature: 'Order management' },
+      { feature: '24/7 human support' },
+    ],
+  },
+  {
+    name: 'Professional',
+    slug: 'professional',
+    price: '499',
+    currency: 'INR',
+    billingCycle: 'monthly',
+    featured: true,
+    tagline: 'Everything you need to grow',
+    features: [
+      { feature: 'Unlimited products' },
+      { feature: 'Custom domain support' },
+      { feature: 'Mobile-responsive storefront' },
+      { feature: 'Built-in SEO tools' },
+      { feature: 'Payment processing (UPI, cards, wallets)' },
+      { feature: 'Order management' },
+      { feature: 'Customer accounts' },
+      { feature: 'Analytics dashboard' },
+      { feature: 'Inventory tracking' },
+      { feature: '24/7 human support' },
+      { feature: 'No transaction fees from us' },
+    ],
+  },
 ];
+
+// Format price with correct currency symbol
+function formatPlanPrice(plan: PaymentPlanData): string {
+  const priceNum = parseFloat(plan.price);
+  if (priceNum <= 0) return 'Free';
+  // Check for INR regional pricing first
+  const inrPricing = plan.regionalPricing?.find((r) => r.currency === 'INR');
+  if (inrPricing) return `₹${Math.round(parseFloat(inrPricing.price)).toLocaleString('en-IN')}`;
+  // Use the plan's own currency
+  const price = Math.round(priceNum);
+  const currency = plan.currency || 'INR';
+  const symbol = CURRENCY_SYMBOLS[currency] || currency + ' ';
+  const formatted = currency === 'INR' ? price.toLocaleString('en-IN') : price.toLocaleString();
+  return `${symbol}${formatted}`;
+}
+
+function getBillingLabel(plan: PaymentPlanData): string {
+  if (parseFloat(plan.price) <= 0) return '';
+  if (plan.billingCycle === 'yearly') return '/year';
+  if (plan.billingCycle === 'one_time') return ' one-time';
+  return '/month';
+}
 
 export default function PricingPage() {
   const router = useRouter();
@@ -48,32 +114,21 @@ export default function PricingPage() {
     dedupingInterval: 60000,
   });
 
-  // Extract pricing info from payment plans — find free and paid plans dynamically
-  const allPlans = contentData?.data?.paymentPlans ?? [];
+  const allPlans = contentData?.data?.paymentPlans?.length
+    ? contentData.data.paymentPlans
+    : fallbackPlans;
+
+  // Find free plan for trial info in hero/FAQ
   const freePlan = allPlans.find(
     (p) => parseFloat(p.price) === 0 || p.slug === 'free-trial' || p.slug === 'free'
   );
-  const paidPlan = allPlans.find(
-    (p) => parseFloat(p.price) > 0
-  );
+  const paidPlans = allPlans.filter((p) => parseFloat(p.price) > 0);
+  const cheapestPaid = paidPlans.length > 0
+    ? paidPlans.reduce((a, b) => parseFloat(a.price) < parseFloat(b.price) ? a : b)
+    : null;
 
-  // Format price with currency symbol
-  const formatPrice = (plan: PaymentPlanData | undefined, fallback: string): string => {
-    if (!plan || parseFloat(plan.price) <= 0) return fallback;
-    const price = Math.round(parseFloat(plan.price));
-    // Check for regional pricing (INR for India)
-    const inrPricing = plan.regionalPricing?.find((r) => r.currency === 'INR');
-    if (inrPricing) return `₹${Math.round(parseFloat(inrPricing.price)).toLocaleString('en-IN')}`;
-    return `A$${price}`;
-  };
-
-  const monthlyPrice = formatPrice(paidPlan, '₹499');
   const trialMonths = freePlan?.trialDays ? Math.round(freePlan.trialDays / 30) : 12;
-  // Use features from the free plan, or the paid plan, or fallback
-  const featureSourcePlan = freePlan?.features?.length ? freePlan : paidPlan;
-  const pricingFeatures = featureSourcePlan?.features?.length
-    ? featureSourcePlan.features.map((f) => f.feature)
-    : fallbackPricingFeatures;
+  const cheapestPrice = cheapestPaid ? formatPlanPrice(cheapestPaid) : '₹499';
 
   const comparisons = [
     {
@@ -93,7 +148,7 @@ export default function PricingPage() {
     {
       platform: 'mark8ly',
       freeTrialDays: `${trialMonths} months`,
-      monthlyPrice: monthlyPrice,
+      monthlyPrice: cheapestPaid ? `from ${cheapestPrice}` : cheapestPrice,
       transactionFees: 'None',
       support: 'Human 24/7',
       highlighted: true,
@@ -115,66 +170,90 @@ export default function PricingPage() {
             Simple, honest pricing
           </h1>
           <p className="text-xl text-foreground-secondary">
-            Start free for {trialMonths} months. Then one flat price. No surprises.
+            {freePlan
+              ? `Start free for ${trialMonths} months. Then one flat price. No surprises.`
+              : `One flat price. No surprises.`}
           </p>
         </div>
       </section>
 
-      {/* Main Pricing Card */}
+      {/* Plans Grid */}
       <section className="px-6 pb-16">
-        <div className="max-w-4xl mx-auto">
-          <div className="rounded-2xl border border-warm-200 bg-white p-8 sm:p-12 shadow-sm">
-            <div className="flex flex-col lg:flex-row gap-10">
-              {/* Left - Price */}
-              <div className="lg:w-1/2">
-                <div className="inline-flex items-center px-3 py-1 rounded-full bg-sage-50 text-sage-700 text-sm font-medium border border-sage-200 mb-6">
-                  Most popular
-                </div>
-
-                <div className="mb-6">
-                  <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-5xl sm:text-6xl font-serif font-medium text-foreground">₹0</span>
-                    <span className="text-foreground-secondary">/month</span>
-                  </div>
-                  <p className="text-foreground-secondary">
-                    for your first <span className="font-semibold text-foreground">{trialMonths} months</span>
-                  </p>
-                </div>
-
-                <div className="p-4 rounded-lg bg-warm-50 border border-warm-200 mb-8">
-                  <p className="text-sm text-foreground-secondary">
-                    Then just <span className="font-semibold text-foreground text-lg">{monthlyPrice}/month</span>
-                    <br />
-                    <span className="text-foreground-tertiary">No transaction fees. No hidden costs. Cancel anytime.</span>
-                  </p>
-                </div>
-
-                <button
-                  onClick={handleGetStarted}
-                  className="w-full bg-primary text-primary-foreground py-4 rounded-xl text-lg font-medium hover:bg-primary-hover transition-colors flex items-center justify-center gap-2"
+        <div className="max-w-5xl mx-auto">
+          <div className={`grid gap-6 ${
+            allPlans.length === 1 ? 'max-w-md mx-auto' :
+            allPlans.length === 2 ? 'sm:grid-cols-2 max-w-3xl mx-auto' :
+            allPlans.length === 3 ? 'sm:grid-cols-2 lg:grid-cols-3' :
+            'sm:grid-cols-2 lg:grid-cols-4'
+          }`}>
+            {allPlans.map((plan) => {
+              const isFree = parseFloat(plan.price) <= 0;
+              const isFeatured = plan.featured;
+              return (
+                <div
+                  key={plan.slug}
+                  className={`rounded-2xl border bg-white p-6 sm:p-8 shadow-sm flex flex-col ${
+                    isFeatured ? 'border-primary ring-2 ring-primary/20' : 'border-warm-200'
+                  }`}
                 >
-                  Start Your Free Year
-                  <ArrowRight className="w-5 h-5" />
-                </button>
+                  {isFeatured && (
+                    <div className="inline-flex self-start items-center px-3 py-1 rounded-full bg-sage-50 text-sage-700 text-sm font-medium border border-sage-200 mb-4">
+                      Most popular
+                    </div>
+                  )}
 
-                <p className="text-sm text-foreground-tertiary text-center mt-4">
-                  No credit card required to start
-                </p>
-              </div>
+                  <h3 className="font-serif text-xl font-medium text-foreground mb-1">{plan.name}</h3>
+                  {plan.tagline && (
+                    <p className="text-sm text-foreground-tertiary mb-4">{plan.tagline}</p>
+                  )}
 
-              {/* Right - Features */}
-              <div className="lg:w-1/2 lg:border-l lg:border-warm-200 lg:pl-10">
-                <h3 className="font-medium text-foreground mb-6">Everything included:</h3>
-                <ul className="space-y-3">
-                  {pricingFeatures.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-3">
-                      <Check className="w-5 h-5 text-sage-500 flex-shrink-0" />
-                      <span className="text-foreground-secondary">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+                  <div className="mb-4">
+                    <div className="flex items-baseline gap-1">
+                      <span className={`font-serif font-medium text-foreground ${isFeatured ? 'text-4xl' : 'text-3xl'}`}>
+                        {formatPlanPrice(plan)}
+                      </span>
+                      {!isFree && (
+                        <span className="text-foreground-secondary text-sm">{getBillingLabel(plan)}</span>
+                      )}
+                    </div>
+                    {isFree && plan.trialDays && plan.trialDays > 0 && (
+                      <p className="text-sm text-foreground-secondary mt-1">
+                        for <span className="font-semibold text-foreground">{trialMonths} months</span>
+                      </p>
+                    )}
+                  </div>
+
+                  {plan.features.length > 0 && (
+                    <ul className="space-y-2 mb-6 flex-1">
+                      {plan.features.map((f, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <Check className="w-4 h-4 text-sage-500 flex-shrink-0 mt-0.5" />
+                          <span className="text-sm text-foreground-secondary">{f.feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  <button
+                    onClick={handleGetStarted}
+                    className={`w-full py-3 rounded-xl text-base font-medium transition-colors flex items-center justify-center gap-2 ${
+                      isFeatured
+                        ? 'bg-primary text-primary-foreground hover:bg-primary-hover'
+                        : 'border border-warm-300 text-foreground hover:bg-warm-50'
+                    }`}
+                  >
+                    {isFree ? 'Start Free' : 'Get Started'}
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+
+                  {isFree && (
+                    <p className="text-xs text-foreground-tertiary text-center mt-2">
+                      No credit card required
+                    </p>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -238,12 +317,14 @@ export default function PricingPage() {
             </div>
 
             <div className="space-y-6">
-              <div>
-                <h3 className="font-medium text-foreground mb-2">What happens after the {trialMonths} months?</h3>
-                <p className="text-foreground-secondary">
-                  After your free year, it&apos;s just {monthlyPrice}/month. That&apos;s it—no hidden fees, no transaction costs from us, no surprises. And you can cancel anytime.
-                </p>
-              </div>
+              {freePlan && (
+                <div>
+                  <h3 className="font-medium text-foreground mb-2">What happens after the {trialMonths} months?</h3>
+                  <p className="text-foreground-secondary">
+                    After your free period, plans start from {cheapestPrice}/month. No hidden fees, no transaction costs from us. Cancel anytime.
+                  </p>
+                </div>
+              )}
 
               <div>
                 <h3 className="font-medium text-foreground mb-2">Are there any transaction fees?</h3>
