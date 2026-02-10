@@ -279,12 +279,12 @@ export default function PricingPage() {
                 return (
                   <div
                     key={plan.slug}
-                    className={`rounded-2xl border bg-white p-6 sm:p-8 shadow-sm flex flex-col ${
-                      isFeatured ? 'border-primary ring-2 ring-primary/20' : 'border-warm-200'
+                    className={`rounded-2xl border bg-white p-6 sm:p-8 flex flex-col transition-all duration-200 hover:shadow-md ${
+                      isFeatured ? 'border-foreground ring-1 ring-foreground/10 shadow-md' : 'border-warm-200 shadow-sm'
                     }`}
                   >
                     {isFeatured && (
-                      <div className="inline-flex self-start items-center px-3 py-1 rounded-full bg-sage-50 text-sage-700 text-sm font-medium border border-sage-200 mb-4">
+                      <div className="inline-flex self-start items-center px-3 py-1 rounded-full bg-foreground text-background text-sm font-medium mb-4">
                         Most popular
                       </div>
                     )}
@@ -294,7 +294,7 @@ export default function PricingPage() {
                       <p className="text-sm text-foreground-tertiary mb-4">{plan.tagline}</p>
                     )}
 
-                    <div className="mb-4">
+                    <div className="mb-5">
                       <div className="flex items-baseline gap-1">
                         <span className={`font-serif font-medium text-foreground ${isFeatured ? 'text-4xl' : 'text-3xl'}`}>
                           {formatPlanPrice(plan, userCountry, userCurrency)}
@@ -311,9 +311,9 @@ export default function PricingPage() {
                     </div>
 
                     {plan.features.length > 0 && (
-                      <ul className="space-y-2 mb-6 flex-1">
+                      <ul className="space-y-2.5 mb-6 flex-1">
                         {plan.features.map((f, i) => (
-                          <li key={i} className="flex items-start gap-2">
+                          <li key={i} className="flex items-start gap-2.5">
                             <Check className="w-4 h-4 text-sage-500 flex-shrink-0 mt-0.5" />
                             <span className="text-sm text-foreground-secondary">{f.feature}</span>
                           </li>
@@ -323,11 +323,7 @@ export default function PricingPage() {
 
                     <button
                       onClick={handleGetStarted}
-                      className={`w-full py-3 rounded-xl text-base font-medium transition-colors flex items-center justify-center gap-2 ${
-                        isFeatured
-                          ? 'bg-primary text-primary-foreground hover:bg-primary-hover'
-                          : 'border border-warm-300 text-foreground hover:bg-warm-50'
-                      }`}
+                      className="w-full py-3 rounded-xl text-base font-medium transition-all flex items-center justify-center gap-2 bg-foreground text-background hover:bg-foreground/90 hover:shadow-sm"
                     >
                       {isFree ? 'Start Free' : 'Get Started'}
                       <ArrowRight className="w-4 h-4" />

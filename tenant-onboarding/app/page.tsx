@@ -421,7 +421,7 @@ export default function Home() {
               })}
             </div>
           </div>
-          <div className="relative" role="img" aria-label="Preview of mark8ly admin dashboard showing revenue of ₹1,03,750, 284 orders, 3.2K visitors, and a sales growth chart">
+          <div className="relative" role="img" aria-label="Preview of mark8ly admin dashboard showing revenue, orders, visitors, and a sales growth chart">
             {/* Dashboard mockup */}
             <div className="rounded-2xl border border-warm-200 bg-white shadow-lg p-5 transform hover:scale-[1.02] transition-transform duration-300" aria-hidden="true">
               {/* Browser bar */}
@@ -439,7 +439,7 @@ export default function Home() {
                 <div className="grid grid-cols-3 gap-3">
                   <div className="p-3 rounded-lg bg-sage-50 border border-sage-100">
                     <div className="text-xs text-sage-600 mb-1">Revenue</div>
-                    <div className="text-lg font-semibold text-foreground">₹1,03,750</div>
+                    <div className="text-lg font-semibold text-foreground">{(CURRENCY_SYMBOLS[userCurrency || 'INR'] || '₹')}{!userCurrency || userCurrency === 'INR' ? '1,03,750' : '1,350'}</div>
                   </div>
                   <div className="p-3 rounded-lg bg-warm-50 border border-warm-100">
                     <div className="text-xs text-warm-600 mb-1">Orders</div>
@@ -479,7 +479,7 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="text-xs text-foreground-tertiary">New order</div>
-                  <div className="text-sm font-medium text-foreground">₹7,400</div>
+                  <div className="text-sm font-medium text-foreground">{(CURRENCY_SYMBOLS[userCurrency || 'INR'] || '₹')}{!userCurrency || userCurrency === 'INR' ? '7,400' : '96'}</div>
                 </div>
               </div>
             </div>
@@ -586,12 +586,12 @@ export default function Home() {
                 return (
                   <div
                     key={plan.slug}
-                    className={`rounded-2xl border bg-white p-6 sm:p-8 shadow-sm flex flex-col ${
-                      isFeatured ? 'border-primary ring-2 ring-primary/20' : 'border-warm-200'
+                    className={`rounded-2xl border bg-white p-6 sm:p-8 flex flex-col transition-all duration-200 hover:shadow-md ${
+                      isFeatured ? 'border-foreground ring-1 ring-foreground/10 shadow-md' : 'border-warm-200 shadow-sm'
                     }`}
                   >
                     {isFeatured && (
-                      <div className="inline-flex self-start items-center px-3 py-1 rounded-full bg-sage-50 text-sage-700 text-xs font-medium border border-sage-200 mb-3">
+                      <div className="inline-flex self-start items-center px-3 py-1 rounded-full bg-foreground text-background text-xs font-medium mb-3">
                         Most popular
                       </div>
                     )}
@@ -601,7 +601,7 @@ export default function Home() {
                       <p className="text-sm text-foreground-tertiary mb-3">{plan.tagline}</p>
                     )}
 
-                    <div className="mb-4">
+                    <div className="mb-5">
                       <div className="flex items-baseline gap-1">
                         <span className={`font-serif font-medium text-foreground ${isFeatured ? 'text-3xl' : 'text-2xl'}`}>
                           {formatPlanPrice(plan)}
@@ -618,9 +618,9 @@ export default function Home() {
                     </div>
 
                     {plan.features?.length > 0 && (
-                      <ul className="space-y-2 mb-6 flex-1">
+                      <ul className="space-y-2.5 mb-6 flex-1">
                         {plan.features.slice(0, 6).map((f, i) => (
-                          <li key={i} className="flex items-start gap-2">
+                          <li key={i} className="flex items-start gap-2.5">
                             <Check className="w-4 h-4 text-sage-500 flex-shrink-0 mt-0.5" />
                             <span className="text-sm text-foreground-secondary">{f.feature}</span>
                           </li>
@@ -635,11 +635,7 @@ export default function Home() {
 
                     <button
                       onClick={() => router.push('/onboarding')}
-                      className={`w-full py-3 rounded-lg text-base font-medium transition-colors ${
-                        isFeatured
-                          ? 'bg-primary text-primary-foreground hover:bg-primary-hover'
-                          : 'border border-warm-300 text-foreground hover:bg-warm-50'
-                      }`}
+                      className="w-full py-3 rounded-lg text-base font-medium transition-all bg-foreground text-background hover:bg-foreground/90 hover:shadow-sm"
                     >
                       {isFree ? 'Start Free' : 'Get Started'}
                     </button>
