@@ -28,14 +28,16 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
-        <OpenPanelComponent
-          clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID!}
-          apiUrl="/api/op"
-          cdnUrl="/op1.js"
-          trackScreenViews={true}
-          trackAttributes={true}
-          trackOutgoingLinks={true}
-        />
+        {process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID && (
+          <OpenPanelComponent
+            clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID}
+            apiUrl="/api/op"
+            cdnUrl="/op1.js"
+            trackScreenViews={true}
+            trackAttributes={true}
+            trackOutgoingLinks={true}
+          />
+        )}
         <QueryProvider>
           <AuthProvider>
             <CsrfTokenInitializer>

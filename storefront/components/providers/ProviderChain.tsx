@@ -45,14 +45,16 @@ export function ProviderChain({
   return (
     <>
       {/* OpenPanel product analytics */}
-      <OpenPanelComponent
-        clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID!}
-        apiUrl="/api/op"
-        cdnUrl="/op1.js"
-        trackScreenViews={true}
-        trackAttributes={true}
-        trackOutgoingLinks={true}
-      />
+      {process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID && (
+        <OpenPanelComponent
+          clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID}
+          apiUrl="/api/op"
+          cdnUrl="/op1.js"
+          trackScreenViews={true}
+          trackAttributes={true}
+          trackOutgoingLinks={true}
+        />
+      )}
       {/* Organization and WebSite JSON-LD for brand identity and search */}
       <OrganizationJsonLd
         organization={{
