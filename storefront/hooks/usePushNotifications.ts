@@ -38,57 +38,45 @@ export function usePushNotifications() {
       const existing = await reg.pushManager.getSubscription();
       if (existing) {
         setIsRegistered(true);
+        return;
+      }
+
+      // Auto-register: if permission was already granted (e.g. on login page), subscribe now
+      if (Notification.permission === 'granted') {
+        try {
+          const subscription = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as BufferSource,
+          });
+
+          const sub = subscription.toJSON();
+          const response = await fetch('/api/push-token', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              endpoint: sub.endpoint,
+              keys: {
+                p256dh: sub.keys?.p256dh,
+                auth: sub.keys?.auth,
+              },
+              platform: 'web',
+            }),
+          });
+
+          if (response.ok) {
+            setIsRegistered(true);
+          } else {
+            console.error('[Push] Auto-register failed:', response.status);
+          }
+        } catch (err) {
+          console.error('[Push] Auto-register error:', err);
+        }
       }
     }).catch((err) => {
       console.error('[Push] Failed to register service worker:', err);
     });
   }, []);
-
-  // Auto-register push subscription when permission is already granted (e.g. granted on login page)
-  useEffect(() => {
-    if (!isSupported || permission !== 'granted' || isRegistered) return;
-    if (!registrationRef.current) return;
-
-    const autoRegister = async () => {
-      try {
-        const existing = await registrationRef.current!.pushManager.getSubscription();
-        if (existing) {
-          setIsRegistered(true);
-          return;
-        }
-
-        const subscription = await registrationRef.current!.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as BufferSource,
-        });
-
-        const sub = subscription.toJSON();
-        const response = await fetch('/api/push-token', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({
-            endpoint: sub.endpoint,
-            keys: {
-              p256dh: sub.keys?.p256dh,
-              auth: sub.keys?.auth,
-            },
-            platform: 'web',
-          }),
-        });
-
-        if (response.ok) {
-          setIsRegistered(true);
-        } else {
-          console.error('[Push] Auto-register failed:', response.status);
-        }
-      } catch (err) {
-        console.error('[Push] Auto-register error:', err);
-      }
-    };
-
-    autoRegister();
-  }, [isSupported, permission, isRegistered]);
 
   const requestPermission = useCallback(async () => {
     if (!isSupported || !registrationRef.current) return false;
