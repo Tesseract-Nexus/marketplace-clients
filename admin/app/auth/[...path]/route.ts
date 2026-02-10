@@ -88,6 +88,16 @@ async function proxyToAuthBff(
 
     const response = await fetch(targetUrl, fetchOptions);
 
+    // Log non-success responses from BFF for easier debugging
+    if (response.status >= 400) {
+      console.error('[Auth Proxy] BFF returned error', {
+        path: authPath,
+        status: response.status,
+        host: request.headers.get('host'),
+        method,
+      });
+    }
+
     // Handle redirects (login/logout flows)
     if (response.status >= 300 && response.status < 400) {
       const location = response.headers.get('location');
@@ -151,7 +161,12 @@ async function proxyToAuthBff(
 
     return nextResponse;
   } catch (error) {
-    console.error('[Auth Proxy] Error:', error);
+    console.error('[Auth Proxy] Failed to reach auth-bff', {
+      path: authPath,
+      host: request.headers.get('host'),
+      bffUrl: AUTH_BFF_URL,
+      error: error instanceof Error ? error.message : error,
+    });
     return NextResponse.json(
       { error: 'Authentication service unavailable' },
       { status: 503 }

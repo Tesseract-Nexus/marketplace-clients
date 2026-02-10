@@ -39,6 +39,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<AutoLogin
 
     // Validate required fields
     if (!body.access_token || !body.user_id || !body.email || !body.tenant_id || !body.tenant_slug) {
+      console.warn('[Auto-Login] Missing required fields', {
+        hasAccessToken: !!body.access_token,
+        hasUserId: !!body.user_id,
+        hasEmail: !!body.email,
+        hasTenantId: !!body.tenant_id,
+        hasTenantSlug: !!body.tenant_slug,
+      });
       return NextResponse.json(
         {
           success: false,
@@ -48,11 +55,18 @@ export async function POST(request: NextRequest): Promise<NextResponse<AutoLogin
       );
     }
 
+    console.log('[Auto-Login] Creating transfer code', {
+      tenantSlug: body.tenant_slug,
+      userId: body.user_id,
+      bffUrl: AUTH_BFF_URL,
+    });
+
     // Call BFF to create transfer code
     const bffResponse = await fetch(`${AUTH_BFF_URL}/auth/import-tokens`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Auth-Context': 'admin',
         ...(INTERNAL_SERVICE_KEY ? { 'X-Internal-Service-Key': INTERNAL_SERVICE_KEY } : {}),
       },
       body: JSON.stringify({
@@ -70,7 +84,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<AutoLogin
 
     if (!bffResponse.ok) {
       const errorData = await bffResponse.json().catch(() => ({}));
-      console.error('[Auto-Login] BFF error:', errorData);
+      console.error('[Auto-Login] BFF import-tokens failed', {
+        status: bffResponse.status,
+        error: errorData.error || errorData.message,
+        tenantSlug: body.tenant_slug,
+        userId: body.user_id,
+      });
       return NextResponse.json(
         {
           success: false,
@@ -87,13 +106,18 @@ export async function POST(request: NextRequest): Promise<NextResponse<AutoLogin
     const adminBaseUrl = `https://${body.tenant_slug}-admin.${baseDomain}`;
     const adminUrl = `${adminBaseUrl}/auth/accept-transfer?code=${bffData.transfer_code}&returnTo=/`;
 
+    console.log('[Auto-Login] Transfer code created successfully', {
+      tenantSlug: body.tenant_slug,
+      adminUrl,
+    });
+
     return NextResponse.json({
       success: true,
       transfer_code: bffData.transfer_code,
       admin_url: adminUrl,
     });
   } catch (error) {
-    console.error('[Auto-Login] Error:', error);
+    console.error('[Auto-Login] Unexpected error creating transfer session', error);
     return NextResponse.json(
       {
         success: false,
