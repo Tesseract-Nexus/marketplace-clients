@@ -193,6 +193,11 @@ export default function LoginPage() {
           tenantId: result.user.tenant_id,
         });
 
+        // Request push notification permission (fire-and-forget, runs within user gesture)
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
+
         await fetchAndUpdateProfile(result.user.tenant_id);
         router.push(getNavPath('/account'));
       } else if (result.error === 'CANCELLED') {
@@ -242,6 +247,11 @@ export default function LoginPage() {
         // The mergeGuestCart API call would require tenantId, storefrontId, customerId, accessToken
         // but direct auth uses HTTP-only cookies, so we skip explicit cart merge here
         // The next cart load will sync with the authenticated session
+
+        // Request push notification permission (fire-and-forget, runs within user gesture)
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
 
         // Redirect to account page
         router.push(getNavPath('/account'));
@@ -315,6 +325,12 @@ export default function LoginPage() {
           });
 
           await fetchAndUpdateProfile(loginResult.user.tenant_id);
+
+          // Request push notification permission (fire-and-forget, runs within user gesture)
+          if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission();
+          }
+
           // Cart merge handled by session cookies - see handleSubmit comment
           router.push(getNavPath('/account'));
         } else {
@@ -412,6 +428,12 @@ export default function LoginPage() {
           });
           await fetchAndUpdateProfile(result.user.tenant_id);
         }
+
+        // Request push notification permission (fire-and-forget, runs within user gesture)
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
+
         router.push(getNavPath('/account'));
       } else {
         setMfaError(result.message || 'Invalid code. Please try again.');

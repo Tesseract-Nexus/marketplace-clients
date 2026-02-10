@@ -264,6 +264,11 @@ function LoginPageContent() {
       // Success!
       setStep('success');
 
+      // Request push notification permission (fire-and-forget, runs within user gesture)
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+
       // Redirect to dashboard or return URL
       setTimeout(() => {
         const returnTo = getCurrentTenantSlug() ? '/' : '/welcome';
@@ -361,6 +366,11 @@ function LoginPageContent() {
 
       setStep('success');
 
+      // Request push notification permission (fire-and-forget, runs within user gesture)
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+
       setTimeout(() => {
         const returnTo = getCurrentTenantSlug() ? '/' : '/welcome';
         window.location.href = returnTo;
@@ -399,6 +409,12 @@ function LoginPageContent() {
       const result = await authenticateWithPasskey();
       if (result.success) {
         setStep('success');
+
+        // Request push notification permission (fire-and-forget, runs within user gesture)
+        if ('Notification' in window && Notification.permission === 'default') {
+          Notification.requestPermission();
+        }
+
         setTimeout(() => {
           const returnTo = getCurrentTenantSlug() ? '/' : '/welcome';
           window.location.href = returnTo;
