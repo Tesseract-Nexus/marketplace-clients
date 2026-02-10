@@ -1,7 +1,6 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { OpenPanelComponent } from '@openpanel/nextjs';
 import { TenantProvider } from '@/context/TenantContext';
 import { CurrencyProvider } from '@/context/CurrencyContext';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
@@ -44,17 +43,7 @@ export function ProviderChain({
 }: ProviderChainProps) {
   return (
     <>
-      {/* OpenPanel product analytics */}
-      {process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID && (
-        <OpenPanelComponent
-          clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID}
-          apiUrl="/api/op"
-          cdnUrl="/op1.js"
-          trackScreenViews={true}
-          trackAttributes={true}
-          trackOutgoingLinks={true}
-        />
-      )}
+      {/* OpenPanel analytics is initialized in layout.tsx with proper CSP nonces */}
       {/* Organization and WebSite JSON-LD for brand identity and search */}
       <OrganizationJsonLd
         organization={{

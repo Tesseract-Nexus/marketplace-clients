@@ -13,6 +13,7 @@ import { resolveTenantInfo } from '@/lib/tenant';
 import { ComingSoonPage } from '@/components/ComingSoonPage';
 import { ThemeSkeleton } from '@/components/loading/ThemeSkeleton';
 import { ProviderChain } from '@/components/providers/ProviderChain';
+import Script from 'next/script';
 
 const inter = Inter({
   variable: "--font-inter",
@@ -205,6 +206,20 @@ export default async function RootLayout({
           primaryColor={settings.primaryColor}
           secondaryColor={settings.secondaryColor}
         />
+
+        {/* OpenPanel analytics — initialized here (server component) so scripts get CSP nonce */}
+        {process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID && (
+          <>
+            <Script
+              nonce={nonce}
+              strategy="beforeInteractive"
+              dangerouslySetInnerHTML={{
+                __html: `window.op=window.op||function(){var n=[];return new Proxy(function(){arguments.length&&n.push([].slice.call(arguments))},{get:function(t,r){return"q"===r?n:function(){n.push([r].concat([].slice.call(arguments)))}},has:function(t,r){return"q"===r}})}();window.op('init',${JSON.stringify({clientId:process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID,apiUrl:'/api/op',sdk:'nextjs',sdkVersion:'1.1.3',trackScreenViews:true,trackAttributes:true,trackOutgoingLinks:true})});`,
+              }}
+            />
+            <Script nonce={nonce} src="/op1.js?v=1.1.3" async defer />
+          </>
+        )}
 
         {/* Main app content */}
         <div id="main-app-content">
