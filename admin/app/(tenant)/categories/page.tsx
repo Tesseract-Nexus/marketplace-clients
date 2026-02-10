@@ -57,6 +57,7 @@ import { categoryService } from '@/lib/services/categoryService';
 import { FilterPanel } from '@/components/data-listing';
 import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { Category, CreateCategoryRequest, UpdateCategoryRequest, DefaultMediaURLs } from '@/lib/api/types';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 import { BulkImportModal } from '@/components/BulkImportModal';
 import { CategoryIconUploader, CategoryBannerUploader, MediaItem } from '@/components/MediaUploader';
 import { useToast } from '@/contexts/ToastContext';
@@ -118,6 +119,7 @@ export default function CategoriesPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toast = useToast();
+  const analytics = useAnalytics();
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -427,9 +429,11 @@ export default function CategoriesPage() {
     try {
       if (viewMode === 'create') {
         await categoryService.createCategory(formData as CreateCategoryRequest);
+        analytics.categoryCreated({ categoryId: '', name: formData.name, parentId: formData.parentId || undefined });
         toast.success('Category Created', 'The category has been created successfully');
       } else if (viewMode === 'edit' && selectedCategory) {
         await categoryService.updateCategory(selectedCategory.id, formData as UpdateCategoryRequest);
+        analytics.categoryUpdated({ categoryId: selectedCategory.id });
         toast.success('Category Updated', 'Changes have been saved successfully');
       }
       await loadCategories();

@@ -28,9 +28,13 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Build arguments for Next.js public environment variables
+ARG NEXT_PUBLIC_OPENPANEL_CLIENT_ID=""
+
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
+ENV NEXT_PUBLIC_OPENPANEL_CLIENT_ID=$NEXT_PUBLIC_OPENPANEL_CLIENT_ID
 
 # Build argument to determine which .env file to use
 ARG ENV_FILE=.env

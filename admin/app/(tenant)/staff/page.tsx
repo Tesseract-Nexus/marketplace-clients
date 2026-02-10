@@ -71,6 +71,7 @@ import { StaffFormStep1, StaffFormStep2, StaffFormStep3, StaffFormStep4, StaffFo
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
 import { DataPageLayout, SidebarSection, SidebarStatItem, HealthWidgetConfig } from '@/components/DataPageLayout';
 import { useToast } from '@/contexts/ToastContext';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 
 type ViewMode = 'list' | 'create' | 'edit' | 'detail';
 
@@ -79,6 +80,7 @@ export default function StaffPage() {
   const tenantSlug = params?.slug as string;
   const { currentTenant, isLoading: tenantLoading } = useTenant();
   const toast = useToast();
+  const analytics = useAnalytics();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -471,6 +473,7 @@ export default function StaffPage() {
 
       if (viewMode === 'create') {
         await staffService.createStaff(preparedData as CreateStaffRequest);
+        analytics.staffInvited({ role: formData.role || 'employee' });
         toast.success('Staff Member Created', `${formData.firstName} ${formData.lastName} has been added`);
       } else if (viewMode === 'edit' && selectedStaff) {
         await staffService.updateStaff(selectedStaff.id, preparedData as UpdateStaffRequest);
@@ -524,6 +527,7 @@ export default function StaffPage() {
         activationBaseUrl: typeof window !== 'undefined' ? window.location.origin : undefined,
         businessName: currentTenant?.name || currentTenant?.displayName || undefined,
       } as CreateStaffRequest);
+      analytics.staffInvited({ role: 'employee' });
       toast.success('Staff Member Added', `${data.firstName} ${data.lastName} has been invited`);
       await loadStaff();
       setViewMode('list');
@@ -636,6 +640,7 @@ export default function StaffPage() {
             activationBaseUrl: typeof window !== 'undefined' ? window.location.origin : undefined,
             businessName: currentTenant?.name || currentTenant?.displayName || undefined,
           });
+          analytics.staffInvited({ role: staffMember.role || 'employee' });
           await loadStaff();
           setModalConfig({ ...modalConfig, isOpen: false });
         } catch (err) {

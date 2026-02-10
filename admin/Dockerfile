@@ -19,9 +19,13 @@ RUN npm install
 # Copy application source
 COPY . .
 
+# Build arguments for Next.js public environment variables
+ARG NEXT_PUBLIC_OPENPANEL_CLIENT_ID=""
+
 # Set environment variables for build
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NEXT_PUBLIC_OPENPANEL_CLIENT_ID=$NEXT_PUBLIC_OPENPANEL_CLIENT_ID
 
 # Build the Next.js application
 RUN npm run build

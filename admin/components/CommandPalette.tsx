@@ -38,6 +38,7 @@ import {
 import { useGlobalSearch } from '@/hooks/useSearch';
 import { cn } from '@/lib/utils';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 
 // ========================================
 // Types
@@ -207,6 +208,7 @@ const TYPE_LABELS: Record<string, string> = {
 // ========================================
 
 export function CommandPalette() {
+  const analytics = useAnalytics();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -414,6 +416,7 @@ export function CommandPalette() {
     if (query.length >= 2) {
       addToSearchHistory(query, totalResultCount);
       setRecentSearches(getSearchHistory());
+      analytics.searchPerformed({ query, section: result.type, resultCount: totalResultCount });
     }
 
     setOpen(false);

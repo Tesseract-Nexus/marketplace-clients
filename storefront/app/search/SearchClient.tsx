@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useMemo } from 'react';
+import { useState, useTransition, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -22,6 +22,7 @@ import { getProductShippingData } from '@/lib/utils/product-shipping';
 import { TranslatedProductName, TranslatedUIText } from '@/components/translation/TranslatedText';
 import { SearchFilters, type SearchFiltersState } from '@/components/search/SearchFilters';
 import { SearchSuggestions } from '@/components/search/SearchSuggestions';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 
 interface SearchClientProps {
   initialResults: Product[];
@@ -41,9 +42,17 @@ export function SearchClient({ initialResults, initialQuery }: SearchClientProps
   const getNavPath = useNavPath();
   const addToCart = useCartStore((state) => state.addItem);
 
+  const analytics = useAnalytics();
   const [sortBy, setSortBy] = useState('relevance');
   const [isPending, startTransition] = useTransition();
   const [filters, setFilters] = useState<SearchFiltersState>(DEFAULT_FILTERS);
+
+  // Track search performed
+  useEffect(() => {
+    if (initialQuery) {
+      analytics.searchPerformed({ query: initialQuery, resultCount: initialResults.length });
+    }
+  }, [initialQuery, initialResults.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Extract unique categories from results
   const availableCategories = useMemo(() => {

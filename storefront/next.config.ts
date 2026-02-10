@@ -85,6 +85,20 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_APP_VERSION: process.env.npm_package_version || "0.1.0",
   },
 
+  // OpenPanel analytics proxy rewrites (avoids ad blockers)
+  async rewrites() {
+    return [
+      {
+        source: '/op1.js',
+        destination: `https://${process.env.OPENPANEL_URL || 'dev-analytics.tesserix.app'}/op1.js`,
+      },
+      {
+        source: '/api/op/:path*',
+        destination: `https://${process.env.OPENPANEL_URL || 'dev-analytics.tesserix.app'}/:path*`,
+      },
+    ];
+  },
+
   // Security headers for all routes
   // NOTE: CSP is set dynamically in middleware.ts with per-request nonces
   async headers() {

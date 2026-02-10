@@ -1,6 +1,7 @@
 'use client';
 
 import { ReactNode } from 'react';
+import { OpenPanelComponent } from '@openpanel/nextjs';
 import { TenantProvider } from '@/context/TenantContext';
 import { CurrencyProvider } from '@/context/CurrencyContext';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
@@ -12,6 +13,7 @@ import { TranslationProviderWrapper } from '@/components/providers/TranslationPr
 import { RoutePrefetcher } from '@/components/providers/RoutePrefetcher';
 import { NavigationLayout } from '@/components/layout/NavigationLayout';
 import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider';
+import { OpenPanelIdentify } from '@/components/analytics/OpenPanelIdentify';
 import { CookieConsentBanner } from '@/components/ui/CookieConsentBanner';
 import { Toaster } from '@/components/ui/sonner';
 import { OrganizationJsonLd, WebSiteJsonLd } from '@/components/seo/JsonLd';
@@ -41,6 +43,15 @@ export function ProviderChain({
 }: ProviderChainProps) {
   return (
     <>
+      {/* OpenPanel product analytics */}
+      <OpenPanelComponent
+        clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID!}
+        apiUrl="/api/op"
+        cdnUrl="/op1.js"
+        trackScreenViews={true}
+        trackAttributes={true}
+        trackOutgoingLinks={true}
+      />
       {/* Organization and WebSite JSON-LD for brand identity and search */}
       <OrganizationJsonLd
         organization={{
@@ -58,6 +69,7 @@ export function ProviderChain({
             <ThemeProvider settings={settings}>
               <TranslationProviderWrapper>
                 <AuthSessionProvider>
+                  <OpenPanelIdentify />
                   <CartSyncProvider>
                     <AnalyticsProvider>
                       <RoutePrefetcher />

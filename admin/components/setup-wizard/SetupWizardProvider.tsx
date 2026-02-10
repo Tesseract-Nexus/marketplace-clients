@@ -25,6 +25,7 @@ import {
 import { useTenant } from '@/contexts/TenantContext';
 import { useUser } from '@/contexts/UserContext';
 import { tourPreferencesService } from '@/lib/services/tourPreferencesService';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 
 // Routes where the wizard should NOT auto-open (edit pages, detail pages, etc.)
 const SUPPRESSED_ROUTES = [
@@ -65,6 +66,7 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
   const { currentTenant } = useTenant();
   const { user } = useUser();
   const pathname = usePathname();
+  const analytics = useAnalytics();
   const [state, setState] = useState<SetupWizardState>(INITIAL_STATE);
   const [isFirstTimeUser, setIsFirstTimeUser] = useState(false);
   const [hasInitialized, setHasInitialized] = useState(false);
@@ -275,6 +277,8 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
 
   const dismissWizard = useCallback((neverShowAgain = false) => {
     const dismissedAt = new Date().toISOString();
+    const currentStepId = WIZARD_STEPS[state.currentStep]?.id || 'unknown';
+    analytics.setupWizardDismissed({ step: currentStepId });
     setState((prev) => ({
       ...prev,
       isOpen: false,
@@ -289,7 +293,7 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
         setupWizard: { dismissedAt, neverShowAgain },
       });
     }
-  }, [currentTenant?.id, user?.id]);
+  }, [currentTenant?.id, user?.id, state.currentStep, analytics]);
 
   // Navigation
   const nextStep = useCallback(() => {
@@ -342,11 +346,13 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
   }, []);
 
   const startSetup = useCallback(() => {
+    analytics.setupWizardStarted();
     setState((prev) => ({ ...prev, phase: 'setup', currentStep: 0 }));
-  }, []);
+  }, [analytics]);
 
   const completeWizard = useCallback(() => {
     const completedAt = new Date().toISOString();
+    analytics.setupWizardCompleted();
     setState((prev) => ({
       ...prev,
       phase: 'completed',
@@ -360,7 +366,7 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
         setupWizard: { completedAt },
       });
     }
-  }, [currentTenant?.id, user?.id]);
+  }, [currentTenant?.id, user?.id, analytics]);
 
   // Resource tracking
   const setCreatedCategory = useCallback((category: CreatedCategory | null) => {
@@ -377,6 +383,8 @@ export function SetupWizardProvider({ children }: SetupWizardProviderProps) {
 
   // Step completion
   const markStepComplete = useCallback((stepId: WizardStepId) => {
+    const stepIndex = WIZARD_STEPS.findIndex(s => s.id === stepId);
+    analytics.setupWizardStepCompleted({ step: stepId, stepIndex });
     setState((prev) => {
       const newCompleted = prev.completedSteps.includes(stepId)
         ? prev.completedSteps

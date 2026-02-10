@@ -25,6 +25,7 @@ import { getProductShippingData } from '@/lib/utils/product-shipping';
 import { TranslatedProductName, TranslatedText } from '@/components/translation';
 import { PriceDisplay, PriceWithDiscount } from '@/components/currency/PriceDisplay';
 import dynamic from 'next/dynamic';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 
 // Lazy load modals to reduce initial bundle size
 const ImageLightbox = dynamic(() => import('@/components/ui/ImageLightbox').then(mod => mod.ImageLightbox), {
@@ -79,6 +80,7 @@ export function ProductCard({
   const getNavPath = useNavPath();
   const addToCart = useCartStore((state) => state.addItem);
   const { lists, fetchLists, addToList, addToDefaultList, removeFromList, isInAnyList } = useListsStore();
+  const analytics = useAnalytics();
   const { customer, isAuthenticated } = useAuthStore();
   const [isHovered, setIsHovered] = useState(false);
   const [isHeartAnimating, setIsHeartAnimating] = useState(false);
@@ -260,6 +262,7 @@ export function ProductCard({
       image: imageUrl,
       ...shippingData,
     });
+    analytics.productAddedToCart({ productId: product.id, name: product.name, price, quantity: 1 });
   };
 
   const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -297,6 +300,7 @@ export function ProductCard({
         image: imageUrl,
         price,
       });
+      analytics.addedToWishlist({ productId: product.id, name: product.name });
       toast.success(`Added to ${list.name}`);
     } catch {
       toast.error(`Failed to add to ${list.name}`);

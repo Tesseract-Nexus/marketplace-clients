@@ -36,11 +36,13 @@ COPY . .
 
 # Build arguments for Next.js public environment variables
 ARG NEXT_PUBLIC_ECOMMERCE_ADMIN_URL=https://admin.tesserix.app
+ARG NEXT_PUBLIC_OPENPANEL_CLIENT_ID=""
 
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 ENV NEXT_PUBLIC_ECOMMERCE_ADMIN_URL=$NEXT_PUBLIC_ECOMMERCE_ADMIN_URL
+ENV NEXT_PUBLIC_OPENPANEL_CLIENT_ID=$NEXT_PUBLIC_OPENPANEL_CLIENT_ID
 
 # Build the application
 RUN npm run build

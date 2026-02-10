@@ -7,6 +7,7 @@ import { Loader2, Lock, CheckCircle, XCircle, Eye, EyeOff, ArrowRight, Shield, C
 import { onboardingApi } from '../../../lib/api/onboarding';
 import { useOnboardingStore } from '../../../lib/store/onboarding-store';
 import { analytics } from '../../../lib/analytics/posthog';
+import { useAnalytics } from '../../../lib/analytics/openpanel';
 import { authApi } from '../../../lib/api/auth';
 import { safeRedirect, buildAdminUrl, buildDevAdminUrl, registerValidatedCustomDomain } from '../../../lib/utils/safe-redirect';
 
@@ -49,6 +50,7 @@ function SetupPasswordContent() {
   const emailParam = searchParams.get('email');
 
   const { setTenantResult, sessionId: storeSessionId, storeSetup, contactDetails, _hasHydrated, rehydrateSensitiveData } = useOnboardingStore();
+  const opAnalytics = useAnalytics();
 
   const [state, setState] = useState<SetupState>('input');
   const [password, setPassword] = useState('');
@@ -279,6 +281,11 @@ function SetupPasswordContent() {
         tenant_id: tenantData?.tenant_id,
         tenant_slug: tenantData?.tenant_slug,
       });
+      opAnalytics.onboardingCompleted({
+        sessionId: sessionId || undefined,
+        tenantId: tenantData?.tenant_id,
+        tenantSlug: tenantData?.tenant_slug,
+      });
 
       // Clear onboarding session and set completion flag for verify page
       try {
@@ -337,10 +344,12 @@ function SetupPasswordContent() {
       setState('error');
       setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred');
       analytics.onboarding.failed(error instanceof Error ? error.message : 'Account setup failed');
+      opAnalytics.onboardingFailed({ error: error instanceof Error ? error.message : 'Account setup failed' });
     }
   };
 
   const handleContinueToAdmin = () => {
+    opAnalytics.redirectedToAdmin({ tenantSlug, adminUrl: adminUrl || undefined });
     // Redirect to admin login page - use stored adminUrl which handles both custom domains and subdomains
     if (adminUrl) {
       safeRedirect(adminUrl, '/');

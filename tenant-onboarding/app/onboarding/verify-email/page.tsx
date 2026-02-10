@@ -6,6 +6,7 @@ import Header from '../../../components/Header';
 import { Loader2, Mail, CheckCircle, XCircle, AlertTriangle, ArrowRight } from 'lucide-react';
 import { onboardingApi } from '../../../lib/api/onboarding';
 import { analytics } from '../../../lib/analytics/posthog';
+import { useAnalytics } from '../../../lib/analytics/openpanel';
 
 type VerificationState = 'loading' | 'verifying' | 'success' | 'error' | 'expired';
 
@@ -13,6 +14,8 @@ function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
+
+  const opAnalytics = useAnalytics();
 
   const [state, setState] = useState<VerificationState>('loading');
   const [email, setEmail] = useState<string>('');
@@ -98,6 +101,7 @@ function VerifyEmailContent() {
           email: result.email,
           method: 'link',
         });
+        opAnalytics.verificationSucceeded({ email: result.email, method: 'link' });
 
         // Complete the onboarding session
         try {
@@ -120,6 +124,7 @@ function VerifyEmailContent() {
           email: tokenInfo.email,
           method: 'link',
         });
+        opAnalytics.verificationFailed({ error: result.message || 'Verification failed', email: tokenInfo.email, method: 'link' });
       }
     } catch (error) {
       setState('error');

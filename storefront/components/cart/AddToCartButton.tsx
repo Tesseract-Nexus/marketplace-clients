@@ -8,6 +8,7 @@ import { useOptimisticCart } from '@/hooks/useOptimisticCart';
 import { CartItem } from '@/types/storefront';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
 import { cn } from '@/lib/utils';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 
 interface AddToCartButtonProps extends Omit<ButtonProps, 'onClick' | 'variant'> {
   /** Product data to add to cart */
@@ -51,6 +52,7 @@ export function AddToCartButton({
   ...props
 }: AddToCartButtonProps) {
   const { addToCart } = useOptimisticCart();
+  const analytics = useAnalytics();
   const [quantity, setQuantity] = useState(initialQuantity);
   const [isAdding, setIsAdding] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -70,6 +72,7 @@ export function AddToCartButton({
         showToast,
         onSuccess: () => {
           setShowSuccess(true);
+          analytics.productAddedToCart({ productId: product.productId, name: product.name, price: product.price, quantity });
           onAddToCart?.();
 
           // Reset success state after duration

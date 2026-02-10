@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import { OpenPanelComponent } from "@openpanel/nextjs";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { DialogProvider } from "@/contexts/DialogContext";
 import { ToastProvider } from "@/contexts/ToastContext";
@@ -27,6 +28,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased">
+        <OpenPanelComponent
+          clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID!}
+          apiUrl="/api/op"
+          cdnUrl="/op1.js"
+          trackScreenViews={true}
+          trackAttributes={true}
+          trackOutgoingLinks={true}
+        />
         <QueryProvider>
           <AuthProvider>
             <CsrfTokenInitializer>

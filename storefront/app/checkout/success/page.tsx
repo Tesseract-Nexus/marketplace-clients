@@ -13,6 +13,7 @@ import { useCartStore } from '@/store/cart';
 import { useAuthStore } from '@/store/auth';
 import { PostOrderCreateAccount } from '@/components/checkout/PostOrderCreateAccount';
 import { storefrontToast } from '@/components/ui/sonner';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 
 interface OrderItem {
   id: string;
@@ -77,6 +78,7 @@ function CheckoutSuccessContent() {
   const { tenant, getNavPath } = useTenant();
   const { clearCart } = useCartStore();
   const { customer, isAuthenticated } = useAuthStore();
+  const analytics = useAnalytics();
 
   const [sessionDetails, setSessionDetails] = useState<SessionDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -112,6 +114,17 @@ function CheckoutSuccessContent() {
         if (response.ok) {
           const data: SessionDetails = await response.json();
           setSessionDetails(data);
+
+          // Track purchase completed
+          if (data.paymentStatus === 'succeeded' || data.paymentStatus === 'processing') {
+            analytics.purchaseCompleted({
+              orderId: data.orderNumber || data.orderId || '',
+              total: data.total || data.amount || 0,
+              itemCount: data.items?.length || 0,
+              currency: data.currency,
+              shippingCost: data.shippingCost,
+            });
+          }
 
           // Show create account modal for guest users after a short delay
           if (data.isGuest && data.paymentStatus === 'succeeded' && !isAuthenticated) {

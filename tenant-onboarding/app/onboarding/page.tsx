@@ -15,6 +15,7 @@ import { onboardingApi, OnboardingAPIError } from '../../lib/api/onboarding';
 import { locationApi, type Country, type State, type Currency, type Timezone } from '../../lib/api/location';
 import { useRouter } from 'next/navigation';
 import { analytics } from '../../lib/analytics/posthog';
+import { useAnalytics } from '../../lib/analytics/openpanel';
 import { getBrowserGeolocation, reverseGeocode, checkGeolocationPermission } from '../../lib/utils/geolocation';
 import { useAutoSave, useBrowserClose, useDraftRecovery, type DraftFormData } from '../../lib/hooks';
 import { config } from '../../lib/config/app';
@@ -114,6 +115,8 @@ export default function OnboardingPage() {
     setBusinessProofDocument: setStoreBusinessProofDocument,
     setLogoDocument: setStoreLogoDocument,
   } = useOnboardingStore();
+
+  const opAnalytics = useAnalytics();
 
   const [currentSection, setCurrentSection] = useState(0);
   const [businessContactSubStep, setBusinessContactSubStep] = useState<'business' | 'contact'>('business');
@@ -748,6 +751,7 @@ export default function OnboardingPage() {
   // Initial data loading
   useEffect(() => {
     analytics.onboarding.started({ timestamp: new Date().toISOString() });
+    opAnalytics.onboardingStarted({ timestamp: new Date().toISOString() });
 
     const detectLocation = async () => {
       try {
@@ -1243,6 +1247,11 @@ export default function OnboardingPage() {
         has_existing_store: data.hasExistingStore || false,
         existing_platforms: data.existingStorePlatforms?.join(',') || '',
       });
+      opAnalytics.businessInfoCompleted({
+        businessType: data.businessType,
+        industry: data.industryCategory,
+        hasWebsite: !!data.companyWebsite,
+      });
       setBusinessInfo({
         business_name: data.businessName,
         business_type: data.businessType as any,
@@ -1304,6 +1313,7 @@ export default function OnboardingPage() {
         job_title: data.jobTitle || undefined,
       });
       analytics.onboarding.contactInfoCompleted({ job_title: data.jobTitle, has_phone: !!data.phoneNumber });
+      opAnalytics.contactInfoCompleted({ jobTitle: data.jobTitle, hasPhone: !!data.phoneNumber });
       setContactDetails({
         first_name: data.firstName,
         last_name: data.lastName,
@@ -1378,6 +1388,7 @@ export default function OnboardingPage() {
       } as any);
 
       analytics.onboarding.addressCompleted({ country: data.country, state: data.state });
+      opAnalytics.addressCompleted({ country: data.country, state: data.state });
       // Store the address data in the Zustand store (uses snake_case for API compatibility)
       setBusinessAddress({
         street_address: data.streetAddress,
@@ -1437,6 +1448,15 @@ export default function OnboardingPage() {
 
   // Handler for Documents step - moves to Legal step
   const handleDocumentsContinue = () => {
+    const uploadedDocs = [addressProofDocument, businessProofDocument, logoDocument].filter(Boolean);
+    if (uploadedDocs.length > 0) {
+      const docTypes = [
+        addressProofDocument ? 'address_proof' : null,
+        businessProofDocument ? 'business_proof' : null,
+        logoDocument ? 'logo' : null,
+      ].filter(Boolean) as string[];
+      opAnalytics.documentsUploaded({ documentCount: uploadedDocs.length, documentTypes: docTypes });
+    }
     setCurrentSection(4);
   };
 
@@ -1569,6 +1589,7 @@ export default function OnboardingPage() {
       }
 
       analytics.onboarding.storeSetupCompleted({ subdomain: data.subdomain, storefrontSlug: data.storefrontSlug, currency: data.currency, timezone: data.timezone, businessModel: data.businessModel });
+      opAnalytics.storeSetupCompleted({ subdomain: data.subdomain, currency: data.currency, timezone: data.timezone, businessModel: data.businessModel });
       setStoreSetup({
         business_model: data.businessModel,
         subdomain: data.subdomain,
@@ -3578,7 +3599,7 @@ export default function OnboardingPage() {
                           <button
                             type="button"
                             disabled={!legalAccepted}
-                            onClick={() => setCurrentSection(5)}
+                            onClick={() => { opAnalytics.legalAccepted(); setCurrentSection(5); }}
                             className="flex-1 h-14 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
                           >
                             Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />

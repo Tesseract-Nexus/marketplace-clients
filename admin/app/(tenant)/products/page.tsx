@@ -36,6 +36,7 @@ import {
 } from 'lucide-react';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 import { PageError } from '@/components/PageError';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 import { PageLoading } from '@/components/common';
 import { TableSkeleton } from '@/components/ui/table-skeleton';
 import { FilterPanel, QuickFilters, QuickFilter } from '@/components/data-listing';
@@ -85,6 +86,7 @@ export default function ProductsPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const toast = useToast();
+  const analytics = useAnalytics();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -971,6 +973,7 @@ export default function ProductsPage() {
           setCurrentStep(4); // Jump to Media & Tags step
           navigateToProduct(createdProduct.id, 'edit');
           toast.success('Product Created', `${formData.name} has been created. You can now upload images.`);
+          analytics.productCreated({ productId: createdProduct.id, name: formData.name as string, price: Number(formData.price) || 0 });
           await loadProducts();
           setErrors({});
           return; // Stay on form — don't navigate to list

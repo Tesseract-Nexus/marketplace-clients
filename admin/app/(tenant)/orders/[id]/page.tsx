@@ -42,6 +42,7 @@ import {
   Eye,
 } from 'lucide-react';
 import { ShippingCard } from '@/components/orders/ShippingCard';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 
 // Currency formatting helper - uses order's currency or defaults to INR for Indian stores
 const formatCurrency = (amount: string | number | null | undefined, currencyCode: string = 'INR'): string => {
@@ -82,6 +83,8 @@ export default function OrderDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const orderId = params.id as string;
+
+  const analytics = useAnalytics();
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
@@ -127,6 +130,7 @@ export default function OrderDetailsPage() {
     setUpdatingStatus(true);
     try {
       await orderService.updateOrderStatus(order.id, newStatus);
+      analytics.orderStatusChanged({ orderId: order.id, from: order.status, to: newStatus });
       setOrder({ ...order, status: newStatus });
       await fetchValidTransitions();
     } catch (err) {
@@ -141,6 +145,7 @@ export default function OrderDetailsPage() {
     setUpdatingStatus(true);
     try {
       await orderService.updatePaymentStatus(order.id, newStatus);
+      analytics.orderStatusChanged({ orderId: order.id, from: order.paymentStatus, to: newStatus });
       setOrder({ ...order, paymentStatus: newStatus });
       await fetchValidTransitions();
     } catch (err) {
@@ -155,6 +160,7 @@ export default function OrderDetailsPage() {
     setUpdatingStatus(true);
     try {
       await orderService.updateFulfillmentStatus(order.id, newStatus);
+      analytics.orderStatusChanged({ orderId: order.id, from: order.fulfillmentStatus, to: newStatus });
       setOrder({ ...order, fulfillmentStatus: newStatus });
       await fetchValidTransitions();
     } catch (err) {

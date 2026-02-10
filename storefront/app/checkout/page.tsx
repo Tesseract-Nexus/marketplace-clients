@@ -43,6 +43,7 @@ import { TranslatedUIText } from '@/components/translation/TranslatedText';
 import { CouponInput } from '@/components/checkout/CouponInput';
 import { GiftCardInput } from '@/components/checkout/GiftCardInput';
 import { LoyaltyPointsRedemption } from '@/components/checkout/LoyaltyPointsRedemption';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 
 // Unit conversion helpers
 const convertWeightToKg = (value: number, unit?: string) => {
@@ -70,6 +71,7 @@ const getShippingMethodName = (method: ShippingMethod | ShippingRate | null): st
 
 function CheckoutContent() {
   const { tenant, settings } = useTenant();
+  const analytics = useAnalytics();
   const checkoutConfig = useCheckoutConfig();
   const getNavPath = useNavPath();
   const localization = useLocalization();
@@ -137,6 +139,22 @@ function CheckoutContent() {
   const isSubmittingRef = useRef(false);
   // Idempotency key for order creation — generated once per review step entry
   const idempotencyKeyRef = useRef<string | null>(null);
+
+  // Track checkout started
+  useEffect(() => {
+    if (isHydrated && selectedItems.length > 0) {
+      const total = selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      analytics.checkoutStarted({ itemCount: selectedItems.length, total });
+    }
+  }, [isHydrated]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Track checkout step changes
+  useEffect(() => {
+    if (currentStep) {
+      const stepIndex = currentStep === 'contact' ? 0 : currentStep === 'shipping' ? 1 : 2;
+      analytics.checkoutStepCompleted({ step: currentStep, stepIndex });
+    }
+  }, [currentStep]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Redirect to homepage if cart is empty after hydration
   useEffect(() => {

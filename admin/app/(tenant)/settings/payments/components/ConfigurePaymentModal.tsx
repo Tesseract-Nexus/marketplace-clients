@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 import {
   Dialog,
   DialogContent,
@@ -105,6 +106,7 @@ export function ConfigurePaymentModal({
   onSaved,
 }: ConfigurePaymentModalProps) {
   const toast = useToast();
+  const analytics = useAnalytics();
   const [credentials, setCredentials] = useState<Partial<PaymentCredentials>>({});
   const [settings, setSettings] = useState<Partial<PaymentConfigSettings>>({});
   const [isTestMode, setIsTestMode] = useState(true);
@@ -212,6 +214,7 @@ export function ConfigurePaymentModal({
       }
 
       await paymentsService.updatePaymentConfig(method.code, updateReq);
+      analytics.settingsUpdated({ section: 'payments', fields: [method.code] });
 
       toast.success('Success', 'Payment method configured successfully');
       onSaved();

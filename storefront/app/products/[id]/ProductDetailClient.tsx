@@ -54,6 +54,7 @@ import {
 import { PriceDisplay, PriceWithDiscount } from '@/components/currency/PriceDisplay';
 import { usePriceFormatting } from '@/context/CurrencyContext';
 import { ImageLightbox } from '@/components/ui/ImageLightbox';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 
 interface ProductDetailClientProps {
   product: Product;
@@ -68,6 +69,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const addToCart = useCartStore((state) => state.addItem);
   const { lists, fetchLists, addToList, addToDefaultList, removeFromList, removeProductFromList, isInAnyList, getListsContainingProduct } = useListsStore();
   const { customer, isAuthenticated } = useAuthStore();
+  const analytics = useAnalytics();
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -78,6 +80,17 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   const [linkCopied, setLinkCopied] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const addToCartRef = useRef<HTMLDivElement>(null);
+
+  // Track product view
+  useEffect(() => {
+    analytics.productViewed({
+      productId: product.id,
+      name: product.name,
+      category: product.categories?.[0] ? (typeof product.categories[0] === 'string' ? product.categories[0] : '') : undefined,
+      price: parseFloat(product.price),
+      currency: undefined,
+    });
+  }, [product.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Detect touch device
   useEffect(() => {
@@ -165,6 +178,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
 
     setIsAddingToCart(false);
     setAddedToCart(true);
+    analytics.productAddedToCart({ productId: product.id, name: product.name, price, quantity });
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
@@ -181,6 +195,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
     try {
       if (isInDefaultList && defaultList) {
         await removeProductFromList(tenant.id, tenant.storefrontId, customer.id, defaultList.id, product.id);
+        analytics.removedFromWishlist({ productId: product.id });
         toast.success(`Removed from ${defaultList.name}`);
       } else {
         await addToDefaultList(tenant.id, tenant.storefrontId, customer.id, {
@@ -189,6 +204,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
           image: images[0],
           price,
         });
+        analytics.addedToWishlist({ productId: product.id, name: product.name });
         toast.success(`Added to ${defaultList?.name || 'Wishlist'}`);
       }
     } catch {
@@ -233,31 +249,34 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
 
   const shareToFacebook = useCallback(() => {
     const url = getProductUrl();
+    analytics.productShared({ productId: product.id, channel: 'facebook' });
     window.open(
       `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
       '_blank',
       'width=600,height=400'
     );
-  }, [getProductUrl]);
+  }, [getProductUrl, analytics, product.id]);
 
   const shareToWhatsApp = useCallback(() => {
     const url = getProductUrl();
     const text = `Check out ${product.name}!`;
+    analytics.productShared({ productId: product.id, channel: 'whatsapp' });
     window.open(
       `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`,
       '_blank'
     );
-  }, [getProductUrl, product.name]);
+  }, [getProductUrl, product.name, analytics, product.id]);
 
   const shareToX = useCallback(() => {
     const url = getProductUrl();
     const text = `Check out ${product.name}!`;
+    analytics.productShared({ productId: product.id, channel: 'x' });
     window.open(
       `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`,
       '_blank',
       'width=600,height=400'
     );
-  }, [getProductUrl, product.name]);
+  }, [getProductUrl, product.name, analytics, product.id]);
 
   const shareToInstagram = useCallback(() => {
     // Instagram doesn't have a direct share URL, copy link and guide user

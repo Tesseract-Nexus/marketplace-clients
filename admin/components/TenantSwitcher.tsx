@@ -5,6 +5,7 @@ import { Store, ChevronDown, Check, Plus, Search, Loader2, ChevronsUpDown, Build
 import { cn } from '@/lib/utils';
 import { useTenant, Tenant } from '@/contexts/TenantContext';
 import { buildAdminUrl } from '@/lib/utils/tenant';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 
 interface TenantSwitcherProps {
   className?: string;
@@ -13,6 +14,7 @@ interface TenantSwitcherProps {
 
 export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitcherProps) {
   const { currentTenant, tenants, isLoading, switchTenant, setDefaultTenant, isPlatformAdmin } = useTenant();
+  const analytics = useAnalytics();
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [settingDefault, setSettingDefault] = useState<string | null>(null);
@@ -62,6 +64,7 @@ export function TenantSwitcher({ className, variant = 'sidebar' }: TenantSwitche
   }, [filteredTenants]);
 
   const handleSelectTenant = (tenant: Tenant) => {
+    analytics.tenantSwitched({ from: currentTenant?.slug, to: tenant.slug });
     switchTenant(tenant.slug);
     setIsOpen(false);
     setSearchQuery('');

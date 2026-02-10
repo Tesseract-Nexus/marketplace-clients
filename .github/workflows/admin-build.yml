@@ -160,6 +160,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             NODE_ENV=production
+            NEXT_PUBLIC_OPENPANEL_CLIENT_ID=9b79eb68-c6f4-46dd-b0ab-e32f35d80bfc
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

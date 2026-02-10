@@ -7,6 +7,7 @@ import { Loader2, Mail, RefreshCw, Shield, CheckCircle, ExternalLink, Gift, Arro
 import { useOnboardingStore } from '../../../lib/store/onboarding-store';
 import { onboardingApi } from '../../../lib/api/onboarding';
 import { analytics } from '../../../lib/analytics/posthog';
+import { useAnalytics } from '../../../lib/analytics/openpanel';
 
 // Development-only logging utility
 const isDev = process.env.NODE_ENV === 'development';
@@ -351,6 +352,8 @@ function VerifyEmailContent() {
   const sessionId = searchParams?.get('session') || searchParams?.get('session_id') || storeSessionId;
   const emailFromParams = searchParams?.get('email');
 
+  const opAnalytics = useAnalytics();
+
   // Track if we're waiting for rehydration
   const [isRehydrating, setIsRehydrating] = useState(!_hasHydrated);
 
@@ -602,6 +605,7 @@ function VerifyEmailContent() {
         trigger: 'initial',
         method: 'link',
       });
+      opAnalytics.verificationCodeSent({ email, trigger: 'initial', method: 'link' });
     } catch (error) {
       setError('Failed to send verification email. Please try resending.');
     } finally {
@@ -658,6 +662,7 @@ function VerifyEmailContent() {
               email: email,
               method: 'link',
             });
+            opAnalytics.verificationSucceeded({ email, method: 'link' });
 
             // Close the SSE connection
             eventSource?.close();
@@ -681,6 +686,7 @@ function VerifyEmailContent() {
               email: email,
               method: 'link',
             });
+            opAnalytics.verificationSucceeded({ email, method: 'link' });
 
             eventSource?.close();
           }
@@ -732,6 +738,7 @@ function VerifyEmailContent() {
               email: email,
               method: 'link',
             });
+            opAnalytics.verificationSucceeded({ email, method: 'link' });
           }
         } catch (error) {
           devLog('[Polling] Checking verification status...');
@@ -810,6 +817,7 @@ function VerifyEmailContent() {
         trigger: 'resend',
         method: 'link',
       });
+      opAnalytics.verificationCodeSent({ email, trigger: 'resend', method: 'link' });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to resend verification. Please try again.';
       setError(errorMessage);
@@ -820,6 +828,7 @@ function VerifyEmailContent() {
           email: email,
           action: 'resend_verification',
         });
+        opAnalytics.verificationRateLimitHit({ email });
       }
     }
 

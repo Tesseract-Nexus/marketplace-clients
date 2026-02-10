@@ -183,6 +183,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             NODE_ENV=production
+            NEXT_PUBLIC_OPENPANEL_CLIENT_ID=8c69470c-2380-4bef-a6c4-13b41ab88243
           cache-from: type=gha,scope=storefront-release
           cache-to: type=gha,mode=max,scope=storefront-release
           platforms: linux/amd64

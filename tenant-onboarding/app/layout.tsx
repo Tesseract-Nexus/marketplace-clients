@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Source_Serif_4, Source_Sans_3 } from 'next/font/google';
 import { Toaster } from 'sonner';
+import { OpenPanelComponent } from '@openpanel/nextjs';
 import { ErrorBoundary } from '../components/errors/ErrorBoundary';
 import { PostHogProvider } from '../lib/analytics/posthog';
 import "./globals.css";
@@ -287,6 +288,14 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="antialiased font-sans">
+        <OpenPanelComponent
+          clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID!}
+          apiUrl="/api/op"
+          cdnUrl="/op1.js"
+          trackScreenViews={true}
+          trackAttributes={true}
+          trackOutgoingLinks={true}
+        />
         <PostHogProvider>
           <ErrorBoundary>
             {children}

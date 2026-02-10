@@ -22,8 +22,8 @@ const nextConfig: NextConfig = {
     const cspDirectives = [
       "default-src 'self'",
       // Scripts: Required for Next.js - unsafe-inline and unsafe-eval are needed
-      // Added cloudflareinsights.com for analytics
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com",
+      // Added cloudflareinsights.com for analytics, OpenPanel for product analytics
+      `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://static.cloudflareinsights.com https://${process.env.OPENPANEL_URL || 'dev-analytics.tesserix.app'}`,
       // Styles: Required for Tailwind and inline styles
       "style-src 'self' 'unsafe-inline'",
       // Images: Allow data URIs, blobs, and trusted CDNs
@@ -31,7 +31,7 @@ const nextConfig: NextConfig = {
       // Fonts: Self and data URIs
       "font-src 'self' data:",
       // Connections: API endpoints, WebSockets, analytics, currency exchange
-      `connect-src 'self' https://*.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'} wss://*.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'} https://storage.googleapis.com https://api.posthog.com https://www.google-analytics.com https://api.frankfurter.app`,
+      `connect-src 'self' https://*.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'} wss://*.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'} https://storage.googleapis.com https://api.posthog.com https://www.google-analytics.com https://api.frankfurter.app https://${process.env.OPENPANEL_URL || 'dev-analytics.tesserix.app'}`,
       // Frame ancestors: Prevent clickjacking - DENY for admin
       "frame-ancestors 'none'",
       // Form actions: Only allow forms to submit to self
@@ -142,6 +142,20 @@ const nextConfig: NextConfig = {
         headers: [
           { key: 'Referrer-Policy', value: 'no-referrer' },
         ],
+      },
+    ];
+  },
+
+  // OpenPanel analytics proxy rewrites (avoids ad blockers)
+  async rewrites() {
+    return [
+      {
+        source: '/op1.js',
+        destination: `https://${process.env.OPENPANEL_URL || 'dev-analytics.tesserix.app'}/op1.js`,
+      },
+      {
+        source: '/api/op/:path*',
+        destination: `https://${process.env.OPENPANEL_URL || 'dev-analytics.tesserix.app'}/:path*`,
       },
     ];
   },

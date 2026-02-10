@@ -19,7 +19,7 @@ interface SecurityHeader {
  */
 const CSP_DIRECTIVES = {
   'default-src': ["'self'"],
-  'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // Next.js requires these
+  'script-src': ["'self'", "'unsafe-inline'", "'unsafe-eval'", `https://${process.env.OPENPANEL_URL || 'dev-analytics.tesserix.app'}`], // Next.js requires these
   'style-src': ["'self'", "'unsafe-inline'"], // For Tailwind and inline styles
   'img-src': ["'self'", 'data:', 'https:', 'blob:'],
   'font-src': ["'self'", 'data:'],
@@ -32,6 +32,7 @@ const CSP_DIRECTIVES = {
     'https://www.google-analytics.com',
     'https://api.frankfurter.app', // Currency exchange rates
     'https://storage.googleapis.com', // GCS storage for QR codes
+    `https://${process.env.OPENPANEL_URL || 'dev-analytics.tesserix.app'}`, // OpenPanel analytics
   ].filter(Boolean),
   'frame-ancestors': ["'none'"], // Prevent clickjacking
   'base-uri': ["'self'"],

@@ -50,6 +50,7 @@ import { SetupWizardProvider, SetupWizard, useSetupWizard } from "@/components/s
 import { PageTourProvider, PageTour } from "@/components/page-tour";
 import { SidebarMenuSearch } from "@/components/SidebarMenuSearch";
 import { AdminUIText } from "@/components/translation/AdminTranslatedText";
+import { OpenPanelIdentify } from "@/components/analytics/OpenPanelIdentify";
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { settingsService } from "@/lib/services/settingsService";
@@ -1176,6 +1177,7 @@ export default function TenantLayout({
 
   return (
     <UserProvider>
+      <OpenPanelIdentify />
       <TenantProvider>
         <TenantApiProvider>
           <PermissionProvider>

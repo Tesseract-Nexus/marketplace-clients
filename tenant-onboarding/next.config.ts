@@ -18,6 +18,20 @@ const nextConfig: NextConfig = {
     'pg',
   ],
 
+  // OpenPanel analytics proxy rewrites (avoids ad blockers)
+  async rewrites() {
+    return [
+      {
+        source: '/op1.js',
+        destination: `https://${process.env.OPENPANEL_URL || 'dev-analytics.tesserix.app'}/op1.js`,
+      },
+      {
+        source: '/api/op/:path*',
+        destination: `https://${process.env.OPENPANEL_URL || 'dev-analytics.tesserix.app'}/:path*`,
+      },
+    ];
+  },
+
   // Security headers configuration
   // SOC2 CC6.7/CC6.8: Security and Confidentiality controls
   async headers() {

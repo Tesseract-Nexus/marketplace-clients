@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Trash2, Minus, Plus, ShoppingBag, ArrowRight, ShoppingCart, Sparkles, Truck, AlertTriangle, TrendingUp, TrendingDown, XCircle, AlertCircle, RefreshCw, Undo2 } from 'lucide-react';
@@ -19,6 +19,7 @@ import { usePriceFormatting } from '@/context/CurrencyContext';
 import { useCartValidation, getStatusBadgeInfo, formatPriceChange } from '@/hooks/useCartValidation';
 import type { CartItemStatus } from '@/types/storefront';
 import { TranslatedUIText } from '@/components/translation/TranslatedText';
+import { useAnalytics } from '@/lib/analytics/openpanel';
 
 // Status badge component with improved messages
 function ItemStatusBadge({ status, availableStock, statusMessage }: { status?: CartItemStatus; availableStock?: number; statusMessage?: string }) {
@@ -86,6 +87,7 @@ function CartItemSkeleton() {
 export default function CartPage() {
   const getNavPath = useNavPath();
   const { formatDisplayPrice } = usePriceFormatting();
+  const analytics = useAnalytics();
   const {
     items,
     addItem,
@@ -104,6 +106,15 @@ export default function CartPage() {
     clearAppliedCoupon,
   } = useCartStore();
 
+  // Track cart viewed
+  useEffect(() => {
+    if (items.length > 0) {
+      const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+      const count = items.reduce((sum, i) => sum + i.quantity, 0);
+      analytics.cartViewed({ itemCount: count, total });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Handler for removing item with undo option
   const handleRemoveItem = useCallback((item: typeof items[0]) => {
     // Store the item data before removing
@@ -111,6 +122,7 @@ export default function CartPage() {
 
     // Remove the item
     removeItem(item.id);
+    analytics.productRemovedFromCart({ productId: item.productId, name: item.name, price: item.price, quantity: item.quantity });
 
     // Show toast with undo option
     toast('Item removed from cart', {

@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useOnboardingStore } from '../../../lib/store/onboarding-store';
 import { analytics } from '../../../lib/analytics/posthog';
+import { useAnalytics } from '../../../lib/analytics/openpanel';
 import { getTenantUrls } from '../../../lib/types/tenant';
 
 export default function SuccessPage() {
@@ -34,6 +35,8 @@ export default function SuccessPage() {
     sessionId,
     tenantResult,
   } = useOnboardingStore();
+
+  const opAnalytics = useAnalytics();
 
   const [hasHydrated, setHasHydrated] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -81,8 +84,13 @@ export default function SuccessPage() {
       tenant_id: tenantSetup.tenantId,
       tenant_slug: tenantSetup.slug,
     });
+    opAnalytics.onboardingCompleted({
+      sessionId: sessionId || 'unknown',
+      tenantId: tenantSetup.tenantId,
+      tenantSlug: tenantSetup.slug,
+    });
 
-  }, [hasHydrated, sessionId, tenantResult, router, tenantSetup]);
+  }, [hasHydrated, sessionId, tenantResult, router, tenantSetup]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
