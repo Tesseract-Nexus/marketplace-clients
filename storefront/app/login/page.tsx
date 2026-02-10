@@ -149,6 +149,30 @@ export default function LoginPage() {
     }
   }, [isHydrated, isAuthenticated, router, getNavPath]);
 
+  // Auto-send MFA code when entering MFA step (only for email method)
+  useEffect(() => {
+    if (mfaStep && mfaSession && activeMfaMethod === 'email') {
+      sendMfaCode(mfaSession, 'email').then((result) => {
+        if (result.success) {
+          setResendCooldown(60);
+        } else if (result.error === 'INVALID_MFA_SESSION') {
+          setMfaError('Your verification session has expired. Please enter your password again.');
+          setMfaStep(false);
+          setMfaSession('');
+        }
+      }).catch(() => {
+        // Silently handle - user can manually resend
+      });
+    }
+  }, [mfaStep, mfaSession, activeMfaMethod]);
+
+  // Resend cooldown countdown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
   // Show loading state while checking authentication or redirecting
   if (!isHydrated || isRedirecting) {
     return (
@@ -345,30 +369,6 @@ export default function LoginPage() {
       setIsReactivating(false);
     }
   };
-
-  // Auto-send MFA code when entering MFA step (only for email method)
-  useEffect(() => {
-    if (mfaStep && mfaSession && activeMfaMethod === 'email') {
-      sendMfaCode(mfaSession, 'email').then((result) => {
-        if (result.success) {
-          setResendCooldown(60);
-        } else if (result.error === 'INVALID_MFA_SESSION') {
-          setMfaError('Your verification session has expired. Please enter your password again.');
-          setMfaStep(false);
-          setMfaSession('');
-        }
-      }).catch(() => {
-        // Silently handle - user can manually resend
-      });
-    }
-  }, [mfaStep, mfaSession, activeMfaMethod]);
-
-  // Resend cooldown countdown timer
-  useEffect(() => {
-    if (resendCooldown <= 0) return;
-    const timer = setTimeout(() => setResendCooldown(resendCooldown - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [resendCooldown]);
 
   const handleResendCode = async () => {
     if (resendCooldown > 0 || !mfaSession) return;
