@@ -27,6 +27,7 @@ interface ProviderChainProps {
   localization: StoreLocalization | null;
   baseUrl: string;
   storeName: string;
+  nonce?: string;
 }
 
 /**
@@ -40,6 +41,7 @@ export function ProviderChain({
   localization,
   baseUrl,
   storeName,
+  nonce,
 }: ProviderChainProps) {
   return (
     <>
@@ -58,7 +60,7 @@ export function ProviderChain({
         <CsrfTokenInitializer>
         <TenantProvider tenant={tenant} settings={settings} localization={localization ?? undefined}>
           <CurrencyProvider>
-            <ThemeProvider settings={settings}>
+            <ThemeProvider settings={settings} nonce={nonce}>
               <TranslationProviderWrapper>
                 <AuthSessionProvider>
                   <OpenPanelIdentify />

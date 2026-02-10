@@ -14,13 +14,14 @@ import { logger } from '@/lib/logger';
 interface ThemeProviderProps {
   children: React.ReactNode;
   settings: StorefrontSettings;
+  nonce?: string;
 }
 
 // ========================================
 // Theme Provider Component
 // ========================================
 
-export function ThemeProvider({ children, settings }: ThemeProviderProps) {
+export function ThemeProvider({ children, settings, nonce }: ThemeProviderProps) {
   // Debug: Log theme settings for troubleshooting
   useEffect(() => {
     logger.debug('[ThemeProvider] Settings received:', {
@@ -161,6 +162,7 @@ export function ThemeProvider({ children, settings }: ThemeProviderProps) {
       defaultTheme={defaultTheme}
       enableSystem={settings.colorMode === 'system' || settings.colorMode === 'both'}
       disableTransitionOnChange
+      nonce={nonce}
     >
       {children}
     </NextThemesProvider>

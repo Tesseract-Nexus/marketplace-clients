@@ -229,6 +229,7 @@ export default async function RootLayout({
             localization={localization}
             baseUrl={baseUrl}
             storeName={storeName}
+            nonce={nonce}
           >
             {children}
           </ProviderChain>
