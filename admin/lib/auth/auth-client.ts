@@ -12,7 +12,6 @@
 import { authConfig } from './config';
 import { logger } from '../logger';
 import { browserSupportsWebAuthn, startRegistration, startAuthentication } from '@simplewebauthn/browser';
-import { resetAnalyticsIdentity } from '@/lib/analytics/openpanel';
 
 /**
  * Session user information returned by BFF
@@ -177,8 +176,6 @@ export function login(options?: {
 export function logout(options?: {
   returnTo?: string;
 }): void {
-  resetAnalyticsIdentity();
-
   // Unregister push subscription (fire-and-forget)
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready

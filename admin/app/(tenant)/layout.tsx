@@ -56,7 +56,6 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { settingsService } from "@/lib/services/settingsService";
 import { BrandedLoader } from "@/components/ui/branded-loader";
 import { PushNotificationPrompt } from "@/components/PushNotificationPrompt";
-import { AnalyticsIdentify } from "@/lib/analytics/openpanel";
 
 // Role hierarchy: higher number = more permissions
 // Must match backend (staff-service migrations) priority levels
@@ -1182,7 +1181,6 @@ export default function TenantLayout({
     <UserProvider>
       <OpenPanelIdentify />
       <TenantProvider>
-        <AnalyticsIdentify />
         <TenantApiProvider>
           <PermissionProvider>
             <StorefrontProvider>
