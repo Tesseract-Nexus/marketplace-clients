@@ -25,8 +25,10 @@ import {
 } from 'lucide-react';
 import { PageHeader } from '@/components/PageHeader';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { useSetupWizard } from '@/components/setup-wizard';
+import { PlatformSupportTickets } from '@/components/support/PlatformSupportTickets';
 
 // Getting Started Steps
 interface SetupStep {
@@ -227,6 +229,18 @@ export default function SupportPage() {
             { label: 'Support' },
           ]}
         />
+
+        <Tabs defaultValue="help" className="w-full">
+          <TabsList>
+            <TabsTrigger value="help">Help & Resources</TabsTrigger>
+            <TabsTrigger value="platform-support">Platform Support</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="platform-support">
+            <PlatformSupportTickets />
+          </TabsContent>
+
+          <TabsContent value="help" className="space-y-6">
 
         {/* Interactive Setup Wizard Card */}
         <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 rounded-lg p-6">
@@ -450,6 +464,9 @@ export default function SupportPage() {
             Note: Keyboard shortcuts work when no input field is focused. Press keys in sequence (not simultaneously) for navigation shortcuts.
           </p>
         </div>
+
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
