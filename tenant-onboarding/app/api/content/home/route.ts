@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getDb } from '@/db';
-import { faqs, faqCategories, features, testimonials, trustBadges, paymentPlans, planFeatures } from '@/db/schema';
+import { faqs, faqCategories, features, testimonials, trustBadges, paymentPlans, planFeatures, regionalPricing } from '@/db/schema';
 import { eq, asc, and } from 'drizzle-orm';
 
 // GET - Get all content for home page (public, no auth required)
@@ -37,7 +37,7 @@ export async function GET() {
         where: and(eq(trustBadges.active, true), eq(trustBadges.pageContext, 'home')),
         orderBy: [asc(trustBadges.sortOrder)],
       }),
-      // Payment plans with features
+      // Payment plans with features and regional pricing
       db.query.paymentPlans.findMany({
         where: eq(paymentPlans.active, true),
         orderBy: [asc(paymentPlans.sortOrder)],
@@ -45,6 +45,7 @@ export async function GET() {
           features: {
             orderBy: [asc(planFeatures.sortOrder)],
           },
+          regionalPricing: true,
         },
       }),
     ]);

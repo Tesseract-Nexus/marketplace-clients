@@ -10,15 +10,18 @@ import { Check, ArrowRight, HelpCircle, MessageCircle } from 'lucide-react';
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 // Types for API response
+interface PaymentPlanData {
+  slug: string;
+  price: string;
+  tagline?: string;
+  trialDays?: number;
+  features: Array<{ feature: string }>;
+  regionalPricing?: Array<{ countryCode: string; price: string; currency: string }>;
+}
+
 interface PricingContentResponse {
   data: {
-    paymentPlans: Array<{
-      slug: string;
-      price: string;
-      tagline?: string;
-      trialDays?: number;
-      features: Array<{ feature: string }>;
-    }>;
+    paymentPlans: PaymentPlanData[];
   };
 }
 
@@ -45,13 +48,31 @@ export default function PricingPage() {
     dedupingInterval: 60000,
   });
 
-  // Extract pricing info from payment plans
-  const freePlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'free-trial');
-  const proPlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'pro');
-  const monthlyPrice = proPlan?.price ? `₹${Math.round(parseFloat(proPlan.price))}` : '₹499';
+  // Extract pricing info from payment plans — find free and paid plans dynamically
+  const allPlans = contentData?.data?.paymentPlans ?? [];
+  const freePlan = allPlans.find(
+    (p) => parseFloat(p.price) === 0 || p.slug === 'free-trial' || p.slug === 'free'
+  );
+  const paidPlan = allPlans.find(
+    (p) => parseFloat(p.price) > 0
+  );
+
+  // Format price with currency symbol
+  const formatPrice = (plan: PaymentPlanData | undefined, fallback: string): string => {
+    if (!plan || parseFloat(plan.price) <= 0) return fallback;
+    const price = Math.round(parseFloat(plan.price));
+    // Check for regional pricing (INR for India)
+    const inrPricing = plan.regionalPricing?.find((r) => r.currency === 'INR');
+    if (inrPricing) return `₹${Math.round(parseFloat(inrPricing.price)).toLocaleString('en-IN')}`;
+    return `A$${price}`;
+  };
+
+  const monthlyPrice = formatPrice(paidPlan, '₹499');
   const trialMonths = freePlan?.trialDays ? Math.round(freePlan.trialDays / 30) : 12;
-  const pricingFeatures = freePlan?.features?.length
-    ? freePlan.features.map((f) => f.feature)
+  // Use features from the free plan, or the paid plan, or fallback
+  const featureSourcePlan = freePlan?.features?.length ? freePlan : paidPlan;
+  const pricingFeatures = featureSourcePlan?.features?.length
+    ? featureSourcePlan.features.map((f) => f.feature)
     : fallbackPricingFeatures;
 
   const comparisons = [
