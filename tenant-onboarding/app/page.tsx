@@ -258,8 +258,12 @@ export default function Home() {
     : null;
 
   // Format price with location-based regional pricing
-  const formatPlanPrice = (plan: typeof allPlans[number] | undefined, fallback = 'Free'): string => {
-    if (!plan || parseFloat(plan.price) <= 0) return fallback;
+  const formatPlanPrice = (plan: typeof allPlans[number] | undefined, fallback = '$0'): string => {
+    if (!plan) return fallback;
+    if (parseFloat(plan.price) <= 0) {
+      const symbol = userCurrency ? (CURRENCY_SYMBOLS[userCurrency] || '$') : '$';
+      return `${symbol}0`;
+    }
     // 1. Try regional pricing matching user's country
     if (userCountry && plan.regionalPricing?.length) {
       const regional = plan.regionalPricing.find((r) => r.countryCode === userCountry);

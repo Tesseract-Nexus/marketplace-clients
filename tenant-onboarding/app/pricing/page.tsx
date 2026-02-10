@@ -104,7 +104,10 @@ function formatPlanPrice(
   userCurrency: string | null
 ): string {
   const priceNum = parseFloat(plan.price);
-  if (priceNum <= 0) return 'Free';
+  if (priceNum <= 0) {
+    const symbol = userCurrency ? (CURRENCY_SYMBOLS[userCurrency] || '$') : '$';
+    return `${symbol}0`;
+  }
 
   // 1. Try regional pricing matching user's country
   if (userCountry && plan.regionalPricing?.length) {
