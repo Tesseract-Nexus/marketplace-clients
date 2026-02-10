@@ -31,11 +31,12 @@ const STATIC_PATHS = [
   '/assets',
 ];
 
-// Paths excluded from CSRF validation (pre-auth, webhooks, health checks)
+// Paths excluded from CSRF validation (pre-auth, webhooks, health checks, analytics proxy)
 const CSRF_EXCLUDED_PATHS = [
   '/api/csrf',           // Token generation endpoint
   '/api/webhooks/',      // External callers (Stripe/Razorpay signature verification)
   '/api/health',         // Health check
+  '/api/op/',            // OpenPanel analytics proxy (rewritten to external service)
   '/api/auth/login',     // Pre-authentication
   '/api/auth/register',  // Pre-authentication
   '/api/auth/register-from-guest', // Pre-authentication
