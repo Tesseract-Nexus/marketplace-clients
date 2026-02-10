@@ -4,12 +4,13 @@ import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
 import Header from '../../components/Header';
 import { Footer } from '../../components/Footer';
-import { Check, ArrowRight, HelpCircle, MessageCircle } from 'lucide-react';
+import { Check, ArrowRight, HelpCircle, MessageCircle, Globe } from 'lucide-react';
+import { detectLocation, type LocationData } from '../../lib/api/location';
 
 // SWR fetcher
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-// Currency symbol mapping
+// Currency symbol mapping (fallback when location service currency doesn't have symbol)
 const CURRENCY_SYMBOLS: Record<string, string> = {
   INR: '₹',
   AUD: 'A$',
@@ -18,6 +19,9 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   EUR: '€',
   SGD: 'S$',
   NZD: 'NZ$',
+  CAD: 'C$',
+  AED: 'د.إ',
+  JPY: '¥',
 };
 
 // Types for API response
@@ -83,19 +87,51 @@ const fallbackPlans: PaymentPlanData[] = [
   },
 ];
 
-// Format price with correct currency symbol
-function formatPlanPrice(plan: PaymentPlanData): string {
+function getSymbol(currency: string): string {
+  return CURRENCY_SYMBOLS[currency] || currency + ' ';
+}
+
+function formatAmount(amount: number, currency: string): string {
+  if (currency === 'INR') return amount.toLocaleString('en-IN');
+  if (currency === 'JPY') return amount.toLocaleString();
+  return amount.toLocaleString();
+}
+
+// Format price using detected user location
+function formatPlanPrice(
+  plan: PaymentPlanData,
+  userCountry: string | null,
+  userCurrency: string | null
+): string {
   const priceNum = parseFloat(plan.price);
   if (priceNum <= 0) return 'Free';
-  // Check for INR regional pricing first
-  const inrPricing = plan.regionalPricing?.find((r) => r.currency === 'INR');
-  if (inrPricing) return `₹${Math.round(parseFloat(inrPricing.price)).toLocaleString('en-IN')}`;
-  // Use the plan's own currency
+
+  // 1. Try regional pricing matching user's country
+  if (userCountry && plan.regionalPricing?.length) {
+    const regional = plan.regionalPricing.find(
+      (r) => r.countryCode === userCountry
+    );
+    if (regional) {
+      const amount = Math.round(parseFloat(regional.price));
+      return `${getSymbol(regional.currency)}${formatAmount(amount, regional.currency)}`;
+    }
+  }
+
+  // 2. Try regional pricing matching user's currency (fallback if country didn't match)
+  if (userCurrency && plan.regionalPricing?.length) {
+    const regional = plan.regionalPricing.find(
+      (r) => r.currency === userCurrency
+    );
+    if (regional) {
+      const amount = Math.round(parseFloat(regional.price));
+      return `${getSymbol(regional.currency)}${formatAmount(amount, regional.currency)}`;
+    }
+  }
+
+  // 3. Fall back to the plan's own base price + currency
   const price = Math.round(priceNum);
   const currency = plan.currency || 'INR';
-  const symbol = CURRENCY_SYMBOLS[currency] || currency + ' ';
-  const formatted = currency === 'INR' ? price.toLocaleString('en-IN') : price.toLocaleString();
-  return `${symbol}${formatted}`;
+  return `${getSymbol(currency)}${formatAmount(price, currency)}`;
 }
 
 function getBillingLabel(plan: PaymentPlanData): string {
@@ -114,9 +150,24 @@ export default function PricingPage() {
     dedupingInterval: 60000,
   });
 
-  const allPlans = contentData?.data?.paymentPlans?.length
-    ? contentData.data.paymentPlans
-    : fallbackPlans;
+  // Detect user's location for localized pricing
+  const { data: userLocation } = useSWR<LocationData>(
+    'user-location',
+    () => detectLocation(),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 300000, // Cache for 5 minutes
+      onError: () => {}, // Silently fail — pricing still works with base prices
+    }
+  );
+
+  const userCountry = userLocation?.country || null;
+  const userCurrency = userLocation?.currency || null;
+
+  const isLoading = !contentData;
+  const allPlans = isLoading
+    ? fallbackPlans
+    : (contentData?.data?.paymentPlans?.length ? contentData.data.paymentPlans : fallbackPlans);
 
   // Find free plan for trial info in hero/FAQ
   const freePlan = allPlans.find(
@@ -128,7 +179,9 @@ export default function PricingPage() {
     : null;
 
   const trialMonths = freePlan?.trialDays ? Math.round(freePlan.trialDays / 30) : 12;
-  const cheapestPrice = cheapestPaid ? formatPlanPrice(cheapestPaid) : '₹499';
+  const cheapestPrice = cheapestPaid
+    ? formatPlanPrice(cheapestPaid, userCountry, userCurrency)
+    : '';
 
   const comparisons = [
     {
@@ -180,81 +233,116 @@ export default function PricingPage() {
       {/* Plans Grid */}
       <section className="px-6 pb-16">
         <div className="max-w-5xl mx-auto">
-          <div className={`grid gap-6 ${
-            allPlans.length === 1 ? 'max-w-md mx-auto' :
-            allPlans.length === 2 ? 'sm:grid-cols-2 max-w-3xl mx-auto' :
-            allPlans.length === 3 ? 'sm:grid-cols-2 lg:grid-cols-3' :
-            'sm:grid-cols-2 lg:grid-cols-4'
-          }`}>
-            {allPlans.map((plan) => {
-              const isFree = parseFloat(plan.price) <= 0;
-              const isFeatured = plan.featured;
-              return (
-                <div
-                  key={plan.slug}
-                  className={`rounded-2xl border bg-white p-6 sm:p-8 shadow-sm flex flex-col ${
-                    isFeatured ? 'border-primary ring-2 ring-primary/20' : 'border-warm-200'
-                  }`}
-                >
-                  {isFeatured && (
-                    <div className="inline-flex self-start items-center px-3 py-1 rounded-full bg-sage-50 text-sage-700 text-sm font-medium border border-sage-200 mb-4">
-                      Most popular
-                    </div>
-                  )}
+          {/* Location-based currency indicator */}
+          {userLocation?.country_name && (
+            <div className="flex items-center justify-center gap-2 text-sm text-foreground-tertiary mb-6">
+              <Globe className="w-4 h-4" />
+              <span>
+                Prices shown for {userLocation.country_name}
+                {userCurrency && userCurrency !== (allPlans[0]?.currency || 'INR') && (
+                  <> in {userCurrency}</>
+                )}
+              </span>
+            </div>
+          )}
 
-                  <h3 className="font-serif text-xl font-medium text-foreground mb-1">{plan.name}</h3>
-                  {plan.tagline && (
-                    <p className="text-sm text-foreground-tertiary mb-4">{plan.tagline}</p>
-                  )}
+          {isLoading ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="rounded-2xl border border-warm-200 bg-white p-6 sm:p-8 animate-pulse flex flex-col">
+                  <div className="h-5 w-24 bg-warm-200 rounded mb-2" />
+                  <div className="h-3 w-40 bg-warm-100 rounded mb-6" />
+                  <div className="h-10 w-28 bg-warm-200 rounded mb-1" />
+                  <div className="h-3 w-16 bg-warm-100 rounded mb-6" />
+                  <div className="space-y-3 mb-6 flex-1">
+                    {[1, 2, 3, 4, 5].map((j) => (
+                      <div key={j} className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-warm-100 rounded flex-shrink-0" />
+                        <div className="h-3 bg-warm-100 rounded" style={{ width: `${55 + j * 8}%` }} />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="h-12 bg-warm-200 rounded-xl" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className={`grid gap-6 ${
+              allPlans.length === 1 ? 'max-w-md mx-auto' :
+              allPlans.length === 2 ? 'sm:grid-cols-2 max-w-3xl mx-auto' :
+              allPlans.length === 3 ? 'sm:grid-cols-2 lg:grid-cols-3' :
+              'sm:grid-cols-2 lg:grid-cols-4'
+            }`}>
+              {allPlans.map((plan) => {
+                const isFree = parseFloat(plan.price) <= 0;
+                const isFeatured = plan.featured;
+                return (
+                  <div
+                    key={plan.slug}
+                    className={`rounded-2xl border bg-white p-6 sm:p-8 shadow-sm flex flex-col ${
+                      isFeatured ? 'border-primary ring-2 ring-primary/20' : 'border-warm-200'
+                    }`}
+                  >
+                    {isFeatured && (
+                      <div className="inline-flex self-start items-center px-3 py-1 rounded-full bg-sage-50 text-sage-700 text-sm font-medium border border-sage-200 mb-4">
+                        Most popular
+                      </div>
+                    )}
 
-                  <div className="mb-4">
-                    <div className="flex items-baseline gap-1">
-                      <span className={`font-serif font-medium text-foreground ${isFeatured ? 'text-4xl' : 'text-3xl'}`}>
-                        {formatPlanPrice(plan)}
-                      </span>
-                      {!isFree && (
-                        <span className="text-foreground-secondary text-sm">{getBillingLabel(plan)}</span>
+                    <h3 className="font-serif text-xl font-medium text-foreground mb-1">{plan.name}</h3>
+                    {plan.tagline && (
+                      <p className="text-sm text-foreground-tertiary mb-4">{plan.tagline}</p>
+                    )}
+
+                    <div className="mb-4">
+                      <div className="flex items-baseline gap-1">
+                        <span className={`font-serif font-medium text-foreground ${isFeatured ? 'text-4xl' : 'text-3xl'}`}>
+                          {formatPlanPrice(plan, userCountry, userCurrency)}
+                        </span>
+                        {!isFree && (
+                          <span className="text-foreground-secondary text-sm">{getBillingLabel(plan)}</span>
+                        )}
+                      </div>
+                      {isFree && plan.trialDays && plan.trialDays > 0 && (
+                        <p className="text-sm text-foreground-secondary mt-1">
+                          for <span className="font-semibold text-foreground">{trialMonths} months</span>
+                        </p>
                       )}
                     </div>
-                    {isFree && plan.trialDays && plan.trialDays > 0 && (
-                      <p className="text-sm text-foreground-secondary mt-1">
-                        for <span className="font-semibold text-foreground">{trialMonths} months</span>
+
+                    {plan.features.length > 0 && (
+                      <ul className="space-y-2 mb-6 flex-1">
+                        {plan.features.map((f, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <Check className="w-4 h-4 text-sage-500 flex-shrink-0 mt-0.5" />
+                            <span className="text-sm text-foreground-secondary">{f.feature}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+
+                    <button
+                      onClick={handleGetStarted}
+                      className={`w-full py-3 rounded-xl text-base font-medium transition-colors flex items-center justify-center gap-2 ${
+                        isFeatured
+                          ? 'bg-primary text-primary-foreground hover:bg-primary-hover'
+                          : 'border border-warm-300 text-foreground hover:bg-warm-50'
+                      }`}
+                    >
+                      {isFree ? 'Start Free' : 'Get Started'}
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+
+                    {isFree && (
+                      <p className="text-xs text-foreground-tertiary text-center mt-2">
+                        No credit card required
                       </p>
                     )}
                   </div>
-
-                  {plan.features.length > 0 && (
-                    <ul className="space-y-2 mb-6 flex-1">
-                      {plan.features.map((f, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <Check className="w-4 h-4 text-sage-500 flex-shrink-0 mt-0.5" />
-                          <span className="text-sm text-foreground-secondary">{f.feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  <button
-                    onClick={handleGetStarted}
-                    className={`w-full py-3 rounded-xl text-base font-medium transition-colors flex items-center justify-center gap-2 ${
-                      isFeatured
-                        ? 'bg-primary text-primary-foreground hover:bg-primary-hover'
-                        : 'border border-warm-300 text-foreground hover:bg-warm-50'
-                    }`}
-                  >
-                    {isFree ? 'Start Free' : 'Get Started'}
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-
-                  {isFree && (
-                    <p className="text-xs text-foreground-tertiary text-center mt-2">
-                      No credit card required
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 

@@ -125,8 +125,8 @@ interface PresentationContentResponse {
 // ===========================================
 
 // Fallback pricing (matching home page style)
-const fallbackPricingTagline = '12 months free, then ₹499/mo';
-const fallbackMonthlyPrice = '₹499';
+const fallbackPricingTagline = 'Start free, then simple flat pricing';
+const fallbackMonthlyPrice = '';
 const fallbackPricingFeatures = [
   'Unlimited products with photos',
   'Your own custom domain',
@@ -259,7 +259,10 @@ export default function PresentationPage() {
   const freePlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'free-trial');
   const proPlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'pro');
   const pricingTagline = freePlan?.tagline || fallbackPricingTagline;
-  const monthlyPrice = proPlan?.price ? `₹${Math.round(parseFloat(proPlan.price))}` : fallbackMonthlyPrice;
+  const currencySymbols: Record<string, string> = { INR: '₹', AUD: 'A$', USD: '$', GBP: '£', EUR: '€', SGD: 'S$', NZD: 'NZ$' };
+  const proCurrency = (proPlan as { currency?: string } | undefined)?.currency || 'INR';
+  const proSymbol = currencySymbols[proCurrency] || proCurrency + ' ';
+  const monthlyPrice = proPlan?.price ? `${proSymbol}${Math.round(parseFloat(proPlan.price))}` : fallbackMonthlyPrice;
 
   const testimonials: Testimonial[] = contentData?.data?.testimonials?.length
     ? contentData.data.testimonials.map((t) => ({

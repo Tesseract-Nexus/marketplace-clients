@@ -7,6 +7,7 @@ import {
   ArrowRight,
   ChevronDown,
   Check,
+  Globe,
   Menu,
   X,
   Star,
@@ -23,6 +24,7 @@ import {
 
 import { Footer } from '../components/Footer';
 import { useAuthStore } from '../lib/store/auth-store';
+import { detectLocation, type LocationData } from '../lib/api/location';
 
 // Icon mapping for dynamic icons from database
 const iconMap: Record<string, LucideIcon> = {
@@ -118,8 +120,8 @@ const fallbackFaqs = [
     answer: 'Absolutely. We built this for people who want to focus on their business, not on learning software. If you can use email, you can use mark8ly. And if you get stuck, we\'re here to help—no judgment, just friendly guidance.',
   },
   {
-    question: 'What happens after the 12 months free?',
-    answer: 'After your free year, it\'s just ₹499/month. That\'s it—no hidden fees, no transaction costs from us, no surprises. And you can cancel anytime.',
+    question: 'What happens after the free period?',
+    answer: 'After your free period, simple flat pricing kicks in. No hidden fees, no transaction costs from us, no surprises. And you can cancel anytime.',
   },
   {
     question: 'Are there transaction fees or payment processing fees?',
@@ -220,16 +222,33 @@ export default function Home() {
   // Fetch content from API
   const { data: contentData } = useSWR<HomeContentResponse>('/api/content/home', fetcher, {
     revalidateOnFocus: false,
-    dedupingInterval: 60000, // Cache for 1 minute
+    dedupingInterval: 60000,
   });
+
+  // Detect user's location for localized pricing
+  const { data: userLocation } = useSWR<LocationData>(
+    'user-location',
+    () => detectLocation(),
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 300000,
+      onError: () => {},
+    }
+  );
+
+  const userCountry = userLocation?.country || null;
+  const userCurrency = userLocation?.currency || null;
+  const isContentLoading = !contentData;
 
   // Use API data with fallback to hardcoded content
   const features = contentData?.data?.features?.length ? contentData.data.features : fallbackFeatures;
   const trustBadges = contentData?.data?.trustBadges?.length ? contentData.data.trustBadges : fallbackTrustBadges;
   const faqs = contentData?.data?.faqs?.length ? contentData.data.faqs : fallbackFaqs;
   const testimonials = contentData?.data?.testimonials?.length ? contentData.data.testimonials : fallbackTestimonials;
-  // Extract pricing info from payment plans
-  const allPlans = contentData?.data?.paymentPlans ?? [];
+  // Extract pricing info from payment plans (always falls back so hero text is stable)
+  const allPlans = contentData?.data?.paymentPlans?.length
+    ? contentData.data.paymentPlans
+    : fallbackPricingPlans;
   const freePlan = allPlans.find(
     (p) => parseFloat(p.price) === 0 || p.slug === 'free-trial' || p.slug === 'free'
   );
@@ -238,13 +257,28 @@ export default function Home() {
     ? paidPlans.reduce((a, b) => parseFloat(a.price) < parseFloat(b.price) ? a : b)
     : null;
 
-  // Format price with correct currency symbol
+  // Format price with location-based regional pricing
   const formatPlanPrice = (plan: typeof allPlans[number] | undefined, fallback = 'Free'): string => {
     if (!plan || parseFloat(plan.price) <= 0) return fallback;
-    // Check for INR regional pricing first (preferred display for Indian users)
-    const inrPricing = plan.regionalPricing?.find((r) => r.currency === 'INR');
-    if (inrPricing) return `₹${Math.round(parseFloat(inrPricing.price)).toLocaleString('en-IN')}`;
-    // Use the plan's own currency
+    // 1. Try regional pricing matching user's country
+    if (userCountry && plan.regionalPricing?.length) {
+      const regional = plan.regionalPricing.find((r) => r.countryCode === userCountry);
+      if (regional) {
+        const amount = Math.round(parseFloat(regional.price));
+        const sym = CURRENCY_SYMBOLS[regional.currency] || regional.currency + ' ';
+        return `${sym}${regional.currency === 'INR' ? amount.toLocaleString('en-IN') : amount.toLocaleString()}`;
+      }
+    }
+    // 2. Try regional pricing matching user's currency
+    if (userCurrency && plan.regionalPricing?.length) {
+      const regional = plan.regionalPricing.find((r) => r.currency === userCurrency);
+      if (regional) {
+        const amount = Math.round(parseFloat(regional.price));
+        const sym = CURRENCY_SYMBOLS[regional.currency] || regional.currency + ' ';
+        return `${sym}${regional.currency === 'INR' ? amount.toLocaleString('en-IN') : amount.toLocaleString()}`;
+      }
+    }
+    // 3. Fall back to plan's own currency
     const price = Math.round(parseFloat(plan.price));
     const currency = plan.currency || 'INR';
     const symbol = CURRENCY_SYMBOLS[currency] || currency + ' ';
@@ -260,7 +294,7 @@ export default function Home() {
   };
 
   const trialMonths = freePlan?.trialDays ? Math.round(freePlan.trialDays / 30) : 12;
-  const cheapestPrice = cheapestPaid ? formatPlanPrice(cheapestPaid) : '₹499';
+  const cheapestPrice = cheapestPaid ? formatPlanPrice(cheapestPaid) : '';
   const pricingTagline = freePlan?.tagline || `${trialMonths} months free, then ${cheapestPrice}/mo`;
 
   useEffect(() => {
@@ -510,80 +544,110 @@ export default function Home() {
             </p>
           </div>
 
+          {/* Location indicator */}
+          {userLocation?.country_name && (
+            <div className="flex items-center justify-center gap-2 text-sm text-foreground-tertiary mb-6">
+              <Globe className="w-4 h-4" />
+              <span>Prices shown for {userLocation.country_name}</span>
+            </div>
+          )}
+
           {/* Plans Grid */}
-          <div className={`grid gap-6 ${
-            allPlans.length === 1 ? 'max-w-md mx-auto' :
-            allPlans.length === 2 ? 'sm:grid-cols-2 max-w-3xl mx-auto' :
-            allPlans.length === 3 ? 'sm:grid-cols-2 lg:grid-cols-3' :
-            'sm:grid-cols-2 lg:grid-cols-4'
-          }`}>
-            {(allPlans.length > 0 ? allPlans : fallbackPricingPlans).map((plan) => {
-              const isFree = parseFloat(plan.price) <= 0;
-              const isFeatured = plan.featured;
-              return (
-                <div
-                  key={plan.slug}
-                  className={`rounded-2xl border bg-white p-6 sm:p-8 shadow-sm flex flex-col ${
-                    isFeatured ? 'border-primary ring-2 ring-primary/20' : 'border-warm-200'
-                  }`}
-                >
-                  {isFeatured && (
-                    <div className="inline-flex self-start items-center px-3 py-1 rounded-full bg-sage-50 text-sage-700 text-xs font-medium border border-sage-200 mb-3">
-                      Most popular
-                    </div>
-                  )}
-
-                  <h3 className="font-serif text-lg font-medium text-foreground mb-1">{plan.name}</h3>
-                  {plan.tagline && (
-                    <p className="text-sm text-foreground-tertiary mb-3">{plan.tagline}</p>
-                  )}
-
-                  <div className="mb-4">
-                    <div className="flex items-baseline gap-1">
-                      <span className={`font-serif font-medium text-foreground ${isFeatured ? 'text-3xl' : 'text-2xl'}`}>
-                        {formatPlanPrice(plan)}
-                      </span>
-                      {!isFree && (
-                        <span className="text-foreground-secondary text-sm">{getBillingLabel(plan)}</span>
-                      )}
-                    </div>
-                    {isFree && plan.trialDays && plan.trialDays > 0 && (
-                      <p className="text-sm text-foreground-secondary mt-1">
-                        for <span className="font-semibold text-foreground">{Math.round(plan.trialDays / 30)} months</span>
-                      </p>
-                    )}
+          {isContentLoading ? (
+            <div className="grid gap-6 sm:grid-cols-2 max-w-3xl mx-auto">
+              {[1, 2].map((i) => (
+                <div key={i} className="rounded-2xl border border-warm-200 bg-white p-6 sm:p-8 animate-pulse flex flex-col">
+                  <div className="h-5 w-24 bg-warm-200 rounded mb-2" />
+                  <div className="h-3 w-40 bg-warm-100 rounded mb-6" />
+                  <div className="h-8 w-28 bg-warm-200 rounded mb-1" />
+                  <div className="h-3 w-16 bg-warm-100 rounded mb-6" />
+                  <div className="space-y-3 mb-6 flex-1">
+                    {[1, 2, 3, 4, 5].map((j) => (
+                      <div key={j} className="flex items-center gap-2">
+                        <div className="w-4 h-4 bg-warm-100 rounded flex-shrink-0" />
+                        <div className="h-3 bg-warm-100 rounded" style={{ width: `${55 + j * 8}%` }} />
+                      </div>
+                    ))}
                   </div>
-
-                  {plan.features?.length > 0 && (
-                    <ul className="space-y-2 mb-6 flex-1">
-                      {plan.features.slice(0, 6).map((f, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <Check className="w-4 h-4 text-sage-500 flex-shrink-0 mt-0.5" />
-                          <span className="text-sm text-foreground-secondary">{f.feature}</span>
-                        </li>
-                      ))}
-                      {plan.features.length > 6 && (
-                        <li className="text-sm text-foreground-tertiary pl-6">
-                          +{plan.features.length - 6} more
-                        </li>
-                      )}
-                    </ul>
-                  )}
-
-                  <button
-                    onClick={() => router.push('/onboarding')}
-                    className={`w-full py-3 rounded-lg text-base font-medium transition-colors ${
-                      isFeatured
-                        ? 'bg-primary text-primary-foreground hover:bg-primary-hover'
-                        : 'border border-warm-300 text-foreground hover:bg-warm-50'
+                  <div className="h-11 bg-warm-200 rounded-lg" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className={`grid gap-6 ${
+              allPlans.length === 1 ? 'max-w-md mx-auto' :
+              allPlans.length === 2 ? 'sm:grid-cols-2 max-w-3xl mx-auto' :
+              allPlans.length === 3 ? 'sm:grid-cols-2 lg:grid-cols-3' :
+              'sm:grid-cols-2 lg:grid-cols-4'
+            }`}>
+              {allPlans.map((plan) => {
+                const isFree = parseFloat(plan.price) <= 0;
+                const isFeatured = plan.featured;
+                return (
+                  <div
+                    key={plan.slug}
+                    className={`rounded-2xl border bg-white p-6 sm:p-8 shadow-sm flex flex-col ${
+                      isFeatured ? 'border-primary ring-2 ring-primary/20' : 'border-warm-200'
                     }`}
                   >
-                    {isFree ? 'Start Free' : 'Get Started'}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+                    {isFeatured && (
+                      <div className="inline-flex self-start items-center px-3 py-1 rounded-full bg-sage-50 text-sage-700 text-xs font-medium border border-sage-200 mb-3">
+                        Most popular
+                      </div>
+                    )}
+
+                    <h3 className="font-serif text-lg font-medium text-foreground mb-1">{plan.name}</h3>
+                    {plan.tagline && (
+                      <p className="text-sm text-foreground-tertiary mb-3">{plan.tagline}</p>
+                    )}
+
+                    <div className="mb-4">
+                      <div className="flex items-baseline gap-1">
+                        <span className={`font-serif font-medium text-foreground ${isFeatured ? 'text-3xl' : 'text-2xl'}`}>
+                          {formatPlanPrice(plan)}
+                        </span>
+                        {!isFree && (
+                          <span className="text-foreground-secondary text-sm">{getBillingLabel(plan)}</span>
+                        )}
+                      </div>
+                      {isFree && plan.trialDays && plan.trialDays > 0 && (
+                        <p className="text-sm text-foreground-secondary mt-1">
+                          for <span className="font-semibold text-foreground">{Math.round(plan.trialDays / 30)} months</span>
+                        </p>
+                      )}
+                    </div>
+
+                    {plan.features?.length > 0 && (
+                      <ul className="space-y-2 mb-6 flex-1">
+                        {plan.features.slice(0, 6).map((f, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <Check className="w-4 h-4 text-sage-500 flex-shrink-0 mt-0.5" />
+                            <span className="text-sm text-foreground-secondary">{f.feature}</span>
+                          </li>
+                        ))}
+                        {plan.features.length > 6 && (
+                          <li className="text-sm text-foreground-tertiary pl-6">
+                            +{plan.features.length - 6} more
+                          </li>
+                        )}
+                      </ul>
+                    )}
+
+                    <button
+                      onClick={() => router.push('/onboarding')}
+                      className={`w-full py-3 rounded-lg text-base font-medium transition-colors ${
+                        isFeatured
+                          ? 'bg-primary text-primary-foreground hover:bg-primary-hover'
+                          : 'border border-warm-300 text-foreground hover:bg-warm-50'
+                      }`}
+                    >
+                      {isFree ? 'Start Free' : 'Get Started'}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 

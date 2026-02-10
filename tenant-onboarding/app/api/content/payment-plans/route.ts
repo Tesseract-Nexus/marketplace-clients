@@ -40,7 +40,7 @@ export async function GET(request: Request) {
         currency: 'INR',
         billingCycle: 'monthly',
         trialDays: 365,
-        tagline: '12 months free, then ₹499/mo',
+        tagline: 'Start free, then simple flat pricing',
         features: [
           { feature: 'Unlimited products' },
           { feature: 'Custom domain' },

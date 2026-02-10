@@ -31,8 +31,8 @@ export async function GET(request: Request) {
         answer: "Absolutely. We built this for people who want to focus on their business, not on learning software.",
       },
       {
-        question: 'What happens after the 12 months free?',
-        answer: "After your free year, it's just ₹499/month. That's it—no hidden fees.",
+        question: 'What happens after the free period?',
+        answer: "After your free period, simple flat pricing kicks in. No hidden fees, no transaction costs from us.",
       },
     ];
 
