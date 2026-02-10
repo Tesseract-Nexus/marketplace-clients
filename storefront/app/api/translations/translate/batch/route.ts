@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 const TRANSLATION_SERVICE_URL =
-  process.env.TRANSLATION_SERVICE_URL || 'http://translation-service.devtest.svc.cluster.local:8080';
+  process.env.TRANSLATION_SERVICE_URL || 'http://translation-service.marketplace.svc.cluster.local:8080';
 
 /**
  * POST /api/translations/translate/batch - Batch translate texts

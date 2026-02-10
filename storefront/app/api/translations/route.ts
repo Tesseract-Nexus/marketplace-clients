@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 const TRANSLATION_SERVICE_URL =
   process.env.TRANSLATION_SERVICE_URL ||
   (process.env.NODE_ENV === 'production'
-    ? 'http://translation-service.devtest.svc.cluster.local:8080'
+    ? 'http://translation-service.marketplace.svc.cluster.local:8080'
     : 'http://localhost:8080');
 
 /**

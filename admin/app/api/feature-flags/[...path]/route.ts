@@ -3,7 +3,7 @@ import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
 // Feature flags service URL
 // Note: Service port is 8080, container port is 8096
-const FEATURE_FLAGS_SERVICE_URL = process.env.FEATURE_FLAGS_SERVICE_URL || 'http://feature-flags-service.devtest.svc.cluster.local:8080';
+const FEATURE_FLAGS_SERVICE_URL = process.env.FEATURE_FLAGS_SERVICE_URL || 'http://feature-flags-service.marketplace.svc.cluster.local:8080';
 
 // SDK key from server-side environment (injected from K8s secret)
 const SERVER_SDK_KEY = process.env.NEXT_PUBLIC_GROWTHBOOK_CLIENT_KEY;

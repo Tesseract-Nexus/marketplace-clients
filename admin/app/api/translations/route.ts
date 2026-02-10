@@ -6,7 +6,7 @@ import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 const TRANSLATION_SERVICE_BASE =
   process.env.TRANSLATION_SERVICE_URL ||
   (process.env.NODE_ENV === 'production'
-    ? 'http://translation-service.devtest.svc.cluster.local:8080'
+    ? 'http://translation-service.marketplace.svc.cluster.local:8080'
     : 'http://localhost:8080');
 
 // Request timeout in milliseconds

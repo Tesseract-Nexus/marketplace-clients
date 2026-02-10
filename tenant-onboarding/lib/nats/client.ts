@@ -6,7 +6,7 @@ export const TENANT_CREATED = 'tenant.created';
 export const SESSION_COMPLETED = 'tenant.session_completed';
 
 // Tenant service URL for database validation
-const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://tenant-service.devtest.svc.cluster.local:8086';
+const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://tenant-service.marketplace.svc.cluster.local:8080';
 
 // Track processed sessions to avoid duplicate processing (in-memory cache)
 // In production, this could be backed by Redis for multi-instance deployments

@@ -52,7 +52,7 @@ export async function resolveTenantFromHeaders(): Promise<TenantHostInfo | null>
  */
 export async function resolveTenantInfo(slug: string): Promise<TenantHostInfo | null> {
   try {
-    const tenantRouterUrl = process.env.TENANT_ROUTER_SERVICE_URL || 'http://tenant-router-service.devtest.svc.cluster.local:8089';
+    const tenantRouterUrl = process.env.TENANT_ROUTER_SERVICE_URL || 'http://tenant-router-service.marketplace.svc.cluster.local:8089';
     const response = await fetch(
       `${tenantRouterUrl}/api/v1/hosts/${slug}`,
       {
