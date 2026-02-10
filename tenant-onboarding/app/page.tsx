@@ -156,7 +156,9 @@ interface HomeContentResponse {
       slug: string;
       price: string;
       tagline?: string;
+      trialDays?: number;
       features: Array<{ feature: string }>;
+      regionalPricing?: Array<{ countryCode: string; price: string; currency: string }>;
     }>;
   };
 }
@@ -185,11 +187,29 @@ export default function Home() {
     ? contentData.data.paymentPlans[0].features.map((f) => f.feature)
     : fallbackPricingFeatures;
 
-  // Extract pricing info from payment plans
-  const freePlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'free-trial');
-  const proPlan = contentData?.data?.paymentPlans?.find((p) => p.slug === 'pro');
-  const pricingTagline = freePlan?.tagline || '12 months free, then ₹499/mo';
-  const monthlyPrice = proPlan?.price ? `₹${Math.round(parseFloat(proPlan.price))}` : '₹499';
+  // Extract pricing info from payment plans — find free and paid plans dynamically
+  const allPlans = contentData?.data?.paymentPlans ?? [];
+  const freePlan = allPlans.find(
+    (p) => parseFloat(p.price) === 0 || p.slug === 'free-trial' || p.slug === 'free'
+  );
+  const paidPlan = allPlans.find(
+    (p) => parseFloat(p.price) > 0
+  );
+
+  // Format price — prefer INR regional pricing, then base price
+  const formatPlanPrice = (plan: typeof allPlans[number] | undefined, fallback: string): string => {
+    if (!plan || parseFloat(plan.price) <= 0) return fallback;
+    const inrPricing = plan.regionalPricing?.find((r) => r.currency === 'INR');
+    if (inrPricing) return `₹${Math.round(parseFloat(inrPricing.price)).toLocaleString('en-IN')}`;
+    const price = Math.round(parseFloat(plan.price));
+    // If base currency is already INR-like (no decimal after rounding)
+    if (plan.price && !plan.regionalPricing?.length) return `₹${price.toLocaleString('en-IN')}`;
+    return `A$${price}`;
+  };
+
+  const trialMonths = freePlan?.trialDays ? Math.round(freePlan.trialDays / 30) : 12;
+  const monthlyPrice = formatPlanPrice(paidPlan, '₹499');
+  const pricingTagline = freePlan?.tagline || `${trialMonths} months free, then ${monthlyPrice}/mo`;
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -443,11 +463,11 @@ export default function Home() {
               <div className="lg:w-1/2">
                 <div className="mb-6">
                   <div className="flex items-baseline gap-2 mb-2">
-                    <span className="text-5xl sm:text-6xl font-serif font-medium text-foreground">₹0</span>
+                    <span className="text-5xl sm:text-6xl font-serif font-medium text-foreground">{formatPlanPrice(freePlan, '₹0')}</span>
                     <span className="text-foreground-secondary">/month</span>
                   </div>
                   <p className="text-foreground-secondary">
-                    for your first <span className="font-semibold text-foreground">12 months</span>
+                    for your first <span className="font-semibold text-foreground">{trialMonths} months</span>
                   </p>
                 </div>
 
