@@ -51,6 +51,8 @@ import { PageTourProvider, PageTour } from "@/components/page-tour";
 import { SidebarMenuSearch } from "@/components/SidebarMenuSearch";
 import { AdminUIText } from "@/components/translation/AdminTranslatedText";
 import { OpenPanelIdentify } from "@/components/analytics/OpenPanelIdentify";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+import { SubscriptionBanner } from "@/components/subscription/SubscriptionBanner";
 import { useAuth } from "@/lib/auth";
 import { useTheme } from "@/contexts/ThemeContext";
 import { settingsService } from "@/lib/services/settingsService";
@@ -119,6 +121,7 @@ const SIDEBAR_VISIBILITY: Record<string, boolean> = {
   integrations: process.env.NEXT_PUBLIC_SIDEBAR_INTEGRATIONS === 'true', // Default: hidden (not prod ready, enable in v2)
   settings: process.env.NEXT_PUBLIC_SIDEBAR_SETTINGS !== 'false',
   settingsMarketing: process.env.NEXT_PUBLIC_SIDEBAR_SETTINGS_MARKETING === 'true', // Default: hidden (not prod ready, enable in v2)
+  subscription: process.env.NEXT_PUBLIC_SIDEBAR_SUBSCRIPTION === 'true',
 };
 
 // Helper to check if a sidebar item should be hidden
@@ -277,6 +280,7 @@ const navigation: NavItem[] = [
       { name: "Audit Logs", href: "/settings/audit-logs" },
       { name: "QR Codes", href: "/settings/qr-codes" },
       { name: "Legal & Compliance", href: "/settings/legal" },
+      { name: "Subscription", href: "/settings/subscription", minRole: "admin" },
     ],
   },
   {
@@ -1048,7 +1052,10 @@ function TenantLayoutInner({
         <Header setSidebarOpen={setSidebarOpen} />
         <main id="main-content" className="flex-1 overflow-auto relative z-0" tabIndex={-1}>
           <div className="w-full px-4 sm:px-6 py-4 sm:py-6">
-            {children}
+            <SubscriptionProvider>
+              <SubscriptionBanner />
+              {children}
+            </SubscriptionProvider>
           </div>
         </main>
       </div>

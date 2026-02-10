@@ -31,6 +31,7 @@ export const API_CONFIG = {
     AUDIT: process.env.AUDIT_SERVICE_URL || 'http://localhost:8093/api/v1',
     APPROVAL: process.env.APPROVAL_SERVICE_URL || 'http://localhost:8095/api/v1',
     ADS: process.env.ADS_SERVICE_URL || 'http://localhost:3039/api/v1',
+    SUBSCRIPTION: process.env.SUBSCRIPTION_SERVICE_URL || 'http://subscription-service.marketplace.svc.cluster.local:8093/api/v1',
     TENANT_ONBOARDING: process.env.TENANT_ONBOARDING_SERVICE_URL || 'http://tenant-onboarding.marketplace.svc.cluster.local/api',
   },
 
