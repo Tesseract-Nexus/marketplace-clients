@@ -15,6 +15,7 @@ import { NavigationLayout } from '@/components/layout/NavigationLayout';
 import { AnalyticsProvider } from '@/components/analytics/AnalyticsProvider';
 import { OpenPanelIdentify } from '@/components/analytics/OpenPanelIdentify';
 import { CookieConsentBanner } from '@/components/ui/CookieConsentBanner';
+import { PushNotificationPrompt } from '@/components/PushNotificationPrompt';
 import { Toaster } from '@/components/ui/sonner';
 import { OrganizationJsonLd, WebSiteJsonLd } from '@/components/seo/JsonLd';
 import type { StorefrontSettings, TenantInfo } from '@/types/storefront';
@@ -80,6 +81,7 @@ export function ProviderChain({
                           {children}
                         </main>
                       </NavigationLayout>
+                      <PushNotificationPrompt />
                       <CookieConsentBanner />
                       <Toaster />
                     </AnalyticsProvider>
