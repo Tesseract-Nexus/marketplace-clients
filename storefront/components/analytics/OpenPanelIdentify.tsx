@@ -10,13 +10,17 @@ export function OpenPanelIdentify() {
 
   useEffect(() => {
     if (customer?.id) {
-      op.identify({
-        profileId: customer.id,
-        email: customer.email,
-        firstName: customer.firstName,
-        lastName: customer.lastName,
-        avatar: customer.avatarUrl,
-      });
+      try {
+        op.identify({
+          profileId: customer.id,
+          email: customer.email,
+          firstName: customer.firstName,
+          lastName: customer.lastName,
+          avatar: customer.avatarUrl,
+        });
+      } catch {
+        // Silently ignore — analytics failures must never break the UI
+      }
     }
   }, [customer?.id, customer?.email, op]);
 

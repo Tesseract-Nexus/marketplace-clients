@@ -179,6 +179,7 @@ jobs:
           build-args: |
             ENV_FILE=${{ steps.env_file.outputs.file }}
             NODE_ENV=production
+            NEXT_PUBLIC_OPENPANEL_CLIENT_ID=4e48bd44-8f2b-4976-9bc9-0c4fe4656e28
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

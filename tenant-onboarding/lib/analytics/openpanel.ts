@@ -12,7 +12,11 @@ export function useAnalytics() {
 
   const track = useCallback(
     (event: string, properties?: Record<string, unknown>) => {
-      op.track(event, { app: 'tenant-onboarding', ...properties });
+      try {
+        op.track(event, { app: 'tenant-onboarding', ...properties });
+      } catch {
+        // Silently ignore — analytics failures must never break the UI
+      }
     },
     [op],
   );
