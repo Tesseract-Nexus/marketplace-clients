@@ -62,10 +62,14 @@ function CallbackContent() {
         }
 
         // Build admin login URL
+        // Use /auth/login (not /login) to force a fresh OAuth flow on the admin domain.
+        // The onboarding auth-bff session has NO roles (user didn't exist in staff-service
+        // when Google SSO completed). Routing through /auth/login creates a new session
+        // with proper roles since the user now exists. Keycloak SSO session makes this seamless.
         const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
         let loginUrl: string;
         if (tenantData?.admin_url) {
-          loginUrl = `${tenantData.admin_url}/login`;
+          loginUrl = `${tenantData.admin_url}/auth/login`;
           try {
             const urlObj = new URL(tenantData.admin_url);
             const hostname = urlObj.hostname;
@@ -77,7 +81,7 @@ function CallbackContent() {
             }
           } catch {}
         } else {
-          loginUrl = `https://${tenantData?.tenant_slug}-admin.${baseDomain}/login`;
+          loginUrl = `https://${tenantData?.tenant_slug}-admin.${baseDomain}/auth/login`;
         }
 
         setAdminUrl(loginUrl);
