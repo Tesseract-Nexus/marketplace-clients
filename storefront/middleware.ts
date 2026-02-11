@@ -207,7 +207,9 @@ export async function middleware(request: NextRequest) {
   // --- CSRF validation for API routes ---
   // /auth/* routes are proxied to auth-bff which has its own session-based CSRF protection.
   // Storefront CSRF (double-submit cookie) only applies to /api/* routes.
-  const isApiOrAuth = pathname.startsWith('/api/') || pathname.startsWith('/auth/');
+  // /auth/error is a Next.js page (not a BFF proxy route) — let it through to tenant resolution
+  const isAuthPage = pathname === '/auth/error';
+  const isApiOrAuth = !isAuthPage && (pathname.startsWith('/api/') || pathname.startsWith('/auth/'));
   if (isApiOrAuth) {
     const isAuthBffRoute = pathname.startsWith('/auth/');
     const method = request.method.toUpperCase();
