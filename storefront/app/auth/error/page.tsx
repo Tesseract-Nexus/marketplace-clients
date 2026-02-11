@@ -47,7 +47,7 @@ function AuthErrorContent() {
   const errorCode = searchParams.get('error') || 'default';
   const errorDescription = searchParams.get('error_description');
 
-  const errorInfo = ERROR_MESSAGES[errorCode] || ERROR_MESSAGES.default;
+  const errorInfo = (ERROR_MESSAGES[errorCode] ?? ERROR_MESSAGES['default'])!;
 
   const handleTryAgain = () => {
     router.push('/login');
