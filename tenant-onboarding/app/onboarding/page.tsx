@@ -573,8 +573,8 @@ export default function OnboardingPage() {
     cleanupInProgressRef.current = true;
 
     devWarn('[Onboarding] Session not found, clearing stale session data');
-    // Clear the stale session from sessionStorage (store uses sessionStorage, not localStorage)
-    sessionStorage.removeItem('tenant-onboarding-store');
+    // Clear the stale session from localStorage (store uses localStorage with TTL)
+    localStorage.removeItem('tenant-onboarding-store');
     // Reset the Zustand store completely (clears in-memory state)
     resetOnboarding();
     // Reset UI state to start fresh
@@ -649,8 +649,8 @@ export default function OnboardingPage() {
       if (sessionId) {
         await deleteDraft();
       }
-      // Clear sessionStorage (store uses sessionStorage, not localStorage)
-      sessionStorage.removeItem('tenant-onboarding-store');
+      // Clear localStorage (store uses localStorage with TTL)
+      localStorage.removeItem('tenant-onboarding-store');
       // Reset the Zustand store completely
       resetOnboarding();
       // Reset UI state

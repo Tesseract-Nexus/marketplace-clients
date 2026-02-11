@@ -88,7 +88,7 @@ function CallbackContent() {
 
         // Clear onboarding session
         try {
-          sessionStorage.removeItem('tenant-onboarding-store');
+          localStorage.removeItem('tenant-onboarding-store');
           localStorage.removeItem('onboarding_session_for_oauth');
           localStorage.setItem('onboarding_completed', JSON.stringify({
             tenant_slug: tenantData?.tenant_slug,

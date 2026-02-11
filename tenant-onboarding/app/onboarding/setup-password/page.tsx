@@ -289,7 +289,7 @@ function SetupPasswordContent() {
 
       // Clear onboarding session and set completion flag for verify page
       try {
-        sessionStorage.removeItem('tenant-onboarding-store');
+        localStorage.removeItem('tenant-onboarding-store');
         // Set flag so verify page can show congratulations instead of welcome
         localStorage.setItem('onboarding_completed', JSON.stringify({
           tenant_slug: tenantData?.tenant_slug,

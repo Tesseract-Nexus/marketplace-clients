@@ -149,13 +149,48 @@ export interface OnboardingState {
 
   // Hydration
   setHasHydrated: (state: boolean) => void;
-  // SECURITY: Re-fetch sensitive PII data from server (not stored in browser)
+  // Re-fetch data from server and merge with local fallback
   rehydrateSensitiveData: () => Promise<void>;
 
   // Computed values
   getProgress: () => number;
   isStepCompleted: (step: number) => boolean;
   canProceedToStep: (step: number) => boolean;
+}
+
+const STORE_TTL_MS = 168 * 60 * 60 * 1000; // 168 hours = 7 days
+
+function createTTLStorage() {
+  return {
+    getItem(name: string): string | null {
+      const raw = localStorage.getItem(name);
+      if (!raw) return null;
+      try {
+        const wrapped = JSON.parse(raw);
+        if (wrapped._expiresAt && Date.now() > wrapped._expiresAt) {
+          localStorage.removeItem(name);
+          return null;
+        }
+        return JSON.stringify(wrapped._data ?? wrapped);
+      } catch {
+        return raw;
+      }
+    },
+    setItem(name: string, value: string): void {
+      try {
+        const data = JSON.parse(value);
+        localStorage.setItem(name, JSON.stringify({
+          _data: data,
+          _expiresAt: Date.now() + STORE_TTL_MS,
+        }));
+      } catch {
+        localStorage.setItem(name, value);
+      }
+    },
+    removeItem(name: string): void {
+      localStorage.removeItem(name);
+    },
+  };
 }
 
 const initialState = {
@@ -202,8 +237,7 @@ export const useOnboardingStore = create<OnboardingState>()(
       // Hydration setter
       setHasHydrated: (_hasHydrated) => set({ _hasHydrated }),
 
-      // SECURITY: Re-fetch sensitive PII data from server after rehydration
-      // This ensures sensitive data is not stored in browser storage
+      // Re-fetch data from server after rehydration, merging with local fallback
       rehydrateSensitiveData: async () => {
         const state = get();
         if (!state.sessionId) return;
@@ -215,26 +249,33 @@ export const useOnboardingStore = create<OnboardingState>()(
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const sessionAny = session as any;
 
-          // Restore sensitive data from server
+          // Restore data from server, falling back to local data if backend is empty
           // Handle field name differences: API returns business_information,
           // contact_information (array), business_addresses (array)
           // while store uses business_info, contact_details, business_address
+          const serverBusinessInfo = session.business_info
+            || sessionAny.business_information
+            || {};
+          const serverContactDetails = session.contact_details
+            || session.contact_info
+            || session.contact_information?.[0]
+            || {};
+          const serverBusinessAddress = session.business_address
+            || session.address
+            || sessionAny.business_addresses?.[0]
+            || {};
           const serverStoreSetup = session.store_setup || sessionAny.store_setup;
+
           set({
-            businessInfo: session.business_info
-              || sessionAny.business_information
-              || {},
-            contactDetails: session.contact_details
-              || session.contact_info
-              || session.contact_information?.[0]
-              || {},
-            businessAddress: session.business_address
-              || session.address
-              || sessionAny.business_addresses?.[0]
-              || {},
-            // Only overwrite storeSetup from server if it has data.
-            // storeSetup is persisted to sessionStorage and should not be wiped
-            // if the server returns empty (e.g., timing between save and refresh).
+            businessInfo: Object.keys(serverBusinessInfo).length > 0
+              ? serverBusinessInfo
+              : state.businessInfo,
+            contactDetails: Object.keys(serverContactDetails).length > 0
+              ? serverContactDetails
+              : state.contactDetails,
+            businessAddress: Object.keys(serverBusinessAddress).length > 0
+              ? serverBusinessAddress
+              : state.businessAddress,
             storeSetup: (serverStoreSetup && Object.keys(serverStoreSetup).length > 0
               ? serverStoreSetup
               : state.storeSetup) as Partial<StoreSetupRequest>,
@@ -243,10 +284,13 @@ export const useOnboardingStore = create<OnboardingState>()(
           });
         } catch (error) {
           console.error('Failed to rehydrate sensitive data from server:', error);
-          // If session is invalid/expired, reset the store and set expiry flag
-          // Keep _hasHydrated: true to prevent components from getting stuck in loading state
+          // If session is invalid/expired, clear session but preserve local form data
+          // This allows the user to see previously entered data and start a new session
           if ((error as Error).message?.includes('404') || (error as Error).message?.includes('not found')) {
-            set({ ...initialState, _hasHydrated: true, sessionExpired: true });
+            set({
+              sessionId: null,
+              sessionExpired: true,
+            });
           }
         }
       },
@@ -375,37 +419,37 @@ export const useOnboardingStore = create<OnboardingState>()(
     }),
     {
       name: 'tenant-onboarding-store',
-      // SECURITY: Use sessionStorage instead of localStorage for better security
-      // sessionStorage is cleared when the tab/browser is closed
-      storage: createJSONStorage(() => sessionStorage),
-      // SECURITY: Only persist non-sensitive navigation data
-      // Sensitive PII data (businessInfo, contactDetails, businessAddress) is NOT persisted
-      // and will be re-fetched from the server on page refresh
+      // Use localStorage with 7-day TTL for persistence across tab close/browser restart
+      // Data auto-expires after 168 hours to match backend draft TTL
+      storage: createJSONStorage(() => createTTLStorage()),
+      // Persist all form data to localStorage (with 7-day TTL) for resilience
+      // Backend is still the source of truth; local copy is a fallback
       partialize: (state) => ({
-        // Non-sensitive navigation state only
+        // Session & navigation
         sessionId: state.sessionId,
         currentStep: state.currentStep,
         completedSteps: state.completedSteps,
-        // Location preferences (not PII - just timezone/currency preferences)
+        // Location preferences
         detectedCountry: state.detectedCountry,
         detectedCurrency: state.detectedCurrency,
-        // Verification status (boolean flags, not PII)
+        // Verification flags
         emailVerified: state.emailVerified,
         phoneVerified: state.phoneVerified,
-        // TOTP data (already AES-256-GCM encrypted, safe for sessionStorage)
-        // Needed to survive page navigation between verify → setup-password
+        // TOTP data (already AES-256-GCM encrypted)
         totpSecretEncrypted: state.totpSecretEncrypted,
         backupCodeHashes: state.backupCodeHashes,
-        // Store setup config (timezone, currency, business_model, subdomain, etc.)
-        // Not PII — configuration data that must survive navigation to setup-password
+        // Store setup config
         storeSetup: state.storeSetup,
-        // EXCLUDED: businessInfo, contactDetails, businessAddress (PII)
-        // EXCLUDED: detectedLocation (contains IP address), documents, tenantResult
+        // Form data — persisted locally for resilience
+        businessInfo: state.businessInfo,
+        contactDetails: state.contactDetails,
+        businessAddress: state.businessAddress,
+        documents: state.documents,
       }),
-      // Called when hydration is complete - sets _hasHydrated and re-fetches PII
+      // Called when hydration is complete - sets _hasHydrated and syncs with server
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
-        // Re-fetch sensitive PII data from server after storage rehydration
+        // Sync with server data after localStorage rehydration
         state?.rehydrateSensitiveData();
       },
     }
