@@ -31,7 +31,7 @@ const STATIC_PATHS = [
   '/assets',
 ];
 
-// Paths excluded from CSRF validation (pre-auth, webhooks, health checks, analytics proxy)
+// Paths excluded from CSRF validation (pre-auth, webhooks, health checks, analytics proxy, BFF session management)
 const CSRF_EXCLUDED_PATHS = [
   '/api/csrf',           // Token generation endpoint
   '/api/webhooks/',      // External callers (Stripe/Razorpay signature verification)
@@ -51,6 +51,9 @@ const CSRF_EXCLUDED_PATHS = [
   '/auth/direct/reactivate-account',     // Unauthenticated
   '/auth/otp/',          // OTP login flow (pre-auth)
   '/auth/passkeys/authentication/', // Passkey login flow (pre-auth)
+  '/auth/refresh',       // BFF session token refresh (protected by HttpOnly session cookie)
+  '/auth/logout',        // BFF session logout (protected by HttpOnly session cookie)
+  '/auth/ws-ticket',     // BFF WebSocket ticket (protected by HttpOnly session cookie)
 ];
 
 /**
@@ -201,13 +204,16 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // --- CSRF validation for API and auth routes ---
+  // --- CSRF validation for API routes ---
+  // /auth/* routes are proxied to auth-bff which has its own session-based CSRF protection.
+  // Storefront CSRF (double-submit cookie) only applies to /api/* routes.
   const isApiOrAuth = pathname.startsWith('/api/') || pathname.startsWith('/auth/');
   if (isApiOrAuth) {
+    const isAuthBffRoute = pathname.startsWith('/auth/');
     const method = request.method.toUpperCase();
     const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
 
-    if (isMutation && !CSRF_EXCLUDED_PATHS.some(p => pathname.startsWith(p))) {
+    if (isMutation && !isAuthBffRoute && !CSRF_EXCLUDED_PATHS.some(p => pathname.startsWith(p))) {
       const cookieToken = request.cookies.get('sf-csrf-token')?.value;
       const headerToken = request.headers.get('X-CSRF-Token');
 
@@ -289,13 +295,14 @@ export async function middleware(request: NextRequest) {
 
   // Build CSP with nonce (replaces unsafe-inline and unsafe-eval for scripts)
   const cspDevConnectSrc = isDev ? ' http://localhost:* ws://localhost:*' : '';
+  const openpanelApiUrl = process.env.NEXT_PUBLIC_OPENPANEL_API_URL || '';
   const cspHeader = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com https://*.razorpay.com`,
+    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://js.stripe.com https://*.razorpay.com${openpanelApiUrl ? ` ${openpanelApiUrl}` : ''}`,
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "img-src 'self' data: blob: https://storage.googleapis.com https://storage.cloud.google.com https://*.storage.googleapis.com https://*.googleusercontent.com https://platform-lookaside.fbsbx.com https://*.fbcdn.net https://*.mark8ly.app https://images.unsplash.com https://picsum.photos https://*.blob.core.windows.net",
     "font-src 'self' data: https://fonts.gstatic.com",
-    `connect-src 'self' https://*.mark8ly.app https://storage.googleapis.com https://api.stripe.com https://*.razorpay.com https://api.frankfurter.app wss://*.mark8ly.app${cspDevConnectSrc}`,
+    `connect-src 'self' https://*.mark8ly.app https://storage.googleapis.com https://api.stripe.com https://*.razorpay.com https://api.frankfurter.app wss://*.mark8ly.app${openpanelApiUrl ? ` ${openpanelApiUrl}` : ''}${cspDevConnectSrc}`,
     "frame-src 'self' https://js.stripe.com https://*.razorpay.com",
     "frame-ancestors 'self' https://*.mark8ly.app",
     "form-action 'self'",
