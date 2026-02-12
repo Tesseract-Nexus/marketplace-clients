@@ -34,12 +34,15 @@ export default function SuccessPage() {
     storeSetup,
     sessionId,
     tenantResult,
+    resetOnboarding,
   } = useOnboardingStore();
 
   const opAnalytics = useAnalytics();
 
   const [hasHydrated, setHasHydrated] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [hasCleanedUp, setHasCleanedUp] = useState(false);
+
   useEffect(() => {
     const timer = setTimeout(() => setHasHydrated(true), 100);
     return () => clearTimeout(timer);
@@ -91,6 +94,21 @@ export default function SuccessPage() {
     });
 
   }, [hasHydrated, sessionId, tenantResult, router, tenantSetup]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Clear onboarding data from localStorage after success page loads
+  // This ensures fresh start for next onboarding
+  useEffect(() => {
+    if (!hasHydrated || hasCleanedUp) return;
+
+    // Wait 3 seconds to ensure analytics are tracked and page is displayed
+    const cleanupTimer = setTimeout(() => {
+      console.log('[Success] Clearing onboarding data from localStorage');
+      resetOnboarding();
+      setHasCleanedUp(true);
+    }, 3000);
+
+    return () => clearTimeout(cleanupTimer);
+  }, [hasHydrated, hasCleanedUp, resetOnboarding]);
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
