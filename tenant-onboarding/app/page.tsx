@@ -277,6 +277,18 @@ export default function Home() {
     ? paidPlans.reduce((a, b) => parseFloat(a.price) < parseFloat(b.price) ? a : b)
     : null;
 
+  // Calculate average rating from testimonials (with backend data)
+  const calculateAverageRating = () => {
+    if (!testimonials || testimonials.length === 0) return ratingData.rating; // Fallback to hardcoded
+    const testimonialsWithRating = testimonials.filter((t: { rating?: number }) => typeof t.rating === 'number');
+    if (testimonialsWithRating.length === 0) return ratingData.rating;
+    const sum = testimonialsWithRating.reduce((acc: number, t: { rating: number }) => acc + t.rating, 0);
+    const avg = sum / testimonialsWithRating.length;
+    return Math.round(avg * 10) / 10; // Round to 1 decimal place
+  };
+  const averageRating = calculateAverageRating();
+  const reviewCount = testimonials?.length || ratingData.reviewCount;
+
   // Format price with location-based regional pricing
   const formatPlanPrice = (plan: typeof allPlans[number] | undefined, fallback = '$0'): string => {
     if (!plan) return fallback;
@@ -526,7 +538,7 @@ export default function Home() {
                   <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                 ))}
               </div>
-              <div className="text-xs text-foreground-tertiary mt-1">{ratingData.rating} rating</div>
+              <div className="text-xs text-foreground-tertiary mt-1">{averageRating} rating</div>
             </div>
           </div>
         </div>
