@@ -149,7 +149,7 @@ export function SocialLogin({
               {isProviderLoading ? (
                 <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
               ) : (
-                <Icon className="h-6 w-6" />
+                <Icon className="h-7 w-7" />
               )}
               <span className="sr-only">{mode === 'login' ? 'Sign in' : 'Sign up'} with {provider.name}</span>
             </Button>
