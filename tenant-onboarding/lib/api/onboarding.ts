@@ -89,9 +89,18 @@ export class OnboardingAPIError extends Error {
   }
 
   static fromResponse(response: Response, data: Record<string, unknown>): OnboardingAPIError {
-    const message = (data.error as Record<string, unknown>)?.message as string
-      || data.message as string
-      || OnboardingAPIError.getDefaultMessage(response.status);
+    // Backend sends error as a string in data.error, or as data.error.message, or as data.message
+    let message: string;
+    if (typeof data.error === 'string') {
+      message = data.error;
+    } else if (typeof data.error === 'object' && data.error !== null) {
+      message = (data.error as Record<string, unknown>).message as string;
+    } else if (data.message) {
+      message = data.message as string;
+    } else {
+      message = OnboardingAPIError.getDefaultMessage(response.status);
+    }
+
     const code = OnboardingAPIError.getErrorCode(response.status, data);
     return new OnboardingAPIError(message, code, response.status, data);
   }

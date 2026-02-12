@@ -496,8 +496,23 @@ export default function OnboardingPage() {
 
     setIsStoreHydrated(true);
     const storedCurrentStep = useOnboardingStore.getState().currentStep;
+    const completedSteps = useOnboardingStore.getState().completedSteps;
+
+    // SECURITY FIX: Only restore step if previous steps are completed
+    // This prevents skipping steps when sessionStorage has stale currentStep
     if (storedCurrentStep > 0) {
-      setCurrentSection(storedCurrentStep);
+      // Validate that all previous steps are completed
+      const canRestoreStep = Array.from({ length: storedCurrentStep }, (_, i) => i)
+        .every(step => completedSteps.includes(step));
+
+      if (canRestoreStep) {
+        setCurrentSection(storedCurrentStep);
+      } else {
+        // Reset to first incomplete step
+        const firstIncompleteStep = Array.from({ length: storedCurrentStep }, (_, i) => i)
+          .find(step => !completedSteps.includes(step)) || 0;
+        setCurrentSection(firstIncompleteStep);
+      }
     }
     // Restore contact sub-step if contact details exist (means sub-step was completed)
     if (contactDetails && Object.keys(contactDetails).length > 0) {
@@ -1281,7 +1296,15 @@ export default function OnboardingPage() {
           return;
         }
         // Show specific error message from API
-        setValidationErrors({ businessName: error.message });
+        let errorMsg = error.message;
+
+        // If suggestions are available, append them to the error message
+        if (error.details?.suggestions && Array.isArray(error.details.suggestions) && error.details.suggestions.length > 0) {
+          const suggestions = error.details.suggestions.slice(0, 3).join(', ');
+          errorMsg += ` Try these instead: ${suggestions}`;
+        }
+
+        setValidationErrors({ businessName: errorMsg });
       } else {
         const errorMessage = error instanceof Error ? error.message : '';
         if (errorMessage.toLowerCase().includes('session not found') || errorMessage.toLowerCase().includes('not found')) {
@@ -3612,22 +3635,186 @@ export default function OnboardingPage() {
                     {currentSection === 5 && (
                       <>
                         <div className="space-y-4">
+                          {/* Business Information Section */}
+                          <div className="p-4 bg-warm-50 rounded-xl border border-warm-200">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <Building2 className="w-5 h-5 text-warm-600" />
+                                <span className="font-medium text-foreground">Business Information</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => { setCurrentSection(0); setBusinessContactSubStep('business'); }}
+                                className="text-xs text-primary hover:underline flex items-center gap-1"
+                              >
+                                Edit
+                              </button>
+                            </div>
+                            <div className="grid gap-2 text-sm">
+                              {businessForm.watch('businessName') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Business Name:</span>
+                                  <span className="text-foreground font-medium">{businessForm.watch('businessName')}</span>
+                                </div>
+                              )}
+                              {businessForm.watch('legalBusinessName') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Legal Name:</span>
+                                  <span className="text-foreground font-medium">{businessForm.watch('legalBusinessName')}</span>
+                                </div>
+                              )}
+                              {businessForm.watch('businessType') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Business Type:</span>
+                                  <span className="text-foreground font-medium">{businessForm.watch('businessType')}</span>
+                                </div>
+                              )}
+                              {businessForm.watch('taxId') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Tax ID:</span>
+                                  <span className="text-foreground font-medium">{businessForm.watch('taxId')}</span>
+                                </div>
+                              )}
+                              {businessForm.watch('website') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Website:</span>
+                                  <span className="text-foreground font-medium">{businessForm.watch('website')}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Contact Details Section */}
                           <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
-                            <div className="flex items-center gap-3 mb-3">
-                              <Check className="w-5 h-5 text-sage-600" />
-                              <span className="font-medium text-foreground">Store Setup Complete</span>
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <User className="w-5 h-5 text-sage-600" />
+                                <span className="font-medium text-foreground">Contact Details</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => { setCurrentSection(0); setBusinessContactSubStep('contact'); }}
+                                className="text-xs text-primary hover:underline flex items-center gap-1"
+                              >
+                                Edit
+                              </button>
+                            </div>
+                            <div className="grid gap-2 text-sm">
+                              {contactForm.watch('firstName') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Name:</span>
+                                  <span className="text-foreground font-medium">
+                                    {contactForm.watch('firstName')} {contactForm.watch('lastName')}
+                                  </span>
+                                </div>
+                              )}
+                              {contactForm.watch('email') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Email:</span>
+                                  <span className="text-foreground font-medium">{contactForm.watch('email')}</span>
+                                </div>
+                              )}
+                              {contactForm.watch('phone') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Phone:</span>
+                                  <span className="text-foreground font-medium">{contactForm.watch('phone')}</span>
+                                </div>
+                              )}
+                              {contactForm.watch('jobTitle') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Job Title:</span>
+                                  <span className="text-foreground font-medium">{contactForm.watch('jobTitle')}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Business Address Section */}
+                          <div className="p-4 bg-warm-50 rounded-xl border border-warm-200">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <MapPin className="w-5 h-5 text-warm-600" />
+                                <span className="font-medium text-foreground">Business Address</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setCurrentSection(1)}
+                                className="text-xs text-primary hover:underline flex items-center gap-1"
+                              >
+                                Edit
+                              </button>
+                            </div>
+                            <div className="grid gap-2 text-sm">
+                              {addressForm.watch('streetAddress1') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Address:</span>
+                                  <span className="text-foreground font-medium text-right">
+                                    {addressForm.watch('streetAddress1')}
+                                    {addressForm.watch('streetAddress2') && `, ${addressForm.watch('streetAddress2')}`}
+                                  </span>
+                                </div>
+                              )}
+                              {addressForm.watch('city') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">City:</span>
+                                  <span className="text-foreground font-medium">{addressForm.watch('city')}</span>
+                                </div>
+                              )}
+                              {addressForm.watch('state') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">State/Province:</span>
+                                  <span className="text-foreground font-medium">{addressForm.watch('state')}</span>
+                                </div>
+                              )}
+                              {addressForm.watch('postalCode') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Postal Code:</span>
+                                  <span className="text-foreground font-medium">{addressForm.watch('postalCode')}</span>
+                                </div>
+                              )}
+                              {addressForm.watch('country') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Country:</span>
+                                  <span className="text-foreground font-medium">{addressForm.watch('country')}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Store Setup Section */}
+                          <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-3">
+                                <Store className="w-5 h-5 text-sage-600" />
+                                <span className="font-medium text-foreground">Store Configuration</span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => setCurrentSection(2)}
+                                className="text-xs text-primary hover:underline flex items-center gap-1"
+                              >
+                                Edit
+                              </button>
                             </div>
                             <div className="grid gap-2 text-sm">
                               <div className="flex justify-between">
                                 <span className="text-muted-foreground">Business Model:</span>
-                                <span className="text-foreground font-medium">{storeSetupForm.watch('businessModel') === 'ONLINE_STORE' ? 'Online Store' : 'Marketplace'}</span>
+                                <span className="text-foreground font-medium">
+                                  {storeSetupForm.watch('businessModel') === 'ONLINE_STORE' ? 'Online Store' : 'Marketplace'}
+                                </span>
                               </div>
                               {/* Only show Admin URL if NOT using custom domain */}
                               {!(storeSetupForm.watch('useCustomDomain') && storeSetupForm.watch('customDomain')) && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Admin URL:</span>
-                                  <span className="text-foreground font-medium">{storeSetupForm.watch('subdomain')}-admin.{baseDomain}</span>
-                                </div>
+                                <>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Store URL:</span>
+                                    <span className="text-foreground font-medium">{storeSetupForm.watch('subdomain')}.{baseDomain}</span>
+                                  </div>
+                                  <div className="flex justify-between">
+                                    <span className="text-muted-foreground">Admin URL:</span>
+                                    <span className="text-foreground font-medium">{storeSetupForm.watch('subdomain')}-admin.{baseDomain}</span>
+                                  </div>
+                                </>
                               )}
                               {/* Show custom domain URLs when using custom domain */}
                               {storeSetupForm.watch('useCustomDomain') && storeSetupForm.watch('customDomain') && (
@@ -3646,12 +3833,41 @@ export default function OnboardingPage() {
                                 <span className="text-muted-foreground">Currency:</span>
                                 <span className="text-foreground font-medium">{storeSetupForm.watch('currency')}</span>
                               </div>
+                              {storeSetupForm.watch('timezone') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Timezone:</span>
+                                  <span className="text-foreground font-medium">{storeSetupForm.watch('timezone')}</span>
+                                </div>
+                              )}
+                              {storeSetupForm.watch('language') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Language:</span>
+                                  <span className="text-foreground font-medium">{storeSetupForm.watch('language')}</span>
+                                </div>
+                              )}
+                              {storeSetupForm.watch('primaryColor') && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-muted-foreground">Brand Color:</span>
+                                  <div className="flex items-center gap-2">
+                                    <div
+                                      className="w-6 h-6 rounded border border-border"
+                                      style={{ backgroundColor: storeSetupForm.watch('primaryColor') }}
+                                    />
+                                    <span className="text-foreground font-medium">{storeSetupForm.watch('primaryColor')}</span>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
 
-                          <p className="text-sm text-muted-foreground text-center">
-                            You can always change these settings later in your admin panel.
-                          </p>
+                          <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
+                            <div className="flex items-center gap-3">
+                              <Check className="w-5 h-5 text-sage-600" />
+                              <span className="text-sm text-muted-foreground">
+                                Review your information above. You can edit any section or proceed to launch your store.
+                              </span>
+                            </div>
+                          </div>
                         </div>
 
                         {/* Section 5: Navigation buttons */}
