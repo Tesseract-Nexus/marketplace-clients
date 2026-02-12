@@ -280,9 +280,9 @@ export default function Home() {
   // Calculate average rating from testimonials (with backend data)
   const calculateAverageRating = () => {
     if (!testimonials || testimonials.length === 0) return ratingData.rating; // Fallback to hardcoded
-    const testimonialsWithRating = testimonials.filter((t: { rating?: number }) => typeof t.rating === 'number');
+    const testimonialsWithRating = testimonials.filter((t: any) => typeof t.rating === 'number' && t.rating > 0);
     if (testimonialsWithRating.length === 0) return ratingData.rating;
-    const sum = testimonialsWithRating.reduce((acc: number, t: { rating: number }) => acc + t.rating, 0);
+    const sum = testimonialsWithRating.reduce((acc: number, t: any) => acc + (t.rating || 0), 0);
     const avg = sum / testimonialsWithRating.length;
     return Math.round(avg * 10) / 10; // Round to 1 decimal place
   };
