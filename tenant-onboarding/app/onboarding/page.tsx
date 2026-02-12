@@ -3714,10 +3714,10 @@ export default function OnboardingPage() {
                                   <span className="text-foreground font-medium">{contactForm.watch('email')}</span>
                                 </div>
                               )}
-                              {contactForm.watch('phone') && (
+                              {contactForm.watch('phoneNumber') && (
                                 <div className="flex justify-between">
                                   <span className="text-muted-foreground">Phone:</span>
-                                  <span className="text-foreground font-medium">{contactForm.watch('phone')}</span>
+                                  <span className="text-foreground font-medium">{contactForm.watch('phoneCountryCode')} {contactForm.watch('phoneNumber')}</span>
                                 </div>
                               )}
                               {contactForm.watch('jobTitle') && (
