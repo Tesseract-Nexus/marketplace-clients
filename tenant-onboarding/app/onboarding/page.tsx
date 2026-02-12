@@ -130,6 +130,7 @@ export default function OnboardingPage() {
   const [hasAutoFilledForms, setHasAutoFilledForms] = useState(false);
   const [selectedAddressFromAutocomplete, setSelectedAddressFromAutocomplete] = useState<ParsedAddressData | null>(null);
   const [isStoreHydrated, setIsStoreHydrated] = useState(false);
+  const previousSessionIdRef = useRef<string | null>(null);
 
   // Slug validation state (for admin URL)
   const [slugValidation, setSlugValidation] = useState<{
@@ -481,6 +482,24 @@ export default function OnboardingPage() {
       }
     }
   }, [sessionId, businessInfo, contactDetails, businessAddress, storeSetup, documents, businessForm, contactForm, addressForm, storeSetupForm]);
+
+  // Effect: Reset progress when sessionId changes (new onboarding started)
+  useEffect(() => {
+    // If sessionId changed from previous value, it means a new session was started
+    if (sessionId && previousSessionIdRef.current && sessionId !== previousSessionIdRef.current) {
+      console.log('[Onboarding] New session detected, resetting progress from', previousSessionIdRef.current, 'to', sessionId);
+      useOnboardingStore.setState({
+        completedSteps: [],
+        currentStep: 0,
+      });
+      setCurrentSection(0);
+      setBusinessContactSubStep('business');
+      setIsStoreHydrated(false);
+    }
+
+    // Update ref to current sessionId
+    previousSessionIdRef.current = sessionId;
+  }, [sessionId]);
 
   // Effect B — Restore wizard step position ONLY after PII has loaded from server
   useEffect(() => {
