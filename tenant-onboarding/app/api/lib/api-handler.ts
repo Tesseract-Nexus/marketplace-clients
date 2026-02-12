@@ -100,14 +100,25 @@ export async function proxyRequest(
     // If backend returned an error
     if (!response.ok) {
       // Extract safe error message - don't expose internal details
-      const safeMessage = typeof data.error?.message === 'string'
-        ? data.error.message
-        : typeof data.message === 'string'
-          ? data.message
-          : 'Request failed';
+      // Backend can send error as: data.error (string), data.error.message (object), or data.message
+      const safeMessage = typeof data.error === 'string'
+        ? data.error
+        : typeof data.error?.message === 'string'
+          ? data.error.message
+          : typeof data.message === 'string'
+            ? data.message
+            : 'Request failed';
 
-      // Don't pass raw backend data to client - could contain sensitive info
-      return errorResponse(safeMessage, response.status);
+      // Pass through suggestions if available (for business name validation)
+      const responseData: Record<string, unknown> = { error: safeMessage };
+      if (data.suggestions && Array.isArray(data.suggestions)) {
+        responseData.suggestions = data.suggestions;
+      }
+      if (data.field) {
+        responseData.field = data.field;
+      }
+
+      return NextResponse.json(responseData, { status: response.status });
     }
 
     // Return backend response directly (don't double-wrap)
