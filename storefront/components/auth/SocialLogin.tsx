@@ -89,7 +89,7 @@ const allProviders = [
 ];
 
 // Default providers if not specified
-const defaultProviders: ('google' | 'apple' | 'facebook' | 'instagram')[] = ['google', 'apple', 'facebook'];
+const defaultProviders: ('google' | 'apple' | 'facebook' | 'instagram')[] = ['google', 'facebook'];
 
 export function SocialLogin({
   onLogin,
