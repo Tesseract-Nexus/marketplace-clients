@@ -476,8 +476,8 @@ export default function Home() {
                   <div className="p-3 rounded-lg bg-sage-50 border border-sage-100">
                     <div className="text-xs text-sage-600 mb-1">Revenue</div>
                     <div className="text-lg font-semibold text-foreground">
-                      {(CURRENCY_SYMBOLS[userCurrency || 'INR'] || '₹')}
-                      {(!userCurrency || userCurrency === 'INR'
+                      {(CURRENCY_SYMBOLS[userCurrency || 'USD'] || '$')}
+                      {(userCurrency === 'INR'
                         ? demoMetrics.revenue.INR.toLocaleString('en-IN')
                         : demoMetrics.revenue.default.toLocaleString()
                       )}
@@ -522,8 +522,8 @@ export default function Home() {
                 <div>
                   <div className="text-xs text-foreground-tertiary">New order</div>
                   <div className="text-sm font-medium text-foreground">
-                    {(CURRENCY_SYMBOLS[userCurrency || 'INR'] || '₹')}
-                    {(!userCurrency || userCurrency === 'INR'
+                    {(CURRENCY_SYMBOLS[userCurrency || 'USD'] || '$')}
+                    {(userCurrency === 'INR'
                       ? demoMetrics.newOrder.INR.toLocaleString('en-IN')
                       : demoMetrics.newOrder.default.toLocaleString()
                     )}
