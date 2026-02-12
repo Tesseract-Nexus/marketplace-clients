@@ -3657,28 +3657,28 @@ export default function OnboardingPage() {
                                   <span className="text-foreground font-medium">{businessForm.watch('businessName')}</span>
                                 </div>
                               )}
-                              {businessForm.watch('legalBusinessName') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Legal Name:</span>
-                                  <span className="text-foreground font-medium">{businessForm.watch('legalBusinessName')}</span>
-                                </div>
-                              )}
                               {businessForm.watch('businessType') && (
                                 <div className="flex justify-between">
                                   <span className="text-muted-foreground">Business Type:</span>
                                   <span className="text-foreground font-medium">{businessForm.watch('businessType')}</span>
                                 </div>
                               )}
-                              {businessForm.watch('taxId') && (
+                              {businessForm.watch('industryCategory') && (
                                 <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Tax ID:</span>
-                                  <span className="text-foreground font-medium">{businessForm.watch('taxId')}</span>
+                                  <span className="text-muted-foreground">Industry:</span>
+                                  <span className="text-foreground font-medium">{businessForm.watch('industryCategory')}</span>
                                 </div>
                               )}
-                              {businessForm.watch('website') && (
+                              {businessForm.watch('companyWebsite') && (
                                 <div className="flex justify-between">
                                   <span className="text-muted-foreground">Website:</span>
-                                  <span className="text-foreground font-medium">{businessForm.watch('website')}</span>
+                                  <span className="text-foreground font-medium">{businessForm.watch('companyWebsite')}</span>
+                                </div>
+                              )}
+                              {businessForm.watch('businessRegistrationNumber') && (
+                                <div className="flex justify-between">
+                                  <span className="text-muted-foreground">Registration Number:</span>
+                                  <span className="text-foreground font-medium">{businessForm.watch('businessRegistrationNumber')}</span>
                                 </div>
                               )}
                             </div>
