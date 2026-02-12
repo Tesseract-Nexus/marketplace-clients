@@ -12,6 +12,8 @@ const testimonialsData = [
     featured: true,
     pageContext: 'home',
     sortOrder: 0,
+    status: 'approved',
+    active: true,
   },
   {
     quote: "The onboarding was so smooth I thought I must be missing something. Nope—it really is that simple. My store was live the same day.",
@@ -23,6 +25,8 @@ const testimonialsData = [
     featured: true,
     pageContext: 'home',
     sortOrder: 1,
+    status: 'approved',
+    active: true,
   },
   {
     quote: "Finally, an e-commerce platform that doesn't make me feel stupid. Clean, fast, and the support team actually responds.",
@@ -34,6 +38,8 @@ const testimonialsData = [
     featured: true,
     pageContext: 'home',
     sortOrder: 2,
+    status: 'approved',
+    active: true,
   },
   {
     quote: "We switched from WooCommerce and saved 10+ hours a week on maintenance alone. The platform just works.",
@@ -45,6 +51,8 @@ const testimonialsData = [
     featured: true,
     pageContext: 'presentation',
     sortOrder: 0,
+    status: 'approved',
+    active: true,
   },
   {
     quote: "The multi-tenant architecture means we can manage all our brand storefronts from one dashboard. Game changer.",
@@ -56,6 +64,8 @@ const testimonialsData = [
     featured: true,
     pageContext: 'presentation',
     sortOrder: 1,
+    status: 'approved',
+    active: true,
   },
   {
     quote: "From India to the world - Tesserix helped us scale internationally without the usual payment headaches.",
@@ -67,6 +77,37 @@ const testimonialsData = [
     featured: true,
     pageContext: 'presentation',
     sortOrder: 2,
+    status: 'approved',
+    active: true,
+  },
+  // Pending testimonials for review
+  {
+    quote: "Best decision we made for our online business. The platform is intuitive and the customer support is top-notch. Highly recommend to anyone starting out!",
+    name: 'Raj Malhotra',
+    role: 'Founder',
+    company: 'Vintage Treasures',
+    initials: 'RM',
+    rating: 5,
+    featured: false,
+    pageContext: null,
+    sortOrder: 999,
+    status: 'pending',
+    active: false,
+    submittedAt: new Date('2025-01-15'),
+  },
+  {
+    quote: "Migrating from our old platform was seamless. The team helped us every step of the way and now our store runs faster than ever. Very impressed with the analytics dashboard too.",
+    name: 'Jessica Wong',
+    role: 'Owner',
+    company: 'Green Living Store',
+    initials: 'JW',
+    rating: 4,
+    featured: false,
+    pageContext: null,
+    sortOrder: 999,
+    status: 'pending',
+    active: false,
+    submittedAt: new Date('2025-01-18'),
   },
 ];
 

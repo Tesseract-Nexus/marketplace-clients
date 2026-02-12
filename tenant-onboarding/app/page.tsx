@@ -173,6 +173,26 @@ const fallbackTestimonials: Array<{ quote: string; name: string; role: string; c
   },
 ];
 
+// Demo dashboard metrics (can be replaced with API data)
+const demoMetrics = {
+  revenue: {
+    INR: 103750,
+    default: 1350,
+  },
+  orders: 284,
+  visitors: '3.2K',
+  newOrder: {
+    INR: 7400,
+    default: 96,
+  },
+};
+
+// Rating data (can be replaced with API data)
+const ratingData = {
+  rating: 4.9,
+  reviewCount: 150,
+};
+
 // SWR fetcher
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
@@ -443,15 +463,21 @@ export default function Home() {
                 <div className="grid grid-cols-3 gap-3">
                   <div className="p-3 rounded-lg bg-sage-50 border border-sage-100">
                     <div className="text-xs text-sage-600 mb-1">Revenue</div>
-                    <div className="text-lg font-semibold text-foreground">{(CURRENCY_SYMBOLS[userCurrency || 'INR'] || '₹')}{!userCurrency || userCurrency === 'INR' ? '1,03,750' : '1,350'}</div>
+                    <div className="text-lg font-semibold text-foreground">
+                      {(CURRENCY_SYMBOLS[userCurrency || 'INR'] || '₹')}
+                      {(!userCurrency || userCurrency === 'INR'
+                        ? demoMetrics.revenue.INR.toLocaleString('en-IN')
+                        : demoMetrics.revenue.default.toLocaleString()
+                      )}
+                    </div>
                   </div>
                   <div className="p-3 rounded-lg bg-warm-50 border border-warm-100">
                     <div className="text-xs text-warm-600 mb-1">Orders</div>
-                    <div className="text-lg font-semibold text-foreground">284</div>
+                    <div className="text-lg font-semibold text-foreground">{demoMetrics.orders}</div>
                   </div>
                   <div className="p-3 rounded-lg bg-warm-50 border border-warm-100">
                     <div className="text-xs text-warm-600 mb-1">Visitors</div>
-                    <div className="text-lg font-semibold text-foreground">3.2K</div>
+                    <div className="text-lg font-semibold text-foreground">{demoMetrics.visitors}</div>
                   </div>
                 </div>
                 {/* Chart placeholder */}
@@ -483,7 +509,13 @@ export default function Home() {
                 </div>
                 <div>
                   <div className="text-xs text-foreground-tertiary">New order</div>
-                  <div className="text-sm font-medium text-foreground">{(CURRENCY_SYMBOLS[userCurrency || 'INR'] || '₹')}{!userCurrency || userCurrency === 'INR' ? '7,400' : '96'}</div>
+                  <div className="text-sm font-medium text-foreground">
+                    {(CURRENCY_SYMBOLS[userCurrency || 'INR'] || '₹')}
+                    {(!userCurrency || userCurrency === 'INR'
+                      ? demoMetrics.newOrder.INR.toLocaleString('en-IN')
+                      : demoMetrics.newOrder.default.toLocaleString()
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -494,7 +526,7 @@ export default function Home() {
                   <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                 ))}
               </div>
-              <div className="text-xs text-foreground-tertiary mt-1">4.9 rating</div>
+              <div className="text-xs text-foreground-tertiary mt-1">{ratingData.rating} rating</div>
             </div>
           </div>
         </div>
@@ -660,7 +692,7 @@ export default function Home() {
                 <Star key={i} className="w-6 h-6 fill-amber-400 text-amber-400" />
               ))}
             </div>
-            <p className="text-foreground-secondary">Rated 4.9/5 from 150+ reviews</p>
+            <p className="text-foreground-secondary">Rated {ratingData.rating}/5 from {ratingData.reviewCount}+ reviews</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
