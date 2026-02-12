@@ -173,18 +173,30 @@ const fallbackTestimonials: Array<{ quote: string; name: string; role: string; c
   },
 ];
 
-// Demo dashboard metrics (can be replaced with API data)
+// Demo dashboard metrics with regional values
 const demoMetrics = {
-  revenue: {
-    INR: 103750,
-    default: 1350,
-  },
+  revenue: [
+    { currency: 'INR', value: 103750 },
+    { currency: 'AUD', value: 2100 },
+    { currency: 'USD', value: 1350 },
+    { currency: 'GBP', value: 1050 },
+    { currency: 'EUR', value: 1250 },
+    { currency: 'SGD', value: 1800 },
+    { currency: 'NZD', value: 2200 },
+    { currency: 'CAD', value: 1800 },
+  ],
   orders: 284,
   visitors: '3.2K',
-  newOrder: {
-    INR: 7400,
-    default: 96,
-  },
+  newOrder: [
+    { currency: 'INR', value: 7400 },
+    { currency: 'AUD', value: 150 },
+    { currency: 'USD', value: 96 },
+    { currency: 'GBP', value: 75 },
+    { currency: 'EUR', value: 89 },
+    { currency: 'SGD', value: 130 },
+    { currency: 'NZD', value: 160 },
+    { currency: 'CAD', value: 130 },
+  ],
 };
 
 // Rating data (can be replaced with API data)
@@ -333,6 +345,16 @@ export default function Home() {
   const cheapestPrice = cheapestPaid ? formatPlanPrice(cheapestPaid) : '';
   const pricingTagline = freePlan?.tagline || `${trialMonths} months free, then ${cheapestPrice}/mo`;
 
+  // Helper to get regional metric value
+  const getMetricValue = (metricArray: Array<{ currency: string; value: number }>): string => {
+    const detectedCurrency = userCurrency || 'USD';
+    const metric = metricArray.find(m => m.currency === detectedCurrency) || metricArray.find(m => m.currency === 'USD');
+    if (!metric) return '0';
+    const symbol = CURRENCY_SYMBOLS[metric.currency] || metric.currency + ' ';
+    const formatted = metric.currency === 'INR' ? metric.value.toLocaleString('en-IN') : metric.value.toLocaleString();
+    return `${symbol}${formatted}`;
+  };
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
@@ -424,7 +446,7 @@ export default function Home() {
               <span className="text-foreground-secondary">ready this afternoon</span>
             </h1>
             <p className="text-xl text-foreground-secondary max-w-xl mb-8 leading-relaxed">
-              Set up your store in under an hour—no developer needed. Skip the ₹50,000+ customization costs and do it yourself. Just you, your products, and customers ready to buy.
+              Set up your store in under an hour—no developer needed. Just you, your products, and customers ready to buy.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center mb-6">
               <button
@@ -476,11 +498,7 @@ export default function Home() {
                   <div className="p-3 rounded-lg bg-sage-50 border border-sage-100">
                     <div className="text-xs text-sage-600 mb-1">Revenue</div>
                     <div className="text-lg font-semibold text-foreground">
-                      {(CURRENCY_SYMBOLS[userCurrency || 'USD'] || '$')}
-                      {(userCurrency === 'INR'
-                        ? demoMetrics.revenue.INR.toLocaleString('en-IN')
-                        : demoMetrics.revenue.default.toLocaleString()
-                      )}
+                      {getMetricValue(demoMetrics.revenue)}
                     </div>
                   </div>
                   <div className="p-3 rounded-lg bg-warm-50 border border-warm-100">
@@ -522,11 +540,7 @@ export default function Home() {
                 <div>
                   <div className="text-xs text-foreground-tertiary">New order</div>
                   <div className="text-sm font-medium text-foreground">
-                    {(CURRENCY_SYMBOLS[userCurrency || 'USD'] || '$')}
-                    {(userCurrency === 'INR'
-                      ? demoMetrics.newOrder.INR.toLocaleString('en-IN')
-                      : demoMetrics.newOrder.default.toLocaleString()
-                    )}
+                    {getMetricValue(demoMetrics.newOrder)}
                   </div>
                 </div>
               </div>
