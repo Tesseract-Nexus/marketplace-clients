@@ -3745,12 +3745,11 @@ export default function OnboardingPage() {
                               </button>
                             </div>
                             <div className="grid gap-2 text-sm">
-                              {addressForm.watch('streetAddress1') && (
+                              {addressForm.watch('streetAddress') && (
                                 <div className="flex justify-between">
                                   <span className="text-muted-foreground">Address:</span>
                                   <span className="text-foreground font-medium text-right">
-                                    {addressForm.watch('streetAddress1')}
-                                    {addressForm.watch('streetAddress2') && `, ${addressForm.watch('streetAddress2')}`}
+                                    {addressForm.watch('streetAddress')}
                                   </span>
                                 </div>
                               )}
