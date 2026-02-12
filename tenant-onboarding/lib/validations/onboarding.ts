@@ -277,18 +277,6 @@ export const storeSetupSchema = z.object({
     .url('Please upload a valid logo')
     .optional()
     .or(z.literal('')),
-
-  primaryColor: z
-    .string()
-    .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Please enter a valid hex color')
-    .optional()
-    .or(z.literal('')),
-
-  secondaryColor: z
-    .string()
-    .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/, 'Please enter a valid hex color')
-    .optional()
-    .or(z.literal('')),
 }).refine((data) => {
   // If useCustomDomain is true, customDomain must be provided
   if (data.useCustomDomain === true && (!data.customDomain || data.customDomain.trim() === '')) {

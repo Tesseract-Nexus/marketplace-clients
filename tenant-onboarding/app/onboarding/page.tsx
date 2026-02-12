@@ -381,8 +381,6 @@ export default function OnboardingPage() {
       timezone: '',
       language: 'en',
       logo: '',
-      primaryColor: '#3B82F6',
-      secondaryColor: '#8B5CF6',
       ...storeSetup,
     },
   });
@@ -1589,8 +1587,6 @@ export default function OnboardingPage() {
         language: data.language,
         business_model: data.businessModel,
         logo_url: data.logo,
-        primary_color: data.primaryColor,
-        secondary_color: data.secondaryColor,
         // Custom domain fields
         use_custom_domain: data.useCustomDomain || false,
         custom_domain: data.useCustomDomain ? data.customDomain : undefined,
@@ -1621,8 +1617,6 @@ export default function OnboardingPage() {
         timezone: data.timezone,
         language: data.language,
         logo: data.logo,
-        primary_color: data.primaryColor,
-        secondary_color: data.secondaryColor,
       });
       nextStep();
 
@@ -3842,18 +3836,6 @@ export default function OnboardingPage() {
                                 <div className="flex justify-between">
                                   <span className="text-muted-foreground">Language:</span>
                                   <span className="text-foreground font-medium">{storeSetupForm.watch('language')}</span>
-                                </div>
-                              )}
-                              {storeSetupForm.watch('primaryColor') && (
-                                <div className="flex justify-between items-center">
-                                  <span className="text-muted-foreground">Brand Color:</span>
-                                  <div className="flex items-center gap-2">
-                                    <div
-                                      className="w-6 h-6 rounded border border-border"
-                                      style={{ backgroundColor: storeSetupForm.watch('primaryColor') }}
-                                    />
-                                    <span className="text-foreground font-medium">{storeSetupForm.watch('primaryColor')}</span>
-                                  </div>
                                 </div>
                               )}
                             </div>
