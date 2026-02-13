@@ -255,6 +255,10 @@ export function AdminLanguageProvider({ children }: AdminLanguageProviderProps) 
       return text;
     }
 
+    if (!currentTenant?.id) {
+      return text;
+    }
+
     // Check local cache
     const cacheKey = getCacheKey(text, currentLanguage);
     const cached = translationCache.get(cacheKey);
@@ -268,7 +272,7 @@ export function AdminLanguageProvider({ children }: AdminLanguageProviderProps) 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-jwt-claim-tenant-id': currentTenant?.id || 'admin',
+          'x-jwt-claim-tenant-id': currentTenant.id,
         },
         body: JSON.stringify({
           text,
@@ -310,6 +314,10 @@ export function AdminLanguageProvider({ children }: AdminLanguageProviderProps) 
       return texts;
     }
 
+    if (!currentTenant?.id) {
+      return texts;
+    }
+
     // Check cache for all texts
     const results: string[] = [];
     const uncachedTexts: { index: number; text: string }[] = [];
@@ -340,7 +348,7 @@ export function AdminLanguageProvider({ children }: AdminLanguageProviderProps) 
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-jwt-claim-tenant-id': currentTenant?.id || 'admin',
+          'x-jwt-claim-tenant-id': currentTenant.id,
         },
         body: JSON.stringify({
           items: uncachedTexts.map((item, idx) => ({

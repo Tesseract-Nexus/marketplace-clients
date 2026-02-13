@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServiceUrl } from '@/lib/config/api';
-import { proxyToBackend, getProxyHeaders, handleApiError, proxyPost } from '@/lib/utils/api-route-handler';
+import { proxyToBackend, handleApiError, proxyPost } from '@/lib/utils/api-route-handler';
 
 const CUSTOMERS_SERVICE_URL = getServiceUrl('CUSTOMERS');
 
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
     const nextResponse = NextResponse.json(transformedResponse);
 
     // Customers are moderate data - 1 min cache with stale-while-revalidate
-    nextResponse.headers.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+    nextResponse.headers.set('Cache-Control', 'private, max-age=60, stale-while-revalidate=300');
     nextResponse.headers.set('Vary', 'Accept-Encoding, x-jwt-claim-tenant-id');
 
     return nextResponse;

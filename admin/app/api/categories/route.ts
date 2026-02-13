@@ -17,12 +17,21 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, message: 'Missing tenant context' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
 
     const response = await proxyToBackend(CATEGORIES_SERVICE_URL, 'categories', {
       method: 'POST',
       body,
-      headers: await getProxyHeaders(request),
+      headers: proxyHeaders,
       incomingRequest: request,
     });
 
@@ -30,8 +39,6 @@ export async function POST(request: NextRequest) {
 
     // PERFORMANCE: Invalidate categories cache for this tenant on successful creation
     if (response.ok) {
-      const postHeaders = await getProxyHeaders(request) as Record<string, string>;
-      const tenantId = postHeaders['x-jwt-claim-tenant-id'] || 'default';
       await cache.delPattern(`categories:${tenantId}*`);
     }
 

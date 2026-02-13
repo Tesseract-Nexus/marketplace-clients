@@ -5,6 +5,10 @@ import { cache } from '@/lib/cache/redis';
 
 const PRODUCTS_SERVICE_URL = getServiceUrl('PRODUCTS');
 
+function isValidId(id: string): boolean {
+  return /^[a-zA-Z0-9_-]{2,64}$/.test(id);
+}
+
 /**
  * PUT /api/products/:id/status
  * Update product status (approve, reject, publish, archive, etc.)
@@ -17,12 +21,23 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
+    if (!isValidId(id)) {
+      return NextResponse.json({ success: false, message: 'Invalid product ID' }, { status: 400 });
+    }
+    const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, message: 'Missing tenant context' },
+        { status: 401 }
+      );
+    }
     const body = await request.json();
 
     const response = await proxyToBackend(PRODUCTS_SERVICE_URL, `products/${id}/status`, {
       method: 'PUT',
       body,
-      headers: await getProxyHeaders(request),
+      headers: proxyHeaders,
       incomingRequest: request,
     });
 
@@ -30,8 +45,6 @@ export async function PUT(
 
     // PERFORMANCE: Invalidate products cache for this tenant on successful update
     if (response.ok) {
-      const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
-      const tenantId = proxyHeaders['x-jwt-claim-tenant-id'] || 'default';
       // Use pattern without colon before * to match both:
       // - products:tenantId (no params)
       // - products:tenantId:params (with params)

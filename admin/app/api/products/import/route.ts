@@ -12,7 +12,13 @@ const PRODUCTS_SERVICE_URL = getServiceUrl('PRODUCTS');
 export async function POST(request: NextRequest) {
   try {
     const headers = await getProxyHeaders(request) as Record<string, string>;
-    const tenantId = headers['x-jwt-claim-tenant-id'] || '';
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, message: 'Missing tenant context' },
+        { status: 401 }
+      );
+    }
     const userId = headers['x-jwt-claim-sub'] || '';
     const userEmail = headers['x-jwt-claim-email'] || '';
     const authorization = headers['Authorization'] || '';
@@ -26,7 +32,6 @@ export async function POST(request: NextRequest) {
       if (value instanceof File) {
         // For files, we need to preserve the filename
         outgoingFormData.append(key, value, value.name);
-        console.log(`[Import] File: ${value.name}, size: ${value.size}`);
       } else {
         outgoingFormData.append(key, value);
       }
@@ -34,8 +39,6 @@ export async function POST(request: NextRequest) {
 
     // PRODUCTS_SERVICE_URL already includes /api/v1 (e.g., http://....:8080/api/v1)
     const targetUrl = `${PRODUCTS_SERVICE_URL}/products/import`;
-    console.log(`[Import] Forwarding to: ${targetUrl}`);
-    console.log(`[Import] TenantID: ${tenantId}, UserID: ${userId}, Email: ${userEmail}`);
 
     // Forward to the products service with Istio JWT claim headers
     // Products-service expects x-jwt-claim-* headers for authentication
@@ -51,15 +54,11 @@ export async function POST(request: NextRequest) {
       body: outgoingFormData,
     });
 
-    console.log(`[Import] Response status: ${response.status}`);
-
     // Handle non-JSON responses gracefully
     const contentType = response.headers.get('content-type');
-    console.log(`[Import] Response content-type: ${contentType}`);
 
     if (!contentType?.includes('application/json')) {
       const text = await response.text();
-      console.error('[Import] Non-JSON response:', response.status, text);
       return NextResponse.json(
         { success: false, error: { message: `Import failed: ${text || 'Unknown error'}` } },
         { status: response.status || 500 }
@@ -67,7 +66,6 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json();
-    console.log(`[Import] Response data:`, JSON.stringify(data).substring(0, 500));
 
     if (!response.ok) {
       return NextResponse.json(

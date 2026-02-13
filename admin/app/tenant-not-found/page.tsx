@@ -16,19 +16,21 @@ export default function TenantNotFoundPage() {
   useEffect(() => {
     // Extract the attempted tenant slug from the subdomain
     const hostname = window.location.hostname;
-    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
     const escapedDomain = baseDomain.replace(/\./g, '\\.');
     const slugMatch = hostname.match(new RegExp(`^(.+)-admin\\.${escapedDomain}$`));
     setRequestedSlug(slugMatch ? slugMatch[1] : null);
   }, []);
 
   const handleCreateStore = () => {
-    const onboardingUrl = process.env.NEXT_PUBLIC_ONBOARDING_URL || `https://dev-onboarding.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`;
+    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
+    const onboardingUrl = process.env.NEXT_PUBLIC_ONBOARDING_URL || `https://onboarding.${baseDomain}`;
     window.location.href = onboardingUrl;
   };
 
   const handleGoToMain = () => {
-    const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || `https://dev-admin.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`;
+    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
+    const adminUrl = process.env.NEXT_PUBLIC_ADMIN_URL || `https://admin.${baseDomain}`;
     window.location.href = adminUrl;
   };
 

@@ -13,12 +13,20 @@ const PRODUCTS_SERVICE_URL = getServiceUrl('PRODUCTS');
  */
 export async function POST(request: NextRequest) {
   try {
+    const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, message: 'Missing tenant context' },
+        { status: 401 }
+      );
+    }
     const body = await request.json();
 
     const response = await proxyToBackend(PRODUCTS_SERVICE_URL, 'products/bulk/status', {
       method: 'POST',
       body,
-      headers: await getProxyHeaders(request),
+      headers: proxyHeaders,
       incomingRequest: request,
     });
 
@@ -26,8 +34,6 @@ export async function POST(request: NextRequest) {
 
     // PERFORMANCE: Invalidate products cache for this tenant on successful update
     if (response.ok) {
-      const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
-      const tenantId = proxyHeaders['x-jwt-claim-tenant-id'] || 'default';
       // Use pattern without colon before * to match both:
       // - products:tenantId (no params)
       // - products:tenantId:params (with params)

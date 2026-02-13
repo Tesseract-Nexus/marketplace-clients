@@ -151,7 +151,7 @@ export async function GET(request: NextRequest) {
       data: statistics,
     }, {
       headers: {
-        'Cache-Control': 'public, max-age=60, stale-while-revalidate=120',
+        'Cache-Control': 'private, max-age=60, stale-while-revalidate=120',
         'Vary': 'Accept-Encoding, x-jwt-claim-tenant-id',
       },
     });

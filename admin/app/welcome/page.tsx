@@ -211,7 +211,7 @@ function WelcomeContent() {
         || (() => {
           // Fallback: construct URL from tenant slug
           const tenantSlug = responseData?.tenant?.slug || responseData?.tenant_slug;
-          const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+          const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
           return tenantSlug ? `https://${tenantSlug}-admin.${baseDomain}` : '/';
         })();
 

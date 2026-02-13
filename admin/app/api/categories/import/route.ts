@@ -12,7 +12,13 @@ const CATEGORIES_SERVICE_URL = getServiceUrl('CATEGORIES');
 export async function POST(request: NextRequest) {
   try {
     const headers = await getProxyHeaders(request) as Record<string, string>;
-    const tenantId = headers['x-jwt-claim-tenant-id'] || '';
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, message: 'Missing tenant context' },
+        { status: 401 }
+      );
+    }
     const userId = headers['x-jwt-claim-sub'] || '';
     const userEmail = headers['x-jwt-claim-email'] || '';
     const authorization = headers['Authorization'] || '';
