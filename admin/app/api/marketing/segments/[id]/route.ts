@@ -14,7 +14,7 @@ export async function GET(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid segment ID' }, { status: 400 });
   }
   return proxyGet(MARKETING_SERVICE_URL, `/segments/${id}`, request);
 }
@@ -25,7 +25,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid segment ID' }, { status: 400 });
   }
   return proxyPut(MARKETING_SERVICE_URL, `/segments/${id}`, request);
 }
@@ -36,7 +36,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid segment ID' }, { status: 400 });
   }
   return proxyDelete(MARKETING_SERVICE_URL, `/segments/${id}`, request);
 }

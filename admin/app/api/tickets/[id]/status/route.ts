@@ -16,7 +16,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid ticket ID' }, { status: 400 });
   }
   return proxyPut(TICKETS_SERVICE_URL, `/tickets/${id}/status`, request);
 }

@@ -15,7 +15,7 @@ export async function GET(
 
   if (!isValidId(id)) {
 
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid category ID' }, { status: 400 });
 
   }
 
@@ -46,7 +46,7 @@ export async function PUT(
 
   if (!isValidId(id)) {
 
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid category ID' }, { status: 400 });
 
   }
 
@@ -80,7 +80,7 @@ export async function DELETE(
 
   if (!isValidId(id)) {
 
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid category ID' }, { status: 400 });
 
   }
 

@@ -14,7 +14,7 @@ export async function GET(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid review ID' }, { status: 400 });
   }
   return proxyGet(REVIEWS_SERVICE_URL, `/reviews/${id}`, request);
 }
@@ -25,7 +25,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid review ID' }, { status: 400 });
   }
   return proxyPut(REVIEWS_SERVICE_URL, `/reviews/${id}`, request);
 }
@@ -36,7 +36,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid review ID' }, { status: 400 });
   }
   return proxyDelete(REVIEWS_SERVICE_URL, `/reviews/${id}`, request);
 }

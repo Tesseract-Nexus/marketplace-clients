@@ -20,7 +20,7 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid delegation ID' }, { status: 400 });
   }
   return proxyGet(APPROVAL_SERVICE_URL, `delegations/${id}`, request);
 }

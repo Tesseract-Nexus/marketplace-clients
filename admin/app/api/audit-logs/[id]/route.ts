@@ -18,7 +18,7 @@ export async function GET(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid audit log ID' }, { status: 400 });
   }
   return proxyGet(AUDIT_SERVICE_URL, `/audit-logs/${id}`, request, {
     cacheConfig: CACHE_CONFIG.DYNAMIC,

@@ -14,7 +14,7 @@ export async function GET(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid campaign ID' }, { status: 400 });
   }
   return proxyGet(ADS_SERVICE_URL, `ads/campaigns/${id}`, request);
 }
@@ -25,7 +25,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid campaign ID' }, { status: 400 });
   }
   return proxyPut(ADS_SERVICE_URL, `ads/campaigns/${id}`, request);
 }
@@ -36,7 +36,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid campaign ID' }, { status: 400 });
   }
   return proxyDelete(ADS_SERVICE_URL, `ads/campaigns/${id}`, request);
 }

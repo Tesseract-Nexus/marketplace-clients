@@ -14,7 +14,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid invitation ID' }, { status: 400 });
   }
   return proxyDelete(STAFF_SERVICE_URL, `invitations/${id}`, request);
 }

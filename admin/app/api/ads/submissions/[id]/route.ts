@@ -14,7 +14,7 @@ export async function GET(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid submission ID' }, { status: 400 });
   }
   return proxyGet(ADS_SERVICE_URL, `ads/submissions/${id}`, request);
 }

@@ -14,7 +14,7 @@ export async function GET(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid customer ID' }, { status: 400 });
   }
   return proxyGet(MARKETING_SERVICE_URL, `loyalty/customers/${id}`, request);
 }
@@ -26,7 +26,7 @@ export async function POST(
   // Enroll customer
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid customer ID' }, { status: 400 });
   }
   return proxyPost(MARKETING_SERVICE_URL, `loyalty/customers/${id}/enroll`, request);
 }
@@ -37,7 +37,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid customer ID' }, { status: 400 });
   }
   return proxyDelete(MARKETING_SERVICE_URL, `loyalty/customers/${id}`, request);
 }

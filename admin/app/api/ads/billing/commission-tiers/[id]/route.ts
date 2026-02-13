@@ -14,7 +14,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid commission tier ID' }, { status: 400 });
   }
   return proxyPut(PAYMENTS_SERVICE_URL, `ads/billing/commission-tiers/${id}`, request);
 }

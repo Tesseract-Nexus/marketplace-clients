@@ -14,7 +14,7 @@ export async function GET(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid transfer ID' }, { status: 400 });
   }
   return proxyGet(INVENTORY_SERVICE_URL, `transfers/${id}`, request);
 }
@@ -25,7 +25,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid transfer ID' }, { status: 400 });
   }
   return proxyPut(INVENTORY_SERVICE_URL, `transfers/${id}/status`, request);
 }

@@ -37,7 +37,7 @@ export async function GET(
   try {
     const { id } = await params;
     if (!isValidId(id)) {
-      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'Invalid domain ID' }, { status: 400 });
     }
     const { searchParams } = new URL(request.url);
 
@@ -86,7 +86,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     if (!isValidId(id)) {
-      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'Invalid domain ID' }, { status: 400 });
     }
     const body = await request.json();
     const forwardHeaders = await getForwardHeaders(request);
@@ -132,7 +132,7 @@ export async function DELETE(
 
     if (!isValidId(id)) {
 
-      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'Invalid domain ID' }, { status: 400 });
 
     }
     const forwardHeaders = await getForwardHeaders(request);
@@ -174,7 +174,7 @@ export async function POST(
   try {
     const { id } = await params;
     if (!isValidId(id)) {
-      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'Invalid domain ID' }, { status: 400 });
     }
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');

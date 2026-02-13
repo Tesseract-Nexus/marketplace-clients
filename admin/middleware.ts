@@ -15,15 +15,15 @@ if (process.env.NODE_ENV === 'production' && process.env.NEXT_PUBLIC_DEV_AUTH_BY
  * when using wildcard DNS/SSL certificates.
  *
  * URL patterns:
- * - Cloud: {tenant}-admin.tesserix.app (e.g., homechef-admin.tesserix.app)
- * - Root:  dev-admin.tesserix.app (dev environment root)
+ * - Cloud: {tenant}-admin.{BASE_DOMAIN} (e.g., homechef-admin.mark8ly.com)
+ * - Root:  dev-admin.{BASE_DOMAIN} (dev environment root)
  * - Local: {tenant}.localhost:3001
  * - Custom: admin.{custom-domain} (e.g., admin.yahvismartfarm.com)
  *
  * Examples:
- * - homechef-admin.tesserix.app -> tenant: homechef (validated via slug)
- * - dev-admin.tesserix.app -> tenant: null (root domain)
- * - random-admin.tesserix.app -> 404 (tenant doesn't exist)
+ * - homechef-admin.mark8ly.com -> tenant: homechef (validated via slug)
+ * - dev-admin.mark8ly.com -> tenant: null (root domain)
+ * - random-admin.mark8ly.com -> 404 (tenant doesn't exist)
  * - admin.yahvismartfarm.com -> tenant: resolved via custom-domain-service
  */
 
@@ -59,7 +59,7 @@ const VALIDATION_TIMEOUT = 1500; // 1.5 seconds - fail fast for better UX
 const resolvedDomains = new Map<string, { tenantSlug: string; tenantId: string; timestamp: number }>();
 const DOMAIN_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-// Platform base domain - tesserix.app for staging, mark8ly.com for production
+// Platform base domain (defaults to mark8ly.com)
 const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
 
 /**
@@ -68,7 +68,7 @@ const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
 function isCustomDomain(host: string): boolean {
   const hostname = host.split(':')[0].toLowerCase();
 
-  // Not custom if it's the platform domain (tesserix.app or mark8ly.com)
+  // Not custom if it's the platform domain
   if (hostname.endsWith(`.${BASE_DOMAIN}`) || hostname === BASE_DOMAIN) {
     return false;
   }
@@ -169,7 +169,7 @@ async function resolveCustomDomain(domain: string): Promise<{ tenantSlug: string
  * Extract tenant slug from hostname
  *
  * Supports multiple patterns:
- * 1. {tenant}-admin.tesserix.app (cloud - prod/dev/staging)
+ * 1. {tenant}-admin.{BASE_DOMAIN} (cloud - prod/dev/staging)
  * 2. {tenant}.localhost (local development)
  * 3. admin.{custom-domain} (custom domains - resolved via headers from VirtualService)
  */
@@ -389,7 +389,7 @@ export async function middleware(request: NextRequest) {
       }
     }
   } else {
-    // Standard tesserix.app or localhost domain - extract from hostname
+    // Standard platform or localhost domain - extract from hostname
     tenantSlug = extractTenantFromHost(host);
 
     // If not found in hostname, check headers (for VirtualService-injected custom domains)

@@ -20,7 +20,7 @@ interface RouteParams {
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid approval workflow ID' }, { status: 400 });
   }
   return proxyGet(APPROVAL_SERVICE_URL, `admin/approval-workflows/${id}`, request);
 }
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid approval workflow ID' }, { status: 400 });
   }
   return proxyPut(APPROVAL_SERVICE_URL, `admin/approval-workflows/${id}`, request);
 }

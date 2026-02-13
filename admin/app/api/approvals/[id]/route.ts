@@ -14,7 +14,7 @@ export async function GET(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid approval ID' }, { status: 400 });
   }
   return proxyGet(APPROVAL_SERVICE_URL, `approvals/${id}`, request);
 }
@@ -25,7 +25,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid approval ID' }, { status: 400 });
   }
   return proxyDelete(APPROVAL_SERVICE_URL, `approvals/${id}`, request);
 }

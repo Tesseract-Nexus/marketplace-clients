@@ -19,7 +19,7 @@ export async function GET(
   try {
     const { id } = await params;
     if (!isValidId(id)) {
-      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'Invalid tenant ID' }, { status: 400 });
     }
     const headers = await getProxyHeaders(request) as Record<string, string>;
     const userId = headers['x-jwt-claim-sub'];
@@ -68,7 +68,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     if (!isValidId(id)) {
-      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'Invalid tenant ID' }, { status: 400 });
     }
     const headers = await getProxyHeaders(request) as Record<string, string>;
     const userId = headers['x-jwt-claim-sub'];

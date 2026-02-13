@@ -14,7 +14,7 @@ export async function GET(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid payment ID' }, { status: 400 });
   }
   return proxyGet(PAYMENTS_SERVICE_URL, `ads/billing/payments/${id}`, request);
 }

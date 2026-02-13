@@ -14,7 +14,7 @@ export async function GET(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid gift card ID' }, { status: 400 });
   }
   return proxyGet(GIFT_CARDS_SERVICE_URL, `gift-cards/${id}`, request);
 }
@@ -25,7 +25,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid gift card ID' }, { status: 400 });
   }
   return proxyPut(GIFT_CARDS_SERVICE_URL, `gift-cards/${id}`, request);
 }
@@ -36,7 +36,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid gift card ID' }, { status: 400 });
   }
   return proxyDelete(GIFT_CARDS_SERVICE_URL, `gift-cards/${id}`, request);
 }

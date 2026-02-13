@@ -18,7 +18,7 @@ export async function GET(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid abandoned cart ID' }, { status: 400 });
   }
   return proxyGet(CUSTOMERS_SERVICE_URL, `abandoned-carts/${id}`, request);
 }
@@ -33,7 +33,7 @@ export async function DELETE(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid abandoned cart ID' }, { status: 400 });
   }
   return proxyDelete(CUSTOMERS_SERVICE_URL, `abandoned-carts/${id}`, request);
 }

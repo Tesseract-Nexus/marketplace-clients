@@ -15,7 +15,7 @@ export async function PUT(
 ) {
   const { id } = await params;
   if (!isValidId(id)) {
-    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    return NextResponse.json({ success: false, message: 'Invalid review ID' }, { status: 400 });
   }
   return proxyPut(REVIEWS_SERVICE_URL, `/reviews/${id}/status`, request);
 }

@@ -7,20 +7,20 @@
 // Root domain prefixes (these are NOT tenants)
 const ROOT_PREFIXES = ['dev', 'staging', 'prod'];
 
-// Platform base domain - tesserix.app for staging, mark8ly.com for production
+// Platform base domain (defaults to mark8ly.com)
 const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
 
 /**
  * Extract tenant slug from hostname
  *
  * Supports multiple patterns:
- * 1. {tenant}-admin.tesserix.app (cloud - all environments)
+ * 1. {tenant}-admin.{BASE_DOMAIN} (cloud - all environments)
  * 2. {tenant}.localhost (local development)
  *
  * Root domains (return null):
- * - dev-admin.tesserix.app
- * - staging-admin.tesserix.app
- * - prod-admin.tesserix.app
+ * - dev-admin.{BASE_DOMAIN}
+ * - staging-admin.{BASE_DOMAIN}
+ * - prod-admin.{BASE_DOMAIN}
  * - localhost
  */
 export function extractTenantFromHost(host: string): string | null {
@@ -79,7 +79,7 @@ export function getTenantFromWindow(): string | null {
 }
 
 /**
- * Check if current hostname is a custom domain (not tesserix.app or localhost)
+ * Check if current hostname is a custom domain (not platform domain or localhost)
  */
 export function isCustomDomain(): boolean {
   if (typeof window === 'undefined') return false;
@@ -95,11 +95,11 @@ export function isCustomDomain(): boolean {
 /**
  * Get tenant slug from window location
  *
- * For tesserix.app and localhost domains, extract tenant from hostname pattern.
+ * For platform and localhost domains, extract tenant from hostname pattern.
  * For custom domains, read from the tenant-slug cookie set by middleware.
  */
 export function getCurrentTenantSlug(): string | null {
-  // First try to get tenant from URL pattern (tesserix.app or localhost)
+  // First try to get tenant from URL pattern (platform domain or localhost)
   const fromWindow = getTenantFromWindow();
   if (fromWindow) {
     return fromWindow;
@@ -131,9 +131,9 @@ export function getCurrentTenantSlug(): string | null {
  * @returns Full URL to the tenant's admin panel
  *
  * URL patterns:
- * - Cloud: {tenant}-admin.tesserix.app
+ * - Cloud: {tenant}-admin.{BASE_DOMAIN}
  * - Local: {tenant}.localhost:3001
- * - Custom domain: Falls back to standard tesserix.app pattern
+ * - Custom domain: Falls back to standard platform-domain pattern
  */
 export function buildAdminUrl(tenantSlug: string, path: string = ''): string {
   if (typeof window === 'undefined') {
