@@ -62,6 +62,7 @@ const DEFAULT_PAGE: Omit<ContentPage, 'id' | 'createdAt' | 'updatedAt'> = {
 export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, className }: ContentPagesEditorProps) {
   const { showConfirm } = useDialog();
   const toast = useToast();
+  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
 
   const [pages, setPages] = useState<ContentPage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -318,7 +319,7 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
                 <div className="flex items-center gap-1 ml-4">
                   {storefrontSlug && page.status === 'PUBLISHED' && (
                     <a
-                      href={`https://${storefrontSlug}.tesserix.app/pages/${page.slug}`}
+                      href={`https://${storefrontSlug}.${baseDomain}/pages/${page.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="p-2 text-muted-foreground hover:text-muted-foreground hover:bg-muted rounded-lg transition-colors"

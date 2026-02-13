@@ -85,11 +85,6 @@ export async function GET(request: NextRequest) {
     const headers = await getProxyHeaders(request) as Record<string, string>;
     const tenantId = headers['x-jwt-claim-tenant-id'] || 'default';
 
-    console.log('[Orders API] GET request - tenant_id from x-jwt-claim-tenant-id:', tenantId);
-    console.log('[Orders API] Full headers being sent:', JSON.stringify(headers, null, 2));
-    console.log('[Orders API] x-jwt-claim-sub:', headers['x-jwt-claim-sub'] || 'MISSING');
-    console.log('[Orders API] x-jwt-claim-staff-id:', headers['x-jwt-claim-staff-id'] || 'MISSING');
-
     // Build cache key from query params
     const paramsString = searchParams.toString();
     const cacheKey = cacheKeys.orders(tenantId, paramsString);
@@ -114,8 +109,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Cache miss - fetch from backend
-    console.log('[Orders API] Cache MISS, fetching from backend...');
-    console.log('[Orders API] Service URL:', ORDERS_SERVICE_URL);
 
     const response = await proxyToBackend(ORDERS_SERVICE_URL, 'orders', {
       method: 'GET',
@@ -126,18 +119,13 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
 
-    console.log('[Orders API] Backend response status:', response.status);
-    console.log('[Orders API] Backend response data preview:', JSON.stringify(data).substring(0, 500));
-
     if (!response.ok) {
-      console.log('[Orders API] Backend returned error:', data);
       return NextResponse.json(data, { status: response.status });
     }
 
     // Normalize response: backend returns { orders: [...] }
     // but frontend expects { data: [...] } for ApiListResponse
     const orders = (data.orders || data.data || []) as Record<string, unknown>[];
-    console.log('[Orders API] Orders count:', orders.length);
     const transformedOrders = orders.map(transformOrder);
 
     // PERFORMANCE: Cache the result in Redis (30 seconds for orders)

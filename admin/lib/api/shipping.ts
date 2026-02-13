@@ -1,4 +1,3 @@
-import { apiClient } from './client';
 import {
   Shipment,
   CreateShipmentRequest,
@@ -54,31 +53,10 @@ export class ShippingService {
       ...options.headers,
     };
 
-    // Get auth token and tenant ID from localStorage if available
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
-      }
-
-      // CRITICAL: Add tenant ID for multi-tenant isolation
-      // Tenant is stored as JSON object in 'currentTenant' key
-      const currentTenantStr = localStorage.getItem('currentTenant');
-      if (currentTenantStr) {
-        try {
-          const currentTenant = JSON.parse(currentTenantStr);
-          if (currentTenant?.id) {
-            (headers as Record<string, string>)['x-jwt-claim-tenant-id'] = currentTenant.id;
-          }
-        } catch (e) {
-          console.error('Failed to parse currentTenant from localStorage:', e);
-        }
-      }
-    }
-
     const response = await fetch(url, {
       ...options,
       headers,
+      credentials: 'include',
     });
 
     if (!response.ok) {

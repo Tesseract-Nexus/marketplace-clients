@@ -140,14 +140,6 @@ function ActivatePageContent() {
         return;
       }
 
-      // Store tokens if provided
-      if (data.accessToken) {
-        localStorage.setItem('staff_access_token', data.accessToken);
-        if (data.refreshToken) {
-          localStorage.setItem('staff_refresh_token', data.refreshToken);
-        }
-      }
-
       setStep('success');
 
       // Redirect to login after success

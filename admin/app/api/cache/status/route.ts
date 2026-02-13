@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { cache } from '@/lib/cache/redis';
+import { requireRole, createAuthorizationErrorResponse } from '@/lib/security/authorization';
 
 /**
  * GET /api/cache/status
@@ -9,7 +10,12 @@ import { cache } from '@/lib/cache/redis';
  * - redis: boolean - whether Redis is connected
  * - memorySize: number - size of fallback memory cache
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const auth = requireRole(request, 'super_admin');
+  if (!auth.authorized) {
+    return createAuthorizationErrorResponse(auth.error!);
+  }
+
   const stats = cache.getStats();
 
   return NextResponse.json({

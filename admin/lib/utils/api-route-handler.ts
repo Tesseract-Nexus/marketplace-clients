@@ -223,9 +223,6 @@ export async function getProxyHeaders(incomingRequest?: Request, additionalHeade
   let bffToken: BffTokenResponse | null = null;
 
   if (incomingRequest) {
-    // Track incoming tenant ID for later use (from VirtualService header or JWT claim)
-    const incomingTenantId = incomingRequest.headers.get('x-jwt-claim-tenant-id');
-
     // Forward Authorization header if present (for JWT validation)
     authHeader = incomingRequest.headers.get('Authorization') || incomingRequest.headers.get('authorization') || '';
     if (authHeader) {
@@ -337,11 +334,16 @@ export async function getProxyHeaders(incomingRequest?: Request, additionalHeade
     headers['x-jwt-claim-tenant-id'] = bffToken.tenant_id;
   }
 
-  // Override with incoming request header if present (for explicit tenant switching)
+  // Never trust client-provided tenant header to override server-derived tenant context.
+  // If no tenant has been derived yet, we may use the incoming value as a fallback.
   if (incomingRequest) {
     const incomingTenantId = incomingRequest.headers.get('x-jwt-claim-tenant-id');
     if (incomingTenantId) {
-      headers['x-jwt-claim-tenant-id'] = incomingTenantId;
+      if (!headers['x-jwt-claim-tenant-id']) {
+        headers['x-jwt-claim-tenant-id'] = incomingTenantId;
+      } else if (headers['x-jwt-claim-tenant-id'] !== incomingTenantId) {
+        logger.warn('[Proxy Headers] Ignoring mismatched incoming tenant override');
+      }
     }
   }
 
@@ -438,15 +440,17 @@ export async function getProxyHeadersAsync(incomingRequest?: Request, additional
     logger.debug('[Proxy Headers Async] Using BFF session tenant_id:', bffTenantId);
   }
 
-  // Override with incoming request header if present (for explicit tenant switching)
+  // Never trust client-provided tenant header to override server-derived tenant context.
+  // If no tenant has been derived yet, we may use the incoming value as a fallback.
   if (incomingRequest) {
     const incomingTenantId = incomingRequest.headers.get('x-jwt-claim-tenant-id');
     if (incomingTenantId) {
       const currentTenant = headers['x-jwt-claim-tenant-id'];
-      if (currentTenant && currentTenant !== incomingTenantId) {
-        logger.debug('[Proxy Headers] Tenant override - Current:', currentTenant, '-> Incoming:', incomingTenantId);
+      if (!currentTenant) {
+        headers['x-jwt-claim-tenant-id'] = incomingTenantId;
+      } else if (currentTenant !== incomingTenantId) {
+        logger.warn('[Proxy Headers] Ignoring mismatched incoming tenant override');
       }
-      headers['x-jwt-claim-tenant-id'] = incomingTenantId;
     }
   }
 

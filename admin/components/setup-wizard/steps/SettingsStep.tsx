@@ -17,6 +17,7 @@ export function SettingsStep({ onComplete, onBack }: SettingsStepProps) {
   const router = useRouter();
   const { currentTenant } = useTenant();
   const { markStepComplete, closeWizard } = useSetupWizard();
+  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
 
   const handleGoToSettings = () => {
     markStepComplete('settings');
@@ -81,7 +82,7 @@ export function SettingsStep({ onComplete, onBack }: SettingsStepProps) {
               {currentTenant.slug && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Store URL</span>
-                  <span className="font-mono text-xs text-foreground">{currentTenant.slug}.tesserix.app</span>
+                  <span className="font-mono text-xs text-foreground">{currentTenant.slug}.{baseDomain}</span>
                 </div>
               )}
             </div>

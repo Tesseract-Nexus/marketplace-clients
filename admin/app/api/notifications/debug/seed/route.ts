@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { proxyToBackend, handleApiError, getProxyHeaders } from '@/lib/utils/api-route-handler';
+import { requireRole, createAuthorizationErrorResponse } from '@/lib/security/authorization';
 
 // Notification Hub URL - ensure /api/v1 path is included
 const baseUrl = process.env.NOTIFICATION_HUB_URL || 'http://notification-hub.marketplace.svc.cluster.local:8080';
@@ -11,6 +12,11 @@ const NOTIFICATION_HUB_URL = baseUrl.endsWith('/api/v1') ? baseUrl : `${baseUrl}
  * Uses proxyToBackend which properly extracts JWT claims and forwards Istio headers
  */
 export async function POST(request: NextRequest) {
+  const auth = requireRole(request, 'super_admin');
+  if (!auth.authorized) {
+    return createAuthorizationErrorResponse(auth.error!);
+  }
+
   try {
     const response = await proxyToBackend(NOTIFICATION_HUB_URL, 'notifications/debug/seed', {
       method: 'POST',
