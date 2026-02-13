@@ -8,7 +8,7 @@
 const ROOT_PREFIXES = ['dev', 'staging', 'prod'];
 
 // Platform base domain - tesserix.app for staging, mark8ly.com for production
-const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
 
 /**
  * Extract tenant slug from hostname

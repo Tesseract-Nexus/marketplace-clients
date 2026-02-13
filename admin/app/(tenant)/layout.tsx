@@ -975,7 +975,7 @@ function TenantLayoutInner({
 
       // Detect custom domain from hostname as fallback
       const hostname = window.location.hostname;
-      const layoutBaseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+      const layoutBaseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
       const isCustomDomainHost =
         !hostname.endsWith(`.${layoutBaseDomain}`) &&
         hostname !== layoutBaseDomain &&

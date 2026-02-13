@@ -133,7 +133,7 @@ export default function OnboardingPage() {
       // Navigate to the new store's subdomain
       const hostname = window.location.hostname;
       const protocol = window.location.protocol;
-      const onboardingBaseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+      const onboardingBaseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
       if (hostname.endsWith(`.${onboardingBaseDomain}`) || hostname === onboardingBaseDomain) {
         window.location.href = `${protocol}//${data.tenant.slug}-admin.${onboardingBaseDomain}/`;
       } else {
@@ -248,7 +248,7 @@ export default function OnboardingPage() {
                       )}
                     />
                     <span className="px-3 h-10 flex items-center bg-muted border border-l-0 border-border rounded-r-md text-muted-foreground text-sm whitespace-nowrap">
-                      .{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}
+                      .{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com'}
                     </span>
                   </div>
                   {checkingSlug && (
@@ -409,10 +409,10 @@ export default function OnboardingPage() {
                     <h3 className="text-xl font-bold text-foreground">{formData.businessName || 'Your Business'}</h3>
                     <div className="space-y-1 mt-1">
                       <p className="text-sm text-muted-foreground">
-                        <span className="text-muted-foreground">Storefront:</span> {formData.slug || 'your-slug'}.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}
+                        <span className="text-muted-foreground">Storefront:</span> {formData.slug || 'your-slug'}.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com'}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        <span className="text-muted-foreground">Admin:</span> {formData.slug || 'your-slug'}-admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}
+                        <span className="text-muted-foreground">Admin:</span> {formData.slug || 'your-slug'}-admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com'}
                       </p>
                     </div>
                     <p className="text-xs text-muted-foreground capitalize mt-1">

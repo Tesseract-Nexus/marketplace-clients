@@ -115,7 +115,7 @@ function getSearchUrl(): string {
     return '/api/search/typesense';
   }
   // Server-side: Use internal service URL or API gateway
-  const baseUrl = process.env.SEARCH_SERVICE_URL || process.env.NEXT_PUBLIC_API_URL || `https://dev-api.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`;
+  const baseUrl = process.env.SEARCH_SERVICE_URL || process.env.NEXT_PUBLIC_API_URL || `https://dev-api.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com'}`;
   return `${baseUrl}/api/v1/search`;
 }
 
@@ -383,7 +383,7 @@ export async function syncCollection(
   collection: 'products' | 'customers' | 'orders' | 'categories',
   authToken?: string
 ): Promise<SyncResult | null> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || `https://dev-api.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || `https://dev-api.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com'}`;
   const syncUrl = `${baseUrl}/api/v1/index/sync/${collection}`;
 
   try {
@@ -421,7 +421,7 @@ export async function syncAllCollections(
   tenantId: string,
   authToken?: string
 ): Promise<Record<string, SyncResult> | null> {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || `https://dev-api.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`;
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || `https://dev-api.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com'}`;
   const syncUrl = `${baseUrl}/api/v1/index/sync/all`;
 
   try {

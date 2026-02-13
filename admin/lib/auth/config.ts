@@ -51,7 +51,7 @@ const configs: Record<string, AuthConfig> = {
     sessionCheckInterval: 300000, // 5 minutes (PERFORMANCE: reduced from 1 min)
     sessionRefreshThreshold: 300, // 5 minutes before expiry
     // Admin dashboard uses INTERNAL realm for staff/admin authentication
-    keycloakUrl: process.env.NEXT_PUBLIC_KEYCLOAK_URL || `https://devtest-internal-idp.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`,
+    keycloakUrl: process.env.NEXT_PUBLIC_KEYCLOAK_URL || `https://devtest-internal-idp.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com'}`,
     keycloakRealm: 'tesserix-internal',
   },
   staging: {
@@ -65,7 +65,7 @@ const configs: Record<string, AuthConfig> = {
     csrfUrl: '/auth/csrf',
     sessionCheckInterval: 300000, // 5 minutes (PERFORMANCE: reduced from 1 min)
     sessionRefreshThreshold: 300, // 5 minutes before expiry
-    keycloakUrl: process.env.NEXT_PUBLIC_KEYCLOAK_URL || `https://staging-internal-idp.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`,
+    keycloakUrl: process.env.NEXT_PUBLIC_KEYCLOAK_URL || `https://staging-internal-idp.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com'}`,
     keycloakRealm: 'tesserix-internal',
   },
   production: {
@@ -79,7 +79,7 @@ const configs: Record<string, AuthConfig> = {
     csrfUrl: '/auth/csrf',
     sessionCheckInterval: 300000, // 5 minutes (PERFORMANCE: reduced from 1 min)
     sessionRefreshThreshold: 300, // 5 minutes before expiry
-    keycloakUrl: process.env.NEXT_PUBLIC_KEYCLOAK_URL || `https://internal-idp.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`,
+    keycloakUrl: process.env.NEXT_PUBLIC_KEYCLOAK_URL || `https://internal-idp.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com'}`,
     keycloakRealm: 'tesserix-internal',
   },
 };

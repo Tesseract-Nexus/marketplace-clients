@@ -761,12 +761,12 @@ export default function EnterpriseSSOPage() {
                           <div className="flex gap-2">
                             <Input
                               readOnly
-                              value={ssoConfig?.scimEndpoint || `${process.env.NEXT_PUBLIC_API_URL || `https://api.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`}/scim/v2/${tenantId}`}
+                              value={ssoConfig?.scimEndpoint || `${process.env.NEXT_PUBLIC_API_URL || `https://api.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com'}`}/scim/v2/${tenantId}`}
                               className="font-mono text-sm"
                             />
                             <Button
                               variant="outline"
-                              onClick={() => copyToClipboard(ssoConfig?.scimEndpoint || `${process.env.NEXT_PUBLIC_API_URL || `https://api.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`}/scim/v2/${tenantId}`, 'SCIM Endpoint')}
+                              onClick={() => copyToClipboard(ssoConfig?.scimEndpoint || `${process.env.NEXT_PUBLIC_API_URL || `https://api.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com'}`}/scim/v2/${tenantId}`, 'SCIM Endpoint')}
                             >
                               <Copy className="h-4 w-4" />
                             </Button>

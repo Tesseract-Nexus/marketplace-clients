@@ -42,13 +42,13 @@ export const CACHE_CONFIG = {
   MODERATE: {
     maxAge: 60, // 1 minute
     staleWhileRevalidate: 300, // 5 minutes
-    cacheControl: 'public, max-age=60, stale-while-revalidate=300',
+    cacheControl: 'private, max-age=60, stale-while-revalidate=300',
   },
   // Dynamic data (orders, inventory)
   DYNAMIC: {
     maxAge: 10, // 10 seconds
     staleWhileRevalidate: 30, // 30 seconds
-    cacheControl: 'public, max-age=10, stale-while-revalidate=30',
+    cacheControl: 'private, max-age=10, stale-while-revalidate=30',
   },
   // Private data (user-specific)
   PRIVATE: {

@@ -60,7 +60,7 @@ const resolvedDomains = new Map<string, { tenantSlug: string; tenantId: string; 
 const DOMAIN_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 // Platform base domain - tesserix.app for staging, mark8ly.com for production
-const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
 
 /**
  * Check if a hostname is a custom domain (not platform domain or localhost)

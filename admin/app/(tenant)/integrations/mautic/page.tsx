@@ -358,7 +358,7 @@ export default function MauticIntegrationPage() {
               <div><span className="text-primary">MAUTIC_USERNAME</span>=admin</div>
               <div><span className="text-primary">MAUTIC_PASSWORD_SECRET_NAME</span>=mautic-api-password</div>
               <div><span className="text-primary">MAUTIC_ENABLED</span>=true</div>
-              <div><span className="text-primary">FROM_EMAIL</span>=noreply@mail.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}</div>
+              <div><span className="text-primary">FROM_EMAIL</span>=noreply@mail.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com'}</div>
               <div><span className="text-primary">FROM_NAME</span>=Tesseract Hub</div>
             </div>
           </div>

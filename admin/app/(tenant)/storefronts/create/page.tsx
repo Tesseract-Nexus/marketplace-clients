@@ -131,7 +131,7 @@ export default function CreateStorefrontPage() {
 
   const getStorefrontUrl = (slug: string) => {
     // Subdomain-based URL: https://{slug}.tesserix.app
-    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
     return `https://${slug}.${baseDomain}`;
   };
 
