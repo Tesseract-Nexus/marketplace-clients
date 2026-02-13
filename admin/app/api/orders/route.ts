@@ -83,7 +83,13 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const headers = await getProxyHeaders(request) as Record<string, string>;
-    const tenantId = headers['x-jwt-claim-tenant-id'] || 'default';
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, message: 'Missing tenant context' },
+        { status: 401 }
+      );
+    }
 
     // Build cache key from query params
     const paramsString = searchParams.toString();
@@ -104,7 +110,7 @@ export async function GET(request: NextRequest) {
         cached: true,
       });
       nextResponse.headers.set('X-Cache', 'HIT');
-      nextResponse.headers.set('Cache-Control', 'public, max-age=10, stale-while-revalidate=30');
+      nextResponse.headers.set('Cache-Control', 'private, max-age=10, stale-while-revalidate=30');
       return nextResponse;
     }
 
@@ -144,7 +150,7 @@ export async function GET(request: NextRequest) {
 
     // Orders are dynamic data - short cache with stale-while-revalidate
     nextResponse.headers.set('X-Cache', 'MISS');
-    nextResponse.headers.set('Cache-Control', 'public, max-age=10, stale-while-revalidate=30');
+    nextResponse.headers.set('Cache-Control', 'private, max-age=10, stale-while-revalidate=30');
     nextResponse.headers.set('Vary', 'Accept-Encoding, x-jwt-claim-tenant-id');
 
     return nextResponse;
@@ -162,6 +168,15 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, message: 'Missing tenant context' },
+        { status: 401 }
+      );
+    }
+
     // Parse and validate request body
     const bodyResult = await parseRequestBody(request);
     if (!bodyResult.success) {
@@ -180,7 +195,7 @@ export async function POST(request: NextRequest) {
     const response = await proxyToBackend(ORDERS_SERVICE_URL, 'orders', {
       method: 'POST',
       body: bodyResult.data,
-      headers: await getProxyHeaders(request),
+      headers: proxyHeaders,
       incomingRequest: request,
     });
 
@@ -188,8 +203,6 @@ export async function POST(request: NextRequest) {
 
     // PERFORMANCE: Invalidate orders cache for this tenant on successful creation
     if (response.ok) {
-      const postHeaders = await getProxyHeaders(request) as Record<string, string>;
-      const tenantId = postHeaders['x-jwt-claim-tenant-id'] || 'default';
       await cache.delPattern(`orders:${tenantId}:*`);
     }
 

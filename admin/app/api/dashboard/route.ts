@@ -29,7 +29,13 @@ interface DashboardData {
 export async function GET(request: NextRequest) {
   try {
     const headers = await getProxyHeaders(request) as Record<string, string>;
-    const tenantId = headers['x-jwt-claim-tenant-id'] || 'default';
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, message: 'Missing tenant context' },
+        { status: 401 }
+      );
+    }
 
     // Check cache first
     const cacheKey = cacheKeys.dashboard(tenantId);
@@ -43,7 +49,7 @@ export async function GET(request: NextRequest) {
       }, {
         headers: {
           'X-Cache': 'HIT',
-          'Cache-Control': 'public, max-age=30, stale-while-revalidate=60',
+          'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
         },
       });
     }
@@ -108,7 +114,7 @@ export async function GET(request: NextRequest) {
     }, {
       headers: {
         'X-Cache': 'MISS',
-        'Cache-Control': 'public, max-age=30, stale-while-revalidate=60',
+        'Cache-Control': 'private, max-age=30, stale-while-revalidate=60',
         'Vary': 'Accept-Encoding, x-jwt-claim-tenant-id',
       },
     });

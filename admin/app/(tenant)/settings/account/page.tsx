@@ -6,7 +6,6 @@ import {
   Building2,
   AlertTriangle,
   Trash2,
-  Calendar,
   Shield,
   Users,
 } from 'lucide-react';
@@ -15,12 +14,10 @@ import { PageHeader } from '@/components/PageHeader';
 import { useTenant } from '@/contexts/TenantContext';
 import { DeleteTenantModal } from '@/components/settings/DeleteTenantModal';
 import { MFASettings } from '@/components/settings/MFASettings';
-import { useRouter } from 'next/navigation';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 
 export default function AccountSettingsPage() {
   const { currentTenant } = useTenant();
-  const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Check if user is owner
@@ -31,13 +28,16 @@ export default function AccountSettingsPage() {
     : 'N/A';
 
   const handleTenantDeleted = () => {
-    // Clear tenant cookie and redirect to welcome page
-    document.cookie = `tenant_slug=; path=/; max-age=0; domain=.${process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}`;
-    document.cookie = 'tenant_slug=; path=/; max-age=0';
+    // Clear both current and legacy tenant cookie names (domain + host scopes)
+    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
+    ['tenant-slug', 'tenant_slug'].forEach((cookieName) => {
+      document.cookie = `${cookieName}=; path=/; max-age=0; domain=.${baseDomain}`;
+      document.cookie = `${cookieName}=; path=/; max-age=0`;
+    });
 
-    // Redirect to root domain welcome page
-    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
-    window.location.href = `https://dev-admin.${baseDomain}/welcome`;
+    // Redirect to admin welcome using configured admin URL
+    const adminBaseUrl = (process.env.NEXT_PUBLIC_ADMIN_URL || `https://admin.${baseDomain}`).replace(/\/$/, '');
+    window.location.href = `${adminBaseUrl}/welcome`;
   };
 
   if (!currentTenant) {
@@ -94,7 +94,7 @@ export default function AccountSettingsPage() {
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Admin URL</label>
                 <p className="text-sm font-mono text-primary">
-                  https://{currentTenant.slug}-admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}
+                  https://{currentTenant.slug}-admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com'}
                 </p>
               </div>
             </div>

@@ -15,7 +15,13 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
-    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'] || 'default';
+    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, message: 'Missing tenant context' },
+        { status: 401 }
+      );
+    }
 
     // Build cache key from query params
     const paramsString = searchParams.toString();
@@ -36,7 +42,7 @@ export async function GET(request: NextRequest) {
         cached: true,
       });
       nextResponse.headers.set('X-Cache', 'HIT');
-      nextResponse.headers.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
+      nextResponse.headers.set('Cache-Control', 'private, max-age=30, stale-while-revalidate=60');
       return nextResponse;
     }
 
@@ -44,7 +50,7 @@ export async function GET(request: NextRequest) {
     const response = await proxyToBackend(PRODUCTS_SERVICE_URL, 'products', {
       method: 'GET',
       params: searchParams,
-      headers: await getProxyHeaders(request),
+      headers: proxyHeaders,
       incomingRequest: request,
     });
 
@@ -72,7 +78,7 @@ export async function GET(request: NextRequest) {
     });
 
     nextResponse.headers.set('X-Cache', 'MISS');
-    nextResponse.headers.set('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
+    nextResponse.headers.set('Cache-Control', 'private, max-age=30, stale-while-revalidate=60');
     nextResponse.headers.set('Vary', 'Accept-Encoding, x-jwt-claim-tenant-id');
 
     return nextResponse;
@@ -89,12 +95,21 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, message: 'Missing tenant context' },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
 
     const response = await proxyToBackend(PRODUCTS_SERVICE_URL, 'products', {
       method: 'POST',
       body,
-      headers: await getProxyHeaders(request),
+      headers: proxyHeaders,
       incomingRequest: request,
     });
 
@@ -102,8 +117,6 @@ export async function POST(request: NextRequest) {
 
     // PERFORMANCE: Invalidate products cache for this tenant on successful creation
     if (response.ok) {
-      const postHeaders = await getProxyHeaders(request) as Record<string, string>;
-      const tenantId = postHeaders['x-jwt-claim-tenant-id'] || 'default';
       await cache.delPattern(`products:${tenantId}:*`);
     }
 

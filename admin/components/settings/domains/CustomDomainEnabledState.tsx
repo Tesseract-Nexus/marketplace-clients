@@ -11,7 +11,6 @@ import {
   Server,
   Shield,
   ChevronDown,
-  Loader2,
   Info,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -80,6 +79,9 @@ export function CustomDomainEnabledState({
   const derivedAdminUrl = adminUrl || `https://admin.${customDomain}`;
   const derivedStorefrontUrl = storefrontUrl || `https://${customDomain}`;
   const apiUrl = `https://api.${customDomain}`;
+  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
+  const verificationTarget = process.env.NEXT_PUBLIC_DOMAIN_VERIFICATION_HOST || `verify.${baseDomain}`;
+  const acmeTargetSuffix = process.env.NEXT_PUBLIC_ACME_TARGET_SUFFIX || `acme.${baseDomain}`;
 
   const primaryDomain = domainDetails.find(d => d.targetType === 'storefront' || d.domain === customDomain);
 
@@ -96,7 +98,7 @@ export function CustomDomainEnabledState({
     }).catch(() => {
       // Silently fail — routing section just won't show
     });
-  }, [showDnsConfig, primaryDomain?.id]);
+  }, [showDnsConfig, primaryDomain?.id, routingRecords.length]);
 
   const urls: URLItem[] = [
     { id: 'storefront', label: 'Storefront', url: derivedStorefrontUrl, icon: Globe, external: true },
@@ -267,7 +269,7 @@ export function CustomDomainEnabledState({
                       <div className="space-y-1">
                         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Value</label>
                         <div className="bg-background rounded border border-border px-3 py-2">
-                          <MaskedValue value="verify.tesserix.app" label="Verification Target" />
+                          <MaskedValue value={verificationTarget} label="Verification Target" />
                         </div>
                       </div>
                     </div>
@@ -290,7 +292,7 @@ export function CustomDomainEnabledState({
                         <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Value</label>
                         <div className="bg-background rounded border border-border px-3 py-2">
                           <MaskedValue
-                            value={`${customDomain.replace(/\./g, '-')}.acme.tesserix.app`}
+                            value={`${customDomain.replace(/\./g, '-')}.${acmeTargetSuffix}`}
                             label="ACME Target"
                           />
                         </div>
