@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { cache, cacheKeys, cacheTTL } from '@/lib/cache/redis';
+import { cache, cacheTTL } from '@/lib/cache/redis';
 import { getProxyHeaders, handleApiError } from '@/lib/utils/api-route-handler';
 
 // Tenant Service URL - connects to the backend Go service
@@ -125,6 +125,7 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const { id } = await params;
+    const fresh = request.nextUrl.searchParams.get('fresh') === '1';
     const headers = await getProxyHeaders(request) as Record<string, string>;
     const userId = headers['x-jwt-claim-sub'] || '';
 
@@ -133,13 +134,15 @@ export async function GET(
 
     // Check cache first (keyed by both tenant and user for security)
     const cacheKey = `tenant:details:${id}:${userId}`;
-    const cached = await cache.get<TenantDetails>(cacheKey);
-    if (cached) {
-      return NextResponse.json({
-        success: true,
-        data: cached,
-        cached: true
-      });
+    if (!fresh) {
+      const cached = await cache.get<TenantDetails>(cacheKey);
+      if (cached) {
+        return NextResponse.json({
+          success: true,
+          data: cached,
+          cached: true
+        });
+      }
     }
 
     // Determine if id is UUID or slug
@@ -242,6 +245,11 @@ export async function GET(
     }
 
     // Step 3: Build complete TenantDetails by merging tenant info and onboarding data
+    const hasOnboardingStoreSetup =
+      !!onboardingData?.store_setup &&
+      !!onboardingData.store_setup.currency &&
+      !!onboardingData.store_setup.timezone;
+
     const details: TenantDetails = {
       id: String(tenantData.id || tenantData.tenant_id || tenantId),
       name: String(tenantData.name || ''),
@@ -307,10 +315,14 @@ export async function GET(
       },
     };
 
-    // Cache for 5 minutes (keyed by user to ensure tenant isolation)
-    await cache.set(cacheKey, details, cacheTTL.tenant);
+    // Cache strategy:
+    // - Full onboarding store setup present: use normal tenant TTL
+    // - Fallback defaults only (e.g., onboarding-data not yet ready): use short TTL
+    //   to avoid serving stale USD/UTC for long periods after onboarding completes.
+    const tenantDetailsTTL = hasOnboardingStoreSetup ? cacheTTL.tenant : 30;
+    await cache.set(cacheKey, details, tenantDetailsTTL);
 
-    return NextResponse.json({ success: true, data: details });
+    return NextResponse.json({ success: true, data: details, cached: false, fresh });
   } catch (error) {
     return handleApiError(error, 'GET tenants/[id]/details');
   }

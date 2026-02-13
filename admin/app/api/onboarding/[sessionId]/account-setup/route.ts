@@ -8,7 +8,9 @@
  */
 
 import { NextRequest } from 'next/server';
-import { proxyPost, SERVICES, validateRequest, errorResponse } from '../../../lib/api-handler';
+import { NextResponse } from 'next/server';
+import { SERVICES, validateRequest, errorResponse, generateRequestId } from '../../../lib/api-handler';
+import { cache } from '@/lib/cache/redis';
 
 interface AccountSetupRequest {
   password?: string;
@@ -44,19 +46,52 @@ export async function POST(
       return errorResponse('Password must be at least 10 characters', 400);
     }
 
-    // Proxy to tenant-service account-setup endpoint
-    return proxyPost(
-      SERVICES.TENANT,
-      `/api/v1/onboarding/sessions/${sessionId}/account-setup`,
-      request,
+    const payload = {
+      password: body.password,
+      auth_method: body.auth_method || 'password',
+      timezone: body.timezone || 'UTC',
+      currency: body.currency || 'USD',
+      business_model: body.business_model || 'ONLINE_STORE',
+    };
+
+    // Call tenant-service directly so we can invalidate admin tenant-details cache on success.
+    const response = await fetch(
+      `${SERVICES.TENANT}/api/v1/onboarding/sessions/${sessionId}/account-setup`,
       {
-        password: body.password,
-        auth_method: body.auth_method || 'password',
-        timezone: body.timezone || 'UTC',
-        currency: body.currency || 'USD',
-        business_model: body.business_model || 'ONLINE_STORE',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Request-ID': generateRequestId(),
+          'X-Forwarded-For': request.headers.get('x-forwarded-for') || 'unknown',
+          'User-Agent': request.headers.get('user-agent') || 'admin-bff',
+          ...(request.headers.get('authorization')
+            ? { Authorization: request.headers.get('authorization') as string }
+            : {}),
+        },
+        body: JSON.stringify(payload),
       }
     );
+
+    const responseData = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      const message = responseData?.error?.message || responseData?.message || 'Account setup failed';
+      return errorResponse(message, response.status, responseData);
+    }
+
+    // Invalidate tenant-details cache so Admin reflects onboarding store_setup immediately.
+    const tenantData = responseData?.data || responseData;
+    const tenantId = tenantData?.tenant_id || tenantData?.tenant?.id;
+    const tenantSlug = tenantData?.tenant_slug || tenantData?.tenant?.slug;
+
+    if (tenantId) {
+      await cache.delPattern(`tenant:details:${tenantId}:*`);
+    }
+    if (tenantSlug) {
+      await cache.delPattern(`tenant:details:${tenantSlug}:*`);
+    }
+
+    return NextResponse.json(responseData, { status: response.status });
   } catch (error) {
     console.error('[Account Setup] Error:', error);
     return errorResponse(

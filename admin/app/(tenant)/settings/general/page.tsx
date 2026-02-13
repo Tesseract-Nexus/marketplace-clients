@@ -323,6 +323,23 @@ export default function GeneralSettingsPage() {
           ? buildSettingsFromTenantData(tenant, selectedStorefront?.name || '')
           : null;
 
+        const settingsCurrency = data.ecommerce?.pricing?.currencies?.primary;
+        const settingsTimezone = data.localization?.timezone;
+        const tenantCurrency = tenantDefaults?.business.currency;
+        const tenantTimezone = tenantDefaults?.business.timezone;
+
+        const resolvedCurrency =
+          settingsCurrency &&
+          !(settingsCurrency === 'USD' && tenantCurrency && tenantCurrency !== 'USD')
+            ? settingsCurrency
+            : (tenantCurrency || COUNTRY_CURRENCY_MAP[countryCode] || 'USD');
+
+        const resolvedTimezone =
+          settingsTimezone &&
+          !(settingsTimezone === 'UTC' && tenantTimezone && tenantTimezone !== 'UTC')
+            ? settingsTimezone
+            : (tenantTimezone || COUNTRY_TIMEZONE_MAP[countryCode] || 'UTC');
+
         const mappedSettings: GeneralSettings = {
           store: {
             name: data.ecommerce?.store?.name || tenantDefaults?.store.name || selectedStorefront?.name || '',
@@ -336,16 +353,8 @@ export default function GeneralSettingsPage() {
             zipCode: data.ecommerce?.store?.address?.zipCode || tenantDefaults?.store.zipCode || '',
           },
           business: {
-            currency:
-              data.ecommerce?.pricing?.currencies?.primary ||
-              tenantDefaults?.business.currency ||
-              COUNTRY_CURRENCY_MAP[countryCode] ||
-              'USD',
-            timezone:
-              data.localization?.timezone ||
-              tenantDefaults?.business.timezone ||
-              COUNTRY_TIMEZONE_MAP[countryCode] ||
-              'UTC',
+            currency: resolvedCurrency,
+            timezone: resolvedTimezone,
             dateFormat: data.localization?.dateFormat || tenantDefaults?.business.dateFormat || 'DD/MM/YYYY',
           },
         };
