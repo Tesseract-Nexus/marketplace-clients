@@ -28,7 +28,7 @@ import {
   Loader2, AlertCircle, X, Upload, Eye, Edit, Trash2, RefreshCw,
   FileText, Package, Image as ImageIcon, CheckCircle,
   Tag, Search, Scale, Lightbulb, AlertTriangle, Hash, Globe, Layers, Sparkles,
-  Smartphone, Monitor, Headphones, Tv, Gamepad2, Mouse, Plus, Folder,
+  Plus, Folder,
   Building2, CircleOff,
   Ruler, Clock, CheckCircle2, FileEdit, XCircle, Archive, RotateCcw,
   PackageCheck, PackageX, Timer, Ban, FileUp, ChevronUp, ChevronDown, Star,
@@ -204,18 +204,7 @@ export default function ProductsPage() {
   const [creatingCategory, setCreatingCategory] = useState(false);
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Default categories shown when no categories exist for the tenant
-  const defaultCategoryOptions = [
-    { name: 'Electronics', icon: <Smartphone className="w-4 h-4 text-primary" /> },
-    { name: 'Computers', icon: <Monitor className="w-4 h-4 text-primary" /> },
-    { name: 'Audio', icon: <Headphones className="w-4 h-4 text-success" /> },
-    { name: 'TV & Video', icon: <Tv className="w-4 h-4 text-error" /> },
-    { name: 'Gaming', icon: <Gamepad2 className="w-4 h-4 text-warning" /> },
-    { name: 'Clothing', icon: <Folder className="w-4 h-4 text-primary" /> },
-    { name: 'Home & Kitchen', icon: <Folder className="w-4 h-4 text-warning" /> },
-    { name: 'Sports & Outdoors', icon: <Folder className="w-4 h-4 text-success" /> },
-    { name: 'Accessories', icon: <Mouse className="w-4 h-4 text-muted-foreground" /> },
-  ];
+  // Default category options removed — only show existing categories from the API
 
   const steps = [
     { number: 1, title: 'Basic Info', icon: <FileText className="w-5 h-5" />, description: 'Product details' },
@@ -550,24 +539,9 @@ export default function ProductsPage() {
   };
 
   // Filter categories based on search query
-  const getFilteredCategories = () => {
+  const getFilteredCategories = (): Category[] => {
     const query = categorySearchQuery.toLowerCase().trim();
-
-    // Filter existing categories that match the query
-    const existingMatches = categories.filter(c =>
-      c.name.toLowerCase().includes(query)
-    );
-
-    // Get names of existing categories (case-insensitive)
-    const existingNames = new Set(categories.map(c => c.name.toLowerCase()));
-
-    // Filter default categories that don't exist yet and match the query
-    const defaultMatches = defaultCategoryOptions
-      .filter(c => !existingNames.has(c.name.toLowerCase()))
-      .filter(c => c.name.toLowerCase().includes(query));
-
-    // Combine: existing categories first, then default options
-    return [...existingMatches, ...defaultMatches];
+    return categories.filter(c => c.name.toLowerCase().includes(query));
   };
 
   // Handle click outside category dropdown to close it
@@ -2032,28 +2006,20 @@ export default function ProductsPage() {
                               </div>
                             ) : (
                               <>
-                                {/* Existing categories or default options */}
+                                {/* Existing categories */}
                                 {getFilteredCategories().length > 0 ? (
                                   getFilteredCategories().map((cat) => {
-                                    const isCategory = 'id' in cat;
-                                    const id = isCategory ? (cat as Category).id : undefined;
-                                    const name = cat.name;
-                                    const isSelected = isCategory && formData.categoryId === id;
+                                    const isSelected = formData.categoryId === cat.id;
 
                                     return (
                                       <button
-                                        key={isCategory ? id : name}
+                                        key={cat.id}
                                         type="button"
                                         onClick={(e) => {
                                           e.stopPropagation();
-                                          if (isCategory) {
-                                            setFormData(prev => ({ ...prev, categoryId: id }));
-                                            setCategorySearchQuery('');
-                                            setShowCategoryDropdown(false);
-                                          } else {
-                                            // Create this default category
-                                            handleCreateCategory(name);
-                                          }
+                                          setFormData(prev => ({ ...prev, categoryId: cat.id }));
+                                          setCategorySearchQuery('');
+                                          setShowCategoryDropdown(false);
                                         }}
                                         onMouseDown={(e) => e.stopPropagation()}
                                         className={cn(
@@ -2061,14 +2027,9 @@ export default function ProductsPage() {
                                           isSelected && "bg-primary/10 text-primary"
                                         )}
                                       >
-                                        {'icon' in cat ? cat.icon : <Folder className="w-4 h-4 text-primary" />}
-                                        <span className="font-medium">{name}</span>
+                                        <Folder className="w-4 h-4 text-primary" />
+                                        <span className="font-medium">{cat.name}</span>
                                         {isSelected && <CheckCircle className="w-4 h-4 ml-auto text-primary" />}
-                                        {!isCategory && (
-                                          <span className="ml-auto text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                                            Click to create
-                                          </span>
-                                        )}
                                       </button>
                                     );
                                   })
@@ -2078,10 +2039,9 @@ export default function ProductsPage() {
                                   </div>
                                 )}
 
-                                {/* Create new category option - shown when typing something that doesn't match existing or default categories */}
+                                {/* Create new category option - shown when typing something that doesn't match existing categories */}
                                 {categorySearchQuery.trim() &&
-                                 !categories.some(c => c.name.toLowerCase() === categorySearchQuery.toLowerCase().trim()) &&
-                                 !defaultCategoryOptions.some(c => c.name.toLowerCase() === categorySearchQuery.toLowerCase().trim()) && (
+                                 !categories.some(c => c.name.toLowerCase() === categorySearchQuery.toLowerCase().trim()) && (
                                   <button
                                     type="button"
                                     onClick={(e) => {
