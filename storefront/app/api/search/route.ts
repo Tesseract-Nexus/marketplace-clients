@@ -22,6 +22,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { query, limit = 10 } = body;
+    const parsedLimit = Number(limit);
+    const safeLimit = Number.isFinite(parsedLimit)
+      ? Math.min(50, Math.max(1, Math.floor(parsedLimit)))
+      : 10;
 
     if (!query) {
       return NextResponse.json(
@@ -31,7 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Search products via products-service public storefront endpoint (no auth required)
-    const url = `${config.api.productsService}/storefront/products?search=${encodeURIComponent(query)}&status=ACTIVE&limit=${limit}`;
+    const url = `${config.api.productsService}/storefront/products?search=${encodeURIComponent(query)}&status=ACTIVE&limit=${safeLimit}`;
 
     const response = await fetch(url, {
       method: 'GET',

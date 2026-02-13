@@ -41,6 +41,7 @@ const CSRF_EXCLUDED_PATHS = [
   '/api/auth/register',  // Pre-authentication
   '/api/auth/register-from-guest', // Pre-authentication
   '/api/auth/oauth/',    // OAuth flow
+  '/api/cart/sync',      // sendBeacon unload sync cannot include custom CSRF header
   '/auth/direct/login',  // BFF pre-authentication
   '/auth/direct/register', // BFF pre-authentication
   '/auth/direct/mfa/',   // Mid-login flow

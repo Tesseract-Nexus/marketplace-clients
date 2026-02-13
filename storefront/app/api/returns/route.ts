@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { config } from '@/lib/config';
+import { getAuthContext } from '@/lib/api/server-auth';
 
 const ORDERS_SERVICE_URL = config.api.ordersService;
 // Strip trailing /api/v1 from URL as we'll add it when constructing endpoints
@@ -10,11 +11,25 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { orderId, reason, returnType, customerNotes, items } = body;
 
-    const tenantId = request.headers.get('X-Tenant-ID') || '';
+    const tenantId = request.headers.get('X-Tenant-ID') || request.headers.get('x-tenant-id') || '';
     const storefrontId = request.headers.get('X-Storefront-ID') || '';
-    const authorization = request.headers.get('Authorization') || '';
+    const auth = await getAuthContext(request);
 
-    if (!orderId || !reason || !items || items.length === 0) {
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, error: 'Tenant ID required' },
+        { status: 400 }
+      );
+    }
+
+    if (!auth?.token || !auth.customerId) {
+      return NextResponse.json(
+        { success: false, error: 'Authorization required' },
+        { status: 401 }
+      );
+    }
+
+    if (!orderId || !reason || !Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
         { success: false, error: 'Missing required fields' },
         { status: 400 }
@@ -29,10 +44,11 @@ export async function POST(request: NextRequest) {
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
         'X-Internal-Service': 'storefront',
-        'Authorization': authorization,
+        'Authorization': auth.token,
       },
       body: JSON.stringify({
         orderId,
+        customerId: auth.customerId,
         reason,
         returnType: returnType || 'REFUND',
         customerNotes: customerNotes || '',
@@ -65,17 +81,30 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const tenantId = request.headers.get('X-Tenant-ID') || '';
+    const tenantId = request.headers.get('X-Tenant-ID') || request.headers.get('x-tenant-id') || '';
     const storefrontId = request.headers.get('X-Storefront-ID') || '';
-    const authorization = request.headers.get('Authorization') || '';
+    const auth = await getAuthContext(request);
+
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, error: 'Tenant ID required' },
+        { status: 400 }
+      );
+    }
+
+    if (!auth?.token || !auth.customerId) {
+      return NextResponse.json(
+        { success: false, error: 'Authorization required' },
+        { status: 401 }
+      );
+    }
 
     const { searchParams } = new URL(request.url);
     const orderId = searchParams.get('orderId');
-    const customerId = searchParams.get('customerId');
 
     const params = new URLSearchParams();
     if (orderId) params.set('orderId', orderId);
-    if (customerId) params.set('customerId', customerId);
+    params.set('customerId', auth.customerId);
 
     const queryString = params.toString();
     const url = `${ORDERS_BASE_URL}/api/v1/returns${queryString ? `?${queryString}` : ''}`;
@@ -85,7 +114,7 @@ export async function GET(request: NextRequest) {
         'X-Tenant-ID': tenantId,
         'X-Storefront-ID': storefrontId,
         'X-Internal-Service': 'storefront',
-        'Authorization': authorization,
+        'Authorization': auth.token,
       },
     });
 
