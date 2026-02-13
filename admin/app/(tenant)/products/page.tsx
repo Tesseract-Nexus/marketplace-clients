@@ -949,15 +949,12 @@ export default function ProductsPage() {
         const response = await productService.createProduct(createData);
         if (response.data) {
           const createdProduct = response.data;
-          setSelectedProduct(createdProduct);
-          setViewMode('edit');
-          setCurrentStep(4); // Jump to Media & Tags step
-          navigateToProduct(createdProduct.id, 'edit');
-          toast.success('Product Created', `${formData.name} has been created. You can now upload images.`);
+          toast.success('Product Created', `${formData.name} has been created successfully`);
           analytics.productCreated({ productId: createdProduct.id, name: formData.name as string, price: Number(formData.price) || 0 });
           await loadProducts();
           setErrors({});
-          return; // Stay on form — don't navigate to list
+          navigateToList();
+          return;
         }
         toast.success('Product Created', `${formData.name} has been created successfully`);
       } else if (viewMode === 'edit' && selectedProduct) {
