@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
     const response = await proxyToBackend(ORDERS_SERVICE_URL, 'orders', {
       method: 'GET',
       params: searchParams,
-      headers: await getProxyHeaders(request),
+      headers,
       incomingRequest: request,
     });
 
