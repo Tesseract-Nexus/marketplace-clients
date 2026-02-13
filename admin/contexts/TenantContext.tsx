@@ -25,6 +25,7 @@ export interface Tenant {
   adminUrl?: string; // Full admin URL (e.g., https://admin.yahvismartfarm.com)
   customDomain?: string; // Custom domain if configured
   useCustomDomain?: boolean; // Whether custom domain is active
+  memberCount?: number; // Optional team member count from backend
 }
 
 interface TenantContextType {

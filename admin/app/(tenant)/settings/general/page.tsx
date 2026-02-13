@@ -168,6 +168,23 @@ export default function GeneralSettingsPage() {
   const [giftCardSettings, setGiftCardSettings] = useState<GiftCardTemplateSettings>(defaultGiftCardSettings);
   const [savedGiftCardSettings, setSavedGiftCardSettings] = useState<GiftCardTemplateSettings>(defaultGiftCardSettings);
 
+  const validateGeneralSettings = useCallback((): string[] => {
+    const errors: string[] = [];
+
+    if (!settings.store.name.trim()) errors.push('Store name is required.');
+    if (!settings.store.email.trim()) {
+      errors.push('Store email is required.');
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(settings.store.email.trim())) {
+      errors.push('Store email format is invalid.');
+    }
+    if (!settings.store.phone.trim()) errors.push('Store phone is required.');
+    if (!settings.store.country.trim()) errors.push('Store country is required.');
+    if (!settings.business.currency.trim()) errors.push('Business currency is required.');
+    if (!settings.business.timezone.trim()) errors.push('Business timezone is required.');
+
+    return errors;
+  }, [settings]);
+
   // Update active tab when URL parameter changes
   useEffect(() => {
     const tab = searchParams.get('tab');
@@ -431,6 +448,12 @@ export default function GeneralSettingsPage() {
     }
 
     try {
+      const validationErrors = validateGeneralSettings();
+      if (validationErrors.length > 0) {
+        toast.error('Validation Error', validationErrors[0] || 'Please complete required fields');
+        return;
+      }
+
       setIsSaving(true);
 
       // IMPORTANT: Use tenant ID (not storefront ID) for tenant-scoped settings
@@ -442,13 +465,26 @@ export default function GeneralSettingsPage() {
 
       // Build settings payload - using Partial types since we're only updating specific fields
       // IMPORTANT: Merge with existing ecommerce data to preserve cancellation settings
+      const existingStore = existingEcommerce?.store || {};
+      const existingStoreAddress = existingStore?.address || {};
+      const existingPricing = existingEcommerce?.pricing || {};
+      const existingCurrencies = existingPricing?.currencies || {};
+      const existingSupported = Array.isArray(existingCurrencies?.supported)
+        ? existingCurrencies.supported
+        : [];
+      const supportedCurrencies = Array.from(
+        new Set([settings.business.currency, ...existingSupported].filter(Boolean))
+      );
+
       const mergedEcommerce = {
         ...existingEcommerce,
         store: {
+          ...existingStore,
           name: settings.store.name,
           contactEmail: settings.store.email,
           supportPhone: settings.store.phone,
           address: {
+            ...existingStoreAddress,
             businessName: settings.store.name,
             street1: settings.store.address,
             city: settings.store.city,
@@ -458,10 +494,12 @@ export default function GeneralSettingsPage() {
           },
         },
         pricing: {
+          ...existingPricing,
           currencies: {
+            ...existingCurrencies,
             primary: settings.business.currency,
-            supported: [settings.business.currency],
-            autoConversion: true,
+            supported: supportedCurrencies,
+            autoConversion: existingCurrencies?.autoConversion ?? true,
           },
         },
       };
@@ -768,6 +806,7 @@ export default function GeneralSettingsPage() {
 
   const hasChanges = JSON.stringify(settings) !== JSON.stringify(savedSettings);
   const hasGiftCardChanges = JSON.stringify(giftCardSettings) !== JSON.stringify(savedGiftCardSettings);
+  const canSaveGeneralSettings = hasChanges && !isSaving && validateGeneralSettings().length === 0;
 
   // Calculate setup progress
   const setupProgress = React.useMemo(() => {
@@ -832,7 +871,7 @@ export default function GeneralSettingsPage() {
               {activeTab === 'general' && selectedStorefront && (
                 <Button
                   onClick={handleSave}
-                  disabled={!hasChanges || isSaving}
+                  disabled={!canSaveGeneralSettings}
                   className="bg-primary text-primary-foreground hover:opacity-90 disabled:opacity-50"
                 >
                   {isSaving ? (

@@ -44,6 +44,15 @@ interface OnboardingData {
   businessModel?: string;
 }
 
+function getContactInfo(session: Record<string, any>): Record<string, any> {
+  const contactArray = Array.isArray(session.contact_information) ? session.contact_information : [];
+  return session.contact_info || session.contact_details || contactArray[0] || {};
+}
+
+function getBusinessInfo(session: Record<string, any>): Record<string, any> {
+  return session.business_information || session.business_info || {};
+}
+
 function WelcomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -98,14 +107,16 @@ function WelcomeContent() {
 
         // Map backend response to local format
         const session = result.data || result;
+        const business = getBusinessInfo(session);
+        const contact = getContactInfo(session);
         setOnboardingData({
-          businessName: session.business_information?.business_name || session.businessName,
-          industry: session.business_information?.industry || session.industry,
-          email: session.contact_information?.email || session.email,
-          firstName: session.contact_information?.first_name || session.firstName,
-          city: session.business_address?.city || session.city,
-          country: session.business_address?.country || session.country,
-          description: session.business_information?.description || session.description,
+          businessName: business.business_name || session.businessName,
+          industry: business.industry || session.industry,
+          email: contact.email || session.email,
+          firstName: contact.first_name || session.firstName,
+          city: session.business_address?.city || session.address?.city || session.city,
+          country: session.business_address?.country || session.address?.country || session.country,
+          description: business.description || business.business_description || session.description,
           progress: 100,
           // FIX-MEDIUM: Extract timezone/currency/business_model from session
           timezone: session.store_setup?.timezone || session.default_timezone || session.timezone || 'UTC',

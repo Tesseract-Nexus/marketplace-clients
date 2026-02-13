@@ -19,15 +19,16 @@ import { useRouter } from 'next/navigation';
 import { PermissionGate, Permission } from '@/components/permission-gate';
 
 export default function AccountSettingsPage() {
-  const { currentTenant, tenants } = useTenant();
+  const { currentTenant } = useTenant();
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Check if user is owner
   const isOwner = currentTenant?.role === 'owner';
 
-  // Calculate member count from available data
-  const memberCount = tenants.filter(t => t.id === currentTenant?.id).length || 1;
+  const memberCountDisplay = typeof currentTenant?.memberCount === 'number'
+    ? String(currentTenant.memberCount)
+    : 'N/A';
 
   const handleTenantDeleted = () => {
     // Clear tenant cookie and redirect to welcome page
@@ -115,7 +116,7 @@ export default function AccountSettingsPage() {
                 <Users className="h-4 w-4 text-muted-foreground" />
                 <label className="text-sm font-medium text-muted-foreground">Team Members</label>
               </div>
-              <p className="text-lg font-semibold text-foreground">{memberCount}</p>
+              <p className="text-lg font-semibold text-foreground">{memberCountDisplay}</p>
             </div>
           </div>
         </div>

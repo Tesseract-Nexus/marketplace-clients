@@ -59,6 +59,17 @@ const DEFAULT_PAGE: Omit<ContentPage, 'id' | 'createdAt' | 'updatedAt'> = {
   isFeatured: false,
 };
 
+const RESERVED_PAGE_SLUGS = new Set([
+  'admin',
+  'api',
+  'login',
+  'logout',
+  'signup',
+  'signin',
+  'cart',
+  'checkout',
+]);
+
 export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, className }: ContentPagesEditorProps) {
   const { showConfirm } = useDialog();
   const toast = useToast();
@@ -150,18 +161,41 @@ export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, cla
   const handleSavePage = async () => {
     if (!editingPage) return;
 
-    if (!editingPage.title.trim()) {
+    const title = editingPage.title.trim();
+    const normalizedSlug = editingPage.slug.trim().toLowerCase();
+
+    if (!title) {
       toast.error('Validation Error', 'Title is required');
       return;
     }
 
-    if (!editingPage.slug.trim()) {
+    if (!normalizedSlug) {
       toast.error('Validation Error', 'Slug is required');
+      return;
+    }
+
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(normalizedSlug)) {
+      toast.error('Validation Error', 'Slug can only contain lowercase letters, numbers, and hyphens');
+      return;
+    }
+
+    if (RESERVED_PAGE_SLUGS.has(normalizedSlug)) {
+      toast.error('Validation Error', 'This slug is reserved. Please choose a different URL slug.');
+      return;
+    }
+
+    const isDuplicateSlug = pages.some(
+      (p) => p.slug.toLowerCase() === normalizedSlug && p.id !== editingPage.id
+    );
+    if (isDuplicateSlug) {
+      toast.error('Validation Error', 'This slug is already used by another page.');
       return;
     }
 
     const updatedPage = {
       ...editingPage,
+      title,
+      slug: normalizedSlug,
       updatedAt: new Date().toISOString(),
     };
 

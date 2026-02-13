@@ -144,6 +144,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
           adminUrl: t.admin_url as string | undefined,
           customDomain: t.custom_domain as string | undefined,
           useCustomDomain: t.use_custom_domain as boolean | undefined,
+          memberCount: typeof t.member_count === 'number'
+            ? t.member_count
+            : (typeof t.members_count === 'number' ? t.members_count : undefined),
         }));
 
         // Enrich tenants with custom admin domain URLs

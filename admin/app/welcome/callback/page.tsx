@@ -21,6 +21,23 @@ function CallbackContent() {
       }
 
       try {
+        let timezone = 'UTC';
+        let currency = 'USD';
+        let businessModel = 'ONLINE_STORE';
+
+        try {
+          const sessionResponse = await fetch(`/api/onboarding/${sessionId}`);
+          const sessionResult = await sessionResponse.json();
+          if (sessionResponse.ok) {
+            const session = sessionResult.data || sessionResult;
+            timezone = session.store_setup?.timezone || session.default_timezone || session.timezone || timezone;
+            currency = session.store_setup?.currency || session.default_currency || session.currency || currency;
+            businessModel = session.store_setup?.business_model || session.business_model || session.businessModel || businessModel;
+          }
+        } catch {
+          // Continue with defaults if session fetch fails
+        }
+
         // Call account-setup with google auth method
         // The user was already authenticated via Google OAuth through auth-bff,
         // and a BFF session cookie is set. The backend will find/create the user in Keycloak.
@@ -31,6 +48,9 @@ function CallbackContent() {
           },
           body: JSON.stringify({
             auth_method: 'google',
+            timezone,
+            currency,
+            business_model: businessModel,
           }),
         });
 
