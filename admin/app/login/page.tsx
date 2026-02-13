@@ -1,5 +1,30 @@
 'use client';
 
+/**
+ * SECURE LOGIN IMPLEMENTATION
+ *
+ * Security Features:
+ * - ✅ Username enumeration prevention: Generic error messages for invalid credentials
+ * - ✅ Information disclosure prevention: No tenant info exposed during login
+ * - ✅ Subdomain-only login: User MUST be on tenant subdomain to login
+ * - ✅ Combined email+password form: Reduces attack surface and improves UX
+ * - ✅ Rate limiting: Account lockout after failed attempts
+ * - ✅ MFA support: TOTP and email-based 2FA
+ * - ✅ Passkey support: WebAuthn passwordless authentication
+ * - ✅ Post-login tenant switching: Users switch tenants via in-app switcher
+ *
+ * Security Flow:
+ * 1. Check if user is on tenant subdomain (e.g., acme-admin.tesserix.app)
+ *    - If NO subdomain: Show message to use organization URL (no login allowed)
+ *    - If HAS subdomain: Proceed to login
+ * 2. User enters email + password on same screen
+ * 3. Attempt directLogin with tenant from subdomain
+ *    - On failure: generic "Invalid credentials" error (no tenant enumeration)
+ * 4. MFA if required
+ * 5. Success → redirect to dashboard
+ * 6. Multi-tenant users: Use in-app tenant switcher to change organizations
+ */
+
 import React, { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Sparkles, Shield, Loader2, Mail, Lock, ArrowLeft, Building2, AlertCircle, Eye, EyeOff, CheckCircle2, Smartphone, Fingerprint } from 'lucide-react';
@@ -10,13 +35,11 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/lib/auth';
 import {
   login,
-  lookupTenants,
   directLogin,
   verifyMfa,
   sendMfaCode,
   authenticateWithPasskey,
   isPasskeySupported,
-  type TenantInfo,
   type DirectLoginResponse,
 } from '@/lib/auth/auth-client';
 import { OTPInput } from '@/components/auth/OTPInput';
@@ -24,7 +47,7 @@ import { getCurrentTenantSlug, isCustomDomain } from '@/lib/utils/tenant';
 import { SocialLogin } from '@/components/SocialLogin';
 import { BrandedLoader } from '@/components/ui/branded-loader';
 
-type LoginStep = 'email' | 'tenant-select' | 'password' | 'mfa' | 'success';
+type LoginStep = 'login' | 'mfa' | 'success';
 
 // Error messages for URL error codes
 const ERROR_MESSAGES: Record<string, { title: string; message: string }> = {
@@ -57,13 +80,15 @@ function LoginPageContent() {
   const { isAuthenticated, isLoading: authLoading, user, logout } = useAuth();
 
   // Login flow state
-  const [step, setStep] = useState<LoginStep>('email');
+  const [step, setStep] = useState<LoginStep>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
-  const [selectedTenant, setSelectedTenant] = useState<TenantInfo | null>(null);
-  const [tenants, setTenants] = useState<TenantInfo[]>([]);
+
+  // Check if user is on a tenant subdomain or custom domain
+  const currentTenantSlug = getCurrentTenantSlug();
+  const isOnBaseDomain = !currentTenantSlug && !isCustomDomain();
   const [mfaSession, setMfaSession] = useState<string | null>(null);
   const [mfaCode, setMfaCode] = useState('');
   const [trustDevice, setTrustDevice] = useState(true);
@@ -144,101 +169,45 @@ function LoginPageContent() {
     }
   }, [isAuthenticated, authLoading, user, router, handledUrlError, searchParams]);
 
-  // Handle email submission - lookup tenants
-  const handleEmailSubmit = async (e: React.FormEvent) => {
+  // Handle login submission - subdomain or custom domain only
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
-    setIsLoading(true);
-
-    try {
-      const result = await lookupTenants(email);
-
-      if (!result.success) {
-        setError(result.message || 'Unable to look up account. Please try again.');
-        setIsLoading(false);
-        return;
-      }
-
-      const userTenants = result.data?.tenants || [];
-      setTenants(userTenants);
-
-      if (userTenants.length === 0) {
-        // No tenants found - show generic message (don't reveal if email exists)
-        setError('No account found. Please check your email or sign up.');
-        setIsLoading(false);
-        return;
-      }
-
-      // AUTO-SELECT: Try to detect tenant from subdomain (e.g., what-a-store-admin.tesserix.app)
-      const detectedTenantSlug = getCurrentTenantSlug();
-      if (detectedTenantSlug) {
-        const matchingTenant = userTenants.find(t => t.slug === detectedTenantSlug);
-        if (matchingTenant) {
-          // Auto-select the tenant that matches the subdomain
-          console.log(`[Login] Auto-selected tenant from subdomain: ${detectedTenantSlug}`);
-          setSelectedTenant(matchingTenant);
-          setStep('password');
-          setIsLoading(false);
-          return;
-        } else {
-          // User is on a tenant subdomain but doesn't have access to that tenant
-          console.warn(`[Login] User ${email} does not have access to tenant: ${detectedTenantSlug}`);
-          setError(`You don't have access to this organization. Please contact your administrator.`);
-          setIsLoading(false);
-          return;
-        }
-      }
-
-      // No subdomain detected - use standard flow
-      if (userTenants.length === 1) {
-        // Single tenant - skip selection, go directly to password
-        setSelectedTenant(userTenants[0]);
-        setStep('password');
-      } else {
-        // Multiple tenants - show selection
-        setStep('tenant-select');
-      }
-    } catch (err) {
-      setError('Something went wrong. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Handle tenant selection
-  const handleTenantSelect = (tenant: TenantInfo) => {
-    setSelectedTenant(tenant);
-    setError(null);
-    setStep('password');
-  };
-
-  // Handle password submission - direct login
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedTenant) return;
-
     setError(null);
     setRemainingAttempts(null);
     setLockedUntil(null);
     setIsLoading(true);
 
     try {
+      // SECURITY: Login only works if user is on a tenant subdomain OR custom domain
+      if (!currentTenantSlug && !isCustomDomain()) {
+        setError('Please use your organization\'s URL to sign in.');
+        setIsLoading(false);
+        return;
+      }
+
+      // Get tenant slug - for custom domains, getCurrentTenantSlug() returns either:
+      // - The tenant slug from cookie (set by middleware)
+      // - Or '__custom_domain__' as sentinel if cookie missing (backend resolves from domain)
+      const tenantSlug = currentTenantSlug || '__custom_domain__';
+
+      console.log(`[Login] Attempting login with tenant: ${tenantSlug}`);
       const result: DirectLoginResponse = await directLogin(
         email,
         password,
-        selectedTenant.slug,
+        tenantSlug,
         { rememberMe }
       );
 
       if (!result.success) {
-        // Handle specific errors
+        // Handle specific errors with GENERIC messages (security: no tenant enumeration)
         if (result.error === 'ACCOUNT_LOCKED') {
           setLockedUntil(result.locked_until || null);
           setError('Your account has been locked due to too many failed attempts.');
         } else if (result.error === 'RATE_LIMITED') {
           setError(`Too many attempts. Please try again in ${result.retry_after || 60} seconds.`);
         } else {
-          setError(result.message || 'Invalid email or password.');
+          // Generic error - don't reveal if email exists or if tenant access denied
+          setError('Invalid email or password.');
           if (result.remaining_attempts !== undefined) {
             setRemainingAttempts(result.remaining_attempts);
           }
@@ -250,11 +219,9 @@ function LoginPageContent() {
       // Check for MFA requirement
       if (result.mfa_required) {
         setMfaSession(result.mfa_session || null);
-        // Use the MFA methods the backend actually reports as available
         const serverMethods = (result as unknown as { mfa_methods?: string[] }).mfa_methods || ['email'];
         const methods = serverMethods.length > 0 ? serverMethods : ['email'];
         setMfaMethods(methods);
-        // Default to TOTP if available (reduces email costs), otherwise email
         setActiveMfaMethod(methods.includes('totp') ? 'totp' : 'email');
         setStep('mfa');
         setIsLoading(false);
@@ -263,23 +230,18 @@ function LoginPageContent() {
 
       // Success!
       setStep('success');
-
-      // Request push notification permission (fire-and-forget, runs within user gesture)
       if ('Notification' in window && Notification.permission === 'default') {
         Notification.requestPermission();
       }
-
-      // Redirect to dashboard or return URL
       setTimeout(() => {
-        const returnTo = getCurrentTenantSlug() ? '/' : '/welcome';
-        window.location.href = returnTo;
+        window.location.href = '/';
       }, 1000);
     } catch (err) {
       setError('Something went wrong. Please try again.');
-    } finally {
       setIsLoading(false);
     }
   };
+
 
   // Handle back navigation
   const handleBack = () => {
@@ -287,22 +249,11 @@ function LoginPageContent() {
     setRemainingAttempts(null);
     setLockedUntil(null);
 
-    if (step === 'password') {
-      if (tenants.length > 1) {
-        setStep('tenant-select');
-      } else {
-        setStep('email');
-        setSelectedTenant(null);
-      }
-      setPassword('');
-    } else if (step === 'tenant-select') {
-      setStep('email');
-      setSelectedTenant(null);
-      setTenants([]);
-    } else if (step === 'mfa') {
-      setStep('password');
+    if (step === 'mfa') {
+      setStep('login');
       setMfaCode('');
       setResendCooldown(0);
+      setPassword('');
     }
   };
 
@@ -313,13 +264,14 @@ function LoginPageContent() {
     return () => clearTimeout(timer);
   }, [resendCooldown]);
 
-  // Helper: handle expired MFA session by going back to password step
+  // Helper: handle expired MFA session by going back to login step
   const handleMfaSessionExpired = () => {
-    setStep('password');
+    setStep('login');
     setMfaCode('');
     setMfaSession(null);
     setResendCooldown(0);
-    setError('Your verification session has expired. Please enter your password again.');
+    setPassword('');
+    setError('Your verification session has expired. Please sign in again.');
   };
 
   // Auto-send MFA code when entering MFA step (only for email method)
@@ -481,8 +433,63 @@ function LoginPageContent() {
 
   // Render step-specific content
   const renderStepContent = () => {
+    // SECURITY: Show message if user is on base domain (no tenant subdomain)
+    if (isOnBaseDomain) {
+      return (
+        <>
+          <div className="text-center">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-muted mb-4">
+              <Building2 className="w-7 h-7 text-muted-foreground" />
+            </div>
+            <h1 className="text-2xl font-bold text-primary mb-1">
+              Tesseract Hub
+            </h1>
+            <p className="text-xs text-muted-foreground mb-3">Admin Portal</p>
+            <h2 className="text-xl font-semibold text-foreground mb-2">Organization URL Required</h2>
+            <p className="text-sm text-muted-foreground mb-4">
+              To sign in, please use your organization's specific URL
+            </p>
+          </div>
+
+          <div className="bg-muted rounded-lg p-4 space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                1
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">Find your organization URL</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Your URL looks like: <span className="font-mono text-primary">your-org-admin.tesserix.app</span>
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                2
+              </div>
+              <div>
+                <p className="text-sm font-medium text-foreground">Visit your organization URL</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Sign in with your email and password
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground">
+              Don't know your organization URL?{' '}
+              <a href="mailto:support@tesserix.app" className="text-primary hover:underline">
+                Contact support
+              </a>
+            </p>
+          </div>
+        </>
+      );
+    }
+
     switch (step) {
-      case 'email':
+      case 'login':
         return (
           <>
             <div className="text-center">
@@ -494,10 +501,10 @@ function LoginPageContent() {
               </h1>
               <p className="text-xs text-muted-foreground mb-3">Admin Portal</p>
               <h2 className="text-xl font-semibold text-foreground mb-1">Welcome Back</h2>
-              <p className="text-xs text-muted-foreground">Enter your email to sign in</p>
+              <p className="text-xs text-muted-foreground">Sign in to your account</p>
             </div>
 
-            <form onSubmit={handleEmailSubmit} className="space-y-4">
+            <form onSubmit={handleLoginSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium">Email Address</Label>
                 <div className="relative">
@@ -516,128 +523,6 @@ function LoginPageContent() {
                 </div>
               </div>
 
-              {error && (
-                <div className="flex items-center gap-2 text-sm text-error bg-error-muted border border-error/30 rounded-lg px-3 py-2">
-                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                  <span>{error}</span>
-                </div>
-              )}
-
-              <Button
-                type="submit"
-                disabled={isLoading || !email}
-                className="w-full h-12 text-sm font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all duration-300"
-              >
-                {isLoading ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  'Continue'
-                )}
-              </Button>
-            </form>
-
-            <div className="relative py-2">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border"></div>
-              </div>
-              <div className="relative flex justify-center">
-                <span className="px-3 text-xs bg-white/80 text-muted-foreground">or continue with</span>
-              </div>
-            </div>
-
-            <SocialLogin onLogin={handleSocialLogin} isLoading={isLoading} />
-
-            {isPasskeyAvailable && (
-              <>
-                <div className="relative py-2">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-border"></div>
-                  </div>
-                  <div className="relative flex justify-center">
-                    <span className="px-3 text-xs bg-white/80 text-muted-foreground">or</span>
-                  </div>
-                </div>
-
-                <Button
-                  variant="outline"
-                  onClick={handlePasskeyLogin}
-                  disabled={isLoading}
-                  className="w-full h-12"
-                >
-                  <Fingerprint className="h-4 w-4 mr-2" />
-                  Sign in with passkey
-                </Button>
-              </>
-            )}
-          </>
-        );
-
-      case 'tenant-select':
-        return (
-          <>
-            <div className="text-center">
-              <button
-                onClick={handleBack}
-                className="absolute top-4 left-4 p-2 rounded-lg hover:bg-muted transition-colors"
-              >
-                <ArrowLeft className="h-5 w-5 text-muted-foreground" />
-              </button>
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary shadow-lg shadow-primary/30 mb-3">
-                <Building2 className="w-7 h-7 text-white" />
-              </div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">Select Organization</h2>
-              <p className="text-xs text-muted-foreground">Choose which organization to sign in to</p>
-              <p className="text-xs text-primary mt-1">{email}</p>
-            </div>
-
-            <div className="space-y-2">
-              {tenants.map((tenant) => (
-                <button
-                  key={tenant.id}
-                  onClick={() => handleTenantSelect(tenant)}
-                  className="w-full flex items-center gap-3 p-4 rounded-md border border-border hover:border-primary hover:bg-primary/5 transition-all duration-200 text-left group"
-                >
-                  {tenant.logo_url ? (
-                    <img src={tenant.logo_url} alt={tenant.name} className="w-10 h-10 rounded-lg object-cover" />
-                  ) : (
-                    <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-bold">
-                      {tenant.name.charAt(0).toUpperCase()}
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <p className="font-medium text-foreground group-hover:text-primary transition-colors">
-                      {tenant.name}
-                    </p>
-                    <p className="text-xs text-muted-foreground">{tenant.slug}</p>
-                  </div>
-                  <ArrowLeft className="h-4 w-4 text-muted-foreground group-hover:text-primary rotate-180 transition-colors" />
-                </button>
-              ))}
-            </div>
-          </>
-        );
-
-      case 'password':
-        return (
-          <>
-            <div className="text-center relative">
-              <button
-                onClick={handleBack}
-                className="absolute -top-2 -left-2 p-2 rounded-lg hover:bg-muted transition-colors"
-              >
-                <ArrowLeft className="h-5 w-5 text-muted-foreground" />
-              </button>
-              <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-primary shadow-lg shadow-primary/30 mb-3">
-                <Lock className="w-7 h-7 text-white" />
-              </div>
-              <h2 className="text-xl font-semibold text-foreground mb-1">Enter Password</h2>
-              <p className="text-xs text-muted-foreground">{email}</p>
-              {selectedTenant && (
-                <p className="text-xs text-primary font-medium mt-1">{selectedTenant.name}</p>
-              )}
-            </div>
-
-            <form onSubmit={handlePasswordSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium">Password</Label>
                 <div className="relative">
@@ -650,7 +535,6 @@ function LoginPageContent() {
                     placeholder="Enter your password"
                     className="pl-10 pr-10 h-12"
                     autoComplete="current-password"
-                    autoFocus
                     required
                   />
                   <button
@@ -703,7 +587,7 @@ function LoginPageContent() {
 
               <Button
                 type="submit"
-                disabled={isLoading || !password}
+                disabled={isLoading || !email || !password}
                 className="w-full h-12 text-sm font-semibold bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/30 transition-all duration-300"
               >
                 {isLoading ? (
@@ -713,6 +597,40 @@ function LoginPageContent() {
                 )}
               </Button>
             </form>
+
+            <div className="relative py-2">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border"></div>
+              </div>
+              <div className="relative flex justify-center">
+                <span className="px-3 text-xs bg-white/80 text-muted-foreground">or continue with</span>
+              </div>
+            </div>
+
+            <SocialLogin onLogin={handleSocialLogin} isLoading={isLoading} />
+
+            {isPasskeyAvailable && (
+              <>
+                <div className="relative py-2">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-border"></div>
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="px-3 text-xs bg-white/80 text-muted-foreground">or</span>
+                  </div>
+                </div>
+
+                <Button
+                  variant="outline"
+                  onClick={handlePasskeyLogin}
+                  disabled={isLoading}
+                  className="w-full h-12"
+                >
+                  <Fingerprint className="h-4 w-4 mr-2" />
+                  Sign in with passkey
+                </Button>
+              </>
+            )}
           </>
         );
 
