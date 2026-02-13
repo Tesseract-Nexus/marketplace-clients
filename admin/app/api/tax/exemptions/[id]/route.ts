@@ -3,11 +3,21 @@ import { getServiceUrl, getAuthHeaders } from '@/lib/config/api';
 
 const TAX_SERVICE_URL = getServiceUrl('TAX');
 
+function isValidId(id: string): boolean {
+  return /^[a-zA-Z0-9_-]{2,64}$/.test(id);
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+
+  if (!isValidId(id)) {
+
+    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+
+  }
 
   try {
     const response = await fetch(`${TAX_SERVICE_URL}/exemptions/${id}`, {
@@ -33,6 +43,12 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+
+  if (!isValidId(id)) {
+
+    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+
+  }
 
   try {
     const body = await request.json();
@@ -61,6 +77,12 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+
+  if (!isValidId(id)) {
+
+    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+
+  }
 
   try {
     const response = await fetch(`${TAX_SERVICE_URL}/exemptions/${id}`, {

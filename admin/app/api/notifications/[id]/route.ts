@@ -5,6 +5,10 @@ import { proxyToBackend, handleApiError, getProxyHeaders, CACHE_CONFIG } from '@
 const baseUrl = process.env.NOTIFICATION_HUB_URL || 'http://notification-hub.marketplace.svc.cluster.local:8080';
 const NOTIFICATION_HUB_URL = baseUrl.endsWith('/api/v1') ? baseUrl : `${baseUrl}/api/v1`;
 
+function isValidId(id: string): boolean {
+  return /^[a-zA-Z0-9_-]{2,64}$/.test(id);
+}
+
 async function safeParseResponse(response: Response): Promise<any> {
   const contentType = response.headers.get('content-type') || '';
   const text = await response.text();
@@ -27,6 +31,12 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+
+    if (!isValidId(id)) {
+
+      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+
+    }
 
     const response = await proxyToBackend(NOTIFICATION_HUB_URL, `notifications/${id}`, {
       method: 'GET',
@@ -58,6 +68,12 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
+
+    if (!isValidId(id)) {
+
+      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+
+    }
 
     const response = await proxyToBackend(NOTIFICATION_HUB_URL, `notifications/${id}`, {
       method: 'DELETE',

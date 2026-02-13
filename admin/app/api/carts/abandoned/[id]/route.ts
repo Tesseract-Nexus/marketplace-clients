@@ -1,8 +1,12 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServiceUrl } from '@/lib/config/api';
 import { proxyGet, proxyDelete } from '@/lib/utils/api-route-handler';
 
 const CUSTOMERS_SERVICE_URL = getServiceUrl('CUSTOMERS');
+
+function isValidId(id: string): boolean {
+  return /^[a-zA-Z0-9_-]{2,64}$/.test(id);
+}
 
 /**
  * GET /api/carts/abandoned/:id
@@ -13,6 +17,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  if (!isValidId(id)) {
+    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+  }
   return proxyGet(CUSTOMERS_SERVICE_URL, `abandoned-carts/${id}`, request);
 }
 
@@ -25,5 +32,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  if (!isValidId(id)) {
+    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+  }
   return proxyDelete(CUSTOMERS_SERVICE_URL, `abandoned-carts/${id}`, request);
 }

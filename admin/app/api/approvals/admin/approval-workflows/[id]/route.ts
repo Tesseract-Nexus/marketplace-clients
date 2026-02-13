@@ -1,8 +1,12 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServiceUrl } from '@/lib/config/api';
 import { proxyGet, proxyPut } from '@/lib/utils/api-route-handler';
 
 const APPROVAL_SERVICE_URL = getServiceUrl('APPROVAL');
+
+function isValidId(id: string): boolean {
+  return /^[a-zA-Z0-9_-]{2,64}$/.test(id);
+}
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -15,6 +19,9 @@ interface RouteParams {
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  if (!isValidId(id)) {
+    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+  }
   return proxyGet(APPROVAL_SERVICE_URL, `admin/approval-workflows/${id}`, request);
 }
 
@@ -25,5 +32,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  */
 export async function PUT(request: NextRequest, { params }: RouteParams) {
   const { id } = await params;
+  if (!isValidId(id)) {
+    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+  }
   return proxyPut(APPROVAL_SERVICE_URL, `admin/approval-workflows/${id}`, request);
 }

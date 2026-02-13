@@ -15,7 +15,13 @@ export async function GET(request: NextRequest) {
     const format = searchParams.get('format') || 'json';
 
     const headers = await getProxyHeaders(request) as Record<string, string>;
-    const tenantId = headers['x-jwt-claim-tenant-id'] || '';
+    const tenantId = headers['x-jwt-claim-tenant-id'];
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, message: 'Missing tenant context' },
+        { status: 401 }
+      );
+    }
 
     const response = await fetch(
       `${CATEGORIES_SERVICE_URL}/categories/import/template?format=${format}`,

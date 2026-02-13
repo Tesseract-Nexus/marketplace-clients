@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const CUSTOM_DOMAIN_SERVICE_URL = process.env.CUSTOM_DOMAIN_SERVICE_URL || 'http://custom-domain-service.marketplace.svc.cluster.local:8093';
 
+function isValidId(id: string): boolean {
+  return /^[a-zA-Z0-9_-]{2,64}$/.test(id);
+}
+
 // Helper to forward headers
 function getForwardHeaders(request: NextRequest): Record<string, string> {
   const headers: Record<string, string> = {
@@ -27,6 +31,9 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
+    if (!isValidId(id)) {
+      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    }
     const { searchParams } = new URL(request.url);
 
     // Check for sub-resource requests (dns, ssl, health, activities)
@@ -68,6 +75,9 @@ export async function PATCH(
 ) {
   try {
     const { id } = await params;
+    if (!isValidId(id)) {
+      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    }
     const body = await request.json();
 
     const response = await fetch(
@@ -106,6 +116,12 @@ export async function DELETE(
   try {
     const { id } = await params;
 
+    if (!isValidId(id)) {
+
+      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+
+    }
+
     const response = await fetch(
       `${CUSTOM_DOMAIN_SERVICE_URL}/api/v1/domains/${id}`,
       {
@@ -139,6 +155,9 @@ export async function POST(
 ) {
   try {
     const { id } = await params;
+    if (!isValidId(id)) {
+      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    }
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');
 

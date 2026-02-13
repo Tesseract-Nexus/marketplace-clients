@@ -1,8 +1,12 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServiceUrl } from '@/lib/config/api';
 import { proxyGet, proxyPut, proxyDelete } from '@/lib/utils/api-route-handler';
 
 const TICKETS_SERVICE_URL = getServiceUrl('TICKETS');
+
+function isValidId(id: string): boolean {
+  return /^[a-zA-Z0-9_-]{2,64}$/.test(id);
+}
 
 // Authorization is handled by the backend service via RBAC
 export async function GET(
@@ -10,6 +14,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  if (!isValidId(id)) {
+    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+  }
   return proxyGet(TICKETS_SERVICE_URL, `/tickets/${id}`, request);
 }
 
@@ -18,6 +25,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  if (!isValidId(id)) {
+    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+  }
   return proxyPut(TICKETS_SERVICE_URL, `/tickets/${id}`, request);
 }
 
@@ -26,5 +36,8 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  if (!isValidId(id)) {
+    return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+  }
   return proxyDelete(TICKETS_SERVICE_URL, `/tickets/${id}`, request);
 }

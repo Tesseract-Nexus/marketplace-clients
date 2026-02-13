@@ -5,6 +5,10 @@ import { cache, cacheKeys } from '@/lib/cache/redis';
 
 const SETTINGS_SERVICE_URL = getServiceUrl('SETTINGS');
 
+function isValidId(id: string): boolean {
+  return /^[a-zA-Z0-9_-]{2,64}$/.test(id);
+}
+
 /**
  * GET /api/settings/:id
  * Fetch a single setting by ID
@@ -26,6 +30,12 @@ export async function GET(
     }
 
     const { id } = await params;
+
+    if (!isValidId(id)) {
+
+      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+
+    }
 
     const response = await proxyToBackend(SETTINGS_SERVICE_URL, `settings/${id}`, {
       method: 'GET',
@@ -56,6 +66,9 @@ export async function PUT(
 ) {
   try {
     const { id } = await params;
+    if (!isValidId(id)) {
+      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+    }
     const body = await request.json();
 
     // Get tenant ID from JWT claims only - NEVER trust client-provided tenant ID
@@ -115,6 +128,12 @@ export async function DELETE(
     }
 
     const { id } = await params;
+
+    if (!isValidId(id)) {
+
+      return NextResponse.json({ success: false, message: 'Invalid ID' }, { status: 400 });
+
+    }
 
     const response = await proxyToBackend(SETTINGS_SERVICE_URL, `settings/${id}`, {
       method: 'DELETE',
