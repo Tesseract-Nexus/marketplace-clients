@@ -2,11 +2,11 @@
  * Safe redirect utility to prevent open redirect vulnerabilities
  * Only allows redirects to:
  * - Same origin
- * - Configured base domain subdomains (e.g., *.tesserix.app)
+ * - Configured base domain subdomains (e.g., *.mark8ly.com)
  * - Explicitly allowed external URLs
  */
 
-const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+const BASE_DOMAIN = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
 
 // Allowed external domains for OAuth flows etc.
 const ALLOWED_EXTERNAL_DOMAINS = [
@@ -43,7 +43,7 @@ export function isValidRedirectUrl(url: string): boolean {
       return true;
     }
 
-    // Allow subdomains of base domain (e.g., *.tesserix.app)
+    // Allow subdomains of base domain (e.g., *.mark8ly.com)
     if (hostname.endsWith(`.${BASE_DOMAIN}`) || hostname === BASE_DOMAIN) {
       return true;
     }
@@ -90,7 +90,7 @@ export function safeRedirect(url: string, fallback: string = '/'): void {
  * @returns The constructed admin URL
  */
 export function buildAdminUrl(tenantSlug: string, path: string = ''): string {
-  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
   // Sanitize tenant slug to prevent injection
   const sanitizedSlug = tenantSlug.replace(/[^a-z0-9-]/gi, '').toLowerCase();
   return `https://${sanitizedSlug}-admin.${baseDomain}${path}`;
@@ -102,7 +102,7 @@ export function buildAdminUrl(tenantSlug: string, path: string = ''): string {
  * @returns The constructed dev admin URL
  */
 export function buildDevAdminUrl(path: string = ''): string {
-  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
   return `https://dev-admin.${baseDomain}${path}`;
 }
 

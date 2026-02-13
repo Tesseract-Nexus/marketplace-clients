@@ -44,6 +44,12 @@ interface ValidateCustomDomainResponse {
   cname_delegation_enabled?: boolean;
 }
 
+const DEFAULT_VERIFICATION_TARGET = 'verify.mark8ly.com';
+const verificationTarget =
+  process.env.DOMAIN_VERIFICATION_TARGET ||
+  process.env.NEXT_PUBLIC_DOMAIN_VERIFICATION_TARGET ||
+  DEFAULT_VERIFICATION_TARGET;
+
 export async function POST(request: NextRequest) {
   const validationError = validateRequest(request, { rateLimit: true });
   if (validationError) {
@@ -130,6 +136,11 @@ export async function POST(request: NextRequest) {
     // Expanded blocked domains list for security
     const blockedDomains = [
       // Our own domains
+      'mark8ly.com',
+      'mark8ly.app',
+      'mark8ly.io',
+      'mark8ly.net',
+      'mark8ly.org',
       'tesserix.app',
       'tesserix.com',
       'tesserix.io',
@@ -271,14 +282,14 @@ export async function POST(request: NextRequest) {
           sanitizedData.verification_record = {
             type: 'CNAME',
             host: `_tesserix-${shortToken}.${cleanDomain}`,
-            value: 'verify.tesserix.app',
+            value: verificationTarget,
             ttl: 3600,
           };
           sanitizedData.verification_records = [
             {
               type: 'CNAME',
               host: `_tesserix-${shortToken}.${cleanDomain}`,
-              value: 'verify.tesserix.app',
+              value: verificationTarget,
               ttl: 3600,
               purpose: 'verification',
             },
@@ -316,14 +327,14 @@ export async function POST(request: NextRequest) {
         verification_record: {
           type: 'CNAME',
           host: `_tesserix-${shortToken}.${cleanDomain}`,
-          value: 'verify.tesserix.app',
+          value: verificationTarget,
           ttl: 3600,
         },
         verification_records: [
           {
             type: 'CNAME',
             host: `_tesserix-${shortToken}.${cleanDomain}`,
-            value: 'verify.tesserix.app',
+            value: verificationTarget,
             ttl: 3600,
             purpose: 'verification',
           },

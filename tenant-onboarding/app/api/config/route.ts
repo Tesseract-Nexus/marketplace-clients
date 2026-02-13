@@ -10,30 +10,32 @@ import { NextResponse } from 'next/server';
  * - TENANT_SERVICE_PUBLIC_URL: Public ingress URL for tenant-service (optional)
  *   If not set, the API routes (BFF pattern) will be used
  * - LOCATION_SERVICE_PUBLIC_URL: Public ingress URL for location-service (optional)
- * - ECOMMERCE_ADMIN_URL: Admin panel URL (e.g., https://dev-admin.tesserix.app)
- * - BASE_DOMAIN: Base domain for tenant subdomains (e.g., tesserix.app)
+ * - ECOMMERCE_ADMIN_URL: Admin panel URL (e.g., https://dev-admin.mark8ly.com)
+ * - BASE_DOMAIN: Base domain for tenant subdomains (e.g., mark8ly.com)
  *
  * URL Format:
  * - Tenant admin URLs use subdomain pattern: {slug}-admin.{baseDomain}
- * - Example: mystore-admin.tesserix.app
+ * - Example: mystore-admin.mark8ly.com
  */
 export async function GET() {
+  const defaultBaseDomain = 'mark8ly.com';
+
   // Get public URLs from environment (these would be ingress URLs)
   const tenantServicePublicUrl = process.env.TENANT_SERVICE_PUBLIC_URL;
   const locationServicePublicUrl = process.env.LOCATION_SERVICE_PUBLIC_URL;
 
   // Admin URL - environment specific
-  // devtest: https://dev-admin.tesserix.app
-  // pilot: https://pilot-admin.tesserix.app
-  // prod: https://admin.tesserix.app
-  const ecommerceAdminUrl = process.env.ECOMMERCE_ADMIN_URL || process.env.NEXT_PUBLIC_ECOMMERCE_ADMIN_URL || 'https://admin.tesserix.app';
+  // devtest: https://dev-admin.mark8ly.com
+  // pilot: https://pilot-admin.mark8ly.com
+  // prod: https://admin.mark8ly.com
+  const ecommerceAdminUrl = process.env.ECOMMERCE_ADMIN_URL || process.env.NEXT_PUBLIC_ECOMMERCE_ADMIN_URL || `https://admin.${defaultBaseDomain}`;
 
   // Base domain for subdomain-based tenant URLs
-  // Format: {slug}-admin.{baseDomain} (e.g., mystore-admin.tesserix.app)
-  const baseDomain = process.env.BASE_DOMAIN || process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+  // Format: {slug}-admin.{baseDomain} (e.g., mystore-admin.mark8ly.com)
+  const baseDomain = process.env.BASE_DOMAIN || process.env.NEXT_PUBLIC_BASE_DOMAIN || defaultBaseDomain;
 
   // Extract hostname from admin URL for display
-  let adminHostname = 'admin.tesserix.app';
+  let adminHostname = `admin.${defaultBaseDomain}`;
   try {
     const url = new URL(ecommerceAdminUrl);
     adminHostname = url.hostname;

@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import Header from '../../../../components/Header';
 import { Loader2, CheckCircle, XCircle, ArrowRight } from 'lucide-react';
 import { useOnboardingStore } from '../../../../lib/store/onboarding-store';
-import { safeRedirect, buildAdminUrl, registerValidatedCustomDomain } from '../../../../lib/utils/safe-redirect';
+import { safeRedirect, registerValidatedCustomDomain } from '../../../../lib/utils/safe-redirect';
 
 function CallbackContent() {
   const searchParams = useSearchParams();
@@ -66,7 +66,7 @@ function CallbackContent() {
         // The onboarding auth-bff session has NO roles (user didn't exist in staff-service
         // when Google SSO completed). Routing through /auth/login creates a new session
         // with proper roles since the user now exists. Keycloak SSO session makes this seamless.
-        const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+        const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
         let loginUrl: string;
         if (tenantData?.admin_url) {
           loginUrl = `${tenantData.admin_url}/auth/login`;
@@ -144,7 +144,7 @@ function CallbackContent() {
                 </h2>
                 {tenantSlug && (
                   <p className="text-lg font-semibold text-terracotta-600 mb-6 break-all">
-                    https://{tenantSlug}-admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app'}
+                    https://{tenantSlug}-admin.{process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com'}
                   </p>
                 )}
                 <div className="bg-warm-50 rounded-xl p-4 mb-6">

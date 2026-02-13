@@ -15,6 +15,12 @@ export async function GET(
       { status: 400 }
     );
   }
+  if (!tenantId) {
+    return NextResponse.json(
+      { success: false, error: 'Tenant ID is required' },
+      { status: 400 }
+    );
+  }
 
   try {
     // Strip /v1 from base URL - shipping service routes are at /api/* not /api/v1/*

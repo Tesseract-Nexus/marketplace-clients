@@ -98,15 +98,15 @@ export interface TenantCreationResult {
 
 /**
  * Helper to generate URLs for a tenant
- * Uses subdomain-based URL pattern: {slug}-admin.tesserix.app
+ * Uses subdomain-based URL pattern: {slug}-admin.mark8ly.com
  */
 export const getTenantUrls = (slug: string) => {
-  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+  const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
 
   return {
-    // Subdomain-based admin URL: {slug}-admin.tesserix.app
+    // Subdomain-based admin URL: {slug}-admin.mark8ly.com
     adminUrl: `https://${slug}-admin.${baseDomain}`,
-    // Storefront URL: {slug}.tesserix.app
+    // Storefront URL: {slug}.mark8ly.com
     storefrontUrl: `https://${slug}.${baseDomain}`,
     // Dashboard URL
     dashboardUrl: `https://${slug}-admin.${baseDomain}/dashboard`,

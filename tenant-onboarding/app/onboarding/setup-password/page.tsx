@@ -205,7 +205,7 @@ function SetupPasswordContent() {
 
   // Handle Google OAuth login
   // Redirects to auth-bff (mounted at /auth on this domain via Istio) with kc_idp_hint=google
-  // After Google consent, auth-bff sets a .tesserix.app session cookie and redirects back
+  // After Google consent, auth-bff sets a platform session cookie and redirects back
   const handleGoogleLogin = () => {
     if (!sessionId) return;
 
@@ -303,7 +303,7 @@ function SetupPasswordContent() {
 
       // Build admin login URL - user will login with their new credentials
       // This avoids session conflicts when user already has an existing session
-      const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+      const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
       let adminLoginUrl: string;
 
       if (tenantData?.admin_url) {
@@ -315,7 +315,7 @@ function SetupPasswordContent() {
         try {
           const adminUrlObj = new URL(tenantData.admin_url);
           const hostname = adminUrlObj.hostname;
-          // Check if it's a custom domain (not tesserix.app)
+          // Check if it's a custom domain (not our platform base domain)
           if (!hostname.endsWith(baseDomain) && !hostname.includes('localhost')) {
             // Extract base domain from admin subdomain (admin.yahvismartfarm.com -> yahvismartfarm.com)
             const parts = hostname.split('.');

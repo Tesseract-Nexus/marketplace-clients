@@ -25,9 +25,13 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     }
 
     const body = await request.json().catch(() => ({}));
-
-    // Get the tenant slug from the request or use a default demo store
-    const slug = body.slug || 'demo-store';
+    const slug = typeof body.slug === 'string' ? body.slug.trim() : '';
+    if (!slug) {
+      return NextResponse.json(
+        { success: false, data: null as any, message: 'Missing required slug' },
+        { status: 400 }
+      );
+    }
 
     // Generate preview URL with preview=true flag and timestamp for cache-busting
     const storefrontBaseUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || 'http://localhost:3200';
@@ -75,9 +79,13 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
     // Generate preview URL with preview=true flag and timestamp
     const storefrontBaseUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || 'http://localhost:3200';
     const timestamp = Date.now();
-
-    // Use demo-store as default slug for development
-    const slug = 'demo-store';
+    const slug = request.nextUrl.searchParams.get('slug')?.trim() || '';
+    if (!slug) {
+      return NextResponse.json(
+        { success: false, data: null, message: 'Missing required slug' },
+        { status: 400 }
+      );
+    }
     const previewUrl = `${storefrontBaseUrl}/${slug}?preview=true&t=${timestamp}`;
 
     return NextResponse.json({
