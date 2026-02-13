@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils';
 import { useDialog } from '@/contexts/DialogContext';
 import { useToast } from '@/contexts/ToastContext';
 import { storefrontApi, setCurrentStorefrontId, setCurrentTenantId } from '@/lib/api/storefront';
+import { RESERVED_PAGE_SLUGS as RESERVED_PAGE_SLUG_LIST } from '@/lib/constants/slug-reservations';
 import type { ContentPage, ContentPageType, ContentPageStatus } from '@/lib/types/settings';
 
 interface ContentPagesEditorProps {
@@ -59,24 +60,7 @@ const DEFAULT_PAGE: Omit<ContentPage, 'id' | 'createdAt' | 'updatedAt'> = {
   isFeatured: false,
 };
 
-const RESERVED_PAGE_SLUGS = new Set([
-  'admin',
-  'api',
-  'account',
-  'pages',
-  'products',
-  'collections',
-  'orders',
-  'search',
-  'register',
-  'profile',
-  'login',
-  'logout',
-  'signup',
-  'signin',
-  'cart',
-  'checkout',
-]);
+const RESERVED_PAGE_SLUGS = new Set(RESERVED_PAGE_SLUG_LIST);
 
 export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, className }: ContentPagesEditorProps) {
   const { showConfirm } = useDialog();

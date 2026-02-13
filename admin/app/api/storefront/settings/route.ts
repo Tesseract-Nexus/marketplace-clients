@@ -9,8 +9,51 @@ import {
   ThemeTemplate,
   ColorMode,
 } from '@/lib/api/types';
+import { RESERVED_PAGE_SLUGS } from '@/lib/constants/slug-reservations';
 
 const SETTINGS_SERVICE_URL = getServiceUrl('SETTINGS');
+const RESERVED_PAGE_SLUGS_SET = new Set(RESERVED_PAGE_SLUGS);
+
+function validateContentPagesPayload(contentPages: unknown): string | null {
+  if (!Array.isArray(contentPages)) {
+    return 'contentPages must be an array';
+  }
+
+  const seenSlugs = new Set<string>();
+
+  for (let i = 0; i < contentPages.length; i++) {
+    const page = contentPages[i] as Record<string, unknown>;
+    if (!page || typeof page !== 'object') {
+      return `contentPages[${i}] must be an object`;
+    }
+
+    const title = typeof page.title === 'string' ? page.title.trim() : '';
+    const rawSlug = typeof page.slug === 'string' ? page.slug.trim() : '';
+    const slug = rawSlug.toLowerCase();
+
+    if (!title) {
+      return `contentPages[${i}].title is required`;
+    }
+    if (!slug) {
+      return `contentPages[${i}].slug is required`;
+    }
+    if (rawSlug !== slug) {
+      return `contentPages[${i}].slug must be lowercase`;
+    }
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+      return `contentPages[${i}].slug must use lowercase letters, numbers, and hyphens only`;
+    }
+    if (RESERVED_PAGE_SLUGS_SET.has(slug)) {
+      return `contentPages[${i}].slug is reserved`;
+    }
+    if (seenSlugs.has(slug)) {
+      return `contentPages[${i}].slug is duplicated`;
+    }
+    seenSlugs.add(slug);
+  }
+
+  return null;
+}
 
 /**
  * Transform backend homepageConfig to frontend format
@@ -348,6 +391,16 @@ export async function POST(request: NextRequest): Promise<NextResponse<ApiRespon
     console.log(`POST /api/storefront/settings: storefrontId=${storefrontId}, tenantId=${tenantId}, userId=${userId ? 'set' : 'not set'}`);
 
     const body: CreateStorefrontSettingsRequest = await request.json();
+    const rawContentPages = (body as Record<string, unknown>).contentPages;
+    if (rawContentPages !== undefined) {
+      const validationError = validateContentPagesPayload(rawContentPages);
+      if (validationError) {
+        return NextResponse.json(
+          { success: false, data: null as unknown as StorefrontSettings, message: validationError },
+          { status: 400 }
+        );
+      }
+    }
 
     // Build headers for backend request
     const backendHeaders: Record<string, string> = {
@@ -471,6 +524,16 @@ export async function PATCH(request: NextRequest): Promise<NextResponse<ApiRespo
     }
 
     const body: Partial<CreateStorefrontSettingsRequest> = await request.json();
+    const rawContentPages = (body as Record<string, unknown>).contentPages;
+    if (rawContentPages !== undefined) {
+      const validationError = validateContentPagesPayload(rawContentPages);
+      if (validationError) {
+        return NextResponse.json(
+          { success: false, data: null as unknown as StorefrontSettings, message: validationError },
+          { status: 400 }
+        );
+      }
+    }
 
     // Build headers for backend request
     const backendHeaders: Record<string, string> = {

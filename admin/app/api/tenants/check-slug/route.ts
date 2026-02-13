@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cache, cacheKeys, cacheTTL } from '@/lib/cache/redis';
+import { RESERVED_TENANT_SLUGS } from '@/lib/constants/slug-reservations';
 
 const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8082';
+const RESERVED_TENANT_SLUGS_SET = new Set(RESERVED_TENANT_SLUGS);
 
 interface SlugCheckResponse {
   success: boolean;
@@ -49,8 +51,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<SlugCheckR
     }
 
     // Reserved slugs that cannot be used
-    const reservedSlugs = ['admin', 'api', 'www', 'app', 'login', 'signup', 'register', 'dashboard', 'settings', 'help', 'support'];
-    if (reservedSlugs.includes(slug)) {
+    if (RESERVED_TENANT_SLUGS_SET.has(slug)) {
       return NextResponse.json({
         success: true,
         data: { available: false, slug, reason: 'This slug is reserved' }
