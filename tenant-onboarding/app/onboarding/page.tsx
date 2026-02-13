@@ -2494,17 +2494,14 @@ export default function OnboardingPage() {
                         </label>
 
                         <label
-                          className={`relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-                            storeSetupForm.watch('businessModel') === 'MARKETPLACE'
-                              ? 'border-primary bg-warm-50'
-                              : 'border-border hover:border-warm-300'
-                          }`}
+                          className="relative flex items-start gap-4 p-4 rounded-xl border-2 border-border bg-muted/30 opacity-70 cursor-not-allowed"
                         >
                           <input
                             type="radio"
                             {...storeSetupForm.register('businessModel')}
                             value="MARKETPLACE"
                             className="sr-only"
+                            disabled
                           />
                           <div className="w-10 h-10 rounded-lg bg-warm-100 flex items-center justify-center flex-shrink-0">
                             <Globe className="w-5 h-5 text-warm-600" />
@@ -2512,12 +2509,11 @@ export default function OnboardingPage() {
                           <div className="flex-1">
                             <span className="font-medium text-foreground block">Marketplace</span>
                             <span className="text-sm text-muted-foreground">Multi-vendor platform with commission-based sales</span>
+                            <span className="inline-flex items-center gap-1 mt-2 text-xs font-medium text-amber-700 bg-amber-100 border border-amber-200 rounded-full px-2 py-0.5">
+                              <Clock className="w-3.5 h-3.5" />
+                              Coming soon
+                            </span>
                           </div>
-                          {storeSetupForm.watch('businessModel') === 'MARKETPLACE' && (
-                            <div className="absolute top-3 right-3">
-                              <Check className="w-5 h-5 text-primary" />
-                            </div>
-                          )}
                         </label>
                       </div>
                       {storeSetupForm.formState.errors.businessModel && (
