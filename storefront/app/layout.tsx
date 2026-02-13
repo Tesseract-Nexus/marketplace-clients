@@ -48,7 +48,7 @@ export default async function RootLayout({
               Access your store via your tenant subdomain
             </p>
             <p className="text-sm opacity-75">
-              Example: demo-store.tesserix.app
+              Example: demo-store.mark8ly.com
             </p>
           </div>
         </body>

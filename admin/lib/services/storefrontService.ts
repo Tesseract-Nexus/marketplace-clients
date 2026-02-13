@@ -13,7 +13,7 @@ const USE_MOCK_DATA =
   process.env.NEXT_PUBLIC_USE_MOCK_DATA === '1';
 
 // Mock storefront domain for computing URLs in mock mode
-const MOCK_STOREFRONT_DOMAIN = process.env.NEXT_PUBLIC_STOREFRONT_DOMAIN || 'tesserix.app';
+const MOCK_STOREFRONT_DOMAIN = process.env.NEXT_PUBLIC_STOREFRONT_DOMAIN || 'mark8ly.com';
 
 // Helper to compute storefront URL (same logic as backend)
 const computeStorefrontUrl = (slug: string, customDomain?: string): string => {

@@ -30,14 +30,31 @@ function CallbackContent() {
       }
 
       try {
+        // Resolve store setup from local persisted state first, then backend session as fallback.
+        // This prevents timezone/currency from defaulting when local storage is missing in OAuth callback.
+        let resolvedTimezone = storeSetup?.timezone;
+        let resolvedCurrency = storeSetup?.currency;
+        let resolvedBusinessModel = storeSetup?.business_model;
+
+        if (!resolvedTimezone || !resolvedCurrency || !resolvedBusinessModel) {
+          const sessionResponse = await fetch(`/api/onboarding/${sessionId}`);
+          if (sessionResponse.ok) {
+            const sessionJson = await sessionResponse.json().catch(() => null);
+            const sessionStoreSetup = sessionJson?.data?.store_setup || {};
+            resolvedTimezone = resolvedTimezone || sessionStoreSetup.timezone;
+            resolvedCurrency = resolvedCurrency || sessionStoreSetup.currency;
+            resolvedBusinessModel = resolvedBusinessModel || sessionStoreSetup.business_model;
+          }
+        }
+
         const response = await fetch(`/api/onboarding/${sessionId}/account-setup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             auth_method: 'google',
-            timezone: storeSetup?.timezone || 'UTC',
-            currency: storeSetup?.currency || 'USD',
-            business_model: storeSetup?.business_model || 'ONLINE_STORE',
+            timezone: resolvedTimezone || 'UTC',
+            currency: resolvedCurrency || 'USD',
+            business_model: resolvedBusinessModel || 'ONLINE_STORE',
           }),
         });
 

@@ -102,7 +102,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<AutoLogin
     const bffData = await bffResponse.json();
 
     // Build admin URL with transfer code
-    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'tesserix.app';
+    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
     const adminBaseUrl = `https://${body.tenant_slug}-admin.${baseDomain}`;
     const adminUrl = `${adminBaseUrl}/auth/accept-transfer?code=${bffData.transfer_code}&returnTo=/`;
 

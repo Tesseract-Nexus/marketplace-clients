@@ -34,15 +34,15 @@ export async function GET() {
     // Fallback data
     const fallbackData = {
       contacts: [
-        { type: 'support', label: 'Email Support', email: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@tesserix.app' },
-        { type: 'sales', label: 'Sales', email: process.env.NEXT_PUBLIC_SALES_EMAIL || 'sales@tesserix.app' },
+        { type: 'support', label: 'Email Support', email: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@mark8ly.com' },
+        { type: 'sales', label: 'Sales', email: process.env.NEXT_PUBLIC_SALES_EMAIL || 'sales@mark8ly.com' },
       ],
       socialLinks: [
-        { platform: 'twitter', url: 'https://twitter.com/tesserix' },
-        { platform: 'instagram', url: 'https://instagram.com/tesserix' },
+        { platform: 'twitter', url: 'https://twitter.com/mark8ly' },
+        { platform: 'instagram', url: 'https://instagram.com/mark8ly' },
       ],
       locations: [
-        { name: 'Tesserix HQ', city: 'Mumbai', country: 'India' },
+        { name: 'Mark8ly HQ', city: 'Mumbai', country: 'India' },
       ],
     };
 
