@@ -1,20 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
 const CUSTOM_DOMAIN_SERVICE_URL = process.env.CUSTOM_DOMAIN_SERVICE_URL || 'http://custom-domain-service.marketplace.svc.cluster.local:8093';
 
-// Helper to forward headers
-function getForwardHeaders(request: NextRequest): Record<string, string> {
+// Helper to forward trusted headers from JWT claims/BFF context
+async function getForwardHeaders(request: NextRequest): Promise<Record<string, string> | null> {
+  const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+  const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
+  if (!tenantId) {
+    return null;
+  }
+
+  const userId = proxyHeaders['x-jwt-claim-sub'];
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'x-tenant-id': tenantId,
   };
-
-  const tenantId = request.headers.get('x-tenant-id');
-  const userId = request.headers.get('x-user-id');
-
-  if (tenantId) headers['x-tenant-id'] = tenantId;
   if (userId) headers['x-user-id'] = userId;
 
-  const authorization = request.headers.get('authorization');
+  const authorization = proxyHeaders['Authorization'];
   if (authorization) headers['Authorization'] = authorization;
 
   return headers;
@@ -24,6 +28,10 @@ function getForwardHeaders(request: NextRequest): Record<string, string> {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const forwardHeaders = await getForwardHeaders(request);
+    if (!forwardHeaders) {
+      return NextResponse.json({ success: false, message: 'Missing tenant context' }, { status: 401 });
+    }
 
     if (!body.domain) {
       return NextResponse.json(
@@ -36,7 +44,7 @@ export async function POST(request: NextRequest) {
       `${CUSTOM_DOMAIN_SERVICE_URL}/api/v1/domains/validate`,
       {
         method: 'POST',
-        headers: getForwardHeaders(request),
+        headers: forwardHeaders,
         body: JSON.stringify({
           domain: body.domain,
           check_dns: body.check_dns || false,

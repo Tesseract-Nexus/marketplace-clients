@@ -10,6 +10,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dns from 'dns';
 import { promisify } from 'util';
+import { getProxyHeaders } from '@/lib/utils/api-route-handler';
 
 const resolveCname = promisify(dns.resolveCname);
 const resolveTxt = promisify(dns.resolveTxt);
@@ -30,6 +31,15 @@ interface VerificationStatus {
 
 export async function POST(request: NextRequest) {
   try {
+    const proxyHeaders = await getProxyHeaders(request) as Record<string, string>;
+    const tenantId = proxyHeaders['x-jwt-claim-tenant-id'];
+    if (!tenantId) {
+      return NextResponse.json(
+        { success: false, message: 'Missing tenant context' },
+        { status: 401 }
+      );
+    }
+
     const body: VerifyDNSRequest = await request.json();
 
     if (!body.domain || !body.verification_host || !body.verification_value) {

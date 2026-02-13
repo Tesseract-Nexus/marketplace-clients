@@ -111,7 +111,12 @@ export function TenantApiProvider({ children, requireTenant = true }: TenantApiP
   const currentTenant = DEV_AUTH_BYPASS ? DEV_MOCK_TENANT : realTenant;
   const isLoading = DEV_AUTH_BYPASS ? false : realLoading;
   const error = DEV_AUTH_BYPASS ? null : realError;
-  const user = DEV_AUTH_BYPASS ? { id: 'dev-user-001', email: 'dev@tesserix.local', displayName: 'Dev User' } : realUser;
+  const user = useMemo(
+    () => (DEV_AUTH_BYPASS
+      ? { id: 'dev-user-001', email: 'dev@tesserix.local', displayName: 'Dev User' }
+      : realUser),
+    [realUser]
+  );
   const userLoading = DEV_AUTH_BYPASS ? false : realUserLoading;
 
   // Log dev bypass status
