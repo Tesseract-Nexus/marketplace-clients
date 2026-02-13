@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
+import { notFound } from 'next/navigation';
 import { getProducts, getCategories, resolveStorefront, enrichProductsWithReviews } from '@/lib/api/storefront';
 import { ProductsClient } from './ProductsClient';
 import { resolveTenantId } from '@/lib/tenant';
@@ -16,7 +17,13 @@ interface ProductsPageProps {
 export async function generateMetadata({ searchParams }: ProductsPageProps): Promise<Metadata> {
   const headersList = await headers();
   const host = headersList.get('host') || '';
-  const slug = headersList.get('x-tenant-slug') || 'demo-store';
+  const slug = headersList.get('x-tenant-slug');
+  if (!slug) {
+    return {
+      title: 'Products',
+      description: 'Browse our product catalog.',
+    };
+  }
   const protocol = host.includes('localhost') ? 'http' : 'https';
   const baseUrl = `${protocol}://${host}`;
 
@@ -38,7 +45,10 @@ export async function generateMetadata({ searchParams }: ProductsPageProps): Pro
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
   const headersList = await headers();
-  const slug = headersList.get('x-tenant-slug') || 'demo-store';
+  const slug = headersList.get('x-tenant-slug');
+  if (!slug) {
+    notFound();
+  }
   const search = await searchParams;
 
   // Resolve tenant UUID from slug

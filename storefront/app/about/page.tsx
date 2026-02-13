@@ -7,7 +7,13 @@ import { AboutPageClient } from './AboutPageClient';
 
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = await headers();
-  const tenantSlug = headersList.get('x-tenant-slug') || 'demo-store';
+  const tenantSlug = headersList.get('x-tenant-slug');
+  if (!tenantSlug) {
+    return {
+      title: 'About Us',
+      description: 'Learn more about our company and mission.',
+    };
+  }
 
   const resolution = await resolveStorefront(tenantSlug);
   const tenantHost = await resolveTenantInfo(tenantSlug);
@@ -39,7 +45,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AboutPage() {
   const headersList = await headers();
-  const tenantSlug = headersList.get('x-tenant-slug') || 'demo-store';
+  const tenantSlug = headersList.get('x-tenant-slug');
+  if (!tenantSlug) {
+    notFound();
+  }
 
   // Resolve IDs
   const [resolution, tenantHost] = await Promise.all([

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAuthContext } from '@/lib/api/server-auth';
 
 // Remove /api/v1 suffix if present (env var may include it)
 const ORDERS_SERVICE_URL = (process.env.ORDERS_SERVICE_URL || 'http://localhost:3108').replace(/\/api\/v1\/?$/, '');
@@ -40,7 +41,18 @@ export async function POST(
 
     console.log('[BFF] Cancelling order:', orderId, 'orderNumber:', orderNumber, 'reason:', reason);
 
-    const authorization = request.headers.get('Authorization');
+    let authorization = request.headers.get('Authorization');
+    const hasValidAuth = authorization && authorization !== 'Bearer ' && authorization !== 'Bearer';
+    if (!hasValidAuth) {
+      const authContext = await getAuthContext(request);
+      if (authContext?.token) {
+        authorization = authContext.token;
+      }
+    }
+    const hasAuth = !!authorization && authorization !== 'Bearer ' && authorization !== 'Bearer';
+    if (!hasAuth) {
+      return NextResponse.json({ error: 'Authorization required to cancel order' }, { status: 401 });
+    }
 
     // Use the storefront cancel endpoint which is designed for customer use
     // and doesn't require admin RBAC permissions like orders:cancel
@@ -52,7 +64,7 @@ export async function POST(
         'X-Tenant-ID': tenantId,
         'X-Internal-Service': 'storefront',
         ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
-        ...(authorization && { 'Authorization': authorization }),
+        ...(hasAuth && authorization ? { 'Authorization': authorization } : {}),
       },
       body: JSON.stringify({
         orderNumber: orderNumber,

@@ -1,5 +1,6 @@
 import { headers } from 'next/headers';
 import { Suspense } from 'react';
+import { notFound } from 'next/navigation';
 import { HomePageLayout } from '@/components/blocks/HomePageLayout';
 import { HeroSection } from '@/components/storefront/HeroSection';
 import { FeaturedProducts } from '@/components/storefront/FeaturedProducts';
@@ -24,7 +25,10 @@ interface HomePageProps {
 
 export default async function HomePage({ searchParams }: HomePageProps) {
   const headersList = await headers();
-  const slug = headersList.get('x-tenant-slug') || 'demo-store';
+  const slug = headersList.get('x-tenant-slug');
+  if (!slug) {
+    notFound();
+  }
   const params = await searchParams;
 
   // Resolve tenant UUID from slug
@@ -159,7 +163,13 @@ function HomePageSkeleton() {
 
 export async function generateMetadata() {
   const headersList = await headers();
-  const slug = headersList.get('x-tenant-slug') || 'demo-store';
+  const slug = headersList.get('x-tenant-slug');
+  if (!slug) {
+    return {
+      title: 'Storefront',
+      description: 'Multi-tenant ecommerce storefront',
+    };
+  }
 
   const resolution = await resolveStorefront(slug);
   const storeName = resolution?.name || 'Store';

@@ -42,7 +42,10 @@ function getSchemaAvailability(product: Product): 'InStock' | 'OutOfStock' | 'Pr
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const headersList = await headers();
   const host = headersList.get('host') || '';
-  const slug = headersList.get('x-tenant-slug') || 'demo-store';
+  const slug = headersList.get('x-tenant-slug');
+  if (!slug) {
+    return { title: 'Product Not Found' };
+  }
   const protocol = host.includes('localhost') ? 'http' : 'https';
   const baseUrl = `${protocol}://${host}`;
 
@@ -103,7 +106,10 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 export default async function ProductPage({ params }: ProductPageProps) {
   const headersList = await headers();
   const host = headersList.get('host') || '';
-  const slug = headersList.get('x-tenant-slug') || 'demo-store';
+  const slug = headersList.get('x-tenant-slug');
+  if (!slug) {
+    notFound();
+  }
   const protocol = host.includes('localhost') ? 'http' : 'https';
   const baseUrl = `${protocol}://${host}`;
   const { id } = await params;

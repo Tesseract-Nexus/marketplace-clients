@@ -7,7 +7,13 @@ import { ContactPageClient } from './ContactPageClient';
 
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = await headers();
-  const tenantSlug = headersList.get('x-tenant-slug') || 'demo-store';
+  const tenantSlug = headersList.get('x-tenant-slug');
+  if (!tenantSlug) {
+    return {
+      title: 'Contact Us',
+      description: 'Get in touch with our team. We are here to help.',
+    };
+  }
 
   const resolution = await resolveStorefront(tenantSlug);
   const tenantHost = await resolveTenantInfo(tenantSlug);
@@ -39,7 +45,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ContactPage() {
   const headersList = await headers();
-  const tenantSlug = headersList.get('x-tenant-slug') || 'demo-store';
+  const tenantSlug = headersList.get('x-tenant-slug');
+  if (!tenantSlug) {
+    notFound();
+  }
 
   // Resolve IDs
   const [resolution, tenantHost] = await Promise.all([

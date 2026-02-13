@@ -6,8 +6,8 @@ import { secureCompare, validateCsrfToken } from '@/lib/security/csrf';
 const isDev = process.env.NODE_ENV !== 'production';
 const debugLog = (...args: unknown[]) => isDev && console.log(...args);
 
-// Base domain for tenant subdomains (e.g., tesserix.app)
-const BASE_DOMAIN = process.env.BASE_DOMAIN || 'tesserix.app';
+// Base domain for tenant subdomains (e.g., mark8ly.app)
+const BASE_DOMAIN = process.env.BASE_DOMAIN || 'mark8ly.app';
 
 // Custom domain service URL for domain resolution
 const CUSTOM_DOMAIN_SERVICE_URL = process.env.CUSTOM_DOMAIN_SERVICE_URL || 'http://custom-domain-service.marketplace.svc.cluster.local:8093';
@@ -57,12 +57,12 @@ const CSRF_EXCLUDED_PATHS = [
 ];
 
 /**
- * Check if a hostname is a custom domain (not tesserix.app or localhost)
+ * Check if a hostname is a custom domain (not BASE_DOMAIN or localhost)
  */
 function isCustomDomain(host: string): boolean {
   const hostname = (host.split(':')[0] || '').toLowerCase();
 
-  // Not custom if it's tesserix.app
+  // Not custom if it's platform base domain
   if (hostname.endsWith(`.${BASE_DOMAIN}`) || hostname === BASE_DOMAIN) {
     return false;
   }
@@ -153,7 +153,7 @@ async function resolveCustomDomain(domain: string): Promise<{ tenantSlug: string
 }
 
 // Extract tenant slug from hostname
-// e.g., demo-store.tesserix.app -> demo-store
+// e.g., demo-store.mark8ly.app -> demo-store
 function getTenantFromHost(host: string): string | null {
   // Remove port if present
   const hostname = host.split(':')[0] || '';
@@ -264,7 +264,7 @@ export async function middleware(request: NextRequest) {
       }
     }
   } else {
-    // Standard tesserix.app or localhost domain - extract from hostname
+    // Standard BASE_DOMAIN or localhost domain - extract from hostname
     tenantSlug = getTenantFromHost(host);
 
     // If not found in hostname, check headers (for VirtualService-injected custom domains)

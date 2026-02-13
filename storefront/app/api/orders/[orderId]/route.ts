@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAuthContext } from '@/lib/api/server-auth';
 
 // Remove /api/v1 suffix if present (env var may include it)
 const ORDERS_SERVICE_URL = (process.env.ORDERS_SERVICE_URL || 'http://localhost:3108').replace(/\/api\/v1\/?$/, '');
@@ -13,16 +14,25 @@ export async function GET(
     const { orderId } = await params;
     const tenantId = request.headers.get('X-Tenant-ID');
     const storefrontId = request.headers.get('X-Storefront-ID');
-    const authHeader = request.headers.get('Authorization');
+    let authHeader = request.headers.get('Authorization');
     const customerEmail = request.headers.get('X-Customer-Email');
 
     if (!tenantId) {
       return NextResponse.json({ error: 'Tenant ID required' }, { status: 400 });
     }
 
+    const hasValidAuthHeader = authHeader && authHeader !== 'Bearer ' && authHeader !== 'Bearer';
+    if (!hasValidAuthHeader) {
+      const authContext = await getAuthContext(request);
+      if (authContext?.token) {
+        authHeader = authContext.token;
+      }
+    }
+
     // SECURITY: Require either Authorization header or customer email for ownership verification
     // The backend orders-service will validate that the order belongs to this customer
-    if (!authHeader && !customerEmail) {
+    const hasAuth = !!authHeader && authHeader !== 'Bearer ' && authHeader !== 'Bearer';
+    if (!hasAuth && !customerEmail) {
       return NextResponse.json(
         { error: 'Authorization required to view order details' },
         { status: 401 }
@@ -34,7 +44,7 @@ export async function GET(
         'X-Tenant-ID': tenantId,
         ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
         // Pass auth headers to backend for ownership verification
-        ...(authHeader && { Authorization: authHeader }),
+        ...(hasAuth && authHeader ? { Authorization: authHeader } : {}),
         ...(customerEmail && { 'X-Customer-Email': customerEmail }),
       },
     });

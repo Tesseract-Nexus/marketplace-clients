@@ -13,7 +13,10 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const headersList = await headers();
-  const tenantSlug = headersList.get('x-tenant-slug') || 'demo-store';
+  const tenantSlug = headersList.get('x-tenant-slug');
+  if (!tenantSlug) {
+    return {};
+  }
   const { pageSlug } = await params;
 
   const resolution = await resolveStorefront(tenantSlug);
@@ -36,7 +39,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function DynamicPage({ params }: PageProps) {
   const headersList = await headers();
-  const tenantSlug = headersList.get('x-tenant-slug') || 'demo-store';
+  const tenantSlug = headersList.get('x-tenant-slug');
+  if (!tenantSlug) {
+    notFound();
+  }
   const { pageSlug } = await params;
 
   // Resolve IDs

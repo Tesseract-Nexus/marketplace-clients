@@ -11,7 +11,10 @@ interface OrderDetailsPageProps {
 export default async function OrderDetailsPage({ params }: OrderDetailsPageProps) {
   const { orderId } = await params;
   const headersList = await headers();
-  const slug = headersList.get('x-tenant-slug') || 'demo-store';
+  const slug = headersList.get('x-tenant-slug');
+  if (!slug) {
+    notFound();
+  }
 
   // Resolve tenant UUID from slug
   const tenantId = await resolveTenantId(slug);

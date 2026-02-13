@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
+import { notFound } from 'next/navigation';
 import { searchProductsWithFacets, ProductSearchResult } from '@/lib/api/search';
 import { searchProducts as fallbackSearch, resolveStorefront } from '@/lib/api/storefront';
 import { SearchClient } from './SearchClient';
@@ -12,7 +13,13 @@ interface SearchPageProps {
 
 export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
   const headersList = await headers();
-  const slug = headersList.get('x-tenant-slug') || 'demo-store';
+  const slug = headersList.get('x-tenant-slug');
+  if (!slug) {
+    return {
+      title: 'Search',
+      description: 'Search our catalog.',
+    };
+  }
   const { q: query } = await searchParams;
 
   const resolution = await resolveStorefront(slug);
@@ -52,7 +59,10 @@ function transformSearchResultToProduct(result: ProductSearchResult): Product {
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const headersList = await headers();
-  const slug = headersList.get('x-tenant-slug') || 'demo-store';
+  const slug = headersList.get('x-tenant-slug');
+  if (!slug) {
+    notFound();
+  }
   const { q: query, sort } = await searchParams;
 
   // Resolve tenant UUID from slug

@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
+import { notFound } from 'next/navigation';
 import { getCategories, resolveStorefront } from '@/lib/api/storefront';
 import { resolveTenantId } from '@/lib/tenant';
 import { CategoriesClient } from './CategoriesClient';
@@ -7,7 +8,13 @@ import { CategoriesClient } from './CategoriesClient';
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = await headers();
   const host = headersList.get('host') || '';
-  const slug = headersList.get('x-tenant-slug') || 'demo-store';
+  const slug = headersList.get('x-tenant-slug');
+  if (!slug) {
+    return {
+      title: 'Categories',
+      description: 'Browse product categories.',
+    };
+  }
   const protocol = host.includes('localhost') ? 'http' : 'https';
   const baseUrl = `${protocol}://${host}`;
 
@@ -25,7 +32,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function CategoriesPage() {
   const headersList = await headers();
-  const slug = headersList.get('x-tenant-slug') || 'demo-store';
+  const slug = headersList.get('x-tenant-slug');
+  if (!slug) {
+    notFound();
+  }
 
   // Resolve tenant UUID from slug
   const tenantId = await resolveTenantId(slug);

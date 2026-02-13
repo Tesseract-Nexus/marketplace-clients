@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getAuthContext } from '@/lib/api/server-auth';
 
 // Remove /api/v1 suffix if present (env var may include it)
 const ORDERS_SERVICE_URL = (process.env.ORDERS_SERVICE_URL || 'http://localhost:3108').replace(/\/api\/v1\/?$/, '');
@@ -12,15 +13,30 @@ export async function GET(
     const { orderId } = await params;
     const tenantId = request.headers.get('X-Tenant-ID');
     const storefrontId = request.headers.get('X-Storefront-ID');
+    let authorization = request.headers.get('Authorization');
 
     if (!tenantId) {
       return NextResponse.json({ error: 'Tenant ID required' }, { status: 400 });
+    }
+
+    const hasValidAuth = authorization && authorization !== 'Bearer ' && authorization !== 'Bearer';
+    if (!hasValidAuth) {
+      const authContext = await getAuthContext(request);
+      if (authContext?.token) {
+        authorization = authContext.token;
+      }
+    }
+
+    const hasAuth = !!authorization && authorization !== 'Bearer ' && authorization !== 'Bearer';
+    if (!hasAuth) {
+      return NextResponse.json({ error: 'Authorization required to view tracking' }, { status: 401 });
     }
 
     const response = await fetch(`${ORDERS_SERVICE_URL}/api/v1/orders/${orderId}/tracking`, {
       headers: {
         'X-Tenant-ID': tenantId,
         ...(storefrontId && { 'X-Storefront-ID': storefrontId }),
+        ...(hasAuth && authorization ? { Authorization: authorization } : {}),
       },
     });
 

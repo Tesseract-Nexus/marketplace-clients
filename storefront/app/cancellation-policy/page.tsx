@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
+import { notFound } from 'next/navigation';
 import { resolveStorefront } from '@/lib/api/storefront';
 import { resolveTenantInfo } from '@/lib/tenant';
 import { CancellationPolicyClient } from './CancellationPolicyClient';
@@ -14,7 +15,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function CancellationPolicyPage() {
   const headersList = await headers();
-  const tenantSlug = headersList.get('x-tenant-slug') || 'demo-store';
+  const tenantSlug = headersList.get('x-tenant-slug');
+  if (!tenantSlug) {
+    notFound();
+  }
   const headerTenantId = headersList.get('x-tenant-id');
   const isCustomDomain = headersList.get('x-is-custom-domain') === 'true';
 
