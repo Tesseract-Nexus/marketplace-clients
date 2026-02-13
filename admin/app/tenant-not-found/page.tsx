@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import { AlertCircle, ArrowRight, Store } from 'lucide-react';
 
 /**
@@ -11,15 +11,14 @@ import { AlertCircle, ArrowRight, Store } from 'lucide-react';
  * when using wildcard DNS/SSL certificates.
  */
 export default function TenantNotFoundPage() {
-  const [requestedSlug, setRequestedSlug] = useState<string | null>(null);
-
-  useEffect(() => {
+  const requestedSlug = useMemo(() => {
+    if (typeof window === 'undefined') return null;
     // Extract the attempted tenant slug from the subdomain
     const hostname = window.location.hostname;
     const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
     const escapedDomain = baseDomain.replace(/\./g, '\\.');
     const slugMatch = hostname.match(new RegExp(`^(.+)-admin\\.${escapedDomain}$`));
-    setRequestedSlug(slugMatch ? slugMatch[1] : null);
+    return slugMatch ? slugMatch[1] : null;
   }, []);
 
   const handleCreateStore = () => {

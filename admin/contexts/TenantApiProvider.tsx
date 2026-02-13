@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect, ReactNode } from 'react';
+import { useRef, useEffect, useMemo, ReactNode } from 'react';
 import { useTenant } from './TenantContext';
 import { useUser } from './UserContext';
 import { apiClient } from '@/lib/api/client';
@@ -26,15 +26,14 @@ const DEV_MOCK_TENANT = {
  * Extracted to handle client-side window access properly and avoid hydration errors
  */
 function StoreNotFoundPage() {
-  const [requestedSlug, setRequestedSlug] = useState<string | null>(null);
-
-  useEffect(() => {
+  const requestedSlug = useMemo(() => {
+    if (typeof window === 'undefined') return null;
     // Only access window on client side
     const hostname = window.location.hostname;
     const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
     const escapedDomain = baseDomain.replace(/\./g, '\\.');
     const slugMatch = hostname.match(new RegExp(`^(.+)-admin\\.${escapedDomain}$`));
-    setRequestedSlug(slugMatch ? slugMatch[1] : null);
+    return slugMatch ? slugMatch[1] : null;
   }, []);
 
   const handleLogout = () => {
@@ -101,7 +100,7 @@ interface TenantApiProviderProps {
  *
  * Production-grade features:
  * - Syncs tenant with both legacy and enhanced API clients
- * - Sets tenant ID SYNCHRONOUSLY before children render (not in useEffect)
+ * - Syncs tenant/user context into API clients
  * - Shows loading/error states for better UX
  */
 export function TenantApiProvider({ children, requireTenant = true }: TenantApiProviderProps) {
@@ -131,47 +130,49 @@ export function TenantApiProvider({ children, requireTenant = true }: TenantApiP
   // All API requests go through the BFF which handles authentication via secure HttpOnly cookies
   // The API client uses credentials: 'include' to send cookies with requests
 
-  // CRITICAL: Set tenant ID SYNCHRONOUSLY during render (not in useEffect)
-  // This ensures the tenant ID is set BEFORE children render and fetch data
-  // This is safe because setTenantId just updates a variable, no side effects
-  if (currentTenant?.id && currentTenant.id !== lastSetTenantId.current) {
-    apiClient.setTenantId(currentTenant.id);
-    enhancedApiClient.setTenantId(currentTenant.id);
-    lastSetTenantId.current = currentTenant.id;
-  } else if (!currentTenant?.id && lastSetTenantId.current) {
-    apiClient.setTenantId(null);
-    enhancedApiClient.setTenantId(null);
-    lastSetTenantId.current = null;
-  }
-
   // Set vendor ID for marketplace isolation (Tenant -> Vendor -> Staff hierarchy)
   // Vendors/Staff only see their own data (products, orders, etc.)
   // IMPORTANT: In this system, the tenant ID IS the vendor ID for storefronts
   // Use user.vendorId if available (for staff users), otherwise fallback to tenant ID
   const effectiveVendorId = user?.vendorId || currentTenant?.id || null;
-  if (effectiveVendorId && effectiveVendorId !== lastSetVendorId.current) {
-    apiClient.setVendorId(effectiveVendorId);
-    enhancedApiClient.setVendorId(effectiveVendorId);
-    lastSetVendorId.current = effectiveVendorId;
-  } else if (!effectiveVendorId && lastSetVendorId.current) {
-    apiClient.setVendorId(null);
-    enhancedApiClient.setVendorId(null);
-    lastSetVendorId.current = null;
-  }
+  useEffect(() => {
+    if (currentTenant?.id && currentTenant.id !== lastSetTenantId.current) {
+      apiClient.setTenantId(currentTenant.id);
+      enhancedApiClient.setTenantId(currentTenant.id);
+      lastSetTenantId.current = currentTenant.id;
+    } else if (!currentTenant?.id && lastSetTenantId.current) {
+      apiClient.setTenantId(null);
+      enhancedApiClient.setTenantId(null);
+      lastSetTenantId.current = null;
+    }
+  }, [currentTenant?.id]);
 
-  // Set user info for proper attribution on API requests
-  if (user?.id && user.id !== lastSetUserId.current) {
-    const userName = user.displayName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email;
-    const userRole = currentTenant?.role || user.role || 'admin';
-    const userEmail = user.email || null;
-    apiClient.setUserInfo(user.id, userName, userRole, userEmail);
-    enhancedApiClient.setUserInfo(user.id, userName, userRole, userEmail);
-    lastSetUserId.current = user.id;
-  } else if (!user?.id && lastSetUserId.current) {
-    apiClient.setUserInfo(null, null, null, null);
-    enhancedApiClient.setUserInfo(null, null, null, null);
-    lastSetUserId.current = null;
-  }
+  useEffect(() => {
+    if (effectiveVendorId && effectiveVendorId !== lastSetVendorId.current) {
+      apiClient.setVendorId(effectiveVendorId);
+      enhancedApiClient.setVendorId(effectiveVendorId);
+      lastSetVendorId.current = effectiveVendorId;
+    } else if (!effectiveVendorId && lastSetVendorId.current) {
+      apiClient.setVendorId(null);
+      enhancedApiClient.setVendorId(null);
+      lastSetVendorId.current = null;
+    }
+  }, [effectiveVendorId]);
+
+  useEffect(() => {
+    if (user?.id && user.id !== lastSetUserId.current) {
+      const userName = user.displayName || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email;
+      const userRole = currentTenant?.role || user.role || 'admin';
+      const userEmail = user.email || null;
+      apiClient.setUserInfo(user.id, userName, userRole, userEmail);
+      enhancedApiClient.setUserInfo(user.id, userName, userRole, userEmail);
+      lastSetUserId.current = user.id;
+    } else if (!user?.id && lastSetUserId.current) {
+      apiClient.setUserInfo(null, null, null, null);
+      enhancedApiClient.setUserInfo(null, null, null, null);
+      lastSetUserId.current = null;
+    }
+  }, [user, currentTenant?.role]);
 
   // Block rendering until tenant AND user are loaded
   // This prevents race conditions where API calls are made before user info is set on the client

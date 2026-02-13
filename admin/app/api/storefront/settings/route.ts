@@ -338,9 +338,15 @@ export async function GET(request: NextRequest): Promise<NextResponse<ApiRespons
   } catch (error) {
     console.error('Error fetching storefront settings from Settings Service:', error);
 
-    // Fallback to defaults on error - re-extract tenant ID from headers
+    // Fallback to defaults on error - tenant must come only from trusted JWT claims
     const errorHeaders = await getProxyHeaders(request).catch(() => ({})) as Record<string, string>;
-    const fallbackTenantId = errorHeaders['x-jwt-claim-tenant-id'] || request.headers.get('x-storefront-id') || 'unknown';
+    const fallbackTenantId = errorHeaders['x-jwt-claim-tenant-id'];
+    if (!fallbackTenantId) {
+      return NextResponse.json(
+        { success: false, data: null as unknown as StorefrontSettings, message: 'Missing tenant ID - please log in again' },
+        { status: 401 }
+      );
+    }
     const now = new Date().toISOString();
     const defaultSettings: StorefrontSettings = {
       id: crypto.randomUUID(),
@@ -705,9 +711,15 @@ export async function DELETE(request: NextRequest): Promise<NextResponse<ApiResp
   } catch (error) {
     console.error('Error resetting storefront settings in Settings Service:', error);
 
-    // Fallback to defaults on error - re-extract tenant ID from headers
+    // Fallback to defaults on error - tenant must come only from trusted JWT claims
     const errorHeaders = await getProxyHeaders(request).catch(() => ({})) as Record<string, string>;
-    const fallbackTenantId = errorHeaders['x-jwt-claim-tenant-id'] || request.headers.get('x-storefront-id') || 'unknown';
+    const fallbackTenantId = errorHeaders['x-jwt-claim-tenant-id'];
+    if (!fallbackTenantId) {
+      return NextResponse.json(
+        { success: false, data: null as unknown as StorefrontSettings, message: 'Missing tenant ID - please log in again' },
+        { status: 401 }
+      );
+    }
     const now = new Date().toISOString();
     const defaultSettings: StorefrontSettings = {
       id: crypto.randomUUID(),
