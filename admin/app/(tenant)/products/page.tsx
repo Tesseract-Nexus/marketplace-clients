@@ -522,14 +522,21 @@ export default function ProductsPage() {
       });
 
       if (response.success && response.data) {
-        // Add to categories list and select it
-        setCategories(prev => [...prev, response.data!]);
+        // Add to categories list (avoid duplicates) and select it
+        setCategories(prev => {
+          const exists = prev.some(c => c.id === response.data!.id);
+          return exists ? prev : [...prev, response.data!];
+        });
         setFormData(prev => ({ ...prev, categoryId: response.data!.id }));
         setCategorySearchQuery('');
         setShowCategoryDropdown(false);
+        toast.success('Category Created', `"${categoryName.trim()}" has been created and selected`);
+      } else {
+        toast.error('Failed to Create Category', response.message || 'An unexpected error occurred');
       }
     } catch (err) {
       console.error('Failed to create category:', err);
+      toast.error('Failed to Create Category', 'Could not create the category. Please try again or create it from the Categories page.');
     } finally {
       setCreatingCategory(false);
     }
