@@ -43,7 +43,7 @@ function validateContentPagesPayload(contentPages: unknown): string | null {
     if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
       return `contentPages[${i}].slug must use lowercase letters, numbers, and hyphens only`;
     }
-    if (RESERVED_PAGE_SLUGS_SET.has(slug)) {
+    if ((RESERVED_PAGE_SLUGS_SET as Set<string>).has(slug)) {
       return `contentPages[${i}].slug is reserved`;
     }
     if (seenSlugs.has(slug)) {
