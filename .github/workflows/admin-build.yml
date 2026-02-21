@@ -22,10 +22,15 @@ permissions:
   contents: read
   packages: write
   security-events: write
+  id-token: write
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}/admin
+  AR_REGISTRY: asia-south1-docker.pkg.dev/tesseracthub-480811/marketplace
+  GCP_PROJECT_ID: tesseracthub-480811
+  GCP_REGION: asia-south1
+  CLOUD_RUN_SERVICE: marketplace-admin
 
 jobs:
   # =============================================================================
@@ -135,6 +140,39 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # --- GCP Authentication (best-effort: WIF → SA Key → skip) ---
+      - name: Authenticate to Google Cloud (WIF)
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        id: auth_wif
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/849928263410/locations/global/workloadIdentityPools/github-pool/providers/github-provider
+          service_account: github-actions@tesseracthub-480811.iam.gserviceaccount.com
+          project_id: ${{ env.GCP_PROJECT_ID }}
+        continue-on-error: true
+
+      - name: Authenticate to Google Cloud (SA Key Fallback)
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && steps.auth_wif.outcome == 'failure'
+        id: auth_sa
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_PROD_SA_KEY }}
+        continue-on-error: true
+
+      - name: Check GCP auth status
+        id: gcp_auth
+        run: |
+          if [[ "${{ steps.auth_wif.outcome }}" == "success" || "${{ steps.auth_sa.outcome }}" == "success" ]]; then
+            echo "authenticated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "authenticated=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::GCP authentication unavailable — skipping Artifact Registry push and Cloud Run deploy"
+          fi
+
+      - name: Configure Docker for Artifact Registry
+        if: steps.gcp_auth.outputs.authenticated == 'true'
+        run: gcloud auth configure-docker asia-south1-docker.pkg.dev --quiet
+
       - name: Extract metadata (tags, labels)
         id: meta
         uses: docker/metadata-action@v5
@@ -164,6 +202,41 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      # --- Copy image to Artifact Registry (only when GCP auth + main branch) ---
+      - name: Generate AR tags
+        if: steps.gcp_auth.outputs.authenticated == 'true'
+        id: ar_tags
+        run: |
+          SHA_SHORT=$(echo "${{ github.sha }}" | cut -c1-7)
+          GHCR_IMAGE=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" | tr '[:upper:]' '[:lower:]')
+          echo "sha_tag=main-${SHA_SHORT}" >> "$GITHUB_OUTPUT"
+          echo "ghcr_image=${GHCR_IMAGE}" >> "$GITHUB_OUTPUT"
+
+      - name: Push image to Artifact Registry
+        if: steps.gcp_auth.outputs.authenticated == 'true'
+        id: ar_push
+        run: |
+          docker pull ${{ steps.ar_tags.outputs.ghcr_image }}
+          docker tag ${{ steps.ar_tags.outputs.ghcr_image }} \
+            ${{ env.AR_REGISTRY }}/${{ env.CLOUD_RUN_SERVICE }}:${{ steps.ar_tags.outputs.sha_tag }}
+          docker tag ${{ steps.ar_tags.outputs.ghcr_image }} \
+            ${{ env.AR_REGISTRY }}/${{ env.CLOUD_RUN_SERVICE }}:latest
+          docker push ${{ env.AR_REGISTRY }}/${{ env.CLOUD_RUN_SERVICE }}:${{ steps.ar_tags.outputs.sha_tag }}
+          docker push ${{ env.AR_REGISTRY }}/${{ env.CLOUD_RUN_SERVICE }}:latest
+        continue-on-error: true
+
+      # --- Deploy to Cloud Run ---
+      - name: Deploy to Cloud Run
+        if: steps.ar_push.outcome == 'success'
+        run: |
+          gcloud run deploy ${{ env.CLOUD_RUN_SERVICE }} \
+            --image ${{ env.AR_REGISTRY }}/${{ env.CLOUD_RUN_SERVICE }}:${{ steps.ar_tags.outputs.sha_tag }} \
+            --region ${{ env.GCP_REGION }} \
+            --project ${{ env.GCP_PROJECT_ID }} \
+            --allow-unauthenticated
+        continue-on-error: true
+
+      # --- Security scanning ---
       - name: Run Trivy vulnerability scanner
         if: github.event_name != 'pull_request'
         uses: aquasecurity/trivy-action@master
@@ -194,6 +267,13 @@ jobs:
 
           if [[ "${{ github.event_name }}" != "pull_request" ]]; then
             echo "✅ **Docker Image:** Pushed to ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+            if [[ "${{ steps.ar_push.outcome }}" == "success" ]]; then
+              echo "✅ **Artifact Registry:** Pushed to ${{ env.AR_REGISTRY }}/${{ env.CLOUD_RUN_SERVICE }}" >> $GITHUB_STEP_SUMMARY
+            elif [[ "${{ steps.gcp_auth.outputs.authenticated }}" == "true" ]]; then
+              echo "⚠️ **Artifact Registry:** Push failed (repo may not exist yet)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "⏭️ **GCP:** Skipped (auth not configured)" >> $GITHUB_STEP_SUMMARY
+            fi
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
             echo '```' >> $GITHUB_STEP_SUMMARY
