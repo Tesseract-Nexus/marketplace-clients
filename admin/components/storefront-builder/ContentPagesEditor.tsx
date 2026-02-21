@@ -60,7 +60,7 @@ const DEFAULT_PAGE: Omit<ContentPage, 'id' | 'createdAt' | 'updatedAt'> = {
   isFeatured: false,
 };
 
-const RESERVED_PAGE_SLUGS = new Set(RESERVED_PAGE_SLUG_LIST);
+const RESERVED_PAGE_SLUGS: Set<string> = new Set(RESERVED_PAGE_SLUG_LIST);
 
 export function ContentPagesEditor({ storefrontId, storefrontSlug, tenantId, className }: ContentPagesEditorProps) {
   const { showConfirm } = useDialog();

@@ -51,7 +51,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<SlugCheckR
     }
 
     // Reserved slugs that cannot be used
-    if (RESERVED_TENANT_SLUGS_SET.has(slug)) {
+    if ((RESERVED_TENANT_SLUGS_SET as Set<string>).has(slug)) {
       return NextResponse.json({
         success: true,
         data: { available: false, slug, reason: 'This slug is reserved' }
