@@ -28,7 +28,7 @@ jobs:
   # =============================================================================
   quality:
     name: Quality Checks
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     defaults:
       run:
         working-directory: admin
@@ -73,7 +73,7 @@ jobs:
   # =============================================================================
   test:
     name: Unit Tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     needs: quality
     defaults:
       run:
@@ -113,7 +113,7 @@ jobs:
   # =============================================================================
   release:
     name: Release Admin Portal
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     needs: [quality, test]
 
     steps:

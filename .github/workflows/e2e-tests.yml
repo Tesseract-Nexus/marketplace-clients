@@ -59,7 +59,7 @@ env:
 jobs:
   e2e-tests:
     name: Run E2E Tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     timeout-minutes: 300
 
     steps:
@@ -177,7 +177,7 @@ jobs:
 
   notify-on-failure:
     name: Notify on Failure
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     needs: e2e-tests
     if: failure() && github.event_name == 'schedule'
 

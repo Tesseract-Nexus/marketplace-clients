@@ -28,7 +28,7 @@ env:
 jobs:
   cleanup:
     name: Clean up GHCR images
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
 
     strategy:
       matrix:
@@ -198,7 +198,7 @@ jobs:
 
   summary:
     name: Cleanup Summary
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     needs: cleanup
     if: always()
 

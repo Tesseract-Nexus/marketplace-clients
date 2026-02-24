@@ -38,7 +38,7 @@ jobs:
   # =============================================================================
   quality:
     name: Quality Checks
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     defaults:
       run:
         working-directory: tenant-onboarding
@@ -83,7 +83,7 @@ jobs:
   # =============================================================================
   build:
     name: Build and Push Tenant Onboarding
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     needs: quality
 
     steps:

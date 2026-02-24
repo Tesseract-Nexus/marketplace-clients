@@ -19,7 +19,7 @@ defaults:
 jobs:
   lint:
     name: Lint & Type Check
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,7 +46,7 @@ jobs:
 
   test:
     name: Unit Tests
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     needs: lint
     steps:
       - name: Checkout
@@ -74,7 +74,7 @@ jobs:
 
   build-android:
     name: Build Android
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     needs: test
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
@@ -137,7 +137,7 @@ jobs:
   # Update over-the-air when merging to main
   update-ota:
     name: OTA Update
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LABEL || 'ubuntu-latest' }}
     needs: [build-android, build-ios]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
