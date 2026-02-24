@@ -200,7 +200,13 @@ jobs:
             --region ${{ env.GCP_REGION }} \
             --project ${{ env.GCP_PROJECT_ID }} \
             --ingress internal-and-cloud-load-balancing \
-            --no-allow-unauthenticated
+            --no-allow-unauthenticated \
+            --vpc-egress=all-traffic \
+            --update-env-vars "\
+          TENANT_SERVICE_URL=https://global-tenant-service-un6tyb5opq-el.a.run.app,\
+          LOCATION_SERVICE_URL=https://global-location-service-un6tyb5opq-el.a.run.app,\
+          VERIFICATION_SERVICE_URL=https://global-verification-service-un6tyb5opq-el.a.run.app,\
+          CUSTOM_DOMAIN_SERVICE_URL=https://global-custom-domain-service-un6tyb5opq-el.a.run.app"
         continue-on-error: true
 
       - name: Remove any leftover public IAM bindings
