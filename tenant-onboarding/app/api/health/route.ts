@@ -1,63 +1,20 @@
 import { NextResponse } from 'next/server';
 
-const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8086';
-const TIMEOUT_MS = 5000;
-
-interface HealthStatus {
-  status: 'healthy' | 'degraded' | 'unhealthy';
-  timestamp: string;
-  services: {
-    frontend: 'ok' | 'error';
-    backend: 'ok' | 'error' | 'timeout';
-  };
-  latency?: {
-    backend_ms: number;
-  };
-  error?: string;
-}
-
+/**
+ * Health check endpoint for startup/liveness probes.
+ *
+ * Returns 200 immediately to satisfy Cloud Run probes (3s timeout).
+ * The frontend container itself is always healthy if it can serve this response.
+ * Backend connectivity is NOT checked here — that would block the response
+ * beyond the probe timeout (TENANT_SERVICE_URL defaults to localhost:8086
+ * which is unreachable on Cloud Run, causing a 5s hang).
+ */
 export async function GET() {
-  const healthStatus: HealthStatus = {
+  return NextResponse.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     services: {
       frontend: 'ok',
-      backend: 'ok',
     },
-  };
-
-  // Check backend service health
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
-    const startTime = Date.now();
-    const backendResponse = await fetch(`${TENANT_SERVICE_URL}/health`, {
-      method: 'GET',
-      signal: controller.signal,
-    });
-    clearTimeout(timeoutId);
-
-    const latencyMs = Date.now() - startTime;
-    healthStatus.latency = { backend_ms: latencyMs };
-
-    if (!backendResponse.ok) {
-      healthStatus.services.backend = 'error';
-      healthStatus.status = 'degraded';
-    }
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') {
-      healthStatus.services.backend = 'timeout';
-      healthStatus.error = 'Backend service timeout';
-    } else {
-      healthStatus.services.backend = 'error';
-      healthStatus.error = 'Backend service unreachable';
-    }
-    healthStatus.status = 'degraded';
-  }
-
-  // Always return 200 for startup/liveness probes - the frontend container itself is healthy.
-  // Backend connectivity status is informational only and should not prevent the container
-  // from being considered healthy by Cloud Run's startup/liveness probes.
-  return NextResponse.json(healthStatus, { status: 200 });
+  });
 }
