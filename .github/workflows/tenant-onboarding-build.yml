@@ -158,8 +158,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            NEXT_PUBLIC_ECOMMERCE_ADMIN_URL=https://dev-admin.tesserix.app
-            NEXT_PUBLIC_OPENPANEL_CLIENT_ID=023d1b23-c147-40a2-ba1a-a69d82718d0a
+            NEXT_PUBLIC_ECOMMERCE_ADMIN_URL=https://admin.mark8ly.com
+            NEXT_PUBLIC_OPENPANEL_CLIENT_ID=ad9d906d-774c-457e-99be-24d38b56f18b
             NODE_ENV=production
           cache-from: type=gha
           cache-to: type=gha,mode=max

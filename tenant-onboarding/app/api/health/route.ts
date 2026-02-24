@@ -56,6 +56,8 @@ export async function GET() {
     healthStatus.status = 'degraded';
   }
 
-  const statusCode = healthStatus.status === 'healthy' ? 200 : 503;
-  return NextResponse.json(healthStatus, { status: statusCode });
+  // Always return 200 for startup/liveness probes - the frontend container itself is healthy.
+  // Backend connectivity status is informational only and should not prevent the container
+  // from being considered healthy by Cloud Run's startup/liveness probes.
+  return NextResponse.json(healthStatus, { status: 200 });
 }
