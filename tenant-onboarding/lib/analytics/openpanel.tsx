@@ -1,7 +1,30 @@
 'use client';
 
-import { useOpenPanel } from '@openpanel/nextjs';
+import { OpenPanelComponent, useOpenPanel } from '@openpanel/nextjs';
 import { useCallback, useMemo } from 'react';
+
+const OPENPANEL_ENABLED =
+  process.env.NEXT_PUBLIC_OPENPANEL_ENABLED === 'true' &&
+  !!process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID;
+
+/**
+ * OpenPanel analytics provider for tenant-onboarding.
+ * Renders the OpenPanel tracking script when enabled via env vars.
+ * Place as a sibling in <body>, does not wrap children.
+ */
+export function OpenPanelProvider() {
+  if (!OPENPANEL_ENABLED) return null;
+
+  return (
+    <OpenPanelComponent
+      clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID!}
+      apiUrl={process.env.NEXT_PUBLIC_OPENPANEL_API_URL}
+      trackScreenViews={true}
+      trackAttributes={true}
+      trackOutgoingLinks={false}
+    />
+  );
+}
 
 /**
  * Typed analytics hook for the Tenant Onboarding app.
