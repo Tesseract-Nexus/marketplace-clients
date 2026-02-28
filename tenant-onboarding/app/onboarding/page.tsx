@@ -1,16 +1,13 @@
 'use client';
 
-import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AddressAutocomplete, type ParsedAddressData } from '../../components/AddressAutocomplete';
-import { SearchableSelect, type SelectOption } from '../../components/SearchableSelect';
-import { DocumentsSection } from '../../components/DocumentsSection';
-import { VerificationScore, useVerificationScore } from '../../components/VerificationScore';
+import { type ParsedAddressData } from '../../components/AddressAutocomplete';
 import { type UploadedDocument } from '../../components/DocumentUpload';
-import { Loader2, Building2, User, MapPin, Check, AlertCircle, ArrowLeft, ArrowRight, Globe, Settings, Sparkles, Store, Palette, Clock, FileText, Link2, Copy, ExternalLink, RefreshCw, ShieldAlert, Pencil, X, Eye, EyeOff, Rocket, SkipForward, Scale } from 'lucide-react';
-import { useOnboardingStore, type DetectedLocation, type PersistedDocument } from '../../lib/store/onboarding-store';
-import { businessInfoSchema, contactDetailsSchema, businessAddressSchema, storeSetupSchema, MARKETPLACE_PLATFORMS, type BusinessInfoForm, type ContactDetailsForm, type BusinessAddressForm, type StoreSetupForm } from '../../lib/validations/onboarding';
+import { Loader2, Check, AlertCircle, Sparkles, RefreshCw } from 'lucide-react';
+import { useOnboardingStore, type DetectedLocation } from '../../lib/store/onboarding-store';
+import { businessInfoSchema, contactDetailsSchema, businessAddressSchema, storeSetupSchema, type BusinessInfoForm, type ContactDetailsForm, type BusinessAddressForm, type StoreSetupForm } from '../../lib/validations/onboarding';
 import { onboardingApi, OnboardingAPIError } from '../../lib/api/onboarding';
 import { locationApi, type Country, type State, type Currency, type Timezone } from '../../lib/api/location';
 import { useRouter } from 'next/navigation';
@@ -19,8 +16,19 @@ import { useAnalytics } from '../../lib/analytics/openpanel';
 import { getBrowserGeolocation, reverseGeocode, checkGeolocationPermission } from '../../lib/utils/geolocation';
 import { useAutoSave, useBrowserClose, useDraftRecovery, type DraftFormData } from '../../lib/hooks';
 import { config } from '../../lib/config/app';
-import { normalizeDomain, validateDomain, generateUrls, validateStorefrontSubdomain, DEFAULT_STOREFRONT_SUBDOMAIN, type DomainValidationResult } from '../../lib/utils/domain';
+import { normalizeDomain, validateDomain, DEFAULT_STOREFRONT_SUBDOMAIN } from '../../lib/utils/domain';
 import { mapContactToStore, mapAddressToStore, mapStoreSetupToStore } from '../../lib/utils/form-mappers';
+import {
+  BusinessInfoStep,
+  ContactDetailsStep,
+  LocationStep,
+  StoreSetupStep,
+  DocumentsStep,
+  LegalStep,
+  ReviewLaunchStep,
+  steps,
+  generateSlugFromName,
+} from '../../components/steps';
 
 // Development-only logging utility
 const isDev = process.env.NODE_ENV === 'development';
@@ -32,62 +40,6 @@ const devError = (...args: unknown[]) => isDev && console.error(...args);
 // URL format: {subdomain}-admin.{baseDomain}
 const DEFAULT_BASE_DOMAIN = 'mark8ly.app';
 
-/**
- * Generate a URL-friendly slug from business name
- * Example: "My Amazing Store" -> "my-amazing-store"
- */
-function generateSlugFromName(name: string): string {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
-    .replace(/\s+/g, '-')         // Replace spaces with hyphens
-    .replace(/-+/g, '-')          // Replace multiple hyphens with single
-    .replace(/^-|-$/g, '')        // Remove leading/trailing hyphens
-    .slice(0, 50);                // Max 50 chars
-}
-
-const BUSINESS_TYPES = [
-  { value: 'sole_proprietorship', label: 'Sole Proprietorship' },
-  { value: 'partnership', label: 'Partnership' },
-  { value: 'llc', label: 'LLC' },
-  { value: 'corporation', label: 'Corporation' },
-  { value: 'non_profit', label: 'Non-Profit' },
-  { value: 'other', label: 'Other' }
-] as const;
-
-const INDUSTRY_CATEGORIES = [
-  'Fashion & Apparel',
-  'Electronics & Technology',
-  'Food & Beverage',
-  'Health & Beauty',
-  'Home & Garden',
-  'Sports & Recreation',
-  'Books & Media',
-  'Automotive',
-  'Arts & Crafts',
-  'Other'
-];
-
-const JOB_TITLES = [
-  'CEO/Founder',
-  'CTO',
-  'Marketing Manager',
-  'Operations Manager',
-  'Sales Manager',
-  'Product Manager',
-  'Other'
-];
-
-const steps = [
-  { id: 0, label: 'Business', icon: Building2 },
-  { id: 1, label: 'Personal', icon: User },
-  { id: 2, label: 'Location', icon: MapPin },
-  { id: 3, label: 'Store Setup', icon: Store },
-  { id: 4, label: 'Documents', icon: FileText, optional: true },
-  { id: 5, label: 'Legal', icon: Scale },
-  { id: 6, label: 'Launch', icon: Rocket },
-];
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -133,7 +85,7 @@ export default function OnboardingPage() {
   const [isLoadingStates, setIsLoadingStates] = useState(false);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [hasAutoFilledForms, setHasAutoFilledForms] = useState(false);
-  const [selectedAddressFromAutocomplete, setSelectedAddressFromAutocomplete] = useState<ParsedAddressData | null>(null);
+  const [, setSelectedAddressFromAutocomplete] = useState<ParsedAddressData | null>(null);
   const [isStoreHydrated, setIsStoreHydrated] = useState(false);
   const previousSessionIdRef = useRef<string | null>(null);
 
@@ -216,7 +168,7 @@ export default function OnboardingPage() {
   const [addressProofDocument, setAddressProofDocumentLocal] = useState<UploadedDocument | null>(null);
   const [businessProofDocument, setBusinessProofDocumentLocal] = useState<UploadedDocument | null>(null);
   const [logoDocument, setLogoDocumentLocal] = useState<UploadedDocument | null>(null);
-  const [showDocumentsSection, setShowDocumentsSection] = useState(false);
+  const [, setShowDocumentsSection] = useState(false);
 
   // Copy button feedback state - tracks which item was recently copied
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
@@ -588,14 +540,14 @@ export default function OnboardingPage() {
     fetchDomainConfig();
   }, []);
 
-  // Auto-save
-  const formDataForDraft: DraftFormData = useMemo(() => ({
+  // Auto-save — no useMemo needed since useAutoSave already debounces at 3000ms
+  const formDataForDraft: DraftFormData = {
     currentStep: currentSection,
     businessInfo: businessForm.getValues(),
     contactDetails: contactForm.getValues(),
     businessAddress: addressForm.getValues(),
     storeSetup: storeSetupForm.getValues(),
-  }), [currentSection, businessForm.watch(), contactForm.watch(), addressForm.watch(), storeSetupForm.watch()]);
+  };
 
   const handleDraftRecovery = useCallback((draftData: DraftFormData, step: number) => {
     if (draftData.businessInfo) Object.entries(draftData.businessInfo).forEach(([k, v]) => businessForm.setValue(k as keyof BusinessInfoForm, v as any));
@@ -608,21 +560,12 @@ export default function OnboardingPage() {
   // Ref to prevent multiple cleanup calls (race condition prevention)
   const cleanupInProgressRef = useRef(false);
 
-  // Handle stale/invalid session - clear and start fresh
-  const handleSessionNotFound = useCallback(() => {
-    // Prevent multiple simultaneous cleanup attempts
-    if (cleanupInProgressRef.current) return;
-    cleanupInProgressRef.current = true;
-
-    devWarn('[Onboarding] Session not found, clearing stale session data');
-    // Clear the stale session from localStorage (store uses localStorage with TTL)
+  // Shared reset helper — clears store, forms, and UI state
+  const resetAllForms = useCallback(() => {
     localStorage.removeItem('tenant-onboarding-store');
-    // Reset the Zustand store completely (clears in-memory state)
     resetOnboarding();
-    // Reset UI state to start fresh
     setCurrentSection(0);
     setIsStoreHydrated(false);
-    // Reset all forms to empty values
     businessForm.reset({
       businessName: '',
       businessType: undefined as unknown as BusinessInfoForm['businessType'],
@@ -656,17 +599,26 @@ export default function OnboardingPage() {
       language: 'en',
     });
     setStorefrontSlugManuallyEdited(false);
-    // Reset document local state (store is reset via resetOnboarding)
     setAddressProofDocumentLocal(null);
     setBusinessProofDocumentLocal(null);
     setLogoDocumentLocal(null);
     setShowDocumentsSection(false);
+  }, [resetOnboarding, businessForm, contactForm, addressForm, storeSetupForm]);
+
+  // Handle stale/invalid session - clear and start fresh
+  const handleSessionNotFound = useCallback(() => {
+    // Prevent multiple simultaneous cleanup attempts
+    if (cleanupInProgressRef.current) return;
+    cleanupInProgressRef.current = true;
+
+    devWarn('[Onboarding] Session not found, clearing stale session data');
+    resetAllForms();
 
     // Reset the flag after a delay to allow new cleanup if needed
     setTimeout(() => {
       cleanupInProgressRef.current = false;
     }, 1000);
-  }, [resetOnboarding, businessForm, contactForm, addressForm, storeSetupForm]);
+  }, [resetAllForms]);
 
   const { state: autoSaveState } = useAutoSave(formDataForDraft, currentSection, {
     sessionId,
@@ -686,68 +638,23 @@ export default function OnboardingPage() {
   // Handle "Start Fresh" - delete draft from DB and reset everything
   const handleStartFresh = useCallback(async () => {
     try {
-      // Delete draft from database
       if (sessionId) {
         await deleteDraft();
       }
-      // Clear localStorage (store uses localStorage with TTL)
-      localStorage.removeItem('tenant-onboarding-store');
-      // Reset the Zustand store completely
-      resetOnboarding();
-      // Reset UI state
-      setCurrentSection(0);
-      setIsStoreHydrated(false);
-      // Reset all forms
-      businessForm.reset({
-        businessName: '',
-        businessType: undefined as unknown as BusinessInfoForm['businessType'],
-        industryCategory: '',
-        businessDescription: '',
-        companyWebsite: '',
-        businessRegistrationNumber: '',
-      });
-      contactForm.reset({
-        firstName: '',
-        lastName: '',
-        email: '',
-        phoneCountryCode: '',
-        phoneNumber: '',
-        jobTitle: '',
-      });
-      addressForm.reset({
-        streetAddress: '',
-        city: '',
-        state: '',
-        postalCode: '',
-        country: '',
-        addressConfirmed: false,
-        billingAddressSameAsBusiness: true,
-      });
-      storeSetupForm.reset({
-        subdomain: '',
-        storefrontSlug: '',
-        currency: '',
-        timezone: '',
-        language: 'en',
-      });
-      setStorefrontSlugManuallyEdited(false);
-      // Reset document states
+      resetAllForms();
+      // Additional resets specific to Start Fresh
       setAddressProofType('');
       setAddressProofDocument(null);
       setBusinessProofType('');
       setBusinessProofDocument(null);
       setLogoDocument(null);
-      setShowDocumentsSection(false);
-      // Clear selected address
       setSelectedAddressFromAutocomplete(null);
-      // Reset slug validation
       setSlugValidation({
         isChecking: false,
         isAvailable: null,
         message: '',
         suggestions: [],
       });
-      // Reset storefront validation
       setStorefrontValidation({
         isChecking: false,
         isAvailable: null,
@@ -758,7 +665,7 @@ export default function OnboardingPage() {
     } catch (error) {
       devError('[Onboarding] Failed to start fresh:', error);
     }
-  }, [sessionId, deleteDraft, resetOnboarding, businessForm, contactForm, addressForm, storeSetupForm, setAddressProofType, setAddressProofDocument, setBusinessProofType, setBusinessProofDocument, setLogoDocument]);
+  }, [sessionId, deleteDraft, resetAllForms, setAddressProofType, setAddressProofDocument, setBusinessProofType, setBusinessProofDocument, setLogoDocument]);
 
   // Load states
   const loadStates = useCallback(async (countryId: string) => {
@@ -1751,11 +1658,7 @@ export default function OnboardingPage() {
 
   const progress = ((currentSection + 1) / steps.length) * 100;
 
-  // Styles
-  const inputClass = "w-full h-14 px-5 text-base bg-background border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-ring focus:ring-2 focus:ring-ring/20 transition-colors";
-  const inputErrorClass = "w-full h-14 px-5 text-base bg-destructive/5 border border-destructive/50 rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-destructive focus:ring-2 focus:ring-destructive/20";
-  const selectClass = "w-full h-14 px-5 text-base bg-background border border-border rounded-lg text-foreground focus:outline-none focus:border-ring focus:ring-2 focus:ring-ring/20 transition-colors appearance-none cursor-pointer";
-  const labelClass = "block text-sm font-medium text-foreground-secondary mb-2";
+  // Styles imported from components/steps/constants
 
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
@@ -1986,1923 +1889,124 @@ export default function OnboardingPage() {
 
               {/* Step 0: Business Information */}
               {currentSection === 0 && (
-                <form onSubmit={businessForm.handleSubmit(handleBusinessSubmit)} className="space-y-6" noValidate>
-                  <div className="mb-8">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
-                        <Building2 className="w-6 h-6 text-warm-600" />
-                      </div>
-                      <div>
-                        <h1 className="text-2xl font-serif font-medium text-foreground">Tell us about your business</h1>
-                        <p className="text-muted-foreground">We&apos;ll use this to set up your store</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-5">
-                    <div>
-                      <label className={labelClass}>Business Name *</label>
-                      <input
-                        {...businessForm.register('businessName')}
-                        placeholder="Your amazing business"
-                        className={businessForm.formState.errors.businessName ? inputErrorClass : inputClass}
-                      />
-                      {businessForm.formState.errors.businessName && (
-                        <p className="mt-2 text-sm text-red-400">{businessForm.formState.errors.businessName.message}</p>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className={labelClass}>Business Type *</label>
-                        <SearchableSelect
-                          options={BUSINESS_TYPES.map(type => ({
-                            value: type.value,
-                            label: type.label,
-                          }))}
-                          value={businessForm.watch('businessType')}
-                          onChange={(value) => businessForm.setValue('businessType', value as BusinessInfoForm['businessType'])}
-                          placeholder="Select type"
-                          searchPlaceholder="Search business types..."
-                          error={!!businessForm.formState.errors.businessType}
-                          enableSearch={false}
-                        />
-                        {businessForm.formState.errors.businessType && (
-                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{businessForm.formState.errors.businessType.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label className={labelClass}>Industry *</label>
-                        <SearchableSelect
-                          options={INDUSTRY_CATEGORIES.map(cat => ({
-                            value: cat,
-                            label: cat,
-                          }))}
-                          value={businessForm.watch('industryCategory')}
-                          onChange={(value) => businessForm.setValue('industryCategory', value)}
-                          placeholder="Select industry"
-                          searchPlaceholder="Search industries..."
-                          error={!!businessForm.formState.errors.industryCategory}
-                        />
-                        {businessForm.formState.errors.industryCategory && (
-                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{businessForm.formState.errors.industryCategory.message}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className={labelClass}>Website (optional)</label>
-                      <input
-                        {...businessForm.register('companyWebsite')}
-                        type="url"
-                        placeholder="https://yourwebsite.com"
-                        className={inputClass}
-                      />
-                    </div>
-
-                    <div>
-                      <label className={labelClass}>Business Description (optional)</label>
-                      <textarea
-                        {...businessForm.register('businessDescription')}
-                        placeholder="Tell us what makes your business unique..."
-                        rows={3}
-                        className="w-full px-5 py-4 text-base bg-warm-50 border border-warm-200 rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-                      />
-                    </div>
-
-                    {/* Existing Store Migration Section */}
-                    <div className="pt-4 border-t border-warm-200">
-                      <div className="flex items-center gap-3 mb-4">
-                        <input
-                          type="checkbox"
-                          id="hasExistingStore"
-                          {...businessForm.register('hasExistingStore')}
-                          className="w-5 h-5 rounded border-warm-300 text-primary focus:ring-primary"
-                        />
-                        <label htmlFor="hasExistingStore" className="text-base font-medium text-foreground cursor-pointer">
-                          I already sell on other platforms
-                        </label>
-                      </div>
-
-                      {businessForm.watch('hasExistingStore') && (
-                        <div className="ml-8 space-y-4 animate-in slide-in-from-top-2">
-                          <p className="text-sm text-muted-foreground mb-3">
-                            Select all platforms where you currently sell (we can help migrate your data later)
-                          </p>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            {MARKETPLACE_PLATFORMS.map((platform) => {
-                              const isSelected = businessForm.watch('existingStorePlatforms')?.includes(platform.id);
-                              return (
-                                <label
-                                  key={platform.id}
-                                  className={`flex items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                                    isSelected
-                                      ? 'border-primary bg-warm-50'
-                                      : 'border-warm-200 hover:border-warm-300'
-                                  }`}
-                                >
-                                  <input
-                                    type="checkbox"
-                                    value={platform.id}
-                                    checked={isSelected}
-                                    onChange={(e) => {
-                                      const current = businessForm.getValues('existingStorePlatforms') || [];
-                                      if (e.target.checked) {
-                                        businessForm.setValue('existingStorePlatforms', [...current, platform.id]);
-                                      } else {
-                                        businessForm.setValue('existingStorePlatforms', current.filter((p: string) => p !== platform.id));
-                                      }
-                                    }}
-                                    className="sr-only"
-                                  />
-                                  <span className="text-lg">{platform.icon}</span>
-                                  <span className={`text-sm font-medium ${isSelected ? 'text-foreground' : 'text-warm-700'}`}>
-                                    {platform.name}
-                                  </span>
-                                  {isSelected && (
-                                    <Check className="w-4 h-4 text-primary ml-auto" />
-                                  )}
-                                </label>
-                              );
-                            })}
-                          </div>
-
-                          {(businessForm.watch('existingStorePlatforms')?.length || 0) > 0 && (
-                            <div className="flex items-center gap-3 mt-4 p-3 bg-warm-50 rounded-xl border border-warm-200">
-                              <input
-                                type="checkbox"
-                                id="migrationInterest"
-                                {...businessForm.register('migrationInterest')}
-                                className="w-5 h-5 rounded border-warm-300 text-primary focus:ring-primary"
-                              />
-                              <label htmlFor="migrationInterest" className="text-sm text-warm-700 cursor-pointer">
-                                I&apos;m interested in migrating my products & categories to mark8ly
-                              </label>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="pt-6">
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="w-full h-14 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
-                    >
-                      {isLoading ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <>
-                          Continue
-                          <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
+                <BusinessInfoStep
+                  form={businessForm}
+                  onSubmit={handleBusinessSubmit}
+                  isLoading={isLoading}
+                  setCurrentSection={setCurrentSection}
+                />
               )}
 
               {/* Step 1: Contact Details */}
               {currentSection === 1 && (
-                <form onSubmit={contactForm.handleSubmit(handleContactSubmit)} className="space-y-6" noValidate>
-                  <div className="mb-8">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-sage-100 flex items-center justify-center">
-                        <User className="w-6 h-6 text-sage-600" />
-                      </div>
-                      <div>
-                        <h1 className="text-2xl font-serif font-medium text-foreground">Now, a bit about you</h1>
-                        <p className="text-muted-foreground">So we know who we're working with</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-5">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className={labelClass}>First Name *</label>
-                        <input
-                          {...contactForm.register('firstName')}
-                          placeholder="John"
-                          className={contactForm.formState.errors.firstName ? inputErrorClass : inputClass}
-                        />
-                        {contactForm.formState.errors.firstName && (
-                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{contactForm.formState.errors.firstName.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label className={labelClass}>Last Name *</label>
-                        <input
-                          {...contactForm.register('lastName')}
-                          placeholder="Doe"
-                          className={contactForm.formState.errors.lastName ? inputErrorClass : inputClass}
-                        />
-                        {contactForm.formState.errors.lastName && (
-                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{contactForm.formState.errors.lastName.message}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className={labelClass}>Email Address *</label>
-                      <input
-                        {...contactForm.register('email')}
-                        type="email"
-                        placeholder="john@example.com"
-                        className={contactForm.formState.errors.email ? inputErrorClass : inputClass}
-                      />
-                      {contactForm.formState.errors.email && (
-                        <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{contactForm.formState.errors.email.message}</p>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4">
-                      <div>
-                        <label className={labelClass}>Country</label>
-                        <SearchableSelect
-                          options={countries.map(c => ({
-                            value: c.id,
-                            label: c.calling_code || c.id,
-                            icon: <span className="text-base">{c.flag_emoji}</span>,
-                            description: c.name,
-                            searchTerms: [c.name, c.calling_code].filter((s): s is string => !!s),
-                          }))}
-                          value={contactForm.watch('phoneCountryCode')}
-                          onChange={(value) => contactForm.setValue('phoneCountryCode', value)}
-                          placeholder="Code"
-                          searchPlaceholder="Search country..."
-                        />
-                      </div>
-                      <div className="col-span-2">
-                        <label className={labelClass}>Phone Number</label>
-                        <input
-                          {...contactForm.register('phoneNumber')}
-                          type="tel"
-                          placeholder="(555) 123-4567"
-                          className={inputClass}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className={labelClass}>Your Role *</label>
-                      <SearchableSelect
-                        options={JOB_TITLES.map(title => ({
-                          value: title,
-                          label: title,
-                        }))}
-                        value={contactForm.watch('jobTitle')}
-                        onChange={(value) => contactForm.setValue('jobTitle', value)}
-                        placeholder="Select your role"
-                        searchPlaceholder="Search roles..."
-                        error={!!contactForm.formState.errors.jobTitle}
-                        enableSearch={false}
-                      />
-                      {contactForm.formState.errors.jobTitle && (
-                        <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{contactForm.formState.errors.jobTitle.message}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="pt-6 flex gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setCurrentSection(0)}
-                      className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
-                    >
-                      <ArrowLeft className="w-5 h-5" /> Back
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="flex-1 h-14 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
-                    >
-                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" /></>}
-                    </button>
-                  </div>
-                </form>
+                <ContactDetailsStep
+                  form={contactForm}
+                  onSubmit={handleContactSubmit}
+                  isLoading={isLoading}
+                  setCurrentSection={setCurrentSection}
+                  countries={countries}
+                />
               )}
 
               {/* Step 2: Business Address (Location) */}
               {currentSection === 2 && (
-                <form onSubmit={addressForm.handleSubmit(handleAddressSubmit)} className="space-y-6" noValidate>
-                  <div className="mb-8">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-warm-100 flex items-center justify-center">
-                        <MapPin className="w-6 h-6 text-warm-600" />
-                      </div>
-                      <div>
-                        <h1 className="text-2xl font-serif font-medium text-foreground">Where are you based?</h1>
-                        <p className="text-muted-foreground">This helps with taxes and shipping</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-5">
-                    <div>
-                      <label className={labelClass}>Search Address</label>
-                      <AddressAutocomplete
-                        onAddressSelect={handleAddressSelect}
-                        onManualEntryToggle={() => {}}
-                        placeholder="Start typing your address..."
-                      />
-                      <p className="mt-1 text-xs text-[var(--foreground-tertiary)]">
-                        Search for any address worldwide. The country and other fields will be auto-filled.
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className={labelClass}>Country *</label>
-                        <SearchableSelect
-                          options={countries.map(c => ({
-                            value: c.id,
-                            label: c.name,
-                            icon: <span className="text-base">{c.flag_emoji}</span>,
-                            searchTerms: [c.name, c.id],
-                          }))}
-                          value={addressForm.watch('country')}
-                          onChange={(value) => {
-                            addressForm.setValue('country', value);
-                            addressForm.setValue('state', '');
-                            loadStates(value);
-                          }}
-                          placeholder="Select country"
-                          searchPlaceholder="Search countries..."
-                          error={!!addressForm.formState.errors.country}
-                        />
-                        {addressForm.formState.errors.country && (
-                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{addressForm.formState.errors.country.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label className={labelClass}>State/Province *</label>
-                        <SearchableSelect
-                          options={states.map(s => ({
-                            value: s.id,
-                            label: s.name,
-                            searchTerms: [s.name, s.id],
-                          }))}
-                          value={addressForm.watch('state')}
-                          onChange={(value) => addressForm.setValue('state', value)}
-                          placeholder={isLoadingStates ? 'Loading...' : 'Select state'}
-                          searchPlaceholder="Search states..."
-                          disabled={isLoadingStates || !addressForm.watch('country')}
-                          loading={isLoadingStates}
-                          error={!!addressForm.formState.errors.state}
-                          emptyMessage={addressForm.watch('country') ? 'No states found' : 'Select a country first'}
-                        />
-                        {addressForm.formState.errors.state && (
-                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{addressForm.formState.errors.state.message}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className={labelClass}>City *</label>
-                        <input {...addressForm.register('city')} placeholder="City" className={addressForm.formState.errors.city ? inputErrorClass : inputClass} />
-                        {addressForm.formState.errors.city && (
-                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{addressForm.formState.errors.city.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label className={labelClass}>Postal Code *</label>
-                        <input {...addressForm.register('postalCode')} placeholder="12345" className={addressForm.formState.errors.postalCode ? inputErrorClass : inputClass} />
-                        {addressForm.formState.errors.postalCode && (
-                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{addressForm.formState.errors.postalCode.message}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className={labelClass}>Street Address *</label>
-                      <input {...addressForm.register('streetAddress')} placeholder="123 Main Street" className={addressForm.formState.errors.streetAddress ? inputErrorClass : inputClass} />
-                      {addressForm.formState.errors.streetAddress && (
-                        <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{addressForm.formState.errors.streetAddress.message}</p>
-                      )}
-                    </div>
-
-                    <label className="flex items-center gap-3 cursor-pointer p-4 bg-muted rounded-lg border border-border hover:border-border-strong transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={addressForm.watch('billingAddressSameAsBusiness') ?? true}
-                        onChange={(e) => addressForm.setValue('billingAddressSameAsBusiness', e.target.checked)}
-                        className="w-5 h-5 rounded border-border text-primary focus:ring-primary"
-                      />
-                      <span className="text-sm text-foreground-secondary">Billing address is the same as business address</span>
-                    </label>
-                  </div>
-
-                  <div className="pt-6 flex gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setCurrentSection(1)}
-                      className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
-                    >
-                      <ArrowLeft className="w-5 h-5" /> Back
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="flex-1 h-14 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
-                    >
-                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" /></>}
-                    </button>
-                  </div>
-                </form>
+                <LocationStep
+                  form={addressForm}
+                  onSubmit={handleAddressSubmit}
+                  isLoading={isLoading}
+                  setCurrentSection={setCurrentSection}
+                  countries={countries}
+                  states={states}
+                  isLoadingStates={isLoadingStates}
+                  loadStates={loadStates}
+                  onAddressSelect={handleAddressSelect}
+                />
               )}
 
-              {/* Steps 3-5: Store Setup, Documents, Legal (plain div wrappers — no form submit) */}
-              {(currentSection === 3 || currentSection === 4 || currentSection === 5) && (
-                <div className="space-y-6">
-                  {/* Section-specific headers */}
-                  {currentSection === 3 && (
-                    <div className="mb-8">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
-                          <Store className="w-6 h-6 text-warm-600" />
-                        </div>
-                        <div>
-                          <h1 className="text-2xl font-serif font-medium text-foreground">Set up your store</h1>
-                          <p className="text-muted-foreground">Configure your store settings</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {currentSection === 4 && (
-                    <div className="mb-8">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
-                          <FileText className="w-6 h-6 text-warm-600" />
-                        </div>
-                        <div>
-                          <h1 className="text-2xl font-serif font-medium text-foreground">Documents & Verification</h1>
-                          <p className="text-muted-foreground">Upload documents to verify your business (optional)</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {currentSection === 5 && (
-                    <div className="mb-8">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
-                          <Scale className="w-6 h-6 text-warm-600" />
-                        </div>
-                        <div>
-                          <h1 className="text-2xl font-serif font-medium text-foreground">Legal & Compliance</h1>
-                          <p className="text-muted-foreground">Review and accept our security policy before launching</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="space-y-5">
-                    {/* Section 3: Store Setup Fields */}
-                    {currentSection === 3 && (
-                      <>
-                        {/* Business Model Selection */}
-                        <div>
-                          <label className={labelClass}>Business Model *</label>
-                      <p className="text-xs text-muted-foreground mb-3">Choose how you want to sell</p>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <label
-                          className={`relative flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
-                            storeSetupForm.watch('businessModel') === 'ONLINE_STORE'
-                              ? 'border-primary bg-warm-50'
-                              : 'border-border hover:border-warm-300'
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            {...storeSetupForm.register('businessModel')}
-                            value="ONLINE_STORE"
-                            className="sr-only"
-                          />
-                          <div className="w-10 h-10 rounded-lg bg-warm-100 flex items-center justify-center flex-shrink-0">
-                            <Store className="w-5 h-5 text-warm-600" />
-                          </div>
-                          <div className="flex-1">
-                            <span className="font-medium text-foreground block">Online Store</span>
-                            <span className="text-sm text-muted-foreground">Sell your own products directly to customers (D2C)</span>
-                          </div>
-                          {storeSetupForm.watch('businessModel') === 'ONLINE_STORE' && (
-                            <div className="absolute top-3 right-3">
-                              <Check className="w-5 h-5 text-primary" />
-                            </div>
-                          )}
-                        </label>
-
-                        <label
-                          className="relative flex items-start gap-4 p-4 rounded-xl border-2 border-border bg-muted/30 opacity-70 cursor-not-allowed"
-                        >
-                          <input
-                            type="radio"
-                            {...storeSetupForm.register('businessModel')}
-                            value="MARKETPLACE"
-                            className="sr-only"
-                            disabled
-                          />
-                          <div className="w-10 h-10 rounded-lg bg-warm-100 flex items-center justify-center flex-shrink-0">
-                            <Globe className="w-5 h-5 text-warm-600" />
-                          </div>
-                          <div className="flex-1">
-                            <span className="font-medium text-foreground block">Marketplace</span>
-                            <span className="text-sm text-muted-foreground">Multi-vendor platform with commission-based sales</span>
-                            <span className="inline-flex items-center gap-1 mt-2 text-xs font-medium text-amber-700 bg-amber-100 border border-amber-200 rounded-full px-2 py-0.5">
-                              <Clock className="w-3.5 h-3.5" />
-                              Coming soon
-                            </span>
-                          </div>
-                        </label>
-                      </div>
-                      {storeSetupForm.formState.errors.businessModel && (
-                        <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{storeSetupForm.formState.errors.businessModel.message}</p>
-                      )}
-                    </div>
-
-                    <div className={`transition-all duration-200 ${showCustomDomainSection ? 'opacity-50 pointer-events-none' : ''}`}>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className={labelClass}>
-                          Store Admin URL *
-                          {showCustomDomainSection && (
-                            <span className="ml-2 text-xs font-normal text-muted-foreground">(Secondary - using custom domain)</span>
-                          )}
-                        </label>
-                        {!showCustomDomainSection && businessInfo?.business_name && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const slug = generateSlugFromName(businessInfo.business_name || '');
-                              storeSetupForm.setValue('subdomain', slug);
-                              setSubdomainManuallyEdited(false);
-                            }}
-                            className="text-xs text-primary hover:text-foreground font-medium"
-                          >
-                            Reset to auto-generated
-                          </button>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground mb-2">
-                        {showCustomDomainSection
-                          ? 'This will be your backup admin URL. Your custom domain will be primary.'
-                          : 'Auto-generated from your business name. Edit if you prefer a different URL.'
-                        }
-                      </p>
-                      <div className="relative">
-                        <div className="flex">
-                          <div className="relative flex-1">
-                            <input
-                              {...storeSetupForm.register('subdomain')}
-                              placeholder="mystore"
-                              disabled={showCustomDomainSection}
-                              onChange={(e) => {
-                                storeSetupForm.setValue('subdomain', e.target.value);
-                                setSubdomainManuallyEdited(true);
-                              }}
-                              className={`w-full h-14 px-5 pr-12 text-base bg-warm-50 border rounded-l-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-all ${
-                                showCustomDomainSection
-                                  ? 'border-warm-200 bg-warm-100 cursor-not-allowed'
-                                  : slugValidation.isAvailable === true
-                                    ? 'border-sage-500 focus:border-sage-500 focus:ring-sage-500/20'
-                                    : slugValidation.isAvailable === false
-                                      ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                                      : 'border-warm-200 focus:border-primary focus:ring-primary/20'
-                              }`}
-                            />
-                            {/* Validation status icon */}
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                              {!showCustomDomainSection && (
-                                slugValidation.isChecking ? (
-                                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-                                ) : slugValidation.isAvailable === true ? (
-                                  <Check className="w-5 h-5 text-sage-600" />
-                                ) : slugValidation.isAvailable === false ? (
-                                  <AlertCircle className="w-5 h-5 text-red-500" />
-                                ) : null
-                              )}
-                            </div>
-                          </div>
-                          <span className="h-14 px-5 bg-warm-100 border border-warm-200 border-l-0 rounded-r-xl flex items-center text-sm text-muted-foreground whitespace-nowrap">
-                            -admin.{baseDomain}
-                          </span>
-                        </div>
-
-                        {/* Validation message */}
-                        {!showCustomDomainSection && slugValidation.message && (
-                          <p className={`mt-2 text-sm font-medium flex items-center gap-1.5 ${
-                            slugValidation.isAvailable === true
-                              ? 'text-emerald-600'
-                              : slugValidation.isAvailable === false
-                                ? 'text-red-500'
-                                : 'text-muted-foreground'
-                          }`}>
-                            {slugValidation.isAvailable === true && <Check className="w-4 h-4" />}
-                            {slugValidation.isAvailable === false && <AlertCircle className="w-4 h-4" />}
-                            {slugValidation.message}
-                          </p>
-                        )}
-
-                        {/* Suggestions when not available */}
-                        {!showCustomDomainSection && slugValidation.isAvailable === false && slugValidation.suggestions.length > 0 && (
-                          <div className="mt-3 p-3 bg-warm-50 rounded-lg border border-warm-200">
-                            <p className="text-xs text-muted-foreground mb-2">Try one of these available names:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {slugValidation.suggestions.slice(0, 3).map((suggestion) => (
-                                <button
-                                  key={suggestion}
-                                  type="button"
-                                  onClick={() => storeSetupForm.setValue('subdomain', suggestion)}
-                                  className="px-3 py-1.5 text-sm bg-card border border-warm-200 rounded-lg hover:border-primary hover:bg-warm-50 transition-colors"
-                                >
-                                  {suggestion}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Storefront URL */}
-                    <div className={`transition-all duration-200 ${showCustomDomainSection ? 'opacity-50 pointer-events-none' : ''}`}>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className={labelClass}>
-                          Storefront URL *
-                          {showCustomDomainSection && (
-                            <span className="ml-2 text-xs font-normal text-muted-foreground">(Secondary - using custom domain)</span>
-                          )}
-                        </label>
-                        {!showCustomDomainSection && storefrontSlugManuallyEdited && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const slug = storeSetupForm.getValues('subdomain') || generateSlugFromName(businessInfo.business_name || '');
-                              storeSetupForm.setValue('storefrontSlug', slug);
-                              setStorefrontSlugManuallyEdited(false);
-                            }}
-                            className="text-xs text-primary hover:text-foreground font-medium"
-                          >
-                            Reset to match admin URL
-                          </button>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground mb-2">
-                        {showCustomDomainSection
-                          ? 'This will be your backup storefront URL. Your custom domain will be primary.'
-                          : 'Auto-synced with your admin URL. Edit if you prefer a different storefront URL.'
-                        }
-                      </p>
-                      <div className="relative">
-                        <div className="flex">
-                          <div className="relative flex-1">
-                            <input
-                              {...storeSetupForm.register('storefrontSlug')}
-                              placeholder="mystore"
-                              disabled={showCustomDomainSection}
-                              onChange={(e) => {
-                                storeSetupForm.setValue('storefrontSlug', e.target.value);
-                                setStorefrontSlugManuallyEdited(true);
-                              }}
-                              className={`w-full h-14 px-5 pr-12 text-base bg-warm-50 border rounded-l-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 transition-all ${
-                                showCustomDomainSection
-                                  ? 'border-warm-200 bg-warm-100 cursor-not-allowed'
-                                  : storefrontValidation.isAvailable === true
-                                    ? 'border-sage-500 focus:border-sage-500 focus:ring-sage-500/20'
-                                    : storefrontValidation.isAvailable === false
-                                      ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                                      : 'border-warm-200 focus:border-primary focus:ring-primary/20'
-                              }`}
-                            />
-                            {/* Validation status icon */}
-                            <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                              {!showCustomDomainSection && (
-                                storefrontValidation.isChecking ? (
-                                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
-                                ) : storefrontValidation.isAvailable === true ? (
-                                  <Check className="w-5 h-5 text-sage-600" />
-                                ) : storefrontValidation.isAvailable === false ? (
-                                  <AlertCircle className="w-5 h-5 text-red-500" />
-                                ) : null
-                              )}
-                            </div>
-                          </div>
-                          <span className="h-14 px-5 bg-warm-100 border border-warm-200 border-l-0 rounded-r-xl flex items-center text-sm text-muted-foreground whitespace-nowrap">
-                            .{baseDomain}
-                          </span>
-                        </div>
-
-                        {/* Validation message */}
-                        {!showCustomDomainSection && storefrontValidation.message && (
-                          <p className={`mt-2 text-sm font-medium flex items-center gap-1.5 ${
-                            storefrontValidation.isAvailable === true
-                              ? 'text-emerald-600'
-                              : storefrontValidation.isAvailable === false
-                                ? 'text-red-500'
-                                : 'text-muted-foreground'
-                          }`}>
-                            {storefrontValidation.isAvailable === true && <Check className="w-4 h-4" />}
-                            {storefrontValidation.isAvailable === false && <AlertCircle className="w-4 h-4" />}
-                            {storefrontValidation.message}
-                          </p>
-                        )}
-
-                        {/* Suggestions when not available */}
-                        {!showCustomDomainSection && storefrontValidation.isAvailable === false && storefrontValidation.suggestions.length > 0 && (
-                          <div className="mt-3 p-3 bg-warm-50 rounded-lg border border-warm-200">
-                            <p className="text-xs text-muted-foreground mb-2">Try one of these available names:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {storefrontValidation.suggestions.slice(0, 3).map((suggestion) => (
-                                <button
-                                  key={suggestion}
-                                  type="button"
-                                  onClick={() => storeSetupForm.setValue('storefrontSlug', suggestion)}
-                                  className="px-3 py-1.5 text-sm bg-card border border-warm-200 rounded-lg hover:border-primary hover:bg-warm-50 transition-colors"
-                                >
-                                  {suggestion}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Helper text - only show when no validation message */}
-                        {!showCustomDomainSection && !storefrontValidation.message && (
-                          <p className="mt-2 text-xs text-muted-foreground">
-                            This is your customer-facing store URL. Synced with admin URL by default.
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                      </>
-                    )}
-
-                    {/* Custom Domain (part of Store Setup) */}
-                    {currentSection === 3 && (
-                      <>
-                    {/* Custom Domain Section Toggle */}
-                    <div className="pt-4">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const wasOpen = showCustomDomainSection;
-                          setShowCustomDomainSection(!showCustomDomainSection);
-                          if (!wasOpen) {
-                            // Opening the section - set useCustomDomain to true
-                            storeSetupForm.setValue('useCustomDomain', true);
-                            // CRITICAL FIX: Trigger validation if there's already a domain value
-                            const existingDomain = storeSetupForm.getValues('customDomain');
-                            if (existingDomain) {
-                              validateCustomDomain(existingDomain);
-                            }
-                          } else {
-                            // Closing the section - reset custom domain state
-                            storeSetupForm.setValue('useCustomDomain', false);
-                            storeSetupForm.setValue('customDomain', '');
-                            setCustomDomainValidation({
-                              isChecking: false,
-                              isValid: null,
-                              dnsConfigured: false,
-                              message: '',
-                              formatWarning: undefined,
-                              suggestedDomain: undefined,
-                            });
-                          }
-                        }}
-                        className={`w-full flex items-center justify-between p-5 rounded-2xl border-2 transition-all duration-200 group ${
-                          showCustomDomainSection
-                            ? 'bg-gradient-to-r from-primary/10 to-sage-50 border-primary shadow-sm'
-                            : 'bg-card hover:bg-warm-50 border-warm-200 hover:border-primary/50 hover:shadow-sm'
-                        }`}
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
-                            showCustomDomainSection
-                              ? 'bg-gradient-to-br from-primary to-emerald-600 shadow-md'
-                              : 'bg-gradient-to-br from-warm-300 to-warm-400 group-hover:from-primary/80 group-hover:to-primary'
-                          }`}>
-                            <Link2 className="w-6 h-6 text-white" />
-                          </div>
-                          <div className="text-left">
-                            <p className="font-semibold text-foreground text-base">Connect Your Own Domain</p>
-                            <p className="text-sm text-muted-foreground mt-0.5">
-                              Use a custom domain like <span className="font-medium text-primary">store.yourbrand.com</span>
-                            </p>
-                          </div>
-                        </div>
-                        <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-                          showCustomDomainSection
-                            ? 'bg-primary text-white shadow-md'
-                            : 'bg-warm-100 group-hover:bg-primary/20'
-                        }`}>
-                          {showCustomDomainSection ? (
-                            <Check className="w-5 h-5" />
-                          ) : (
-                            <ArrowRight className="w-5 h-5 text-warm-500 group-hover:text-primary transition-colors" />
-                          )}
-                        </div>
-                      </button>
-
-                      {/* Expandable Custom Domain Section */}
-                      {showCustomDomainSection && (
-                        <div className="mt-4 p-6 bg-gradient-to-br from-primary/5 to-sage-50/50 rounded-2xl border-2 border-primary/20 animate-in slide-in-from-top-2 duration-200 shadow-sm">
-                          <div className="space-y-5">
-                            {/* Custom Domain Input */}
-                            <div>
-                              <label className={labelClass}>Your Domain</label>
-                              <p className="text-sm text-muted-foreground mb-3">
-                                Enter your root domain (e.g., yourbrand.com). We'll automatically configure admin and storefront URLs.
-                              </p>
-                              <div className="relative">
-                                <input
-                                  {...storeSetupForm.register('customDomain')}
-                                  placeholder="yourbrand.com"
-                                  onBlur={(e) => {
-                                    // Normalize the domain on blur
-                                    const normalized = normalizeDomain(e.target.value);
-                                    if (normalized !== e.target.value) {
-                                      storeSetupForm.setValue('customDomain', normalized);
-                                    }
-                                  }}
-                                  className={`w-full h-14 px-5 pr-12 text-base bg-white border-2 rounded-xl text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 transition-all ${
-                                    customDomainValidation.isValid === true
-                                      ? 'border-sage-500 focus:border-sage-500 focus:ring-sage-500/20'
-                                      : customDomainValidation.isValid === false
-                                        ? 'border-red-400 focus:border-red-400 focus:ring-red-400/20'
-                                        : 'border-warm-200 focus:border-primary focus:ring-primary/20'
-                                  }`}
-                                />
-                                {/* Validation status icon */}
-                                <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                                  {customDomainValidation.isChecking ? (
-                                    <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                                  ) : customDomainValidation.isValid === true ? (
-                                    customDomainValidation.dnsConfigured ? (
-                                      <Check className="w-5 h-5 text-emerald-500" />
-                                    ) : (
-                                      <AlertCircle className="w-5 h-5 text-amber-500" />
-                                    )
-                                  ) : customDomainValidation.isValid === false ? (
-                                    <AlertCircle className="w-5 h-5 text-red-500" />
-                                  ) : null}
-                                </div>
-                              </div>
-
-                              {/* Validation message */}
-                              {customDomainValidation.message && (
-                                <p className={`mt-2 text-sm font-medium flex items-center gap-1.5 ${
-                                  customDomainValidation.isValid === true
-                                    ? 'text-sage-600'
-                                    : customDomainValidation.isValid === false
-                                      ? 'text-red-500'
-                                      : 'text-muted-foreground'
-                                }`}>
-                                  {customDomainValidation.isValid === true && <Check className="w-4 h-4" />}
-                                  {customDomainValidation.isValid === false && <AlertCircle className="w-4 h-4" />}
-                                  {customDomainValidation.message}
-                                </p>
-                              )}
-
-                              {/* Format warning (e.g., subdomain detection) */}
-                              {customDomainValidation.formatWarning && (
-                                <div className="mt-3 p-3 bg-amber-50 rounded-lg border border-amber-200">
-                                  <div className="flex items-start gap-2">
-                                    <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
-                                    <div className="flex-1">
-                                      <p className="text-sm text-amber-700">
-                                        {customDomainValidation.formatWarning}
-                                      </p>
-                                      {customDomainValidation.suggestedDomain && (
-                                        <button
-                                          type="button"
-                                          onClick={() => {
-                                            storeSetupForm.setValue('customDomain', customDomainValidation.suggestedDomain || '');
-                                            validateCustomDomain(customDomainValidation.suggestedDomain || '');
-                                          }}
-                                          className="mt-2 text-sm font-medium text-amber-600 hover:text-amber-800 underline underline-offset-2"
-                                        >
-                                          Use {customDomainValidation.suggestedDomain} instead
-                                        </button>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Generated URLs Preview (Read-only) */}
-                            {(() => {
-                              const domainInput = storeSetupForm.watch('customDomain');
-                              const urls = domainInput ? generateUrls(domainInput, {
-                                adminSubdomain: 'admin',
-                                storefrontSubdomain: DEFAULT_STOREFRONT_SUBDOMAIN,
-                              }) : null;
-                              if (!urls || !domainInput || domainInput.length < 4) return null;
-
-                              return (
-                                <div className="p-4 bg-white rounded-xl border-2 border-warm-200">
-                                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Your Store URLs</p>
-                                  <div className="space-y-3">
-                                    {/* Admin URL */}
-                                    <div className="p-3 bg-warm-50 rounded-lg">
-                                      <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                          <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                          </svg>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <p className="text-xs text-muted-foreground">Admin Dashboard</p>
-                                          <p className="text-sm font-semibold text-foreground truncate">{urls.admin}</p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    {/* Storefront URL */}
-                                    <div className="p-3 bg-warm-50 rounded-lg">
-                                      <div className="flex items-center gap-3">
-                                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                                          <svg className="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                                          </svg>
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                          <p className="text-xs text-muted-foreground">Storefront (Customer-facing)</p>
-                                          <p className="text-sm font-semibold text-foreground">https://www.{urls.baseDomain}</p>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <p className="mt-3 text-xs text-muted-foreground text-center">
-                                    URL structure can be customized later in Settings
-                                  </p>
-                                </div>
-                              );
-                            })()}
-
-                            {/* DNS Configuration Instructions */}
-                            {customDomainValidation.isValid === true && customDomainValidation.verificationRecord && (
-                              <div className="p-5 bg-white rounded-xl border-2 border-warm-200 shadow-sm">
-                                <div className="flex items-center gap-2 mb-4">
-                                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                                    <ExternalLink className="w-4 h-4 text-primary" />
-                                  </div>
-                                  <div>
-                                    <p className="text-sm font-semibold text-foreground">DNS Configuration Required</p>
-                                    <p className="text-xs text-muted-foreground">Add these records to your domain provider (GoDaddy, Cloudflare, Namecheap, etc.)</p>
-                                  </div>
-                                </div>
-
-                                {/* Step 1: Domain Verification */}
-                                <div className="p-4 bg-primary/5 rounded-xl border-2 border-primary/20">
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                                      <span className="text-sm font-bold text-primary">1</span>
-                                    </div>
-                                    <div>
-                                      <p className="text-sm font-semibold text-primary">Domain Verification (Required)</p>
-                                      <p className="text-xs text-primary/70">Verify ownership of your domain</p>
-                                    </div>
-                                  </div>
-
-                                  {/* Get the CNAME verification record */}
-                                  {(() => {
-                                    const selectedRecord = customDomainValidation.verificationRecords?.find(r => r.type === 'CNAME') || customDomainValidation.verificationRecord;
-                                    if (!selectedRecord) return null;
-                                    return (
-                                      <div className="bg-white rounded-lg overflow-hidden border border-primary/20">
-                                        {/* DNS Record Table */}
-                                        <div className="overflow-x-auto">
-                                          <table className="w-full text-sm">
-                                            <thead>
-                                              <tr className="border-b border-primary/10 bg-primary/5">
-                                                <th className="text-left text-xs font-medium text-primary/70 uppercase tracking-wide px-4 py-3 w-20">Type</th>
-                                                <th className="text-left text-xs font-medium text-primary/70 uppercase tracking-wide px-4 py-3">Host / Name</th>
-                                                <th className="text-left text-xs font-medium text-primary/70 uppercase tracking-wide px-4 py-3">Value / Points To</th>
-                                              </tr>
-                                            </thead>
-                                            <tbody>
-                                              <tr>
-                                                <td className="px-4 py-3 align-top">
-                                                  <span className={`inline-flex items-center px-2.5 py-1 rounded-md font-mono font-semibold text-xs ${
-                                                    selectedRecord.type === 'CNAME'
-                                                      ? 'bg-sage-100 text-sage-700'
-                                                      : 'bg-primary/10 text-primary'
-                                                  }`}>
-                                                    {selectedRecord.type}
-                                                  </span>
-                                                </td>
-                                                <td className="px-4 py-3 align-top">
-                                                  <div className="flex items-start gap-2">
-                                                    <code className="flex-1 font-mono text-sm text-foreground bg-warm-50 px-3 py-2 rounded-lg break-all select-all">
-                                                      {selectedRecord.host}
-                                                    </code>
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => copyToClipboard(selectedRecord.host || '', 'verification-host')}
-                                                      className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-1"
-                                                      title="Copy host"
-                                                    >
-                                                      {copiedItem === 'verification-host' ? (
-                                                        <><Check className="w-4 h-4 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
-                                                      ) : (
-                                                        <Copy className="w-4 h-4" />
-                                                      )}
-                                                    </button>
-                                                  </div>
-                                                </td>
-                                                <td className="px-4 py-3 align-top">
-                                                  <div className="flex items-start gap-2">
-                                                    <code className="flex-1 font-mono text-sm text-foreground bg-warm-50 px-3 py-2 rounded-lg break-all select-all">
-                                                      {selectedRecord.value}
-                                                    </code>
-                                                    <button
-                                                      type="button"
-                                                      onClick={() => copyToClipboard(selectedRecord.value || '', 'verification-value')}
-                                                      className="flex-shrink-0 p-2 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-lg transition-colors flex items-center gap-1"
-                                                      title="Copy value"
-                                                    >
-                                                      {copiedItem === 'verification-value' ? (
-                                                        <><Check className="w-4 h-4 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
-                                                      ) : (
-                                                        <Copy className="w-4 h-4" />
-                                                      )}
-                                                    </button>
-                                                  </div>
-                                                </td>
-                                              </tr>
-                                            </tbody>
-                                          </table>
-                                        </div>
-                                      </div>
-                                    );
-                                  })()}
-                                </div>
-
-                                {/* Quick Help */}
-                                <div className="mt-4 p-3 bg-warm-100 rounded-lg border border-warm-300">
-                                  <p className="text-sm text-foreground-secondary">
-                                    <strong className="font-semibold text-foreground">Where to add this?</strong> Log in to your domain provider and find DNS settings, Zone Editor, or DNS Management. Add the record above.
-                                  </p>
-                                </div>
-
-                                {/* Verify Step 1 */}
-                                <div className="mt-4 p-4 bg-white rounded-xl border-2 border-warm-200">
-                                  <div className="flex items-center justify-between mb-3">
-                                    <h4 className="text-sm font-semibold text-foreground">Verify Domain Ownership</h4>
-                                    <button
-                                      type="button"
-                                      onClick={verifyDomainDNS}
-                                      disabled={domainVerification.isVerifying}
-                                      className="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
-                                    >
-                                      {domainVerification.isVerifying ? (
-                                        <>
-                                          <Loader2 className="w-4 h-4 animate-spin" />
-                                          Verifying...
-                                        </>
-                                      ) : (
-                                        <>
-                                          <RefreshCw className="w-4 h-4" />
-                                          Verify Now
-                                        </>
-                                      )}
-                                    </button>
-                                  </div>
-
-                                  {/* Verification Status */}
-                                  {domainVerification.lastChecked && (
-                                    <div className={`flex items-center gap-3 p-4 rounded-lg ${
-                                      domainVerification.dnsVerified
-                                        ? 'bg-sage-50 border-2 border-sage-300'
-                                        : domainVerification.dnsRecordFound
-                                          ? 'bg-amber-50 border-2 border-amber-200'
-                                          : 'bg-red-50 border-2 border-red-200'
-                                    }`}>
-                                      {domainVerification.dnsVerified ? (
-                                        <div className="w-10 h-10 rounded-full bg-sage-100 flex items-center justify-center flex-shrink-0">
-                                          <Check className="w-6 h-6 text-sage-600" />
-                                        </div>
-                                      ) : domainVerification.dnsRecordFound ? (
-                                        <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                                          <AlertCircle className="w-6 h-6 text-amber-600" />
-                                        </div>
-                                      ) : (
-                                        <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                                          <AlertCircle className="w-6 h-6 text-red-600" />
-                                        </div>
-                                      )}
-                                      <div className="flex-1">
-                                        <p className={`text-base font-semibold ${
-                                          domainVerification.dnsVerified
-                                            ? 'text-sage-700'
-                                            : domainVerification.dnsRecordFound
-                                              ? 'text-amber-700'
-                                              : 'text-red-700'
-                                        }`}>
-                                          {domainVerification.dnsVerified ? 'Domain Ownership Verified!' : domainVerification.dnsRecordFound ? 'DNS Record Found (Incorrect Value)' : 'DNS Record Not Found'}
-                                        </p>
-                                        <p className={`text-sm mt-1 ${
-                                          domainVerification.dnsVerified
-                                            ? 'text-sage-600'
-                                            : domainVerification.dnsRecordFound
-                                              ? 'text-amber-600'
-                                              : 'text-red-600'
-                                        }`}>
-                                          {domainVerification.dnsVerified ? 'Proceed to Step 2 below to complete your DNS setup.' : domainVerification.message}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {!domainVerification.lastChecked && (
-                                    <p className="text-sm text-muted-foreground">
-                                      After adding the DNS record above, click &quot;Verify Now&quot; to confirm ownership.
-                                    </p>
-                                  )}
-                                </div>
-
-                                {/* Step 2: Routing A Records Section - Only show after verification */}
-                                {domainVerification.dnsVerified && customDomainValidation.routingRecords && customDomainValidation.routingRecords.length > 0 && (
-                                  <div className="mt-4 p-4 bg-red-50 rounded-xl border-2 border-red-200">
-                                    <div className="flex items-center justify-between mb-3">
-                                      <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
-                                          <span className="text-sm font-bold text-red-600">2</span>
-                                        </div>
-                                        <div>
-                                          <p className="text-sm font-semibold text-red-700">Routing A Records (Required)</p>
-                                          <p className="text-xs text-red-600">Point your domain to our servers</p>
-                                        </div>
-                                      </div>
-                                      <button
-                                        type="button"
-                                        onClick={() => setShowSensitiveDNS(!showSensitiveDNS)}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 bg-red-100 hover:bg-red-200 rounded-lg transition-colors"
-                                      >
-                                        {showSensitiveDNS ? (
-                                          <>
-                                            <EyeOff className="w-3.5 h-3.5" />
-                                            Hide Values
-                                          </>
-                                        ) : (
-                                          <>
-                                            <Eye className="w-3.5 h-3.5" />
-                                            Show Values
-                                          </>
-                                        )}
-                                      </button>
-                                    </div>
-
-                                    <div className="bg-white rounded-lg overflow-hidden border border-red-200">
-                                      <table className="w-full text-sm">
-                                        <thead>
-                                          <tr className="border-b border-red-100 bg-red-50">
-                                            <th className="text-left text-xs font-medium text-red-600 uppercase tracking-wide px-4 py-2 w-16">Type</th>
-                                            <th className="text-left text-xs font-medium text-red-600 uppercase tracking-wide px-4 py-2">Host</th>
-                                            <th className="text-left text-xs font-medium text-red-600 uppercase tracking-wide px-4 py-2">Value (IP Address)</th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          {customDomainValidation.routingRecords.map((record, index) => (
-                                            <tr key={index} className={index % 2 === 0 ? '' : 'bg-red-50/50'}>
-                                              <td className="px-4 py-2">
-                                                <span className="inline-flex items-center px-2 py-0.5 rounded font-mono font-semibold text-xs bg-red-100 text-red-700">
-                                                  {record.type}
-                                                </span>
-                                              </td>
-                                              <td className="px-4 py-2">
-                                                <div className="flex items-center gap-2">
-                                                  <code className="font-mono text-sm text-foreground">{record.host}</code>
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => copyToClipboard(record.host, `routing-host-${index}`)}
-                                                    className="p-1 text-muted-foreground hover:text-primary rounded transition-colors flex items-center gap-1"
-                                                    title="Copy"
-                                                  >
-                                                    {copiedItem === `routing-host-${index}` ? (
-                                                      <><Check className="w-3.5 h-3.5 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
-                                                    ) : (
-                                                      <Copy className="w-3.5 h-3.5" />
-                                                    )}
-                                                  </button>
-                                                </div>
-                                              </td>
-                                              <td className="px-4 py-2">
-                                                <div className="flex items-center gap-2">
-                                                  <code className={`font-mono text-sm ${showSensitiveDNS ? 'text-red-700 font-semibold' : 'text-muted-foreground'}`}>
-                                                    {showSensitiveDNS ? record.value : '••••••••••••'}
-                                                  </code>
-                                                  <button
-                                                    type="button"
-                                                    onClick={() => copyToClipboard(record.value, `routing-value-${index}`)}
-                                                    className="p-1 text-muted-foreground hover:text-primary rounded transition-colors flex items-center gap-1"
-                                                    title="Copy (copies actual value)"
-                                                  >
-                                                    {copiedItem === `routing-value-${index}` ? (
-                                                      <><Check className="w-3.5 h-3.5 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
-                                                    ) : (
-                                                      <Copy className="w-3.5 h-3.5" />
-                                                    )}
-                                                  </button>
-                                                </div>
-                                              </td>
-                                            </tr>
-                                          ))}
-                                        </tbody>
-                                      </table>
-                                    </div>
-
-                                    <p className="mt-2 text-xs text-red-600">
-                                      <strong>Security:</strong> Values are hidden by default. Click &quot;Show Values&quot; to reveal, or copy directly.
-                                    </p>
-                                  </div>
-                                )}
-
-                                {/* Step 3: CNAME Delegation for Automatic SSL - Only show after verification */}
-                                {domainVerification.dnsVerified && customDomainValidation.cnameDelegationRecord && customDomainValidation.cnameDelegationEnabled && (
-                                  <div className="mt-4 p-4 bg-emerald-50 rounded-xl border-2 border-emerald-200">
-                                    <div className="flex items-center justify-between mb-3">
-                                      <div className="flex items-center gap-2">
-                                        <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center">
-                                          <span className="text-sm font-bold text-emerald-600">3</span>
-                                        </div>
-                                        <div>
-                                          <p className="text-sm font-semibold text-emerald-700">Automatic SSL Certificate (Recommended)</p>
-                                          <p className="text-xs text-emerald-600">Add once, certificates auto-renew forever</p>
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="bg-white rounded-lg overflow-hidden border border-emerald-200">
-                                      <table className="w-full text-sm">
-                                        <thead>
-                                          <tr className="border-b border-emerald-100 bg-emerald-50">
-                                            <th className="text-left text-xs font-medium text-emerald-600 uppercase tracking-wide px-4 py-2 w-16">Type</th>
-                                            <th className="text-left text-xs font-medium text-emerald-600 uppercase tracking-wide px-4 py-2">Host</th>
-                                            <th className="text-left text-xs font-medium text-emerald-600 uppercase tracking-wide px-4 py-2">Value</th>
-                                          </tr>
-                                        </thead>
-                                        <tbody>
-                                          <tr>
-                                            <td className="px-4 py-2">
-                                              <span className="inline-flex items-center px-2 py-0.5 rounded font-mono font-semibold text-xs bg-emerald-100 text-emerald-700">
-                                                CNAME
-                                              </span>
-                                            </td>
-                                            <td className="px-4 py-2">
-                                              <div className="flex items-center gap-2">
-                                                <code className="font-mono text-sm text-foreground break-all">{customDomainValidation.cnameDelegationRecord.host}</code>
-                                                <button
-                                                  type="button"
-                                                  onClick={() => copyToClipboard(customDomainValidation.cnameDelegationRecord?.host || '', 'ssl-host')}
-                                                  className="p-1 text-muted-foreground hover:text-primary rounded transition-colors flex-shrink-0 flex items-center gap-1"
-                                                  title="Copy"
-                                                >
-                                                  {copiedItem === 'ssl-host' ? (
-                                                    <><Check className="w-3.5 h-3.5 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
-                                                  ) : (
-                                                    <Copy className="w-3.5 h-3.5" />
-                                                  )}
-                                                </button>
-                                              </div>
-                                            </td>
-                                            <td className="px-4 py-2">
-                                              <div className="flex items-center gap-2">
-                                                <code className="font-mono text-sm text-emerald-700 font-semibold break-all">{customDomainValidation.cnameDelegationRecord.value}</code>
-                                                <button
-                                                  type="button"
-                                                  onClick={() => copyToClipboard(customDomainValidation.cnameDelegationRecord?.value || '', 'ssl-value')}
-                                                  className="p-1 text-muted-foreground hover:text-primary rounded transition-colors flex-shrink-0 flex items-center gap-1"
-                                                  title="Copy"
-                                                >
-                                                  {copiedItem === 'ssl-value' ? (
-                                                    <><Check className="w-3.5 h-3.5 text-sage-600" /><span className="text-xs text-sage-600">Copied!</span></>
-                                                  ) : (
-                                                    <Copy className="w-3.5 h-3.5" />
-                                                  )}
-                                                </button>
-                                              </div>
-                                            </td>
-                                          </tr>
-                                        </tbody>
-                                      </table>
-                                    </div>
-
-                                    <div className="mt-2 flex items-start gap-2">
-                                      <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
-                                      <p className="text-xs text-emerald-600">
-                                        Certificates auto-renew. SSL can be issued before your domain points to us.
-                                      </p>
-                                    </div>
-                                  </div>
-                                )}
-
-                                {/* DNS Propagation Note */}
-                                <p className="mt-3 text-xs text-muted-foreground flex items-start gap-2">
-                                  <AlertCircle className="w-4 h-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                                  <span>DNS changes can take up to 48 hours to propagate. You can complete setup now and verify the domain later in Settings.</span>
-                                </p>
-                              </div>
-                            )}
-
-                            {/* Cancel custom domain */}
-                            <div className="flex justify-center pt-2">
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setShowCustomDomainSection(false);
-                                  storeSetupForm.setValue('useCustomDomain', false);
-                                  storeSetupForm.setValue('customDomain', '');
-                                  setCustomDomainValidation({
-                                    isChecking: false,
-                                    isValid: null,
-                                    dnsConfigured: false,
-                                    message: '',
-                                    formatWarning: undefined,
-                                    suggestedDomain: undefined,
-                                  });
-                                }}
-                                className="text-sm text-muted-foreground hover:text-foreground transition-colors px-4 py-2 rounded-lg hover:bg-warm-100"
-                              >
-                                ← Skip custom domain for now
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
-                      </>
-                    )}
-
-                    {/* Section 3: Currency, Timezone, Language (continuation of Store Setup) */}
-                    {currentSection === 3 && (
-                      <>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className={labelClass}>Currency *</label>
-                        <SearchableSelect
-                          options={currencies.map(c => ({
-                            value: c.code,
-                            label: `${c.symbol} ${c.code}`,
-                            description: c.name,
-                            searchTerms: [c.name, c.code, c.symbol],
-                          }))}
-                          value={storeSetupForm.watch('currency')}
-                          onChange={(value) => storeSetupForm.setValue('currency', value, { shouldValidate: true, shouldDirty: true })}
-                          placeholder="Select currency"
-                          searchPlaceholder="Search currencies..."
-                          error={!!storeSetupForm.formState.errors.currency}
-                        />
-                        {storeSetupForm.formState.errors.currency && (
-                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{storeSetupForm.formState.errors.currency.message}</p>
-                        )}
-                      </div>
-                      <div>
-                        <label className={labelClass}>Timezone *</label>
-                        <SearchableSelect
-                          options={timezones.map(tz => ({
-                            value: tz.id,
-                            label: tz.name,
-                            description: tz.offset,
-                            searchTerms: [tz.name, tz.offset, tz.id],
-                          }))}
-                          value={storeSetupForm.watch('timezone')}
-                          onChange={(value) => storeSetupForm.setValue('timezone', value, { shouldValidate: true, shouldDirty: true })}
-                          placeholder="Select timezone"
-                          searchPlaceholder="Search timezones..."
-                          error={!!storeSetupForm.formState.errors.timezone}
-                        />
-                        {storeSetupForm.formState.errors.timezone && (
-                          <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{storeSetupForm.formState.errors.timezone.message}</p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className={labelClass}>Default Language</label>
-                      <SearchableSelect
-                        options={[
-                          { value: 'en', label: 'English', icon: <span>🇺🇸</span> },
-                          { value: 'es', label: 'Spanish', icon: <span>🇪🇸</span> },
-                          { value: 'fr', label: 'French', icon: <span>🇫🇷</span> },
-                          { value: 'de', label: 'German', icon: <span>🇩🇪</span> },
-                        ]}
-                        value={storeSetupForm.watch('language')}
-                        onChange={(value) => storeSetupForm.setValue('language', value)}
-                        placeholder="Select language"
-                        enableSearch={false}
-                      />
-                    </div>
-
-                        {/* Section 3: Continue/Back buttons */}
-                        <div className="pt-6 flex gap-4">
-                          <button
-                            type="button"
-                            onClick={() => setCurrentSection(2)}
-                            className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
-                          >
-                            <ArrowLeft className="w-5 h-5" /> Back
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleStoreSetupContinue}
-                            className="flex-1 h-14 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 group"
-                          >
-                            Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
-                          </button>
-                        </div>
-                      </>
-                    )}
-
-                    {/* Section 4: Documents */}
-                    {currentSection === 4 && (
-                      <>
-                        <div className="p-6 bg-warm-50 rounded-xl border border-warm-200">
-                          <p className="text-sm text-muted-foreground mb-4">
-                            {config.features.documents.requireAddressProof || config.features.documents.requireBusinessProof
-                              ? 'Upload the required documents to verify your business.'
-                              : 'Upload documents to increase your trust score and unlock additional features. This step is optional.'}
-                          </p>
-                          <DocumentsSection
-                            countryCode={addressForm.watch('country') || ''}
-                            sessionId={sessionId || undefined}
-                            addressProofType={addressProofType}
-                            onAddressProofTypeChange={setAddressProofType}
-                            addressProofDocument={addressProofDocument}
-                            onAddressProofDocumentChange={setAddressProofDocument}
-                            businessProofType={businessProofType}
-                            onBusinessProofTypeChange={setBusinessProofType}
-                            businessProofDocument={businessProofDocument}
-                            onBusinessProofDocumentChange={setBusinessProofDocument}
-                            logoDocument={logoDocument}
-                            onLogoDocumentChange={setLogoDocument}
-                            verificationState={{
-                              phoneVerified: false,
-                              businessInfoComplete: !!(businessInfo as any)?.business_name && !!(businessInfo as any)?.business_type,
-                              addressComplete: !!(businessAddress as any)?.street_address && !!(businessAddress as any)?.city,
-                              storeConfigComplete: !!storeSetupForm.watch('subdomain') && !!storeSetupForm.watch('currency'),
-                            }}
-                          />
-                        </div>
-
-                        {/* Section 4: Navigation buttons */}
-                        <div className="pt-6 flex gap-4">
-                          <button
-                            type="button"
-                            onClick={() => setCurrentSection(3)}
-                            className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
-                          >
-                            <ArrowLeft className="w-5 h-5" /> Back
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleDocumentsContinue}
-                            className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
-                          >
-                            <SkipForward className="w-5 h-5" /> Skip
-                          </button>
-                          <button
-                            type="button"
-                            onClick={handleDocumentsContinue}
-                            className="flex-1 h-14 bg-primary hover:bg-primary/90 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2 group"
-                          >
-                            Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
-                          </button>
-                        </div>
-                      </>
-                    )}
-
-                    {/* Section 5: Legal & Compliance */}
-                    {currentSection === 5 && (
-                      <>
-                        <div className="space-y-5">
-                          {/* Scrollable legal content */}
-                          <div
-                            ref={legalScrollRef}
-                            onScroll={(e) => {
-                              const target = e.target as HTMLDivElement;
-                              if (target.scrollTop + target.clientHeight >= target.scrollHeight - 20) {
-                                setHasScrolledToBottom(true);
-                              }
-                            }}
-                            className="max-h-[500px] overflow-y-auto border border-border rounded-xl p-6 bg-background text-sm leading-relaxed text-foreground-secondary space-y-6"
-                          >
-                            <div className="p-4 bg-warm-50 rounded-lg border border-warm-200">
-                              <p className="text-foreground m-0 text-sm">
-                                At mark8ly, we take security seriously. This policy explains how we protect your account, your data, and your business — and what we expect from you in return.
-                              </p>
-                            </div>
-
-                            <div>
-                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">1. Account Security</h3>
-                              <p>Every merchant account on mark8ly is protected by multi-factor authentication (MFA). This is not optional.</p>
-                              <ul className="list-disc pl-5 space-y-1 mt-2">
-                                <li><strong>MFA Required:</strong> All merchant accounts must have MFA enabled.</li>
-                                <li><strong>Passkey Support:</strong> We support passkeys (FIDO2/WebAuthn) for passwordless login.</li>
-                                <li><strong>TOTP Authenticator:</strong> Use any authenticator app to generate time-based one-time passwords.</li>
-                                <li><strong>Backup Codes:</strong> Store your backup codes securely — they're your recovery lifeline.</li>
-                              </ul>
-                            </div>
-
-                            <div>
-                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">2. Password Policy</h3>
-                              <ul className="list-disc pl-5 space-y-1">
-                                <li>Minimum 10 characters</li>
-                                <li>Mix of uppercase, lowercase, numbers, and symbols</li>
-                                <li>No common dictionary words or predictable patterns</li>
-                                <li>Cannot reuse your last 5 passwords</li>
-                                <li>All passwords are hashed using bcrypt</li>
-                              </ul>
-                            </div>
-
-                            <div>
-                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">3. No Credential Sharing</h3>
-                              <p>Your account is personal. Never share your password, MFA codes, or backup codes.</p>
-                              <ul className="list-disc pl-5 space-y-1 mt-2">
-                                <li>Use Staff Management to grant team members their own access</li>
-                                <li>Each staff member needs their own account with MFA</li>
-                                <li>Shared accounts may result in suspension</li>
-                              </ul>
-                            </div>
-
-                            <div>
-                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">4. Digital Theft Protection</h3>
-                              <ul className="list-disc pl-5 space-y-1">
-                                <li><strong>TLS 1.3:</strong> All data in transit is encrypted</li>
-                                <li><strong>PCI DSS:</strong> Payment processing meets Level 1 standards</li>
-                                <li><strong>Rate Limiting:</strong> API and login endpoints are rate-limited</li>
-                                <li><strong>Brute-Force Lockout:</strong> Accounts locked after repeated failed attempts</li>
-                                <li><strong>Session Security:</strong> Sessions expire after inactivity</li>
-                                <li><strong>Suspicious Login Monitoring:</strong> Unusual logins are flagged</li>
-                              </ul>
-                            </div>
-
-                            <div>
-                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">5. Business Safeguards</h3>
-                              <ul className="list-disc pl-5 space-y-1">
-                                <li><strong>Data Backups:</strong> Automated daily backups with point-in-time recovery</li>
-                                <li><strong>Tenant Isolation:</strong> Your data is logically isolated from other merchants</li>
-                                <li><strong>Penetration Testing:</strong> Regular security assessments</li>
-                                <li><strong>Uptime SLA:</strong> 99.9% uptime target</li>
-                              </ul>
-                            </div>
-
-                            <div>
-                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">6. Data Protection</h3>
-                              <ul className="list-disc pl-5 space-y-1">
-                                <li><strong>GDPR Compliance:</strong> We follow GDPR principles</li>
-                                <li><strong>Account Closure:</strong> Data deleted within 90 days of closure</li>
-                                <li><strong>No Selling Data:</strong> We never sell your data to third parties</li>
-                              </ul>
-                            </div>
-
-                            <div>
-                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">7. Your Responsibilities</h3>
-                              <ul className="list-disc pl-5 space-y-1">
-                                <li>Keep your devices secure with up-to-date software</li>
-                                <li>Use a unique, strong password</li>
-                                <li>Keep MFA enabled at all times</li>
-                                <li>Review staff permissions regularly</li>
-                                <li>Monitor for unauthorized changes</li>
-                                <li>Report suspicious activity immediately</li>
-                              </ul>
-                            </div>
-
-                            <div>
-                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">8. Incident Response</h3>
-                              <p>If your account is compromised:</p>
-                              <ol className="list-decimal pl-5 space-y-1 mt-2">
-                                <li>Change your password immediately</li>
-                                <li>Revoke all active sessions</li>
-                                <li>Review your audit log</li>
-                                <li>Contact security@mark8ly.app</li>
-                              </ol>
-                              <p className="mt-2"><strong>Breach Notification:</strong> We will notify affected users within 72 hours of a confirmed breach.</p>
-                            </div>
-
-                            <div>
-                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">9. Liability</h3>
-                              <p>You are responsible for all activity under your account. mark8ly is not liable for unauthorized access resulting from weak passwords, shared credentials, disabled MFA, or failure to secure your devices.</p>
-                            </div>
-
-                            <div>
-                              <h3 className="font-serif text-lg font-medium text-foreground mb-2">10. Contact</h3>
-                              <p><strong>Security Team:</strong> security@mark8ly.app</p>
-                              <p><strong>General Support:</strong> support@mark8ly.app</p>
-                            </div>
-                          </div>
-
-                          {/* Scroll hint */}
-                          {!hasScrolledToBottom && (
-                            <p className="text-xs text-muted-foreground text-center animate-pulse">
-                              Scroll to the bottom to enable the agreement checkbox
-                            </p>
-                          )}
-
-                          {/* Agreement checkbox */}
-                          <label className={`flex items-start gap-3 p-4 rounded-xl border ${legalAccepted ? 'border-sage-300 bg-sage-50' : 'border-border'} transition-colors ${!hasScrolledToBottom ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}>
-                            <input
-                              type="checkbox"
-                              checked={legalAccepted}
-                              onChange={(e) => setLegalAccepted(e.target.checked)}
-                              disabled={!hasScrolledToBottom}
-                              className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary disabled:opacity-50"
-                            />
-                            <span className="text-sm text-foreground leading-relaxed">
-                              I have read and agree to the{' '}
-                              <a href="/legal" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Security & Compliance Policy</a>,{' '}
-                              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Terms of Service</a>, and{' '}
-                              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Privacy Policy</a>.
-                            </span>
-                          </label>
-                        </div>
-
-                        {/* Section 5: Navigation buttons */}
-                        <div className="pt-6 flex gap-4">
-                          <button
-                            type="button"
-                            onClick={() => setCurrentSection(config.features.documents.enabled ? 4 : 3)}
-                            className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
-                          >
-                            <ArrowLeft className="w-5 h-5" /> Back
-                          </button>
-                          <button
-                            type="button"
-                            disabled={!legalAccepted}
-                            onClick={() => { opAnalytics.legalAccepted(); markStepCompleted(5); setCurrentSection(6); }}
-                            className="flex-1 h-14 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
-                          >
-                            Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                </div>
+              {/* Step 3: Store Setup */}
+              {currentSection === 3 && (
+                <StoreSetupStep
+                  form={storeSetupForm}
+                  onContinue={handleStoreSetupContinue}
+                  isLoading={isLoading}
+                  setCurrentSection={setCurrentSection}
+                  currencies={currencies}
+                  timezones={timezones}
+                  baseDomain={baseDomain}
+                  businessInfo={businessInfo}
+                  slugValidation={slugValidation}
+                  storefrontValidation={storefrontValidation}
+                  customDomainValidation={customDomainValidation}
+                  domainVerification={domainVerification}
+                  showCustomDomainSection={showCustomDomainSection}
+                  setShowCustomDomainSection={setShowCustomDomainSection}
+                  subdomainManuallyEdited={subdomainManuallyEdited}
+                  setSubdomainManuallyEdited={setSubdomainManuallyEdited}
+                  storefrontSlugManuallyEdited={storefrontSlugManuallyEdited}
+                  setStorefrontSlugManuallyEdited={setStorefrontSlugManuallyEdited}
+                  showSensitiveDNS={showSensitiveDNS}
+                  setShowSensitiveDNS={setShowSensitiveDNS}
+                  validateCustomDomain={validateCustomDomain}
+                  verifyDomainDNS={verifyDomainDNS}
+                  setCustomDomainValidation={setCustomDomainValidation}
+                  copiedItem={copiedItem}
+                  copyToClipboard={copyToClipboard}
+                />
               )}
 
-              {/* Step 6: Review & Launch (wrapped in form for submit) */}
+              {/* Step 4: Documents */}
+              {currentSection === 4 && (
+                <DocumentsStep
+                  isLoading={isLoading}
+                  setCurrentSection={setCurrentSection}
+                  sessionId={sessionId}
+                  addressForm={addressForm}
+                  storeSetupForm={storeSetupForm}
+                  businessInfo={businessInfo}
+                  businessAddress={businessAddress}
+                  addressProofType={addressProofType}
+                  setAddressProofType={setAddressProofType}
+                  addressProofDocument={addressProofDocument}
+                  setAddressProofDocument={setAddressProofDocument}
+                  businessProofType={businessProofType}
+                  setBusinessProofType={setBusinessProofType}
+                  businessProofDocument={businessProofDocument}
+                  setBusinessProofDocument={setBusinessProofDocument}
+                  logoDocument={logoDocument}
+                  setLogoDocument={setLogoDocument}
+                  onContinue={handleDocumentsContinue}
+                />
+              )}
+
+              {/* Step 5: Legal & Compliance */}
+              {currentSection === 5 && (
+                <LegalStep
+                  isLoading={isLoading}
+                  setCurrentSection={setCurrentSection}
+                  legalAccepted={legalAccepted}
+                  setLegalAccepted={setLegalAccepted}
+                  hasScrolledToBottom={hasScrolledToBottom}
+                  setHasScrolledToBottom={setHasScrolledToBottom}
+                  legalScrollRef={legalScrollRef}
+                  markStepCompleted={markStepCompleted}
+                  onLegalAccepted={() => opAnalytics.legalAccepted()}
+                />
+              )}
+
+              {/* Step 6: Review & Launch */}
               {currentSection === 6 && (
-                <form onSubmit={storeSetupForm.handleSubmit(handleStoreSetupSubmit, (errors) => devError('[StoreSetup] Validation errors:', errors))} className="space-y-6" noValidate>
-                  <div className="mb-8">
-                    <div className="flex items-center gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
-                        <Rocket className="w-6 h-6 text-warm-600" />
-                      </div>
-                      <div>
-                        <h1 className="text-2xl font-serif font-medium text-foreground">Ready to launch!</h1>
-                        <p className="text-muted-foreground">Review your settings and launch your store</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    {/* Business Information Section */}
-                    <div className="p-4 bg-warm-50 rounded-xl border border-warm-200">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <Building2 className="w-5 h-5 text-warm-600" />
-                          <span className="font-medium text-foreground">Business Information</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setCurrentSection(0)}
-                          className="text-xs text-primary hover:underline flex items-center gap-1"
-                        >
-                          Edit
-                        </button>
-                      </div>
-                      <div className="grid gap-2 text-sm">
-                        {businessForm.watch('businessName') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Business Name:</span>
-                            <span className="text-foreground font-medium">{businessForm.watch('businessName')}</span>
-                          </div>
-                        )}
-                        {businessForm.watch('businessType') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Business Type:</span>
-                            <span className="text-foreground font-medium">{businessForm.watch('businessType')}</span>
-                          </div>
-                        )}
-                        {businessForm.watch('industryCategory') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Industry:</span>
-                            <span className="text-foreground font-medium">{businessForm.watch('industryCategory')}</span>
-                          </div>
-                        )}
-                        {businessForm.watch('companyWebsite') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Website:</span>
-                            <span className="text-foreground font-medium">{businessForm.watch('companyWebsite')}</span>
-                          </div>
-                        )}
-                        {businessForm.watch('businessRegistrationNumber') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Registration Number:</span>
-                            <span className="text-foreground font-medium">{businessForm.watch('businessRegistrationNumber')}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Contact Details Section */}
-                    <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <User className="w-5 h-5 text-sage-600" />
-                          <span className="font-medium text-foreground">Contact Details</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setCurrentSection(1)}
-                          className="text-xs text-primary hover:underline flex items-center gap-1"
-                        >
-                          Edit
-                        </button>
-                      </div>
-                      <div className="grid gap-2 text-sm">
-                        {contactForm.watch('firstName') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Name:</span>
-                            <span className="text-foreground font-medium">
-                              {contactForm.watch('firstName')} {contactForm.watch('lastName')}
-                            </span>
-                          </div>
-                        )}
-                        {contactForm.watch('email') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Email:</span>
-                            <span className="text-foreground font-medium">{contactForm.watch('email')}</span>
-                          </div>
-                        )}
-                        {contactForm.watch('phoneNumber') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Phone:</span>
-                            <span className="text-foreground font-medium">{contactForm.watch('phoneCountryCode')} {contactForm.watch('phoneNumber')}</span>
-                          </div>
-                        )}
-                        {contactForm.watch('jobTitle') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Job Title:</span>
-                            <span className="text-foreground font-medium">{contactForm.watch('jobTitle')}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Business Address Section */}
-                    <div className="p-4 bg-warm-50 rounded-xl border border-warm-200">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <MapPin className="w-5 h-5 text-warm-600" />
-                          <span className="font-medium text-foreground">Business Address</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setCurrentSection(2)}
-                          className="text-xs text-primary hover:underline flex items-center gap-1"
-                        >
-                          Edit
-                        </button>
-                      </div>
-                      <div className="grid gap-2 text-sm">
-                        {addressForm.watch('streetAddress') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Address:</span>
-                            <span className="text-foreground font-medium text-right">
-                              {addressForm.watch('streetAddress')}
-                            </span>
-                          </div>
-                        )}
-                        {addressForm.watch('city') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">City:</span>
-                            <span className="text-foreground font-medium">{addressForm.watch('city')}</span>
-                          </div>
-                        )}
-                        {addressForm.watch('state') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">State/Province:</span>
-                            <span className="text-foreground font-medium">{addressForm.watch('state')}</span>
-                          </div>
-                        )}
-                        {addressForm.watch('postalCode') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Postal Code:</span>
-                            <span className="text-foreground font-medium">{addressForm.watch('postalCode')}</span>
-                          </div>
-                        )}
-                        {addressForm.watch('country') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Country:</span>
-                            <span className="text-foreground font-medium">{addressForm.watch('country')}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Store Setup Section */}
-                    <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <Store className="w-5 h-5 text-sage-600" />
-                          <span className="font-medium text-foreground">Store Configuration</span>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => setCurrentSection(3)}
-                          className="text-xs text-primary hover:underline flex items-center gap-1"
-                        >
-                          Edit
-                        </button>
-                      </div>
-                      <div className="grid gap-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Business Model:</span>
-                          <span className="text-foreground font-medium">
-                            {storeSetupForm.watch('businessModel') === 'ONLINE_STORE' ? 'Online Store' : 'Marketplace'}
-                          </span>
-                        </div>
-                        {/* Only show Admin URL if NOT using custom domain */}
-                        {!(storeSetupForm.watch('useCustomDomain') && storeSetupForm.watch('customDomain')) && (
-                          <>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Store URL:</span>
-                              <span className="text-foreground font-medium">{storeSetupForm.watch('subdomain')}.{baseDomain}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Admin URL:</span>
-                              <span className="text-foreground font-medium">{storeSetupForm.watch('subdomain')}-admin.{baseDomain}</span>
-                            </div>
-                          </>
-                        )}
-                        {/* Show custom domain URLs when using custom domain */}
-                        {storeSetupForm.watch('useCustomDomain') && storeSetupForm.watch('customDomain') && (
-                          <>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Store URL:</span>
-                              <span className="text-foreground font-medium">{storeSetupForm.watch('customDomain')}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Admin URL:</span>
-                              <span className="text-foreground font-medium">admin.{storeSetupForm.watch('customDomain')}</span>
-                            </div>
-                          </>
-                        )}
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Currency:</span>
-                          <span className="text-foreground font-medium">{storeSetupForm.watch('currency')}</span>
-                        </div>
-                        {storeSetupForm.watch('timezone') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Timezone:</span>
-                            <span className="text-foreground font-medium">{storeSetupForm.watch('timezone')}</span>
-                          </div>
-                        )}
-                        {storeSetupForm.watch('language') && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Language:</span>
-                            <span className="text-foreground font-medium">{storeSetupForm.watch('language')}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
-                      <div className="flex items-center gap-3">
-                        <Check className="w-5 h-5 text-sage-600" />
-                        <span className="text-sm text-muted-foreground">
-                          Review your information above. You can edit any section or proceed to launch your store.
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Section 6: Navigation buttons */}
-                  <div className="pt-6 flex gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setCurrentSection(5)}
-                      className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
-                    >
-                      <ArrowLeft className="w-5 h-5" /> Back
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isLoading}
-                      className="flex-1 h-14 bg-sage-600 hover:bg-sage-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
-                    >
-                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Launch Store <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" /></>}
-                    </button>
-                  </div>
-                </form>
+                <ReviewLaunchStep
+                  storeSetupForm={storeSetupForm}
+                  onSubmit={handleStoreSetupSubmit}
+                  isLoading={isLoading}
+                  setCurrentSection={setCurrentSection}
+                  baseDomain={baseDomain}
+                  countries={countries}
+                  states={states}
+                  businessInfo={businessInfo}
+                  contactDetails={contactDetails}
+                  businessAddress={businessAddress}
+                />
               )}
             </div>
           </div>

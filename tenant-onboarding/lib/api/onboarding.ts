@@ -429,16 +429,13 @@ class OnboardingAPI {
   }
 
   // Validation endpoints
-  async validateBusinessName(businessName: string): Promise<ValidationResult> {
-    // Mock validation - replace with actual API call when backend is ready
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          available: true,
-          message: undefined,
-        });
-      }, 300);
-    });
+  async validateBusinessName(businessName: string, sessionId?: string): Promise<ValidationResult> {
+    let endpoint = `/onboarding/validate/business-name?business_name=${encodeURIComponent(businessName)}`;
+    if (sessionId) {
+      endpoint += `&session_id=${encodeURIComponent(sessionId)}`;
+    }
+    const response = await this.makeRequest<ValidationResult>(endpoint, { method: 'GET' });
+    return response;
   }
 
   // Alias for backward compatibility
@@ -447,15 +444,8 @@ class OnboardingAPI {
   }
 
   async validateEmail(email: string): Promise<ValidationResult> {
-    // Mock validation - replace with actual API call when backend is ready
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve({
-          available: true,
-          message: undefined,
-        });
-      }, 300);
-    });
+    // TODO: Wire to backend when email validation endpoint is added to tenant-service
+    return { available: true, message: undefined };
   }
 
   async validateSubdomain(subdomain: string, sessionId?: string, storefrontSlug?: string): Promise<ValidationResult> {

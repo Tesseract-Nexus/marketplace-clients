@@ -274,7 +274,7 @@ Several countries (Russia, Ukraine, Turkey, Argentina, Panama, Costa Rica, Jamai
 **Severity:** LOW
 **Files:** `tests/onboarding.spec.ts:56`, `tests/full-onboarding-with-staff.spec.ts:61`, `tests/australia-store.spec.ts:70`
 
-All E2E test fixtures use `currency: 'INR'` — even the Australia store test (`australia-store.spec.ts:70`) which should use AUD.
+**Update:** On review, currencies are actually correct per country context: India tests use INR, Australia test uses AUD (`australia-store.spec.ts:70` sets `AUD`). The initial assessment was incorrect — no fix needed.
 
 ---
 
@@ -862,11 +862,11 @@ If the env var is set but malformed (truncated secret, encoding issue), the cons
 
 | # | Issue | Section | Effort | Status |
 |---|---|---|---|---|
-| 21 | Format display values in Launch review (business type labels, country names) | 3.3 | Small | ❌ |
-| 22 | Replace mock `validateBusinessName()` and `validateEmail()` with real API calls | 3.4 | Medium | ❌ |
-| 23 | Extract step components from monolithic page.tsx (~3900 lines) | 4.1 | Large | ❌ |
-| 24 | Fix `formDataForDraft` useMemo (watch() defeats memoization) | 3.5 | Small | ❌ |
-| 25 | Deduplicate reset logic (`handleStartFresh` / `handleSessionNotFound`) | 4.3 | Small | ❌ |
-| 26 | Fix E2E tests using wrong currencies (Australia test uses INR) | 2.11 | Small | ❌ |
+| 21 | Format display values in Launch review (business type labels, country names) | 3.3 | Small | ✅ Done |
+| 22 | Replace mock `validateBusinessName()` and `validateEmail()` with real API calls | 3.4 | Medium | ✅ Done |
+| 23 | Extract step components from monolithic page.tsx (~3900 lines) | 4.1 | Large | ✅ Done |
+| 24 | Fix `formDataForDraft` useMemo (watch() defeats memoization) | 3.5 | Small | ✅ Done |
+| 25 | Deduplicate reset logic (`handleStartFresh` / `handleSessionNotFound`) | 4.3 | Small | ✅ Done |
+| 26 | Fix E2E tests using wrong currencies (Australia test uses INR) | 2.11 | Small | ✅ N/A — currencies already correct per country context |
 | 27 | Remove INR-specific formatting from landing/pricing pages | 2.5 | Medium | ✅ Done |
-| 28 | Pass `NEXT_PUBLIC_*` as Docker build args, not baked env files | 8.9 | Small | ❌ |
+| 28 | Pass `NEXT_PUBLIC_*` as Docker build args, not baked env files | 8.9 | Small | ✅ Done |
