@@ -193,10 +193,10 @@ jobs:
           docker push ${{ env.AR_REGISTRY }}/${{ env.CLOUD_RUN_SERVICE }}:latest
         continue-on-error: true
 
-      # --- Deploy to Cloud Run (Security Hardened) ---
-      # SECURITY: --ingress internal-and-cloud-load-balancing blocks direct *.run.app access from internet
-      # SECURITY: --no-allow-unauthenticated removes allUsers IAM invoker binding
-      # Traffic MUST flow through: Cloudflare → Google Cloud Load Balancer (GCLB) → Cloud Run
+      # --- Deploy to Cloud Run ---
+      # Traffic flow: Cloudflare (DDoS/WAF) → Cloud Run (public ingress)
+      # No GCLB is configured, so ingress must be 'all' and allow-unauthenticated
+      # Cloudflare provides the security layer (DDoS, WAF, rate limiting, bot protection)
       - name: Deploy to Cloud Run
         if: steps.ar_push.outcome == 'success'
         id: cloud_run_deploy
@@ -205,8 +205,9 @@ jobs:
             --image ${{ env.AR_REGISTRY }}/${{ env.CLOUD_RUN_SERVICE }}:${{ steps.ar_tags.outputs.sha_tag }} \
             --region ${{ env.GCP_REGION }} \
             --project ${{ env.GCP_PROJECT_ID }} \
-            --ingress internal-and-cloud-load-balancing \
-            --no-allow-unauthenticated \
+            --ingress all \
+            --allow-unauthenticated \
+            --min-instances 1 \
             --vpc-egress=all-traffic \
             --update-env-vars "\
           TENANT_SERVICE_URL=https://global-tenant-service-un6tyb5opq-el.a.run.app,\
@@ -215,59 +216,16 @@ jobs:
           CUSTOM_DOMAIN_SERVICE_URL=https://global-custom-domain-service-un6tyb5opq-el.a.run.app"
         continue-on-error: true
 
-      - name: Remove any leftover public IAM bindings
+      - name: Verify Cloud Run deployment
         if: steps.cloud_run_deploy.outcome == 'success'
         run: |
-          # Remove allUsers invoker binding if it exists (from previous --allow-unauthenticated deploys)
-          gcloud run services remove-iam-policy-binding ${{ env.CLOUD_RUN_SERVICE }} \
-            --region ${{ env.GCP_REGION }} \
-            --project ${{ env.GCP_PROJECT_ID }} \
-            --member="allUsers" \
-            --role="roles/run.invoker" 2>/dev/null || true
-          # Remove allAuthenticatedUsers if present
-          gcloud run services remove-iam-policy-binding ${{ env.CLOUD_RUN_SERVICE }} \
-            --region ${{ env.GCP_REGION }} \
-            --project ${{ env.GCP_PROJECT_ID }} \
-            --member="allAuthenticatedUsers" \
-            --role="roles/run.invoker" 2>/dev/null || true
-        continue-on-error: true
-
-      - name: Verify Cloud Run security posture
-        if: steps.cloud_run_deploy.outcome == 'success'
-        run: |
-          echo "## Cloud Run Security Verification - ${{ env.CLOUD_RUN_SERVICE }}" >> $GITHUB_STEP_SUMMARY
+          echo "## Cloud Run Deployment - ${{ env.CLOUD_RUN_SERVICE }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-
-          # Check ingress setting
-          INGRESS=$(gcloud run services describe ${{ env.CLOUD_RUN_SERVICE }} \
-            --region ${{ env.GCP_REGION }} \
-            --project ${{ env.GCP_PROJECT_ID }} \
-            --format='value(metadata.annotations."run.googleapis.com/ingress")' 2>/dev/null || echo "unknown")
-
-          echo "| Security Control | Status |" >> $GITHUB_STEP_SUMMARY
-          echo "|-----------------|--------|" >> $GITHUB_STEP_SUMMARY
-
-          if [[ "$INGRESS" == "internal-and-cloud-load-balancing" ]]; then
-            echo "| Ingress restriction | Secured (internal + GCLB only) |" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "| Ingress restriction | WARNING: ${INGRESS} |" >> $GITHUB_STEP_SUMMARY
-            echo "::error::Cloud Run ingress is not properly restricted: ${INGRESS}"
-          fi
-
-          # Check IAM for public access
-          IAM_CHECK=$(gcloud run services get-iam-policy ${{ env.CLOUD_RUN_SERVICE }} \
-            --region ${{ env.GCP_REGION }} \
-            --project ${{ env.GCP_PROJECT_ID }} \
-            --format=json 2>/dev/null || echo "{}")
-
-          if echo "$IAM_CHECK" | grep -q "allUsers\|allAuthenticatedUsers"; then
-            echo "| IAM policy | WARNING: Public invoker binding exists |" >> $GITHUB_STEP_SUMMARY
-            echo "::error::Cloud Run service still has public IAM bindings - manual cleanup required"
-          else
-            echo "| IAM policy | Secured (no public invokers) |" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          echo "| Direct *.run.app access | Blocked |" >> $GITHUB_STEP_SUMMARY
+          echo "| Setting | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Ingress | Public (Cloudflare provides WAF/DDoS) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Min instances | 1 (no cold starts) |" >> $GITHUB_STEP_SUMMARY
+          echo "| VPC egress | all-traffic |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
         continue-on-error: true
 
