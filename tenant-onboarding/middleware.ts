@@ -12,24 +12,32 @@ export function middleware(request: NextRequest) {
   if (isApiRoute && isMutatingMethod && !isSSEEndpoint) {
     const origin = request.headers.get('origin');
     const referer = request.headers.get('referer');
-    // Use x-forwarded-host (set by proxies like Cloudflare/Cloud Run) with host as fallback
-    const host = request.headers.get('x-forwarded-host')?.split(',')[0]?.trim()
-      || request.headers.get('host');
 
-    if (host) {
-      // Compare hostnames only — avoids protocol mismatches behind proxies
-      // (e.g., Cloud Run internal http:// vs browser https://)
-      const hostName = host.split(':')[0];
+    // Build allowed hostnames set from all trusted sources:
+    // - host header, x-forwarded-host (proxy), configured domains
+    // Behind Cloudflare → Cloud Run, host may be *.run.app, not the real domain
+    const allowedHostnames = new Set<string>();
+    const host = request.headers.get('host');
+    if (host) allowedHostnames.add(host.split(':')[0]);
+    const fwdHost = request.headers.get('x-forwarded-host');
+    if (fwdHost) allowedHostnames.add(fwdHost.split(',')[0].trim().split(':')[0]);
+    // Configured domains — source of truth for the real public domain
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL;
+    if (siteUrl) { try { allowedHostnames.add(new URL(siteUrl).hostname); } catch { /* */ } }
+    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN;
+    if (baseDomain) allowedHostnames.add(baseDomain);
+
+    if (allowedHostnames.size > 0) {
       let originMatch = false;
       if (origin) {
-        try { originMatch = new URL(origin).hostname === hostName; } catch { /* invalid origin */ }
+        try { originMatch = allowedHostnames.has(new URL(origin).hostname); } catch { /* */ }
       }
       let refererMatch = false;
       if (referer) {
-        try { refererMatch = new URL(referer).hostname === hostName; } catch { /* invalid referer */ }
+        try { refererMatch = allowedHostnames.has(new URL(referer).hostname); } catch { /* */ }
       }
 
-      // Block if origin is present but doesn't match
+      // Block if origin is present but doesn't match any allowed hostname
       if (origin && !originMatch) {
         return NextResponse.json({ error: 'CSRF check failed' }, { status: 403 });
       }
