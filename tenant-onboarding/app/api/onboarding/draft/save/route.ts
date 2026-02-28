@@ -22,6 +22,15 @@ export async function POST(request: NextRequest) {
       }
     );
 
+    // Handle non-JSON responses (e.g. HTML 404 from Go router)
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return NextResponse.json(
+        { error: { message: 'Failed to save draft' } },
+        { status: response.ok ? 502 : response.status }
+      );
+    }
+
     const data = await response.json();
 
     if (!response.ok) {
