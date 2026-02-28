@@ -214,9 +214,7 @@ jobs:
           LOCATION_SERVICE_URL=https://global-location-service-un6tyb5opq-el.a.run.app,\
           VERIFICATION_SERVICE_URL=https://global-verification-service-un6tyb5opq-el.a.run.app,\
           CUSTOM_DOMAIN_SERVICE_URL=https://global-custom-domain-service-un6tyb5opq-el.a.run.app,\
-          NEXT_PUBLIC_SITE_URL=https://mark8ly.com,\
-          NEXT_PUBLIC_APP_URL=https://mark8ly.com,\
-          NEXT_PUBLIC_BASE_DOMAIN=mark8ly.com"
+          CSRF_ALLOWED_DOMAINS=mark8ly.com"
         continue-on-error: true
 
       - name: Verify Cloud Run deployment

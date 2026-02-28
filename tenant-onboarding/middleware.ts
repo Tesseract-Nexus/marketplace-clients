@@ -13,19 +13,20 @@ export function middleware(request: NextRequest) {
     const origin = request.headers.get('origin');
     const referer = request.headers.get('referer');
 
-    // Build allowed hostnames set from all trusted sources:
-    // - host header, x-forwarded-host (proxy), configured domains
-    // Behind Cloudflare → Cloud Run, host may be *.run.app, not the real domain
+    // Build allowed hostnames from:
+    // 1. host / x-forwarded-host headers
+    // 2. CSRF_ALLOWED_DOMAINS runtime env var (comma-separated)
+    //    NOTE: NEXT_PUBLIC_* vars are inlined at build time and unavailable at runtime
+    //    in Edge middleware, so we use a non-prefixed env var here.
     const allowedHostnames = new Set<string>();
     const host = request.headers.get('host');
     if (host) allowedHostnames.add(host.split(':')[0]);
     const fwdHost = request.headers.get('x-forwarded-host');
     if (fwdHost) allowedHostnames.add(fwdHost.split(',')[0].trim().split(':')[0]);
-    // Configured domains — source of truth for the real public domain
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL;
-    if (siteUrl) { try { allowedHostnames.add(new URL(siteUrl).hostname); } catch { /* */ } }
-    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN;
-    if (baseDomain) allowedHostnames.add(baseDomain);
+    const csrfDomains = process.env.CSRF_ALLOWED_DOMAINS;
+    if (csrfDomains) {
+      csrfDomains.split(',').forEach(d => allowedHostnames.add(d.trim()));
+    }
 
     if (allowedHostnames.size > 0) {
       let originMatch = false;
