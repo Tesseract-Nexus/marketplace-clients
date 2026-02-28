@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { validateRequest } from '../../../lib/api-handler';
 
 const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8086';
 
 export async function POST(request: NextRequest) {
+  const validationError = validateRequest(request, { rateLimit: true });
+  if (validationError) return validationError;
+
   try {
     const body = await request.json();
 

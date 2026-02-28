@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
   // Extract IP from query params or headers
   const searchParams = request.nextUrl.searchParams;
   const ip = searchParams.get('ip');
-  const endpoint = ip ? `/api/v1/location/detect?ip=${ip}` : '/api/v1/location/detect';
+  const endpoint = ip ? `/api/v1/location/detect?ip=${encodeURIComponent(ip)}` : '/api/v1/location/detect';
 
   return proxyGet(SERVICES.LOCATION, endpoint, request);
 }

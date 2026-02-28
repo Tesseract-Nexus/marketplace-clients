@@ -111,7 +111,7 @@ export function StoreSetupStep({
         {/* Admin URL */}
         <div className={`transition-all duration-200 ${showCustomDomainSection ? 'opacity-50 pointer-events-none' : ''}`}>
           <div className="flex items-center justify-between mb-1">
-            <label className={labelClass}>
+            <label htmlFor="subdomain" className={labelClass}>
               Store Admin URL *
               {showCustomDomainSection && (
                 <span className="ml-2 text-xs font-normal text-muted-foreground">(Secondary - using custom domain)</span>
@@ -141,6 +141,7 @@ export function StoreSetupStep({
             <div className="flex">
               <div className="relative flex-1">
                 <input
+                  id="subdomain"
                   {...form.register('subdomain')}
                   placeholder="mystore"
                   disabled={showCustomDomainSection}
@@ -212,7 +213,7 @@ export function StoreSetupStep({
         {/* Storefront URL */}
         <div className={`transition-all duration-200 ${showCustomDomainSection ? 'opacity-50 pointer-events-none' : ''}`}>
           <div className="flex items-center justify-between mb-1">
-            <label className={labelClass}>
+            <label htmlFor="storefrontSlug" className={labelClass}>
               Storefront URL *
               {showCustomDomainSection && (
                 <span className="ml-2 text-xs font-normal text-muted-foreground">(Secondary - using custom domain)</span>
@@ -242,6 +243,7 @@ export function StoreSetupStep({
             <div className="flex">
               <div className="relative flex-1">
                 <input
+                  id="storefrontSlug"
                   {...form.register('storefrontSlug')}
                   placeholder="mystore"
                   disabled={showCustomDomainSection}
@@ -382,12 +384,13 @@ export function StoreSetupStep({
               <div className="space-y-5">
                 {/* Custom Domain Input */}
                 <div>
-                  <label className={labelClass}>Your Domain</label>
+                  <label htmlFor="customDomain" className={labelClass}>Your Domain</label>
                   <p className="text-sm text-muted-foreground mb-3">
                     Enter your root domain (e.g., yourbrand.com). We&apos;ll automatically configure admin and storefront URLs.
                   </p>
                   <div className="relative">
                     <input
+                      id="customDomain"
                       {...form.register('customDomain')}
                       placeholder="yourbrand.com"
                       onBlur={(e) => {
@@ -888,8 +891,9 @@ export function StoreSetupStep({
         {/* Currency, Timezone, Language */}
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={labelClass}>Currency *</label>
+            <label htmlFor="currency" className={labelClass}>Currency *</label>
             <SearchableSelect
+              id="currency"
               options={currencies.map(c => ({
                 value: c.code,
                 label: `${c.symbol} ${c.code}`,
@@ -907,8 +911,9 @@ export function StoreSetupStep({
             )}
           </div>
           <div>
-            <label className={labelClass}>Timezone *</label>
+            <label htmlFor="timezone" className={labelClass}>Timezone *</label>
             <SearchableSelect
+              id="timezone"
               options={timezones.map(tz => ({
                 value: tz.id,
                 label: tz.name,
@@ -928,8 +933,9 @@ export function StoreSetupStep({
         </div>
 
         <div>
-          <label className={labelClass}>Default Language</label>
+          <label htmlFor="language" className={labelClass}>Default Language</label>
           <SearchableSelect
+            id="language"
             options={[
               { value: 'en', label: 'English', icon: <span>🇺🇸</span> },
               { value: 'es', label: 'Spanish', icon: <span>🇪🇸</span> },

@@ -21,12 +21,31 @@ export function middleware(request: NextRequest) {
         referer?.startsWith(`https://${host}`) ||
         referer?.startsWith(`http://${host}`);
 
-      // Block if both origin and referer are present but neither matches
+      // Block if origin is present but doesn't match
       if (origin && !originMatch) {
         return NextResponse.json({ error: 'CSRF check failed' }, { status: 403 });
       }
+      // Block if no origin but referer is present and doesn't match
       if (!origin && referer && !refererMatch) {
         return NextResponse.json({ error: 'CSRF check failed' }, { status: 403 });
+      }
+      // Block if neither origin nor referer is present (programmatic clients, curl)
+      // Exempt internal API routes (authenticated via X-Admin-Key or X-Internal-Key)
+      if (!origin && !referer && !pathname.startsWith('/api/internal/')) {
+        return NextResponse.json({ error: 'CSRF check failed: Origin header required' }, { status: 403 });
+      }
+    }
+  }
+
+  // --- Validate sessionId format in API routes (M3: prevent injection) ---
+  const sessionIdMatch = pathname.match(/\/api\/onboarding\/([^/]+)\//);
+  if (sessionIdMatch) {
+    const sessionId = sessionIdMatch[1];
+    // Skip if it's a known static segment (not a dynamic sessionId)
+    if (!['validate', 'draft'].includes(sessionId)) {
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+      if (!uuidRegex.test(sessionId)) {
+        return NextResponse.json({ error: 'Invalid session ID format' }, { status: 400 });
       }
     }
   }
@@ -73,6 +92,7 @@ export function middleware(request: NextRequest) {
 
   // Set security response headers
   response.headers.set('Content-Security-Policy', cspDirectives);
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=(self), payment=(), usb=()');
   response.headers.set('X-Request-ID', crypto.randomUUID());
 
   return response;

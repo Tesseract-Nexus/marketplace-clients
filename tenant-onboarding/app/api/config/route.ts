@@ -82,8 +82,7 @@ export async function GET() {
         useBFF: !locationServicePublicUrl,
       },
     },
-    // Environment info (useful for debugging)
-    environment: process.env.NODE_ENV || 'development',
+    // Environment info removed — avoid leaking internal details to unauthenticated callers
   };
 
   return NextResponse.json(config);

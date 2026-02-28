@@ -14,7 +14,6 @@ import { NextRequest, NextResponse } from 'next/server';
 const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8086';
 const IS_TEST_MODE = process.env.NODE_ENV === 'development' ||
                      process.env.ENVIRONMENT === 'dev' ||
-                     process.env.ENVIRONMENT === 'devtest' ||
                      process.env.ENVIRONMENT === 'test';
 
 interface VerifyEmailRequest {

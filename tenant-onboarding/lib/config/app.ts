@@ -157,7 +157,8 @@ export const isProduction = () => config.app.environment === 'production';
 export const getApiUrl = (endpoint: string) => {
   const baseUrl = config.api.baseUrl.replace(/\/$/, '');
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  return `${baseUrl}/api${cleanEndpoint}`;
+  // baseUrl is already '/api', so don't add /api again
+  return `${baseUrl}${cleanEndpoint}`;
 };
 
 export const getStepConfig = (step: number) => {

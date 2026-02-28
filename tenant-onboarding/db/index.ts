@@ -29,7 +29,7 @@ async function getPool(): Promise<Pool> {
       password: password,
       database: process.env.CONTENT_DB_NAME || 'onboarding_content_db',
       ssl: process.env.CONTENT_DB_SSLMODE === 'require'
-        ? { rejectUnauthorized: false }
+        ? { rejectUnauthorized: process.env.CONTENT_DB_SSL_REJECT_UNAUTHORIZED !== 'false' }
         : false,
       max: 10,
       idleTimeoutMillis: 30000,

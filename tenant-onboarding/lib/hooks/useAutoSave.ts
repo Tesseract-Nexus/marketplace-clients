@@ -57,7 +57,10 @@ export function useAutoSave(
   const currentStepRef = useRef(currentStep);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const heartbeatTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const retryTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedFormDataRef = useRef<string>('');
+  const retryCountRef = useRef(0);
+  const MAX_RETRIES = 2;
 
   // Update refs when values change
   useEffect(() => {
@@ -87,6 +90,7 @@ export function useAutoSave(
       );
 
       lastSavedFormDataRef.current = currentFormDataStr;
+      retryCountRef.current = 0;
 
       setState({
         lastSavedAt: new Date(response.saved_at),
@@ -104,7 +108,15 @@ export function useAutoSave(
       if (errorMessage.toLowerCase().includes('session not found') ||
           errorMessage.toLowerCase().includes('not found')) {
         console.warn('[AutoSave] Session not found - clearing stale session');
+        retryCountRef.current = 0;
         onSessionNotFound?.();
+      } else if (retryCountRef.current < MAX_RETRIES) {
+        // Retry transient failures with exponential backoff
+        retryCountRef.current += 1;
+        const backoffMs = 3000 * retryCountRef.current;
+        console.log(`[AutoSave] Scheduling retry ${retryCountRef.current}/${MAX_RETRIES} in ${backoffMs}ms`);
+        if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = setTimeout(() => saveDraft(), backoffMs);
       }
 
       setState(prev => ({
@@ -132,6 +144,9 @@ export function useAutoSave(
     return () => {
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
+      }
+      if (retryTimerRef.current) {
+        clearTimeout(retryTimerRef.current);
       }
     };
   }, [formData, currentStep, sessionId, enabled, debounceMs, saveDraft]);

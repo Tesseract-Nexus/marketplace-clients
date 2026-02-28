@@ -10,6 +10,15 @@ export async function POST(
   if (validationError) return validationError;
 
   const { type } = await params;
-  // type can be: business, email, subdomain, domain
+
+  // Allowlist to prevent path traversal (e.g., type=../admin)
+  const allowedTypes = ['business', 'email', 'subdomain', 'domain'];
+  if (!allowedTypes.includes(type)) {
+    return new Response(JSON.stringify({ error: 'Invalid validation type' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   return proxyPost(SERVICES.TENANT, `/api/onboarding/validate/${type}`, request);
 }

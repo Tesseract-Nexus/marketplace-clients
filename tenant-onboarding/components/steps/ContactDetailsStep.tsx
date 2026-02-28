@@ -23,8 +23,9 @@ export function ContactDetailsStep({ form, onSubmit, isLoading, setCurrentSectio
       <div className="space-y-5">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={labelClass}>First Name *</label>
+            <label htmlFor="firstName" className={labelClass}>First Name *</label>
             <input
+              id="firstName"
               {...form.register('firstName')}
               placeholder="John"
               className={form.formState.errors.firstName ? inputErrorClass : inputClass}
@@ -34,8 +35,9 @@ export function ContactDetailsStep({ form, onSubmit, isLoading, setCurrentSectio
             )}
           </div>
           <div>
-            <label className={labelClass}>Last Name *</label>
+            <label htmlFor="lastName" className={labelClass}>Last Name *</label>
             <input
+              id="lastName"
               {...form.register('lastName')}
               placeholder="Doe"
               className={form.formState.errors.lastName ? inputErrorClass : inputClass}
@@ -47,8 +49,9 @@ export function ContactDetailsStep({ form, onSubmit, isLoading, setCurrentSectio
         </div>
 
         <div>
-          <label className={labelClass}>Email Address *</label>
+          <label htmlFor="email" className={labelClass}>Email Address *</label>
           <input
+            id="email"
             {...form.register('email')}
             type="email"
             placeholder="john@example.com"
@@ -61,8 +64,9 @@ export function ContactDetailsStep({ form, onSubmit, isLoading, setCurrentSectio
 
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className={labelClass}>Country</label>
+            <label htmlFor="phoneCountryCode" className={labelClass}>Country</label>
             <SearchableSelect
+              id="phoneCountryCode"
               options={countries.map(c => ({
                 value: c.id,
                 label: c.calling_code || c.id,
@@ -77,8 +81,9 @@ export function ContactDetailsStep({ form, onSubmit, isLoading, setCurrentSectio
             />
           </div>
           <div className="col-span-2">
-            <label className={labelClass}>Phone Number</label>
+            <label htmlFor="phoneNumber" className={labelClass}>Phone Number</label>
             <input
+              id="phoneNumber"
               {...form.register('phoneNumber')}
               type="tel"
               placeholder="(555) 123-4567"
@@ -88,8 +93,9 @@ export function ContactDetailsStep({ form, onSubmit, isLoading, setCurrentSectio
         </div>
 
         <div>
-          <label className={labelClass}>Your Role *</label>
+          <label htmlFor="jobTitle" className={labelClass}>Your Role *</label>
           <SearchableSelect
+            id="jobTitle"
             options={JOB_TITLES.map(title => ({
               value: title,
               label: title,

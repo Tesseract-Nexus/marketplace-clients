@@ -9,8 +9,9 @@ export async function register() {
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     console.log('[Instrumentation] Initializing server-side services...');
 
-    // Check if NATS is enabled (disable in development unless explicitly enabled)
-    const natsEnabled = process.env.NATS_ENABLED === 'true' || process.env.NODE_ENV === 'production';
+    // NATS must be explicitly enabled via NATS_ENABLED=true
+    // (NODE_ENV is always 'production' in Docker, so don't auto-enable based on it)
+    const natsEnabled = process.env.NATS_ENABLED === 'true';
 
     if (natsEnabled) {
       // Dynamic import to avoid loading on client

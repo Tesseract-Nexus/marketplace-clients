@@ -23,7 +23,7 @@ export function LocationStep({ form, onSubmit, isLoading, setCurrentSection, cou
 
       <div className="space-y-5">
         <div>
-          <label className={labelClass}>Search Address</label>
+          <label htmlFor="addressSearch" className={labelClass}>Search Address</label>
           <AddressAutocomplete
             onAddressSelect={onAddressSelect}
             onManualEntryToggle={() => {}}
@@ -36,8 +36,9 @@ export function LocationStep({ form, onSubmit, isLoading, setCurrentSection, cou
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={labelClass}>Country *</label>
+            <label htmlFor="country" className={labelClass}>Country *</label>
             <SearchableSelect
+              id="country"
               options={countries.map(c => ({
                 value: c.id,
                 label: c.name,
@@ -59,8 +60,9 @@ export function LocationStep({ form, onSubmit, isLoading, setCurrentSection, cou
             )}
           </div>
           <div>
-            <label className={labelClass}>State/Province *</label>
+            <label htmlFor="state" className={labelClass}>State/Province *</label>
             <SearchableSelect
+              id="state"
               options={states.map(s => ({
                 value: s.id,
                 label: s.name,
@@ -83,15 +85,15 @@ export function LocationStep({ form, onSubmit, isLoading, setCurrentSection, cou
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={labelClass}>City *</label>
-            <input {...form.register('city')} placeholder="City" className={form.formState.errors.city ? inputErrorClass : inputClass} />
+            <label htmlFor="city" className={labelClass}>City *</label>
+            <input id="city" {...form.register('city')} placeholder="City" className={form.formState.errors.city ? inputErrorClass : inputClass} />
             {form.formState.errors.city && (
               <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{form.formState.errors.city.message}</p>
             )}
           </div>
           <div>
-            <label className={labelClass}>Postal Code *</label>
-            <input {...form.register('postalCode')} placeholder="12345" className={form.formState.errors.postalCode ? inputErrorClass : inputClass} />
+            <label htmlFor="postalCode" className={labelClass}>Postal Code *</label>
+            <input id="postalCode" {...form.register('postalCode')} placeholder="12345" className={form.formState.errors.postalCode ? inputErrorClass : inputClass} />
             {form.formState.errors.postalCode && (
               <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{form.formState.errors.postalCode.message}</p>
             )}
@@ -99,8 +101,8 @@ export function LocationStep({ form, onSubmit, isLoading, setCurrentSection, cou
         </div>
 
         <div>
-          <label className={labelClass}>Street Address *</label>
-          <input {...form.register('streetAddress')} placeholder="123 Main Street" className={form.formState.errors.streetAddress ? inputErrorClass : inputClass} />
+          <label htmlFor="streetAddress" className={labelClass}>Street Address *</label>
+          <input id="streetAddress" {...form.register('streetAddress')} placeholder="123 Main Street" className={form.formState.errors.streetAddress ? inputErrorClass : inputClass} />
           {form.formState.errors.streetAddress && (
             <p className="mt-2 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-md px-2.5 py-1.5 flex items-center gap-1.5">{form.formState.errors.streetAddress.message}</p>
           )}

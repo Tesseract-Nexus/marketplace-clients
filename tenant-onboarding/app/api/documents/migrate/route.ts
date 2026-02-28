@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { gcsClient, type ProductType } from '../../../../lib/storage/gcs-client';
 import { errorResponse, successResponse, validateRequest } from '../../lib/api-handler';
 
+const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY || '';
+
 // Validate product type
 function isValidProduct(product: string): product is ProductType {
   return ['fanzone', 'marketplace', 'poker', 'onboarding'].includes(product);
@@ -24,6 +26,14 @@ export async function POST(request: NextRequest) {
   const validationError = validateRequest(request, { rateLimit: true });
   if (validationError) return validationError;
 
+  // Require internal service key for document migration
+  if (INTERNAL_SERVICE_KEY) {
+    const key = request.headers.get('X-Internal-Service-Key');
+    if (key !== INTERNAL_SERVICE_KEY) {
+      return errorResponse('Unauthorized', 403);
+    }
+  }
+
   try {
     const body = await request.json();
     const { product: productInput, sessionId, tenantId } = body;
@@ -45,9 +55,9 @@ export async function POST(request: NextRequest) {
 
     // Perform the migration
     const result = await gcsClient.migrateOnboardingToTenant(
-      product,
       sessionId,
-      tenantId
+      tenantId,
+      product
     );
 
     if (!result.success && result.errors.length > 0) {

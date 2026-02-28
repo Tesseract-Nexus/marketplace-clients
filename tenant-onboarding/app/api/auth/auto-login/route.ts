@@ -9,6 +9,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { validateRequest } from '../../lib/api-handler';
 
 // BFF URL configuration
 const AUTH_BFF_URL = process.env.AUTH_BFF_URL || 'http://localhost:8080';
@@ -34,6 +35,9 @@ interface AutoLoginResponse {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse<AutoLoginResponse>> {
+  const validationError = validateRequest(request, { rateLimit: true });
+  if (validationError) return validationError as NextResponse<AutoLoginResponse>;
+
   try {
     const body: AutoLoginRequest = await request.json();
 

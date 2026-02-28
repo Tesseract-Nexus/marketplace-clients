@@ -6,10 +6,14 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
+import { validateRequest } from '../../../../lib/api-handler';
 
 const AUTH_BFF_URL = process.env.AUTH_BFF_URL || 'http://localhost:8080';
 
 export async function POST(request: NextRequest) {
+  const validationError = validateRequest(request, { rateLimit: true });
+  if (validationError) return validationError;
+
   try {
     const body = await request.json();
 

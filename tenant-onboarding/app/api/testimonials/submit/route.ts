@@ -3,6 +3,15 @@ import { getDb } from '@/db';
 import { testimonials } from '@/db/schema';
 import { eq, and } from 'drizzle-orm';
 
+const INTERNAL_SERVICE_KEY = process.env.INTERNAL_SERVICE_KEY || '';
+
+// Validate that the request comes from a trusted internal service
+function validateInternalAuth(request: NextRequest): boolean {
+  if (!INTERNAL_SERVICE_KEY) return true; // Skip if not configured (dev)
+  const key = request.headers.get('X-Internal-Service-Key');
+  return key === INTERNAL_SERVICE_KEY;
+}
+
 // Helper to extract tenant info from request headers (set by admin portal BFF)
 function getTenantFromRequest(request: NextRequest) {
   const tenantId = request.headers.get('X-Tenant-ID');
@@ -14,6 +23,10 @@ function getTenantFromRequest(request: NextRequest) {
 
 // GET - Get tenant's own testimonial
 export async function GET(request: NextRequest) {
+  if (!validateInternalAuth(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
+
   try {
     const { tenantId } = getTenantFromRequest(request);
 
@@ -35,6 +48,10 @@ export async function GET(request: NextRequest) {
 
 // POST - Submit new testimonial (one per tenant)
 export async function POST(request: NextRequest) {
+  if (!validateInternalAuth(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
+
   try {
     const { tenantId, tenantName, tenantCompany } = getTenantFromRequest(request);
 
@@ -115,6 +132,10 @@ export async function POST(request: NextRequest) {
 
 // PUT - Update existing testimonial
 export async function PUT(request: NextRequest) {
+  if (!validateInternalAuth(request)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+  }
+
   try {
     const { tenantId } = getTenantFromRequest(request);
 

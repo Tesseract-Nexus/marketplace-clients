@@ -24,8 +24,9 @@ export function BusinessInfoStep({ form, onSubmit, isLoading }: BusinessInfoStep
 
       <div className="space-y-5">
         <div>
-          <label className={labelClass}>Business Name *</label>
+          <label htmlFor="businessName" className={labelClass}>Business Name *</label>
           <input
+            id="businessName"
             {...form.register('businessName')}
             placeholder="Your amazing business"
             className={form.formState.errors.businessName ? inputErrorClass : inputClass}
@@ -37,8 +38,9 @@ export function BusinessInfoStep({ form, onSubmit, isLoading }: BusinessInfoStep
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className={labelClass}>Business Type *</label>
+            <label htmlFor="businessType" className={labelClass}>Business Type *</label>
             <SearchableSelect
+              id="businessType"
               options={BUSINESS_TYPES.map(type => ({
                 value: type.value,
                 label: type.label,
@@ -55,8 +57,9 @@ export function BusinessInfoStep({ form, onSubmit, isLoading }: BusinessInfoStep
             )}
           </div>
           <div>
-            <label className={labelClass}>Industry *</label>
+            <label htmlFor="industryCategory" className={labelClass}>Industry *</label>
             <SearchableSelect
+              id="industryCategory"
               options={INDUSTRY_CATEGORIES.map(cat => ({
                 value: cat,
                 label: cat,
@@ -74,8 +77,9 @@ export function BusinessInfoStep({ form, onSubmit, isLoading }: BusinessInfoStep
         </div>
 
         <div>
-          <label className={labelClass}>Website (optional)</label>
+          <label htmlFor="companyWebsite" className={labelClass}>Website (optional)</label>
           <input
+            id="companyWebsite"
             {...form.register('companyWebsite')}
             type="url"
             placeholder="https://yourwebsite.com"
@@ -84,8 +88,9 @@ export function BusinessInfoStep({ form, onSubmit, isLoading }: BusinessInfoStep
         </div>
 
         <div>
-          <label className={labelClass}>Business Description (optional)</label>
+          <label htmlFor="businessDescription" className={labelClass}>Business Description (optional)</label>
           <textarea
+            id="businessDescription"
             {...form.register('businessDescription')}
             placeholder="Tell us what makes your business unique..."
             rows={3}

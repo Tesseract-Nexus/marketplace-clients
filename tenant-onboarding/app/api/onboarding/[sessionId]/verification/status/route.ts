@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { validateRequest } from '../../../../lib/api-handler';
 
 const TENANT_SERVICE_URL = process.env.TENANT_SERVICE_URL || 'http://localhost:8086';
 
@@ -6,6 +7,9 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ sessionId: string }> }
 ) {
+  const validationError = validateRequest(request, { rateLimit: true });
+  if (validationError) return validationError;
+
   try {
     const { sessionId } = await params;
     const { searchParams } = new URL(request.url);

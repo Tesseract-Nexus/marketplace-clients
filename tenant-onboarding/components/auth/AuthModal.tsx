@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { X, Loader2, Phone, MessageCircle, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { useAuthStore } from '../../lib/store/auth-store';
 import { authApi } from '../../lib/api/auth';
@@ -163,10 +163,50 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
     await handleSendOtp();
   };
 
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Focus trap and Escape key handler
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusable = modalRef.current.querySelectorAll<HTMLElement>(
+          'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    // Focus the modal on open
+    modalRef.current?.focus();
+
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="auth-modal-title"
+    >
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
@@ -174,7 +214,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-lg overflow-hidden">
+      <div ref={modalRef} tabIndex={-1} className="relative w-full max-w-md bg-white rounded-3xl shadow-lg overflow-hidden outline-none">
         {/* Header */}
         <div className="relative px-6 pt-6 pb-4 border-b border-warm-200">
           {step !== 'method' && (
@@ -207,7 +247,7 @@ export function AuthModal({ isOpen, onClose, onSuccess, mode = 'signin' }: AuthM
           {step === 'method' && (
             <div className="space-y-6">
               <div className="text-center">
-                <h2 className="text-2xl font-bold text-foreground mb-2">
+                <h2 id="auth-modal-title" className="text-2xl font-bold text-foreground mb-2">
                   {mode === 'signin' ? 'Welcome Back' : 'Get Started'}
                 </h2>
                 <p className="text-foreground-secondary">

@@ -870,3 +870,126 @@ If the env var is set but malformed (truncated secret, encoding issue), the cons
 | 26 | Fix E2E tests using wrong currencies (Australia test uses INR) | 2.11 | Small | ✅ N/A — currencies already correct per country context |
 | 27 | Remove INR-specific formatting from landing/pricing pages | 2.5 | Medium | ✅ Done |
 | 28 | Pass `NEXT_PUBLIC_*` as Docker build args, not baked env files | 8.9 | Small | ✅ Done |
+
+---
+
+## 10. Comprehensive Rescan (Production Readiness)
+
+**Date:** 2026-02-28
+**Scope:** Full 5-agent parallel audit — security, API routes, client-side resilience, infrastructure, data flow
+
+### 10.1 CRITICAL — Must Fix Immediately
+
+| # | Issue | File | Line | Category |
+|---|---|---|---|---|
+| C1 | **Document migration argument order swapped** — `migrateOnboardingToTenant(product, sessionId, tenantId)` passes args in wrong order vs signature `(sessionId, tenantId, destinationProduct)`. Documents migrate to wrong GCS paths. | `app/api/documents/migrate/route.ts` | 47-51 | Logic Bug |
+| C2 | **Content admin UI auth broken** — Admin key sent as query param `?key=${adminKey}` but `validateAdminAuth()` only reads `X-Admin-Key` header. Every admin UI request fails auth. Key also leaks to logs/history. | `app/internal/content/page.tsx` | 61,81,109,134,152 | Auth Bypass |
+
+### 10.2 HIGH — Fix Before Production
+
+| # | Issue | File | Line | Category |
+|---|---|---|---|---|
+| H1 | **SSE endpoint CORS `*`** — `Access-Control-Allow-Origin: '*'` on real-time session events. Any origin can monitor onboarding verification status. | `app/api/onboarding/[sessionId]/events/route.ts` | 79 | CORS |
+| H2 | **Test verify-email accessible in staging** — `IS_TEST_MODE` includes `ENVIRONMENT=devtest` (internet-facing staging). Attacker can skip email verification. | `app/api/test/verify-email/route.ts` | 15-18 | Auth Bypass |
+| H3 | **DB SSL `rejectUnauthorized: false`** — TLS cert validation disabled on PostgreSQL connection. MITM risk. | `db/index.ts` | 31-32 | TLS |
+| H4 | **CSRF bypass when Origin+Referer both absent** — Mutating requests pass CSRF check if neither header is present (curl, programmatic clients). | `middleware.ts` | 25-31 | CSRF |
+| H5 | **Open redirect via localStorage `admin_url`** — `completionData.admin_url` from localStorage used in `window.location.href` without `safeRedirect()` validation. | `app/onboarding/verify/page.tsx` | 62-66 | Open Redirect |
+| H6 | **No rate limiting on verification routes** — `/verification/verify`, `/verification/resend`, `/verification/email`, `/verification/status` — TOTP and email codes brute-forceable. | `app/api/onboarding/[sessionId]/verification/*` | — | Rate Limit |
+| H7 | **No rate limiting on `/api/verify/token`** — Token verification endpoint has no rate limiting. Brute-force risk. | `app/api/verify/token/route.ts` | 5 | Rate Limit |
+| H8 | **TOTP setup routes — no validation, no rate limiting** — `/api/auth/totp/setup/confirm` and `/initiate` forward body blindly, no rate limit. 6-digit TOTP brute-forceable. | `app/api/auth/totp/setup/*/route.ts` | 12-32 | Auth |
+| H9 | **Testimonial submit auth relies on spoofable headers** — `X-Tenant-ID` header trusted from client. Any client can impersonate any tenant. | `app/api/testimonials/submit/route.ts` | 7-12 | Auth |
+| H10 | **Timer memory leaks** — `slugValidationTimerRef`, `storefrontValidationTimerRef`, `customDomainValidationTimerRef`, `copyTimeoutRef` never cleaned up on unmount. setState on unmounted component. | `app/onboarding/page.tsx` | 104,118,144,175 | Memory Leak |
+| H11 | **Missing `htmlFor`/`id` on form labels** — Screen readers cannot associate labels with inputs. Fails WCAG 2.1 Level A. Affects all step components. | `components/steps/*.tsx` | Multiple | A11y |
+| H12 | **Auth modal has no focus trap** — No `role="dialog"`, `aria-modal`, or focus trapping. Keyboard users can interact behind modal. | `components/auth/AuthModal.tsx` | 168-416 | A11y |
+| H13 | **`.env.example` missing 15+ server env vars** — `NATS_URL`, `GCP_PROJECT_ID`, `GCS_BUCKET_NAME`, `GOOGLE_APPLICATION_CREDENTIALS_JSON`, `VERIFICATION_SERVICE_URL`, `AUTH_BFF_URL`, `INTERNAL_SERVICE_KEY`, etc. not documented. Deployment risk. | `.env.example` | — | Ops |
+
+### 10.3 MEDIUM — Fix Before Scaling
+
+| # | Issue | File | Line | Category |
+|---|---|---|---|---|
+| M1 | **`/api/documents/migrate` — no authentication** — Any client can trigger file migration for arbitrary session/tenant IDs. Needs internal API key. | `app/api/documents/migrate/route.ts` | 23 | Auth |
+| M2 | **`/api/onboarding/validate/[type]` — path traversal** — `type` param interpolated into backend URL without allowlist. `type=../admin` could hit arbitrary endpoints. | `app/api/onboarding/validate/[type]/route.ts` | 12-14 | Injection |
+| M3 | **sessionId not validated on ~10 routes** — `[sessionId]` path param interpolated into backend URLs without UUID format check. | Multiple `[sessionId]` routes | — | Input Validation |
+| M4 | **SSRF via unencoded `ip` param** — User-supplied IP interpolated into backend URL without `encodeURIComponent()`. | `app/api/location/detect/route.ts` | 12 | SSRF |
+| M5 | **No rate limiting on draft save/heartbeat/browser-close** — 3 POST endpoints accept arbitrary JSON with no rate limiting. | `app/api/onboarding/draft/*/route.ts` | — | Rate Limit |
+| M6 | **No rate limiting on auto-login** — Token exchange endpoint has no rate limiting. | `app/api/auth/auto-login/route.ts` | 36 | Rate Limit |
+| M7 | **`/api/config` leaks environment details** — Exposes `NODE_ENV`, `useBFF`, service URLs to unauthenticated callers. | `app/api/config/route.ts` | 86 | Info Disclosure |
+| M8 | **Missing `Permissions-Policy` header** — Browser features (camera, mic, geolocation) not restricted. | `next.config.ts` | 44-52 | Headers |
+| M9 | **`validateEmail()` is a stub** — Always returns `{ available: true }`. Duplicate emails not caught until account setup. | `lib/api/onboarding.ts` | 446-449 | Data Integrity |
+| M10 | **`state_province` vs `state` field mismatch** — `handleAddressSubmit` sends `state_province` but `BusinessAddressRequest` expects `state`. Masked by `as any` cast. | `app/onboarding/page.tsx` | 1331 | Data Integrity |
+| M11 | **`address_line_2` vs `street_address_2`** — Address submission uses wrong field name. Masked by `as any`. | `app/onboarding/page.tsx` | 1329 | Data Integrity |
+| M12 | **Phone field schema vs UI mismatch** — Zod schema requires phone (min 6 chars) but UI labels it as optional (no asterisk). | `lib/validations/onboarding.ts` | 55-86 | UX |
+| M13 | **Race condition in slug/domain validation** — Stale API responses can overwrite current validation state. No AbortController. | `app/onboarding/page.tsx` | 844-864 | Race Condition |
+| M14 | **`formDataForDraft` recalculated every render** — New object reference each render resets debounce timer in `useAutoSave`. | `app/onboarding/page.tsx` | 544-550 | Performance |
+| M15 | **SWR fetcher ignores HTTP errors** — `res.json()` called without checking `res.ok`. Error responses treated as valid data. | `lib/hooks/useContent.ts` | 3 | Error Handling |
+| M16 | **DraftApi has no timeout** — Raw `fetch()` with no `AbortController`. Hanging request blocks auto-save indefinitely. | `lib/api/draft.ts` | 90-111 | Resilience |
+| M17 | **DocumentUpload `setInterval` leak** — Simulated upload interval not cleaned up on unmount. | `components/DocumentUpload.tsx` | 197-213 | Memory Leak |
+| M18 | **GCS upload + store update not atomic** — Upload succeeds but store update fails = orphaned file in GCS. | `app/onboarding/page.tsx` | 216-271 | Data Integrity |
+| M19 | **Rehydration race** — `rehydrateSensitiveData()` and `useDraftRecovery` race. Draft may overwrite fresher server data. | `lib/store/onboarding-store.ts` | 473 | Race Condition |
+| M20 | **Dead TOTP fields persisted to localStorage** — `totpSecretEncrypted` and `backupCodeHashes` still in `partialize` despite MFA removal. | `lib/store/onboarding-store.ts` | 456-458 | Dead Code / PII |
+| M21 | **In-memory rate limiter ineffective with replicas** — Per-process Map resets on restart, not shared across K8s pods. | `lib/rate-limit.ts` | — | Scalability |
+| M22 | **In-memory NATS deduplication** — `processedSessions` Set lost on pod restart. Duplicates possible with multiple replicas. | `lib/nats/client.ts` | — | Scalability |
+| M23 | **GCS bucket uses `NODE_ENV` not actual environment** — All Docker images resolve to `production` bucket unless `GCS_BUCKET_NAME` overridden. | `lib/storage/gcs-client.ts` | — | Config |
+| M24 | **Grid layouts not mobile-responsive** — `grid-cols-2` and `grid-cols-3` without breakpoints. Cramped on narrow screens. | `components/steps/*.tsx` | Multiple | UX |
+| M25 | **`crypto.randomUUID()` browser support** — Not available in Safari < 15.4 or non-HTTPS contexts. Used in client-side API code. | `lib/api/onboarding.ts` | 332 | Compatibility |
+| M26 | **Session expiry detected by string matching** — Checks if error message includes `'404'` or `'not found'`. Fragile. | `lib/store/onboarding-store.ts` | 304-309 | Resilience |
+| M27 | **Start Over dialog missing ARIA attributes** — No `role="alertdialog"`, `aria-modal`, focus trap, or Escape key handling. | `app/onboarding/page.tsx` | 1722-1754 | A11y |
+| M28 | **No retry on draft save failure** — After transient network error, draft remains unsaved until next form change. | `lib/hooks/useAutoSave.ts` | 99-114 | Resilience |
+
+### 10.4 LOW — Nice to Have
+
+| # | Issue | File | Category |
+|---|---|---|---|
+| L1 | No rate limiting on content endpoints (10 DB-backed GET routes) | `app/api/content/*/route.ts` | Rate Limit |
+| L2 | No rate limiting on internal admin routes (25 routes) | `app/api/internal/content/*/route.ts` | Rate Limit |
+| L3 | `getApiUrl()` double-prefix bug — returns `/api/api/...` (may be unused) | `lib/config/app.ts:158` | Bug |
+| L4 | `package.json` `start` script mismatch — `next start` vs standalone `node server.js` | `package.json` | Config |
+| L5 | No `engines` field in `package.json` — Node version not enforced | `package.json` | Config |
+| L6 | Deprecated `X-XSS-Protection` header | `next.config.ts` | Headers |
+| L7 | ESLint rules downgraded to warnings (no-explicit-any, no-unused-vars) | `eslint.config.mjs` | Quality |
+| L8 | `totalSteps: 7` hardcoded — inaccurate when documents step disabled | `lib/store/onboarding-store.ts:235` | Logic |
+| L9 | Restored documents show 0 bytes (placeholder `File` object) | `app/onboarding/page.tsx:414` | UX |
+| L10 | `navigator.clipboard.writeText` not wrapped in try/catch | `app/onboarding/page.tsx:179` | Error Handling |
+| L11 | No initial loading skeleton during data fetch | `app/onboarding/page.tsx:698-789` | UX |
+| L12 | `NATS_ENABLED` auto-enables in production via `NODE_ENV` check | `instrumentation.ts:13` | Config |
+| L13 | OpenPanel `clientId` uses non-null assertion `!` | `app/layout.tsx:296` | Type Safety |
+| L14 | `detectedLocation` not persisted in store — stale on return visits | `lib/store/onboarding-store.ts:445` | State |
+| L15 | PII (email, phone) persisted in localStorage — XSS exfiltration risk | `lib/store/onboarding-store.ts:463` | Privacy |
+| L16 | No per-step error boundary — crash in any step unmounts entire wizard | `app/onboarding/page.tsx` | Resilience |
+
+### 10.5 Rescan Recommendations — Prioritized
+
+#### Immediate (before any production traffic)
+
+| # | Action | Fixes |
+|---|---|---|
+| R1 | Fix document migration argument order | C1 |
+| R2 | Fix content admin UI to send key as header | C2 |
+| R3 | Restrict SSE CORS to app origin | H1 |
+| R4 | Remove `devtest` from test endpoint env guard | H2 |
+| R5 | Enable DB SSL cert validation (or use Cloud SQL Proxy) | H3 |
+| R6 | Block CSRF when both Origin and Referer absent | H4 |
+| R7 | Validate `admin_url` with `safeRedirect()` | H5 |
+| R8 | Add rate limiting to verification/token/TOTP routes | H6, H7, H8 |
+| R9 | Fix testimonial submit auth (require proper auth, not spoofable headers) | H9 |
+| R10 | Add timer cleanup `useEffect` on unmount | H10 |
+| R11 | Document all server env vars in `.env.example` | H13 |
+
+#### Before scaling (multi-replica K8s)
+
+| # | Action | Fixes |
+|---|---|---|
+| R12 | Add auth to `/api/documents/migrate` | M1 |
+| R13 | Validate `[type]` param against allowlist | M2 |
+| R14 | Add shared sessionId UUID validation to all `[sessionId]` routes | M3 |
+| R15 | URL-encode `ip` param in location detect | M4 |
+| R16 | Add rate limiting to draft/auto-login endpoints | M5, M6 |
+| R17 | Fix `state_province`→`state` and `address_line_2`→`street_address_2` field names | M10, M11 |
+| R18 | Wire `validateEmail()` to real API | M9 |
+| R19 | Add `Permissions-Policy` header | M8 |
+| R20 | Remove `/api/config` environment disclosure | M7 |
+| R21 | Add `htmlFor`/`id` to form labels, fix modal a11y | H11, H12, M27 |
+| R22 | Add responsive breakpoints to grid layouts | M24 |
+| R23 | Remove dead TOTP fields from store `partialize` | M20 |
+| R24 | Migrate rate limiting to Redis or Istio EnvoyFilter | M21 |
+| R25 | Add AbortController to slug/domain validation and DraftApi | M13, M16 |

@@ -50,9 +50,20 @@ const DEFAULT_URLS = {
   browserClose: '/api/onboarding/draft/browser-close',
 };
 
+const FETCH_TIMEOUT_MS = 10000; // 10 seconds
+
 class DraftApi {
   private configLoaded = false;
   private urls = DEFAULT_URLS;
+
+  /**
+   * Create a fetch call with an AbortController timeout
+   */
+  private fetchWithTimeout(url: string, options: RequestInit): Promise<Response> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timeoutId));
+  }
 
   /**
    * Initialize the API client by loading runtime config
@@ -90,7 +101,7 @@ class DraftApi {
   async saveDraft(sessionId: string, formData: DraftFormData, currentStep: number): Promise<SaveDraftResponse> {
     await this.ensureConfig();
 
-    const response = await fetch(this.urls.save, {
+    const response = await this.fetchWithTimeout(this.urls.save, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -117,7 +128,7 @@ class DraftApi {
   async getDraft(sessionId: string): Promise<GetDraftResponse> {
     await this.ensureConfig();
 
-    const response = await fetch(this.urls.get(sessionId), {
+    const response = await this.fetchWithTimeout(this.urls.get(sessionId), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -142,7 +153,7 @@ class DraftApi {
   async deleteDraft(sessionId: string): Promise<void> {
     await this.ensureConfig();
 
-    const response = await fetch(this.urls.get(sessionId), {
+    const response = await this.fetchWithTimeout(this.urls.get(sessionId), {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -161,7 +172,7 @@ class DraftApi {
   async sendHeartbeat(sessionId: string): Promise<void> {
     await this.ensureConfig();
 
-    const response = await fetch(this.urls.heartbeat, {
+    const response = await this.fetchWithTimeout(this.urls.heartbeat, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

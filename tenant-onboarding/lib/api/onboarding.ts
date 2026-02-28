@@ -329,7 +329,17 @@ class OnboardingAPI {
   }
 
   private generateRequestId(): string {
-    return crypto.randomUUID();
+    // crypto.randomUUID() requires HTTPS or localhost in some browsers (Safari < 15.4)
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    // Fallback: generate a v4-like UUID from crypto.getRandomValues
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4
+    bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant 1
+    const hex = [...bytes].map(b => b.toString(16).padStart(2, '0')).join('');
+    return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
   }
 
   // Health check endpoint for monitoring
@@ -624,32 +634,6 @@ class OnboardingAPI {
     await this.makeRequest(`/onboarding/${sessionId}/verify-phone`, {
       method: 'POST',
       body: JSON.stringify({ code }),
-    });
-  }
-
-  // TOTP Authenticator App Methods
-
-  async initiateTotpSetup(sessionId: string, email: string, tenantName?: string): Promise<{
-    setup_session: string;
-    totp_uri: string;
-    manual_entry_key: string;
-    backup_codes: string[];
-  }> {
-    return this.makeRequest('/auth/totp/setup/initiate', {
-      method: 'POST',
-      body: JSON.stringify({ session_id: sessionId, email, tenant_name: tenantName }),
-    });
-  }
-
-  async confirmTotpSetup(setupSession: string, code: string, sessionId: string): Promise<{
-    success: boolean;
-    message: string;
-    totp_secret_encrypted?: string;
-    backup_code_hashes?: string[];
-  }> {
-    return this.makeRequest('/auth/totp/setup/confirm', {
-      method: 'POST',
-      body: JSON.stringify({ setup_session: setupSession, code, session_id: sessionId }),
     });
   }
 

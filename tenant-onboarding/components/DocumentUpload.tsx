@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   Upload,
   X,
@@ -68,6 +68,14 @@ export function DocumentUpload({
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup interval on unmount
+  useEffect(() => {
+    return () => {
+      if (uploadIntervalRef.current) clearInterval(uploadIntervalRef.current);
+    };
+  }, []);
 
   const acceptString = accept.join(',');
   const maxSizeBytes = maxSizeMB * 1024 * 1024;
@@ -194,10 +202,12 @@ export function DocumentUpload({
 
     // Fallback: Simulate upload for demo/preview (no actual upload)
     let progress = 0;
+    if (uploadIntervalRef.current) clearInterval(uploadIntervalRef.current);
     const interval = setInterval(() => {
       progress += 20;
       if (progress >= 100) {
         clearInterval(interval);
+        uploadIntervalRef.current = null;
         onChange({
           ...document,
           status: 'success',
@@ -211,6 +221,7 @@ export function DocumentUpload({
         });
       }
     }, 200);
+    uploadIntervalRef.current = interval;
   }, [accept, maxSizeBytes, onChange, onUpload, sessionId, tenantId, category, documentType]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {

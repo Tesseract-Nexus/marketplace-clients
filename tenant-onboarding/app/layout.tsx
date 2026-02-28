@@ -293,7 +293,7 @@ export default async function RootLayout({
       </head>
       <body className="antialiased font-sans">
         <OpenPanelComponent
-          clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID!}
+          clientId={process.env.NEXT_PUBLIC_OPENPANEL_CLIENT_ID || ''}
           apiUrl="/api/op"
           cdnUrl="/op1.js"
           trackScreenViews={true}

@@ -90,10 +90,6 @@ export interface OnboardingState {
   emailVerified: boolean;
   phoneVerified: boolean;
 
-  // TOTP setup data (captured during onboarding, persisted during account-setup)
-  totpSecretEncrypted: string | null;
-  backupCodeHashes: string[] | null;
-
   // Legal acceptance
   legalAccepted: boolean;
 
@@ -129,7 +125,6 @@ export interface OnboardingState {
 
   setEmailVerified: (verified: boolean) => void;
   setPhoneVerified: (verified: boolean) => void;
-  setTotpData: (encrypted: string, hashes: string[]) => void;
 
   // Legal acceptance setter
   setLegalAccepted: (accepted: boolean) => void;
@@ -218,8 +213,6 @@ const initialState = {
 
   emailVerified: false,
   phoneVerified: false,
-  totpSecretEncrypted: null,
-  backupCodeHashes: null,
 
   legalAccepted: false,
 
@@ -301,7 +294,8 @@ export const useOnboardingStore = create<OnboardingState>()(
           console.error('Failed to rehydrate sensitive data from server:', error);
           // If session is invalid/expired, clear session but preserve local form data
           // This allows the user to see previously entered data and start a new session
-          if ((error as Error).message?.includes('404') || (error as Error).message?.includes('not found')) {
+          const statusCode = (error as { statusCode?: number }).statusCode;
+          if (statusCode === 404 || statusCode === 410) {
             set({
               sessionId: null,
               sessionExpired: true,
@@ -359,7 +353,6 @@ export const useOnboardingStore = create<OnboardingState>()(
       // Verification setters
       setEmailVerified: (emailVerified) => set({ emailVerified }),
       setPhoneVerified: (phoneVerified) => set({ phoneVerified }),
-      setTotpData: (totpSecretEncrypted, backupCodeHashes) => set({ totpSecretEncrypted, backupCodeHashes }),
 
       // Legal acceptance setter
       setLegalAccepted: (legalAccepted) => set({ legalAccepted }),
@@ -448,14 +441,12 @@ export const useOnboardingStore = create<OnboardingState>()(
         currentStep: state.currentStep,
         completedSteps: state.completedSteps,
         // Location preferences
+        detectedLocation: state.detectedLocation,
         detectedCountry: state.detectedCountry,
         detectedCurrency: state.detectedCurrency,
         // Verification flags
         emailVerified: state.emailVerified,
         phoneVerified: state.phoneVerified,
-        // TOTP data (already AES-256-GCM encrypted)
-        totpSecretEncrypted: state.totpSecretEncrypted,
-        backupCodeHashes: state.backupCodeHashes,
         // Legal acceptance
         legalAccepted: state.legalAccepted,
         // Store setup config

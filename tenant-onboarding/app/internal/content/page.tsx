@@ -58,7 +58,9 @@ function ContentAdminContent() {
     }
 
     // Verify key by making a test request
-    fetch(`/api/internal/content/faqs?key=${adminKey}`)
+    fetch(`/api/internal/content/faqs`, {
+      headers: { 'X-Admin-Key': adminKey },
+    })
       .then((res) => {
         if (res.ok) {
           setIsAuthorized(true);
@@ -78,7 +80,9 @@ function ContentAdminContent() {
     if (!isAuthorized || !adminKey) return;
 
     setIsLoading(true);
-    fetch(`/api/internal/content/${activeTab}?key=${adminKey}`)
+    fetch(`/api/internal/content/${activeTab}`, {
+      headers: { 'X-Admin-Key': adminKey },
+    })
       .then((res) => res.json())
       .then((data) => {
         setItems(data.data || []);
@@ -106,9 +110,9 @@ function ContentAdminContent() {
 
     setIsSaving(true);
     try {
-      const res = await fetch(`/api/internal/content/${activeTab}/${editingId}?key=${adminKey}`, {
+      const res = await fetch(`/api/internal/content/${activeTab}/${editingId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
         body: JSON.stringify(editForm),
       });
 
@@ -131,8 +135,9 @@ function ContentAdminContent() {
     if (!adminKey || !confirm('Are you sure you want to delete this item?')) return;
 
     try {
-      const res = await fetch(`/api/internal/content/${activeTab}/${id}?key=${adminKey}`, {
+      const res = await fetch(`/api/internal/content/${activeTab}/${id}`, {
         method: 'DELETE',
+        headers: { 'X-Admin-Key': adminKey },
       });
 
       if (res.ok) {
@@ -149,9 +154,9 @@ function ContentAdminContent() {
     if (!adminKey) return;
 
     try {
-      const res = await fetch(`/api/internal/content/${activeTab}/${item.id}?key=${adminKey}`, {
+      const res = await fetch(`/api/internal/content/${activeTab}/${item.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Admin-Key': adminKey },
         body: JSON.stringify({ active: !item.active }),
       });
 

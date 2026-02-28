@@ -76,7 +76,7 @@ export async function GET(
         'Cache-Control': 'no-cache, no-transform',
         'Connection': 'keep-alive',
         'X-Accel-Buffering': 'no', // Disable nginx buffering
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_SITE_URL || 'https://onboarding.tesserix.app',
       },
     });
   } catch (error) {

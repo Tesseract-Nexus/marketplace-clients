@@ -14,6 +14,26 @@ const isDev = process.env.NODE_ENV === 'development';
 const devLog = (...args: unknown[]) => isDev && console.log(...args);
 const devError = (...args: unknown[]) => isDev && console.error(...args);
 
+// Validate redirect URL to prevent open redirects
+function safeRedirectUrl(url: string): string | null {
+  try {
+    const parsed = new URL(url);
+    const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
+    // Only allow HTTPS URLs on our own domain
+    if (parsed.protocol !== 'https:') return null;
+    if (parsed.hostname === baseDomain || parsed.hostname.endsWith(`.${baseDomain}`)) {
+      return parsed.toString();
+    }
+    // Also allow tesserix.app domains
+    if (parsed.hostname.endsWith('.tesserix.app')) {
+      return parsed.toString();
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 type VerifyPhase = 'email_verification' | 'complete';
 
 // Idle timeout in milliseconds (5 minutes)
@@ -60,8 +80,13 @@ function CongratulationsPage({ completionData, idleCountdown }: { completionData
     // Clear the completion flag
     localStorage.removeItem('onboarding_completed');
     if (completionData.admin_url) {
-      window.location.href = `${completionData.admin_url}/login`;
-    } else if (completionData.tenant_slug) {
+      const safeUrl = safeRedirectUrl(`${completionData.admin_url}/login`);
+      if (safeUrl) {
+        window.location.href = safeUrl;
+        return;
+      }
+    }
+    if (completionData.tenant_slug) {
       const baseDomain = process.env.NEXT_PUBLIC_BASE_DOMAIN || 'mark8ly.com';
       window.location.href = `https://${completionData.tenant_slug}-admin.${baseDomain}/login`;
     }

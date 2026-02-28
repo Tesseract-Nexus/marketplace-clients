@@ -102,6 +102,7 @@ export default function OnboardingPage() {
     suggestions: [],
   });
   const slugValidationTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const slugAbortRef = useRef<AbortController | null>(null);
 
   // Storefront slug validation state
   const [storefrontValidation, setStorefrontValidation] = useState<{
@@ -116,6 +117,7 @@ export default function OnboardingPage() {
     suggestions: [],
   });
   const storefrontValidationTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const storefrontAbortRef = useRef<AbortController | null>(null);
 
   // Custom domain validation state
   const [showCustomDomainSection, setShowCustomDomainSection] = useState(false);
@@ -142,6 +144,7 @@ export default function OnboardingPage() {
     message: '',
   });
   const customDomainValidationTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const customDomainAbortRef = useRef<AbortController | null>(null);
 
   // State for showing/hiding sensitive DNS values (security feature)
   const [showSensitiveDNS, setShowSensitiveDNS] = useState(false);
@@ -174,9 +177,22 @@ export default function OnboardingPage() {
   const [copiedItem, setCopiedItem] = useState<string | null>(null);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Cleanup all timer refs on unmount to prevent setState on unmounted component
+  useEffect(() => {
+    return () => {
+      if (slugValidationTimerRef.current) clearTimeout(slugValidationTimerRef.current);
+      if (storefrontValidationTimerRef.current) clearTimeout(storefrontValidationTimerRef.current);
+      if (customDomainValidationTimerRef.current) clearTimeout(customDomainValidationTimerRef.current);
+      if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      slugAbortRef.current?.abort();
+      storefrontAbortRef.current?.abort();
+      customDomainAbortRef.current?.abort();
+    };
+  }, []);
+
   // Helper function to copy text and show feedback
   const copyToClipboard = useCallback((text: string, itemId: string) => {
-    navigator.clipboard.writeText(text);
+    try { navigator.clipboard.writeText(text); } catch { /* Clipboard API unavailable */ }
     setCopiedItem(itemId);
     if (copyTimeoutRef.current) {
       clearTimeout(copyTimeoutRef.current);
@@ -840,11 +856,17 @@ export default function OnboardingPage() {
     // Show checking state immediately
     setSlugValidation(prev => ({ ...prev, isChecking: true, message: '' }));
 
+    // Abort any in-flight slug validation request
+    slugAbortRef.current?.abort();
+
     // Debounce the actual API call
     slugValidationTimerRef.current = setTimeout(async () => {
+      const controller = new AbortController();
+      slugAbortRef.current = controller;
       try {
         // Pass sessionId to reserve the slug and storefrontSlug to save storefront URL
         const result = await onboardingApi.validateSubdomain(slug, sessionId || undefined, storefrontSlug || slug);
+        if (controller.signal.aborted) return;
         setSlugValidation({
           isChecking: false,
           isAvailable: result.available,
@@ -854,6 +876,7 @@ export default function OnboardingPage() {
           suggestions: result.suggestions || [],
         });
       } catch (error) {
+        if (controller.signal.aborted) return;
         setSlugValidation({
           isChecking: false,
           isAvailable: null,
@@ -885,10 +908,16 @@ export default function OnboardingPage() {
     // Show checking state immediately
     setStorefrontValidation(prev => ({ ...prev, isChecking: true, message: '' }));
 
+    // Abort any in-flight storefront validation request
+    storefrontAbortRef.current?.abort();
+
     // Debounce the actual API call
     storefrontValidationTimerRef.current = setTimeout(async () => {
+      const controller = new AbortController();
+      storefrontAbortRef.current = controller;
       try {
         const result = await onboardingApi.validateStorefrontSlug(slug, sessionId || undefined);
+        if (controller.signal.aborted) return;
         setStorefrontValidation({
           isChecking: false,
           isAvailable: result.available,
@@ -898,6 +927,7 @@ export default function OnboardingPage() {
           suggestions: result.suggestions || [],
         });
       } catch (error) {
+        if (controller.signal.aborted) return;
         setStorefrontValidation({
           isChecking: false,
           isAvailable: null,
@@ -956,8 +986,13 @@ export default function OnboardingPage() {
       suggestedDomain: formatValidation.suggestedRootDomain,
     }));
 
+    // Abort any in-flight custom domain validation request
+    customDomainAbortRef.current?.abort();
+
     // Debounce the actual API call
     customDomainValidationTimerRef.current = setTimeout(async () => {
+      const controller = new AbortController();
+      customDomainAbortRef.current = controller;
       try {
         // Check if we have a stored verification token for this domain
         const storageKey = `domain_verification_${normalized}`;
@@ -980,7 +1015,9 @@ export default function OnboardingPage() {
             tenant_slug: storeSlug, // Pass unique store slug for ACME CNAME target
             verification_token: storedToken, // Pass stored token so backend can reuse it
           }),
+          signal: controller.signal,
         });
+        if (controller.signal.aborted) return;
         const result = await response.json();
         const data = result.data;
 
@@ -1028,6 +1065,7 @@ export default function OnboardingPage() {
           suggestedDomain: formatValidation.suggestedRootDomain,
         });
       } catch (error) {
+        if (controller.signal.aborted) return;
         setCustomDomainValidation({
           isChecking: false,
           isValid: null,
@@ -1326,9 +1364,9 @@ export default function OnboardingPage() {
       // Save business address
       await onboardingApi.updateBusinessAddress(sessionId, {
         street_address: data.streetAddress,
-        address_line_2: undefined,
+        street_address_2: undefined,
         city: data.city,
-        state_province: data.state,
+        state: data.state,
         postal_code: data.postalCode,
         country: data.country,
         address_type: 'business',
@@ -1349,7 +1387,7 @@ export default function OnboardingPage() {
       setBusinessAddress(mapAddressToStore({
         street_address: data.streetAddress,
         city: data.city,
-        state_province: data.state,
+        state: data.state,
         postal_code: data.postalCode,
         country: data.country,
       }) as any);
@@ -1720,21 +1758,29 @@ export default function OnboardingPage() {
 
       {/* Start Over Confirmation Dialog */}
       {showStartOverConfirm && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="start-over-title"
+          aria-describedby="start-over-desc"
+          onKeyDown={(e) => { if (e.key === 'Escape') setShowStartOverConfirm(false); }}
+        >
           <div className="bg-background rounded-2xl border border-border shadow-xl max-w-md mx-4 p-6">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
                 <AlertCircle className="w-5 h-5 text-destructive" />
               </div>
-              <h3 className="text-lg font-serif font-medium text-foreground">Start Over?</h3>
+              <h3 id="start-over-title" className="text-lg font-serif font-medium text-foreground">Start Over?</h3>
             </div>
-            <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
-              This will permanently delete all your saved progress, including business details, store setup, and uploaded documents. You'll need to start the onboarding process from the beginning.
+            <p id="start-over-desc" className="text-sm text-muted-foreground mb-6 leading-relaxed">
+              This will permanently delete all your saved progress, including business details, store setup, and uploaded documents. You&#39;ll need to start the onboarding process from the beginning.
             </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowStartOverConfirm(false)}
                 className="flex-1 h-11 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors text-sm"
+                autoFocus
               >
                 Cancel
               </button>

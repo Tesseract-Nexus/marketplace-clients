@@ -84,7 +84,9 @@ class GCSStorageClient {
     });
 
     // Determine bucket based on environment
-    const env = process.env.NODE_ENV || 'development';
+    // ENVIRONMENT is the actual deployment env (devtest/pilot/production);
+    // NODE_ENV is always 'production' in Docker builds, so check ENVIRONMENT first
+    const env = process.env.ENVIRONMENT || process.env.NODE_ENV || 'development';
     const customBucket = process.env.GCS_BUCKET_NAME;
     const defaultBucket = 'tesserix-devtest-assets';
     this.bucketName = customBucket || GCS_BUCKET_MAP[env] || defaultBucket;
