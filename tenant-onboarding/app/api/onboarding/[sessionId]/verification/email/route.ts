@@ -16,7 +16,7 @@ export async function POST(
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Request-ID': Math.random().toString(36).substring(2) + Date.now().toString(36),
+          'X-Request-ID': crypto.randomUUID(),
         },
         body: JSON.stringify(body),
       }

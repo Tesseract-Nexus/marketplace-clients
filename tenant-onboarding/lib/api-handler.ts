@@ -2,6 +2,7 @@
 // This module provides utilities for proxying requests from Next.js API routes to backend services
 
 import { NextRequest, NextResponse } from 'next/server';
+import { checkRateLimit, extractClientIp, rateLimitExceededResponse } from './rate-limit';
 
 // Service URLs from environment variables
 export const SERVICES = {
@@ -9,31 +10,6 @@ export const SERVICES = {
   LOCATION: process.env.LOCATION_SERVICE_URL || 'http://localhost:8087',
   VERIFICATION: process.env.VERIFICATION_SERVICE_URL || 'http://localhost:8088',
 } as const;
-
-// Rate limiting (simple in-memory implementation)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
-const RATE_LIMIT_MAX_REQUESTS = 100;
-
-function checkRateLimit(identifier: string): boolean {
-  const now = Date.now();
-  const record = rateLimitMap.get(identifier);
-
-  if (!record || now > record.resetTime) {
-    rateLimitMap.set(identifier, {
-      count: 1,
-      resetTime: now + RATE_LIMIT_WINDOW,
-    });
-    return true;
-  }
-
-  if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
-    return false;
-  }
-
-  record.count++;
-  return true;
-}
 
 // Request validation
 export interface ValidationOptions {
@@ -45,14 +21,12 @@ export function validateRequest(
   request: NextRequest,
   options: ValidationOptions = {}
 ): NextResponse | null {
-  // Rate limiting
+  // Rate limiting (uses shared in-memory store from lib/rate-limit.ts)
   if (options.rateLimit) {
-    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
-    if (!checkRateLimit(ip)) {
-      return NextResponse.json(
-        { error: 'Too many requests. Please try again later.' },
-        { status: 429 }
-      );
+    const ip = extractClientIp(request.headers);
+    const result = checkRateLimit(ip);
+    if (!result.allowed) {
+      return rateLimitExceededResponse(result);
     }
   }
 

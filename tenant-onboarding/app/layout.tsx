@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from 'next/headers';
 import { Source_Serif_4, Source_Sans_3 } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { OpenPanelComponent } from '@openpanel/nextjs';
@@ -272,16 +273,19 @@ const jsonLd = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const nonce = (await headers()).get('x-nonce') || '';
+
   return (
     <html lang="en" suppressHydrationWarning className={`${sourceSerif.variable} ${sourceSans.variable}`}>
       <head>
         <script
           type="application/ld+json"
+          nonce={nonce}
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

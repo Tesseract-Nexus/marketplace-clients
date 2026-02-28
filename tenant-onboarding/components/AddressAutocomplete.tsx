@@ -63,7 +63,7 @@ export function AddressAutocomplete({
 
   // Generate a unique session token for billing optimization
   function generateSessionToken(): string {
-    return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+    return crypto.randomUUID();
   }
 
   // Close dropdown when clicking outside

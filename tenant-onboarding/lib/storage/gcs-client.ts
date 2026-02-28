@@ -64,13 +64,23 @@ class GCSStorageClient {
     // Initialize GCS client
     // In production, credentials come from GOOGLE_APPLICATION_CREDENTIALS env var
     // or from the service account attached to the GKE pod (via Workload Identity)
-    const projectId = process.env.GCP_PROJECT_ID || 'tesserix-480811';
+    const projectId = process.env.GCP_PROJECT_ID;
+    if (!projectId) {
+      console.warn('[GCS] GCP_PROJECT_ID not set; falling back to default credential resolution');
+    }
+
+    let parsedCredentials: Record<string, unknown> | undefined;
+    if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+      try {
+        parsedCredentials = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
+      } catch (err) {
+        console.error('[GCS] Failed to parse GOOGLE_APPLICATION_CREDENTIALS_JSON, falling back to default credentials:', err);
+      }
+    }
+
     this.storage = new Storage({
-      projectId,
-      // If running locally, use credentials file
-      ...(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON && {
-        credentials: JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON),
-      }),
+      ...(projectId && { projectId }),
+      ...(parsedCredentials && { credentials: parsedCredentials }),
     });
 
     // Determine bucket based on environment

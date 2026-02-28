@@ -2,6 +2,7 @@
 
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertCircle, RefreshCw, Home } from 'lucide-react';
+import { analytics } from '@/lib/analytics/posthog';
 
 interface Props {
   children: ReactNode;
@@ -33,16 +34,11 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log error to console in development
-    if (process.env.NODE_ENV === 'development') {
-      console.error('Error caught by boundary:', error, errorInfo);
-    }
+    console.error('Error caught by boundary:', error, errorInfo);
 
-    // TODO: Log to error tracking service (PostHog, Sentry, etc.)
-    // posthog.capture('error_boundary_caught', {
-    //   error: error.message,
-    //   componentStack: errorInfo.componentStack,
-    // });
+    try {
+      analytics.error.caught(error, { componentStack: errorInfo.componentStack });
+    } catch {}
 
     this.setState({
       error,

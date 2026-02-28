@@ -46,6 +46,14 @@ __mocks__
 # Turbo
 .turbo
 
+# Claude
+.claude
+
+# Playwright
+playwright-report
+test-results
+playwright.config.ts
+
 # Misc
 *.md
 !README.md

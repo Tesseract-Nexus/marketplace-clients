@@ -7,6 +7,7 @@ import type {
   BusinessAddressRequest,
 } from '../types/api-contracts';
 import type { AccountSetupResponse, TenantCreationResult } from '../types/tenant';
+import { mapContactToStore, mapAddressToStore, mapStoreSetupToStore } from '../utils/form-mappers';
 
 // Serializable document info (without File object which can't be persisted)
 export interface PersistedDocument {
@@ -93,6 +94,9 @@ export interface OnboardingState {
   totpSecretEncrypted: string | null;
   backupCodeHashes: string[] | null;
 
+  // Legal acceptance
+  legalAccepted: boolean;
+
   // Documents state (persisted)
   documents: DocumentsState;
 
@@ -126,6 +130,9 @@ export interface OnboardingState {
   setEmailVerified: (verified: boolean) => void;
   setPhoneVerified: (verified: boolean) => void;
   setTotpData: (encrypted: string, hashes: string[]) => void;
+
+  // Legal acceptance setter
+  setLegalAccepted: (accepted: boolean) => void;
 
   // Documents setters
   setDocuments: (documents: Partial<DocumentsState>) => void;
@@ -214,6 +221,8 @@ const initialState = {
   totpSecretEncrypted: null,
   backupCodeHashes: null,
 
+  legalAccepted: false,
+
   documents: {
     addressProofType: '',
     addressProofDocument: null,
@@ -223,7 +232,7 @@ const initialState = {
   },
 
   completedSteps: [],
-  totalSteps: 4, // Business Info, Contact Details, Address, Store Setup (Verification removed from steps)
+  totalSteps: 7, // Business, Personal, Location, Store Setup, Documents, Legal, Launch
 
   tenantResult: null, // Populated after successful account setup
   sessionExpired: false,
@@ -256,15 +265,21 @@ export const useOnboardingStore = create<OnboardingState>()(
           const serverBusinessInfo = session.business_info
             || sessionAny.business_information
             || {};
-          const serverContactDetails = session.contact_details
+          const serverContactRaw = session.contact_details
             || session.contact_info
             || session.contact_information?.[0]
             || {};
-          const serverBusinessAddress = session.business_address
+          const serverContactDetails = Object.keys(serverContactRaw).length > 0
+            ? mapContactToStore(serverContactRaw) : {};
+          const serverAddressRaw = session.business_address
             || session.address
             || sessionAny.business_addresses?.[0]
             || {};
-          const serverStoreSetup = session.store_setup || sessionAny.store_setup;
+          const serverBusinessAddress = Object.keys(serverAddressRaw).length > 0
+            ? mapAddressToStore(serverAddressRaw) : {};
+          const serverStoreSetupRaw = session.store_setup || sessionAny.store_setup;
+          const serverStoreSetup = serverStoreSetupRaw && Object.keys(serverStoreSetupRaw).length > 0
+            ? mapStoreSetupToStore(serverStoreSetupRaw) : null;
 
           set({
             businessInfo: Object.keys(serverBusinessInfo).length > 0
@@ -276,7 +291,7 @@ export const useOnboardingStore = create<OnboardingState>()(
             businessAddress: Object.keys(serverBusinessAddress).length > 0
               ? serverBusinessAddress
               : state.businessAddress,
-            storeSetup: (serverStoreSetup && Object.keys(serverStoreSetup).length > 0
+            storeSetup: (serverStoreSetup
               ? serverStoreSetup
               : state.storeSetup) as Partial<StoreSetupRequest>,
             emailVerified: session.email_verified || sessionAny.email_verified || false,
@@ -345,6 +360,9 @@ export const useOnboardingStore = create<OnboardingState>()(
       setEmailVerified: (emailVerified) => set({ emailVerified }),
       setPhoneVerified: (phoneVerified) => set({ phoneVerified }),
       setTotpData: (totpSecretEncrypted, backupCodeHashes) => set({ totpSecretEncrypted, backupCodeHashes }),
+
+      // Legal acceptance setter
+      setLegalAccepted: (legalAccepted) => set({ legalAccepted }),
 
       // Documents setters
       setDocuments: (documents) =>
@@ -438,6 +456,8 @@ export const useOnboardingStore = create<OnboardingState>()(
         // TOTP data (already AES-256-GCM encrypted)
         totpSecretEncrypted: state.totpSecretEncrypted,
         backupCodeHashes: state.backupCodeHashes,
+        // Legal acceptance
+        legalAccepted: state.legalAccepted,
         // Store setup config
         storeSetup: state.storeSetup,
         // Form data — persisted locally for resilience

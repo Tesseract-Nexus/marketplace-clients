@@ -6,7 +6,7 @@ export const paymentPlans = pgTable('payment_plans', {
   name: varchar('name', { length: 100 }).notNull(),
   slug: varchar('slug', { length: 100 }).unique().notNull(),
   price: decimal('price', { precision: 10, scale: 2 }).notNull(),
-  currency: varchar('currency', { length: 3 }).default('INR').notNull(),
+  currency: varchar('currency', { length: 3 }).notNull(),
   billingCycle: varchar('billing_cycle', { length: 20 }).notNull(), // 'monthly', 'yearly', 'one_time'
   trialDays: integer('trial_days').default(0),
   description: text('description'),

@@ -6,6 +6,47 @@ import { errorResponse, successResponse, validateRequest, generateRequestId } fr
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const MAX_LOGO_SIZE = 5 * 1024 * 1024; // 5MB for logos
 
+/**
+ * Validate file magic bytes match claimed MIME type.
+ * Prevents uploading disguised executables as images/PDFs.
+ */
+function validateMagicBytes(buffer: Buffer, claimedType: string): boolean {
+  switch (claimedType) {
+    case 'image/jpeg':
+      // JPEG: starts with FF D8 FF
+      return buffer.length >= 3 && buffer[0] === 0xFF && buffer[1] === 0xD8 && buffer[2] === 0xFF;
+    case 'image/png':
+      // PNG: starts with 89 50 4E 47 (‰PNG)
+      return buffer.length >= 4 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4E && buffer[3] === 0x47;
+    case 'image/webp':
+      // WebP: starts with RIFF....WEBP
+      return buffer.length >= 12
+        && buffer[0] === 0x52 && buffer[1] === 0x49 && buffer[2] === 0x46 && buffer[3] === 0x46
+        && buffer[8] === 0x57 && buffer[9] === 0x45 && buffer[10] === 0x42 && buffer[11] === 0x50;
+    case 'application/pdf':
+      // PDF: starts with %PDF
+      return buffer.length >= 4 && buffer[0] === 0x25 && buffer[1] === 0x50 && buffer[2] === 0x44 && buffer[3] === 0x46;
+    case 'image/svg+xml': {
+      // SVG: text starts with <?xml or <svg
+      const head = buffer.subarray(0, Math.min(256, buffer.length)).toString('utf-8').trimStart();
+      if (!head.startsWith('<?xml') && !head.startsWith('<svg')) return false;
+      // SVG is the most dangerous image format for XSS — check for scripting vectors
+      const full = buffer.toString('utf-8').toLowerCase();
+      if (/<script[\s>]/i.test(full)) return false;
+      if (/<foreignobject[\s>]/i.test(full)) return false;
+      if (/\bon\w+\s*=/i.test(full)) return false; // on* event handlers (onclick, onerror, etc.)
+      if (/javascript\s*:/i.test(full)) return false; // javascript: URIs in href/xlink:href
+      return true;
+    }
+    default:
+      // Unknown type — reject by default. This is safe because ALLOWED_MIME_TYPES
+      // is checked before this function runs (line 124), so only types with a case
+      // above will reach here. If a new MIME type is added to ALLOWED_MIME_TYPES,
+      // a corresponding case MUST be added here or uploads will be rejected.
+      return false;
+  }
+}
+
 // Allowed MIME types per document category
 const ALLOWED_MIME_TYPES: Record<DocumentCategory, string[]> = {
   address_proof: ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'],
@@ -107,6 +148,14 @@ export async function POST(request: NextRequest) {
     // Convert file to buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
+
+    // Validate magic bytes match claimed MIME type
+    if (!validateMagicBytes(buffer, file.type)) {
+      return errorResponse(
+        `File content does not match claimed type (${file.type}). The file may be corrupted or disguised.`,
+        400
+      );
+    }
 
     // Upload to GCS
     const result = await gcsClient.upload(buffer, {

@@ -34,22 +34,9 @@ const nextConfig: NextConfig = {
 
   // Security headers configuration
   // SOC2 CC6.7/CC6.8: Security and Confidentiality controls
+  // Security headers configuration
+  // CSP is now handled by middleware.ts (per-request nonce)
   async headers() {
-    // Content Security Policy
-    const cspDirectives = [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'", // SECURITY: unsafe-eval removed for production safety
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://storage.googleapis.com https://*.tesserix.app https://images.unsplash.com",
-      "font-src 'self' data:",
-      "connect-src 'self' https://*.tesserix.app wss://*.tesserix.app https://storage.googleapis.com https://api.posthog.com https://api.frankfurter.app",
-      "frame-ancestors 'none'",
-      "form-action 'self'",
-      "base-uri 'self'",
-      "object-src 'none'",
-      ...(process.env.NODE_ENV === 'production' ? ["upgrade-insecure-requests"] : []),
-    ].join('; ');
-
     return [
       {
         // Security headers for all routes
@@ -61,7 +48,6 @@ const nextConfig: NextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          { key: 'Content-Security-Policy', value: cspDirectives },
           { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
         ],
       },

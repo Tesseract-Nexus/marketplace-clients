@@ -33,7 +33,7 @@ export async function GET(
         headers: {
           'Accept': 'text/event-stream',
           'Cache-Control': 'no-cache',
-          'X-Request-ID': `sse-${Math.random().toString(36).substring(2)}${Date.now().toString(36)}`,
+          'X-Request-ID': crypto.randomUUID(),
         },
         // @ts-ignore - Next.js specific option for streaming
         cache: 'no-store',

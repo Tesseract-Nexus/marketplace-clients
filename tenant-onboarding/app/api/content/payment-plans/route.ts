@@ -37,7 +37,7 @@ export async function GET(request: Request) {
         name: 'Free Trial',
         slug: 'free-trial',
         price: '0',
-        currency: 'INR',
+        currency: 'USD',
         billingCycle: 'monthly',
         trialDays: 365,
         tagline: 'Start free, then simple flat pricing',

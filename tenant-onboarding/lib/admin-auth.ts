@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { timingSafeEqual } from 'node:crypto';
 import { getSecretWithFallback } from './gcp-secrets';
 
 // Cached admin key to avoid repeated GCP Secret Manager calls
@@ -43,18 +44,18 @@ export async function validateAdminAuth(
     );
   }
 
-  // Check header first, then query param (for browser access)
-  const headerKey = request.headers.get('X-Admin-Key');
-  const { searchParams } = new URL(request.url);
-  const queryKey = searchParams.get('key');
-
-  const providedKey = headerKey || queryKey;
+  // Only accept key from header (never query params — prevents URL/log leakage)
+  const providedKey = request.headers.get('X-Admin-Key');
 
   if (!providedKey) {
     return NextResponse.json({ error: 'Admin key required' }, { status: 401 });
   }
 
-  if (providedKey !== adminApiKey) {
+  // Timing-safe comparison to prevent timing attacks
+  const encoder = new TextEncoder();
+  const a = encoder.encode(providedKey);
+  const b = encoder.encode(adminApiKey);
+  if (a.byteLength !== b.byteLength || !timingSafeEqual(a, b)) {
     return NextResponse.json({ error: 'Invalid admin key' }, { status: 403 });
   }
 
@@ -67,5 +68,9 @@ export async function isAdminKeyValid(key: string | null): Promise<boolean> {
   if (!key) return false;
   const adminApiKey = await getAdminApiKey();
   if (!adminApiKey) return false;
-  return key === adminApiKey;
+  const encoder = new TextEncoder();
+  const a = encoder.encode(key);
+  const b = encoder.encode(adminApiKey);
+  if (a.byteLength !== b.byteLength) return false;
+  return timingSafeEqual(a, b);
 }

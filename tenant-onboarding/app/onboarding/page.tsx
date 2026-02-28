@@ -20,6 +20,7 @@ import { getBrowserGeolocation, reverseGeocode, checkGeolocationPermission } fro
 import { useAutoSave, useBrowserClose, useDraftRecovery, type DraftFormData } from '../../lib/hooks';
 import { config } from '../../lib/config/app';
 import { normalizeDomain, validateDomain, generateUrls, validateStorefrontSubdomain, DEFAULT_STOREFRONT_SUBDOMAIN, type DomainValidationResult } from '../../lib/utils/domain';
+import { mapContactToStore, mapAddressToStore, mapStoreSetupToStore } from '../../lib/utils/form-mappers';
 
 // Development-only logging utility
 const isDev = process.env.NODE_ENV === 'development';
@@ -79,12 +80,13 @@ const JOB_TITLES = [
 ];
 
 const steps = [
-  { id: 0, label: 'Business & Contact', icon: Building2 },
-  { id: 1, label: 'Location', icon: MapPin },
-  { id: 2, label: 'Store Setup', icon: Store },
-  { id: 3, label: 'Documents', icon: FileText, optional: true },
-  { id: 4, label: 'Legal', icon: Scale },
-  { id: 5, label: 'Launch', icon: Rocket },
+  { id: 0, label: 'Business', icon: Building2 },
+  { id: 1, label: 'Personal', icon: User },
+  { id: 2, label: 'Location', icon: MapPin },
+  { id: 3, label: 'Store Setup', icon: Store },
+  { id: 4, label: 'Documents', icon: FileText, optional: true },
+  { id: 5, label: 'Legal', icon: Scale },
+  { id: 6, label: 'Launch', icon: Rocket },
 ];
 
 export default function OnboardingPage() {
@@ -107,6 +109,10 @@ export default function OnboardingPage() {
     resetOnboarding,
     sessionExpired,
     setSessionExpired,
+    markStepCompleted,
+    // Legal acceptance from store (persisted)
+    legalAccepted,
+    setLegalAccepted,
     // Document state from store
     documents,
     setAddressProofType: setStoreAddressProofType,
@@ -119,7 +125,6 @@ export default function OnboardingPage() {
   const opAnalytics = useAnalytics();
 
   const [currentSection, setCurrentSection] = useState(0);
-  const [businessContactSubStep, setBusinessContactSubStep] = useState<'business' | 'contact'>('business');
   const [countries, setCountries] = useState<Country[]>([]);
   const [states, setStates] = useState<State[]>([]);
   const [currencies, setCurrencies] = useState<Currency[]>([]);
@@ -233,8 +238,7 @@ export default function OnboardingPage() {
   const [showStartOverConfirm, setShowStartOverConfirm] = useState(false);
 
   // Legal step (step 4) — scroll-to-enable agreement
-  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
-  const [legalAccepted, setLegalAccepted] = useState(false);
+  const [hasScrolledToBottom, setHasScrolledToBottom] = useState(legalAccepted);
   const legalScrollRef = useRef<HTMLDivElement>(null);
 
   // Resilient email: fallback to session API when store/form data goes stale
@@ -409,33 +413,45 @@ export default function OnboardingPage() {
       });
     }
     if (contactDetails && Object.keys(contactDetails).length > 0) {
+      const cd = mapContactToStore(contactDetails as any);
       const formData: Partial<ContactDetailsForm> = {
-        firstName: (contactDetails as any).first_name || '',
-        lastName: (contactDetails as any).last_name || '',
-        email: (contactDetails as any).email || '',
+        firstName: cd.first_name || '',
+        lastName: cd.last_name || '',
+        email: cd.email || '',
         phoneCountryCode: (contactDetails as any).phone_country_code || 'US',
-        phoneNumber: (contactDetails as any).phone_number || '',
-        jobTitle: (contactDetails as any).job_title || '',
+        phoneNumber: cd.phone_number || '',
+        jobTitle: cd.job_title || '',
       };
       Object.entries(formData).forEach(([key, value]) => {
         if (value) contactForm.setValue(key as keyof ContactDetailsForm, value as any);
       });
     }
     if (businessAddress && Object.keys(businessAddress).length > 0) {
+      const ba = mapAddressToStore(businessAddress as any);
       const formData: Partial<BusinessAddressForm> = {
-        streetAddress: (businessAddress as any).street_address || '',
-        city: (businessAddress as any).city || '',
-        state: (businessAddress as any).state || '',
-        postalCode: (businessAddress as any).postal_code || '',
-        country: (businessAddress as any).country || '',
-        addressConfirmed: (businessAddress as any).address_confirmed || false,
+        streetAddress: ba.street_address || '',
+        city: ba.city || '',
+        state: ba.state_province || '',
+        postalCode: ba.postal_code || '',
+        country: ba.country || '',
+        addressConfirmed: ba.address_confirmed || false,
       };
       Object.entries(formData).forEach(([key, value]) => {
         if (value !== undefined && value !== '') addressForm.setValue(key as keyof BusinessAddressForm, value as any);
       });
     }
     if (storeSetup && Object.keys(storeSetup).length > 0) {
-      Object.entries(storeSetup).forEach(([key, value]) => {
+      const ss = mapStoreSetupToStore(storeSetup as any);
+      const storeFormData: Partial<StoreSetupForm> = {
+        businessModel: ss.business_model || undefined,
+        subdomain: ss.subdomain || '',
+        storefrontSlug: ss.storefront_slug || '',
+        currency: ss.currency || '',
+        timezone: ss.timezone || '',
+        language: ss.language || 'en',
+        logo: ss.logo || '',
+      };
+      Object.entries(storeFormData).forEach(([key, value]) => {
         if (value) storeSetupForm.setValue(key as keyof StoreSetupForm, value as any);
       });
     }
@@ -493,7 +509,6 @@ export default function OnboardingPage() {
         currentStep: 0,
       });
       setCurrentSection(0);
-      setBusinessContactSubStep('business');
       setIsStoreHydrated(false);
     }
 
@@ -531,10 +546,6 @@ export default function OnboardingPage() {
         setCurrentSection(firstIncompleteStep);
       }
     }
-    // Restore contact sub-step if contact details exist (means sub-step was completed)
-    if (contactDetails && Object.keys(contactDetails).length > 0) {
-      setBusinessContactSubStep('contact');
-    }
   }, [sessionId, isStoreHydrated, businessInfo, contactDetails, businessAddress]);
 
   useEffect(() => {
@@ -545,7 +556,6 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (sessionExpired) {
       setCurrentSection(0);
-      setBusinessContactSubStep('business');
       setIsStoreHydrated(false);
     }
   }, [sessionExpired]);
@@ -611,7 +621,6 @@ export default function OnboardingPage() {
     resetOnboarding();
     // Reset UI state to start fresh
     setCurrentSection(0);
-    setBusinessContactSubStep('business');
     setIsStoreHydrated(false);
     // Reset all forms to empty values
     businessForm.reset({
@@ -687,7 +696,6 @@ export default function OnboardingPage() {
       resetOnboarding();
       // Reset UI state
       setCurrentSection(0);
-      setBusinessContactSubStep('business');
       setIsStoreHydrated(false);
       // Reset all forms
       businessForm.reset({
@@ -1303,8 +1311,8 @@ export default function OnboardingPage() {
         storeSetupForm.setValue('storefrontSlug', generatedSlug);
       }
 
-      // Move to contact sub-step within the same section
-      setBusinessContactSubStep('contact');
+      markStepCompleted(0);
+      setCurrentSection(1); // Move to Personal step
     } catch (error) {
       // Use OnboardingAPIError for better error handling
       if (error instanceof OnboardingAPIError) {
@@ -1354,14 +1362,14 @@ export default function OnboardingPage() {
       });
       analytics.onboarding.contactInfoCompleted({ job_title: data.jobTitle, has_phone: !!data.phoneNumber });
       opAnalytics.contactInfoCompleted({ jobTitle: data.jobTitle, hasPhone: !!data.phoneNumber });
-      setContactDetails({
+      setContactDetails(mapContactToStore({
         first_name: data.firstName,
         last_name: data.lastName,
         email: data.email,
-        phone: data.phoneNumber,
+        phone_number: data.phoneNumber,
         phone_country_code: callingCode,
         job_title: data.jobTitle,
-      });
+      }) as any);
       // Pre-fill address country based on phone country code
       // Always set the country to help users - they can still change it
       const phoneCountry = data.phoneCountryCode;
@@ -1380,7 +1388,8 @@ export default function OnboardingPage() {
           loadStates(phoneCountry);
         }
       }
-      setCurrentSection(1); // Move to Location step
+      markStepCompleted(1);
+      setCurrentSection(2); // Move to Location step
     } catch (error) {
       // Use OnboardingAPIError for better error handling
       if (error instanceof OnboardingAPIError) {
@@ -1430,15 +1439,16 @@ export default function OnboardingPage() {
       analytics.onboarding.addressCompleted({ country: data.country, state: data.state });
       opAnalytics.addressCompleted({ country: data.country, state: data.state });
       // Store the address data in the Zustand store (uses snake_case for API compatibility)
-      setBusinessAddress({
+      setBusinessAddress(mapAddressToStore({
         street_address: data.streetAddress,
         city: data.city,
         state_province: data.state,
         postal_code: data.postalCode,
         country: data.country,
-      } as any);
+      }) as any);
       // Don't auto-populate currency and timezone - let user select manually
-      setCurrentSection(2); // Move to Store Setup step
+      markStepCompleted(2);
+      setCurrentSection(3); // Move to Store Setup step
     } catch (error) {
       // Use OnboardingAPIError for better error handling
       if (error instanceof OnboardingAPIError) {
@@ -1478,11 +1488,12 @@ export default function OnboardingPage() {
       return;
     }
 
-    // Move to Documents step (or Launch if documents disabled)
+    markStepCompleted(3);
+    // Move to Documents step (or Legal if documents disabled)
     if (config.features.documents.enabled) {
-      setCurrentSection(3);
-    } else {
       setCurrentSection(4);
+    } else {
+      setCurrentSection(5);
     }
   };
 
@@ -1497,7 +1508,8 @@ export default function OnboardingPage() {
       ].filter(Boolean) as string[];
       opAnalytics.documentsUploaded({ documentCount: uploadedDocs.length, documentTypes: docTypes });
     }
-    setCurrentSection(4);
+    markStepCompleted(4);
+    setCurrentSection(5);
   };
 
   const handleStoreSetupSubmit = async (data: StoreSetupForm) => {
@@ -1628,7 +1640,7 @@ export default function OnboardingPage() {
 
       analytics.onboarding.storeSetupCompleted({ subdomain: data.subdomain, storefrontSlug: data.storefrontSlug, currency: data.currency, timezone: data.timezone, businessModel: data.businessModel });
       opAnalytics.storeSetupCompleted({ subdomain: data.subdomain, currency: data.currency, timezone: data.timezone, businessModel: data.businessModel });
-      setStoreSetup({
+      setStoreSetup(mapStoreSetupToStore({
         business_model: data.businessModel,
         subdomain: data.subdomain,
         storefront_slug: data.storefrontSlug,
@@ -1636,7 +1648,7 @@ export default function OnboardingPage() {
         timezone: data.timezone,
         language: data.language,
         logo: data.logo,
-      });
+      }) as any);
       nextStep();
 
       // Pre-flight: verify contact info exists in backend before navigating to verify
@@ -1663,8 +1675,7 @@ export default function OnboardingPage() {
             devLog('[Onboarding] Pre-flight: backfilled missing contact info from form data');
           } else {
             // No data to backfill — send user back to contact step
-            setCurrentSection(0);
-            setBusinessContactSubStep('contact');
+            setCurrentSection(1);
             setValidationErrors({ storeSetup: 'Please complete your contact details before proceeding.' });
             return; // Don't navigate to verify
           }
@@ -1692,6 +1703,7 @@ export default function OnboardingPage() {
         } catch { /* ignore - verify page has its own fallback */ }
       }
       if (emailForVerify) verifyParams.set('email', emailForVerify as string);
+      markStepCompleted(6);
       router.push(`/onboarding/verify?${verifyParams.toString()}`);
     } catch (error) {
       // Use OnboardingAPIError for better error handling
@@ -1891,10 +1903,16 @@ export default function OnboardingPage() {
                 const Icon = step.icon;
                 return (
                   <div key={step.id} className="flex items-start">
-                    <div className="flex flex-col items-center">
+                    <button
+                      type="button"
+                      disabled={!isCompleted}
+                      onClick={() => isCompleted && setCurrentSection(index)}
+                      aria-label={isCompleted ? `Go back to ${step.label}` : step.label}
+                      className={`flex flex-col items-center ${isCompleted ? 'cursor-pointer' : 'cursor-default'}`}
+                    >
                       <div className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
                         isCompleted
-                          ? 'bg-sage-500'
+                          ? 'bg-sage-500 hover:bg-sage-600'
                           : isActive
                             ? 'bg-primary'
                             : 'bg-warm-100 border border-warm-200'
@@ -1910,7 +1928,7 @@ export default function OnboardingPage() {
                       }`}>
                         {step.label}
                       </span>
-                    </div>
+                    </button>
                     {index < steps.length - 1 && (
                       <div className="flex items-center h-12 w-10 sm:w-16 md:w-20 px-2">
                         <div className="w-full h-0.5 rounded-full overflow-hidden bg-warm-200">
@@ -1966,8 +1984,8 @@ export default function OnboardingPage() {
           <div className="relative">
             <div className="bg-card border border-border rounded-2xl p-8 sm:p-10 shadow-card">
 
-              {/* Step 0a: Business Information */}
-              {currentSection === 0 && businessContactSubStep === 'business' && (
+              {/* Step 0: Business Information */}
+              {currentSection === 0 && (
                 <form onSubmit={businessForm.handleSubmit(handleBusinessSubmit)} className="space-y-6" noValidate>
                   <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
@@ -2146,8 +2164,8 @@ export default function OnboardingPage() {
                 </form>
               )}
 
-              {/* Step 0b: Contact Details */}
-              {currentSection === 0 && businessContactSubStep === 'contact' && (
+              {/* Step 1: Contact Details */}
+              {currentSection === 1 && (
                 <form onSubmit={contactForm.handleSubmit(handleContactSubmit)} className="space-y-6" noValidate>
                   <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
@@ -2251,7 +2269,7 @@ export default function OnboardingPage() {
                   <div className="pt-6 flex gap-4">
                     <button
                       type="button"
-                      onClick={() => setBusinessContactSubStep('business')}
+                      onClick={() => setCurrentSection(0)}
                       className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                     >
                       <ArrowLeft className="w-5 h-5" /> Back
@@ -2267,8 +2285,8 @@ export default function OnboardingPage() {
                 </form>
               )}
 
-              {/* Step 1: Business Address (Location) */}
-              {currentSection === 1 && (
+              {/* Step 2: Business Address (Location) */}
+              {currentSection === 2 && (
                 <form onSubmit={addressForm.handleSubmit(handleAddressSubmit)} className="space-y-6" noValidate>
                   <div className="mb-8">
                     <div className="flex items-center gap-4 mb-4">
@@ -2381,7 +2399,7 @@ export default function OnboardingPage() {
                   <div className="pt-6 flex gap-4">
                     <button
                       type="button"
-                      onClick={() => { setCurrentSection(0); setBusinessContactSubStep('contact'); }}
+                      onClick={() => setCurrentSection(1)}
                       className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                     >
                       <ArrowLeft className="w-5 h-5" /> Back
@@ -2397,11 +2415,11 @@ export default function OnboardingPage() {
                 </form>
               )}
 
-              {/* Steps 2-5: Store Setup, Documents, Legal, Launch */}
-              {(currentSection === 2 || currentSection === 3 || currentSection === 4 || currentSection === 5) && (
-                <form onSubmit={storeSetupForm.handleSubmit(handleStoreSetupSubmit, (errors) => devError('[StoreSetup] Validation errors:', errors))} className="space-y-6" noValidate>
+              {/* Steps 3-5: Store Setup, Documents, Legal (plain div wrappers — no form submit) */}
+              {(currentSection === 3 || currentSection === 4 || currentSection === 5) && (
+                <div className="space-y-6">
                   {/* Section-specific headers */}
-                  {currentSection === 2 && (
+                  {currentSection === 3 && (
                     <div className="mb-8">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
@@ -2415,7 +2433,7 @@ export default function OnboardingPage() {
                     </div>
                   )}
 
-                  {currentSection === 3 && (
+                  {currentSection === 4 && (
                     <div className="mb-8">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
@@ -2429,7 +2447,7 @@ export default function OnboardingPage() {
                     </div>
                   )}
 
-                  {currentSection === 4 && (
+                  {currentSection === 5 && (
                     <div className="mb-8">
                       <div className="flex items-center gap-4 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
@@ -2443,23 +2461,9 @@ export default function OnboardingPage() {
                     </div>
                   )}
 
-                  {currentSection === 5 && (
-                    <div className="mb-8">
-                      <div className="flex items-center gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
-                          <Rocket className="w-6 h-6 text-warm-600" />
-                        </div>
-                        <div>
-                          <h1 className="text-2xl font-serif font-medium text-foreground">Ready to launch!</h1>
-                          <p className="text-muted-foreground">Review your settings and launch your store</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
                   <div className="space-y-5">
-                    {/* Section 2: Store Setup Fields */}
-                    {currentSection === 2 && (
+                    {/* Section 3: Store Setup Fields */}
+                    {currentSection === 3 && (
                       <>
                         {/* Business Model Selection */}
                         <div>
@@ -2738,7 +2742,7 @@ export default function OnboardingPage() {
                     )}
 
                     {/* Custom Domain (part of Store Setup) */}
-                    {currentSection === 2 && (
+                    {currentSection === 3 && (
                       <>
                     {/* Custom Domain Section Toggle */}
                     <div className="pt-4">
@@ -3336,8 +3340,8 @@ export default function OnboardingPage() {
                       </>
                     )}
 
-                    {/* Section 2: Currency, Timezone, Language (continuation of Store Setup) */}
-                    {currentSection === 2 && (
+                    {/* Section 3: Currency, Timezone, Language (continuation of Store Setup) */}
+                    {currentSection === 3 && (
                       <>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -3396,11 +3400,11 @@ export default function OnboardingPage() {
                       />
                     </div>
 
-                        {/* Section 2: Continue/Back buttons */}
+                        {/* Section 3: Continue/Back buttons */}
                         <div className="pt-6 flex gap-4">
                           <button
                             type="button"
-                            onClick={() => setCurrentSection(1)}
+                            onClick={() => setCurrentSection(2)}
                             className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                           >
                             <ArrowLeft className="w-5 h-5" /> Back
@@ -3416,8 +3420,8 @@ export default function OnboardingPage() {
                       </>
                     )}
 
-                    {/* Section 3: Documents */}
-                    {currentSection === 3 && (
+                    {/* Section 4: Documents */}
+                    {currentSection === 4 && (
                       <>
                         <div className="p-6 bg-warm-50 rounded-xl border border-warm-200">
                           <p className="text-sm text-muted-foreground mb-4">
@@ -3447,11 +3451,11 @@ export default function OnboardingPage() {
                           />
                         </div>
 
-                        {/* Section 3: Navigation buttons */}
+                        {/* Section 4: Navigation buttons */}
                         <div className="pt-6 flex gap-4">
                           <button
                             type="button"
-                            onClick={() => setCurrentSection(2)}
+                            onClick={() => setCurrentSection(3)}
                             className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                           >
                             <ArrowLeft className="w-5 h-5" /> Back
@@ -3474,8 +3478,8 @@ export default function OnboardingPage() {
                       </>
                     )}
 
-                    {/* Section 4: Legal & Compliance */}
-                    {currentSection === 4 && (
+                    {/* Section 5: Legal & Compliance */}
+                    {currentSection === 5 && (
                       <>
                         <div className="space-y-5">
                           {/* Scrollable legal content */}
@@ -3619,11 +3623,11 @@ export default function OnboardingPage() {
                           </label>
                         </div>
 
-                        {/* Section 4: Navigation buttons */}
+                        {/* Section 5: Navigation buttons */}
                         <div className="pt-6 flex gap-4">
                           <button
                             type="button"
-                            onClick={() => setCurrentSection(config.features.documents.enabled ? 3 : 2)}
+                            onClick={() => setCurrentSection(config.features.documents.enabled ? 4 : 3)}
                             className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
                           >
                             <ArrowLeft className="w-5 h-5" /> Back
@@ -3631,7 +3635,7 @@ export default function OnboardingPage() {
                           <button
                             type="button"
                             disabled={!legalAccepted}
-                            onClick={() => { opAnalytics.legalAccepted(); setCurrentSection(5); }}
+                            onClick={() => { opAnalytics.legalAccepted(); markStepCompleted(5); setCurrentSection(6); }}
                             className="flex-1 h-14 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary-hover transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
                           >
                             Continue <ArrowRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
@@ -3639,252 +3643,264 @@ export default function OnboardingPage() {
                         </div>
                       </>
                     )}
+                  </div>
+                </div>
+              )}
 
-                    {/* Section 5: Review & Launch */}
-                    {currentSection === 5 && (
-                      <>
-                        <div className="space-y-4">
-                          {/* Business Information Section */}
-                          <div className="p-4 bg-warm-50 rounded-xl border border-warm-200">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-3">
-                                <Building2 className="w-5 h-5 text-warm-600" />
-                                <span className="font-medium text-foreground">Business Information</span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => { setCurrentSection(0); setBusinessContactSubStep('business'); }}
-                                className="text-xs text-primary hover:underline flex items-center gap-1"
-                              >
-                                Edit
-                              </button>
-                            </div>
-                            <div className="grid gap-2 text-sm">
-                              {businessForm.watch('businessName') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Business Name:</span>
-                                  <span className="text-foreground font-medium">{businessForm.watch('businessName')}</span>
-                                </div>
-                              )}
-                              {businessForm.watch('businessType') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Business Type:</span>
-                                  <span className="text-foreground font-medium">{businessForm.watch('businessType')}</span>
-                                </div>
-                              )}
-                              {businessForm.watch('industryCategory') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Industry:</span>
-                                  <span className="text-foreground font-medium">{businessForm.watch('industryCategory')}</span>
-                                </div>
-                              )}
-                              {businessForm.watch('companyWebsite') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Website:</span>
-                                  <span className="text-foreground font-medium">{businessForm.watch('companyWebsite')}</span>
-                                </div>
-                              )}
-                              {businessForm.watch('businessRegistrationNumber') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Registration Number:</span>
-                                  <span className="text-foreground font-medium">{businessForm.watch('businessRegistrationNumber')}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
+              {/* Step 6: Review & Launch (wrapped in form for submit) */}
+              {currentSection === 6 && (
+                <form onSubmit={storeSetupForm.handleSubmit(handleStoreSetupSubmit, (errors) => devError('[StoreSetup] Validation errors:', errors))} className="space-y-6" noValidate>
+                  <div className="mb-8">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-xl bg-warm-100 border border-warm-200 flex items-center justify-center">
+                        <Rocket className="w-6 h-6 text-warm-600" />
+                      </div>
+                      <div>
+                        <h1 className="text-2xl font-serif font-medium text-foreground">Ready to launch!</h1>
+                        <p className="text-muted-foreground">Review your settings and launch your store</p>
+                      </div>
+                    </div>
+                  </div>
 
-                          {/* Contact Details Section */}
-                          <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-3">
-                                <User className="w-5 h-5 text-sage-600" />
-                                <span className="font-medium text-foreground">Contact Details</span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => { setCurrentSection(0); setBusinessContactSubStep('contact'); }}
-                                className="text-xs text-primary hover:underline flex items-center gap-1"
-                              >
-                                Edit
-                              </button>
-                            </div>
-                            <div className="grid gap-2 text-sm">
-                              {contactForm.watch('firstName') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Name:</span>
-                                  <span className="text-foreground font-medium">
-                                    {contactForm.watch('firstName')} {contactForm.watch('lastName')}
-                                  </span>
-                                </div>
-                              )}
-                              {contactForm.watch('email') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Email:</span>
-                                  <span className="text-foreground font-medium">{contactForm.watch('email')}</span>
-                                </div>
-                              )}
-                              {contactForm.watch('phoneNumber') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Phone:</span>
-                                  <span className="text-foreground font-medium">{contactForm.watch('phoneCountryCode')} {contactForm.watch('phoneNumber')}</span>
-                                </div>
-                              )}
-                              {contactForm.watch('jobTitle') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Job Title:</span>
-                                  <span className="text-foreground font-medium">{contactForm.watch('jobTitle')}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Business Address Section */}
-                          <div className="p-4 bg-warm-50 rounded-xl border border-warm-200">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-3">
-                                <MapPin className="w-5 h-5 text-warm-600" />
-                                <span className="font-medium text-foreground">Business Address</span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => setCurrentSection(1)}
-                                className="text-xs text-primary hover:underline flex items-center gap-1"
-                              >
-                                Edit
-                              </button>
-                            </div>
-                            <div className="grid gap-2 text-sm">
-                              {addressForm.watch('streetAddress') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Address:</span>
-                                  <span className="text-foreground font-medium text-right">
-                                    {addressForm.watch('streetAddress')}
-                                  </span>
-                                </div>
-                              )}
-                              {addressForm.watch('city') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">City:</span>
-                                  <span className="text-foreground font-medium">{addressForm.watch('city')}</span>
-                                </div>
-                              )}
-                              {addressForm.watch('state') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">State/Province:</span>
-                                  <span className="text-foreground font-medium">{addressForm.watch('state')}</span>
-                                </div>
-                              )}
-                              {addressForm.watch('postalCode') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Postal Code:</span>
-                                  <span className="text-foreground font-medium">{addressForm.watch('postalCode')}</span>
-                                </div>
-                              )}
-                              {addressForm.watch('country') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Country:</span>
-                                  <span className="text-foreground font-medium">{addressForm.watch('country')}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Store Setup Section */}
-                          <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
-                            <div className="flex items-center justify-between mb-3">
-                              <div className="flex items-center gap-3">
-                                <Store className="w-5 h-5 text-sage-600" />
-                                <span className="font-medium text-foreground">Store Configuration</span>
-                              </div>
-                              <button
-                                type="button"
-                                onClick={() => setCurrentSection(2)}
-                                className="text-xs text-primary hover:underline flex items-center gap-1"
-                              >
-                                Edit
-                              </button>
-                            </div>
-                            <div className="grid gap-2 text-sm">
-                              <div className="flex justify-between">
-                                <span className="text-muted-foreground">Business Model:</span>
-                                <span className="text-foreground font-medium">
-                                  {storeSetupForm.watch('businessModel') === 'ONLINE_STORE' ? 'Online Store' : 'Marketplace'}
-                                </span>
-                              </div>
-                              {/* Only show Admin URL if NOT using custom domain */}
-                              {!(storeSetupForm.watch('useCustomDomain') && storeSetupForm.watch('customDomain')) && (
-                                <>
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Store URL:</span>
-                                    <span className="text-foreground font-medium">{storeSetupForm.watch('subdomain')}.{baseDomain}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Admin URL:</span>
-                                    <span className="text-foreground font-medium">{storeSetupForm.watch('subdomain')}-admin.{baseDomain}</span>
-                                  </div>
-                                </>
-                              )}
-                              {/* Show custom domain URLs when using custom domain */}
-                              {storeSetupForm.watch('useCustomDomain') && storeSetupForm.watch('customDomain') && (
-                                <>
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Store URL:</span>
-                                    <span className="text-foreground font-medium">{storeSetupForm.watch('customDomain')}</span>
-                                  </div>
-                                  <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Admin URL:</span>
-                                    <span className="text-foreground font-medium">admin.{storeSetupForm.watch('customDomain')}</span>
-                                  </div>
-                                </>
-                              )}
-                              <div className="flex justify-between">
-                                <span className="text-muted-foreground">Currency:</span>
-                                <span className="text-foreground font-medium">{storeSetupForm.watch('currency')}</span>
-                              </div>
-                              {storeSetupForm.watch('timezone') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Timezone:</span>
-                                  <span className="text-foreground font-medium">{storeSetupForm.watch('timezone')}</span>
-                                </div>
-                              )}
-                              {storeSetupForm.watch('language') && (
-                                <div className="flex justify-between">
-                                  <span className="text-muted-foreground">Language:</span>
-                                  <span className="text-foreground font-medium">{storeSetupForm.watch('language')}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
-                            <div className="flex items-center gap-3">
-                              <Check className="w-5 h-5 text-sage-600" />
-                              <span className="text-sm text-muted-foreground">
-                                Review your information above. You can edit any section or proceed to launch your store.
-                              </span>
-                            </div>
-                          </div>
+                  <div className="space-y-4">
+                    {/* Business Information Section */}
+                    <div className="p-4 bg-warm-50 rounded-xl border border-warm-200">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <Building2 className="w-5 h-5 text-warm-600" />
+                          <span className="font-medium text-foreground">Business Information</span>
                         </div>
+                        <button
+                          type="button"
+                          onClick={() => setCurrentSection(0)}
+                          className="text-xs text-primary hover:underline flex items-center gap-1"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                      <div className="grid gap-2 text-sm">
+                        {businessForm.watch('businessName') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Business Name:</span>
+                            <span className="text-foreground font-medium">{businessForm.watch('businessName')}</span>
+                          </div>
+                        )}
+                        {businessForm.watch('businessType') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Business Type:</span>
+                            <span className="text-foreground font-medium">{businessForm.watch('businessType')}</span>
+                          </div>
+                        )}
+                        {businessForm.watch('industryCategory') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Industry:</span>
+                            <span className="text-foreground font-medium">{businessForm.watch('industryCategory')}</span>
+                          </div>
+                        )}
+                        {businessForm.watch('companyWebsite') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Website:</span>
+                            <span className="text-foreground font-medium">{businessForm.watch('companyWebsite')}</span>
+                          </div>
+                        )}
+                        {businessForm.watch('businessRegistrationNumber') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Registration Number:</span>
+                            <span className="text-foreground font-medium">{businessForm.watch('businessRegistrationNumber')}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
 
-                        {/* Section 5: Navigation buttons */}
-                        <div className="pt-6 flex gap-4">
-                          <button
-                            type="button"
-                            onClick={() => setCurrentSection(4)}
-                            className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
-                          >
-                            <ArrowLeft className="w-5 h-5" /> Back
-                          </button>
-                          <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="flex-1 h-14 bg-sage-600 hover:bg-sage-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
-                          >
-                            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Launch Store <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" /></>}
-                          </button>
+                    {/* Contact Details Section */}
+                    <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <User className="w-5 h-5 text-sage-600" />
+                          <span className="font-medium text-foreground">Contact Details</span>
                         </div>
-                      </>
-                    )}
+                        <button
+                          type="button"
+                          onClick={() => setCurrentSection(1)}
+                          className="text-xs text-primary hover:underline flex items-center gap-1"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                      <div className="grid gap-2 text-sm">
+                        {contactForm.watch('firstName') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Name:</span>
+                            <span className="text-foreground font-medium">
+                              {contactForm.watch('firstName')} {contactForm.watch('lastName')}
+                            </span>
+                          </div>
+                        )}
+                        {contactForm.watch('email') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Email:</span>
+                            <span className="text-foreground font-medium">{contactForm.watch('email')}</span>
+                          </div>
+                        )}
+                        {contactForm.watch('phoneNumber') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Phone:</span>
+                            <span className="text-foreground font-medium">{contactForm.watch('phoneCountryCode')} {contactForm.watch('phoneNumber')}</span>
+                          </div>
+                        )}
+                        {contactForm.watch('jobTitle') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Job Title:</span>
+                            <span className="text-foreground font-medium">{contactForm.watch('jobTitle')}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Business Address Section */}
+                    <div className="p-4 bg-warm-50 rounded-xl border border-warm-200">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <MapPin className="w-5 h-5 text-warm-600" />
+                          <span className="font-medium text-foreground">Business Address</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setCurrentSection(2)}
+                          className="text-xs text-primary hover:underline flex items-center gap-1"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                      <div className="grid gap-2 text-sm">
+                        {addressForm.watch('streetAddress') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Address:</span>
+                            <span className="text-foreground font-medium text-right">
+                              {addressForm.watch('streetAddress')}
+                            </span>
+                          </div>
+                        )}
+                        {addressForm.watch('city') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">City:</span>
+                            <span className="text-foreground font-medium">{addressForm.watch('city')}</span>
+                          </div>
+                        )}
+                        {addressForm.watch('state') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">State/Province:</span>
+                            <span className="text-foreground font-medium">{addressForm.watch('state')}</span>
+                          </div>
+                        )}
+                        {addressForm.watch('postalCode') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Postal Code:</span>
+                            <span className="text-foreground font-medium">{addressForm.watch('postalCode')}</span>
+                          </div>
+                        )}
+                        {addressForm.watch('country') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Country:</span>
+                            <span className="text-foreground font-medium">{addressForm.watch('country')}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Store Setup Section */}
+                    <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <Store className="w-5 h-5 text-sage-600" />
+                          <span className="font-medium text-foreground">Store Configuration</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setCurrentSection(3)}
+                          className="text-xs text-primary hover:underline flex items-center gap-1"
+                        >
+                          Edit
+                        </button>
+                      </div>
+                      <div className="grid gap-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Business Model:</span>
+                          <span className="text-foreground font-medium">
+                            {storeSetupForm.watch('businessModel') === 'ONLINE_STORE' ? 'Online Store' : 'Marketplace'}
+                          </span>
+                        </div>
+                        {/* Only show Admin URL if NOT using custom domain */}
+                        {!(storeSetupForm.watch('useCustomDomain') && storeSetupForm.watch('customDomain')) && (
+                          <>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Store URL:</span>
+                              <span className="text-foreground font-medium">{storeSetupForm.watch('subdomain')}.{baseDomain}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Admin URL:</span>
+                              <span className="text-foreground font-medium">{storeSetupForm.watch('subdomain')}-admin.{baseDomain}</span>
+                            </div>
+                          </>
+                        )}
+                        {/* Show custom domain URLs when using custom domain */}
+                        {storeSetupForm.watch('useCustomDomain') && storeSetupForm.watch('customDomain') && (
+                          <>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Store URL:</span>
+                              <span className="text-foreground font-medium">{storeSetupForm.watch('customDomain')}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Admin URL:</span>
+                              <span className="text-foreground font-medium">admin.{storeSetupForm.watch('customDomain')}</span>
+                            </div>
+                          </>
+                        )}
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Currency:</span>
+                          <span className="text-foreground font-medium">{storeSetupForm.watch('currency')}</span>
+                        </div>
+                        {storeSetupForm.watch('timezone') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Timezone:</span>
+                            <span className="text-foreground font-medium">{storeSetupForm.watch('timezone')}</span>
+                          </div>
+                        )}
+                        {storeSetupForm.watch('language') && (
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Language:</span>
+                            <span className="text-foreground font-medium">{storeSetupForm.watch('language')}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="p-4 bg-sage-50 rounded-xl border border-sage-200">
+                      <div className="flex items-center gap-3">
+                        <Check className="w-5 h-5 text-sage-600" />
+                        <span className="text-sm text-muted-foreground">
+                          Review your information above. You can edit any section or proceed to launch your store.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Section 6: Navigation buttons */}
+                  <div className="pt-6 flex gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setCurrentSection(5)}
+                      className="flex-1 h-14 border border-border rounded-lg font-medium text-foreground hover:bg-secondary transition-colors flex items-center justify-center gap-2"
+                    >
+                      <ArrowLeft className="w-5 h-5" /> Back
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="flex-1 h-14 bg-sage-600 hover:bg-sage-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center gap-2 group"
+                    >
+                      {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <>Launch Store <Sparkles className="w-5 h-5 group-hover:rotate-12 transition-transform" /></>}
+                    </button>
                   </div>
                 </form>
               )}

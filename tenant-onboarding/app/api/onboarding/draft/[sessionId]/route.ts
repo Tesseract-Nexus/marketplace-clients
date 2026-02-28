@@ -15,7 +15,7 @@ export async function GET(
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'X-Request-ID': Math.random().toString(36).substring(2) + Date.now().toString(36),
+          'X-Request-ID': crypto.randomUUID(),
         },
       }
     );
@@ -55,7 +55,7 @@ export async function DELETE(
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
-          'X-Request-ID': Math.random().toString(36).substring(2) + Date.now().toString(36),
+          'X-Request-ID': crypto.randomUUID(),
         },
       }
     );

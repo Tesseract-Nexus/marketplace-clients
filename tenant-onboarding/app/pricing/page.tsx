@@ -50,7 +50,7 @@ const fallbackPlans: PaymentPlanData[] = [
     name: 'Free Trial',
     slug: 'free-trial',
     price: '0',
-    currency: 'INR',
+    currency: 'USD',
     billingCycle: 'monthly',
     trialDays: 365,
     featured: false,
@@ -66,8 +66,8 @@ const fallbackPlans: PaymentPlanData[] = [
   {
     name: 'Professional',
     slug: 'professional',
-    price: '499',
-    currency: 'INR',
+    price: '4.99',
+    currency: 'USD',
     billingCycle: 'monthly',
     featured: true,
     tagline: 'Everything you need to grow',
@@ -133,7 +133,7 @@ function formatPlanPrice(
 
   // 3. Fall back to the plan's own base price + currency
   const price = Math.round(priceNum);
-  const currency = plan.currency || 'INR';
+  const currency = plan.currency || 'USD';
   return `${getSymbol(currency)}${formatAmount(price, currency)}`;
 }
 
@@ -242,7 +242,7 @@ export default function PricingPage() {
               <Globe className="w-4 h-4" />
               <span>
                 Prices shown for {userLocation.country_name}
-                {userCurrency && userCurrency !== (allPlans[0]?.currency || 'INR') && (
+                {userCurrency && userCurrency !== (allPlans[0]?.currency || 'USD') && (
                   <> in {userCurrency}</>
                 )}
               </span>

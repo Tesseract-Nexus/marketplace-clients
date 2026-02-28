@@ -20,12 +20,15 @@ export const config = {
   onboarding: {
     applicationType: 'ecommerce',
     steps: {
-      businessInfo: 0,
-      contactDetails: 1,
-      businessAddress: 2,
-      verification: 3,
+      business: 0,
+      personal: 1,
+      location: 2,
+      storeSetup: 3,
+      documents: 4,
+      legal: 5,
+      launch: 6,
     },
-    totalSteps: 4,
+    totalSteps: 7,
   },
 
   // Feature Flags

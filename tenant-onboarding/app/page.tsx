@@ -81,7 +81,7 @@ const fallbackPricingPlans: Array<{
     name: 'Free Trial',
     slug: 'free-trial',
     price: '0',
-    currency: 'INR',
+    currency: 'USD',
     billingCycle: 'monthly',
     trialDays: 365,
     featured: false,
@@ -97,8 +97,8 @@ const fallbackPricingPlans: Array<{
   {
     name: 'Professional',
     slug: 'professional',
-    price: '499',
-    currency: 'INR',
+    price: '4.99',
+    currency: 'USD',
     billingCycle: 'monthly',
     featured: true,
     tagline: 'Everything you need to grow',
@@ -328,7 +328,7 @@ export default function Home() {
     }
     // 3. Fall back to plan's own currency
     const price = Math.round(parseFloat(plan.price));
-    const currency = plan.currency || 'INR';
+    const currency = plan.currency || 'USD';
     const symbol = CURRENCY_SYMBOLS[currency] || currency + ' ';
     const formatted = currency === 'INR' ? price.toLocaleString('en-IN') : price.toLocaleString();
     return `${symbol}${formatted}`;

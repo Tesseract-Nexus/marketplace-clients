@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Request-ID': Math.random().toString(36).substring(2) + Date.now().toString(36),
+          'X-Request-ID': crypto.randomUUID(),
         },
         body: JSON.stringify(body),
       }
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'X-Request-ID': Math.random().toString(36).substring(2) + Date.now().toString(36),
+          'X-Request-ID': crypto.randomUUID(),
         },
         body: JSON.stringify({
           status: 'completed',

@@ -209,7 +209,7 @@ class OnboardingAPI {
 
   private calculateBackoff(attempt: number): number {
     const delay = this.retryConfig.baseDelayMs * Math.pow(2, attempt);
-    const jitter = Math.random() * 100; // Add jitter to prevent thundering herd
+    const jitter = (crypto.getRandomValues(new Uint8Array(1))[0] / 255) * 100; // Add jitter to prevent thundering herd
     return Math.min(delay + jitter, this.retryConfig.maxDelayMs);
   }
 
@@ -329,7 +329,7 @@ class OnboardingAPI {
   }
 
   private generateRequestId(): string {
-    return `${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 9)}`;
+    return crypto.randomUUID();
   }
 
   // Health check endpoint for monitoring

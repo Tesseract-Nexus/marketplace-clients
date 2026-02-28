@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'X-Request-ID': Math.random().toString(36).substring(2) + Date.now().toString(36),
+          'X-Request-ID': crypto.randomUUID(),
         },
       }
     );

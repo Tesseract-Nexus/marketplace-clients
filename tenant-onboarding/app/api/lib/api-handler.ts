@@ -8,7 +8,7 @@ const CUSTOM_DOMAIN_SERVICE_URL = process.env.CUSTOM_DOMAIN_SERVICE_URL || 'http
 
 // Request ID generator
 export function generateRequestId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+  return crypto.randomUUID();
 }
 
 // Error response helper
@@ -178,45 +178,23 @@ export const SERVICES = {
   CUSTOM_DOMAIN: CUSTOM_DOMAIN_SERVICE_URL,
 };
 
-// Middleware: Rate limiting (simple in-memory implementation)
-const requestCounts = new Map<string, { count: number; resetTime: number }>();
-const RATE_LIMIT_WINDOW = 60000; // 1 minute
-const RATE_LIMIT_MAX = 100; // 100 requests per minute
-
-export function rateLimit(identifier: string): boolean {
-  const now = Date.now();
-  const record = requestCounts.get(identifier);
-
-  if (!record || now > record.resetTime) {
-    requestCounts.set(identifier, {
-      count: 1,
-      resetTime: now + RATE_LIMIT_WINDOW,
-    });
-    return true;
-  }
-
-  if (record.count >= RATE_LIMIT_MAX) {
-    return false;
-  }
-
-  record.count++;
-  return true;
-}
-
 // Middleware: Request validation
 // NOTE: Authentication is handled by upstream services (API Gateway/Ingress).
 // This BFF does NOT perform JWT validation - it trusts the upstream auth layer.
+import { checkRateLimit, extractClientIp, rateLimitExceededResponse } from '@/lib/rate-limit';
+
 export function validateRequest(
   request: NextRequest,
   options: {
     rateLimit?: boolean;
   } = {}
 ): NextResponse | null {
-  // Rate limiting
+  // Rate limiting (uses shared in-memory store from lib/rate-limit.ts)
   if (options.rateLimit) {
-    const ip = request.headers.get('x-forwarded-for') || 'unknown';
-    if (!rateLimit(ip)) {
-      return errorResponse('Rate limit exceeded. Please try again later.', 429);
+    const ip = extractClientIp(request.headers);
+    const result = checkRateLimit(ip);
+    if (!result.allowed) {
+      return rateLimitExceededResponse(result);
     }
   }
 
