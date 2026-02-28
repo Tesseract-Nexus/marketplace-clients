@@ -12,14 +12,22 @@ export function middleware(request: NextRequest) {
   if (isApiRoute && isMutatingMethod && !isSSEEndpoint) {
     const origin = request.headers.get('origin');
     const referer = request.headers.get('referer');
-    const host = request.headers.get('host');
+    // Use x-forwarded-host (set by proxies like Cloudflare/Cloud Run) with host as fallback
+    const host = request.headers.get('x-forwarded-host')?.split(',')[0]?.trim()
+      || request.headers.get('host');
 
     if (host) {
-      const allowedOrigin = `${request.nextUrl.protocol}//${host}`;
-      const originMatch = origin === allowedOrigin || origin === `https://${host}` || origin === `http://${host}`;
-      const refererMatch = referer?.startsWith(allowedOrigin) ||
-        referer?.startsWith(`https://${host}`) ||
-        referer?.startsWith(`http://${host}`);
+      // Compare hostnames only — avoids protocol mismatches behind proxies
+      // (e.g., Cloud Run internal http:// vs browser https://)
+      const hostName = host.split(':')[0];
+      let originMatch = false;
+      if (origin) {
+        try { originMatch = new URL(origin).hostname === hostName; } catch { /* invalid origin */ }
+      }
+      let refererMatch = false;
+      if (referer) {
+        try { refererMatch = new URL(referer).hostname === hostName; } catch { /* invalid referer */ }
+      }
 
       // Block if origin is present but doesn't match
       if (origin && !originMatch) {
