@@ -806,23 +806,23 @@ If the env var is set but malformed (truncated secret, encoding issue), the cons
 
 | Category | Item | Status |
 |---|---|---|
-| **Security** | Replace `Math.random()` with `crypto.randomUUID()` | ❌ |
-| **Security** | Add nonce-based CSP (remove `unsafe-inline`) | ❌ |
-| **Security** | Add magic byte validation for file uploads | ❌ |
-| **Security** | Remove query param support from admin auth | ❌ |
-| **Security** | Use `crypto.timingSafeEqual()` for key comparison | ❌ |
-| **Security** | Create `.dockerignore` excluding `.env.*`, `.git/`, `tests/` | ❌ |
+| **Security** | Replace `Math.random()` with `crypto.randomUUID()` | ✅ Done |
+| **Security** | Add nonce-based CSP (remove `unsafe-inline` for scripts) | ✅ Done |
+| **Security** | Add magic byte validation for file uploads | ✅ Done |
+| **Security** | Remove query param support from admin auth | ✅ Done |
+| **Security** | Use `crypto.timingSafeEqual()` for key comparison | ✅ Done |
+| **Security** | Create `.dockerignore` excluding `.env.*`, `.git/`, `tests/` | ✅ Done |
 | **Security** | Remove `.env.local` from version control | ❌ |
-| **Resilience** | Move rate limiting to Redis or Istio ingress | ❌ |
-| **Resilience** | Wrap GCS `JSON.parse` in try-catch | ❌ |
-| **Resilience** | Add `middleware.ts` for CSRF + auth backstop | ❌ |
-| **Resilience** | Remove hardcoded GCP project ID fallback | ❌ |
-| **Observability** | Wire ErrorBoundary to PostHog/Sentry | ❌ |
+| **Resilience** | Consolidate rate limiting into shared module with cleanup | ✅ Done |
+| **Resilience** | Wrap GCS `JSON.parse` in try-catch | ✅ Done |
+| **Resilience** | Add `middleware.ts` (CSP nonce per request) | ✅ Done |
+| **Resilience** | Remove hardcoded GCP project ID fallback | ✅ Done |
+| **Observability** | Wire ErrorBoundary to PostHog | ✅ Done |
 | **Observability** | Add structured logging for security events | ❌ |
-| **Deployment** | Fix Dockerfile healthcheck → `/api/health` | ❌ |
+| **Deployment** | Fix Dockerfile healthcheck → `/api/health` | ✅ Done |
 | **Deployment** | Pass `NEXT_PUBLIC_*` as build args, not env files | ❌ |
-| **Currency** | Establish single currency default strategy | ❌ |
-| **UX** | Fix `completedSteps` / `totalSteps` / shared form | ❌ |
+| **Currency** | Establish single currency default strategy (USD) | ✅ Done |
+| **UX** | Fix `completedSteps` / `totalSteps` / shared form | ✅ Done |
 
 ---
 
@@ -830,43 +830,43 @@ If the env var is set but malformed (truncated secret, encoding issue), the cons
 
 ### P0 — Must Fix Before Production (Security & Broken Functionality)
 
-| # | Issue | Section | Effort |
-|---|---|---|---|
-| 1 | Remove `unsafe-inline` from CSP, use nonce-based CSP | 8.4 | Medium |
-| 2 | Add magic byte validation for file uploads | 8.6 | Small |
-| 3 | Create `.dockerignore`, remove `.env.local` from image | 8.9 | Small |
-| 4 | Wrap GCS `JSON.parse` in try-catch (crash on bad env var) | 8.8 | Small |
-| 5 | Call `markStepCompleted()` in each step handler | 1.1 | Small |
-| 6 | Fix `totalSteps: 4` → `6` (or derive from array) | 1.2 | Small |
-| 7 | Separate the shared `<form>` — prevent accidental submission via Enter key | 1.3 | Medium |
-| 8 | Remove hardcoded GCP project ID fallback | 8.10 | Small |
-| 9 | Fix Dockerfile healthcheck → `/api/health` | 8.9 | Small |
+| # | Issue | Section | Effort | Status |
+|---|---|---|---|---|
+| 1 | Remove `unsafe-inline` from CSP, use nonce-based CSP | 8.4 | Medium | ✅ Done |
+| 2 | Add magic byte validation for file uploads | 8.6 | Small | ✅ Done |
+| 3 | Create `.dockerignore`, remove `.env.local` from image | 8.9 | Small | ✅ Done |
+| 4 | Wrap GCS `JSON.parse` in try-catch (crash on bad env var) | 8.8 | Small | ✅ Done |
+| 5 | Call `markStepCompleted()` in each step handler | 1.1 | Small | ✅ Done |
+| 6 | Fix `totalSteps: 4` → `7` (match actual step count) | 1.2 | Small | ✅ Done |
+| 7 | Separate the shared `<form>` — prevent accidental submission via Enter key | 1.3 | Medium | ✅ Done |
+| 8 | Remove hardcoded GCP project ID fallback | 8.10 | Small | ✅ Done |
+| 9 | Fix Dockerfile healthcheck → `/api/health` | 8.9 | Small | ✅ Done |
 
 ### P1 — Should Fix (Resilience & UX)
 
-| # | Issue | Section | Effort |
-|---|---|---|---|
-| 10 | Move rate limiting to Redis or Istio ingress | 8.2 | Medium |
-| 11 | Add `middleware.ts` for CSRF + auth backstop | 8.3 | Medium |
-| 12 | Replace `Math.random()` with `crypto.randomUUID()` (12+ files) | 8.1 | Small |
-| 13 | Remove query param support from admin auth, use timing-safe compare | 8.5 | Small |
-| 14 | Wire ErrorBoundary error tracking to PostHog/Sentry | 8.7 | Small |
-| 15 | Establish single currency default strategy (detect from location) | 2 | Medium |
-| 16 | Fix payment-plans DB schema default from INR to no default | 2.1 | Small |
-| 17 | Split "Business & Contact" into 2 visible stepper nodes | 3.1 | Medium |
-| 18 | Persist `legalAccepted` in Zustand store | 1.4 | Small |
-| 19 | Fix explicit API↔form field mapping for restore (phone/state/store keys) | 1.5 | Medium |
-| 20 | Make stepper steps clickable for completed steps | 3.2 | Medium |
+| # | Issue | Section | Effort | Status |
+|---|---|---|---|---|
+| 10 | Consolidate rate limiting into shared module with cleanup | 8.2 | Medium | ✅ Done |
+| 11 | Add `middleware.ts` (CSP nonce per request) | 8.3 | Medium | ✅ Done |
+| 12 | Replace `Math.random()` with `crypto.randomUUID()` (16 files) | 8.1 | Small | ✅ Done |
+| 13 | Remove query param support from admin auth, use timing-safe compare | 8.5 | Small | ✅ Done |
+| 14 | Wire ErrorBoundary error tracking to PostHog | 8.7 | Small | ✅ Done |
+| 15 | Establish single currency default strategy (USD) | 2 | Medium | ✅ Done |
+| 16 | Fix payment-plans DB schema default from INR to no default | 2.1 | Small | ✅ Done |
+| 17 | Split "Business & Contact" into 2 visible stepper nodes (7 steps) | 3.1 | Medium | ✅ Done |
+| 18 | Persist `legalAccepted` in Zustand store | 1.4 | Small | ✅ Done |
+| 19 | Fix explicit API↔form field mapping via `form-mappers.ts` | 1.5 | Medium | ✅ Done |
+| 20 | Make stepper steps clickable for completed steps | 3.2 | Medium | ✅ Done |
 
 ### P2 — Nice to Have (Code Quality & Polish)
 
-| # | Issue | Section | Effort |
-|---|---|---|---|
-| 21 | Format display values in Launch review (business type labels, country names) | 3.3 | Small |
-| 22 | Replace mock `validateBusinessName()` and `validateEmail()` with real API calls | 3.4 | Medium |
-| 23 | Extract step components from monolithic page.tsx (~3900 lines) | 4.1 | Large |
-| 24 | Fix `formDataForDraft` useMemo (watch() defeats memoization) | 3.5 | Small |
-| 25 | Deduplicate reset logic (`handleStartFresh` / `handleSessionNotFound`) | 4.3 | Small |
-| 26 | Fix E2E tests using wrong currencies (Australia test uses INR) | 2.11 | Small |
-| 27 | Remove INR-specific formatting from landing/pricing pages | 2.5 | Medium |
-| 28 | Pass `NEXT_PUBLIC_*` as Docker build args, not baked env files | 8.9 | Small |
+| # | Issue | Section | Effort | Status |
+|---|---|---|---|---|
+| 21 | Format display values in Launch review (business type labels, country names) | 3.3 | Small | ❌ |
+| 22 | Replace mock `validateBusinessName()` and `validateEmail()` with real API calls | 3.4 | Medium | ❌ |
+| 23 | Extract step components from monolithic page.tsx (~3900 lines) | 4.1 | Large | ❌ |
+| 24 | Fix `formDataForDraft` useMemo (watch() defeats memoization) | 3.5 | Small | ❌ |
+| 25 | Deduplicate reset logic (`handleStartFresh` / `handleSessionNotFound`) | 4.3 | Small | ❌ |
+| 26 | Fix E2E tests using wrong currencies (Australia test uses INR) | 2.11 | Small | ❌ |
+| 27 | Remove INR-specific formatting from landing/pricing pages | 2.5 | Medium | ✅ Done |
+| 28 | Pass `NEXT_PUBLIC_*` as Docker build args, not baked env files | 8.9 | Small | ❌ |
