@@ -694,6 +694,19 @@ export default function OnboardingPage() {
     finally { setIsLoadingStates(false); }
   }, []);
 
+  // Load states and return them (for address autocomplete matching)
+  const loadStatesAndReturn = useCallback(async (countryId: string) => {
+    if (!countryId) { setStates([]); return []; }
+    setIsLoadingStates(true);
+    try {
+      const response = await locationApi.getStates(countryId);
+      const result = Array.isArray(response) ? response : [];
+      setStates(result);
+      return result;
+    } catch { setStates([]); return []; }
+    finally { setIsLoadingStates(false); }
+  }, []);
+
   // Address selection
   const handleAddressSelect = useCallback(async (address: ParsedAddressData) => {
     setSelectedAddressFromAutocomplete(address);
@@ -703,13 +716,21 @@ export default function OnboardingPage() {
     addressForm.setValue('addressConfirmed', true);
     if (address.countryCode) {
       addressForm.setValue('country', address.countryCode);
-      await loadStates(address.countryCode);
+      const loadedStates = await loadStatesAndReturn(address.countryCode);
       if (address.stateCode || address.state) {
-        const stateValue = address.stateCode ? `${address.countryCode}-${address.stateCode}` : address.state;
-        addressForm.setValue('state', stateValue);
+        // Try exact ID match first (e.g. "IN-MH"), then match by state name
+        const idMatch = `${address.countryCode}-${address.stateCode}`;
+        const matched = loadedStates.find(s =>
+          s.id === idMatch ||
+          s.name.toLowerCase() === (address.state || '').toLowerCase() ||
+          s.code?.toLowerCase() === (address.stateCode || '').toLowerCase()
+        );
+        if (matched) {
+          addressForm.setValue('state', matched.id);
+        }
       }
     }
-  }, [addressForm, loadStates]);
+  }, [addressForm, loadStatesAndReturn]);
 
   // Initial data loading
   useEffect(() => {

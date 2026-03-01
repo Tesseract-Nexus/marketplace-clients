@@ -131,7 +131,7 @@ export function AddressAutocomplete({
   };
 
   // Parse address components into structured data
-  const parseAddressComponents = (components: AddressComponent[]): Partial<ParsedAddressData> => {
+  const parseAddressComponents = (components: AddressComponent[], formattedAddress?: string): Partial<ParsedAddressData> => {
     const parsed: Partial<ParsedAddressData> = {};
 
     for (const component of components) {
@@ -143,6 +143,18 @@ export function AddressAutocomplete({
           parsed.streetAddress = parsed.streetAddress
             ? `${parsed.streetAddress} ${component.long_name}`
             : component.long_name;
+          break;
+        case 'subpremise':
+        case 'premise':
+        case 'neighborhood':
+        case 'sublocality':
+        case 'sublocality_level_1':
+        case 'sublocality_level_2':
+        case 'sublocality_level_3':
+          // Append to street address for addresses without street_number/route
+          if (!parsed.streetAddress) {
+            parsed.streetAddress = component.long_name;
+          }
           break;
         case 'locality':
         case 'postal_town':
@@ -162,6 +174,18 @@ export function AddressAutocomplete({
       }
     }
 
+    // Fallback: extract street address from formatted_address when components lack street-level detail
+    if (!parsed.streetAddress && formattedAddress) {
+      // Take everything before the city/state/country portion
+      const parts = formattedAddress.split(',').map(p => p.trim());
+      // Remove trailing parts that match city, state, country
+      const skipValues = [parsed.city, parsed.state, parsed.country].filter(Boolean).map(v => v!.toLowerCase());
+      const streetParts = parts.filter(p => !skipValues.some(sv => p.toLowerCase().includes(sv)));
+      if (streetParts.length > 0) {
+        parsed.streetAddress = streetParts.join(', ');
+      }
+    }
+
     return parsed;
   };
 
@@ -176,7 +200,7 @@ export function AddressAutocomplete({
       const details = await locationApi.getPlaceDetails(suggestion.place_id);
 
       if (details) {
-        const parsed = parseAddressComponents(details.components);
+        const parsed = parseAddressComponents(details.components, details.formatted_address);
 
         const addressData: ParsedAddressData = {
           streetAddress: parsed.streetAddress || '',
