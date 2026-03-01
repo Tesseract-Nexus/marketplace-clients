@@ -827,6 +827,22 @@ export default function OnboardingPage() {
       });
   }, []);
 
+  // Retry loading timezones/currencies if they failed during initial load
+  useEffect(() => {
+    if (currentSection === 3) {
+      if (timezones.length === 0) {
+        locationApi.getTimezones()
+          .then(response => setTimezones(Array.isArray(response) ? response : []))
+          .catch(() => devWarn('Failed to reload timezones'));
+      }
+      if (currencies.length === 0) {
+        locationApi.getCurrencies()
+          .then(response => setCurrencies(Array.isArray(response) ? response : []))
+          .catch(() => devWarn('Failed to reload currencies'));
+      }
+    }
+  }, [currentSection, timezones.length, currencies.length]);
+
   useEffect(() => {
     const subscription = addressForm.watch((value, { name }) => {
       if (name === 'country' && value.country) loadStates(value.country);
