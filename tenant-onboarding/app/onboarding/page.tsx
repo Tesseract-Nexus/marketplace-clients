@@ -813,7 +813,9 @@ export default function OnboardingPage() {
       } catch { setStates([]); }
       if (location.city) addressForm.setValue('city', location.city);
       if (location.postal_code) addressForm.setValue('postalCode', location.postal_code);
-      // Don't auto-populate currency and timezone - let user select manually
+      // Auto-populate timezone and currency from detected location
+      if (location.timezone) storeSetupForm.setValue('timezone', location.timezone);
+      if (location.currency) storeSetupForm.setValue('currency', location.currency);
     };
 
     Promise.all([detectLocation(), loadCountries(), loadCurrencies(), loadTimezones()])
