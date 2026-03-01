@@ -38,6 +38,20 @@ export function successResponse(data: any, status: number = 200) {
   );
 }
 
+// Fetch an identity token from the GCP metadata server for Cloud Run service-to-service auth.
+// Returns null in non-production environments or on failure (graceful fallback).
+async function getCloudRunIdToken(audience: string): Promise<string | null> {
+  if (process.env.NODE_ENV !== 'production') return null;
+  try {
+    const url = `http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/identity?audience=${encodeURIComponent(audience)}`;
+    const res = await fetch(url, { headers: { 'Metadata-Flavor': 'Google' } });
+    if (!res.ok) return null;
+    return await res.text();
+  } catch {
+    return null;
+  }
+}
+
 // Proxy request to backend service
 export async function proxyRequest(
   serviceUrl: string,
@@ -62,7 +76,13 @@ export async function proxyRequest(
     ...options.headers,
   };
 
-  // Copy auth headers if present
+  // Inject Cloud Run IAM identity token for service-to-service auth
+  const idToken = await getCloudRunIdToken(serviceUrl);
+  if (idToken) {
+    headers['Authorization'] = `Bearer ${idToken}`;
+  }
+
+  // Copy auth headers if present (overrides IAM token for authenticated users)
   const authHeader = request.headers.get('authorization');
   if (authHeader) {
     headers['Authorization'] = authHeader;
