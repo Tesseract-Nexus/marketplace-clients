@@ -1315,23 +1315,23 @@ export default function OnboardingPage() {
         phone_country_code: callingCode,
         job_title: data.jobTitle,
       }) as any);
-      // Pre-fill address country based on phone country code
-      // Always set the country to help users - they can still change it
+      // Pre-fill address country from phone country, but only if the user
+      // hasn't already selected an address via autocomplete
       const phoneCountry = data.phoneCountryCode;
       const currentCountry = addressForm.getValues('country');
-      if (phoneCountry) {
-        // If country is different or not set, update it and clear all address fields
-        if (currentCountry !== phoneCountry) {
+      const alreadyConfirmed = addressForm.getValues('addressConfirmed');
+      if (phoneCountry && !alreadyConfirmed) {
+        if (!currentCountry) {
+          // No country set yet — pre-fill from phone country
           addressForm.setValue('country', phoneCountry, { shouldValidate: true });
-          addressForm.setValue('state', '');
-          addressForm.setValue('city', '');
-          addressForm.setValue('postalCode', '');
-          addressForm.setValue('streetAddress', '');
-          loadStates(phoneCountry); // Don't await - let it load in background
-        } else if (!states.length) {
+          loadStates(phoneCountry);
+        } else if (currentCountry === phoneCountry && !states.length) {
           // Same country but states not loaded yet
           loadStates(phoneCountry);
         }
+      } else if (currentCountry && !states.length) {
+        // Address confirmed but states not loaded — load them
+        loadStates(currentCountry);
       }
       markStepCompleted(1);
       setCurrentSection(2); // Move to Location step
