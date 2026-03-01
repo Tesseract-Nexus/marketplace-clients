@@ -1385,9 +1385,8 @@ export default function OnboardingPage() {
       // Save business address
       await onboardingApi.updateBusinessAddress(sessionId, {
         street_address: data.streetAddress,
-        street_address_2: undefined,
         city: data.city,
-        state: data.state,
+        state_province: data.state,
         postal_code: data.postalCode,
         country: data.country,
         address_type: 'business',

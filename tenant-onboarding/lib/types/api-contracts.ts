@@ -85,11 +85,18 @@ export interface ContactDetailsResponse {
 // Address types
 export interface BusinessAddressRequest {
   street_address: string;
-  street_address_2?: string;
+  address_line_2?: string;
   city: string;
-  state: string;
+  state_province: string;
   postal_code: string;
   country: string;
+  address_type?: string;
+  billing_same_as_business?: boolean;
+  billing_street_address?: string;
+  billing_city?: string;
+  billing_state?: string;
+  billing_postal_code?: string;
+  billing_country?: string;
 }
 
 export interface BusinessAddressResponse {
@@ -151,9 +158,9 @@ export interface ContactInformation {
 
 export interface BusinessAddress {
   street_address: string;
-  street_address_2?: string;
+  address_line_2?: string;
   city: string;
-  state: string;
+  state_province: string;
   postal_code: string;
   country: string;
   country_name?: string;
@@ -203,9 +210,9 @@ export interface UpdateContactInformationRequest extends Partial<CreateContactIn
 export interface CreateBusinessAddressRequest {
   session_id: string;
   street_address: string;
-  street_address_2?: string;
+  address_line_2?: string;
   city: string;
-  state: string;
+  state_province: string;
   postal_code: string;
   country: string;
 }
